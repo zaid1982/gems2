@@ -236,6 +236,146 @@ class Class_ptw {
         }
         
         $permit_data = $permit[0];
+
+        // Normalize/Backfill canonical cold work checklist
+        try {
+            $needsCanonicalFromLegacy = empty($permit_data['ptw_checklist_cold_work']);
+            $cwCanonical = null;
+
+            // Case 1: If we have a non-empty ptw_checklist_cold_work but it's a flat cw_* map, convert to canonical
+            if (!empty($permit_data['ptw_checklist_cold_work'])) {
+                $raw = $permit_data['ptw_checklist_cold_work'];
+                $decoded = json_decode($raw, true);
+                if (is_array($decoded) && !isset($decoded['electricalWork']) && array_key_exists('cw_el_circuitIsolation', $decoded)) {
+                    $b = function($v){
+                        if (is_bool($v)) return $v;
+                        if (is_numeric($v)) return intval($v) !== 0;
+                        if (is_string($v)) {
+                            $t = strtolower(trim($v));
+                            if ($t === '' || $t === 'false' || $t === '0' || $t === 'no' || $t === 'off') return false;
+                            return true; // any non-empty label like "Circuit Isolation" should be true
+                        }
+                        return !empty($v);
+                    };
+                    $cwCanonical = array(
+                        'electricalWork' => array(
+                            'circuitIsolation' => $b($decoded['cw_el_circuitIsolation'] ?? false),
+                            'lockOutTaggedOut' => $b($decoded['cw_el_lockOutTaggedOut'] ?? false),
+                            'fireExtinguisher' => $b($decoded['cw_el_fireExtinguisher'] ?? false),
+                            'mainSupplyCutOff' => $b($decoded['cw_el_mainSupplyCutOff'] ?? false),
+                            'others' => $b($decoded['cw_el_others'] ?? false) || (isset($decoded['cw_el_othersText']) && trim(strval($decoded['cw_el_othersText'])) !== ''),
+                            'othersText' => trim(strval($decoded['cw_el_othersText'] ?? ''))
+                        ),
+                        'workingAtHeight' => array(
+                            'abseilingWork' => $b($decoded['cw_wh_abseilingWork'] ?? false),
+                            'scaffolding' => $b($decoded['cw_wh_scaffolding'] ?? false),
+                            'gondola' => $b($decoded['cw_wh_gondola'] ?? false),
+                            'workingAtRooftop' => $b($decoded['cw_wh_workingAtRooftop'] ?? false),
+                            'usingA' => $b($decoded['cw_wh_usingA'] ?? false) || (isset($decoded['cw_wh_usingAText']) && trim(strval($decoded['cw_wh_usingAText'])) !== ''),
+                            'usingAText' => trim(strval($decoded['cw_wh_usingAText'] ?? '')),
+                            'others' => $b($decoded['cw_wh_others'] ?? false) || (isset($decoded['cw_wh_othersText']) && trim(strval($decoded['cw_wh_othersText'])) !== ''),
+                            'othersText' => trim(strval($decoded['cw_wh_othersText'] ?? ''))
+                        ),
+                        'excavationWork' => array(
+                            'depthLt1_2m' => $b($decoded['cw_ex_depthLt1_2m'] ?? false),
+                            'depthGt1_2mConfined' => $b($decoded['cw_ex_depthGt1_2mConfined'] ?? false),
+                            'safeAccessEgress' => $b($decoded['cw_ex_safeAccessEgress'] ?? false),
+                            'protectionFromFallingMaterial' => $b($decoded['cw_ex_protectionFromFallingMaterial'] ?? false),
+                            'protectionFromEngulfment' => $b($decoded['cw_ex_protectionFromEngulfment'] ?? false),
+                            'others' => $b($decoded['cw_ex_others'] ?? false) || (isset($decoded['cw_ex_othersText']) && trim(strval($decoded['cw_ex_othersText'])) !== ''),
+                            'othersText' => trim(strval($decoded['cw_ex_othersText'] ?? ''))
+                        ),
+                        'workingUnderLoad' => $b($decoded['cw_workingUnderLoad'] ?? false),
+                        'liftingWork' => $b($decoded['cw_liftingWork'] ?? false),
+                        'chemicalHandling' => $b($decoded['cw_chemicalHandling'] ?? false),
+                        'specialPrecautions' => trim(strval($decoded['cw_specialPrecautions'] ?? ''))
+                    );
+                    $permit_data['ptw_checklist_cold_work'] = json_encode($cwCanonical, JSON_UNESCAPED_UNICODE);
+                }
+            }
+
+            // Case 2: If missing entirely, backfill from legacy hazard shape
+            if ($cwCanonical === null && $needsCanonicalFromLegacy) {
+                $legacyRaw = $permit_data['ptw_hazard_checklist'] ?? null;
+                $legacy = null;
+                if (!empty($legacyRaw)) {
+                    $decoded = json_decode($legacyRaw, true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        // Prefer nested cold_work if present
+                        $legacy = isset($decoded['cold_work']) && is_array($decoded['cold_work']) ? $decoded['cold_work'] : $decoded;
+                    }
+                }
+                $cw = array(
+                    'electricalWork' => array(
+                        'circuitIsolation' => false,
+                        'lockOutTaggedOut' => false,
+                        'fireExtinguisher' => false,
+                        'mainSupplyCutOff' => false,
+                        'others' => false,
+                        'othersText' => ''
+                    ),
+                    'workingAtHeight' => array(
+                        'abseilingWork' => false,
+                        'scaffolding' => false,
+                        'gondola' => false,
+                        'workingAtRooftop' => false,
+                        'usingA' => false,
+                        'usingAText' => '',
+                        'others' => false,
+                        'othersText' => ''
+                    ),
+                    'excavationWork' => array(
+                        'depthLt1_2m' => false,
+                        'depthGt1_2mConfined' => false,
+                        'safeAccessEgress' => false,
+                        'protectionFromFallingMaterial' => false,
+                        'protectionFromEngulfment' => false,
+                        'others' => false,
+                        'othersText' => ''
+                    ),
+                    'workingUnderLoad' => false,
+                    'liftingWork' => false,
+                    'chemicalHandling' => false,
+                    'specialPrecautions' => ''
+                );
+                if (is_array($legacy)) {
+                    $bool = function($v){ return $v === true || $v === 'true' || $v === 1 || $v === '1' || $v === 'Y' || $v === 'y'; };
+                    $cw['electricalWork']['circuitIsolation'] = $bool($legacy['electrical_work'] ?? $legacy['electrical'] ?? false);
+                    $cw['electricalWork']['lockOutTaggedOut'] = $bool($legacy['lock_out_tag_out'] ?? $legacy['loto'] ?? false);
+                    $cw['electricalWork']['fireExtinguisher'] = $bool($legacy['fire_extinguisher'] ?? false);
+                    $cw['electricalWork']['mainSupplyCutOff'] = $bool($legacy['main_supply_cut_off'] ?? false);
+                    // Others text if any
+                    $elOthers = isset($legacy['electrical_others']) ? trim(strval($legacy['electrical_others'])) : (isset($legacy['others_text']) ? trim(strval($legacy['others_text'])) : '');
+                    if ($elOthers !== '') { $cw['electricalWork']['others'] = true; $cw['electricalWork']['othersText'] = $elOthers; }
+
+                    // Working at Height (legacy often not detailed; keep parent on if present keys)
+                    $cw['workingAtHeight']['abseilingWork'] = $bool($legacy['abseiling_work'] ?? false);
+                    $cw['workingAtHeight']['scaffolding'] = $bool($legacy['scaffolding'] ?? false);
+                    $cw['workingAtHeight']['gondola'] = $bool($legacy['gondola'] ?? false);
+                    $cw['workingAtHeight']['workingAtRooftop'] = $bool($legacy['working_at_rooftop'] ?? false);
+                    $whOthers = isset($legacy['height_others']) ? trim(strval($legacy['height_others'])) : '';
+                    if ($whOthers !== '') { $cw['workingAtHeight']['others'] = true; $cw['workingAtHeight']['othersText'] = $whOthers; }
+
+                    // Excavation work
+                    $cw['excavationWork']['depthLt1_2m'] = $bool($legacy['depth_lt_1_2'] ?? false);
+                    $cw['excavationWork']['depthGt1_2mConfined'] = $bool($legacy['depth_gt_1_2_confined'] ?? false);
+                    $cw['excavationWork']['safeAccessEgress'] = $bool($legacy['safe_access_egress'] ?? false);
+                    $cw['excavationWork']['protectionFromFallingMaterial'] = $bool($legacy['protect_falling_material'] ?? false);
+                    $cw['excavationWork']['protectionFromEngulfment'] = $bool($legacy['protect_engulfment'] ?? false);
+                    $exOthers = isset($legacy['excavation_others']) ? trim(strval($legacy['excavation_others'])) : '';
+                    if ($exOthers !== '') { $cw['excavationWork']['others'] = true; $cw['excavationWork']['othersText'] = $exOthers; }
+
+                    // Singles
+                    $cw['workingUnderLoad'] = $bool($legacy['working_under_load'] ?? false);
+                    $cw['liftingWork'] = $bool($legacy['lifting_work'] ?? false);
+                    $cw['chemicalHandling'] = $bool($legacy['chemical_handling'] ?? false);
+                    $cw['specialPrecautions'] = trim(strval($legacy['special_precautions'] ?? $legacy['cold_work_notes'] ?? ''));
+                }
+                $permit_data['ptw_checklist_cold_work'] = json_encode($cw, JSON_UNESCAPED_UNICODE);
+            }
+        } catch (Exception $e) {
+            // Ignore backfill error; return raw data
+        }
         
         // Get creator name
         if ($permit_data['created_by']) {

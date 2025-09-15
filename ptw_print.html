@@ -802,14 +802,17 @@
                 .then(r=>r.json())
                 .then(js=>{
                     const res = js && (js.result || js);
-                    const path = res && (res.file_path || res.path || res.url);
+                    // API returns {success:true, result:{ signatureLink, signaturePath, ... }}
+                    const path = res && (res.signatureLink || res.signature_path || res.signaturePath || res.file_path || res.path || res.url);
                     const img = document.getElementById(imgId);
                     const wrap = document.getElementById(wrapId);
                     const line = document.getElementById(lineId);
                     if (img && wrap && line && path){
                         img.onload = function(){ line.style.display='none'; wrap.style.display='inline-block'; };
-                        img.onerror = function(){};
+                        img.onerror = function(){ console.warn('Signature image failed to load for user', userId, path); };
                         img.src = path;
+                    } else {
+                        if(!path) console.debug('No signature path for user', userId, res);
                     }
                 }).catch(()=>{});
         }catch(_e){}
@@ -860,11 +863,13 @@
             const url = 'user_signature/external/' + encodeURIComponent(userId);
             fetch(url, { headers }).then(r=>r.json()).then(js=>{
                 const res = js && (js.result || js);
-                const path = res && (res.file_path || res.path || res.url);
+                const path = res && (res.signatureLink || res.signature_path || res.signaturePath || res.file_path || res.path || res.url);
                 if (path){
                     img.onload = function(){ img.style.display='block'; if(wrap) wrap.style.border='1px solid #000'; };
-                    img.onerror = function(){};
+                    img.onerror = function(){ console.warn('Signature image failed to load (Section7) for user', userId, path); };
                     img.src = path;
+                } else {
+                    console.debug('No hand-back signature path for user', userId, res);
                 }
             }).catch(()=>{});
         }catch(_e){}
@@ -933,70 +938,68 @@
 })();
 </script>
 <script>
-// Populate Cold Work checklist (match ptw_form.html IDs and storage)
+// Populate Cold Work checklist (canonical-first, legacy fallback)
 (function(){
     function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
     function setVal(id, val){ const el=document.getElementById(id); if(!el) return; el.value = val || ''; }
-
-    // Wait for the first script to load data into window._ptwData if we choose to share; otherwise re-fetch
     function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
-    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
-    if(!ptwId) return;
-    const token = sessionStorage.getItem('token');
-    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
-
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id'); if(!ptwId) return;
+    const token = sessionStorage.getItem('token'); const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
     fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
         .then(r=>r.json())
         .then(data=>{
-            const d = data && data.result ? data.result : data;
-            if(!d) return;
-            window.__PTW_DETAILS__ = d;
+            const d = data && data.result ? data.result : data; if(!d) return;
+            let cw = null; try{ const raw = d.ptw_checklist_cold_work || d.checklist_cold_work; if(raw) cw = (typeof raw==='string')? JSON.parse(raw): raw; }catch(e){ cw=null; }
+            const hasCanonical = cw && (cw.electricalWork || cw.workingAtHeight || cw.excavationWork || typeof cw.workingUnderLoad==='boolean' || typeof cw.liftingWork==='boolean' || typeof cw.chemicalHandling==='boolean');
+            if (hasCanonical){
+                const el = cw.electricalWork||{};
+                setChecked('coldElectricalWork', !!(el.circuitIsolation||el.lockOutTaggedOut||el.fireExtinguisher||el.mainSupplyCutOff||el.others||el.othersText));
+                setChecked('coldCircuitIsolation', el.circuitIsolation);
+                setChecked('coldLockOutTagOut', el.lockOutTaggedOut);
+                setChecked('coldFireExtinguisher', el.fireExtinguisher);
+                setChecked('coldMainSupplyCutOff', el.mainSupplyCutOff);
+                if (el.othersText){ setChecked('coldOthers', true); setVal('coldElectricalOthers', el.othersText); }
 
-            // Primary source: ptw_checklist_cold_work (JSON string or object)
-            let cold = null;
-            try{
-                const raw = d.ptw_checklist_cold_work || d.checklist_cold_work;
-                if (raw) cold = (typeof raw === 'string') ? JSON.parse(raw) : raw;
-            }catch(_e){ cold = null; }
+                const wh = cw.workingAtHeight||{};
+                setChecked('coldWorkingAtHeight', !!(wh.abseilingWork||wh.scaffolding||wh.gondola||wh.workingAtRooftop||wh.usingA||wh.others||wh.usingAText||wh.othersText));
+                setChecked('coldHeightAbseiling', wh.abseilingWork);
+                setChecked('coldHeightScaffolding', wh.scaffolding);
+                setChecked('coldHeightGondola', wh.gondola);
+                setChecked('coldHeightRooftop', wh.workingAtRooftop);
+                if (wh.usingAText){ setChecked('coldWorkingAtHeight', true); setVal('coldHeightUsing', wh.usingAText); }
+                if (wh.othersText){ setChecked('coldWorkingAtHeight', true); setVal('coldHeightOthers', wh.othersText); }
 
-            if (cold && typeof cold === 'object') {
-                // Check all boolean checkbox keys
-                Object.keys(cold).forEach(k => {
-                    if (k === 'coldSpecialPrecautions' || k === 'coldOthersText') return;
-                    setChecked(k, true);
-                });
-                // Others text (also tick the Others box if any text)
-                if (typeof cold.coldOthersText === 'string' && cold.coldOthersText.trim()) {
-                    setChecked('coldOthers', true);
-                    setVal('coldOthersText', cold.coldOthersText);
-                }
-                // Special precautions
-                if (typeof cold.coldSpecialPrecautions === 'string') {
-                    setVal('coldSpecialPrecautions', cold.coldSpecialPrecautions);
-                }
-                return; // Done
+                const ex = cw.excavationWork||{};
+                setChecked('coldExcavationWork', !!(ex.depthLt1_2m||ex.depthGt1_2mConfined||ex.safeAccessEgress||ex.protectionFromFallingMaterial||ex.protectionFromEngulfment||ex.others||ex.othersText));
+                setChecked('coldExcDepthLt12', ex.depthLt1_2m);
+                setChecked('coldExcDepthGt12', ex.depthGt1_2mConfined);
+                setChecked('coldExcAccessEgress', ex.safeAccessEgress);
+                setChecked('coldExcProtectFalling', ex.protectionFromFallingMaterial);
+                setChecked('coldExcProtectEngulfment', ex.protectionFromEngulfment);
+                if (ex.othersText){ setChecked('coldExcavationWork', true); setVal('coldExcOthers', ex.othersText); }
+
+                setChecked('coldWorkingUnderLoad', cw.workingUnderLoad);
+                setChecked('coldLiftingWork', cw.liftingWork);
+                setChecked('coldChemicalHandling', cw.chemicalHandling);
+                setVal('coldSpecialPrecautions', cw.specialPrecautions||'');
+                return;
             }
-
-            // Fallback (legacy): attempt to map from older hazard JSON shapes if present
+            // Legacy fallback mapping
             try{
-                let hazards = {};
-                if (d.ptw_hazard_checklist) {
-                    hazards = typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist;
-                }
-                const cw = hazards && (hazards.cold_work || hazards.specific || {});
+                let hazards = {}; if (d.ptw_hazard_checklist) { hazards = typeof d.ptw_hazard_checklist==='string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist; }
+                const old = hazards && (hazards.cold_work || hazards.specific || {});
                 const bool = v => v === true || v === 'true' || v === 1;
-                setChecked('coldElectricalWork', bool(cw.electrical_work || cw.electrical));
-                setChecked('coldLockOutTagOut', bool(cw.lock_out_tag_out || cw.loto));
-                setChecked('coldFireExtinguisher', bool(cw.fire_extinguisher));
-                setChecked('coldMainSupplyCutOff', bool(cw.main_supply_cut_off));
-                setChecked('coldWorkingAtHeight', bool(cw.working_at_height));
-                setChecked('coldExcavationWork', bool(cw.excavation_work));
-                setChecked('coldLiftingWork', bool(cw.lifting_work));
-                if (cw.others_text) { setChecked('coldOthers', true); setVal('coldOthersText', cw.others_text); }
-                if (cw.special_precautions || cw.cold_work_notes) setVal('coldSpecialPrecautions', cw.special_precautions || cw.cold_work_notes);
+                setChecked('coldElectricalWork', bool(old.electrical_work || old.electrical));
+                setChecked('coldLockOutTagOut', bool(old.lock_out_tag_out || old.loto));
+                setChecked('coldFireExtinguisher', bool(old.fire_extinguisher));
+                setChecked('coldMainSupplyCutOff', bool(old.main_supply_cut_off));
+                setChecked('coldWorkingAtHeight', bool(old.working_at_height));
+                setChecked('coldExcavationWork', bool(old.excavation_work));
+                setChecked('coldLiftingWork', bool(old.lifting_work));
+                if (old.others_text) { setChecked('coldOthers', true); setVal('coldOthersText', old.others_text); }
+                if (old.special_precautions || old.cold_work_notes) setVal('coldSpecialPrecautions', old.special_precautions || old.cold_work_notes);
             }catch(_e){}
-        })
-        .catch(_e=>{});
+        }).catch(()=>{});
 })();
 </script>
 <script>
