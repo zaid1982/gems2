@@ -1805,7 +1805,7 @@
                                                             <input type="checkbox" class="form-check-input" id="csMaxPersons" data-others-field="csMaxPersonsValue">
                                                             <label class="form-check-label" for="csMaxPersons" style="margin:0;">Maximum no. of persons allowed:</label>
                                                             <input type="text" id="csMaxPersonsValue" class="form-control form-control-sm" style="max-width:40px;" placeholder="0" inputmode="numeric" pattern="[0-9]*" maxlength="3">
-                                                            <label class="form-check-label" style="margin:0;">Person</label>
+                                                            <label class="form-check-label" style="margin:0;" id="csMaxPersonsLabel">Person</label>
                                                         </div>
 
                                                         <div class="form-check">
@@ -5984,6 +5984,11 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 if (cb) cb.checked = has;
                 if (alsoCb) alsoCb.checked = has;
                 refreshConfinedSpaceVisibility();
+                if (textId === 'csMaxPersonsValue') {
+                    const num = parseInt(txt.value,10);
+                    const lbl = document.getElementById('csMaxPersonsLabel');
+                    if (lbl) lbl.textContent = (num && num > 1) ? 'Persons' : 'Person';
+                }
             });
         });
         // numeric-only for person count and hour interval
@@ -5995,6 +6000,15 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 if (el.value!==digits) el.value=digits;
             });
         });
+        // ensure initial pluralization state on load
+        (function(){
+            const maxEl = document.getElementById('csMaxPersonsValue');
+            const lbl = document.getElementById('csMaxPersonsLabel');
+            if (maxEl && lbl) {
+                const num = parseInt(maxEl.value,10);
+                lbl.textContent = (num && num > 1) ? 'Persons' : 'Person';
+            }
+        })();
         refreshConfinedSpaceVisibility();
     }
     
