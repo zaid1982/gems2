@@ -1718,6 +1718,42 @@ class PtwForm {
                         console.log(`Added hot work others text: ${hotOthersText.value.trim()}`);
                     }
                 }
+
+                // Capture Firewatch name when Firewatch is checked
+                if (checkbox.id === 'hotFirewatch') {
+                    const nameEl = document.getElementById('hotFirewatchName');
+                    if (nameEl && nameEl.value.trim()) {
+                        hotWorkItems['hotFirewatchName'] = nameEl.value.trim();
+                        console.log(`Added hot work firewatch name: ${nameEl.value.trim()}`);
+                    }
+                }
+
+                // Capture Fire Extinguisher details when checked
+                if (checkbox.id === 'hotFireExtinguisher') {
+                    const txtEl = document.getElementById('hotFireExtinguisherText');
+                    if (txtEl && txtEl.value.trim()) {
+                        hotWorkItems['hotFireExtinguisherText'] = txtEl.value.trim();
+                        console.log(`Added hot work extinguisher details: ${txtEl.value.trim()}`);
+                    }
+                }
+
+                // Capture Controls -> Others text when checked
+                if (checkbox.id === 'hotControlsOthers') {
+                    const txtEl = document.getElementById('hotControlsOthersText');
+                    if (txtEl && txtEl.value.trim()) {
+                        hotWorkItems['hotControlsOthersText'] = txtEl.value.trim();
+                        console.log(`Added hot work controls others text: ${txtEl.value.trim()}`);
+                    }
+                }
+
+                // Capture Gas Monitoring -> Every hours when checked
+                if (checkbox.id === 'hotGasEveryHours') {
+                    const hoursEl = document.getElementById('hotGasEveryHoursValue');
+                    if (hoursEl && hoursEl.value.trim()) {
+                        hotWorkItems['hotGasEveryHoursValue'] = hoursEl.value.trim();
+                        console.log(`Added hot work gas every (hours): ${hoursEl.value.trim()}`);
+                    }
+                }
             }
         });
         // Also collect special precautions text area for hot work

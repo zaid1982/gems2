@@ -1624,71 +1624,131 @@
                                         </div>
                                         <div class="card-body">
                                             <div class="row">
+                                                <!-- Left: Type of Hot Work -->
                                                 <div class="col-md-6">
-                                                    <h6><strong>Controls Required</strong></h6>
-                                                    <div class="checkbox-container">
-                                                        <div class="form-check checkbox-item">
-                                                            <input type="checkbox" class="form-check-input" id="hotGasMonitoring">
-                                                            <label class="form-check-label" for="hotGasMonitoring">Gas monitoring</label>
+                                                    <h6><strong>TYPE OF HOT WORK</strong></h6>
+                                                    <div>
+                                                        <div class="form-check ">
+                                                            <input type="checkbox" class="form-check-input" id="hotWelding">
+                                                            <label class="form-check-label" for="hotWelding">Welding</label>
                                                         </div>
-                                                        <div class="form-check checkbox-item">
-                                                            <input type="checkbox" class="form-check-input" id="hotFirewatch">
-                                                            <label class="form-check-label" for="hotFirewatch">Firewatch</label>
+                                                        <div class="form-check ">
+                                                            <input type="checkbox" class="form-check-input" id="hotFlameCutting">
+                                                            <label class="form-check-label" for="hotFlameCutting">Flame Cutting</label>
                                                         </div>
-                                                        <div class="form-check checkbox-item">
-                                                            <input type="checkbox" class="form-check-input" id="hotRemoveFlammables">
-                                                            <label class="form-check-label" for="hotRemoveFlammables">Remove flammable materials</label>
+                                                        <div class="form-check ">
+                                                            <input type="checkbox" class="form-check-input" id="hotOpenFlame">
+                                                            <label class="form-check-label" for="hotOpenFlame">Open Flame</label>
                                                         </div>
-                                                        <div class="form-check checkbox-item">
-                                                            <input type="checkbox" class="form-check-input" id="hotFireExtinguisher">
-                                                            <label class="form-check-label" for="hotFireExtinguisher">Fire extinguisher available</label>
+                                                        <div class="form-check ">
+                                                            <input type="checkbox" class="form-check-input" id="hotGrinding">
+                                                            <label class="form-check-label" for="hotGrinding">Grinding</label>
                                                         </div>
-                                                        <div class="form-check checkbox-item">
-                                                            <input type="checkbox" class="form-check-input" id="hotVentilation">
-                                                            <label class="form-check-label" for="hotVentilation">Adequate ventilation</label>
+                                                        <div class="form-check ">
+                                                            <input type="checkbox" class="form-check-input" id="hotBlasting">
+                                                            <label class="form-check-label" for="hotBlasting">Blasting</label>
                                                         </div>
-                                                        <div class="form-check checkbox-item">
-                                                            <input type="checkbox" class="form-check-input" id="hotBarricades">
-                                                            <label class="form-check-label" for="hotBarricades">Barricades in place</label>
+                                                        <div class="form-check ">
+                                                            <input type="checkbox" class="form-check-input" id="hotPowerBrushing">
+                                                            <label class="form-check-label" for="hotPowerBrushing">Power Brushing</label>
                                                         </div>
-                                                    </div>
-                                                    
-                                                    <div class="mt-3">
-                                                        <h6><strong>Type of Hot Work</strong></h6>
-                                                        <div class="checkbox-container">
-                                                            <div class="form-check checkbox-item">
-                                                                <input type="checkbox" class="form-check-input" id="hotWelding">
-                                                                <label class="form-check-label" for="hotWelding">Welding</label>
-                                                            </div>
-                                                            <div class="form-check checkbox-item">
-                                                                <input type="checkbox" class="form-check-input" id="hotCutting">
-                                                                <label class="form-check-label" for="hotCutting">Cutting</label>
-                                                            </div>
-                                                            <div class="form-check checkbox-item">
-                                                                <input type="checkbox" class="form-check-input" id="hotGrinding">
-                                                                <label class="form-check-label" for="hotGrinding">Grinding</label>
-                                                            </div>
-                                                            <div class="form-check checkbox-item">
-                                                                <input type="checkbox" class="form-check-input" id="hotBrazing">
-                                                                <label class="form-check-label" for="hotBrazing">Brazing</label>
-                                                            </div>
-                                                            <div class="form-check checkbox-item">
-                                                                <input type="checkbox" class="form-check-input" id="hotSoldering">
-                                                                <label class="form-check-label" for="hotSoldering">Soldering</label>
-                                                            </div>
-                                                            <div class="form-check checkbox-item">
-                                                                <input type="checkbox" class="form-check-input" id="hotOthers">
+                                                        <div class="form-check ">
+                                                            <input type="checkbox" class="form-check-input" id="hotGoughing">
+                                                            <label class="form-check-label" for="hotGoughing">Goughing</label>
+                                                        </div>
+                                                        <div class="form-check ">
+                                                            <input type="checkbox" class="form-check-input" id="hotPostWeldHeatTreatment">
+                                                            <label class="form-check-label" for="hotPostWeldHeatTreatment">Post Weld Heat Treatment</label>
+                                                        </div>
+                                                        <div class="form-check ">
+                                                            <input type="checkbox" class="form-check-input" id="hotPhrophoricMaterial">
+                                                            <label class="form-check-label" for="hotPhrophoricMaterial">Use of phrophoric material</label>
+                                                        </div>
+                                                        <div class="form-inline form-check mt-1">
+                                                            <div class="form-check mr-2">
+                                                                <input type="checkbox" class="form-check-input" id="hotOthers" data-others-field="hotOthersText">
                                                                 <label class="form-check-label" for="hotOthers">Others</label>
                                                             </div>
+                                                            <input type="text" id="hotOthersText" class="form-control form-control-sm" placeholder="Specify others" style="max-width: 60%;">
                                                         </div>
-                                                        <input type="text" id="hotOthersText" class="form-control mt-2" placeholder="Please specify others...">
+                                                    </div>
+                                                    <div class="mt-3 form-group">
+                                                        <label for="hotSpecialPrecautions">Special precautions (if any)</label>
+                                                        <textarea id="hotSpecialPrecautions" class="form-control" rows="5" placeholder="Describe any special precautions..."></textarea>
                                                     </div>
                                                 </div>
 
+                                                <!-- Right: Controls Required -->
                                                 <div class="col-md-6">
-                                                    <h6><strong>Special Precautions</strong></h6>
-                                                    <textarea id="hotSpecialPrecautions" class="form-control" rows="6" 
-                                                              placeholder="Describe special precautions for hot work..."></textarea>
+                                                    <h6><strong>CONTROLS REQUIRED</strong></h6>
+                                                    <div>
+                                                        <!-- Gas Monitoring with sub-options -->
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="hotGasMonitoring" data-has-sub-items="true" data-section-id="hot_gas_section">
+                                                            <label class="form-check-label" for="hotGasMonitoring">Gas monitoring</label>
+                                                        </div>
+                                                        <div class="pl-4 mt-2">
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="hotGasContinuous" data-parent-section="hot_gas_section">
+                                                                <label class="form-check-label" for="hotGasContinuous">Continuous</label>
+                                                            </div>
+                                                            <div class="form-inline form-check mt-1">
+                                                                <div class="form-check mr-2">
+                                                                    <input type="checkbox" class="form-check-input" id="hotGasEveryHours" data-parent-section="hot_gas_section" data-others-field="hotGasEveryHoursValue">
+                                                                    <label class="form-check-label" for="hotGasEveryHours">Every</label>
+                                                                </div>
+                                                                <input type="text" id="hotGasEveryHoursValue" class="form-control form-control-sm" placeholder="Hours" style="max-width: 60%;" inputmode="numeric" pattern="[0-9]*" maxlength="3">
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Firewatch with name text -->
+                                                        <div class="form-inline form-check mt-1">
+                                                            <div class="form-check mr-2">
+                                                                <input type="checkbox" class="form-check-input" id="hotFirewatch" data-others-field="hotFirewatchName">
+                                                                <label class="form-check-label" for="hotFirewatch">Firewatch name</label>
+                                                            </div>
+                                                            <input type="text" id="hotFirewatchName" class="form-control form-control-sm" placeholder="Name" style="max-width: 60%;">
+                                                        </div>
+
+                                                        <!-- Fire Extinguisher with text -->
+                                                        <div class="form-inline form-check mt-1">
+                                                            <div class="form-check mr-2">
+                                                                <input type="checkbox" class="form-check-input" id="hotFireExtinguisher" data-others-field="hotFireExtinguisherText">
+                                                                <label class="form-check-label" for="hotFireExtinguisher">Fire Extinguisher</label>
+                                                            </div>
+                                                            <input type="text" id="hotFireExtinguisherText" class="form-control form-control-sm" placeholder="Details" style="max-width: 60%;">
+                                                        </div>
+
+                                                        <div class="form-check mt-2">
+                                                            <input type="checkbox" class="form-check-input" id="hotFireBlanket">
+                                                            <label class="form-check-label" for="hotFireBlanket">Fire blanket</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="hotFireRetardentScreen">
+                                                            <label class="form-check-label" for="hotFireRetardentScreen">Fire retardent screen</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="hotCoverFlammableSewerDrainSump">
+                                                            <label class="form-check-label" for="hotCoverFlammableSewerDrainSump">Cover potentially flammable sewer/drain/sump</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="hotLocateSparkAwayFromFlammableSewerTrench">
+                                                            <label class="form-check-label" for="hotLocateSparkAwayFromFlammableSewerTrench">Locate spark producing equipment away from potential flammable sewer/trench</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input" id="hotRemoveFlammables">
+                                                            <label class="form-check-label" for="hotRemoveFlammables">Remove flammable/highly combustible materials</label>
+                                                        </div>
+                                                        <div class="form-inline form-check mt-1">
+                                                            <div class="form-check mr-2">
+                                                                <input type="checkbox" class="form-check-input" id="hotControlsOthers" data-others-field="hotControlsOthersText">
+                                                                <label class="form-check-label" for="hotControlsOthers">Others</label>
+                                                            </div>
+                                                            <input type="text" id="hotControlsOthersText" class="form-control form-control-sm" placeholder="Specify others" style="max-width: 60%;">
+                                                        </div>
+                                                    </div>
+
+                                                    
                                                 </div>
                                             </div>
                                         </div>
@@ -3444,14 +3504,46 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 console.log('Populating hot work checklist:', hotWorkData);
                 
                 if (hotWorkData && typeof hotWorkData === 'object') {
-                    // Handle checkboxes
+                    // Known text-only keys to skip in generic checkbox loop
+                    const textKeys = new Set(['hotSpecialPrecautions','hotOthersText','hotFirewatchName','hotFireExtinguisherText','hotControlsOthersText','hotGasEveryHoursValue']);
+
+                    // Legacy key mapping to new structure
+                    const legacyToNew = {
+                        hotCutting: 'hotFlameCutting',
+                        hotBrazing: 'hotOpenFlame',
+                        hotSoldering: 'hotOpenFlame',
+                        hotVentilation: 'LEGACY_VENTILATION',
+                        hotBarricades: 'LEGACY_BARRICADES'
+                    };
+
+                    // First pass: set checkboxes for direct matches or legacy mapped
                     Object.keys(hotWorkData).forEach(key => {
-                        if (key !== 'hotSpecialPrecautions' && key !== 'hotOthersText') {  // Skip textarea and text fields
-                            const checkbox = document.getElementById(key);
-                            if (checkbox && checkbox.type === 'checkbox') {
-                                checkbox.checked = true;
-                                console.log('Set hot work checkbox:', key, 'to checked');
-                            }
+                        if (textKeys.has(key)) return;
+                        let targetId = key;
+                        if (!document.getElementById(targetId) && legacyToNew[key]) {
+                            targetId = legacyToNew[key];
+                        }
+                        if (targetId === 'LEGACY_VENTILATION') {
+                            // Represent legacy ventilation as a Controls Others text
+                            const othersCb = document.getElementById('hotControlsOthers');
+                            const othersTx = document.getElementById('hotControlsOthersText');
+                            if (othersCb) othersCb.checked = true;
+                            if (othersTx && !othersTx.value) othersTx.value = 'Adequate ventilation';
+                            return;
+                        }
+                        if (targetId === 'LEGACY_BARRICADES') {
+                            const othersCb = document.getElementById('hotControlsOthers');
+                            const othersTx = document.getElementById('hotControlsOthersText');
+                            if (othersCb) othersCb.checked = true;
+                            if (othersTx && !othersTx.value) othersTx.value = 'Barricades in place';
+                            return;
+                        }
+                        const checkbox = document.getElementById(targetId);
+                        if (checkbox && checkbox.type === 'checkbox') {
+                            const val = hotWorkData[key];
+                            const shouldCheck = (typeof val === 'boolean') ? val : true; // legacy strings imply checked
+                            checkbox.checked = !!shouldCheck;
+                            console.log('Set hot work checkbox:', targetId, 'to', !!shouldCheck);
                         }
                     });
                     
@@ -3469,9 +3561,61 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                         const othersField = document.getElementById('hotOthersText');
                         if (othersField) {
                             othersField.value = hotWorkData.hotOthersText;
+                            othersField.style.display = 'block';
+                            othersField.disabled = false;
+                            const othersCk = document.getElementById('hotOthers');
+                            if (othersCk) othersCk.checked = true;
                             console.log('Set hot work others text:', hotWorkData.hotOthersText);
                         }
                     }
+
+                    // Handle new text fields and auto-check parents
+                    if (hotWorkData.hotFirewatchName) {
+                        const el = document.getElementById('hotFirewatchName');
+                        if (el) {
+                            el.value = hotWorkData.hotFirewatchName;
+                            el.style.display = 'block';
+                            el.disabled = false;
+                            const parentCb = document.getElementById('hotFirewatch');
+                            if (parentCb) parentCb.checked = true;
+                        }
+                    }
+                    if (hotWorkData.hotFireExtinguisherText) {
+                        const el = document.getElementById('hotFireExtinguisherText');
+                        if (el) {
+                            el.value = hotWorkData.hotFireExtinguisherText;
+                            el.style.display = 'block';
+                            el.disabled = false;
+                            const parentCb = document.getElementById('hotFireExtinguisher');
+                            if (parentCb) parentCb.checked = true;
+                        }
+                    }
+                    if (hotWorkData.hotControlsOthersText) {
+                        const el = document.getElementById('hotControlsOthersText');
+                        if (el) {
+                            el.value = hotWorkData.hotControlsOthersText;
+                            el.style.display = 'block';
+                            el.disabled = false;
+                            const parentCb = document.getElementById('hotControlsOthers');
+                            if (parentCb) parentCb.checked = true;
+                        }
+                    }
+                    if (hotWorkData.hotGasEveryHoursValue) {
+                        const el = document.getElementById('hotGasEveryHoursValue');
+                        if (el) {
+                            el.value = hotWorkData.hotGasEveryHoursValue;
+                            el.style.display = 'block';
+                            el.disabled = false;
+                            const mon = document.getElementById('hotGasMonitoring');
+                            const sub = document.getElementById('hotGasEveryHours');
+                            if (mon) mon.checked = true;
+                            if (sub) sub.checked = true;
+                        }
+                    }
+
+                    // After binding values, refresh UI visibility to ensure any
+                    // dependent text fields are shown in view mode as well
+                    try { refreshHotWorkVisibility(); } catch (e) { console.warn('refreshHotWorkVisibility failed', e); }
                 }
             } catch (error) {
                 console.error('Error parsing ptw_checklist_hot_work:', error, 'Raw value:', data.ptw_checklist_hot_work);
@@ -4418,34 +4562,53 @@ I/We confirm that we have read and fully understood the terms and conditions abo
             console.log('📋 Cold Work Checklist (canonical):', CW);
         })();
         
-        // Collect Hot Work Checklist Data
-        const hotWorkData = {};
-        const hotWorkElements = [
-            'hotGasMonitoring', 'hotFirewatch', 'hotRemoveFlammables', 'hotFireExtinguisher',
-            'hotVentilation', 'hotBarricades', 'hotWelding', 'hotCutting', 
-            'hotGrinding', 'hotSoldering', 'hotOthers'
-        ];
-        
-        hotWorkElements.forEach(elementId => {
-            const element = document.getElementById(elementId);
-            if (element && element.checked) {
-                hotWorkData[elementId] = element.nextElementSibling?.textContent?.trim() || elementId;
-            }
-        });
-        
-        // Add hot work special text fields
-        const hotOthersText = document.getElementById('hotOthersText');
-        if (hotOthersText && hotOthersText.value.trim()) {
-            hotWorkData.hotOthersText = hotOthersText.value.trim();
-        }
-        
-        const hotSpecialPrecautions = document.getElementById('hotSpecialPrecautions');
-        if (hotSpecialPrecautions && hotSpecialPrecautions.value.trim()) {
-            hotWorkData.hotSpecialPrecautions = hotSpecialPrecautions.value.trim();
-        }
-        
-        formData.checklist_hot_work = Object.keys(hotWorkData).length > 0 ? JSON.stringify(hotWorkData) : null;
-        console.log(`📋 Hot Work Checklist Data:`, hotWorkData);
+        // Collect Hot Work Checklist Data (new canonical set + legacy compatibility)
+        (function collectHotWork(){
+            function gv(id){ const el=document.getElementById(id); return el ? (el.type==='checkbox'? !!el.checked : (el.value||'')) : (undefined); }
+            const HW = {
+                // Type of Hot Work
+                hotWelding: gv('hotWelding'),
+                hotFlameCutting: gv('hotFlameCutting'),
+                hotOpenFlame: gv('hotOpenFlame'),
+                hotGrinding: gv('hotGrinding'),
+                hotBlasting: gv('hotBlasting'),
+                hotPowerBrushing: gv('hotPowerBrushing'),
+                hotGoughing: gv('hotGoughing'),
+                hotPostWeldHeatTreatment: gv('hotPostWeldHeatTreatment'),
+                hotPhrophoricMaterial: gv('hotPhrophoricMaterial'),
+                hotOthers: gv('hotOthers'),
+                hotOthersText: gv('hotOthersText'),
+                
+                // Controls Required
+                hotGasMonitoring: gv('hotGasMonitoring'),
+                hotGasContinuous: gv('hotGasContinuous'),
+                hotGasEveryHours: gv('hotGasEveryHours'),
+                hotGasEveryHoursValue: gv('hotGasEveryHoursValue'),
+                hotFirewatch: gv('hotFirewatch'),
+                hotFirewatchName: gv('hotFirewatchName'),
+                hotFireExtinguisher: gv('hotFireExtinguisher'),
+                hotFireExtinguisherText: gv('hotFireExtinguisherText'),
+                hotFireBlanket: gv('hotFireBlanket'),
+                hotFireRetardentScreen: gv('hotFireRetardentScreen'),
+                hotCoverFlammableSewerDrainSump: gv('hotCoverFlammableSewerDrainSump'),
+                hotLocateSparkAwayFromFlammableSewerTrench: gv('hotLocateSparkAwayFromFlammableSewerTrench'),
+                hotRemoveFlammables: gv('hotRemoveFlammables'),
+                hotControlsOthers: gv('hotControlsOthers'),
+                hotControlsOthersText: gv('hotControlsOthersText'),
+                hotSpecialPrecautions: gv('hotSpecialPrecautions')
+            };
+
+            // Auto-enable parents when text provided
+            if ((HW.hotOthersText||'').trim()) HW.hotOthers = true;
+            if ((HW.hotFirewatchName||'').trim()) HW.hotFirewatch = true;
+            if ((HW.hotFireExtinguisherText||'').trim()) HW.hotFireExtinguisher = true;
+            if ((HW.hotControlsOthersText||'').trim()) HW.hotControlsOthers = true;
+            if ((HW.hotGasEveryHoursValue||'').trim()) { HW.hotGasMonitoring = true; HW.hotGasEveryHours = true; }
+
+            // Remove undefined keys and falsey checkboxes not needed? Keep as explicit booleans for now
+            formData.checklist_hot_work = JSON.stringify(HW);
+            console.log('📋 Hot Work Checklist (canonical):', HW);
+        })();
         
         // Collect Confined Space Checklist Data
         const confinedSpaceData = {};
@@ -5426,7 +5589,9 @@ I/We confirm that we have read and fully understood the terms and conditions abo
         toggleConditionalSection('confinedSpace', !!(confinedSpaceCheckbox && confinedSpaceCheckbox.checked));
         
         // Initialize sub-checkbox dependencies for each section
-        initializeSubCheckboxDependencies();
+    initializeSubCheckboxDependencies();
+    // Hot Work behavior (auto-check on text inputs, sanitize hours)
+    try { initializeHotWorkBehavior(); } catch (e) { console.warn('initHotWorkBehavior failed', e); }
         
         console.log('Work type conditional sections initialized');
     }
@@ -5561,6 +5726,37 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                         if (existingError) {
                             existingError.remove();
                         }
+
+                        // HOT WORK: auto-check related checkboxes on text input and sanitize hours
+                        function initializeHotWorkBehavior() {
+                            // Map text fields to their parent checkboxes
+                            const pairs = [
+                                { textId: 'hotOthersText', checkboxId: 'hotOthers' },
+                                { textId: 'hotFirewatchName', checkboxId: 'hotFirewatch' },
+                                { textId: 'hotFireExtinguisherText', checkboxId: 'hotFireExtinguisher' },
+                                { textId: 'hotControlsOthersText', checkboxId: 'hotControlsOthers' },
+                                { textId: 'hotGasEveryHoursValue', checkboxId: 'hotGasEveryHours', also: 'hotGasMonitoring' }
+                            ];
+                            pairs.forEach(({ textId, checkboxId, also }) => {
+                                const txt = document.getElementById(textId);
+                                const cb  = document.getElementById(checkboxId);
+                                const alsoCb = also ? document.getElementById(also) : null;
+                                if (!txt) return;
+                                txt.addEventListener('input', () => {
+                                    const has = (txt.value||'').trim().length > 0;
+                                    if (cb) cb.checked = has;
+                                    if (alsoCb) alsoCb.checked = has;
+                                });
+                            });
+                            // Numeric-only hours
+                            const hours = document.getElementById('hotGasEveryHoursValue');
+                            if (hours) {
+                                hours.addEventListener('input', () => {
+                                    const digits = (hours.value||'').replace(/[^0-9]/g, '').slice(0,3);
+                                    if (hours.value !== digits) hours.value = digits;
+                                });
+                            }
+                        }
                     }
                 });
                 
@@ -5572,6 +5768,72 @@ I/We confirm that we have read and fully understood the terms and conditions abo
                 }
             }
         });
+    }
+
+    // Ensure Hot Work text fields/sub-options visibility is correct
+    function refreshHotWorkVisibility() {
+        // Gas monitoring -> sub options
+        const gasMain = document.getElementById('hotGasMonitoring');
+        if (gasMain) {
+            toggleSubCheckboxes('hot_gas_section', !!gasMain.checked);
+        }
+
+        // Reveal text inputs when their parent checkbox is checked or value exists
+        const pairs = [
+            { cb: 'hotGasEveryHours', tx: 'hotGasEveryHoursValue', also: 'hotGasMonitoring' },
+            { cb: 'hotFirewatch',     tx: 'hotFirewatchName' },
+            { cb: 'hotFireExtinguisher', tx: 'hotFireExtinguisherText' },
+            { cb: 'hotControlsOthers', tx: 'hotControlsOthersText' },
+            { cb: 'hotOthers', tx: 'hotOthersText' }
+        ];
+        pairs.forEach(({ cb, tx, also }) => {
+            const cbEl = document.getElementById(cb);
+            const txEl = document.getElementById(tx);
+            if (!txEl) return;
+            const hasVal = (txEl.value || '').trim().length > 0;
+            const active = (cbEl && cbEl.checked) || hasVal;
+            if (active) {
+                txEl.style.display = 'block';
+                txEl.disabled = false;
+                if (cbEl && hasVal) cbEl.checked = true;
+                if (also) { const alsoEl = document.getElementById(also); if (alsoEl && (cbEl?.checked || hasVal)) alsoEl.checked = true; }
+            }
+        });
+    }
+
+    // HOT WORK: auto-check related checkboxes on text input and sanitize hours
+    function initializeHotWorkBehavior() {
+        // Map text fields to their parent checkboxes
+        const pairs = [
+            { textId: 'hotOthersText', checkboxId: 'hotOthers' },
+            { textId: 'hotFirewatchName', checkboxId: 'hotFirewatch' },
+            { textId: 'hotFireExtinguisherText', checkboxId: 'hotFireExtinguisher' },
+            { textId: 'hotControlsOthersText', checkboxId: 'hotControlsOthers' },
+            { textId: 'hotGasEveryHoursValue', checkboxId: 'hotGasEveryHours', also: 'hotGasMonitoring' }
+        ];
+        pairs.forEach(({ textId, checkboxId, also }) => {
+            const txt = document.getElementById(textId);
+            const cb  = document.getElementById(checkboxId);
+            const alsoCb = also ? document.getElementById(also) : null;
+            if (!txt) return;
+            txt.addEventListener('input', () => {
+                const has = (txt.value||'').trim().length > 0;
+                if (cb) cb.checked = has;
+                if (alsoCb) alsoCb.checked = has;
+                // Keep visibility consistent while typing
+                refreshHotWorkVisibility();
+            });
+        });
+        // Numeric-only hours
+        const hours = document.getElementById('hotGasEveryHoursValue');
+        if (hours) {
+            hours.addEventListener('input', () => {
+                const digits = (hours.value||'').replace(/[^0-9]/g, '').slice(0,3);
+                if (hours.value !== digits) hours.value = digits;
+            });
+        }
+        // Run once to reveal any prefilled fields
+        refreshHotWorkVisibility();
     }
     
     // Validate contractor declaration section

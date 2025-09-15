@@ -193,58 +193,59 @@
 
             <section class="form-section requisition">
                 <div class="section-header"><span>SECTION 1 - REQUISITION (To be filled-up by Applicant)</span></div>
-                <div class="section-body">
+                <section class="form-section hot-work">
                     <p style="text-align: center; font-weight: bold; margin: 0 0 10px 0;">DETAILS OF JOB APPLICATION</p>
                     <div class="grid-container">
                         <div class="form-group"><label>Applicant Name :</label><input id="s1_applicant_name" type="text"></div>
-                        <div class="form-group"><label>Contact No :</label><input id="s1_applicant_contact" type="text"></div>
-                        <div class="form-group"><label>Contractor Supervisor In Charge :</label><input id="s1_supervisor_name" type="text"></div>
-                        <div class="form-group"><label>Contact No :</label><input id="s1_supervisor_contact" type="text"></div>
-                        <div class="form-group"><label>Company / Department :</label><input id="s1_company_dept" type="text"></div>
-                        <div class="form-group"><label>Duration of Work - From: Date: <input id="s1_from_date" type="text" style="width:100px;"> Time: <input id="s1_from_time" type="text" style="width:60px;"> To: Date: <input id="s1_to_date" type="text" style="width:100px;"> Time: <input id="s1_to_time" type="text" style="width:60px;"></label></div>
-                        <div class="form-group"><label>Work Area :</label><input id="s1_work_area" type="text"></div>
-                        <!-- <div class="form-group"><label>Level :</label><input id="s1_level" type="text"></div> -->
-                        <div class="form-group full-width"><label>Description of Work :</label><input id="s1_desc" type="text"></div>
-                    </div>
-                    <p style="text-align: center; font-weight: bold; margin: 15px 0 5px 0;">List of Workers</p>
-                    <table class="workers-table">
-                        <thead><tr><th>No.</th><th>Name</th><th>Designation</th><th>Identification No. (IC/CIDB Card/Passport)</th></tr></thead>
-                        <tbody>
-                            <tr><td>1</td><td></td><td></td><td></td></tr>
-                            <tr><td>2</td><td></td><td></td><td></td></tr>
-                            <tr><td>3</td><td></td><td></td><td></td></tr>
-                            <tr><td>4</td><td></td><td></td><td></td></tr>
-                            <tr><td>5</td><td></td><td></td><td></td></tr>
-                            <tr><td>6</td><td></td><td></td><td></td></tr>
-                            <tr><td>7</td><td></td><td></td><td></td></tr>
-                            <tr><td>8</td><td></td><td></td><td></td></tr>
-                            <tr><td>9</td><td></td><td></td><td></td></tr>
-                            <tr><td>10</td><td></td><td></td><td></td></tr>
-                        </tbody>
-                    </table>
-                    <p style="font-size: 10px;">(Please provide additional list if the space is insufficient)</p>
-                </div>
-            </section>
-
-            <section class="form-section cold-work">
-                <div class="section-header"><span>COLD WORK</span><span>Please Tick (✓ or X)</span></div>
-                <div class="section-body">
-                    <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</p>
-                    <div class="grid-col-3 checkbox-group">
-                        <!-- Column 1: Electrical Work (visual group only) -->
-                        <div>
-                            <div><input id="coldElectricalWork" type="checkbox"><label for="coldElectricalWork"><strong>ELECTRICAL WORK</strong></label></div>
-                            <div style="margin-left:16px;"><input id="coldCircuitIsolation" type="checkbox" disabled><label for="coldCircuitIsolation">Circuit Isolation</label></div>
-                            <div style="margin-left:16px;"><input id="coldLockOutTagOut" type="checkbox"><label for="coldLockOutTagOut">Lock Out & Tagged Out</label></div>
-                            <div style="margin-left:16px;"><input id="coldFireExtinguisher" type="checkbox"><label for="coldFireExtinguisher">Fire Extinguisher</label></div>
-                            <div style="margin-left:16px;"><input id="coldMainSupplyCutOff" type="checkbox"><label for="coldMainSupplyCutOff">Main Supply Cut Off</label></div>
-                            <div style="margin-left:16px;"><input id="coldVisualInspection" type="checkbox"><label for="coldVisualInspection">Visual Inspection</label></div>
-                            <div class="form-group" style="margin-left:16px; margin-top:4px;">
-                                <label for="coldElectricalOthers" style="font-weight:normal;">Others:</label>
-                                <input id="coldElectricalOthers" type="text" disabled>
+                        <div class="grid-container checkbox-group">
+                            <div>
+                                <strong>TYPE OF HOT WORK</strong>
+                                <div><input id="hotWelding" type="checkbox"><label for="hotWelding">Welding</label></div>
+                                <div><input id="hotFlameCutting" type="checkbox"><label for="hotFlameCutting">Flame Cutting</label></div>
+                                <div><input id="hotOpenFlame" type="checkbox"><label for="hotOpenFlame">Open Flame</label></div>
+                                <div><input id="hotGrinding" type="checkbox"><label for="hotGrinding">Grinding</label></div>
+                                <div><input id="hotBlasting" type="checkbox"><label for="hotBlasting">Blasting</label></div>
+                                <div><input id="hotPowerBrushing" type="checkbox"><label for="hotPowerBrushing">Power Brushing</label></div>
+                                <div><input id="hotGoughing" type="checkbox"><label for="hotGoughing">Goughing</label></div>
+                                <div><input id="hotPostWeldHeatTreatment" type="checkbox"><label for="hotPostWeldHeatTreatment">Post Weld Heat Treatment</label></div>
+                                <div><input id="hotPhrophoricMaterial" type="checkbox"><label for="hotPhrophoricMaterial">Use of phrophoric material</label></div>
+                                <div><input id="hotOthers" type="checkbox"><label for="hotOthers">Others</label></div>
+                                <div class="form-group"><label for="hotOthersText">Others (please specify):</label> <input id="hotOthersText" type="text"></div>
+                            </div>
+                            <div>
+                                <strong>CONTROLS REQUIRED</strong>
+                                <div><input id="hotGasMonitoring" type="checkbox"><label for="hotGasMonitoring">Gas monitoring</label></div>
+                                <div style="margin-left: 16px;">
+                                    <div><input id="hotGasContinuous" type="checkbox"><label for="hotGasContinuous">Continuous</label></div>
+                                    <div class="form-group" style="display:flex; gap:6px; align-items:center;">
+                                        <input id="hotGasEveryHours" type="checkbox">
+                                        <label for="hotGasEveryHours" style="margin:0;">Every</label>
+                                        <input id="hotGasEveryHoursValue" type="text" style="width:60px; border:1px solid #000; padding:2px;">
+                                        <label style="margin:0;">hours</label>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display:flex; gap:6px; align-items:center;">
+                                    <input id="hotFirewatch" type="checkbox"><label for="hotFirewatch" style="margin:0;">Firewatch name:</label>
+                                    <input id="hotFirewatchName" type="text" style="flex:1; border:1px solid #000; padding:2px;">
+                                </div>
+                                <div class="form-group" style="display:flex; gap:6px; align-items:center;">
+                                    <input id="hotFireExtinguisher" type="checkbox"><label for="hotFireExtinguisher" style="margin:0;">Fire Extinguisher:</label>
+                                    <input id="hotFireExtinguisherText" type="text" style="flex:1; border:1px solid #000; padding:2px;">
+                                </div>
+                                <div><input id="hotFireBlanket" type="checkbox"><label for="hotFireBlanket">Fire blanket</label></div>
+                                <div><input id="hotFireRetardentScreen" type="checkbox"><label for="hotFireRetardentScreen">Fire retardent screen</label></div>
+                                <div><input id="hotCoverFlammableSewerDrainSump" type="checkbox"><label for="hotCoverFlammableSewerDrainSump">Cover potentially flammable sewer/drain/sump</label></div>
+                                <div><input id="hotLocateSparkAwayFromFlammableSewerTrench" type="checkbox"><label for="hotLocateSparkAwayFromFlammableSewerTrench">Locate spark producing equipment away from potential flammable sewer/trench</label></div>
+                                <div><input id="hotRemoveFlammables" type="checkbox"><label for="hotRemoveFlammables">Remove flammable/highly combustible materials</label></div>
+                                <div class="form-group" style="display:flex; gap:6px; align-items:center;">
+                                    <input id="hotControlsOthers" type="checkbox"><label for="hotControlsOthers" style="margin:0;">Others:</label>
+                                    <input id="hotControlsOthersText" type="text" style="flex:1; border:1px solid #000; padding:2px;">
+                                </div>
                             </div>
                         </div>
-
+                        <div class="form-group full-width"><label for="hotSpecialPrecautions"><strong>Special precautions (if any):</strong></label>
+                            <textarea id="hotSpecialPrecautions" rows="2" style="width:100%; border:1px solid #000; padding:4px;"></textarea>
+                        </div>
                         <!-- Column 2: Working at Height (visual group only) -->
                         <div>
                             <div><input id="coldWorkingAtHeight" type="checkbox"><label for="coldWorkingAtHeight"><strong>WORKING AT HEIGHT</strong></label></div>
