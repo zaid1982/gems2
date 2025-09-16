@@ -71,21 +71,55 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background-color: #02adad;
         }
         .section-body {
             padding: 10px;
         }
+        .requisition .section-body {
+            padding: 0;
+        }
+        .requisition .declaration-table {
+            border: none !important;
+            margin: 0;
+        }
 
         /* --- Page 1: Section Header Colors --- */
-        .requisition .section-header    { background-color: #0070c0; } /* Blue */
+        .requisition .section-header    { background-color: #02adad; } /* Blue */
         .cold-work .section-header      { background-color: #00b050; } /* Green */
         .hot-work .section-header       { background-color: #ff0000; } /* Red */
-        .confined-space .section-header { background-color: #ffc000; color: #000; } /* Yellow */
+        .confined-space .section-header { background-color: #002060; color: #ffff00; } /* Yellow */
         
         /* --- Page 2: Section Header Color --- */
         /* Any section header NOT inside a colored parent like '.requisition' will be black */
-        .page-2 .section-header {
+        /* .page-2 .section-header {
             background-color: #000;
+        } */
+
+        /* Override for SECTION 2: SUPPORTING DOCUMENTS (teal) */
+        .supporting-docs .section-header {
+            background-color: #02adad;
+        }
+
+        /* Override for SECTION 3: HAZARDOUS ACTIVITIES (teal) */
+        .hazardous-activities .section-header {
+            background-color: #02adad;
+        }
+
+        /* Override for SECTION 4: CONTRACTOR DECLARATION (teal) */
+        .contractor-declaration .section-header {
+            background-color: #02adad;
+        }
+
+        /* Override for SECTION 6: APPROVAL (teal) */
+        .approvals-section .section-header {
+            background-color: #02adad;
+        }
+
+        .grid-container, .grid-main-hotwork {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr !important;
+            gap: 10px;
         }
 
         /* --- Utility & Layout Classes --- */
@@ -102,8 +136,17 @@
         .grid-container-4-col {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 5px 15px;
+            gap: 5px 5px;
+            font-size: 10px !important;
         }
+
+        .grid-supporting-docs {
+            display: grid;
+            grid-template-columns: 0.7fr 0.7fr 1.4fr 1.4fr !important;
+            gap: 5px 5px;
+            font-size: 10px !important;
+        }
+
         .full-width { grid-column: 1 / -1; }
 
         .form-group {
@@ -123,18 +166,87 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
+            font-size: 10px !important;
         }
-        .workers-table th, .workers-table td,
+
+        .workers-table {
+            margin-top: 0px;
+        }
+
+        .declaration-table tr {
+            border-bottom: 1px solid #000;
+        }
+
+        /* Do not set borders on rows to avoid double-thick lines with cell borders */
+        /* .workers-table tr { border: none; } */
+
+
+        
         .declaration-table th, .declaration-table td {
-            border: 1px solid #000;
+            /* border: 1px solid #000; */
             padding: 4px;
             text-align: left;
         }
-        .workers-table th, .declaration-table th {
+        .workers-table th, .workers-table td {
+            /* Only draw inner grid lines; outer edge handled by table border */
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding: 4px;
+            text-align: left;
+        }
+        /* Remove left border on first column */
+        .workers-table tr th:first-child,
+        .workers-table tr td:first-child { border-left: none; }
+        /* Remove right border on last column to prevent overlap with table border */
+        .workers-table tr th:last-child,
+        .workers-table tr td:last-child { border-right: none; }
+        /* Remove bottom border on last row to prevent overlap with table border */
+        .workers-table tr:last-child th,
+        .workers-table tr:last-child td { border-bottom: none; }
+        .declaration-table th {
             background-color: #f2f2f2;
         }
         .declaration-table { margin-bottom: 15px; }
         .declaration-table .status-col { width: 100px; text-align: center; }
+
+        .declaration-table input[type="text"] {
+            border: none;
+            border-bottom: 1px solid #000;
+            padding: 2px 0;
+            width: 100%;
+        }
+
+        .declaration-table .work-desc td {
+            border-right: 1px solid #000;
+        }
+        .declaration-table .work-desc td:last-child {
+            border-right: none;
+        }
+        /* Non-editable print fields */
+        .print-field {
+            display: block;
+            /* border-bottom: 1px solid #000; */
+            min-height: 16px;
+            font-weight: bold;
+        }
+        .print-inline {
+            display: inline-block;
+            border-bottom: 1px solid #000;
+            border-bottom-style: dashed;
+            min-height: 16px;
+            vertical-align: bottom;
+            font-weight: bold;
+        }
+        .print-multiline {
+            min-height: 60px;
+            white-space: pre-wrap;
+            font-weight: bold;
+        }
+
+        .declaration-table span.print-field {
+            display: flex;
+            align-items: center;
+        }
 
         /* --- Checkbox Styling --- */
         .checkbox-group div { margin-bottom: 3px; }
@@ -146,10 +258,12 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 10px;
-            border-top: 1px solid #000;
+            /* border-top: 1px solid #000; */
             padding-top: 10px;
+            font-size: 10px !important;
         }
-        .ppe-category { border-left: 1px solid #ccc; padding-left: 10px; }
+        .ppe-category { padding-left: 5px; }
+        .ppe-category strong { text-decoration: underline; }
         .ppe-category:first-child { border-left: none; padding-left: 0; }
         .approval-grid .approval-box { border: 1px solid #000; padding: 10px; }
         .approval-box h4 { text-align: center; margin: 0 0 10px 0; font-size: 12px; }
@@ -164,6 +278,11 @@
         .signature-block { border-top: 1px solid #ccc; padding-top: 5px; margin-top: 10px; }
         .signature-block h5 { text-align: center; font-weight: bold; margin: 0 0 10px 0; }
 
+        .sub-checkbox { margin-left: 15px; }
+
+        /* Utility: inner two-column lists for section contents */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 30px; }
+
         /* --- Print Styling --- */
         @media print {
             body { background-color: #fff; }
@@ -175,6 +294,12 @@
                 page-break-after: always;
             }
         }
+
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -185,109 +310,150 @@
                 <div class="logo"><img src="./img/icon/gfm-logo-transparent.png" alt="GFM Logo" style="height:60px; width:auto; display:block;" /></div>
                 <div class="title-block">
                     <h1>PERMIT TO WORK</h1>
-                    <div class="subtitle">WORK FAST, THINK SMART, STAY SAFE</div>
-                    <div>BPM 9.1/F/013/25/1</div>
+                    <div class="subtitle">NOTHING IS MORE URGENT THAN YOUR SAFETY, WORK SMART, STAY SAFE</div>
+                    <div>BPM 9.1/F/013/25:1</div>
                 </div>
                 <div class="ptw-no"><strong>PTW NO:</strong> <span id="metaPtwNo">-</span></div>
             </header>
 
             <section class="form-section requisition">
                 <div class="section-header"><span>SECTION 1 - REQUISITION (To be filled-up by Applicant)</span></div>
-                <section class="form-section hot-work">
-                    <p style="text-align: center; font-weight: bold; margin: 0 0 10px 0;">DETAILS OF JOB APPLICATION</p>
-                    <div class="grid-container">
-                        <div class="form-group"><label>Applicant Name :</label><input id="s1_applicant_name" type="text"></div>
-                        <div class="grid-container checkbox-group">
-                            <div>
-                                <strong>TYPE OF HOT WORK</strong>
-                                <div><input id="hotWelding" type="checkbox"><label for="hotWelding">Welding</label></div>
-                                <div><input id="hotFlameCutting" type="checkbox"><label for="hotFlameCutting">Flame Cutting</label></div>
-                                <div><input id="hotOpenFlame" type="checkbox"><label for="hotOpenFlame">Open Flame</label></div>
-                                <div><input id="hotGrinding" type="checkbox"><label for="hotGrinding">Grinding</label></div>
-                                <div><input id="hotBlasting" type="checkbox"><label for="hotBlasting">Blasting</label></div>
-                                <div><input id="hotPowerBrushing" type="checkbox"><label for="hotPowerBrushing">Power Brushing</label></div>
-                                <div><input id="hotGoughing" type="checkbox"><label for="hotGoughing">Goughing</label></div>
-                                <div><input id="hotPostWeldHeatTreatment" type="checkbox"><label for="hotPostWeldHeatTreatment">Post Weld Heat Treatment</label></div>
-                                <div><input id="hotPhrophoricMaterial" type="checkbox"><label for="hotPhrophoricMaterial">Use of phrophoric material</label></div>
-                                <div><input id="hotOthers" type="checkbox"><label for="hotOthers">Others</label></div>
-                                <div class="form-group"><label for="hotOthersText">Others (please specify):</label> <input id="hotOthersText" type="text"></div>
-                            </div>
-                            <div>
-                                <strong>CONTROLS REQUIRED</strong>
-                                <div><input id="hotGasMonitoring" type="checkbox"><label for="hotGasMonitoring">Gas monitoring</label></div>
-                                <div style="margin-left: 16px;">
-                                    <div><input id="hotGasContinuous" type="checkbox"><label for="hotGasContinuous">Continuous</label></div>
-                                    <div class="form-group" style="display:flex; gap:6px; align-items:center;">
-                                        <input id="hotGasEveryHours" type="checkbox">
-                                        <label for="hotGasEveryHours" style="margin:0;">Every</label>
-                                        <input id="hotGasEveryHoursValue" type="text" style="width:60px; border:1px solid #000; padding:2px;">
-                                        <label style="margin:0;">hours</label>
-                                    </div>
-                                </div>
-                                <div class="form-group" style="display:flex; gap:6px; align-items:center;">
-                                    <input id="hotFirewatch" type="checkbox"><label for="hotFirewatch" style="margin:0;">Firewatch name:</label>
-                                    <input id="hotFirewatchName" type="text" style="flex:1; border:1px solid #000; padding:2px;">
-                                </div>
-                                <div class="form-group" style="display:flex; gap:6px; align-items:center;">
-                                    <input id="hotFireExtinguisher" type="checkbox"><label for="hotFireExtinguisher" style="margin:0;">Fire Extinguisher:</label>
-                                    <input id="hotFireExtinguisherText" type="text" style="flex:1; border:1px solid #000; padding:2px;">
-                                </div>
-                                <div><input id="hotFireBlanket" type="checkbox"><label for="hotFireBlanket">Fire blanket</label></div>
-                                <div><input id="hotFireRetardentScreen" type="checkbox"><label for="hotFireRetardentScreen">Fire retardent screen</label></div>
-                                <div><input id="hotCoverFlammableSewerDrainSump" type="checkbox"><label for="hotCoverFlammableSewerDrainSump">Cover potentially flammable sewer/drain/sump</label></div>
-                                <div><input id="hotLocateSparkAwayFromFlammableSewerTrench" type="checkbox"><label for="hotLocateSparkAwayFromFlammableSewerTrench">Locate spark producing equipment away from potential flammable sewer/trench</label></div>
-                                <div><input id="hotRemoveFlammables" type="checkbox"><label for="hotRemoveFlammables">Remove flammable/highly combustible materials</label></div>
-                                <div class="form-group" style="display:flex; gap:6px; align-items:center;">
-                                    <input id="hotControlsOthers" type="checkbox"><label for="hotControlsOthers" style="margin:0;">Others:</label>
-                                    <input id="hotControlsOthersText" type="text" style="flex:1; border:1px solid #000; padding:2px;">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group full-width"><label for="hotSpecialPrecautions"><strong>Special precautions (if any):</strong></label>
-                            <textarea id="hotSpecialPrecautions" rows="2" style="width:100%; border:1px solid #000; padding:4px;"></textarea>
-                        </div>
-                        <!-- Column 2: Working at Height (visual group only) -->
+                <div class="section-body">
+                    <table class="declaration-table">
+                        <tr>
+                            <th colspan="6" style="text-align:center;">DETAILS OF JOB APPLICATION</th>
+                        </tr>
+                        <tr>
+                            <td style="width:14%;">Applicant Name :</td>
+                            <td style="width:20%;"><span id="s1_applicant_name" class="print-field"></span></td>
+                            <td style="width:14%;">Contact No :</td>
+                            <td style="width:18%;"><span id="s1_applicant_contact" class="print-field"></span></td>
+                            <td style="width:18%;">Staff No. / NRIC No :</td>
+                            <td style="width:16%;"><span id="s1_staff_or_nric" class="print-field"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Contractor Supervisor In Charge :</td>
+                            <td><span id="s1_supervisor_name" class="print-field"></span></td>
+                            <td>Contact No :</td>
+                            <td><span id="s1_supervisor_contact" class="print-field"></span></td>
+                            <td>Identification No :</td>
+                            <td><span id="s1_identification_no" class="print-field"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Company / Department :</td>
+                            <td><span id="s1_company_dept" class="print-field"></span></td>
+                            <td colspan="4">
+                                Duration of Work - From: Date <span id="s1_from_date" class="print-inline" style="width:80px;"></span> Time <span id="s1_from_time" class="print-inline" style="width:40px;"></span> | To: Date <span id="s1_to_date" class="print-inline" style="width:80px;"></span> Time <span id="s1_to_time" class="print-inline" style="width:80px;"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Work Area :</td>
+                            <td colspan=""><span id="s1_work_area" class="print-field"></span></td>
+                            <td>Level :</td>
+                            <td><span id="s1_level" class="print-field"></span></td>
+                        </tr>
+                        <tr class="work-desc">
+                            <td>Description of Work :</td>
+                            <td colspan="5"><div id="s1_desc" class="print-multiline"></div></td>
+                        </tr>
+                        <tr>
+                            <th colspan="6" style="text-align:center; background-color: #fff;">List of Workers</th>
+                        </tr>
+                        <tr>
+                            <td colspan="6" style="padding:0; border:1px solid #000; background-color: #fff;">
+                                <table class="workers-table" style="width:100%; border-collapse:collapse;">
+                                    <thead style="background-color: #fff;">
+                                        <tr>
+                                            <th style="width:40px;background-color: #fff;">No.</th>
+                                            <th style="background-color: #fff;">Name</th>
+                                            <th style="width:30%;background-color: #fff;">Designation</th>
+                                            <th style="width:35%;background-color: #fff;">Identification No. (IC/CIDB Card/Passport)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>1</td><td></td><td></td><td></td></tr>
+                                        <tr><td>2</td><td></td><td></td><td></td></tr>
+                                        <tr><td>3</td><td></td><td></td><td></td></tr>
+                                        <tr><td>4</td><td></td><td></td><td></td></tr>
+                                        <tr><td>5</td><td></td><td></td><td></td></tr>
+                                        <tr><td>6</td><td></td><td></td><td></td></tr>
+                                        <tr><td>7</td><td></td><td></td><td></td></tr>
+                                        <tr><td>8</td><td></td><td></td><td></td></tr>
+                                        <tr><td>9</td><td></td><td></td><td></td></tr>
+                                        <tr><td>10</td><td></td><td></td><td></td></tr>
+                                    </tbody>
+                                </table>
+                                <div style="font-size:10px; padding:4px;">(Please provide additional list if the space is insufficient)</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <section class="form-section cold-work">
+                <div class="section-header"><span>COLD WORK</span><span>Please Tick (✓ or X)</span></div>
+                <div class="section-body">
+                    <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</p>
+                    <div class="grid-container-3-col checkbox-group">
+                        <!-- Column 1: Electrical Work -->
                         <div>
-                            <div><input id="coldWorkingAtHeight" type="checkbox"><label for="coldWorkingAtHeight"><strong>WORKING AT HEIGHT</strong></label></div>
-                            <div style="margin-left:16px;"><input id="coldHeightAbseiling" type="checkbox" disabled><label for="coldHeightAbseiling">Abseiling Work</label></div>
-                            <div style="margin-left:16px;"><input id="coldHeightScaffolding" type="checkbox" disabled><label for="coldHeightScaffolding">Scaffolding</label></div>
-                            <div style="margin-left:16px;"><input id="coldHeightGondola" type="checkbox" disabled><label for="coldHeightGondola">Gondola</label></div>
-                            <div style="margin-left:16px;"><input id="coldHeightRooftop" type="checkbox" disabled><label for="coldHeightRooftop">Working at rooftop</label></div>
-                            <div class="form-group" style="margin-left:16px; margin-top:4px;">
-                                <label for="coldHeightUsing" style="font-weight:normal;">Using a</label>
-                                <input id="coldHeightUsing" type="text" disabled>
-                            </div>
-                            <div class="form-group" style="margin-left:16px; margin-top:4px;">
-                                <label for="coldHeightOthers" style="font-weight:normal;">Others:</label>
-                                <input id="coldHeightOthers" type="text" disabled>
+                            <div><input id="coldElectricalWork" type="checkbox"><label for="coldElectricalWork" style="border-bottom: 1px solid #000;"><strong>ELECTRICAL WORK</strong></label></div>
+                            <div class="sub-checkbox"><input id="coldCircuitIsolation" type="checkbox"><label for="coldCircuitIsolation">Circuit Isolation</label></div>
+                            <div class="sub-checkbox"><input id="coldLockOutTagOut" type="checkbox"><label for="coldLockOutTagOut">Lock Out &amp; Tagged Out</label></div>
+                            <div class="sub-checkbox"><input id="coldFireExtinguisher" type="checkbox"><label for="coldFireExtinguisher">Fire Extinguisher</label></div>
+                            <div class="sub-checkbox"><input id="coldMainSupplyCutOff" type="checkbox"><label for="coldMainSupplyCutOff">Main Supply Cut Off</label></div>
+                            <div class="form-group sub-checkbox" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                                <input id="coldOthers" type="checkbox">
+                                <label for="coldOthers" style="margin:0;">Others:</label>
+                                <span id="coldElectricalOthers" class="print-inline" style="width:100px;"></span>
                             </div>
                         </div>
 
-                        <!-- Column 3: Excavation Work (visual group only) -->
+                        <!-- Column 2: Working at Height -->
                         <div>
-                            <div><input id="coldExcavationWork" type="checkbox"><label for="coldExcavationWork"><strong>EXCAVATION WORK</strong></label></div>
-                            <div style="margin-left:16px;"><input id="coldExcDepthLt12" type="checkbox" disabled><label for="coldExcDepthLt12">Depth < 1.2 meter</label></div>
-                            <div style="margin-left:16px;"><input id="coldExcDepthGt12" type="checkbox" disabled><label for="coldExcDepthGt12">Depth > 1.2 meter (considered confined space work)</label></div>
-                            <div style="margin-left:16px;"><input id="coldExcAccessEgress" type="checkbox" disabled><label for="coldExcAccessEgress">Safe access & egress</label></div>
-                            <div style="margin-left:16px;"><input id="coldExcProtectFalling" type="checkbox" disabled><label for="coldExcProtectFalling">Protection from falling material</label></div>
-                            <div style="margin-left:16px;"><input id="coldExcProtectEngulfment" type="checkbox" disabled><label for="coldExcProtectEngulfment">Protection from engulfment</label></div>
-                            <div class="form-group" style="margin-left:16px; margin-top:4px;">
-                                <label for="coldExcOthers" style="font-weight:normal;">Others:</label>
-                                <input id="coldExcOthers" type="text" disabled>
+                            <div><input id="coldWorkingAtHeight" type="checkbox"><label for="coldWorkingAtHeight" style="border-bottom: 1px solid #000;"><strong>WORKRING AT HEIGHT</strong></label></div>
+                            <div class="sub-checkbox"><input id="coldHeightAbseiling" type="checkbox"><label for="coldHeightAbseiling">Abseiling Work</label></div>
+                            <div class="sub-checkbox"><input id="coldHeightScaffolding" type="checkbox"><label for="coldHeightScaffolding">Scaffolding</label></div>
+                            <div class="sub-checkbox"><input id="coldHeightGondola" type="checkbox"><label for="coldHeightGondola">Gondola</label></div>
+                            <div class="sub-checkbox"><input id="coldHeightRooftop" type="checkbox"><label for="coldHeightRooftop">Working at rooftop</label></div>
+                            <div class="form-group sub-checkbox" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                                <input id="coldHeightUsing" type="checkbox">
+                                <label for="coldHeightUsing" style="margin:0px;">Using a</label>
+                                <span id="coldHeightUsing" class="print-inline" style="width:100px;"></span>
+                            </div>
+                            <div class="form-group sub-checkbox" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                                <input id="coldHeightOthers" type="checkbox">
+                                <label for="coldHeightOthers" style="margin:0px;" >Others:</label>
+                                <span id="coldHeightOthers" class="print-inline" style="width:100px;"></span>
                             </div>
                         </div>
 
-                        <!-- Additional single items (remain flat) -->
-                        <div class="full-width"><input id="coldWorkingUnderLoad" type="checkbox" disabled><label for="coldWorkingUnderLoad"><strong>WORKING UNDER LOAD</strong></label></div>
-                        <div class="full-width"><input id="coldLiftingWork" type="checkbox"><label for="coldLiftingWork"><strong>LIFTING WORK</strong></label></div>
-                        <div class="full-width"><input id="coldChemicalHandling" type="checkbox" disabled><label for="coldChemicalHandling"><strong>CHEMICAL HANDLING</strong></label></div>
-                        <div class="full-width"><input id="coldOthers" type="checkbox"><label for="coldOthers"><strong>OTHERS</strong></label></div>
-                        <div class="form-group full-width"><label for="coldOthersText"><strong>Others (please specify):</strong></label><input id="coldOthersText" type="text"></div>
-                        <div class="form-group full-width"><label for="coldSpecialPrecautions"><strong>Special precautions (if any):</strong></label>
-                            <textarea id="coldSpecialPrecautions" rows="2" style="width:100%; border:1px solid #000; padding:4px;"></textarea>
+                        <!-- Column 3: Excavation Work -->
+                        <div>
+                            <div><input id="coldExcavationWork" type="checkbox"><label for="coldExcavationWork" style="border-bottom: 1px solid #000;"><strong>EXCAVATION WORK</strong></label></div>
+                            <div class="sub-checkbox"><input id="coldExcDepthLt12" type="checkbox"><label for="coldExcDepthLt12">Depth &lt; 1.2 meter</label></div>
+                            <div class="sub-checkbox"><input id="coldExcDepthGt12" type="checkbox"><label for="coldExcDepthGt12">Depth &gt; 1.2 meter (considered confined space work)</label></div>
+                            <div class="sub-checkbox"><input id="coldExcAccessEgress" type="checkbox"><label for="coldExcAccessEgress">Safe access &amp; egress</label></div>
+                            <div class="sub-checkbox"><input id="coldExcProtectFalling" type="checkbox"><label for="coldExcProtectFalling">Protection from falling material</label></div>
+                            <div class="sub-checkbox"><input id="coldExcProtectEngulfment" type="checkbox"><label for="coldExcProtectEngulfment">Protection from engulfment</label></div>
+                            <div class="form-group sub-checkbox" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                                <input id="coldExcOthers" type="checkbox">
+                                <label for="coldExcOthers" style="margin:0px;">Others:</label>
+                                <span id="coldExcOthers" class="print-inline" style="width:100px;"></span>
+                            </div>
                         </div>
                     </div>
-                    <p style="text-align: center; font-size: 10px; margin-bottom: 0;">This permit is approved provided all conditions and precautions specified above are complied with.</p>
+
+                    <div class="grid-container-3-col" style="margin-top:10px;">
+                        <div><input id="coldWorkingUnderLoad" type="checkbox"> <label for="coldWorkingUnderLoad" style="font-weight: bold;"><u>WORKING UNDER LOAD</u></label></div>
+                        <div><input id="coldLiftingWork" type="checkbox"> <label for="coldLiftingWork" style="font-weight: bold;"><u>LIFTING WORK</u></label></div>
+                        <div><input id="coldChemicalHandling" type="checkbox"> <label for="coldChemicalHandling" style="font-weight: bold;"><u>CHEMICAL HANDLING</u></label></div>
+                    </div>
+
+                    <div class="full-width" style="margin-top:8px; border:1px solid #000; display:grid; grid-template-columns: 260px 1fr; align-items:stretch;">
+                        <div style="padding:6px; border-right:1px solid #000;"><strong>Special precautions (if any):</strong></div>
+                        <div id="coldSpecialPrecautions" class="print-multiline" style="padding:4px; min-height:48px;"></div>
+                    </div>
                 </div>
             </section>
 
@@ -295,53 +461,68 @@
                 <div class="section-header"><span>HOT WORK</span><span>Please Tick (✓ or X)</span></div>
                 <div class="section-body">
                     <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</p>
-                    <div class="grid-container checkbox-group">
+                    <div class="grid-container grid-main-hotwork checkbox-group">
+                        <!-- Left: Type of Hot Work -->
                         <div>
-                            <strong>TYPE OF HOT WORK</strong>
-                            <!-- Real fields (flat, from ptw_form.html) -->
-                            <div><input id="hotWelding" type="checkbox"><label for="hotWelding">Welding</label></div>
-                            <div><input id="hotCutting" type="checkbox"><label for="hotCutting">Flame Cutting</label></div>
-                            <div><input id="hotGrinding" type="checkbox"><label for="hotGrinding">Grinding</label></div>
-                            <!-- Visual-only extras to match requirement (disabled) -->
-                            <div><input id="hotOpenFlame_visual" type="checkbox" disabled><label for="hotOpenFlame_visual">Open Flame</label></div>
-                            <div><input id="hotBlasting_visual" type="checkbox" disabled><label for="hotBlasting_visual">Blasting</label></div>
-                            <div><input id="hotPowerBrushing_visual" type="checkbox" disabled><label for="hotPowerBrushing_visual">Power Brushing</label></div>
-                            <div><input id="hotGouging_visual" type="checkbox" disabled><label for="hotGouging_visual">Gouging</label></div>
-                            <div><input id="hotPWHT_visual" type="checkbox" disabled><label for="hotPWHT_visual">Post Weld Heat Treatment</label></div>
-                            <div><input id="hotPyrophoric_visual" type="checkbox" disabled><label for="hotPyrophoric_visual">Use of pyrophoric material</label></div>
-                            <!-- Additional real fields present in the form but not in the reference -->
-                            <div><input id="hotBrazing" type="checkbox"><label for="hotBrazing">Brazing</label></div>
-                            <div><input id="hotSoldering" type="checkbox"><label for="hotSoldering">Soldering</label></div>
-                            <div><input id="hotOthers" type="checkbox"><label for="hotOthers">Others</label></div>
-                            <div class="form-group"><label for="hotOthersText">Others (please specify):</label> <input id="hotOthersText" type="text"></div>
-                        </div>
-                        <div>
-                            <strong>CONTROLS REQUIRED</strong>
-                            <!-- Real fields (flat, from ptw_form.html) -->
-                            <div><input id="hotGasMonitoring" type="checkbox"><label for="hotGasMonitoring">Gas monitoring</label></div>
-                            <div><input id="hotFirewatch" type="checkbox"><label for="hotFirewatch">Firewatch name:____________</label></div>
-                            <div><input id="hotFireExtinguisher" type="checkbox"><label for="hotFireExtinguisher">Fire Extinguisher</label></div>
-                            <div><input id="hotRemoveFlammables" type="checkbox"><label for="hotRemoveFlammables">Remove flammable/highly combustible materials</label></div>
-                            <!-- Visual-only extras to match requirement (disabled) -->
-                            <div><input id="hotContinuous_visual" type="checkbox" disabled><label for="hotContinuous_visual">Continuous</label></div>
-                            <div class="form-group" style="display:flex; gap:6px; align-items:center;">
-                                <input id="hotEveryHours_visual" type="checkbox" disabled>
-                                <label for="hotEveryHours_visual" style="margin:0;">Every</label>
-                                <input type="text" style="width:60px; border:1px solid #000; padding:2px;" disabled>
-                                <label style="margin:0;">hours</label>
+                            <div style="text-align:center; font-weight:bold; text-decoration:underline;">TYPE OF HOT WORK</div>
+                            <div class="two-col">
+                                <div>
+                                    <div><input id="hotWelding" type="checkbox"><label for="hotWelding">Welding</label></div>
+                                    <div><input id="hotCutting" type="checkbox"><label for="hotCutting">Flame Cutting</label></div>
+                                    <div><input id="hotOpenFlame_visual" type="checkbox" disabled><label for="hotOpenFlame_visual">Open Flame</label></div>
+                                    <div><input id="hotGrinding" type="checkbox"><label for="hotGrinding">Grinding</label></div>
+                                    <div><input id="hotBlasting_visual" type="checkbox" disabled><label for="hotBlasting_visual">Blasting</label></div>
+                                </div>
+                                <div>
+                                    <div><input id="hotPowerBrushing_visual" type="checkbox" disabled><label for="hotPowerBrushing_visual">Power Brushing</label></div>
+                                    <div><input id="hotGouging_visual" type="checkbox" disabled><label for="hotGouging_visual">Gouging</label></div>
+                                    <div><input id="hotPWHT_visual" type="checkbox" disabled><label for="hotPWHT_visual">Post Weld Heat Treatment</label></div>
+                                    <div><input id="hotPyrophoric_visual" type="checkbox" disabled><label for="hotPyrophoric_visual">Use of pyrophoric material</label></div>
+                                    <div class="form-group" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                                        <input id="hotOthers" type="checkbox"><label for="hotOthers" style="margin:0;">Others:</label>
+                                        <span id="hotOthersText" class="print-inline" style="width:100px;"></span>
+                                    </div>
+                                </div>
                             </div>
-                            <div><input id="hotFireBlanket_visual" type="checkbox" disabled><label for="hotFireBlanket_visual">Fire blanket</label></div>
-                            <div><input id="hotRetardantScreen_visual" type="checkbox" disabled><label for="hotRetardantScreen_visual">Fire retardant screen</label></div>
-                            <div><input id="hotCoverSewer_visual" type="checkbox" disabled><label for="hotCoverSewer_visual">Cover potentially flammable sewer/drain/sump</label></div>
-                            <div><input id="hotLocateSparkAway_visual" type="checkbox" disabled><label for="hotLocateSparkAway_visual">Locate spark producing equipment away from potential flammable sewer/trench</label></div>
-                            <div><input id="hotControlsOthers_visual" type="checkbox" disabled><label for="hotControlsOthers_visual">Others:____________</label></div>
-                            <!-- Additional real fields present in the form but not in the reference -->
-                            <div><input id="hotVentilation" type="checkbox"><label for="hotVentilation">Adequate ventilation</label></div>
-                            <div><input id="hotBarricades" type="checkbox"><label for="hotBarricades">Barricades in place</label></div>
+                        </div>
+                        <!-- Right: Controls Required -->
+                        <div>
+                            <div style="text-align:center; font-weight:bold; text-decoration:underline;">CONTROLS REQUIRED</div>
+                            <div class="two-col">
+                                <div>
+                                    <div><input id="hotGasMonitoring" type="checkbox"><label for="hotGasMonitoring">Gas monitoring</label></div>
+                                    <div><input id="hotContinuous_visual" type="checkbox" disabled><label for="hotContinuous_visual">Continuous</label></div>
+                                    <div class="form-group" style="display:flex; gap:6px; align-items:center; flex-direction: row;">
+                                        <input id="hotEveryHours_visual" type="checkbox" disabled>
+                                        <label for="hotEveryHours_visual" style="margin:0;">Every</label>
+                                        <span class="print-inline" style="width:60px;"></span>
+                                        <label style="margin:0;">hours</label>
+                                    </div>
+                                    <div class="form-group" style="display:flex; gap:6px; align-items:center; flex-direction: row;">
+                                        <input id="hotFirewatch" type="checkbox">
+                                        <label for="hotFirewatch" style="margin:0;">Firewatch name:</label>
+                                        <span class="print-inline" style="width:100px;"></span>
+                                    </div>
+                                    <div class="form-group" style="display:flex; gap:6px; align-items:center; flex-direction: row;">
+                                        <input id="hotFireExtinguisher" type="checkbox">
+                                        <label for="hotFireExtinguisher" style="margin:0;">Fire Extinguisher:</label>
+                                        <span class="print-inline" style="width:100px;"></span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div><input id="hotFireBlanket_visual" type="checkbox" disabled><label for="hotFireBlanket_visual">Fire blanket</label></div>
+                                    <div><input id="hotRetardantScreen_visual" type="checkbox" disabled><label for="hotRetardantScreen_visual">Fire retardant screen</label></div>
+                                    <div><input id="hotCoverSewer_visual" type="checkbox" disabled><label for="hotCoverSewer_visual">Cover potentially flammable sewer/drain/sump</label></div>
+                                    <div><input id="hotLocateSparkAway_visual" type="checkbox" disabled><label for="hotLocateSparkAway_visual">Locate spark producing equipment away from potential flammable sewer/trench</label></div>
+                                    <div><input id="hotRemoveFlammables" type="checkbox"><label for="hotRemoveFlammables">Remove flammable/highly combustible materials</label></div>
+                                    <div><input id="hotControlsOthers_visual" type="checkbox" disabled><label for="hotControlsOthers_visual">Others:</label> <span class="print-inline" style="width:100px;"></span></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group full-width"><label for="hotSpecialPrecautions"><strong>Special precautions (if any):</strong></label>
-                        <textarea id="hotSpecialPrecautions" rows="2" style="width:100%; border:1px solid #000; padding:4px;"></textarea>
+                    <div class="full-width" style="margin-top:8px; border:1px solid #000; display:grid; grid-template-columns: 260px 1fr; align-items:stretch;">
+                        <div style="padding:6px; border-right:1px solid #000;"><strong>Special precautions (if any):</strong></div>
+                        <div id="hotSpecialPrecautions" class="print-multiline" style="padding:4px; min-height:48px;"></div>
                     </div>
                     <p style="text-align: center; font-size: 10px; margin-bottom: 0;">This permit is approved provided all conditions and precautions specified above are complied with.</p>
                 </div>
@@ -350,120 +531,146 @@
             <section class="form-section confined-space">
                 <div class="section-header"><span>CONFINED SPACE ENTRY</span><span>Please Tick (✓ or X)</span></div>
                 <div class="section-body">
-                     <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / ENTRY SUPERVISOR</p>
-                    <p style="text-align: center; font-size: 10px; margin-bottom: 0;">I have personally checked that all control measures are in place to prevent release of hazard and complied with requirements of the certificate.</p>
+                    <p style="font-weight: bold; text-align: center; margin-top: 0;">CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / ENTRY SUPERVISOR</p>
 
-                    <div class="grid-col-3 checkbox-group" style="margin-top:10px;">
-                        <!-- Column 1: Entry condition + basic controls (visual group) -->
+                    <div class="grid-container-3-col checkbox-group" style="margin-top:10px;">
+                        <!-- Column 1: Entry condition + basic controls -->
                         <div>
-                            <div><strong>ENTRY CONDITION</strong></div>
+                            <div style="font-weight:bold; text-decoration:underline;">ENTRY CONDITION</div>
                             <div><input id="csRespiratoryAtmosphere" type="checkbox"><label for="csRespiratoryAtmosphere">Respirable Atmosphere</label></div>
                             <div><input id="csNonRespiratoryAtmosphere" type="checkbox"><label for="csNonRespiratoryAtmosphere">Irrespirable Atmosphere</label></div>
-                            <div style="margin-top:8px;"><strong>CONTROLS REQUIRED</strong></div>
+                            <div style="margin-top:8px; font-weight:bold; text-decoration:underline;">CONTROLS REQUIRED</div>
                             <div><input id="csScba_visual" type="checkbox" disabled><label for="csScba_visual">First entry using SCBA or air line set</label></div>
                             <div><input id="csCseCertified_visual" type="checkbox" disabled><label for="csCseCertified_visual">Entrants are CSE certified</label></div>
                             <div><input id="csBriefed_visual" type="checkbox" disabled><label for="csBriefed_visual">Entrants briefed of risk by supervisor</label></div>
                         </div>
 
-                        <!-- Column 2: Controls (mix of real + visual) -->
+                        <!-- Column 2: Controls -->
                         <div>
-                            <div><strong>CONTROLS REQUIRED</strong></div>
                             <div><input id="csStatusBoard_visual" type="checkbox" disabled><label for="csStatusBoard_visual">Entry status board/log</label></div>
-                            <div class="form-group" style="display:flex; gap:6px; align-items:center;">
+                            <div class="form-group" style="display:flex; gap:6px; align-items:center; flex-direction: row;">
                                 <input id="csMaxPersons_visual" type="checkbox" disabled>
                                 <label for="csMaxPersons_visual" style="margin:0;">Maximum no. of persons allowed:</label>
-                                <input type="text" style="width:80px; border:1px solid #000; padding:2px;" disabled>
-                                <label style="margin:0;">Person</label>
+                                <span id="csMaxPersonsValue" class="print-inline" style="width:40px;"></span>
+                                <label id="csMaxPersonsLabel" style="margin:0;">Person</label>
                             </div>
                             <div><input id="csVentilation" type="checkbox"><label for="csVentilation">Continuous ventilation</label></div>
-                            <div class="form-group" style="display:flex; gap:6px; align-items:center;">
+                            <div class="form-group" style="display:flex; gap:6px; align-items:center; flex-direction: row;">
                                 <input id="csEveryHours_visual" type="checkbox" disabled>
                                 <label for="csEveryHours_visual" style="margin:0;">Every</label>
-                                <input type="text" style="width:60px; border:1px solid #000; padding:2px;" disabled>
+                                <span id="csEveryHoursValue" class="print-inline" style="width:40px;"></span>
                                 <label style="margin:0;">hours</label>
                             </div>
                             <div><input id="csEntryAttendant" type="checkbox"><label for="csEntryAttendant">Standby person</label></div>
-                            <div class="form-group" style="margin-left:22px; display:flex; gap:6px; align-items:center;">
+                            <div class="form-group" style="margin-left:22px; display:flex; gap:6px; align-items:center; flex-direction: row;">
                                 <label style="margin:0;">Name:</label>
-                                <input type="text" style="width:180px; border:1px solid #000; padding:2px;" disabled>
+                                <span id="csStandbyPersonName" class="print-inline" style="width:180px;"></span>
                             </div>
                             <div><input id="csLowVoltage_visual" type="checkbox" disabled><label for="csLowVoltage_visual">Extra low voltage lighting (50V minimum)</label></div>
                             <div><input id="csLocateMobile_visual" type="checkbox" disabled><label for="csLocateMobile_visual">Locate mobile equipment away from manhole</label></div>
                         </div>
 
-                        <!-- Column 3: Checklist + communication (mix of real + visual) -->
+                        <!-- Column 3: Checklist + communication -->
                         <div>
-                            <div><strong>CONTROLS REQUIRED</strong></div>
                             <div><input id="csChecklistAttached_visual" type="checkbox" disabled><label for="csChecklistAttached_visual">Confined space entry checklist attached</label></div>
                             <div><input id="csRescueEquipment" type="checkbox"><label for="csRescueEquipment">Rescue equipment</label></div>
                             <div><input id="csCompleteCSE_visual" type="checkbox" disabled><label for="csCompleteCSE_visual">Complete CSE Checklist</label></div>
                             <div style="margin-top:4px;"><strong>Type of communication used:</strong></div>
-                            <div style="margin-left:16px;"><input id="csRopeTugging" type="checkbox"><label for="csRopeTugging">Rope signals</label></div>
-                            <div style="margin-left:16px;"><input id="csRadio" type="checkbox"><label for="csRadio">Walkie talkie</label></div>
-                            <div style="margin-left:16px;"><input id="csWhistle_visual" type="checkbox" disabled><label for="csWhistle_visual">Whistle/horn</label></div>
-                            <div class="form-group" style="margin-top:6px;"><label for="csOthers_visual">Others:</label> <input id="csOthers_visual" type="text" disabled></div>
+                            <div class="sub-checkbox"><input id="csRopeTugging" type="checkbox"><label for="csRopeTugging">Rope signals</label></div>
+                            <div class="sub-checkbox"><input id="csRadio" type="checkbox"><label for="csRadio">Walkie talkie</label></div>
+                            <div class="sub-checkbox"><input id="csWhistle_visual" type="checkbox" disabled><label for="csWhistle_visual">Whistle/horn</label></div>
+                            <div class="form-group" style="margin-top:6px; display:flex; align-items:center; gap:6px; flex-direction: row;">
+                                <input id="csCommunicationOthersCheckbox" type="checkbox">
+                                <label style="margin:0;">Others:</label>
+                                <span id="csCommunicationOthers" class="print-inline" style="width:200px;"></span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-group full-width" style="margin-top:8px;"><label for="csSpecialPrecautions"><strong>Special precautions (if any):</strong></label>
-                        <textarea id="csSpecialPrecautions" rows="2" style="width:100%; border:1px solid #000; padding:4px;"></textarea>
+                    <div class="full-width" style="margin-top:8px; border:1px solid #000; display:grid; grid-template-columns: 260px 1fr; align-items:stretch;">
+                        <div style="padding:6px; border-right:1px solid #000;"><strong>Special precautions (if any):</strong></div>
+                        <div id="csSpecialPrecautions" class="print-multiline" style="padding:4px; min-height:48px;"></div>
                     </div>
 
-                    <div class="signature-block" style="border:1px solid #000; padding:10px; margin-top:12px;">
-                        <h5>ACKNOWLEDGEMENT (Confined Space)</h5>
-                        <div class="grid-container-2-col">
-                            <div>
-                                <div class="form-group"><label for="cs_ack_name"><strong>Name:</strong></label> <input id="cs_ack_name" type="text"></div>
-                                <div class="form-group"><label for="cs_ack_position"><strong>Position:</strong></label> <input id="cs_ack_position" type="text"></div>
-                                <div class="form-group"><label for="cs_ack_datetime"><strong>Date &amp; Time:</strong></label> <input id="cs_ack_datetime" type="text"></div>
-                            </div>
-                            <div style="text-align:right;">
-                                <div><strong>Signature:</strong></div>
-                                <div style="height:50px; border:1px solid #000; margin-top:6px;"></div>
-                            </div>
-                        </div>
-                        <p style="font-size:10px;margin-top:6px;">* Signature is mandatory for Confined Space acknowledgement.</p>
-                    </div>
+                    <p style="text-align: center; font-size: 10px; margin: 8px 0 0 0;">I have personally checked that all control measures are in place to prevent release of hazard and complied with requirements of the certificate.</p>
+                </div>
             </section>
         </div>
         </section>
         <div class="page page-2">
-            <section class="form-section">
+            <section class="form-section supporting-docs">
                 <div class="section-header">SECTION 2: SUPPORTING DOCUMENTS</div>
-                <div class="section-body grid-container-4-col checkbox-group">
-                    <div><input id="sd_cidb_green_card" type="checkbox"><label for="sd_cidb_green_card">CIDB Green Card</label></div>
-                    <div><input id="sd_toolbox_talk" type="checkbox"><label for="sd_toolbox_talk">Toolbox Talk Record</label></div>
-                    <div class="form-group"><label for="sd_excavation_cert_no">Excavation Cert No.:</label><input id="sd_excavation_cert_no" type="text"></div>
-                    <div class="form-group"><label for="sd_confined_space_cert_no">Confined Space Cert No.:</label><input id="sd_confined_space_cert_no" type="text"></div>
-                    <div><input id="sd_aesp_card" type="checkbox"><label for="sd_aesp_card">AESP Card</label></div>
-                    <div><input id="sd_sds" type="checkbox"><label for="sd_sds">Safety Data Sheet</label></div>
-                    <div><input id="sd_excavation_plan" type="checkbox"><label for="sd_excavation_plan">Excavation Plan</label></div>
-                    <div class="form-group"><label for="sd_others">Others (please specify):</label><input id="sd_others" type="text"></div>
-                    <div><input id="sd_competency_person" type="checkbox"><label for="sd_competency_person">Competency Person Certificate</label></div>
-                    <div><input id="sd_job_method_statement" type="checkbox"><label for="sd_job_method_statement">Job Method Statement</label></div>
-                    <div class="form-group"><label for="sd_lifting_cert_no">Lifting Cert No.:</label><input id="sd_lifting_cert_no" type="text"></div>
-                    <div></div>
-                    <div><input id="sd_contractor_checklist" type="checkbox"><label for="sd_contractor_checklist">Contractor Checklist</label></div>
-                    <div><input id="sd_job_hazard_analysis" type="checkbox"><label for="sd_job_hazard_analysis">Job Hazard Analysis</label></div>
-                    <div><input id="sd_lifting_plan" type="checkbox"><label for="sd_lifting_plan">Lifting Plan</label></div>
-                    <div></div>
-                    <div><input id="sd_medical_check_up" type="checkbox"><label for="sd_medical_check_up">Medical Check Up</label></div>
-                    <div><input id="sd_hirarc" type="checkbox"><label for="sd_hirarc">HIRARC / EAIA</label></div>
-                    <div><input id="sd_lifting_checklist" type="checkbox"><label for="sd_lifting_checklist">Lifting Checklist</label></div>
-                    <div></div>
-                    <div><input id="sd_calibration_certificate" type="checkbox"><label for="sd_calibration_certificate">Calibration Certificate</label></div>
-                    <div><input id="sd_tmp" type="checkbox"><label for="sd_tmp">Traffic Management Plan</label></div>
-                    <div class="form-group"><label for="sd_physical_isolation_cert_no">Physical Isolation Cert No.:</label><input id="sd_physical_isolation_cert_no" type="text"></div>
-                    <div></div>
-                    <div><input id="sd_load_chart" type="checkbox"><label for="sd_load_chart">Load Chart</label></div>
-                    <div><input id="sd_certificate_of_fitness" type="checkbox"><label for="sd_certificate_of_fitness">Certificate of Fitness (PMA/PMT/PMD)</label></div>
-                    <div class="form-group"><label for="sd_electrical_isolation_cert_no">Electrical Isolation Cert No.:</label><input id="sd_electrical_isolation_cert_no" type="text"></div>
+                <div class="section-body grid-container-4-col checkbox-group grid-supporting-docs">
+                    <!-- Column 1 -->
+                    <div>
+                        <div><input id="sd_cidb_green_card" type="checkbox"><label for="sd_cidb_green_card">CIDB Green Card</label></div>
+                        <div><input id="sd_aesp_card" type="checkbox"><label for="sd_aesp_card">AESP Card</label></div>
+                        <div><input id="sd_competency_person" type="checkbox"><label for="sd_competency_person">Competency Person Certificate</label></div>
+                        <div><input id="sd_contractor_checklist" type="checkbox"><label for="sd_contractor_checklist">Contractor Checklist</label></div>
+                        <div><input id="sd_medical_check_up" type="checkbox"><label for="sd_medical_check_up">Medical Check Up</label></div>
+                        <div><input id="sd_calibration_certificate" type="checkbox"><label for="sd_calibration_certificate">Calibration Certificate</label></div>
+                        <div><input id="sd_load_chart" type="checkbox"><label for="sd_load_chart">Load Chart</label></div>
+                    </div>
+
+                    <!-- Column 2 -->
+                    <div>
+                        <div><input id="sd_toolbox_talk" type="checkbox"><label for="sd_toolbox_talk">Toolbox Talk Record</label></div>
+                        <div><input id="sd_sds" type="checkbox"><label for="sd_sds">Safety Data Sheet</label></div>
+                        <div><input id="sd_job_method_statement" type="checkbox"><label for="sd_job_method_statement">Job Method Statement</label></div>
+                        <div><input id="sd_job_hazard_analysis" type="checkbox"><label for="sd_job_hazard_analysis">Job Hazard Analysis</label></div>
+                        <div><input id="sd_hirarc" type="checkbox"><label for="sd_hirarc">HIRARC / EAIA</label></div>
+                        <div><input id="sd_tmp" type="checkbox"><label for="sd_tmp">Traffic Management Plan</label></div>
+                        <div><input id="sd_certificate_of_fitness" type="checkbox"><label for="sd_certificate_of_fitness">Certificate of Fitness (PMA/PMT/PMD)</label></div>
+                    </div>
+
+                    <!-- Column 3 -->
+                    <div>
+                        <div class="form-group" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                            <input id="sd_excavation_cert" type="checkbox">
+                            <label for="sd_excavation_cert_no">Excavation Cert No.:</label>
+                            <span id="sd_excavation_cert_no" class="print-inline" style="width:100px;"></span>
+                        </div>
+                        <div class="sub-checkbox"><input id="sd_excavation_plan" type="checkbox"><label for="sd_excavation_plan">Excavation Plan</label></div>
+                        <div style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                            <input id="sd_lifting_cert" type="checkbox">
+                            <label for="sd_lifting_cert_no">Lifting Cert No.:</label>
+                            <span id="sd_lifting_cert_no" class="print-inline" style="width:100px;"></span>
+                        </div>
+                        <div class="sub-checkbox"><input id="sd_lifting_plan" type="checkbox"><label for="sd_lifting_plan">Lifting Plan</label></div>
+                        <div class="sub-checkbox"><input id="sd_lifting_checklist" type="checkbox"><label for="sd_lifting_checklist">Lifting Checklist</label></div>
+                        <div class="form-group" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                            <input id="sd_physical_isolation_cert" type="checkbox">
+                            <label for="sd_physical_isolation_cert_no">Physical Isolation Cert No.:</label>
+                            <span id="sd_physical_isolation_cert_no" class="print-inline" style="width:100px;"></span>
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                            <input id="sd_electrical_isolation_cert" type="checkbox">
+                            <label for="sd_electrical_isolation_cert_no">Electrical Isolation Cert No.:</label>
+                            <span id="sd_electrical_isolation_cert_no" class="print-inline" style="width:100px;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Column 4 -->
+                     <div>
+                        <div class="form-group" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                            <input id="sd_confined_space_cert" type="checkbox">
+                            <label for="sd_confined_space_cert_no">Confined Space Cert No.:</label>
+                            <span id="sd_confined_space_cert_no" class="print-inline" style="width:100px;"></span>
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                            <input id="sd_others_cert" type="checkbox">
+                            <label for="sd_others">Others (please specify):</label>
+                        </div>
+                        <div class="form-group">
+                            <div id="sd_others_text" class="print-inline print-multiline" style="min-height:18px; width:100%;"></div>
+                        </div>
+                     </div>
                 </div>
             </section>
     
-            <section class="form-section">
+            <section class="form-section hazardous-activities">
                 <div class="section-header">SECTION 3: HAZARDOUS ACTIVITIES</div>
-                <div class="section-body grid-container-4-col checkbox-group">
+                <div class="section-body grid-container-4-col checkbox-group" style="gap:0px;">
                         <div><input id="ha_slippery_floor" type="checkbox"><label for="ha_slippery_floor">Slippery floor</label></div>
                         <div><input id="ha_dropped_objects" type="checkbox"><label for="ha_dropped_objects">Dropped objects</label></div>
                         <div><input id="ha_uneven_ground" type="checkbox"><label for="ha_uneven_ground">Uneven ground/soil</label></div>
@@ -491,27 +698,68 @@
                         <div><input id="ha_rotating_parts" type="checkbox"><label for="ha_rotating_parts">Rotating parts</label></div>
                         <div><input id="ha_ionizing_radiation" type="checkbox"><label for="ha_ionizing_radiation">Ionizing Radiation</label></div>
                         <div><input id="ha_infectious_substance" type="checkbox"><label for="ha_infectious_substance">Infectious substance</label></div>
-                        <div class="form-group"><label for="ha_others">Others:</label><input id="ha_others" type="text"></div>
+                        <div class="form-group" style="display:flex; align-items:center; gap:0px; flex-direction: row;">
+                            <input id="ha_others_checkbox" type="checkbox">
+                            <label for="ha_others">Others:</label>
+                            <span id="ha_others" class="print-inline ml-3" style="width:100px;">
+                            </span>
+                        </div>
                 </div>
             </section>
             
-            <section class="form-section">
+            <section class="form-section contractor-declaration">
                 <div class="section-header">SECTION 4: CONTRACTOR DECLARATION</div>
-                <div class="section-body">
-            <table class="declaration-table">
+                <div class="section-body" style="padding: 0px">
+                    <table class="declaration-table" style="border: 1px solid #000; border-collapse: collapse; width: 100%; margin-top: 0px !important;">
                         <thead><tr><th>No</th><th>Description</th><th class="status-col">Status</th></tr></thead>
                         <tbody>
-                <tr><td>i)</td><td>All assigned workers are briefed on relevant SHE Procedure...</td><td class="status-col"><input id="cd_i_yes" type="checkbox"> Yes <input id="cd_i_no" type="checkbox"> No</td></tr>
-                <tr><td>ii)</td><td>All documentation given are valid during Permit To Work validity</td><td class="status-col"><input id="cd_ii_yes" type="checkbox"> Yes <input id="cd_ii_no" type="checkbox"> No</td></tr>
-                <tr><td>iii)</td><td>Ensure all appointed staff/workers are briefed on relevant job step...</td><td class="status-col"><input id="cd_iii_yes" type="checkbox"> Yes <input id="cd_iii_no" type="checkbox"> No</td></tr>
-                <tr><td>iv)</td><td>GFM is not liable for any incident occurred on site if violation of the Permit To Work</td><td class="status-col"><input id="cd_iv_yes" type="checkbox"> Yes <input id="cd_iv_no" type="checkbox"> No</td></tr>
-                <tr><td>v)</td><td>Permit to work shall be displayed at the work site all the time</td><td class="status-col"><input id="cd_v_yes" type="checkbox"> Yes <input id="cd_v_no" type="checkbox"> No</td></tr>
-                <tr><td>vi)</td><td>All safety equipment has been checked and deem safe</td><td class="status-col"><input id="cd_vi_yes" type="checkbox"> Yes <input id="cd_vi_no" type="checkbox"> No</td></tr>
+                            <tr>
+                                <td>i)</td>
+                                <td>All assigned workers are briefed on relevant SHE Procedure...</td>
+                                <td class="status-col flex-center">
+                                    <input id="cd_i_yes" type="checkbox"> Yes <input id="cd_i_no" type="checkbox"> No
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ii)</td>
+                                <td>All documentation given are valid during Permit To Work validity</td>
+                                <td class="status-col flex-center">
+                                    <input id="cd_ii_yes" type="checkbox"> Yes <input id="cd_ii_no" type="checkbox"> No
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>iii)</td>
+                                <td>Ensure all appointed staff/workers are briefed on relevant job step...</td>
+                                <td class="status-col flex-center">
+                                    <input id="cd_iii_yes" type="checkbox"> Yes <input id="cd_iii_no" type="checkbox"> No
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>iv)</td>
+                                <td>GFM is not liable for any incident occurred on site if violation of the Permit To Work</td>
+                                <td class="status-col flex-center">
+                                    <input id="cd_iv_yes" type="checkbox"> Yes <input id="cd_iv_no" type="checkbox"> No
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>v)</td>
+                                <td>Permit to work shall be displayed at the work site all the time</td>
+                                <td class="status-col flex-center">
+                                    <input id="cd_v_yes" type="checkbox"> Yes <input id="cd_v_no" type="checkbox"> No
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>vi)</td>
+                                <td>All safety equipment has been checked and deem safe</td>
+                                <td class="status-col flex-center">
+                                    <input id="cd_vi_yes" type="checkbox"> Yes <input id="cd_vi_no" type="checkbox"> No
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     
-                    <p>Appropriate PPE are provided/wear, please tick below:</p>
-                    <div class="ppe-grid checkbox-group">
+                    <p style="padding: 0px 5px; font-size: 10px;">Appropriate PPE are provided/wear, please tick below:</p>
+                    <div class="ppe-grid checkbox-group" style="padding: 5px">
                         <div class="ppe-category">
                             <div><strong>Mandatory</strong></div>
                             <div><input id="ppe_safety_helmet" type="checkbox"><label for="ppe_safety_helmet">Safety helmet</label></div>
@@ -552,25 +800,36 @@
                             <div><input id="ppe_ear_muffs" type="checkbox"><label for="ppe_ear_muffs">Ear muff</label></div>
                             <div style="margin-top:6px;"><strong>Others</strong></div>
                             <div><input id="ppe_life_jacket_visual" type="checkbox" disabled><label for="ppe_life_jacket_visual">Life jacket/vest</label></div>
-                            <div class="form-group"><label for="ppe_others">Others (pls specify):</label> <input id="ppe_others" type="text"></div>
+                            <div class="form-group" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
+                                <input id="ppe_others_checkbox" type="checkbox">
+                                <label for="ppe_others" style="margin:0;">Others (pls specify):</label>
+                                <span id="ppe_others" class="print-inline" style="width:160px;"></span>
+                            </div>
                         </div>
                     </div>
     
-                    <div style="margin-top: 15px; border-top: 1px solid #000; padding-top: 10px;">
-                        <p style="margin: 0;">I/ We confirm that we have read and fully understood the terms and conditions...</p>
-                        <div class="grid-container-2-col" style="margin-top: 20px;">
-                            <div>
-                                <strong>ACKNOWLEDGEMENT BY SUPERVISOR / CONTRACTOR</strong><br>
-                                SUPERVISOR
-                                <div style="margin-top:8px;"><strong>Name:</strong> <span id="contractor_ack_name">-</span></div>
-                                <div style="margin-top:6px;"><strong>Designation:</strong> <span id="contractor_ack_designation">-</span></div>
-                            </div>
-                            <div id="contractorSignatureBlock" style="text-align: right;">
-                                <strong>Signature:</strong>
-                                <div id="contractor_signature_line" style="display:inline-block; min-width:220px; border-bottom:1px solid #000; vertical-align:bottom;">&nbsp;</div>
-                                <div id="contractor_signature_image" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:320px; float:right;">
-                                    <img id="contractor_signature_img" alt="Contractor signature" style="max-height:80px; max-width:100%; display:block;" />
-                                </div>
+                    <div style="margin-top: 15px; padding:5px; text-align: justify; font-size: 10px;">
+                        <p style="margin: 0;">I/ We confirm that we have read and fully understood the terms and conditions above and hereby agree to strictly comply with rules and regulations as well as safety requirements set by
+the building owners and GFM. I / We shall brief all my workers involved in this work and ensure that they are carry out work safely at all times.</p>
+                    </div>
+                    <div class="grid-container-4-col" style="gap:0" >
+                        <div style="padding: 5px; border-top: 1px solid #000; border-right: 1px solid #000;">
+                            <strong>ACKNOWLEDGEMENT BY SUPERVISOR / CONTRACTOR</strong><br>
+                            <p id="contractor_designation" style="font-size: 12px; margin-top:10px">SUPERVISOR</p>
+                        </div>
+                        <div style="padding: 5px; border-top: 1px solid #000; border-right: 1px solid #000; text-align: center; display: flex; flex-direction: column; align-items: flex-start;">
+                            <strong>Name:</strong> 
+                            <span id="contractor_ack_name" style="margin-top: 5px; font-size: 12px;">-</span>
+                        </div>
+                        <div style="padding: 5px; border-top: 1px solid #000; border-right: 1px solid #000; text-align: center; display: flex; flex-direction: column; align-items: flex-start;">
+                            <strong>Designation:</strong> 
+                            <span id="contractor_ack_designation" style="margin-top: 5px; font-size: 12px;">-</span>
+                        </div>
+                        <div id="contractorSignatureBlock" style="padding: 5px; border-top: 1px solid #000;text-align: center; display: flex; flex-direction: column; align-items: flex-start;">
+                            <strong>Signature:</strong>
+                            <div id="contractor_signature_line" style="display:inline-block; min-width:220px; border-bottom:1px solid #000; vertical-align:bottom;">&nbsp;</div>
+                            <div id="contractor_signature_image" style="display:none; margin-top:6px; padding:2px; max-width:320px; float:right;">
+                                <img id="contractor_signature_img" alt="Contractor signature" style="max-height:80px; max-width:100%; display:block;" />
                             </div>
                         </div>
                     </div>
@@ -588,110 +847,222 @@
                 </div>
             </section>
 
-            <!-- SECTION 6: APPROVALS -->
-            <section class="form-section">
-                <div class="section-header">SECTION 6: APPROVALS</div>
-                <div class="section-body">
-                    <div class="approval-grid grid-container-3-col">
-                        <!-- Supervisor -->
-                        <div class="approval-box">
-                            <h4>Supervisor</h4>
-                            <div class="form-group"><label><strong>Name:</strong></label> <span id="appr_sup_name">-</span></div>
-                            <div class="form-group"><label><strong>Date:</strong></label> <span id="appr_sup_date">-</span></div>
-                            <div class="form-group" style="margin-top:8px; text-align:right;">
-                                <strong>Signature:</strong>
-                                <div id="appr_sup_sig_line" style="display:inline-block; min-width:200px; border-bottom:1px solid #000; vertical-align:bottom;">&nbsp;</div>
-                                <div id="appr_sup_sig_imgwrap" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:260px; float:right;">
-                                    <img id="appr_sup_sig_img" alt="Supervisor signature" style="max-height:70px; max-width:100%; display:block;" />
-                                </div>
-                            </div>
-                        </div>
-                        <!-- SHE Authorizing Person -->
-                        <div class="approval-box">
-                            <h4>SHE Authorizing Person</h4>
-                            <div class="form-group"><label><strong>Name:</strong></label> <span id="appr_she_name">-</span></div>
-                            <div class="form-group"><label><strong>Date:</strong></label> <span id="appr_she_date">-</span></div>
-                            <div class="form-group" style="margin-top:8px; text-align:right;">
-                                <strong>Signature:</strong>
-                                <div id="appr_she_sig_line" style="display:inline-block; min-width:200px; border-bottom:1px solid #000; vertical-align:bottom;">&nbsp;</div>
-                                <div id="appr_she_sig_imgwrap" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:260px; float:right;">
-                                    <img id="appr_she_sig_img" alt="SHE signature" style="max-height:70px; max-width:100%; display:block;" />
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Facility Engineer/Manager -->
-                        <div class="approval-box">
-                            <h4>Facility Engineer / Manager</h4>
-                            <div class="form-group"><label><strong>Name:</strong></label> <span id="appr_fm_name">-</span></div>
-                            <div class="form-group"><label><strong>Date:</strong></label> <span id="appr_fm_date">-</span></div>
-                            <div class="form-group" style="margin-top:8px; text-align:right;">
-                                <strong>Signature:</strong>
-                                <div id="appr_fm_sig_line" style="display:inline-block; min-width:200px; border-bottom:1px solid #000; vertical-align:bottom;">&nbsp;</div>
-                                <div id="appr_fm_sig_imgwrap" style="display:none; margin-top:6px; border:1px solid #000; padding:2px; max-width:260px; float:right;">
-                                    <img id="appr_fm_sig_img" alt="FM signature" style="max-height:70px; max-width:100%; display:block;" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- SECTION 6: APPROVAL -->
+            <section class="form-section approvals-section">
+                <div class="section-header">SECTION 6: APPROVAL</div>
+                <div class="section-body" style="padding:0;">
+                    <table class="approval-table" style="width:100%; border-collapse:collapse; border:1px solid #000; font-size: 12px;">
+                        <thead>
+                            <tr>
+                                <th style="border:1px solid #000; text-align:center;">Supervised By</th>
+                                <th style="border:1px solid #000; text-align:center;">SHE Authorizing Person</th>
+                                <th style="border:1px solid #000; text-align:center;">Facility Engineer / Facility Manager / Client</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border:1px solid #000; padding:6px;">
+                                    This PTW is :
+                                    <input id="appr_sup_approved" type="checkbox"> Approved
+                                    <input id="appr_sup_not_approved" type="checkbox"> Not Approved
+                                </td>
+                                <td style="border:1px solid #000; padding:6px;">
+                                    This PTW is :
+                                    <input id="appr_she_approved" type="checkbox"> Approved
+                                    <input id="appr_she_not_approved" type="checkbox"> Not Approved
+                                </td>
+                                <td style="border:1px solid #000; padding:6px;">
+                                    This PTW is :
+                                    <input id="appr_fm_approved" type="checkbox"> Approved
+                                    <input id="appr_fm_not_approved" type="checkbox"> Not Approved
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border:1px solid #000; padding:6px;">
+                                    <div>Signature</div>
+                                    <div id="appr_sup_sig_line" style="height:20px; ">&nbsp;</div>
+                                    <div id="appr_sup_sig_imgwrap" style="display:none; margin-top:6px; padding:2px; max-width:260px;">
+                                        <img id="appr_sup_sig_img" alt="Supervisor signature" style="max-height:70px; max-width:100%; display:block;" />
+                                    </div>
+                                </td>
+                                <td style="border:1px solid #000; padding:6px;">
+                                    <div>Signature</div>
+                                    <div id="appr_she_sig_line" style="height:20px; ">&nbsp;</div>
+                                    <div id="appr_she_sig_imgwrap" style="display:none; margin-top:6px; padding:2px; max-width:260px;">
+                                        <img id="appr_she_sig_img" alt="SHE signature" style="max-height:70px; max-width:100%; display:block;" />
+                                    </div>
+                                </td>
+                                <td style="border:1px solid #000; padding:6px;">
+                                    <div>Signature</div>
+                                    <div id="appr_fm_sig_line" style="height:20px; ">&nbsp;</div>
+                                    <div id="appr_fm_sig_imgwrap" style="display:none; margin-top:6px; padding:2px; max-width:260px;">
+                                        <img id="appr_fm_sig_img" alt="FM signature" style="max-height:70px; max-width:100%; display:block;" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border:1px solid #000; padding:6px;">Name : <span id="appr_sup_name" style="min-width: 140px;"></span></td>
+                                <td style="border:1px solid #000; padding:6px;">Name : <span id="appr_she_name" style="min-width: 140px;"></span></td>
+                                <td style="border:1px solid #000; padding:6px;">Name : <span id="appr_fm_name" style="min-width: 140px;"></span></td>
+                            </tr>
+                            <tr>
+                                <td style="border:1px solid #000; padding:6px;">Designation : <span id="appr_sup_designation" style="min-width: 140px;"></span></td>
+                                <td style="border:1px solid #000; padding:6px;">Designation : <span id="appr_she_designation" style="min-width: 140px;"></span></td>
+                                <td style="border:1px solid #000; padding:6px;">Designation : <span id="appr_fm_designation" style="min-width: 140px;"></span></td>
+                            </tr>
+                            <tr>
+                                <td style="border:1px solid #000; padding:6px;">Date : <span id="appr_sup_date" style="min-width: 140px;"></span></td>
+                                <td style="border:1px solid #000; padding:6px;">Date : <span id="appr_she_date" style="min-width: 140px;"></span></td>
+                                <td style="border:1px solid #000; padding:6px;">Date : <span id="appr_fm_date" style="min-width: 140px;"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
-            <!-- SECTION 7: HAND BACK (EXTENDED / CLOSED / CANCELLED / SUSPENDED) -->
-            <section class="form-section">
-                <div class="section-header">SECTION 5: PERMIT STATUS AUTHORIZATION</div>
-                <div class="section-body">
-                    <p style="margin:0 0 8px 0;">Each status change must be authorized. Complete the relevant box below.</p>
-                    <div class="grid-container-2-col" style="gap:12px;">
-                        <div class="approval-box">
-                            <h4>Closed</h4>
-                            <div><strong>Authorized By (Name):</strong> <span id="hb_closed_name">-</span></div>
-                            <div><strong>Position:</strong> <span id="hb_closed_position">-</span></div>
-                            <div><strong>Date &amp; Time:</strong> <span id="hb_closed_datetime">-</span></div>
-                            <div class="signature-block">
-                                <div><strong>Signature:</strong></div>
-                                <div id="hb_closed_sig_wrap" style="height:60px; border:1px solid #000; margin-top:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                                    <img id="hb_closed_sig_img" alt="Closed signature" style="max-height:58px; max-width:100%; display:none;" />
+            <!-- SECTION 7: HAND BACK (Closed / Extended / Cancelled / Suspended) -->
+            <section class="form-section handback-section">
+                <div class="section-header" style="background:#009da5; color:#fff;">SECTION 7: HAND BACK</div>
+                <div class="section-body" style="padding:0;">
+                    <table class="handback-table" style="width:100%; border-collapse:collapse; border:1px solid #000; font-size:12px;">
+                        <colgroup>
+                            <col style="width:22%">
+                            <col style="width:39%">
+                            <col style="width:39%">
+                        </colgroup>
+                        <!-- CLOSED ROW -->
+                        <tr>
+                            <td style="border:1px solid #000; vertical-align:top;">
+                                <div style="display:flex; align-items:center; gap:8px; padding:10px 8px;">
+                                    <input id="hb_closed_chk" type="checkbox"> <span>Closed</span>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="approval-box">
-                            <h4>Suspended</h4>
-                            <div><strong>Authorized By (Name):</strong> <span id="hb_suspended_name">-</span></div>
-                            <div><strong>Position:</strong> <span id="hb_suspended_position">-</span></div>
-                            <div><strong>Date &amp; Time:</strong> <span id="hb_suspended_datetime">-</span></div>
-                            <div class="signature-block">
-                                <div><strong>Signature:</strong></div>
-                                <div id="hb_suspended_sig_wrap" style="height:60px; border:1px solid #000; margin-top:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                                    <img id="hb_suspended_sig_img" alt="Suspended signature" style="max-height:58px; max-width:100%; display:none;" />
+                            </td>
+                            <td style="border:1px solid #000; padding:6px; text-align:center; vertical-align:top;">
+                                All above work has been completed and worksite is cleaned and ready to resume normal operations.
+                                <div style="border-top:1px solid #000; border-bottom:1px solid #000; margin: 0px -6px; padding: 6px 0px; font-weight:bold;">Contractor Supervisor</div>
+                                <div style="display:grid; grid-template-columns:80px 1fr; gap:6px; text-align:left; margin-top:6px;">
+                                    <div>Name :</div><div><span id="hb_closed_sup_name"></span></div>
+                                    <div>Sign :</div>
+                                    <div>
+                                        <div id="hb_closed_sup_sig_line" style="display:inline-block; min-width:220px; vertical-align:bottom;">&nbsp;</div>
+                                        <div id="hb_closed_sup_sig_imgwrap" style="display:none; margin-top:6px; padding:2px; max-width:260px;">
+                                            <img id="hb_closed_sup_sig_img" alt="Contractor Supervisor signature" style="max-height:70px; max-width:100%; display:block;" />
+                                        </div>
+                                    </div>
+                                    <div>Date :</div><div><span id="hb_closed_sup_date"></span></div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="approval-box">
-                            <h4>Canceled</h4>
-                            <div><strong>Authorized By (Name):</strong> <span id="hb_cancelled_name">-</span></div>
-                            <div><strong>Position:</strong> <span id="hb_cancelled_position">-</span></div>
-                            <div><strong>Date &amp; Time:</strong> <span id="hb_cancelled_datetime">-</span></div>
-                            <div class="signature-block">
-                                <div><strong>Signature:</strong></div>
-                                <div id="hb_cancelled_sig_wrap" style="height:60px; border:1px solid #000; margin-top:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                                    <img id="hb_cancelled_sig_img" alt="Cancelled signature" style="max-height:58px; max-width:100%; display:none;" />
+                            </td>
+                            <td style="border:1px solid #000; padding:6px; text-align:center; vertical-align:top;">
+                                All the precautions has been removed. The worksite is ready to resume normal operations.
+                                <div style="border-top:1px solid #000; border-bottom:1px solid #000; margin: 0px -6px; padding: 6px 0px; font-weight:bold;">Facility Engineer / Facility Manager / Client</div>
+                                <div style="display:grid; grid-template-columns:90px 1fr; gap:6px; text-align:left; margin-top:6px;">
+                                    <div>Name :</div><div><span id="hb_closed_fm_name">-</span></div>
+                                    <div>Signature :</div>
+                                    <div>
+                                        <div id="hb_closed_fm_sig_line" style="display:inline-block; min-width:220px; vertical-align:bottom;">&nbsp;</div>
+                                        <div id="hb_closed_fm_sig_imgwrap" style="display:none; margin-top:6px; padding:2px; max-width:260px;">
+                                            <img id="hb_closed_fm_sig_img" alt="FM signature" style="max-height:70px; max-width:100%; display:block;" />
+                                        </div>
+                                    </div>
+                                    <div>Date :</div><div><span id="hb_closed_fm_date">-</span></div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="approval-box">
-                            <h4>Extended</h4>
-                            <div><strong>Authorized By (Name):</strong> <span id="hb_extended_name">-</span></div>
-                            <div><strong>Position:</strong> <span id="hb_extended_position">-</span></div>
-                            <div><strong>New Validity (Date &amp; Time):</strong> <span id="hb_extended_new_validity">-</span></div>
-                            <div class="signature-block">
-                                <div><strong>Signature:</strong></div>
-                                <div id="hb_extended_sig_wrap" style="height:60px; border:1px solid #000; margin-top:6px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                                    <img id="hb_extended_sig_img" alt="Extended signature" style="max-height:58px; max-width:100%; display:none;" />
+                            </td>
+                        </tr>
+
+                        <!-- EXTENDED ROW -->
+                        <tr>
+                            <td style="border:1px solid #000; vertical-align:top;">
+                                <div style="display:flex; align-items:center; gap:8px; padding:10px 8px;">
+                                    <input id="hb_extended_chk" type="checkbox"> <span>Extended</span>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <p style="font-size:10px;margin-top:6px;">* Signature is mandatory for all status updates.</p>
+                            </td>
+                            <td style="border:1px solid #000; padding:6px 6px 70px 6px; vertical-align:top; position:relative;">
+                                <div>I hereby confirm the extension of this permit.</div>
+                                <div style="position:absolute; left:-1px; right:-1px; bottom:-1px;">
+                                <table style="width:100%; border-collapse:collapse; margin:0;">
+                                    <tr>
+                                        <td style="border:1px solid #000; width:70px; padding:4px 6px;">From Date : <span id="hb_extended_from_date">-</span></td>
+                                        <td style="border:1px solid #000; width:70px; padding:4px 6px;">Time : <span id="hb_extended_from_time">-</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border:1px solid #000; padding:4px 6px;">To Date : <span id="hb_extended_to_date">-</span></td>
+                                        <td style="border:1px solid #000; padding:4px 6px;">Time : <span id="hb_extended_to_time">-</span></td>
+                                    </tr>
+                                </table>
+                                </div>
+                            </td>
+                            <td style="border:1px solid #000; padding:6px; vertical-align:top;">
+                                <div style="border-bottom:1px solid #000; margin: 0px -6px; padding: 0px 6px 6px 6px; font-weight:bold; text-align: center;">Facility Engineer / Facility Manager / Client</div>
+                                <div style="display:grid; grid-template-columns:90px 1fr; gap:6px; text-align:left; margin-top:6px;">
+                                    <div>Name :</div><div><span id="hb_extended_fm_name">-</span></div>
+                                    <div>Signature :</div>
+                                    <div>
+                                        <div id="hb_extended_fm_sig_line" style="display:inline-block; min-width:220px; vertical-align:bottom;">&nbsp;</div>
+                                        <div id="hb_extended_fm_sig_imgwrap" style="display:none; margin-top:6px; padding:2px; max-width:260px;">
+                                            <img id="hb_extended_fm_sig_img" alt="FM signature (extended)" style="max-height:70px; max-width:100%; display:block;" />
+                                        </div>
+                                    </div>
+                                    <div>Date :</div><div><span id="hb_extended_fm_date">-</span></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- CANCELLED ROW -->
+                        <tr>
+                            <td style="border:1px solid #000; vertical-align:top;">
+                                <div style="display:flex; align-items:center; gap:8px; padding:10px 8px;">
+                                    <input id="hb_cancelled_chk" type="checkbox"> <span>Cancelled</span>
+                                </div>
+                            </td>
+                            <td style="border:1px solid #000; padding:6px; vertical-align:top;">
+                                I certify that this permit is cancelled and work will not be carried out.
+                            </td>
+                            <td style="border:1px solid #000; padding:6px; vertical-align:top;">
+                                <div style="border-bottom:1px solid #000; margin: 0px -6px; padding: 0px 6px 6px 6px; font-weight:bold; text-align: center;">Facility Engineer / Facility Manager / Client</div>
+                                <div style="display:grid; grid-template-columns:90px 1fr; gap:6px; text-align:left; margin-top:6px;">
+                                    <div>Name :</div><div><span id="hb_cancelled_fm_name">-</span></div>
+                                    <div>Signature :</div>
+                                    <div>
+                                        <div id="hb_cancelled_fm_sig_line" style="display:inline-block; min-width:220px; vertical-align:bottom;">&nbsp;</div>
+                                        <div id="hb_cancelled_fm_sig_imgwrap" style="display:none; margin-top:6px; padding:2px; max-width:260px;">
+                                            <img id="hb_cancelled_fm_sig_img" alt="FM signature (cancelled)" style="max-height:70px; max-width:100%; display:block;" />
+                                        </div>
+                                    </div>
+                                    <div>Date :</div><div><span id="hb_cancelled_fm_date">-</span></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- SUSPENDED ROW -->
+                        <tr>
+                            <td style="border:1px solid #000; vertical-align:top;">
+                                <div style="display:flex; align-items:center; gap:8px; padding:10px 8px;">
+                                    <input id="hb_suspended_chk" type="checkbox"> <span>Suspended</span>
+                                </div>
+                            </td>
+                            <td style="border:1px solid #000; padding:6px; vertical-align:top;">
+                                I certify that this permit is suspended due to (please attached NCR/CAR if required).
+                                <div style="margin:10px 0;">
+                                    <div style="border-bottom:1px solid #000; height:16px;">&nbsp;</div>
+                                    <div style="border-bottom:1px solid #000; height:16px; margin-top:6px;">&nbsp;</div>
+                                </div>
+                            </td>
+                            <td style="border:1px solid #000; padding:6px; vertical-align:top;">
+                                <div style="border-bottom:1px solid #000; margin: 0px -6px; padding: 0px 6px 6px 6px; font-weight:bold; text-align: center;">Facility Engineer / Facility Manager / Client</div>
+                                <div style="display:grid; grid-template-columns:90px 1fr; gap:6px; text-align:left; margin-top:6px;">
+                                    <div>Name :</div><div><span id="hb_suspended_fm_name">-</span></div>
+                                    <div>Signature :</div>
+                                    <div>
+                                        <div id="hb_suspended_fm_sig_line" style="display:inline-block; min-width:220px; vertical-align:bottom;">&nbsp;</div>
+                                        <div id="hb_suspended_fm_sig_imgwrap" style="display:none; margin-top:6px; padding:2px; max-width:260px;">
+                                            <img id="hb_suspended_fm_sig_img" alt="FM signature (suspended)" style="max-height:70px; max-width:100%; display:block;" />
+                                        </div>
+                                    </div>
+                                    <div>Date :</div><div><span id="hb_suspended_fm_date">-</span></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </section>
 
@@ -705,7 +1076,17 @@
 // Populate Section 1 from PTW details
 (function(){
     function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
-    function setVal(id, v){ const el=document.getElementById(id); if(!el) return; el.value = v || ''; }
+    function setVal(id, v){
+        const el = document.getElementById(id);
+        if (!el) return;
+        const val = v || '';
+        const tag = (el.tagName || '').toUpperCase();
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || 'value' in el) {
+            try { el.value = val; } catch(_e){ el.textContent = val; }
+        } else {
+            el.textContent = val;
+        }
+    }
     function text(id, v){ const el=document.getElementById(id); if(!el) return; el.textContent = v || '-'; }
     function escapeStr(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#039;'}[m])); }
 
@@ -730,8 +1111,11 @@
             // Section 1 fields
             setVal('s1_applicant_name', d.ptw_applicant_name || '');
             setVal('s1_applicant_contact', d.ptw_applicant_contact || '');
+            // New fields per compliance template
+            setVal('s1_staff_or_nric', d.ptw_staff_no || d.ptw_applicant_staff_no || d.ptw_applicant_nric || d.ptw_nric || d.txtStaffNoNRIC || '');
             setVal('s1_supervisor_name', d.ptw_contractor_supervisor || d.ptw_supervisor_name || '');
             setVal('s1_supervisor_contact', d.ptw_supervisor_contact || '');
+            setVal('s1_identification_no', d.ptw_identification_no || d.txtIdentificationNo || '');
             setVal('s1_company_dept', d.ptw_applicant_company_dept || d.ptw_contractor_company || '');
             setVal('s1_work_area', d.ptw_work_area || '');
             setVal('s1_level', d.ptw_level || '');
@@ -795,6 +1179,7 @@
     const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
 
     function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = v || '-'; }
+    function setChecked(id, val){ const el=document.getElementById(id); if(el) el.checked = !!val; }
     function renderUserSignature(userId, imgId, wrapId, lineId){
         try{
             if(!userId) return;
@@ -828,7 +1213,10 @@
             const supDate = d.approved_supervisor_date || d.ptw_supervisor_approval_date || '';
             setText('appr_sup_name', supName);
             setText('appr_sup_date', supDate ? supDate.replace('T',' ').slice(0,19) : '-');
+            setText('appr_sup_designation', d.approved_supervisor_designation || d.supervisor_designation || '');
             renderUserSignature(d.approved_supervisor_by, 'appr_sup_sig_img', 'appr_sup_sig_imgwrap', 'appr_sup_sig_line');
+            setChecked('appr_sup_approved', d.approved_supervisor_status === 'APPROVED' || d.supervisor_approved === true || d.supervisor_approved === 1);
+            setChecked('appr_sup_not_approved', d.approved_supervisor_status === 'NOT_APPROVED' || d.supervisor_rejected === true || d.supervisor_rejected === 1);
 
             // SHE
             const sheName = d.approved_she_name || d.she_name || '';
@@ -836,6 +1224,9 @@
             setText('appr_she_name', sheName);
             setText('appr_she_date', sheDate ? sheDate.replace('T',' ').slice(0,19) : '-');
             renderUserSignature(d.approved_she_by, 'appr_she_sig_img', 'appr_she_sig_imgwrap', 'appr_she_sig_line');
+            setText('appr_she_designation', d.approved_she_designation || d.she_designation || '');
+            setChecked('appr_she_approved', d.approved_she_status === 'APPROVED' || d.she_approved === true || d.she_approved === 1);
+            setChecked('appr_she_not_approved', d.approved_she_status === 'NOT_APPROVED' || d.she_rejected === true || d.she_rejected === 1);
 
             // FM
             const fmName = d.approved_fm_name || d.fm_name || '';
@@ -843,6 +1234,9 @@
             setText('appr_fm_name', fmName);
             setText('appr_fm_date', fmDate ? fmDate.replace('T',' ').slice(0,19) : '-');
             renderUserSignature(d.approved_fm_by, 'appr_fm_sig_img', 'appr_fm_sig_imgwrap', 'appr_fm_sig_line');
+            setText('appr_fm_designation', d.approved_fm_designation || d.fm_designation || '');
+            setChecked('appr_fm_approved', d.approved_fm_status === 'APPROVED' || d.fm_approved === true || d.fm_approved === 1);
+            setChecked('appr_fm_not_approved', d.approved_fm_status === 'NOT_APPROVED' || d.fm_rejected === true || d.fm_rejected === 1);
         })
         .catch(()=>{});
 })();
@@ -856,6 +1250,7 @@
     const token = sessionStorage.getItem('token');
     const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
     function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = (v===0? '0' : (v || '-')); }
+    function setChecked(id, val){ const el=document.getElementById(id); if(el) el.checked = !!val; }
     function renderUserSignature(userId, imgId){
         try{
             const img = document.getElementById(imgId);
@@ -866,18 +1261,16 @@
                 const res = js && (js.result || js);
                 const path = res && (res.signatureLink || res.signature_path || res.signaturePath || res.file_path || res.path || res.url);
                 if (path){
-                    img.onload = function(){ img.style.display='block'; if(wrap) wrap.style.border='1px solid #000'; };
+                    img.onload = function(){ img.style.display='block'; if(wrap) wrap.style.display='block'; };
                     img.onerror = function(){ console.warn('Signature image failed to load (Section7) for user', userId, path); };
                     img.src = path;
-                } else {
-                    console.debug('No hand-back signature path for user', userId, res);
                 }
             }).catch(()=>{});
         }catch(_e){}
     }
 
     function splitDT(dt){
-        if(!dt) return {date:'-', time:''};
+        if(!dt) return {date:'-', time:'-'};
         const s = (''+dt).replace('T',' ');
         const date = s.slice(0,10);
         const time = s.slice(11,16);
@@ -888,52 +1281,72 @@
         .then(r=>r.json())
         .then(data=>{
             const d = data && data.result ? data.result : data; if(!d) return;
-            // We may not have dedicated *_name fields; try to resolve names from sys_user lookups present in approvals, else IDs
             function resolveName(userId, fallbackName){
                 if (fallbackName) return fallbackName;
-                // Try to coalesce with known approver names if same id
                 if (userId && d.approved_supervisor_by && String(userId)===String(d.approved_supervisor_by) && d.approved_supervisor_name) return d.approved_supervisor_name;
                 if (userId && d.approved_she_by && String(userId)===String(d.approved_she_by) && d.approved_she_name) return d.approved_she_name;
                 if (userId && d.approved_fm_by && String(userId)===String(d.approved_fm_by) && d.approved_fm_name) return d.approved_fm_name;
                 return userId ? ('User#'+userId) : '-';
             }
 
-            // CLOSED
-            const closedBy = d.completed_by || d.closed_by || d.approved_fm_by || null;
-            const closedName = resolveName(closedBy, d.closed_by_name || d.completed_by_name || '');
-            const closedDT = d.completed_date || d.closed_date || '';
-            setText('hb_closed_name', closedName);
-            setText('hb_closed_position', '');
-            setText('hb_closed_datetime', closedDT ? closedDT.replace('T',' ').slice(0,19) : '-');
-            renderUserSignature(closedBy, 'hb_closed_sig_img');
+            // Determine statuses for checkboxes
+            const isClosed = !!(d.completed_date || d.closed_date || d.ptw_display_status === 'COMPLETED' || d.ptw_status === 'COMPLETED');
+            const isExtended = !!(d.ptw_display_status === 'EXTENDED' || d.ptw_status === 'EXTENDED' || d.ptw_extension_requested_to);
+            const isCancelled = !!(d.cancelled_date || d.ptw_display_status === 'CANCELLED' || d.ptw_status === 'CANCELLED');
+            const isSuspended = !!(d.suspended_date || d.ptw_display_status === 'SUSPENDED' || d.ptw_status === 'SUSPENDED');
+            setChecked('hb_closed_chk', isClosed);
+            setChecked('hb_extended_chk', isExtended);
+            setChecked('hb_cancelled_chk', isCancelled);
+            setChecked('hb_suspended_chk', isSuspended);
 
-            // SUSPENDED
-            const suspendedBy = d.suspended_by || null;
-            const suspendedName = resolveName(suspendedBy, d.suspended_by_name || '');
-            setText('hb_suspended_name', suspendedName);
-            setText('hb_suspended_position', '');
-            const suspendedDT = d.suspended_date || '';
-            setText('hb_suspended_datetime', suspendedDT ? suspendedDT.replace('T',' ').slice(0,19) : '-');
-            renderUserSignature(suspendedBy, 'hb_suspended_sig_img');
+            // CLOSED: Supervisor column (fallbacks to known supervisor/applicant if missing)
+            const closedSupUser = d.approved_supervisor_by || d.supervisor_id || null;
+            const closedSupName = d.approved_supervisor_name || d.supervisor_name || d.ptw_contractor_supervisor || d.ptw_supervisor_name || '-';
+            const closed = d.completed_date || d.closed_date || '';
+            const closedDT = splitDT(closed);
+            setText('hb_closed_sup_name', closedSupName);
+            setText('hb_closed_sup_date', (closedDT.date !== '-' || closedDT.time !== '-') ? (closedDT.date + (closedDT.time && closedDT.time!=='-' ? ' ' + closedDT.time : '')) : '-');
+            renderUserSignature(closedSupUser, 'hb_closed_sup_sig_img');
 
-            // CANCELLED
+            // CLOSED: FM/Client column
+            const closedFmUser = d.completed_by || d.closed_by || d.approved_fm_by || null;
+            const closedFmName = resolveName(closedFmUser, d.closed_by_name || d.completed_by_name || d.approved_fm_name || '');
+            setText('hb_closed_fm_name', closedFmName);
+            setText('hb_closed_fm_date', (closedDT.date !== '-' || closedDT.time !== '-') ? (closedDT.date + (closedDT.time && closedDT.time!=='-' ? ' ' + closedDT.time : '')) : '-');
+            renderUserSignature(closedFmUser, 'hb_closed_fm_sig_img');
+
+            // EXTENDED: From/To timing and FM acknowledgement
+            const from = d.ptw_valid_from || d.ptw_extension_requested_from || '';
+            const to = d.ptw_valid_to || d.ptw_extension_requested_to || '';
+            const f = splitDT(from); const t = splitDT(to);
+            setText('hb_extended_from_date', f.date);
+            setText('hb_extended_from_time', f.time);
+            setText('hb_extended_to_date', t.date);
+            setText('hb_extended_to_time', t.time);
+            const extendedFmUser = d.updated_by || d.approved_fm_by || null;
+            const extendedFmName = resolveName(extendedFmUser, d.extended_by_name || d.approved_fm_name || '');
+            setText('hb_extended_fm_name', extendedFmName);
+            // If extension date known, use 'to' date for FM date; else use updated_at
+            const extDateTime = to || d.updated_at || '';
+            const extDT = splitDT(extDateTime);
+            setText('hb_extended_fm_date', (extDT.date !== '-' || extDT.time !== '-') ? (extDT.date + (extDT.time && extDT.time!=='-' ? ' ' + extDT.time : '')) : '-');
+            renderUserSignature(extendedFmUser, 'hb_extended_fm_sig_img');
+
+            // CANCELLED: FM column
             const cancelledBy = d.cancelled_by || d.cancel_requested_by || null;
             const cancelledName = resolveName(cancelledBy, d.cancelled_by_name || '');
-            setText('hb_cancelled_name', cancelledName);
-            setText('hb_cancelled_position', '');
-            const cancelledDT = d.cancelled_date || d.cancel_requested_at || '';
-            setText('hb_cancelled_datetime', cancelledDT ? cancelledDT.replace('T',' ').slice(0,19) : '-');
-            renderUserSignature(cancelledBy, 'hb_cancelled_sig_img');
+            setText('hb_cancelled_fm_name', cancelledName);
+            const cancelledDT = splitDT(d.cancelled_date || d.cancel_requested_at || '');
+            setText('hb_cancelled_fm_date', (cancelledDT.date !== '-' || cancelledDT.time !== '-') ? (cancelledDT.date + (cancelledDT.time && cancelledDT.time!=='-' ? ' ' + cancelledDT.time : '')) : '-');
+            renderUserSignature(cancelledBy, 'hb_cancelled_fm_sig_img');
 
-            // EXTENDED
-            // Authorized by = the approver who approved extension; we don't store explicitly, fallback to FM
-            const extendedBy = d.updated_by || d.approved_fm_by || null;
-            const extendedName = resolveName(extendedBy, d.extended_by_name || '');
-            setText('hb_extended_name', extendedName);
-            setText('hb_extended_position', '');
-            const newValidTo = d.ptw_valid_to || d.ptw_extension_requested_to || '';
-            setText('hb_extended_new_validity', newValidTo ? newValidTo.replace('T',' ').slice(0,19) : '-');
-            renderUserSignature(extendedBy, 'hb_extended_sig_img');
+            // SUSPENDED: FM column
+            const suspendedBy = d.suspended_by || null;
+            const suspendedName = resolveName(suspendedBy, d.suspended_by_name || '');
+            setText('hb_suspended_fm_name', suspendedName);
+            const suspendedDT = splitDT(d.suspended_date || '');
+            setText('hb_suspended_fm_date', (suspendedDT.date !== '-' || suspendedDT.time !== '-') ? (suspendedDT.date + (suspendedDT.time && suspendedDT.time!=='-' ? ' ' + suspendedDT.time : '')) : '-');
+            renderUserSignature(suspendedBy, 'hb_suspended_fm_sig_img');
         })
         .catch(()=>{});
 })();
@@ -942,7 +1355,12 @@
 // Populate Cold Work checklist (canonical-first, legacy fallback)
 (function(){
     function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
-    function setVal(id, val){ const el=document.getElementById(id); if(!el) return; el.value = val || ''; }
+    function setVal(id, val){
+        const el=document.getElementById(id); if(!el) return;
+        const v = (val==null? '' : val);
+        if ('value' in el) { try{ el.value = v; }catch(_e){ el.textContent = v; } }
+        else { el.textContent = v; }
+    }
     function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
     const ptwId = qs('ptwId') || qs('permitId') || qs('id'); if(!ptwId) return;
     const token = sessionStorage.getItem('token'); const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
@@ -997,7 +1415,10 @@
                 setChecked('coldWorkingAtHeight', bool(old.working_at_height));
                 setChecked('coldExcavationWork', bool(old.excavation_work));
                 setChecked('coldLiftingWork', bool(old.lifting_work));
-                if (old.others_text) { setChecked('coldOthers', true); setVal('coldOthersText', old.others_text); }
+                if (old.others_text) {
+                    setChecked('coldOthers', true);
+                    setVal('coldElectricalOthers', old.others_text);
+                }
                 if (old.special_precautions || old.cold_work_notes) setVal('coldSpecialPrecautions', old.special_precautions || old.cold_work_notes);
             }catch(_e){}
         }).catch(()=>{});
@@ -1008,7 +1429,12 @@
 (function(){
     function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
     function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
-    function setVal(id, val){ const el=document.getElementById(id); if(!el) return; el.value = val || ''; }
+    function setVal(id, val){
+        const el=document.getElementById(id); if(!el) return;
+        const v = (val==null? '' : val);
+        if ('value' in el) { try{ el.value = v; }catch(_e){ el.textContent = v; } }
+        else { el.textContent = v; }
+    }
 
     const ptwId = qs('ptwId') || qs('permitId') || qs('id');
     if(!ptwId) return;
@@ -1081,7 +1507,12 @@
 (function(){
     function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
     function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
-    function setVal(id, val){ const el=document.getElementById(id); if(!el) return; el.value = val || ''; }
+    function setVal(id, val){
+        const el=document.getElementById(id); if(!el) return;
+        const v = (val==null? '' : val);
+        if ('value' in el) { try{ el.value = v; }catch(_e){ el.textContent = v; } }
+        else { el.textContent = v; }
+    }
 
     const ptwId = qs('ptwId') || qs('permitId') || qs('id');
     if(!ptwId) return;
@@ -1133,17 +1564,22 @@
                         setChecked('csRopeTugging', !!cs.csRopeSignals);
                         setChecked('csRadio', !!cs.csWalkieTalkie);
                         setChecked('csWhistle_visual', !!cs.csWhistleHorn);
-                        // Fill text values
-                        if (typeof cs.csMaxPersonsValue === 'string') {
-                            const el = document.querySelector('#csMaxPersons_visual ~ input[type="text"]');
-                            if (el) el.value = cs.csMaxPersonsValue;
+                        // Fill text values into non-input spans
+                        if (cs.csMaxPersonsValue != null) {
+                            setVal('csMaxPersonsValue', cs.csMaxPersonsValue);
+                            const n = String(cs.csMaxPersonsValue).trim();
+                            const labelEl = document.getElementById('csMaxPersonsLabel');
+                            if (labelEl) labelEl.textContent = (n === '1') ? 'Person' : 'Persons';
                         }
-                        if (typeof cs.csEveryHoursValue === 'string') {
-                            const el = document.querySelector('#csEveryHours_visual ~ input[type="text"]');
-                            if (el) el.value = cs.csEveryHoursValue;
+                        if (cs.csEveryHoursValue != null) {
+                            setVal('csEveryHoursValue', cs.csEveryHoursValue);
+                        }
+                        if (cs.csStandbyPersonName != null) {
+                            setVal('csStandbyPersonName', cs.csStandbyPersonName);
                         }
                         if (typeof cs.csCommunicationOthersText === 'string') {
-                            setVal('csOthers_visual', cs.csCommunicationOthersText);
+                            setVal('csCommunicationOthers', cs.csCommunicationOthersText);
+                            setChecked('csCommunicationOthersCheckbox', true);
                         }
                         if (typeof cs.csSpecialPrecautions === 'string') setVal('csSpecialPrecautions', cs.csSpecialPrecautions);
                         csFilled = true;
@@ -1165,9 +1601,11 @@
                 setChecked('cs_communication', !!get(cs, 'communication_established') || !!d.cs_communication);
                 setChecked('cs_emergency_briefed', !!get(cs, 'emergency_briefed') || !!d.cs_emergency_briefed);
                 setChecked('cs_permit_displayed', !!get(cs, 'permit_displayed') || !!d.cs_permit_displayed);
-                setVal('cs_others', get(cs, 'others') || d.cs_others || '');
+                setVal('csCommunicationOthers', get(cs, 'others') || d.cs_others || '');
                 const notes = cs?.csSpecialPrecautions || cs?.special_precautions || d?.csSpecialPrecautions || '';
                 if (notes) setVal('csSpecialPrecautions', notes);
+                // Best-effort legacy name mapping if available
+                if (d.cs_standby_person_name) setVal('csStandbyPersonName', d.cs_standby_person_name);
             }
             setVal('cs_ack_name', d.cs_ack_name || '');
             setVal('cs_ack_position', d.cs_ack_position || '');
@@ -1294,7 +1732,15 @@
                 });
                 const others = ppe.ppe_others || d.ppe_others || '';
                 const othersEl = document.getElementById('ppe_others');
-                if (othersEl) othersEl.value = others;
+                if (othersEl) {
+                    if ('value' in othersEl) {
+                        try{ othersEl.value = others; }catch(_e){ othersEl.textContent = others; }
+                    } else {
+                        othersEl.textContent = others;
+                    }
+                    const chk = document.getElementById('ppe_others_checkbox');
+                    if (chk) chk.checked = !!others;
+                }
             } catch(_e){}
             const docs = Array.isArray(d.documents) ? d.documents : [];
             let contractorSig = null;
