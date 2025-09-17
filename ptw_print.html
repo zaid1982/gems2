@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Permit To Work (Combined) - GFM</title>
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <title>Permit To Work - GFM</title>
     <style>
         /* --- Global Styles & Body --- */
         body {
@@ -55,14 +56,14 @@
             font-weight: bold;
         }
         .header .ptw-no {
-            border: 1px solid #000;
+            /* border: 1px solid #000; */
             padding: 5px 10px;
         }
 
         /* --- General Form Section Styling --- */
         .form-section {
             border: 2px solid #000;
-            margin-top: 15px;
+            margin-top: -1px;
         }
         .section-header {
             color: #fff;
@@ -1073,6 +1074,97 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
 </body>
 </html>
 <script>
+// Global auth helpers: get token from sessionStorage or localStorage and build headers
+(function(){
+    function getQueryParam(name){ try{ const p=new URLSearchParams(window.location.search); return p.get(name); }catch(_e){ return null; } }
+    function getToken(){
+        // Try query param first (t or token), then sessionStorage, then localStorage
+        const qp = getQueryParam('t') || getQueryParam('token');
+        const ss = (typeof sessionStorage!=='undefined') ? sessionStorage.getItem('token') : null;
+        const ls = (typeof localStorage!=='undefined') ? localStorage.getItem('token') : null;
+        return qp || ss || ls || null;
+    }
+    function getHeaders(){
+        const t = getToken();
+        return t ? { 'Authorization': 'Bearer ' + t } : {};
+    }
+    window.__AUTH__ = { getToken, getHeaders };
+})();
+</script>
+<script>
+// Shared: Resolve user info (name) from sys_user by ID using /user/ref
+(function(){
+    const cache = { loaded:false, loading:false, byId:{}, promise:null };
+    function buildName(u){
+        if (!u) return '';
+        // Prefer explicit full/display names
+        const direct = u.userFullName || u.fullName || u.displayName || u.name;
+        if (direct && String(direct).trim()) return String(direct).trim();
+        // Common first/last name patterns (camelCase and snake_case)
+        const pairs = [
+            [u.userFirstName, u.userLastName],
+            [u.firstName, u.lastName],
+            [u.user_first_name, u.user_last_name],
+            [u.first_name, u.last_name]
+        ];
+        for (const [fn, ln] of pairs){
+            const f = fn ? String(fn).trim() : '';
+            const l = ln ? String(ln).trim() : '';
+            const full = (f + ' ' + l).trim();
+            if (full) return full;
+        }
+        // Fallback to username/email variants
+        const fallbacks = [u.userName, u.user_name, u.username, u.userEmail, u.user_email, u.email];
+        for (const v of fallbacks){
+            if (v && String(v).trim()) return String(v).trim();
+        }
+        return '';
+    }
+    function indexUsers(arr){
+        try{
+            cache.byId = {};
+            (arr||[]).forEach(u=>{
+                const id = u.userId || u.user_id || u.id;
+                if (id != null) cache.byId[String(id)] = u;
+            });
+            cache.loaded = true;
+        }catch(_e){}
+    }
+    function loadUsersOnce(){
+        if (cache.loaded || cache.loading) return cache.promise || Promise.resolve();
+        const token = (window.__AUTH__ && window.__AUTH__.getToken && window.__AUTH__.getToken()) || null;
+        // If no JWT token available, skip fetching to avoid Authorization errors
+        if (!token) { cache.promise = Promise.resolve(); return cache.promise; }
+        cache.loading = true;
+        const headers = { 'Authorization':'Bearer '+token };
+        cache.promise = fetch('user/ref', { headers })
+            .then(r=>r.json())
+            .then(js=>{
+                const res = js && (js.result || js);
+                if (Array.isArray(res)) indexUsers(res);
+                return cache;
+            })
+            .catch(()=>{ /* leave cache unloaded */ })
+            .finally(()=>{ cache.loading = false; });
+        return cache.promise;
+    }
+    function getUserNameSync(userId){
+        if (!userId) return '';
+        const u = cache.byId[String(userId)];
+        return buildName(u);
+    }
+    function resolveUserName(userId, cb){
+        try{
+            if (!userId || typeof cb !== 'function') return;
+            if (cache.loaded){ cb(getUserNameSync(userId)); return; }
+            loadUsersOnce()?.then(()=> cb(getUserNameSync(userId)));
+        }catch(_e){}
+    }
+    // expose helpers
+    window.__USER_INDEX__ = { loadUsersOnce, resolveUserName, getUserNameSync };
+})();
+</script>
+<script>
 // Populate Section 1 from PTW details
 (function(){
     function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
@@ -1092,8 +1184,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
 
     const ptwId = qs('ptwId') || qs('permitId') || qs('id');
     if(!ptwId){ console.warn('Missing ptwId'); return; }
-    const token = sessionStorage.getItem('token');
-    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+    const headers = (window.__AUTH__ && window.__AUTH__.getHeaders && window.__AUTH__.getHeaders()) || {};
 
     fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
         .then(r => r.json())
@@ -1175,8 +1266,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
     function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
     const ptwId = qs('ptwId') || qs('permitId') || qs('id');
     if(!ptwId) return;
-    const token = sessionStorage.getItem('token');
-    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+    const headers = (window.__AUTH__ && window.__AUTH__.getHeaders && window.__AUTH__.getHeaders()) || {};
 
     function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = v || '-'; }
     function setChecked(id, val){ const el=document.getElementById(id); if(el) el.checked = !!val; }
@@ -1208,33 +1298,57 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         .then(r=>r.json())
         .then(data=>{
             const d = data && data.result ? data.result : data; if(!d) return;
+            console.log('PTW for approvals:', d.ptw_supervisor_id);
+            console.log('User index:', window.__USER_INDEX__);
+            // Prefer nested user objects supplied by API
+            const supNested = d.supervisor || null;
+            const sheNested = d.she || null;
+            const fmNested  = d.fm || null;
+
             // Supervisor
-            const supName = d.approved_supervisor_name || d.supervisor_name || '';
-            const supDate = d.approved_supervisor_date || d.ptw_supervisor_approval_date || '';
-            setText('appr_sup_name', supName);
+            const supUserId = (supNested && supNested.userId) || d.approved_supervisor_by || d.ptw_supervisor_id || d.supervisor_id || null;
+            const supName = (supNested && (supNested.displayName || [supNested.userFirstName, supNested.userLastName].filter(Boolean).join(' ') || supNested.userName || supNested.email))
+                || d.approved_supervisor_name || d.supervisor_name || d.ptw_supervisor_name || '';
+            console.debug('Approvals: supNested=', supNested, 'supUserId=', supUserId, 'supName=', supName);
+            const supDate = d.approved_supervisor_date || d.ptw_supervisor_approval_date || d.supervisor_approval_date || '';
+            setText('appr_sup_name', supName || '-');
+            if (!supName && supUserId && window.__USER_INDEX__) {
+                window.__USER_INDEX__.resolveUserName(supUserId, function(n){ console.log('The n is: ', n); if(n) setText('appr_sup_name', n); });
+            }
             setText('appr_sup_date', supDate ? supDate.replace('T',' ').slice(0,19) : '-');
-            setText('appr_sup_designation', d.approved_supervisor_designation || d.supervisor_designation || '');
-            renderUserSignature(d.approved_supervisor_by, 'appr_sup_sig_img', 'appr_sup_sig_imgwrap', 'appr_sup_sig_line');
-            setChecked('appr_sup_approved', d.approved_supervisor_status === 'APPROVED' || d.supervisor_approved === true || d.supervisor_approved === 1);
+            const supDesig = (supNested && (supNested.designationDesc || supNested.designation)) || d.approved_supervisor_designation || d.supervisor_designation || '';
+            setText('appr_sup_designation', supDesig);
+            renderUserSignature(supUserId, 'appr_sup_sig_img', 'appr_sup_sig_imgwrap', 'appr_sup_sig_line');
+            setChecked('appr_sup_approved', d.approved_supervisor_status === 'APPROVED' || d.supervisor_approved === true || d.supervisor_approved === 1 || !!supDate);
             setChecked('appr_sup_not_approved', d.approved_supervisor_status === 'NOT_APPROVED' || d.supervisor_rejected === true || d.supervisor_rejected === 1);
 
             // SHE
-            const sheName = d.approved_she_name || d.she_name || '';
+            const sheUserId = (sheNested && sheNested.userId) || d.approved_she_by || null;
+            const sheName = (sheNested && (sheNested.displayName || sheNested.userFirstName || sheNested.userName)) || d.approved_she_name || d.she_name || '';
             const sheDate = d.approved_she_date || '';
-            setText('appr_she_name', sheName);
+            setText('appr_she_name', sheName || '-');
+            if (!sheName && sheUserId && window.__USER_INDEX__) {
+                window.__USER_INDEX__.resolveUserName(sheUserId, function(n){ if(n) setText('appr_she_name', n); });
+            }
             setText('appr_she_date', sheDate ? sheDate.replace('T',' ').slice(0,19) : '-');
-            renderUserSignature(d.approved_she_by, 'appr_she_sig_img', 'appr_she_sig_imgwrap', 'appr_she_sig_line');
-            setText('appr_she_designation', d.approved_she_designation || d.she_designation || '');
+            renderUserSignature(sheUserId, 'appr_she_sig_img', 'appr_she_sig_imgwrap', 'appr_she_sig_line');
+            const sheDesig = (sheNested && (sheNested.designationDesc || sheNested.designation)) || d.approved_she_designation || d.she_designation || '';
+            setText('appr_she_designation', sheDesig);
             setChecked('appr_she_approved', d.approved_she_status === 'APPROVED' || d.she_approved === true || d.she_approved === 1);
             setChecked('appr_she_not_approved', d.approved_she_status === 'NOT_APPROVED' || d.she_rejected === true || d.she_rejected === 1);
 
             // FM
-            const fmName = d.approved_fm_name || d.fm_name || '';
+            const fmUserId = (fmNested && fmNested.userId) || d.approved_fm_by || null;
+            const fmName = (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.approved_fm_name || d.fm_name || '';
             const fmDate = d.approved_fm_date || '';
-            setText('appr_fm_name', fmName);
+            setText('appr_fm_name', fmName || '-');
+            if (!fmName && fmUserId && window.__USER_INDEX__) {
+                window.__USER_INDEX__.resolveUserName(fmUserId, function(n){ if(n) setText('appr_fm_name', n); });
+            }
             setText('appr_fm_date', fmDate ? fmDate.replace('T',' ').slice(0,19) : '-');
-            renderUserSignature(d.approved_fm_by, 'appr_fm_sig_img', 'appr_fm_sig_imgwrap', 'appr_fm_sig_line');
-            setText('appr_fm_designation', d.approved_fm_designation || d.fm_designation || '');
+            renderUserSignature(fmUserId, 'appr_fm_sig_img', 'appr_fm_sig_imgwrap', 'appr_fm_sig_line');
+            const fmDesig = (fmNested && (fmNested.designationDesc || fmNested.designation)) || d.approved_fm_designation || d.fm_designation || '';
+            setText('appr_fm_designation', fmDesig);
             setChecked('appr_fm_approved', d.approved_fm_status === 'APPROVED' || d.fm_approved === true || d.fm_approved === 1);
             setChecked('appr_fm_not_approved', d.approved_fm_status === 'NOT_APPROVED' || d.fm_rejected === true || d.fm_rejected === 1);
         })
@@ -1247,8 +1361,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
     function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
     const ptwId = qs('ptwId') || qs('permitId') || qs('id');
     if(!ptwId) return;
-    const token = sessionStorage.getItem('token');
-    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+    const headers = (window.__AUTH__ && window.__AUTH__.getHeaders && window.__AUTH__.getHeaders()) || {};
     function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = (v===0? '0' : (v || '-')); }
     function setChecked(id, val){ const el=document.getElementById(id); if(el) el.checked = !!val; }
     function renderUserSignature(userId, imgId){
@@ -1281,12 +1394,16 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         .then(r=>r.json())
         .then(data=>{
             const d = data && data.result ? data.result : data; if(!d) return;
-            function resolveName(userId, fallbackName){
-                if (fallbackName) return fallbackName;
-                if (userId && d.approved_supervisor_by && String(userId)===String(d.approved_supervisor_by) && d.approved_supervisor_name) return d.approved_supervisor_name;
-                if (userId && d.approved_she_by && String(userId)===String(d.approved_she_by) && d.approved_she_name) return d.approved_she_name;
-                if (userId && d.approved_fm_by && String(userId)===String(d.approved_fm_by) && d.approved_fm_name) return d.approved_fm_name;
-                return userId ? ('User#'+userId) : '-';
+            const fmNested = d.fm || null;
+            function setNameAsync(elId, userId, fallbackName){
+                const initial = fallbackName || '';
+                if (initial) { setText(elId, initial); return; }
+                setText(elId, '-');
+                if (userId && window.__USER_INDEX__) {
+                    const n = window.__USER_INDEX__.getUserNameSync(userId);
+                    if (n) { setText(elId, n); return; }
+                    window.__USER_INDEX__.resolveUserName(userId, function(name){ if (name) setText(elId, name); });
+                }
             }
 
             // Determine statuses for checkboxes
@@ -1301,17 +1418,17 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
 
             // CLOSED: Supervisor column (fallbacks to known supervisor/applicant if missing)
             const closedSupUser = d.approved_supervisor_by || d.supervisor_id || null;
-            const closedSupName = d.approved_supervisor_name || d.supervisor_name || d.ptw_contractor_supervisor || d.ptw_supervisor_name || '-';
+            const closedSupName = d.approved_supervisor_name || d.supervisor_name || d.ptw_contractor_supervisor || d.ptw_supervisor_name || '';
             const closed = d.completed_date || d.closed_date || '';
             const closedDT = splitDT(closed);
-            setText('hb_closed_sup_name', closedSupName);
+            setNameAsync('hb_closed_sup_name', closedSupUser, closedSupName);
             setText('hb_closed_sup_date', (closedDT.date !== '-' || closedDT.time !== '-') ? (closedDT.date + (closedDT.time && closedDT.time!=='-' ? ' ' + closedDT.time : '')) : '-');
             renderUserSignature(closedSupUser, 'hb_closed_sup_sig_img');
 
             // CLOSED: FM/Client column
-            const closedFmUser = d.completed_by || d.closed_by || d.approved_fm_by || null;
-            const closedFmName = resolveName(closedFmUser, d.closed_by_name || d.completed_by_name || d.approved_fm_name || '');
-            setText('hb_closed_fm_name', closedFmName);
+            const closedFmUser = (fmNested && fmNested.userId) || d.completed_by || d.closed_by || d.approved_fm_by || null;
+            const closedFmNameFallback = (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.closed_by_name || d.completed_by_name || d.approved_fm_name || '';
+            setNameAsync('hb_closed_fm_name', closedFmUser, closedFmNameFallback);
             setText('hb_closed_fm_date', (closedDT.date !== '-' || closedDT.time !== '-') ? (closedDT.date + (closedDT.time && closedDT.time!=='-' ? ' ' + closedDT.time : '')) : '-');
             renderUserSignature(closedFmUser, 'hb_closed_fm_sig_img');
 
@@ -1323,27 +1440,32 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             setText('hb_extended_from_time', f.time);
             setText('hb_extended_to_date', t.date);
             setText('hb_extended_to_time', t.time);
-            const extendedFmUser = d.updated_by || d.approved_fm_by || null;
-            const extendedFmName = resolveName(extendedFmUser, d.extended_by_name || d.approved_fm_name || '');
-            setText('hb_extended_fm_name', extendedFmName);
-            // If extension date known, use 'to' date for FM date; else use updated_at
-            const extDateTime = to || d.updated_at || '';
+            // Only render an Extended signature when status is actually EXTENDED; avoid using updated_by to prevent supervisor bleed
+            const extendedFmUser = (isExtended
+                ? ((fmNested && fmNested.userId) || d.extended_approved_by || d.extension_approved_by || d.approve_extend_by || d.approved_fm_by || null)
+                : null);
+            const extendedFmNameFallback = (isExtended
+                ? ((fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.extended_approved_name || d.extension_approved_name || d.approve_extend_name || d.approved_fm_name || '')
+                : '');
+            setNameAsync('hb_extended_fm_name', extendedFmUser, extendedFmNameFallback);
+            // Prefer explicit extension approval datetimes; do not fallback to updated_at
+            const extDateTime = (isExtended ? (to || d.extended_approved_at || d.extension_approved_at || d.approve_extend_date || '') : '');
             const extDT = splitDT(extDateTime);
             setText('hb_extended_fm_date', (extDT.date !== '-' || extDT.time !== '-') ? (extDT.date + (extDT.time && extDT.time!=='-' ? ' ' + extDT.time : '')) : '-');
             renderUserSignature(extendedFmUser, 'hb_extended_fm_sig_img');
 
             // CANCELLED: FM column
-            const cancelledBy = d.cancelled_by || d.cancel_requested_by || null;
-            const cancelledName = resolveName(cancelledBy, d.cancelled_by_name || '');
-            setText('hb_cancelled_fm_name', cancelledName);
+            const cancelledBy = (fmNested && fmNested.userId) || d.cancelled_by || d.cancel_requested_by || null;
+            const cancelledNameFallback = (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.cancelled_by_name || '';
+            setNameAsync('hb_cancelled_fm_name', cancelledBy, cancelledNameFallback);
             const cancelledDT = splitDT(d.cancelled_date || d.cancel_requested_at || '');
             setText('hb_cancelled_fm_date', (cancelledDT.date !== '-' || cancelledDT.time !== '-') ? (cancelledDT.date + (cancelledDT.time && cancelledDT.time!=='-' ? ' ' + cancelledDT.time : '')) : '-');
             renderUserSignature(cancelledBy, 'hb_cancelled_fm_sig_img');
 
             // SUSPENDED: FM column
-            const suspendedBy = d.suspended_by || null;
-            const suspendedName = resolveName(suspendedBy, d.suspended_by_name || '');
-            setText('hb_suspended_fm_name', suspendedName);
+            const suspendedBy = (fmNested && fmNested.userId) || d.suspended_by || null;
+            const suspendedNameFallback = (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.suspended_by_name || '';
+            setNameAsync('hb_suspended_fm_name', suspendedBy, suspendedNameFallback);
             const suspendedDT = splitDT(d.suspended_date || '');
             setText('hb_suspended_fm_date', (suspendedDT.date !== '-' || suspendedDT.time !== '-') ? (suspendedDT.date + (suspendedDT.time && suspendedDT.time!=='-' ? ' ' + suspendedDT.time : '')) : '-');
             renderUserSignature(suspendedBy, 'hb_suspended_fm_sig_img');

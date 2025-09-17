@@ -92,7 +92,60 @@ class Class_ptw {
             
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_exception('0001', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+            $code = $ex->getCode();
+            if (!is_int($code)) { $code = is_numeric($code) ? intval($code) : 0; }
+            throw new Exception($this->get_exception('0001', __FUNCTION__, __LINE__, $ex->getMessage()), $code);
+        }
+    }
+
+    /**
+     * Build a normalized brief user object from a DB row.
+     * @param array $row
+     * @return array
+     */
+    private function build_user_brief($row) {
+        if (!$row || !is_array($row)) { return array(); }
+        $first = isset($row['user_first_name']) ? trim((string)$row['user_first_name']) : '';
+        $last  = isset($row['user_last_name']) ? trim((string)$row['user_last_name']) : '';
+        $disp  = trim(($first . ' ' . $last));
+        if ($disp === '') {
+            $disp = isset($row['user_name']) && $row['user_name'] !== '' ? $row['user_name'] : (isset($row['email']) ? $row['email'] : (isset($row['user_email']) ? $row['user_email'] : ''));
+        }
+        return array(
+            'userId'          => isset($row['user_id']) ? (int)$row['user_id'] : null,
+            'userFirstName'   => $first,
+            'userLastName'    => $last,
+            'userName'        => isset($row['user_name']) ? $row['user_name'] : null,
+            'email'           => isset($row['profile_email']) && $row['profile_email'] !== '' ? $row['profile_email'] : (isset($row['user_email']) ? $row['user_email'] : null),
+            'contactNo'       => isset($row['user_contact_no']) ? $row['user_contact_no'] : null,
+            'designationId'   => isset($row['designation_id']) ? $row['designation_id'] : null,
+            'designationDesc' => isset($row['designation_desc']) ? $row['designation_desc'] : null,
+            'siteId'          => isset($row['site_id']) ? $row['site_id'] : null,
+            'displayName'     => $disp
+        );
+    }
+
+    /**
+     * Resolve a user brief by user_id with profile+designation joins.
+     * @param int|string $user_id
+     * @return array|null
+     */
+    private function load_user_brief($user_id) {
+        try {
+            if ($user_id === null || $user_id === '' ) { return null; }
+          $sql = "SELECT u.user_id, u.user_first_name, u.user_last_name, u.user_email, u.site_id,
+                           up.user_email AS profile_email, up.user_contact_no, up.designation_id,
+                           d.designation_desc
+                      FROM sys_user u
+                 LEFT JOIN sys_user_profile up ON up.user_id = u.user_id AND up.user_profile_status = 1
+                 LEFT JOIN ref_designation d ON d.designation_id = up.designation_id
+                     WHERE u.user_id = ?";
+            $rows = $this->execute_raw_query($sql, array(strval($user_id)));
+            if (!$rows || count($rows) === 0) { return null; }
+            return $this->build_user_brief($rows[0]);
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'load_user_brief error: ' . $ex->getMessage());
+            return null;
         }
     }
 
@@ -333,18 +386,20 @@ class Class_ptw {
             $siteIdStr = strval($site_id);
             
             // Get permit basic details
-            $sql = "SELECT p.*, 
-                           CONCAT(u.user_first_name, ' ', COALESCE(u.user_last_name, '')) as created_by_name,
-                           s.site_name,
-                           CONCAT(su.user_first_name, ' ', COALESCE(su.user_last_name, '')) as approved_supervisor_name,
-                           CONCAT(she.user_first_name, ' ', COALESCE(she.user_last_name, '')) as approved_she_name,
-                           CONCAT(fm.user_first_name, ' ', COALESCE(fm.user_last_name, '')) as approved_fm_name
+        $sql = "SELECT p.*, 
+               CONCAT_WS(' ', u.user_first_name, u.user_last_name) as created_by_name,
+               s.site_name,
+               CONCAT_WS(' ', su.user_first_name, su.user_last_name) as approved_supervisor_name,
+               CONCAT_WS(' ', she.user_first_name, she.user_last_name) as approved_she_name,
+               CONCAT_WS(' ', fm.user_first_name, fm.user_last_name) as approved_fm_name,
+               CONCAT_WS(' ', psu.user_first_name, psu.user_last_name) as ptw_supervisor_full_name
                     FROM ptw_permit p
                     LEFT JOIN sys_user u ON p.created_by = u.user_id
                     LEFT JOIN sys_site s ON p.site_id = s.site_id
                     LEFT JOIN sys_user su ON p.approved_supervisor_by = su.user_id
                     LEFT JOIN sys_user she ON p.approved_she_by = she.user_id
-                    LEFT JOIN sys_user fm ON p.approved_fm_by = fm.user_id
+            LEFT JOIN sys_user fm ON p.approved_fm_by = fm.user_id
+            LEFT JOIN sys_user psu ON p.ptw_supervisor_id = psu.user_id
             WHERE p.ptw_permit_id = ? AND p.site_id = ?";
 
         $permit = $this->execute_raw_query($sql, array($permitIdStr, $siteIdStr));
@@ -367,6 +422,54 @@ class Class_ptw {
             $approval_log = Class_db::getInstance()->db_select('ptw_approval_log', 
                 array('ptw_permit_id' => $permitIdStr), 'approved_date DESC');
             $permit_data['approval_log'] = $approval_log;
+
+            // Attach nested user objects for approvals to remove client-side lookups
+            try {
+                $supId = null; $sheId = null; $fmId = null;
+                // Supervisor ID: prefer approved_supervisor_by, fallback to ptw_supervisor_id, only if > 0
+                if (isset($permit_data['approved_supervisor_by']) && $permit_data['approved_supervisor_by'] !== null && $permit_data['approved_supervisor_by'] !== '') {
+                    $v = intval($permit_data['approved_supervisor_by']); if ($v > 0) { $supId = $v; }
+                }
+                if ($supId === null && isset($permit_data['ptw_supervisor_id'])) {
+                    $v = intval($permit_data['ptw_supervisor_id']); if ($v > 0) { $supId = $v; }
+                }
+                if ($supId === null && isset($permit_data['supervisor_id'])) {
+                    $v = intval($permit_data['supervisor_id']); if ($v > 0) { $supId = $v; }
+                }
+                // SHE ID
+                if (isset($permit_data['approved_she_by']) && $permit_data['approved_she_by'] !== null && $permit_data['approved_she_by'] !== '') {
+                    $v = intval($permit_data['approved_she_by']); if ($v > 0) { $sheId = $v; }
+                }
+                // FM ID
+                if (isset($permit_data['approved_fm_by']) && $permit_data['approved_fm_by'] !== null && $permit_data['approved_fm_by'] !== '') {
+                    $v = intval($permit_data['approved_fm_by']); if ($v > 0) { $fmId = $v; }
+                }
+
+                $permit_data['supervisor'] = $supId ? $this->load_user_brief($supId) : null;
+                $permit_data['she']        = $sheId ? $this->load_user_brief($sheId) : null;
+                $permit_data['fm']         = $fmId ? $this->load_user_brief($fmId) : null;
+
+                // If names are empty from CONCAT, backfill from nested users or stored fields
+                if (empty($permit_data['approved_supervisor_name']) || trim((string)$permit_data['approved_supervisor_name']) === '') {
+                    if ($permit_data['supervisor']) {
+                        $permit_data['approved_supervisor_name'] = $permit_data['supervisor']['displayName'];
+                    } elseif (!empty($permit_data['ptw_supervisor_full_name'])) {
+                        $permit_data['approved_supervisor_name'] = $permit_data['ptw_supervisor_full_name'];
+                    } elseif (!empty($permit_data['ptw_contractor_supervisor'])) {
+                        // last-resort textual fallback
+                        $permit_data['approved_supervisor_name'] = $permit_data['ptw_contractor_supervisor'];
+                    }
+                }
+                if ((empty($permit_data['approved_she_name']) || trim((string)$permit_data['approved_she_name']) === '') && $permit_data['she']) {
+                    $permit_data['approved_she_name'] = $permit_data['she']['displayName'];
+                }
+                if ((empty($permit_data['approved_fm_name']) || trim((string)$permit_data['approved_fm_name']) === '') && $permit_data['fm']) {
+                    $permit_data['approved_fm_name'] = $permit_data['fm']['displayName'];
+                }
+            } catch (Exception $e) {
+                // Non-fatal; keep response without nested users
+                $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Failed to attach nested users: ' . $e->getMessage());
+            }
             
             return $permit_data;
             
