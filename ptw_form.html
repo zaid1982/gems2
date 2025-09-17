@@ -1190,6 +1190,8 @@
             <div class="col-12">
                 <h2 class="h2-responsive font-weight-bold" id="h5PtwFormTitle" style="display: flex; align-items: center;">
                     <i class="fas fa-shield-alt mr-3"></i><span id="formTitleText">Public PTW Permit Application</span>
+                    <span id="formTitleText"> - </span>
+                    <span id="formTitleSiteText">-</span>
                     <span id="viewModeIndicator" class="view-mode-indicator" style="display: none; font-size: 0.8rem"></span>
                 </h2>
                 <p class="text-muted" id="formSubtitle">Submit your Permit to Work application - No login required</p>
@@ -2923,6 +2925,25 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                     }
                     
                     ptwFormClass_.init();
+
+                    // If this is a new public form (no view mode) and site_id is provided via URL, resolve and show site title
+                    try {
+                        const sp = new URLSearchParams(window.location.search);
+                        const siteIdParam = sp.get('site_id') || sp.get('siteId');
+                        if (siteIdParam && /^\d+$/.test(siteIdParam)) {
+                            fetch('api/site_public.php?site_id=' + encodeURIComponent(siteIdParam))
+                                .then(r => r.json())
+                                .then(j => {
+                                    if (j && j.success && j.result) {
+                                        const el = document.getElementById('formTitleSiteText');
+                                        if (el) {
+                                            el.textContent = j.result.site_name || j.result.site_code || ('Site ' + siteIdParam);
+                                        }
+                                    }
+                                })
+                                .catch(err => console.warn('Site title lookup failed', err));
+                        }
+                    } catch (e) { /* ignore */ }
                     
                     // Prevent form submission
                     $('#formPtw').on('submit', function(e) {
@@ -3213,6 +3234,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
     // Update header title to a friendly reference: request/permit number
     try {
         const formTitleText = document.getElementById('formTitleText');
+        const formTitleSiteText = document.getElementById('formTitleSiteText');
         const formSubtitle = document.getElementById('formSubtitle');
         const reqNo = data.ptw_request_number || data.request_number || '';
         const permitNo = data.ptw_permit_number || data.permit_number || '';
@@ -3220,6 +3242,18 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         if (formTitleText) {
             const iconHtml = '<i class="fas fa-eye mr-2"></i>';
             formTitleText.innerHTML = ref ? `${iconHtml}Permit To Work - ${ref}` : `${iconHtml}Permit To Work`;
+        }
+        // Show site title if available (prefer site_name; fallback to code/id)
+        if (formTitleSiteText) {
+            const siteName = data.site_name || '';
+            const siteCode = data.site_code || '';
+            const siteId = data.site_id || data.ptw_site_id || '';
+            let siteDisplay = '';
+            if (siteName) siteDisplay = siteName;
+            else if (siteCode) siteDisplay = siteCode;
+            else if (siteId) siteDisplay = 'Site ' + siteId;
+            formTitleSiteText.textContent = siteDisplay || '-';
+            formTitleSiteText.style.display = siteDisplay ? 'inline' : '';
         }
         if (formSubtitle) { formSubtitle.style.display = 'none'; }
     } catch (e) { console.warn('Header title update failed', e); }

@@ -678,7 +678,7 @@ class Class_ptw {
                 }
             }
         } catch (Exception $e) {
-            // keep default 'XXX'
+            $this->fn_general->log_debug('PTW', 'generate_permit_number', __LINE__, 'Error fetching site code: ' . $e->getMessage());
         }
 
         $date_part = date('ymd');

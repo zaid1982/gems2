@@ -225,6 +225,25 @@ function handleGetPtw() {
                 }, $allPermits)
             ]);
         } else {
+            // Enrich permit data with site name/code for display purposes (no extra client calls)
+            try {
+                $permitSiteId = $permit_data['site_id'] ?? null;
+                if (!empty($permitSiteId)) {
+                    $db = Class_db::getInstance();
+                    // Prefer cli_site; fallback to sys_site. Try common key variants.
+                    $siteRow = null;
+                    try { $siteRow = $db->db_select_single('cli_site', array('site_id' => strval($permitSiteId))); } catch (Exception $e1) { $siteRow = null; }
+                    if (empty($siteRow)) { try { $siteRow = $db->db_select_single('cli_site', array('siteId' => strval($permitSiteId))); } catch (Exception $e2) { $siteRow = null; } }
+                    if (empty($siteRow)) { try { $siteRow = $db->db_select_single('sys_site', array('site_id' => strval($permitSiteId))); } catch (Exception $e3) { $siteRow = null; } }
+                    if (is_array($siteRow) && !empty($siteRow)) {
+                        // Normalize potential field name variants
+                        $permit_data['site_name'] = $siteRow['site_name'] ?? ($siteRow['siteName'] ?? '');
+                        $permit_data['site_code'] = $siteRow['site_code'] ?? ($siteRow['siteCode'] ?? '');
+                    }
+                }
+            } catch (Exception $ignore) {
+                // Non-fatal; continue without site metadata enrichment
+            }
             // If not authenticated, validate token for this permit
             if (!$isAuthenticated) {
                 try {
@@ -431,8 +450,11 @@ function transformDatabaseToFrontend($dbData) {
         'ptw_complete_form_data' => $dbData['ptw_complete_form_data'] ?? '',
         'ptw_hazardous_activities' => $dbData['ptw_hazardous_activities'] ?? '',
 
-        // System fields
+    // System fields
         'site_id' => $dbData['site_id'] ?? '',
+    // Enriched site metadata (if available)
+    'site_name' => $dbData['site_name'] ?? '',
+    'site_code' => $dbData['site_code'] ?? '',
         'created_by' => $dbData['created_by'] ?? '',
         'created_date' => formatDate($dbData['created_date']),
         'updated_by' => $dbData['updated_by'] ?? '',

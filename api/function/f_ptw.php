@@ -196,6 +196,23 @@ class Class_ptw {
         return str_pad((string)$n, 2, '0', STR_PAD_LEFT);
     }
 
+    private function get_site_code($site_id) {
+        // Resolve 3-letter site code from cli_site.siteCode (fallback to numeric padded if missing)
+        try {
+            $row = Class_db::getInstance()->db_select_single('cli_site', array('siteId' => strval($site_id)));
+            if ($row) {
+                $code = isset($row['siteCode']) ? $row['siteCode'] : (isset($row['site_code']) ? $row['site_code'] : '');
+                if (!empty($code)) {
+                    return strtoupper(substr($code, 0, 3));
+                }
+            }
+        } catch (Exception $e) {
+            // ignore and fallback
+        }
+        // Fallback to 2-digit numeric padded (legacy)
+        return $this->pad_site($site_id);
+    }
+
     private function format_request_number($site_id, $seq_val) {
         $site = $this->pad_site($site_id);
         $seq = str_pad((string)intval($seq_val), 3, '0', STR_PAD_LEFT);
@@ -203,7 +220,8 @@ class Class_ptw {
     }
 
     private function format_permit_number($site_id, $seq_val) {
-        $site = $this->pad_site($site_id);
+        // PTWLLLYYMMDDXXX where LLL is site code
+        $site = $this->get_site_code($site_id);
         $seq = str_pad((string)intval($seq_val), 3, '0', STR_PAD_LEFT);
         return 'PTW' . $site . date('ymd') . $seq;
     }
