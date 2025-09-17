@@ -2040,20 +2040,48 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                 setVal('ha_others', get(haLegacy,'others') || d.ha_others || '');
             })();
 
-            // Contractor Declaration (Page 2)
-            function setYesNo(prefix, key){
-                const raw = (hazards && hazards.contractor_declaration && hazards.contractor_declaration[key]) || d['cd_'+key];
-                const yes = raw === true || raw === 'yes' || raw === 'Yes' || raw === 1 || raw === '1' || raw === 'Y';
-                const no = raw === false || raw === 'no' || raw === 'No' || raw === 0 || raw === '0' || raw === 'N';
-                setChecked(prefix+'_yes', yes && !no);
-                setChecked(prefix+'_no', no && !yes);
-            }
-            setYesNo('cd_i','i');
-            setYesNo('cd_ii','ii');
-            setYesNo('cd_iii','iii');
-            setYesNo('cd_iv','iv');
-            setYesNo('cd_v','v');
-            setYesNo('cd_vi','vi');
+            // Contractor Declaration (Page 2) - canonical first using ptw_declaration_checklist
+            (function(){
+                const toYes = v => v === true || v === 1 || v === '1' || (typeof v === 'string' && v.toLowerCase() === 'yes') || String(v).toLowerCase() === 'y' || String(v).toLowerCase() === 'true';
+                const toNo  = v => v === false || v === 0 || v === '0' || (typeof v === 'string' && v.toLowerCase() === 'no') || String(v).toLowerCase() === 'n' || String(v).toLowerCase() === 'false';
+                const setYN = (prefix, v) => {
+                    const yes = toYes(v); const no = toNo(v);
+                    setChecked(prefix+'_yes', !!yes && !no);
+                    setChecked(prefix+'_no', !!no && !yes);
+                };
+                let used = false;
+                try{
+                    let raw = d.ptw_declaration_checklist || d.declaration_checklist || null;
+                    if (raw){
+                        const decl = (typeof raw === 'string') ? JSON.parse(raw) : raw;
+                        if (decl && typeof decl === 'object'){
+                            // Map declaration1..6 to cd_i..cd_vi
+                            setYN('cd_i',   decl.declaration1);
+                            setYN('cd_ii',  decl.declaration2);
+                            setYN('cd_iii', decl.declaration3);
+                            setYN('cd_iv',  decl.declaration4);
+                            setYN('cd_v',   decl.declaration5);
+                            setYN('cd_vi',  decl.declaration6);
+                            used = true;
+                        }
+                    }
+                }catch(_e){}
+                if (used) { window.__DECL_CANONICAL_USED__ = true; return; }
+                // Legacy fallback from hazards JSON and flat fields
+                function setYesNo(prefix, key){
+                    const raw = (hazards && hazards.contractor_declaration && hazards.contractor_declaration[key]) || d['cd_'+key];
+                    const yes = raw === true || raw === 'yes' || raw === 'Yes' || raw === 1 || raw === '1' || raw === 'Y';
+                    const no = raw === false || raw === 'no' || raw === 'No' || raw === 0 || raw === '0' || raw === 'N';
+                    setChecked(prefix+'_yes', yes && !no);
+                    setChecked(prefix+'_no', no && !yes);
+                }
+                setYesNo('cd_i','i');
+                setYesNo('cd_ii','ii');
+                setYesNo('cd_iii','iii');
+                setYesNo('cd_iv','iv');
+                setYesNo('cd_v','v');
+                setYesNo('cd_vi','vi');
+            })();
         })
         .catch(_e=>{});
 })();
