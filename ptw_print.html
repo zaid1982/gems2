@@ -1949,39 +1949,96 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                 applyText('sd_electrical_isolation_cert_no', get(sd,'electrical_isolation_cert_no') || d.sd_electrical_isolation_cert_no || '');
             })();
 
-            // Hazardous Activities (Page 2)
-            const ha = (hazards && hazards.hazardous_activities) || {};
-            const haMap = [
-                ['ha_slippery_floor','slippery_floor'],
-                ['ha_dropped_objects','dropped_objects'],
-                ['ha_uneven_ground','uneven_ground'],
-                ['ha_pinch_point','pinch_point'],
-                ['ha_sharp_edges','sharp_edges'],
-                ['ha_fall_from_height','fall_from_height'],
-                ['ha_extreme_weather','extreme_weather'],
-                ['ha_excessive_noise','excessive_noise'],
-                ['ha_hot_surface','hot_surface'],
-                ['ha_electrical','electrical'],
-                ['ha_flying_debris','flying_debris'],
-                ['ha_ergonomic_fatigue','ergonomic_fatigue'],
-                ['ha_moving_machinery','moving_machinery'],
-                ['ha_gas_fumes','gas_fumes'],
-                ['ha_wild_animals','wild_animals'],
-                ['ha_pressurised_equipment','pressurised_equipment'],
-                ['ha_volatile_liquid','volatile_liquid'],
-                ['ha_simultaneous_operation','simultaneous_operation'],
-                ['ha_oxygen_deficiency','oxygen_deficiency'],
-                ['ha_engulfment','engulfment'],
-                ['ha_illumination_deficiency','illumination_deficiency'],
-                ['ha_chemical','chemical'],
-                ['ha_poisonous_substance','poisonous_substance'],
-                ['ha_molds','molds'],
-                ['ha_rotating_parts','rotating_parts'],
-                ['ha_ionizing_radiation','ionizing_radiation'],
-                ['ha_infectious_substance','infectious_substance']
-            ];
-            haMap.forEach(([id,key])=> setChecked(id, !!get(ha,key) || !!d[id] || !!d[key]));
-            setVal('ha_others', get(ha,'others') || d.ha_others || '');
+            // Hazardous Activities (Page 2) - canonical first using ptw_hazardous_activities
+            (function(){
+                const bool = v => v === true || v === 1 || v === '1' || String(v).toLowerCase() === 'true';
+                let filled = false;
+                try{
+                    let rawHA = d.ptw_hazardous_activities || d.hazardous_activities || null;
+                    if (rawHA){
+                        const ha = (typeof rawHA === 'string') ? JSON.parse(rawHA) : rawHA;
+                        if (ha && typeof ha === 'object'){
+                            const map = [
+                                ['ha_slippery_floor', 'hazSlipperyFloor'],
+                                ['ha_dropped_objects', 'hazDroppedObjects'],
+                                ['ha_uneven_ground', 'hazUnevenGround'],
+                                ['ha_pinch_point', 'hazPinchPoint'],
+                                ['ha_sharp_edges', 'hazSharpObjects'],
+                                ['ha_fall_from_height', 'hazFallFromHeight'],
+                                ['ha_extreme_weather', 'hazExtremeWeather'],
+                                ['ha_excessive_noise', 'hazExcessiveNoise'],
+                                ['ha_hot_surface', 'hazHotSurface'],
+                                ['ha_electrical', 'hazElectrical'],
+                                ['ha_flying_debris', 'hazFlyingDebris'],
+                                ['ha_ergonomic_fatigue', 'hazErgonomicFatigue'],
+                                // Alias: Moving Vehicle -> Moving Machinery checkbox
+                                ['ha_moving_machinery', 'hazMovingVehicle'],
+                                ['ha_gas_fumes', 'hazGasFumes'],
+                                ['ha_wild_animals', 'hazWildAnimals'],
+                                // American spelling -> British spelling print id
+                                ['ha_pressurised_equipment', 'hazPressurizedEquipment'],
+                                ['ha_volatile_liquid', 'hazVolatileLiquid'],
+                                ['ha_simultaneous_operation', 'hazSimultaneousOperation'],
+                                ['ha_oxygen_deficiency', 'hazOxygenDeficiency'],
+                                // EngulfmentEquipment -> Engulfment
+                                ['ha_engulfment', 'hazEngulfmentEquipment'],
+                                ['ha_illumination_deficiency', 'hazIlluminationDeficiency'],
+                                ['ha_chemical', 'hazChemical'],
+                                ['ha_poisonous_substance', 'hazPoisonousSubstance'],
+                                ['ha_molds', 'hazMolds'],
+                                ['ha_rotating_parts', 'hazRotatingParts'],
+                                ['ha_ionizing_radiation', 'hazIonizingRadiation'],
+                                ['ha_infectious_substance', 'hazInfectiousSubstance']
+                            ];
+                            map.forEach(([id, key])=>{
+                                const v = ha[key];
+                                const on = (v && typeof v === 'object' && 'checked' in v) ? bool(v.checked) : bool(v);
+                                if (on) setChecked(id, true);
+                            });
+                            // Others block with value
+                            if (ha.hazOthers && (bool(ha.hazOthers.checked) || (ha.hazOthers.value && String(ha.hazOthers.value).trim()))){
+                                setVal('ha_others', ha.hazOthers.value || '');
+                                setChecked('ha_others_checkbox', true);
+                            }
+                            filled = true;
+                        }
+                    }
+                }catch(_e){ /* fallback below */ }
+                if (filled) return;
+                // Legacy fallback from hazards JSON
+                const haLegacy = (hazards && hazards.hazardous_activities) || {};
+                const haMap = [
+                    ['ha_slippery_floor','slippery_floor'],
+                    ['ha_dropped_objects','dropped_objects'],
+                    ['ha_uneven_ground','uneven_ground'],
+                    ['ha_pinch_point','pinch_point'],
+                    ['ha_sharp_edges','sharp_edges'],
+                    ['ha_fall_from_height','fall_from_height'],
+                    ['ha_extreme_weather','extreme_weather'],
+                    ['ha_excessive_noise','excessive_noise'],
+                    ['ha_hot_surface','hot_surface'],
+                    ['ha_electrical','electrical'],
+                    ['ha_flying_debris','flying_debris'],
+                    ['ha_ergonomic_fatigue','ergonomic_fatigue'],
+                    ['ha_moving_machinery','moving_machinery'],
+                    ['ha_gas_fumes','gas_fumes'],
+                    ['ha_wild_animals','wild_animals'],
+                    ['ha_pressurised_equipment','pressurised_equipment'],
+                    ['ha_volatile_liquid','volatile_liquid'],
+                    ['ha_simultaneous_operation','simultaneous_operation'],
+                    ['ha_oxygen_deficiency','oxygen_deficiency'],
+                    ['ha_engulfment','engulfment'],
+                    ['ha_illumination_deficiency','illumination_deficiency'],
+                    ['ha_chemical','chemical'],
+                    ['ha_poisonous_substance','poisonous_substance'],
+                    ['ha_molds','molds'],
+                    ['ha_rotating_parts','rotating_parts'],
+                    ['ha_ionizing_radiation','ionizing_radiation'],
+                    ['ha_infectious_substance','infectious_substance']
+                ];
+                haMap.forEach(([id,key])=> setChecked(id, !!get(haLegacy,key) || !!d[id] || !!d[key]));
+                setVal('ha_others', get(haLegacy,'others') || d.ha_others || '');
+            })();
 
             // Contractor Declaration (Page 2)
             function setYesNo(prefix, key){
