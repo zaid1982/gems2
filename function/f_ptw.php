@@ -501,6 +501,8 @@ class Class_ptw {
         if (isset($permit_data['ptw_permit_number'])) {
             // Direct array insert
             $permit_id = Class_db::getInstance()->db_insert('ptw_permit', $permit_data);
+            // Ensure we also return the provided permit number
+            $permit_number = $permit_data['ptw_permit_number'];
         } else {
             // Legacy format - extract data and build array
             $data = $permit_data;
@@ -508,7 +510,7 @@ class Class_ptw {
             $user_site_id = isset($data['site_id']) ? $data['site_id'] : 1;
             
             // Generate permit number
-            $permit_number = $this->generate_permit_number();
+            $permit_number = $this->generate_permit_number($user_site_id);
             
             $insert_data = array(
                 'ptw_permit_number' => $permit_number,
@@ -659,22 +661,57 @@ class Class_ptw {
     /**
      * Generate permit number
      */
-    private function generate_permit_number() {
-        // Since sys_sequence doesn't exist, use a simple approach
-        // Get the highest existing permit number and increment
-        $latest_permits = Class_db::getInstance()->db_select('ptw_permit', array(), 'ptw_permit_id DESC', '1');
-        
-        if (count($latest_permits) > 0) {
-            $latest_id = $latest_permits[0]['ptw_permit_id'];
-            $next_number = $latest_id + 1;
-        } else {
-            $next_number = 1;
+    private function generate_permit_number($site_id) {
+        // Format required: PTWLLLYYMMDDXXX
+        // LLL = site code; YYMMDD = current date; XXX = running number per site per day (3 digits)
+
+        // 1) Resolve site code (fallback to 'XXX' if not found)
+        $site_code = 'XXX';
+        try {
+            $siteRow = Class_db::getInstance()->db_select_single('cli_site', array('siteId' => $site_id));
+            if ($siteRow) {
+                // Support both camelCase and snake_case just in case
+                $code = isset($siteRow['siteCode']) ? $siteRow['siteCode'] : (isset($siteRow['site_code']) ? $siteRow['site_code'] : '');
+                if (!empty($code)) {
+                    // Ensure 3 chars max, uppercase
+                    $site_code = strtoupper(substr($code, 0, 3));
+                }
+            }
+        } catch (Exception $e) {
+            // keep default 'XXX'
         }
-        
-        // Format: PTW00000001
-        $permit_number = 'PTW' . str_pad($next_number, 8, '0', STR_PAD_LEFT);
-        
-        return $permit_number;
+
+        $date_part = date('ymd');
+        $prefix = 'PTW' . $site_code . $date_part; // e.g., PTWBNM250917
+
+        // 2) Determine the next running number (XXX), per site per date.
+        // Preferred: look up latest existing permit for the same prefix and increment.
+        $next_seq = 1;
+        try {
+            // Fetch recent permits for this site, newest first; we'll scan for matching prefix
+            $recent = Class_db::getInstance()->db_select('ptw_permit', array('site_id' => $site_id), 'ptw_permit_id DESC', '50');
+            $max_seq = 0;
+            foreach ($recent as $row) {
+                if (!empty($row['ptw_permit_number']) && strpos($row['ptw_permit_number'], $prefix) === 0) {
+                    $num = $row['ptw_permit_number'];
+                    // Extract last 3 digits; tolerate longer suffixes gracefully
+                    if (preg_match('/^' . preg_quote($prefix, '/') . '(\d{3,})$/', $num, $m)) {
+                        $seq = intval($m[1]);
+                        if ($seq > $max_seq) { $max_seq = $seq; }
+                    }
+                }
+            }
+            $next_seq = $max_seq + 1;
+        } catch (Exception $e) {
+            // If anything fails, fall back to 1
+            $next_seq = 1;
+        }
+
+        // 3) Compose number with 3-digit padding; cap at 999 per day (rollover not handled here)
+        if ($next_seq < 1) { $next_seq = 1; }
+        $seq_part = str_pad(strval($next_seq), 3, '0', STR_PAD_LEFT);
+
+        return $prefix . $seq_part;
     }
 
     /**
