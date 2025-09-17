@@ -2025,11 +2025,57 @@ class PtwForm {
         if (workTypeChecklists.hot_work) {
             formData.checklist_hot_work = JSON.stringify(workTypeChecklists.hot_work);
         }
-        if (workTypeChecklists.cold_work) {
-            formData.checklist_cold_work = JSON.stringify(workTypeChecklists.cold_work);
-        }
         if (workTypeChecklists.confined_space) {
             formData.checklist_confined_space = JSON.stringify(workTypeChecklists.confined_space);
+        }
+
+        // Build canonical Cold Work JSON (structured) from cw_* inputs to keep print in sync
+        try {
+            const gv = (id)=>{ const el=document.getElementById(id); return el ? (el.type==='checkbox' ? !!el.checked : (el.value||'')) : undefined; };
+            const CW = {
+                electricalWork: {
+                    circuitIsolation: gv('cw_el_circuitIsolation'),
+                    lockOutTaggedOut: gv('cw_el_lockOutTaggedOut'),
+                    fireExtinguisher: gv('cw_el_fireExtinguisher'),
+                    mainSupplyCutOff: gv('cw_el_mainSupplyCutOff'),
+                    others: gv('cw_el_others'),
+                    othersText: gv('cw_el_othersText')
+                },
+                workingAtHeight: {
+                    abseilingWork: gv('cw_wh_abseilingWork'),
+                    scaffolding: gv('cw_wh_scaffolding'),
+                    gondola: gv('cw_wh_gondola'),
+                    workingAtRooftop: gv('cw_wh_workingAtRooftop'),
+                    usingA: gv('cw_wh_usingA'),
+                    usingAText: gv('cw_wh_usingAText'),
+                    others: gv('cw_wh_others'),
+                    othersText: gv('cw_wh_othersText')
+                },
+                excavationWork: {
+                    depthLt1_2m: gv('cw_ex_depthLt1_2m'),
+                    depthGt1_2mConfined: gv('cw_ex_depthGt1_2mConfined'),
+                    safeAccessEgress: gv('cw_ex_safeAccessEgress'),
+                    protectionFromFallingMaterial: gv('cw_ex_protectionFromFallingMaterial'),
+                    protectionFromEngulfment: gv('cw_ex_protectionFromEngulfment'),
+                    others: gv('cw_ex_others'),
+                    othersText: gv('cw_ex_othersText')
+                },
+                workingUnderLoad: gv('cw_workingUnderLoad'),
+                liftingWork: gv('cw_liftingWork'),
+                chemicalHandling: gv('cw_chemicalHandling'),
+                specialPrecautions: gv('cw_specialPrecautions')
+            };
+            // Auto-enable toggles when text is present
+            if ((CW.electricalWork.othersText||'').trim()) CW.electricalWork.others = true;
+            if ((CW.workingAtHeight.usingAText||'').trim()) CW.workingAtHeight.usingA = true;
+            if ((CW.workingAtHeight.othersText||'').trim()) CW.workingAtHeight.others = true;
+            if ((CW.excavationWork.othersText||'').trim()) CW.excavationWork.others = true;
+            formData.checklist_cold_work = JSON.stringify(CW);
+        } catch (e) {
+            // Fallback to legacy flat cold work structure if present
+            if (workTypeChecklists.cold_work) {
+                formData.checklist_cold_work = JSON.stringify(workTypeChecklists.cold_work);
+            }
         }
 
         console.log('Form data prepared for public submission:', formData);

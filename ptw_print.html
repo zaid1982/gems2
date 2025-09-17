@@ -420,12 +420,12 @@
                             <div class="form-group sub-checkbox" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
                                 <input id="coldHeightUsing" type="checkbox">
                                 <label for="coldHeightUsing" style="margin:0px;">Using a</label>
-                                <span id="coldHeightUsing" class="print-inline" style="width:100px;"></span>
+                                <span id="coldHeightUsingText" class="print-inline" style="width:100px;"></span>
                             </div>
                             <div class="form-group sub-checkbox" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
                                 <input id="coldHeightOthers" type="checkbox">
                                 <label for="coldHeightOthers" style="margin:0px;" >Others:</label>
-                                <span id="coldHeightOthers" class="print-inline" style="width:100px;"></span>
+                                <span id="coldHeightOthersText" class="print-inline" style="width:100px;"></span>
                             </div>
                         </div>
 
@@ -440,7 +440,7 @@
                             <div class="form-group sub-checkbox" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
                                 <input id="coldExcOthers" type="checkbox">
                                 <label for="coldExcOthers" style="margin:0px;">Others:</label>
-                                <span id="coldExcOthers" class="print-inline" style="width:100px;"></span>
+                                <span id="coldExcOthersText" class="print-inline" style="width:100px;"></span>
                             </div>
                         </div>
                     </div>
@@ -496,18 +496,18 @@
                                     <div class="form-group" style="display:flex; gap:6px; align-items:center; flex-direction: row;">
                                         <input id="hotEveryHours_visual" type="checkbox" disabled>
                                         <label for="hotEveryHours_visual" style="margin:0;">Every</label>
-                                        <span class="print-inline" style="width:60px;"></span>
+                                        <span id="hotGasEveryHoursValue" class="print-inline" style="width:60px;"></span>
                                         <label style="margin:0;">hours</label>
                                     </div>
                                     <div class="form-group" style="display:flex; gap:6px; align-items:center; flex-direction: row;">
                                         <input id="hotFirewatch" type="checkbox">
                                         <label for="hotFirewatch" style="margin:0;">Firewatch name:</label>
-                                        <span class="print-inline" style="width:100px;"></span>
+                                        <span id="hotFirewatchName" class="print-inline" style="width:100px;"></span>
                                     </div>
                                     <div class="form-group" style="display:flex; gap:6px; align-items:center; flex-direction: row;">
                                         <input id="hotFireExtinguisher" type="checkbox">
                                         <label for="hotFireExtinguisher" style="margin:0;">Fire Extinguisher:</label>
-                                        <span class="print-inline" style="width:100px;"></span>
+                                        <span id="hotFireExtinguisherText" class="print-inline" style="width:100px;"></span>
                                     </div>
                                 </div>
                                 <div>
@@ -516,7 +516,7 @@
                                     <div><input id="hotCoverSewer_visual" type="checkbox" disabled><label for="hotCoverSewer_visual">Cover potentially flammable sewer/drain/sump</label></div>
                                     <div><input id="hotLocateSparkAway_visual" type="checkbox" disabled><label for="hotLocateSparkAway_visual">Locate spark producing equipment away from potential flammable sewer/trench</label></div>
                                     <div><input id="hotRemoveFlammables" type="checkbox"><label for="hotRemoveFlammables">Remove flammable/highly combustible materials</label></div>
-                                    <div><input id="hotControlsOthers_visual" type="checkbox" disabled><label for="hotControlsOthers_visual">Others:</label> <span class="print-inline" style="width:100px;"></span></div>
+                                    <div><input id="hotControlsOthers_visual" type="checkbox" disabled><label for="hotControlsOthers_visual">Others:</label> <span id="hotControlsOthersText" class="print-inline" style="width:100px;"></span></div>
                                 </div>
                             </div>
                         </div>
@@ -1547,7 +1547,53 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         .then(data=>{
             const d = data && data.result ? data.result : data; if(!d) return;
             let cw = null; try{ const raw = d.ptw_checklist_cold_work || d.checklist_cold_work; if(raw) cw = (typeof raw==='string')? JSON.parse(raw): raw; }catch(e){ cw=null; }
-            const hasCanonical = cw && (cw.electricalWork || cw.workingAtHeight || cw.excavationWork || typeof cw.workingUnderLoad==='boolean' || typeof cw.liftingWork==='boolean' || typeof cw.chemicalHandling==='boolean');
+            let hasCanonical = cw && (cw.electricalWork || cw.workingAtHeight || cw.excavationWork || typeof cw.workingUnderLoad==='boolean' || typeof cw.liftingWork==='boolean' || typeof cw.chemicalHandling==='boolean');
+            // Fallback: if cw exists but is flat cw_* keys (legacy), transform to canonical shape
+            if (cw && !hasCanonical) {
+                try {
+                    const gv = k => (typeof cw[k] === 'boolean' ? cw[k] : !!cw[k]);
+                    const gvt = k => (cw[k] || '');
+                    const canon = {
+                        electricalWork: {
+                            circuitIsolation: gv('cw_el_circuitIsolation'),
+                            lockOutTaggedOut: gv('cw_el_lockOutTaggedOut'),
+                            fireExtinguisher: gv('cw_el_fireExtinguisher'),
+                            mainSupplyCutOff: gv('cw_el_mainSupplyCutOff'),
+                            others: gv('cw_el_others'),
+                            othersText: gvt('cw_el_othersText')
+                        },
+                        workingAtHeight: {
+                            abseilingWork: gv('cw_wh_abseilingWork'),
+                            scaffolding: gv('cw_wh_scaffolding'),
+                            gondola: gv('cw_wh_gondola'),
+                            workingAtRooftop: gv('cw_wh_workingAtRooftop'),
+                            usingA: gv('cw_wh_usingA'),
+                            usingAText: gvt('cw_wh_usingAText'),
+                            others: gv('cw_wh_others'),
+                            othersText: gvt('cw_wh_othersText')
+                        },
+                        excavationWork: {
+                            depthLt1_2m: gv('cw_ex_depthLt1_2m'),
+                            depthGt1_2mConfined: gv('cw_ex_depthGt1_2mConfined'),
+                            safeAccessEgress: gv('cw_ex_safeAccessEgress'),
+                            protectionFromFallingMaterial: gv('cw_ex_protectionFromFallingMaterial'),
+                            protectionFromEngulfment: gv('cw_ex_protectionFromEngulfment'),
+                            others: gv('cw_ex_others'),
+                            othersText: gvt('cw_ex_othersText')
+                        },
+                        workingUnderLoad: gv('cw_workingUnderLoad'),
+                        liftingWork: gv('cw_liftingWork'),
+                        chemicalHandling: gv('cw_chemicalHandling'),
+                        specialPrecautions: gvt('cw_specialPrecautions')
+                    };
+                    // Auto-enable flags when text present
+                    if ((canon.electricalWork.othersText||'').trim()) canon.electricalWork.others = true;
+                    if ((canon.workingAtHeight.usingAText||'').trim()) canon.workingAtHeight.usingA = true;
+                    if ((canon.workingAtHeight.othersText||'').trim()) canon.workingAtHeight.others = true;
+                    if ((canon.excavationWork.othersText||'').trim()) canon.excavationWork.others = true;
+                    cw = canon; hasCanonical = true;
+                } catch(_e) { /* ignore and fall back */ }
+            }
             if (hasCanonical){
                 const el = cw.electricalWork||{};
                 setChecked('coldElectricalWork', !!(el.circuitIsolation||el.lockOutTaggedOut||el.fireExtinguisher||el.mainSupplyCutOff||el.others||el.othersText));
@@ -1563,8 +1609,8 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                 setChecked('coldHeightScaffolding', wh.scaffolding);
                 setChecked('coldHeightGondola', wh.gondola);
                 setChecked('coldHeightRooftop', wh.workingAtRooftop);
-                if (wh.usingAText){ setChecked('coldWorkingAtHeight', true); setVal('coldHeightUsing', wh.usingAText); }
-                if (wh.othersText){ setChecked('coldWorkingAtHeight', true); setVal('coldHeightOthers', wh.othersText); }
+                if (wh.usingAText){ setChecked('coldWorkingAtHeight', true); setVal('coldHeightUsingText', wh.usingAText); }
+                if (wh.othersText){ setChecked('coldWorkingAtHeight', true); setVal('coldHeightOthersText', wh.othersText); }
 
                 const ex = cw.excavationWork||{};
                 setChecked('coldExcavationWork', !!(ex.depthLt1_2m||ex.depthGt1_2mConfined||ex.safeAccessEgress||ex.protectionFromFallingMaterial||ex.protectionFromEngulfment||ex.others||ex.othersText));
@@ -1573,7 +1619,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                 setChecked('coldExcAccessEgress', ex.safeAccessEgress);
                 setChecked('coldExcProtectFalling', ex.protectionFromFallingMaterial);
                 setChecked('coldExcProtectEngulfment', ex.protectionFromEngulfment);
-                if (ex.othersText){ setChecked('coldExcavationWork', true); setVal('coldExcOthers', ex.othersText); }
+                if (ex.othersText){ setChecked('coldExcavationWork', true); setVal('coldExcOthersText', ex.othersText); }
 
                 setChecked('coldWorkingUnderLoad', cw.workingUnderLoad);
                 setChecked('coldLiftingWork', cw.liftingWork);
@@ -1603,75 +1649,90 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
 })();
 </script>
 <script>
-// Populate Hot Work (flat IDs from ptw_form.html, with legacy fallback)
+// Populate Hot Work (canonical-first; map to print IDs including visual-only checkboxes and text fields)
 (function(){
     function qs(name){ const p=new URLSearchParams(window.location.search); return p.get(name); }
     function setChecked(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!val; }
-    function setVal(id, val){
-        const el=document.getElementById(id); if(!el) return;
-        const v = (val==null? '' : val);
-        if ('value' in el) { try{ el.value = v; }catch(_e){ el.textContent = v; } }
-        else { el.textContent = v; }
-    }
-
-    const ptwId = qs('ptwId') || qs('permitId') || qs('id');
-    if(!ptwId) return;
-    const token = sessionStorage.getItem('token');
-    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
-
+    function setVal(id, val){ const el=document.getElementById(id); if(!el) return; const v = (val==null? '' : val); if ('value' in el) { try{ el.value = v; }catch(_e){ el.textContent = v; } } else { el.textContent = v; } }
+    const ptwId = qs('ptwId') || qs('permitId') || qs('id'); if(!ptwId) return;
+    const token = sessionStorage.getItem('token'); const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
     fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
         .then(r=>r.json())
         .then(data=>{
             const d = data && data.result ? data.result : data; if(!d) return;
-
-            // 1) Primary: ptw_checklist_hot_work or checklist_hot_work (JSON string/object)
+            // Primary: structured object saved by form (flat IDs as keys)
             try{
-                const raw = d.ptw_checklist_hot_work || d.checklist_hot_work;
-                if (raw) {
-                    const hw = typeof raw === 'string' ? JSON.parse(raw) : raw;
-                    if (hw && typeof hw === 'object'){
-                        Object.keys(hw).forEach(k=>{
-                            if (k === 'hotSpecialPrecautions' || k === 'hotOthersText') return;
-                            setChecked(k, true);
-                        });
-                        if (typeof hw.hotOthersText === 'string' && hw.hotOthersText.trim()){
-                            setChecked('hotOthers', true);
-                            setVal('hotOthersText', hw.hotOthersText);
-                        }
-                        if (typeof hw.hotSpecialPrecautions === 'string'){
-                            setVal('hotSpecialPrecautions', hw.hotSpecialPrecautions);
-                        }
-                        return; // Done via primary source
-                    }
-                }
-            }catch(_e){ /* fall through to legacy */ }
+                const raw = d.ptw_checklist_hot_work || d.checklist_hot_work; if (!raw) throw 0;
+                const hw = typeof raw === 'string' ? JSON.parse(raw) : raw; if (!hw || typeof hw !== 'object') throw 0;
+                // Types of hot work (include alias keys from provided JSON)
+                setChecked('hotWelding', !!hw.hotWelding);
+                setChecked('hotCutting', !!hw.hotCutting || !!hw.hotFlameCutting);
+                setChecked('hotOpenFlame_visual', !!hw.hotOpenFlame_visual || !!hw.hotOpenFlame);
+                setChecked('hotGrinding', !!hw.hotGrinding);
+                setChecked('hotBlasting_visual', !!hw.hotBlasting_visual || !!hw.hotBlasting);
+                setChecked('hotPowerBrushing_visual', !!hw.hotPowerBrushing_visual || !!hw.hotPowerBrushing);
+                // Misspelling in sample: hotGoughing -> Gouging
+                setChecked('hotGouging_visual', !!hw.hotGouging_visual || !!hw.hotGouging || !!hw.hotGoughing);
+                // Post Weld Heat Treatment alias
+                setChecked('hotPWHT_visual', !!hw.hotPWHT_visual || !!hw.hotPWHT || !!hw.hotPostWeldHeatTreatment);
+                // Pyrophoric alias/misspelling: hotPhrophoricMaterial
+                setChecked('hotPyrophoric_visual', !!hw.hotPyrophoric_visual || !!hw.hotPyrophoric || !!hw.hotPhrophoricMaterial);
+                if (hw.hotOthersText){ setChecked('hotOthers', true); setVal('hotOthersText', hw.hotOthersText); }
+                // Controls required
+                setChecked('hotGasMonitoring', !!hw.hotGasMonitoring);
+                // Continuous alias
+                setChecked('hotContinuous_visual', !!hw.hotContinuous_visual || !!hw.hotContinuous || !!hw.hotGasContinuous);
+                // Every hours flag/value
+                setChecked('hotEveryHours_visual', !!hw.hotEveryHours_visual || !!hw.hotEveryHours || !!hw.hotGasEveryHours || !!hw.hotGasEveryHoursValue);
+                if (hw.hotGasEveryHoursValue){ setVal('hotGasEveryHoursValue', hw.hotGasEveryHoursValue); }
+                setChecked('hotFirewatch', !!hw.hotFirewatch);
+                if (hw.hotFirewatchName){ setVal('hotFirewatchName', hw.hotFirewatchName); }
+                setChecked('hotFireExtinguisher', !!hw.hotFireExtinguisher);
+                if (hw.hotFireExtinguisherText){ setVal('hotFireExtinguisherText', hw.hotFireExtinguisherText); }
+                // Controls alias keys and typos
+                setChecked('hotFireBlanket_visual', !!hw.hotFireBlanket_visual || !!hw.hotFireBlanket);
+                setChecked('hotRetardantScreen_visual', !!hw.hotRetardantScreen_visual || !!hw.hotRetardantScreen || !!hw.hotFireRetardentScreen);
+                setChecked('hotCoverSewer_visual', !!hw.hotCoverSewer_visual || !!hw.hotCoverSewer || !!hw.hotCoverFlammableSewerDrainSump);
+                setChecked('hotLocateSparkAway_visual', !!hw.hotLocateSparkAway_visual || !!hw.hotLocateSparkAway || !!hw.hotLocateSparkAwayFromFlammableSewerTrench);
+                setChecked('hotRemoveFlammables', !!hw.hotRemoveFlammables);
+                setChecked('hotControlsOthers_visual', !!hw.hotControlsOthers_visual || !!hw.hotControlsOthers || !!hw.hotControlsOthersText);
+                if (hw.hotControlsOthersText){ setVal('hotControlsOthersText', hw.hotControlsOthersText); }
+                // Notes
+                if (typeof hw.hotSpecialPrecautions === 'string'){ setVal('hotSpecialPrecautions', hw.hotSpecialPrecautions); }
+                return;
+            }catch(_e){ /* fallthrough to legacy */ }
 
-            // 2) Legacy fallback: map from ptw_hazard_checklist shapes if present
+            // Legacy: map from ptw_hazard_checklist where available
             try{
                 let hazards = {};
-                if (d.ptw_hazard_checklist){
-                    hazards = typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist;
-                }
+                if (d.ptw_hazard_checklist){ hazards = typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist; }
                 const hwz = hazards && (hazards.hot_work || hazards.specific || {});
-                const bool = v => v === true || v === 'true' || v === 1;
-
-                // Types mapping (best-effort)
+                const bool = v => v === true || v === 'true' || v === 1 || v === '1';
                 setChecked('hotWelding', bool(hwz?.types?.welding) || bool(hwz?.welding));
                 setChecked('hotCutting', bool(hwz?.types?.flame_cutting) || bool(hwz?.cutting));
                 setChecked('hotGrinding', bool(hwz?.types?.grinding) || bool(hwz?.grinding));
-                setChecked('hotBrazing', bool(hwz?.types?.brazing) || bool(hwz?.brazing));
-                setChecked('hotSoldering', bool(hwz?.types?.soldering) || bool(hwz?.soldering));
-                // Others text
+                // Visual-only items best-effort
+                setChecked('hotOpenFlame_visual', bool(hwz?.types?.open_flame));
+                setChecked('hotBlasting_visual', bool(hwz?.types?.blasting));
+                setChecked('hotPowerBrushing_visual', bool(hwz?.types?.power_brushing));
+                setChecked('hotGouging_visual', bool(hwz?.types?.gouging));
+                setChecked('hotPWHT_visual', bool(hwz?.types?.post_weld_heat_treatment));
+                setChecked('hotPyrophoric_visual', bool(hwz?.types?.pyrophoric));
                 if (hwz?.others_text){ setChecked('hotOthers', true); setVal('hotOthersText', hwz.others_text); }
-
-                // Controls mapping (best-effort)
+                // Controls
                 setChecked('hotGasMonitoring', bool(hwz?.controls?.gas_monitoring) || bool(hwz?.gas_monitoring));
+                setChecked('hotContinuous_visual', bool(hwz?.controls?.continuous));
+                if (hwz?.controls?.every_hours_value) { setChecked('hotEveryHours_visual', true); setVal('hotGasEveryHoursValue', hwz.controls.every_hours_value); }
                 setChecked('hotFirewatch', bool(hwz?.controls?.firewatch) || bool(hwz?.firewatch));
-                setChecked('hotRemoveFlammables', bool(hwz?.controls?.remove_flammable) || bool(hwz?.remove_flammable));
+                if (hwz?.controls?.firewatch_name) setVal('hotFirewatchName', hwz.controls.firewatch_name);
                 setChecked('hotFireExtinguisher', bool(hwz?.controls?.fire_extinguisher) || bool(hwz?.fire_extinguisher));
-                setChecked('hotVentilation', bool(hwz?.controls?.ventilation) || bool(hwz?.ventilation));
-                setChecked('hotBarricades', bool(hwz?.controls?.barricades) || bool(hwz?.barricades));
-
+                if (hwz?.controls?.fire_extinguisher_text) setVal('hotFireExtinguisherText', hwz.controls.fire_extinguisher_text);
+                setChecked('hotFireBlanket_visual', bool(hwz?.controls?.fire_blanket));
+                setChecked('hotRetardantScreen_visual', bool(hwz?.controls?.retardant_screen));
+                setChecked('hotCoverSewer_visual', bool(hwz?.controls?.cover_sewer));
+                setChecked('hotLocateSparkAway_visual', bool(hwz?.controls?.locate_spark_away));
+                setChecked('hotRemoveFlammables', bool(hwz?.controls?.remove_flammable) || bool(hwz?.remove_flammable));
+                if (hwz?.controls?.others_text){ setChecked('hotControlsOthers_visual', true); setVal('hotControlsOthersText', hwz.controls.others_text); }
                 // Notes
                 const notes = hwz?.hot_work_notes || hwz?.special_precautions || d?.hot_work_notes || '';
                 if (notes) setVal('hotSpecialPrecautions', notes);
@@ -1789,31 +1850,104 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             setVal('cs_ack_position', d.cs_ack_position || '');
             setVal('cs_ack_datetime', d.cs_ack_datetime || '');
 
-            // Supporting Documents
-            const sd = (hazards && hazards.supporting_documents) || {};
-            setChecked('sd_cidb_green_card', !!get(sd,'cidb_green_card') || !!d.sd_cidb_green_card);
-            setChecked('sd_toolbox_talk', !!get(sd,'toolbox_talk_record') || !!d.sd_toolbox_talk);
-            setVal('sd_excavation_cert_no', get(sd,'excavation_cert_no') || d.sd_excavation_cert_no || '');
-            setVal('sd_confined_space_cert_no', get(sd,'confined_space_cert_no') || d.sd_confined_space_cert_no || '');
-            setChecked('sd_aesp_card', !!get(sd,'aesp_card') || !!d.sd_aesp_card);
-            setChecked('sd_sds', !!get(sd,'safety_data_sheet') || !!d.sd_sds);
-            setChecked('sd_excavation_plan', !!get(sd,'excavation_plan') || !!d.sd_excavation_plan);
-            setVal('sd_others', get(sd,'others') || d.sd_others || '');
-            setChecked('sd_competency_person', !!get(sd,'competency_person_cert') || !!d.sd_competency_person);
-            setChecked('sd_job_method_statement', !!get(sd,'job_method_statement') || !!d.sd_job_method_statement);
-            setVal('sd_lifting_cert_no', get(sd,'lifting_cert_no') || d.sd_lifting_cert_no || '');
-            setChecked('sd_contractor_checklist', !!get(sd,'contractor_checklist') || !!d.sd_contractor_checklist);
-            setChecked('sd_job_hazard_analysis', !!get(sd,'job_hazard_analysis') || !!d.sd_job_hazard_analysis);
-            setChecked('sd_lifting_plan', !!get(sd,'lifting_plan') || !!d.sd_lifting_plan);
-            setChecked('sd_medical_check_up', !!get(sd,'medical_check_up') || !!d.sd_medical_check_up);
-            setChecked('sd_hirarc', !!get(sd,'hirarc_eaia') || !!d.sd_hirarc);
-            setChecked('sd_lifting_checklist', !!get(sd,'lifting_checklist') || !!d.sd_lifting_checklist);
-            setChecked('sd_calibration_certificate', !!get(sd,'calibration_certificate') || !!d.sd_calibration_certificate);
-            setChecked('sd_tmp', !!get(sd,'traffic_management_plan') || !!d.sd_tmp);
-            setVal('sd_physical_isolation_cert_no', get(sd,'physical_isolation_cert_no') || d.sd_physical_isolation_cert_no || '');
-            setChecked('sd_load_chart', !!get(sd,'load_chart') || !!d.sd_load_chart);
-            setChecked('sd_certificate_of_fitness', !!get(sd,'certificate_of_fitness') || !!d.sd_certificate_of_fitness);
-            setVal('sd_electrical_isolation_cert_no', get(sd,'electrical_isolation_cert_no') || d.sd_electrical_isolation_cert_no || '');
+            // Supporting Documents - canonical first
+            try {
+                let sdUsedCanonical = false;
+                // Helpers
+                const normalizeKey = (k)=> String(k||'').trim().toLowerCase().replace(/\s+/g,'_').replace(/-+/g,'_');
+                const boolish = (v)=> v === true || v === 1 || v === '1' || String(v).toLowerCase() === 'true';
+                const hasText = (v)=> v != null && String(v).trim() !== '';
+                // 1) Documents checklist array
+                let list = d.ptw_supporting_docs_checklist || d.supporting_docs_checklist || null;
+                if (typeof list === 'string') { try { list = JSON.parse(list); } catch(_e) { list = null; } }
+                const docKeyToId = {
+                    calibration_certificate: 'sd_calibration_certificate',
+                    load_chart: 'sd_load_chart',
+                    toolbox_talk_record: 'sd_toolbox_talk',
+                    safety_data_sheet: 'sd_sds',
+                    job_method_statement: 'sd_job_method_statement',
+                    job_hazard_analysis: 'sd_job_hazard_analysis',
+                    certificate_of_fitness: 'sd_certificate_of_fitness',
+                    cidb_green_card: 'sd_cidb_green_card',
+                    aesp_card: 'sd_aesp_card',
+                    competency_person_certificate: 'sd_competency_person',
+                    contractor_checklist: 'sd_contractor_checklist',
+                    medical_check_up: 'sd_medical_check_up',
+                    hirarc_eaia: 'sd_hirarc',
+                    traffic_management_plan: 'sd_tmp'
+                };
+                if (Array.isArray(list)) {
+                    list.forEach(keyRaw => { const key = normalizeKey(keyRaw); const id = docKeyToId[key]; if (id) { setChecked(id, true); sdUsedCanonical = true; } });
+                }
+                // 2) Certificate numbers and related checkboxes
+                let certs = d.ptw_certificate_numbers || d.certificate_numbers || null;
+                if (typeof certs === 'string') { try { certs = JSON.parse(certs); } catch(_e) { certs = null; } }
+                if (certs && typeof certs === 'object') {
+                    const applyCert = (key, chkId, textId) => {
+                        const itm = certs[key];
+                        if (!itm) return;
+                        const checked = boolish(itm.checked) || hasText(itm.value) || hasText(itm.comment) || hasText(itm.remark) || hasText(itm.remarks);
+                        if (chkId) { setChecked(chkId, checked); sdUsedCanonical = true; }
+                        if (textId) {
+                            // Combine number and optional comment/remarks for display
+                            const parts = [];
+                            if (hasText(itm.value)) parts.push(String(itm.value).trim());
+                            const cmt = itm.comment || itm.remark || itm.remarks;
+                            if (hasText(cmt)) parts.push(String(cmt).trim());
+                            if (parts.length) { setVal(textId, parts.join(' — ')); sdUsedCanonical = true; }
+                        }
+                    };
+                    applyCert('excavationCert', 'sd_excavation_cert', 'sd_excavation_cert_no');
+                    applyCert('liftingCert', 'sd_lifting_cert', 'sd_lifting_cert_no');
+                    applyCert('physicalIsolation', 'sd_physical_isolation_cert', 'sd_physical_isolation_cert_no');
+                    applyCert('electricalIsolation', 'sd_electrical_isolation_cert', 'sd_electrical_isolation_cert_no');
+                    applyCert('confinedSpaceCert', 'sd_confined_space_cert', 'sd_confined_space_cert_no');
+                    // Others certificate label/text
+                    applyCert('othersCert', 'sd_others_cert', 'sd_others_text');
+                    // Plans and checklist
+                    applyCert('excavationPlan', 'sd_excavation_plan');
+                    applyCert('liftingPlan', 'sd_lifting_plan');
+                    applyCert('liftingChecklist', 'sd_lifting_checklist');
+                }
+                // mark flag for use outside try (attached to window for scope escape)
+                window.__SD_CANONICAL_USED__ = !!sdUsedCanonical;
+            } catch(_e) { /* fallback below */ }
+
+            // Supporting Documents - legacy fallback from hazards JSON and old flat fields
+            (function(){
+                const sd = (hazards && hazards.supporting_documents) || {};
+                function mergeCheck(id, val){ const el=document.getElementById(id); if(!el) return; el.checked = !!el.checked || !!val; }
+                function setIfEmpty(id, val){ const el=document.getElementById(id); if(!el) return; const current = ('value' in el) ? (el.value||'') : (el.textContent||''); if (!current) { const v = (val==null? '' : val); if ('value' in el) { try{ el.value = v; }catch(_e){ el.textContent = v; } } else { el.textContent = v; } } }
+                // If canonical was used, only top-up missing/unchecked fields; otherwise, fill normally
+                const topupOnly = !!window.__SD_CANONICAL_USED__;
+                const applyCheck = (id, v)=> topupOnly ? mergeCheck(id, v) : setChecked(id, v);
+                const applyText  = (id, v)=> topupOnly ? setIfEmpty(id, v) : setVal(id, v);
+
+                applyCheck('sd_cidb_green_card', !!get(sd,'cidb_green_card') || !!d.sd_cidb_green_card);
+                applyCheck('sd_toolbox_talk', !!get(sd,'toolbox_talk_record') || !!d.sd_toolbox_talk);
+                applyText('sd_excavation_cert_no', get(sd,'excavation_cert_no') || d.sd_excavation_cert_no || '');
+                applyText('sd_confined_space_cert_no', get(sd,'confined_space_cert_no') || d.sd_confined_space_cert_no || '');
+                applyCheck('sd_aesp_card', !!get(sd,'aesp_card') || !!d.sd_aesp_card);
+                applyCheck('sd_sds', !!get(sd,'safety_data_sheet') || !!d.sd_sds);
+                applyCheck('sd_excavation_plan', !!get(sd,'excavation_plan') || !!d.sd_excavation_plan);
+                // BUGFIX: correct id to sd_others_text
+                applyText('sd_others_text', get(sd,'others') || d.sd_others || '');
+                applyCheck('sd_competency_person', !!get(sd,'competency_person_cert') || !!d.sd_competency_person);
+                applyCheck('sd_job_method_statement', !!get(sd,'job_method_statement') || !!d.sd_job_method_statement);
+                applyText('sd_lifting_cert_no', get(sd,'lifting_cert_no') || d.sd_lifting_cert_no || '');
+                applyCheck('sd_contractor_checklist', !!get(sd,'contractor_checklist') || !!d.sd_contractor_checklist);
+                applyCheck('sd_job_hazard_analysis', !!get(sd,'job_hazard_analysis') || !!d.sd_job_hazard_analysis);
+                applyCheck('sd_lifting_plan', !!get(sd,'lifting_plan') || !!d.sd_lifting_plan);
+                applyCheck('sd_medical_check_up', !!get(sd,'medical_check_up') || !!d.sd_medical_check_up);
+                applyCheck('sd_hirarc', !!get(sd,'hirarc_eaia') || !!d.sd_hirarc);
+                applyCheck('sd_lifting_checklist', !!get(sd,'lifting_checklist') || !!d.sd_lifting_checklist);
+                applyCheck('sd_calibration_certificate', !!get(sd,'calibration_certificate') || !!d.sd_calibration_certificate);
+                applyCheck('sd_tmp', !!get(sd,'traffic_management_plan') || !!d.sd_tmp);
+                applyText('sd_physical_isolation_cert_no', get(sd,'physical_isolation_cert_no') || d.sd_physical_isolation_cert_no || '');
+                applyCheck('sd_load_chart', !!get(sd,'load_chart') || !!d.sd_load_chart);
+                applyCheck('sd_certificate_of_fitness', !!get(sd,'certificate_of_fitness') || !!d.sd_certificate_of_fitness);
+                applyText('sd_electrical_isolation_cert_no', get(sd,'electrical_isolation_cert_no') || d.sd_electrical_isolation_cert_no || '');
+            })();
 
             // Hazardous Activities (Page 2)
             const ha = (hazards && hazards.hazardous_activities) || {};
