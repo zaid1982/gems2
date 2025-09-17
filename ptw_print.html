@@ -1042,10 +1042,12 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                                 </div>
                             </td>
                             <td style="border:1px solid #000; padding:6px; vertical-align:top;">
-                                I certify that this permit is suspended due to (please attached NCR/CAR if required).
-                                <div style="margin:10px 0;">
-                                    <div style="border-bottom:1px solid #000; height:16px;">&nbsp;</div>
-                                    <div style="border-bottom:1px solid #000; height:16px; margin-top:6px;">&nbsp;</div>
+                                I certify that this permit is suspended due to (please attach NCR/CAR if required).
+                                <div style="margin:10px 0; display:grid; grid-template-columns: 120px 1fr; gap:6px; align-items: center;">
+                                    <div><strong>NCR/CAR No:</strong></div>
+                                    <div><span id="hb_suspended_ncr_no">-</span></div>
+                                    <div><strong>Reason:</strong></div>
+                                    <div><span id="hb_suspended_reason" class="print-field" style="min-height:16px;">-</span></div>
                                 </div>
                             </td>
                             <td style="border:1px solid #000; padding:6px; vertical-align:top;">
@@ -1364,21 +1366,39 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
     const headers = (window.__AUTH__ && window.__AUTH__.getHeaders && window.__AUTH__.getHeaders()) || {};
     function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = (v===0? '0' : (v || '-')); }
     function setChecked(id, val){ const el=document.getElementById(id); if(el) el.checked = !!val; }
-    function renderUserSignature(userId, imgId){
+    function renderUserSignature(userId, imgId, wrapId, lineId){
         try{
             const img = document.getElementById(imgId);
             if(!userId || !img) return;
-            const wrap = img.parentElement;
+            const wrap = wrapId ? document.getElementById(wrapId) : img.parentElement;
+            const line = lineId ? document.getElementById(lineId) : null;
             const url = 'user_signature/external/' + encodeURIComponent(userId);
             fetch(url, { headers }).then(r=>r.json()).then(js=>{
                 const res = js && (js.result || js);
                 const path = res && (res.signatureLink || res.signature_path || res.signaturePath || res.file_path || res.path || res.url);
                 if (path){
-                    img.onload = function(){ img.style.display='block'; if(wrap) wrap.style.display='block'; };
+                    img.onload = function(){
+                        if (line) line.style.display = 'none';
+                        img.style.display='block';
+                        if(wrap) wrap.style.display='inline-block';
+                    };
                     img.onerror = function(){ console.warn('Signature image failed to load (Section7) for user', userId, path); };
                     img.src = path;
                 }
             }).catch(()=>{});
+        }catch(_e){}
+    }
+
+    function clearSignature(imgId, wrapId, lineId){
+        try{
+            const img = document.getElementById(imgId);
+            if(!img) return;
+            img.removeAttribute('src');
+            img.style.display = 'none';
+            const wrap = wrapId ? document.getElementById(wrapId) : img.parentElement;
+            if (wrap) wrap.style.display = 'none';
+            const line = lineId ? document.getElementById(lineId) : null;
+            if (line) line.style.display = 'inline-block';
         }catch(_e){}
     }
 
@@ -1395,6 +1415,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         .then(data=>{
             const d = data && data.result ? data.result : data; if(!d) return;
             const fmNested = d.fm || null;
+            const supNested = d.supervisor || null;
             function setNameAsync(elId, userId, fallbackName){
                 const initial = fallbackName || '';
                 if (initial) { setText(elId, initial); return; }
@@ -1416,59 +1437,94 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             setChecked('hb_cancelled_chk', isCancelled);
             setChecked('hb_suspended_chk', isSuspended);
 
-            // CLOSED: Supervisor column (fallbacks to known supervisor/applicant if missing)
-            const closedSupUser = d.approved_supervisor_by || d.supervisor_id || null;
-            const closedSupName = d.approved_supervisor_name || d.supervisor_name || d.ptw_contractor_supervisor || d.ptw_supervisor_name || '';
-            const closed = d.completed_date || d.closed_date || '';
-            const closedDT = splitDT(closed);
-            setNameAsync('hb_closed_sup_name', closedSupUser, closedSupName);
-            setText('hb_closed_sup_date', (closedDT.date !== '-' || closedDT.time !== '-') ? (closedDT.date + (closedDT.time && closedDT.time!=='-' ? ' ' + closedDT.time : '')) : '-');
-            renderUserSignature(closedSupUser, 'hb_closed_sup_sig_img');
+            // CLOSED: only populate when actually closed/completed
+            if (isClosed) {
+                // Supervisor column (fallbacks to known supervisor/applicant if missing)
+                const closedSupUser = (supNested && supNested.userId) || d.approved_supervisor_by || d.ptw_supervisor_id || d.supervisor_id || null;
+                const closedSupName = (supNested && (supNested.displayName || [supNested.userFirstName, supNested.userLastName].filter(Boolean).join(' ') || supNested.userName || supNested.email))
+                    || d.approved_supervisor_name || d.supervisor_name || d.ptw_contractor_supervisor || d.ptw_supervisor_name || '';
+                const closed = d.completed_date || d.closed_date || '';
+                const closedDT = splitDT(closed);
+                setNameAsync('hb_closed_sup_name', closedSupUser, closedSupName);
+                setText('hb_closed_sup_date', (closedDT.date !== '-' || closedDT.time !== '-') ? (closedDT.date + (closedDT.time && closedDT.time!=='-' ? ' ' + closedDT.time : '')) : '-');
+                renderUserSignature(closedSupUser, 'hb_closed_sup_sig_img', 'hb_closed_sup_sig_imgwrap', 'hb_closed_sup_sig_line');
 
-            // CLOSED: FM/Client column
-            const closedFmUser = (fmNested && fmNested.userId) || d.completed_by || d.closed_by || d.approved_fm_by || null;
-            const closedFmNameFallback = (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.closed_by_name || d.completed_by_name || d.approved_fm_name || '';
-            setNameAsync('hb_closed_fm_name', closedFmUser, closedFmNameFallback);
-            setText('hb_closed_fm_date', (closedDT.date !== '-' || closedDT.time !== '-') ? (closedDT.date + (closedDT.time && closedDT.time!=='-' ? ' ' + closedDT.time : '')) : '-');
-            renderUserSignature(closedFmUser, 'hb_closed_fm_sig_img');
+                // FM/Client column
+                const closedFmUser = (fmNested && fmNested.userId) || d.completed_by || d.closed_by || d.approved_fm_by || null;
+                const closedFmNameFallback = (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.closed_by_name || d.completed_by_name || d.approved_fm_name || '';
+                setNameAsync('hb_closed_fm_name', closedFmUser, closedFmNameFallback);
+                setText('hb_closed_fm_date', (closedDT.date !== '-' || closedDT.time !== '-') ? (closedDT.date + (closedDT.time && closedDT.time!=='-' ? ' ' + closedDT.time : '')) : '-');
+                renderUserSignature(closedFmUser, 'hb_closed_fm_sig_img', 'hb_closed_fm_sig_imgwrap', 'hb_closed_fm_sig_line');
+            } else {
+                setText('hb_closed_sup_name', '-');
+                setText('hb_closed_sup_date', '-');
+                clearSignature('hb_closed_sup_sig_img', 'hb_closed_sup_sig_imgwrap', 'hb_closed_sup_sig_line');
+                setText('hb_closed_fm_name', '-');
+                setText('hb_closed_fm_date', '-');
+                clearSignature('hb_closed_fm_sig_img', 'hb_closed_fm_sig_imgwrap', 'hb_closed_fm_sig_line');
+            }
 
-            // EXTENDED: From/To timing and FM acknowledgement
-            const from = d.ptw_valid_from || d.ptw_extension_requested_from || '';
-            const to = d.ptw_valid_to || d.ptw_extension_requested_to || '';
-            const f = splitDT(from); const t = splitDT(to);
-            setText('hb_extended_from_date', f.date);
-            setText('hb_extended_from_time', f.time);
-            setText('hb_extended_to_date', t.date);
-            setText('hb_extended_to_time', t.time);
-            // Only render an Extended signature when status is actually EXTENDED; avoid using updated_by to prevent supervisor bleed
-            const extendedFmUser = (isExtended
-                ? ((fmNested && fmNested.userId) || d.extended_approved_by || d.extension_approved_by || d.approve_extend_by || d.approved_fm_by || null)
-                : null);
-            const extendedFmNameFallback = (isExtended
-                ? ((fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.extended_approved_name || d.extension_approved_name || d.approve_extend_name || d.approved_fm_name || '')
-                : '');
-            setNameAsync('hb_extended_fm_name', extendedFmUser, extendedFmNameFallback);
-            // Prefer explicit extension approval datetimes; do not fallback to updated_at
-            const extDateTime = (isExtended ? (to || d.extended_approved_at || d.extension_approved_at || d.approve_extend_date || '') : '');
-            const extDT = splitDT(extDateTime);
-            setText('hb_extended_fm_date', (extDT.date !== '-' || extDT.time !== '-') ? (extDT.date + (extDT.time && extDT.time!=='-' ? ' ' + extDT.time : '')) : '-');
-            renderUserSignature(extendedFmUser, 'hb_extended_fm_sig_img');
+            // EXTENDED: only show when actually extended
+            if (isExtended) {
+                // From/To timing from extension fields if available
+                const from = d.ptw_extension_requested_from || d.ptw_valid_from || '';
+                const to = d.ptw_extension_requested_to || d.ptw_valid_to || '';
+                const f = splitDT(from); const t = splitDT(to);
+                setText('hb_extended_from_date', f.date);
+                setText('hb_extended_from_time', f.time);
+                setText('hb_extended_to_date', t.date);
+                setText('hb_extended_to_time', t.time);
+                // Prefer the extension approver over the original FM
+                const extendedFmUser = d.extended_approved_by || d.extension_approved_by || d.approve_extend_by || (fmNested && fmNested.userId) || d.approved_fm_by || null;
+                const extendedFmNameFallback = d.extended_approved_name || d.extension_approved_name || d.approve_extend_name || (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.approved_fm_name || d.fm_name || '';
+                setNameAsync('hb_extended_fm_name', extendedFmUser, extendedFmNameFallback);
+                // Show the actual extension approval timestamp first; fall back to the extended-to value
+                const extDateTime = d.extended_approved_at || d.extension_approved_at || d.approve_extend_date || to || '';
+                const extDT = splitDT(extDateTime);
+                setText('hb_extended_fm_date', (extDT.date !== '-' || extDT.time !== '-') ? (extDT.date + (extDT.time && extDT.time!=='-' ? ' ' + extDT.time : '')) : '-');
+                renderUserSignature(extendedFmUser, 'hb_extended_fm_sig_img', 'hb_extended_fm_sig_imgwrap', 'hb_extended_fm_sig_line');
+            } else {
+                setText('hb_extended_from_date', '-');
+                setText('hb_extended_from_time', '-');
+                setText('hb_extended_to_date', '-');
+                setText('hb_extended_to_time', '-');
+                setText('hb_extended_fm_name', '-');
+                setText('hb_extended_fm_date', '-');
+                clearSignature('hb_extended_fm_sig_img', 'hb_extended_fm_sig_imgwrap', 'hb_extended_fm_sig_line');
+            }
 
-            // CANCELLED: FM column
-            const cancelledBy = (fmNested && fmNested.userId) || d.cancelled_by || d.cancel_requested_by || null;
-            const cancelledNameFallback = (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.cancelled_by_name || '';
-            setNameAsync('hb_cancelled_fm_name', cancelledBy, cancelledNameFallback);
-            const cancelledDT = splitDT(d.cancelled_date || d.cancel_requested_at || '');
-            setText('hb_cancelled_fm_date', (cancelledDT.date !== '-' || cancelledDT.time !== '-') ? (cancelledDT.date + (cancelledDT.time && cancelledDT.time!=='-' ? ' ' + cancelledDT.time : '')) : '-');
-            renderUserSignature(cancelledBy, 'hb_cancelled_fm_sig_img');
+            // CANCELLED: only when actually cancelled
+            if (isCancelled) {
+                const cancelledBy = (fmNested && fmNested.userId) || d.cancelled_by || d.cancel_requested_by || d.approved_fm_by || null;
+                const cancelledNameFallback = (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.cancelled_by_name || d.approved_fm_name || d.fm_name || '';
+                setNameAsync('hb_cancelled_fm_name', cancelledBy, cancelledNameFallback);
+                const cancelledDT = splitDT(d.cancelled_date || d.cancel_requested_at || '');
+                setText('hb_cancelled_fm_date', (cancelledDT.date !== '-' || cancelledDT.time !== '-') ? (cancelledDT.date + (cancelledDT.time && cancelledDT.time!=='-' ? ' ' + cancelledDT.time : '')) : '-');
+                renderUserSignature(cancelledBy, 'hb_cancelled_fm_sig_img', 'hb_cancelled_fm_sig_imgwrap', 'hb_cancelled_fm_sig_line');
+            } else {
+                setText('hb_cancelled_fm_name', '-');
+                setText('hb_cancelled_fm_date', '-');
+                clearSignature('hb_cancelled_fm_sig_img', 'hb_cancelled_fm_sig_imgwrap', 'hb_cancelled_fm_sig_line');
+            }
 
-            // SUSPENDED: FM column
-            const suspendedBy = (fmNested && fmNested.userId) || d.suspended_by || null;
-            const suspendedNameFallback = (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.suspended_by_name || '';
-            setNameAsync('hb_suspended_fm_name', suspendedBy, suspendedNameFallback);
-            const suspendedDT = splitDT(d.suspended_date || '');
-            setText('hb_suspended_fm_date', (suspendedDT.date !== '-' || suspendedDT.time !== '-') ? (suspendedDT.date + (suspendedDT.time && suspendedDT.time!=='-' ? ' ' + suspendedDT.time : '')) : '-');
-            renderUserSignature(suspendedBy, 'hb_suspended_fm_sig_img');
+            // SUSPENDED: only when actually suspended
+            if (isSuspended) {
+                const suspendedBy = (fmNested && fmNested.userId) || d.suspended_by || d.approved_fm_by || null;
+                const suspendedNameFallback = (fmNested && (fmNested.displayName || fmNested.userFirstName || fmNested.userName)) || d.suspended_by_name || d.approved_fm_name || d.fm_name || '';
+                setNameAsync('hb_suspended_fm_name', suspendedBy, suspendedNameFallback);
+                const suspendedDT = splitDT(d.suspended_date || '');
+                setText('hb_suspended_fm_date', (suspendedDT.date !== '-' || suspendedDT.time !== '-') ? (suspendedDT.date + (suspendedDT.time && suspendedDT.time!=='-' ? ' ' + suspendedDT.time : '')) : '-');
+                renderUserSignature(suspendedBy, 'hb_suspended_fm_sig_img', 'hb_suspended_fm_sig_imgwrap', 'hb_suspended_fm_sig_line');
+                // Bind NCR/CAR and reason if available (see migrations: suspend_ncr_no, suspend_reason)
+                setText('hb_suspended_ncr_no', d.suspend_ncr_no || d.suspended_ncr_no || d.ncr_no || '-');
+                setText('hb_suspended_reason', d.suspend_reason || d.suspended_reason || d.suspend_remarks || d.suspend_reason_text || '-');
+            } else {
+                setText('hb_suspended_fm_name', '-');
+                setText('hb_suspended_fm_date', '-');
+                clearSignature('hb_suspended_fm_sig_img', 'hb_suspended_fm_sig_imgwrap', 'hb_suspended_fm_sig_line');
+                setText('hb_suspended_ncr_no', '-');
+                setText('hb_suspended_reason', '-');
+            }
         })
         .catch(()=>{});
 })();
