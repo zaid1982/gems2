@@ -37,13 +37,16 @@ class License extends General {
                     NULLIF(DATE_FORMAT(l.license_start_date, '%Y-%m-%d'), '0000-00-00') AS licenseStartDate,
                     NULLIF(DATE_FORMAT(l.license_end_date, '%Y-%m-%d'), '0000-00-00')   AS licenseEndDate,
                     l.upload_id         AS uploadId,
+                    l.warning_days      AS warningDays,
+                    NULLIF(DATE_FORMAT(l.warning_date, '%Y-%m-%d'), '0000-00-00') AS warningDate,
                     l.license_status    AS licenseStatus,
                     CASE WHEN l.license_end_date IS NULL OR l.license_end_date = '0000-00-00' THEN NULL
                          ELSE DATEDIFF(l.license_end_date, CURDATE()) END AS daysToExpire,
                     CASE 
                         WHEN l.license_end_date IS NULL OR l.license_end_date = '0000-00-00' THEN NULL
                         WHEN DATEDIFF(l.license_end_date, CURDATE()) < 0 THEN 3
-                        WHEN DATEDIFF(l.license_end_date, CURDATE()) <= 30 THEN 2
+                        WHEN l.warning_date IS NOT NULL AND CURDATE() >= l.warning_date THEN 2
+                        WHEN DATEDIFF(l.license_end_date, CURDATE()) <= COALESCE(l.warning_days, 30) THEN 2
                         ELSE 1
                     END AS expiryStatus
                 FROM lic_license l";
@@ -74,6 +77,8 @@ class License extends General {
                     NULLIF(DATE_FORMAT(l.license_start_date, '%Y-%m-%d'), '0000-00-00') AS licenseStartDate,
                     NULLIF(DATE_FORMAT(l.license_end_date, '%Y-%m-%d'), '0000-00-00')   AS licenseEndDate,
                     l.upload_id         AS uploadId,
+                    l.warning_days      AS warningDays,
+                    NULLIF(DATE_FORMAT(l.warning_date, '%Y-%m-%d'), '0000-00-00') AS warningDate,
                     l.license_status    AS licenseStatus
                 FROM lic_license l";
             $where = array('l.license_id' => $licenseId);
@@ -113,6 +118,15 @@ class License extends General {
                 'license_created_by' => $this->userId
             );
 
+            // Optional warningDays (per-license warning threshold in days)
+            if (isset($columns['warningDays']) && $columns['warningDays'] !== '') {
+                $wd = intval($columns['warningDays']);
+                if ($wd < 0) { throw new Exception('warningDays must be >= 0'); }
+                // cap to 10 years worth of days
+                if ($wd > 3650) { $wd = 3650; }
+                $insertArr['warning_days'] = $wd;
+            }
+
             if (!empty($columns['fileUpload']) && is_array($columns['fileUpload'])) {
                 $uploadTemp = parent::uploadPrepare($columns['fileUpload'], self::$documentId);
                 if (is_array($uploadTemp) && !empty($uploadTemp)) {
@@ -120,6 +134,20 @@ class License extends General {
                     $uploadId = parent::uploadSave($uploadTemp, 'license', $filename);
                     $insertArr['upload_id'] = $uploadId;
                 }
+            }
+
+            // Optional warningDate (takes precedence over warningDays when set)
+            if (isset($columns['warningDate']) && $columns['warningDate'] !== '') {
+                $wdate = $this->normalizeDate($columns['warningDate']);
+                if ($wdate === null) { throw new Exception('Invalid warningDate'); }
+                // Validate range: start <= warningDate <= end
+                $sd = new DateTime($start);
+                $ed = new DateTime($end);
+                $wd = new DateTime($wdate);
+                if ($wd < $sd || $wd > $ed) {
+                    throw new Exception('warningDate must be within Start and End dates');
+                }
+                $insertArr['warning_date'] = $wdate;
             }
 
             $this->set(DbMysql::insert(self::$tableName, $insertArr));
@@ -156,6 +184,17 @@ class License extends General {
                 'license_updated_by' => $this->userId
             );
 
+            if (array_key_exists('warningDays', $columns)) {
+                if ($columns['warningDays'] === '' || is_null($columns['warningDays'])) {
+                    $updateArr['warning_days'] = null;
+                } else {
+                    $wd = intval($columns['warningDays']);
+                    if ($wd < 0) { throw new Exception('warningDays must be >= 0'); }
+                    if ($wd > 3650) { $wd = 3650; }
+                    $updateArr['warning_days'] = $wd;
+                }
+            }
+
             if (!empty($columns['fileUpload']) && is_array($columns['fileUpload'])) {
                 // Ensure optional keys exist
                 $columns['fileUpload']['width'] = $columns['fileUpload']['width'] ?? null;
@@ -165,6 +204,36 @@ class License extends General {
                     $filename = (new DateTime())->format('YmdHis') . '_LIC_' . $this->userId;
                     $uploadId = parent::uploadSave($uploadTemp, 'license', $filename);
                     $updateArr['upload_id'] = $uploadId;
+                }
+            }
+
+            // Optional warningDays (kept for backward compatibility)
+            if (array_key_exists('warningDays', $columns)) {
+                if ($columns['warningDays'] === '' || is_null($columns['warningDays'])) {
+                    $updateArr['warning_days'] = null;
+                } else {
+                    $wd = intval($columns['warningDays']);
+                    if ($wd < 0) { throw new Exception('warningDays must be >= 0'); }
+                    if ($wd > 3650) { $wd = 3650; }
+                    $updateArr['warning_days'] = $wd;
+                }
+            }
+
+            // Optional warningDate (takes precedence when set)
+            if (array_key_exists('warningDate', $columns)) {
+                if ($columns['warningDate'] === '' || is_null($columns['warningDate'])) {
+                    $updateArr['warning_date'] = null;
+                } else {
+                    $wdate = $this->normalizeDate($columns['warningDate']);
+                    if ($wdate === null) { throw new Exception('Invalid warningDate'); }
+                    // Validate within start/end
+                    $sd = new DateTime($start);
+                    $ed = new DateTime($end);
+                    $wd = new DateTime($wdate);
+                    if ($wd < $sd || $wd > $ed) {
+                        throw new Exception('warningDate must be within Start and End dates');
+                    }
+                    $updateArr['warning_date'] = $wdate;
                 }
             }
 

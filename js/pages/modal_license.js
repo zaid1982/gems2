@@ -8,12 +8,27 @@ function ModalLicense() {
   let modalConfirmDeleteClass;
 
   // --- helpers ---------------------------------------------------------------
+  const normalizeDateStr = (v) => {
+    if (!v) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+    const dt = new Date(v);
+    return isNaN(dt.getTime()) ? '' : dt.toISOString().split('T')[0];
+  };
+
+  const getDateFromInput = (selector) => {
+    if (typeof $(selector).pickadate === 'function') {
+      const p = $(selector).pickadate('picker');
+      if (p && p.get('value')) return p.get('select', 'yyyy-mm-dd');
+    }
+    return normalizeDateStr($(selector).val());
+  };
   const ensureValidation = () => {
     if (formValidate) return;
     const vData = [
       { field_id:'txtMlcTitle',     type:'text', name:'License Title', validator:{ notEmpty:true, maxLength:255 } },
       { field_id:'txtMlcStartDate', type:'text', name:'Start Date',    validator:{ notEmpty:true } },
       { field_id:'txtMlcEndDate',   type:'text', name:'End Date',      validator:{ notEmpty:true } },
+      { field_id:'txtMlcWarningDate', type:'text', name:'Warning Date', validator:{ allowEmpty:true } },
       { field_id:'txfMlcFile',      type:'file', name:'License File',  validator:{ /* optional */ } }
     ];
     formValidate = new MzValidate('formMlc');
@@ -28,6 +43,57 @@ function ModalLicense() {
       }
       if (!$('#txtMlcEndDate').data('pickadate')) {
         $('#txtMlcEndDate').pickadate({ format:'yyyy-mm-dd', formatSubmit:'yyyy-mm-dd' });
+      }
+      if (!$('#txtMlcWarningDate').data('pickadate')) {
+        $('#txtMlcWarningDate').pickadate({ format:'yyyy-mm-dd', formatSubmit:'yyyy-mm-dd' });
+      }
+    }
+  };
+
+  const refreshWarningDateBounds = () => {
+    const startStr = getDateFromInput('#txtMlcStartDate');
+    const endStr   = getDateFromInput('#txtMlcEndDate');
+    const hasRange = !!(startStr && endStr);
+
+    const $wd = $('#txtMlcWarningDate');
+    const usingPicker = typeof $wd.pickadate === 'function' && $wd.data('pickadate');
+
+    if (!hasRange) {
+      // Disable and clear limits
+      if (usingPicker) {
+        const wp = $wd.pickadate('picker');
+        if (wp) {
+          wp.clear();
+          wp.set('min', false);
+          wp.set('max', false);
+        }
+      } else {
+        $wd.val('');
+        $wd.removeAttr('min').removeAttr('max');
+      }
+      $wd.prop('disabled', true);
+      return;
+    }
+
+    // Enable and constrain within range
+    $wd.prop('disabled', false);
+    if (usingPicker) {
+      const wp = $wd.pickadate('picker');
+      if (wp) {
+        const s = startStr.split('-').map(Number);
+        const e = endStr.split('-').map(Number);
+        wp.set('min', [s[0], s[1]-1, s[2]]);
+        wp.set('max', [e[0], e[1]-1, e[2]]);
+        if (wp.get('value')) {
+          const cur = wp.get('select', 'yyyy-mm-dd');
+          if (cur < startStr || cur > endStr) wp.clear();
+        }
+      }
+    } else {
+      $wd.attr('min', startStr).attr('max', endStr);
+      const cur = normalizeDateStr($wd.val());
+      if (cur && (cur < startStr || cur > endStr)) {
+        $wd.val('');
       }
     }
   };
@@ -59,6 +125,16 @@ function ModalLicense() {
       licenseEndDate: endDate
     };
 
+    // Warning date (if set)
+    let warningDate = $('#txtMlcWarningDate').val();
+    if (typeof $('#txtMlcWarningDate').pickadate === 'function') {
+      const wp = $('#txtMlcWarningDate').pickadate('picker');
+      if (wp && wp.get('value')) warningDate = wp.get('select', 'yyyy-mm-dd');
+    }
+    if (warningDate && /^\d{4}-\d{2}-\d{2}$/.test(warningDate)) {
+      payload.warningDate = warningDate;
+    }
+
     const file = $('#txfMlcFile').prop('files')?.[0];
     if (file) {
       payload.fileUpload = {
@@ -77,7 +153,7 @@ function ModalLicense() {
   const resetForm = () => {
     if (formValidate) formValidate.clearValidation();
     licenseId = '';
-    $('#txtMlcTitle, #txtMlcStartDate, #txtMlcEndDate, #txfMlcFile, #txfMlcFileBlob, #txfMlcFileWidth, #txfMlcFileHeight').val('');
+  $('#txtMlcTitle, #txtMlcStartDate, #txtMlcEndDate, #txtMlcWarningDate, #txfMlcFile, #txfMlcFileBlob, #txfMlcFileWidth, #txfMlcFileHeight').val('');
     $('#lnkMlcCurrentFile').attr('href', '#').text('N/A');
     $('#btnMlcSubmit').show();
     $('#btnMlcSave, #btnMlcDelete').hide();
@@ -87,11 +163,12 @@ function ModalLicense() {
   // --- public ---------------------------------------------------------------
   this.init = function() {
     // Bind delegated DOM events (safe even if modal HTML loads later)
-    $(document).on('change', '#txfMlcFile', function() {
+    $(document).on('change', '#txfMlcFile', function(e) {
       try {
-        mzHandleFileSelect.call(this);
-        mzHandleFileDimension.call(this);
-      } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+        // Pass the event so helpers can access e.target
+        mzHandleFileSelect(e);
+        mzHandleFileDimension(e);
+      } catch (err) { toastr['error'](err.message, _ALERT_TITLE_ERROR); }
     });
 
     $(document).on('click', '#btnMlcSubmit', function() { self.submit(); });
@@ -106,7 +183,13 @@ function ModalLicense() {
       try {
         ensureValidation();
         initDatePickersIfAvailable();
+        refreshWarningDateBounds();
       } catch(e){ toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+    });
+
+    // Constrain warning date as start/end change
+    $(document).on('change', '#txtMlcStartDate, #txtMlcEndDate', function(){
+      try { refreshWarningDateBounds(); } catch(_e) {}
     });
   };
 
@@ -115,6 +198,8 @@ function ModalLicense() {
     setTimeout(function() {
       try {
         resetForm();
+        // Initially disable warning date until both start & end are set
+        $('#txtMlcWarningDate').prop('disabled', true);
         $('#modal_license').modal({ backdrop:'static', keyboard:false }).scrollTop(0);
       } catch(e){ toastr['error'](e.message, _ALERT_TITLE_ERROR); }
       HideLoader();
@@ -133,7 +218,6 @@ function ModalLicense() {
         const data = mzAjaxRequest2('license/'+licenseId, 'GET');
 
         mzSetFieldValue('MlcTitle', data['licenseTitle'], 'text');
-
         if (typeof $('#txtMlcStartDate').pickadate === 'function') {
           mzSetFieldValue('MlcStartDate', data['licenseStartDate'], 'date');
           mzSetFieldValue('MlcEndDate',   data['licenseEndDate'],   'date');
@@ -141,6 +225,20 @@ function ModalLicense() {
           $('#txtMlcStartDate').val(data['licenseStartDate']);
           $('#txtMlcEndDate').val(data['licenseEndDate']);
           $('#lblMlcStartDate, #lblMlcEndDate').addClass('active');
+        }
+
+        // Set bounds before applying warning date value
+        refreshWarningDateBounds();
+        if (typeof data['warningDate'] !== 'undefined' && data['warningDate']) {
+          if (typeof $('#txtMlcWarningDate').pickadate === 'function') {
+            mzSetFieldValue('MlcWarningDate', data['warningDate'], 'date');
+          } else {
+            $('#txtMlcWarningDate').val(data['warningDate']);
+            $('#lblMlcWarningDate').addClass('active');
+          }
+        } else {
+          $('#txtMlcWarningDate').val('');
+          $('#lblMlcWarningDate').addClass('active');
         }
 
         if (data['uploadId']) {

@@ -4,11 +4,20 @@ function MainLicense(){
   let oTable;
   let modalLicenseClass;
 
-  const badge = (days)=>{
-    const n = Number(days);
+  const isWarning = (row)=>{
+    const n = Number(row.daysToExpire);
+    if (!Number.isFinite(n)) return false;
+    if (n < 0) return false; // expired handled separately
+    const today = moment().format('YYYY-MM-DD');
+    if (row.warningDate && moment(today).isSameOrAfter(row.warningDate, 'day')) return true;
+    const thr = Number.isFinite(Number(row.warningDays)) ? Number(row.warningDays) : 30;
+    return n <= thr;
+  };
+  const badge = (row)=>{
+    const n = Number(row.daysToExpire);
     if (!Number.isFinite(n)) return '<span class="badge badge-secondary">N/A</span>';
-    if(n < 0) return '<span class="badge badge-danger">Expired</span>';
-    if(n <= 30) return '<span class="badge badge-warning">Expiring</span>';
+    if (n < 0) return '<span class="badge badge-danger">Expired</span>';
+    if (isWarning(row)) return '<span class="badge badge-warning">Expiring</span>';
     return '<span class="badge badge-success">Valid</span>';
   };
   const humanizeDays = (days)=>{
@@ -56,9 +65,14 @@ function MainLicense(){
         const info = $(this).DataTable().page.info();
         $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
         const n = Number(aData.daysToExpire);
+        // Clear any previous coloring to avoid stale classes on redraw/reuse
+        $(nRow).removeClass('table-danger table-warning table-success table-secondary');
         if (Number.isFinite(n)) {
-          if(n < 0) $(nRow).addClass('table-danger');
-          else if(n <= 30) $(nRow).addClass('table-warning');
+          if (n < 0) {
+            $(nRow).addClass('table-danger');
+          } else if (isWarning(aData)) {
+            $(nRow).addClass('table-warning');
+          }
         }
       },
       dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>"+
@@ -79,7 +93,7 @@ function MainLicense(){
   { mData:'licenseStartDate', mRender:function(d, type){ if (type==='display' || type==='filter') return fmtDate(d); return d; } },
   { mData:'licenseEndDate',   mRender:function(d, type){ if (type==='display' || type==='filter') return fmtDate(d); return d; } },
         { mData:'daysToExpire', mRender:function(d){ return humanizeDays(d); } },
-        { mData:'daysToExpire', mRender:function(d){ return badge(d); } },
+  { mData:null, mRender:function(row){ return badge(row); } },
         { mData:null, mRender:function(row){ return fileLink(row); } },
         { mData:null, mRender:function(row, type, full, meta){
             return '<a><i class="fas fa-edit lnkLcnEdit" id="lnkLcnEdit_'+meta.row+'" data-toggle="tooltip" title="Edit"></i></a>&nbsp;'
