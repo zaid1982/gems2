@@ -120,6 +120,32 @@ try {
     $out['success']=true; $out['result']=['visit_id'=>$id,'status'=>$target]; echo json_encode($out); exit;
   }
 
+  if ($action === 'checkout') {
+    require_csrf();
+    $raw=file_get_contents('php://input'); $data=json_decode($raw,true);
+    $id = isset($data['visit_id'])? strval($data['visit_id']): '';
+    if ($id==='') throw new Exception('visit_id required');
+    $statuses = status_values();
+    $target = in_array('CHECKED_OUT', $statuses) ? 'CHECKED_OUT' : (in_array('ARCHIVED',$statuses)? 'ARCHIVED' : 'CHECKED_OUT');
+    $set = ['status'=>$target];
+    if (column_exists('vm_visit','checked_out_at')) { $set['checked_out_at'] = 'Now()'; }
+    $db->db_update('vm_visit', $set, ['visit_id'=>$id]);
+    $out['success']=true; $out['result']=['visit_id'=>$id,'status'=>$target]; echo json_encode($out); exit;
+  }
+
+  if ($action === 'cancel') {
+    require_csrf();
+    $raw=file_get_contents('php://input'); $data=json_decode($raw,true);
+    $id = isset($data['visit_id'])? strval($data['visit_id']): '';
+    if ($id==='') throw new Exception('visit_id required');
+    $statuses = status_values();
+    $target = in_array('CANCELLED', $statuses) ? 'CANCELLED' : (in_array('ARCHIVED',$statuses)? 'ARCHIVED' : 'CHECKED_OUT');
+    $set = ['status'=>$target];
+    if (column_exists('vm_visit','cancelled_at')) { $set['cancelled_at'] = 'Now()'; }
+    $db->db_update('vm_visit', $set, ['visit_id'=>$id]);
+    $out['success']=true; $out['result']=['visit_id'=>$id,'status'=>$target]; echo json_encode($out); exit;
+  }
+
   if ($action === 'delete') {
     require_csrf();
     $raw=file_get_contents('php://input'); $data=json_decode($raw,true);

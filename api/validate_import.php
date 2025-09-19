@@ -4,6 +4,10 @@
  * Provides endpoints to validate and verify imported work order data
  */
 
+// Ensure only JSON is emitted (suppress PHP notices/warnings)
+@ini_set('display_errors', '0');
+@ini_set('display_startup_errors', '0');
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -13,19 +17,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-require_once 'library/config.ini';
-
 // Create PDO connection
 function getPDO() {
     static $pdo = null;
     if ($pdo === null) {
-        $config = parse_ini_file('library/config.ini');
-        $pdo = new PDO(
-            "mysql:host={$config['DB_HOST']};dbname={$config['DB_NAME']}", 
-            $config['DB_USER'], 
-            $config['DB_PASS']
-        );
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        // Resolve config file path relative to this script (try common locations)
+        $candidatePaths = [
+            __DIR__ . '/library/config.ini',            // api/library/config.ini
+            dirname(__DIR__) . '/library/config.ini',  // ../library/config.ini
+            __DIR__ . '/../library/config.ini',        // api/../library/config.ini
+            dirname(__DIR__) . '/config.ini',          // ../config.ini (fallback)
+        ];
+        $configPath = null;
+        foreach ($candidatePaths as $p) {
+            if (is_file($p)) { $configPath = $p; break; }
+        }
+        if ($configPath === null) {
+            throw new Exception('Configuration file not found');
+        }
+
+        // Parse INI (support both sectioned and flat formats)
+        $raw = parse_ini_file($configPath, true, INI_SCANNER_RAW);
+        if ($raw === false) {
+            throw new Exception('Unable to parse configuration');
+        }
+        $cfg = $raw['database'] ?? $raw; // prefer [database] section when present
+
+        // Support multiple key styles
+        $host = $cfg['DB_HOST'] ?? $cfg['dbhost'] ?? $cfg['host'] ?? '127.0.0.1';
+        $name = $cfg['DB_NAME'] ?? $cfg['dbname'] ?? $cfg['database'] ?? '';
+        $user = $cfg['DB_USER'] ?? $cfg['username'] ?? $cfg['user'] ?? '';
+        $pass = $cfg['DB_PASS'] ?? $cfg['password'] ?? '';
+
+        if ($name === '' || $user === '') {
+            throw new Exception('Database credentials are incomplete');
+        }
+
+        $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $host, $name);
+        $pdo = new PDO($dsn, $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]);
     }
     return $pdo;
 }

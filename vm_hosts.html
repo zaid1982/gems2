@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>GEMS 2.0 - Hosts</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    body { background: #f6f8fa; }
+    .page { max-width: 1100px; margin: 0 auto; padding: 2rem 0; }
+    .card, .btn, .form-control, .badge, .modal-content, .input-group-text { border-radius: 0 !important; }
+    .filters .form-control { height: 38px; }
+  </style>
+</head>
+<body class="fixed-sn light-blue-skin">
+  <header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+  </header>
+  <main>
+    <div class="container-fluid page">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h4 class="mb-1"><i class="fas fa-user-tie me-2"></i> Reception: Host Directory</h4>
+          <div class="text-muted">Manage host entries for visitor registration</div>
+        </div>
+        <div>
+          <button id="btnAdd" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Add Host</button>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="row g-2 filters">
+            <div class="col-md-3">
+              <label class="form-label">Site</label>
+              <select id="siteId" class="browser-default custom-select">
+                <option value="" disabled selected>Select site…</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Search</label>
+              <input type="text" id="q" class="form-control" placeholder="Search name/email/contact/department">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button id="btnApply" class="btn btn-primary me-2" disabled>Apply</button>
+              <button id="btnReset" class="btn btn-outline-secondary">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div id="emptyState" class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="fas fa-info-circle mr-2"></i>
+            <span>Please select a site from the dropdown above to view and manage hosts.</span>
+          </div>
+          <div class="table-responsive">
+            <table id="tbl" class="table table-striped table-bordered" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Contact No</th>
+                  <th>Department</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modals -->
+  <div class="modal fade" id="hostModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Host</h5></div>
+        <div class="modal-body">
+          <form id="hostForm">
+            <input type="hidden" name="host_id" />
+            <div class="mb-3">
+              <label class="form-label">Name</label>
+              <input class="form-control" name="name" maxlength="100" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input class="form-control" name="email" type="email" maxlength="150" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Contact No</label>
+              <input class="form-control" name="contact_no" maxlength="50" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Department</label>
+              <input class="form-control" name="department" maxlength="100" />
+            </div>
+            <div class="mb-3">
+              <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="activeSwitch" name="active" checked>
+                <label class="custom-control-label" for="activeSwitch">Active</label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" id="saveHost" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/jquery-3.7.0.min.js"></script>
+  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script src="js/mdb.js"></script>
+  <!-- Crypto JS (required by common.js initiatePages) -->
+  <script src="js/addons/crypto.js"></script>
+  <!-- DataTables -->
+  <script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+  <script src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+  <!-- Moment JS (used by common.js and pages) -->
+  <script src="js/addons/moment.min.js"></script>
+  <!-- Toastr for consistent notifications -->
+  <script src="js/modules/toastr.js"></script>
+  <script src="js/toastr-safe.js"></script>
+  <!-- Common helpers with cache buster (defines initiatePages) -->
+  <script>
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  </script>
+  <script>
+    // Load shared includes, then wait for initiatePages(), then initialize page logic
+    $(function(){
+      const $includes = $('.includeHtml');
+      let pending = $includes.length;
+
+      function startApp(){
+        // All includes loaded; wait for initiatePages to be available, then init this page
+        let tries = 0; const maxTries = 50;
+        const tick = setInterval(function(){
+          tries++;
+          if (typeof initiatePages === 'function') {
+            try { initiatePages(); } catch(e) { console.error('initiatePages error', e); }
+            clearInterval(tick);
+            initHostsPage();
+          } else if (tries >= maxTries) {
+            clearInterval(tick);
+            console.warn('initiatePages not found after waiting');
+            initHostsPage();
+          }
+        }, 100);
+      }
+
+      if (pending === 0) { startApp(); return; }
+      $includes.each(function(){
+        const divId = $(this).attr('id');
+        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf(), function(){
+          pending--;
+          if (pending === 0) startApp();
+        });
+      });
+
+      function initHostsPage(){
+    const $tbl = $('#tbl');
+        const $site = $('#siteId');
+        const $q = $('#q');
+        const $apply = $('#btnApply');
+        const $reset = $('#btnReset');
+  const $add = $('#btnAdd');
+  const $empty = $('#emptyState');
+        let CSRF = null;
+    let dt = null; // DataTable instance
+
+        // Safe JSON fetch that logs server text when not JSON
+        function fetchJson(url, opts){
+          return fetch(url, opts).then(r=>r.text()).then(t=>{ try { return JSON.parse(t); } catch(e){ console.error('Non-JSON response from', url, '\n', t); throw new Error('Server returned non-JSON'); } });
+        }
+
+        function getCsrf(){
+          return fetchJson('api/vm_host.php?action=csrf').then(j=>{ if(!j.success){ throw new Error(j.error||'CSRF failed'); } CSRF = j.result.token; }).catch(e=>{ console.warn('CSRF token fetch failed', e); });
+        }
+
+        function populateSites(){
+          return new Promise((resolve)=>{
+            // Try local refs first
+            try {
+              const version = (typeof mzGetDataVersion === 'function') ? mzGetDataVersion() : null;
+              const sites = (typeof mzGetLocalArray === 'function') ? mzGetLocalArray('gems_site', version, 'siteId', [], 'site') : [];
+              if (Array.isArray(sites) && sites.length){
+                $site.empty().append('<option value="" disabled selected>Select site…</option>');
+                sites.forEach(s=>{ const id=s.siteId||s.site_id; const name=s.siteName||s.site_name||('Site '+id); if(id) $site.append('<option value="'+id+'">'+name+'</option>'); });
+                resolve();
+                return;
+              }
+            } catch(e){}
+            // Fallback
+            fetchJson('api/validate_import.php?action=sites').then(resp=>{
+              const list = resp.result || resp.data || [];
+              $site.empty().append('<option value="" disabled selected>Select site…</option>');
+              list.forEach(s=>{ const id=s.site_id||s.siteId; const name=s.site_name||s.siteName||('Site '+id); if(id) $site.append('<option value="'+id+'">'+name+'</option>'); });
+            }).catch(e=>console.warn('Sites fallback failed', e)).finally(()=>resolve());
+          });
+        }
+
+        function load(){
+          const sid = $site.val(); if(!sid){ alert('Select site'); return; }
+          const qs = new URLSearchParams({ action:'list', site_id: sid, q: $q.val()||'', include_inactive: '1' });
+          return fetchJson('api/vm_host.php?'+qs.toString())
+            .then(resp=>{ if(!resp.success) throw new Error(resp.error||'Failed'); return resp.result; })
+            .then(rows => { draw(rows); return rows; })
+            .catch(e=>{ console.error(e); if (window.toastr) toastr.error(e.message||'Load failed'); else alert(e.message||'Load failed'); });
+        }
+
+        function draw(rows){
+          const $tbody = $tbl.find('tbody').empty();
+          rows.forEach(r=>{
+            const status = r.active==1 ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-secondary">Inactive</span>';
+            const $act = $('<div class="btn-group btn-group-sm">')
+              .append($('<button class="btn btn-outline-primary">Edit</button>').on('click', ()=>editHost(r)))
+              .append($('<button class="btn btn-outline-danger">Delete</button>').on('click', ()=>deleteHost(r)));
+            const tr = $('<tr/>').attr('data-host-id', r.host_id)
+              .append($('<td/>').text(r.name||''))
+              .append($('<td/>').text(r.email||''))
+              .append($('<td/>').text(r.contact_no||''))
+              .append($('<td/>').text(r.department||''))
+              .append($('<td/>').html(status))
+              .append($('<td/>').append($act));
+            $tbody.append(tr);
+          });
+          if (dt) { dt.destroy(); }
+          dt = $tbl.DataTable({ order: [[0,'asc']], pageLength: 25 });
+        }
+
+        function focusRowById(id){
+          if (!dt) { try { dt = $tbl.DataTable(); } catch(e){} }
+          if (!dt) return false;
+          const orderedIdx = dt.rows({ order: 'applied' }).indexes().toArray();
+          let matchIdx = undefined;
+          for (let i=0; i<orderedIdx.length; i++) {
+            const node = dt.row(orderedIdx[i]).node();
+            if (node && String($(node).attr('data-host-id')) === String(id)) { matchIdx = orderedIdx[i]; break; }
+          }
+          if (typeof matchIdx === 'undefined') return false;
+          const pos = orderedIdx.indexOf(matchIdx);
+          const pageLen = dt.page.len();
+          const targetPage = Math.floor(pos / pageLen);
+          dt.page(targetPage).draw(false);
+          const node = dt.row(matchIdx).node();
+          if (node) {
+            $(node).addClass('table-success');
+            try { node.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
+            setTimeout(()=> $(node).removeClass('table-success'), 2000);
+          }
+          return true;
+        }
+
+        function editHost(r){
+          const $f = $('#hostForm')[0];
+          $f.reset();
+          $f.host_id.value = r.host_id;
+          $f.name.value = r.name||'';
+          $f.email.value = r.email||'';
+          $f.contact_no.value = r.contact_no||'';
+          $f.department.value = r.department||'';
+          $('#activeSwitch').prop('checked', String(r.active||'1') === '1');
+          $('#hostModal').modal('show');
+        }
+
+        function deleteHost(r){
+          if(!confirm('Delete this host? (It will become inactive)')) return;
+          fetchJson('api/vm_host.php?action=delete', { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF||''}, body: JSON.stringify({ host_id: r.host_id }) })
+            .then(resp=>{ if(!resp.success) throw new Error(resp.error||'Failed'); load(); })
+            .catch(e=>{ if (window.toastr) toastr.error(e.message||'Delete failed'); else alert(e.message||'Delete failed'); });
+        }
+
+        $('#saveHost').on('click', function(){
+          const $f = $('#hostForm')[0];
+          const payload = Object.fromEntries(new FormData($f).entries());
+          // Normalize active checkbox to '1'/'0'
+          payload.active = $('#activeSwitch').is(':checked') ? '1' : '0';
+          payload.site_id = $('#siteId').val();
+          const hasId = !!payload.host_id;
+          const action = hasId ? 'update' : 'create';
+          fetchJson('api/vm_host.php?action='+action, { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF||''}, body: JSON.stringify(payload) })
+            .then(resp=>{
+              if(!resp.success){
+                if(resp.errors){ const msg=Object.values(resp.errors).join('\n'); if(window.toastr) toastr.error(msg); else alert(msg); }
+                else { throw new Error(resp.error||'Failed'); }
+                return;
+              }
+              const newId = hasId ? payload.host_id : (resp.result && resp.result.host_id);
+              $('#hostModal').modal('hide');
+              // Reload and try to navigate to the row regardless of pagination
+              // Temporarily bias the search to the added/updated name
+              const prevQ = $q.val();
+              if (payload.name) { $q.val(payload.name); }
+              return load().then(() => {
+                if (payload.name) { $q.val(prevQ); }
+                if (!focusRowById(newId) && $q.val()) {
+                  // Clear server-side search filter and try again
+                  $q.val('');
+                  return load().then(() => { focusRowById(newId); });
+                }
+              });
+            })
+            .catch(e=>{ if (window.toastr) toastr.error(e.message||'Save failed'); else alert(e.message||'Save failed'); });
+        });
+
+        $add.on('click', function(){
+          const $f = $('#hostForm')[0];
+          $f.reset(); $f.host_id.value=''; $('#activeSwitch').prop('checked', true);
+          $('#hostModal').modal('show');
+        });
+
+        // Match admin page behavior: enable Apply/Add when site selected, auto-load when changing site
+        const params = new URLSearchParams(window.location.search);
+        const siteParam = params.get('site') || '';
+        if (siteParam) { $site.val(siteParam); $apply.prop('disabled', false); $add.prop('disabled', false); $empty.hide(); }
+        $site.on('change', function(){ const has = !!$(this).val(); $apply.prop('disabled', !has); $add.prop('disabled', !has); if (has) { $empty.hide(); getCsrf().then(load); } else { $empty.show(); }});
+        $apply.on('click', load);
+        $reset.on('click', function(){ $q.val(''); if($site.val()) load(); });
+
+        // init
+        $apply.prop('disabled', true); $add.prop('disabled', true); $empty.show();
+        getCsrf();
+        populateSites().then(()=>{
+          // Auto-select user's site if available
+          try {
+            if (!$site.val()) {
+              const userSite = (typeof mzGetUserInfoByParam === 'function') ? mzGetUserInfoByParam('siteId') : '';
+              if (userSite && $site.find('option[value="'+userSite+'"]').length) {
+                $site.val(userSite); $apply.prop('disabled', false); $add.prop('disabled', false); $empty.hide();
+                load();
+              } else {
+                if (window.toastr) toastr.info('Select a site to view hosts');
+              }
+            }
+          } catch(e) { /* ignore */ }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

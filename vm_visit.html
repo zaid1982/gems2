@@ -124,8 +124,9 @@
               <div class="invalid-feedback">Party size must be between 1 and 999.</div>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label required">Host Name <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Name of the person you’re meeting."></i></label>
-              <input class="form-control" name="host_name" maxlength="100" required placeholder="Who you are meeting">
+              <label class="form-label required">Host Name <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Start typing and select from the site’s host directory."></i></label>
+              <input class="form-control" id="host_name" name="host_name" list="hostList" maxlength="100" required placeholder="Type to search host  ">
+              <datalist id="hostList"></datalist>
               <div class="invalid-feedback">Host name required (1–100 chars).</div>
             </div>
             <div class="col-12 mb-3">
@@ -192,6 +193,8 @@
     const form = document.getElementById('visitForm');
     const dtInput = form.querySelector('[name=display_datetime]');
     const siteField = document.getElementById('site_id');
+    const hostInput = document.getElementById('host_name');
+    const hostList = document.getElementById('hostList');
     const submitBtn = document.getElementById('btnSubmit');
     const btnText = submitBtn.querySelector('.btn-text');
     const btnSpinner = submitBtn.querySelector('.btn-spinner');
@@ -225,6 +228,30 @@
       }
       if(message){ feedback.textContent = message; }
     }
+
+    // Host directory: populate from vm_host API for the selected site
+    function setHostOptions(options){
+      while (hostList.firstChild) hostList.removeChild(hostList.firstChild);
+      (options||[]).forEach(h=>{
+        const opt = document.createElement('option');
+        opt.value = h.name || '';
+        const meta = [h.email||'', h.contact_no||''].filter(Boolean).join(' · ');
+        if (meta) opt.label = meta; // shows as hint in some browsers
+        hostList.appendChild(opt);
+      });
+    }
+    function fetchHosts(q){
+      const sid = siteField.value; if(!sid) return Promise.resolve();
+      const qs = new URLSearchParams({ action:'list', site_id: sid });
+      if (q && q.length>=2) qs.set('q', q);
+      return fetch('api/vm_host.php?'+qs.toString())
+        .then(r=>r.json()).then(resp=>{ if(resp && resp.success){ setHostOptions(resp.result||[]); } })
+        .catch(()=>{});
+    }
+    // Initial load of hosts for the site (first 200)
+    fetchHosts('');
+    // Dynamic search as user types
+    hostInput.addEventListener('input', function(){ const v = hostInput.value.trim(); if (v.length>=2) { fetchHosts(v); } });
     // Enable tooltips for help icons (MDB if available, else Bootstrap)
     $(function(){
       const $tips = $('[data-mdb-toggle="tooltip"], [data-toggle="tooltip"]');

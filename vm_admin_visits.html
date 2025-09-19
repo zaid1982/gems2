@@ -81,6 +81,7 @@
               <select id="siteId" class="browser-default custom-select">
                 <option value="" selected disabled>Select site…</option>
               </select>
+              <small class="form-text text-muted mt-1">Pick a client first (optional), then choose a site to load data.</small>
             </div>
             <div class="col-md-2">
               <label class="form-label">Search</label>
@@ -94,7 +95,14 @@
         </div>
       </div>
 
-      <div class="card">
+      <div id="emptyState" class="alert alert-info d-flex align-items-center" role="alert">
+        <i class="fas fa-info-circle mr-2"></i>
+        <div>
+          To begin, please select a client and site above. Data and actions will appear after a site is selected.
+        </div>
+      </div>
+
+      <div id="resultsCard" class="card" style="display:none;">
         <div class="card-body">
           <div class="table-responsive">
             <table id="tbl" class="table table-striped table-bordered" style="width:100%">
@@ -281,6 +289,8 @@
       const $newBtn = $('#newBtn');
       const params = new URLSearchParams(window.location.search);
   const siteParam = params.get('site') || '';
+      const userSitePref = (typeof mzGetUserInfoByParam === 'function') ? (mzGetUserInfoByParam('siteId') || '') : '';
+      const userClientPref = (typeof mzGetUserInfoByParam === 'function') ? (mzGetUserInfoByParam('clientId') || '') : '';
       const today = new Date().toISOString().slice(0,10);
       $ds.val(today); $de.val(today);
       function setNewHref(siteId){
@@ -292,10 +302,36 @@
       let CSRF = null;
       function getCsrf(){ return fetch('api/vm_admin.php?action=csrf').then(r=>r.json()).then(j=>{ CSRF = j.result.token; }); }
 
+      function setControlsEnabled(enabled){
+        $status.prop('disabled', !enabled);
+        $ds.prop('disabled', !enabled);
+        $de.prop('disabled', !enabled);
+        $search.prop('disabled', !enabled);
+        $apply.prop('disabled', !enabled || !($site.val()));
+        if (!enabled) setNewHref('');
+      }
+
+      function updateUiForSite(hasSite){
+        $('#emptyState').toggle(!hasSite);
+        $('#resultsCard').toggle(!!hasSite);
+        setControlsEnabled(!!hasSite);
+        if (!hasSite) {
+          // Clear table contents when hiding results
+          if ($.fn.dataTable.isDataTable('#tbl')) { $tbl.DataTable().clear().draw(); }
+          $tbl.find('tbody').empty();
+        }
+      }
+      // Initialize UI state (no site selected by default)
+      updateUiForSite(!!siteParam);
+      let firstHintShown = false;
+
       function load(){
         const siteVal = $site.val() || '';
         if (!siteVal) {
-          alert('Please select a site');
+          if (!firstHintShown && typeof toastr !== 'undefined' && toastr && toastr.info) {
+            toastr.info('Select a site to load registrations.', 'Action required');
+            firstHintShown = true;
+          }
           return Promise.resolve();
         }
         const qs = new URLSearchParams({
@@ -339,6 +375,8 @@
           const statusBadge = $('<span/>').addClass('badge '+st.cls).text(st.label);
           const $act = $('<div class="btn-group btn-group-sm">')
             .append($('<button class="btn btn-outline-primary">View</button>').on('click', ()=>viewRow(r)))
+            .append($('<button class="btn btn-outline-success">Checkout</button>').on('click', ()=>checkoutRow(r)))
+            .append($('<button class="btn btn-outline-warning">Cancel</button>').on('click', ()=>cancelRow(r)))
             .append($('<button class="btn btn-outline-secondary">Archive</button>').on('click', ()=>archiveRow(r)))
             .append($('<button class="btn btn-outline-danger">Delete</button>').on('click', ()=>deleteRow(r)));
           const tr = $('<tr/>')
@@ -400,6 +438,20 @@
           .catch(e=>alert(e.message||'Archive failed'));
       }
 
+      function checkoutRow(r){
+        if(!confirm('Mark as checked out?')) return;
+        fetch('api/vm_admin.php?action=checkout', { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token': CSRF||''}, body: JSON.stringify({ visit_id: r.visit_id })})
+          .then(r=>r.json()).then(resp=>{ if(!resp.success) throw new Error(resp.error||'Failed'); load(); })
+          .catch(e=>alert(e.message||'Checkout failed'));
+      }
+
+      function cancelRow(r){
+        if(!confirm('Cancel this visit?')) return;
+        fetch('api/vm_admin.php?action=cancel', { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token': CSRF||''}, body: JSON.stringify({ visit_id: r.visit_id })})
+          .then(r=>r.json()).then(resp=>{ if(!resp.success) throw new Error(resp.error||'Failed'); load(); })
+          .catch(e=>alert(e.message||'Cancel failed'));
+      }
+
       function deleteRow(r){
         if(!confirm('Delete this visit?')) return;
         fetch('api/vm_admin.php?action=delete', { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token': CSRF||''}, body: JSON.stringify({ visit_id: r.visit_id })})
@@ -457,9 +509,20 @@
       function finalizeSiteOptions() {
         // Preselect from query param
         if (siteParam) { $site.val(siteParam); }
+        // If no site parameter, try user's preferred site
+        if (!$site.val() && userSitePref) {
+          if ($site.find('option[value="'+userSitePref+'"]').length) {
+            $site.val(userSitePref);
+          }
+        }
         const hasSite = !!$site.val();
         $('#applyBtn').prop('disabled', !hasSite);
         setNewHref($site.val());
+        updateUiForSite(hasSite);
+        if (!hasSite && !firstHintShown && typeof toastr !== 'undefined' && toastr && toastr.info) {
+          toastr.info('Please select a client and site to begin.', 'Start here');
+          firstHintShown = true;
+        }
         if (hasSite) { return getCsrf().then(load); }
         return Promise.resolve();
       }
@@ -468,7 +531,8 @@
         const val = $(this).val();
         $('#applyBtn').prop('disabled', !val);
         setNewHref(val);
-  if (val) { getCsrf().then(load); }
+        updateUiForSite(!!val);
+        if (val) { getCsrf().then(load); }
       });
 
       $client.on('change', function(){
@@ -476,6 +540,7 @@
         setOptionSite(cid).then(()=>{
           const v = $site.val();
           $('#applyBtn').prop('disabled', !v);
+          updateUiForSite(!!v);
         });
       });
 
@@ -487,7 +552,9 @@
         const match = refSite_.find(s => s && String((s.siteId || s.site_id || '')) === String(siteParam));
         if (match && (match.clientId || match.client_id)) { $client.val(match.clientId || match.client_id); }
       }
-  setOptionSite($client.val() || '');
+      // If no explicit site param, try user's preferred client first
+      if (!siteParam && userClientPref) { $client.val(userClientPref); }
+      setOptionSite($client.val() || '');
 
       function fallbackPopulateSites() {
         const token = sessionStorage.getItem('token');
