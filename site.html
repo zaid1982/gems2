@@ -86,7 +86,8 @@
 
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_site"></div>
-        <div class="includeHtml" id="h-modal_site_ptw_public"></div>
+    <div class="includeHtml" id="h-modal_site_ptw_public"></div>
+    <div class="includeHtml" id="h-modal_site_visitor_public"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
 
 </main>
@@ -143,6 +144,7 @@
                 siteClass_ = new MainSite();
                 modalSiteClass_ = new ModalSite();
                 modalSitePtwPublic_ = new ModalSitePtwPublic();
+                modalSiteVisitorPublic_ = new ModalSiteVisitorPublic();
                 modalConfirmDelete_ = new ModalConfirmDelete();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
@@ -159,7 +161,10 @@
                 siteClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 siteClass_.init();
                 modalSitePtwPublic_.init();
+                modalSiteVisitorPublic_.init();
+
                 window.modalSitePtwPublicGlobal = modalSitePtwPublic_;
+                window.modalSiteVisitorPublicGlobal = modalSiteVisitorPublic_;
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -170,7 +175,8 @@
 
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-        document.write('<scr' + 'ipt src="js/pages/modal_site_ptw_public.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_site_ptw_public.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_site_visitor_public.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
