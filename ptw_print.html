@@ -1403,11 +1403,16 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
     }
 
     function splitDT(dt){
-        if(!dt) return {date:'-', time:'-'};
-        const s = (''+dt).replace('T',' ');
+        if (!dt) return { date: '-', time: '-' };
+        const s = (''+dt).replace('T',' ').trim();
+        // Treat placeholder/invalid dates as empty
+        if (!s || s === '0' || /^0000-00-00/.test(s) || /^1970-01-01/.test(s)) {
+            return { date: '-', time: '-' };
+        }
         const date = s.slice(0,10);
         const time = s.slice(11,16);
-        return {date, time};
+        if (!date || date === '0000-00-00') return { date: '-', time: '-' };
+        return { date, time: time || '-' };
     }
 
     fetch('api/ptw.php?action=details&permit_id=' + encodeURIComponent(ptwId), { headers })
@@ -1467,6 +1472,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             // EXTENDED: only show when actually extended
             if (isExtended) {
                 // From/To timing from extension fields if available
+                console.log(d);
                 const from = d.ptw_extension_requested_from || d.ptw_valid_from || '';
                 const to = d.ptw_extension_requested_to || d.ptw_valid_to || '';
                 const f = splitDT(from); const t = splitDT(to);

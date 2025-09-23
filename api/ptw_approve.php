@@ -530,8 +530,10 @@ function process_request_extend($permit_id, $user_id, $user_site_id, $user_role,
         // throw new Exception('[' . __LINE__ . '] - Insufficient permissions for requesting extension');
     }
 
-    // Load permit scoped to site
-    $permit = Class_db::getInstance()->db_select('ptw_permit', array('ptw_permit_id' => $permit_id, 'site_id' => $user_site_id));
+    // Load permit; admins bypass site filter to avoid false negatives
+    $where = array('ptw_permit_id' => $permit_id);
+    if (strtoupper($user_role) !== 'ADMIN') { $where['site_id'] = $user_site_id; }
+    $permit = Class_db::getInstance()->db_select('ptw_permit', $where);
     if (count($permit) == 0) {
         throw new Exception('[' . __LINE__ . '] - PTW permit not found');
     }
@@ -560,10 +562,12 @@ function process_request_extend($permit_id, $user_id, $user_site_id, $user_role,
         // otherwise ignore select errors quietly
     }
 
-    // Normalize datetime format
+    // Normalize datetime format to YYYY-MM-DD HH:MM:SS
     $requested_to = $new_valid_to;
-    if (strlen($requested_to) === 10) { // if only date provided
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $requested_to)) {
         $requested_to .= ' 17:00:00';
+    } else if (preg_match('/^\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}$/', $requested_to)) {
+        $requested_to .= ':00';
     }
 
     // Transition status to PENDING_EXTENSION so FM view can clearly show request
@@ -619,8 +623,10 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
         // throw new Exception('[' . __LINE__ . '] - Insufficient permissions for approving extension');
     }
 
-    // Load permit scoped to site
-    $permit = Class_db::getInstance()->db_select('ptw_permit', array('ptw_permit_id' => $permit_id, 'site_id' => $user_site_id));
+    // Load permit; admins bypass site filter to avoid false negatives
+    $where = array('ptw_permit_id' => $permit_id);
+    if (strtoupper($user_role) !== 'ADMIN') { $where['site_id'] = $user_site_id; }
+    $permit = Class_db::getInstance()->db_select('ptw_permit', $where);
     if (count($permit) == 0) {
         throw new Exception('[' . __LINE__ . '] - PTW permit not found');
     }
@@ -638,7 +644,8 @@ function process_approve_extend($permit_id, $user_id, $user_site_id, $user_role,
     if (!$new_valid_to) {
         throw new Exception('[' . __LINE__ . '] - new_valid_to is required');
     }
-    if (strlen($new_valid_to) === 10) { $new_valid_to .= ' 17:00:00'; }
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $new_valid_to)) { $new_valid_to .= ' 17:00:00'; }
+    else if (preg_match('/^\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}$/', $new_valid_to)) { $new_valid_to .= ':00'; }
 
     // Update the permit status to EXTENDED (single extension allowed)
     $update_data = array(

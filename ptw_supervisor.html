@@ -1564,7 +1564,7 @@ function getSuspendedActionButtons(request){
                         <i class="fas fa-play text-success"></i> Request to Resume (Extend)
                        </a>`}
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                <a class="dropdown-item" href="#" onclick="return generatePTWPDF(event, '${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
             </div>
@@ -1724,7 +1724,7 @@ function getActionButtons(request) {
                 <a class="dropdown-item" href="javascript:void(0)" onclick="showPermitQR('${permitId}')">
                     <i class="fas fa-qrcode text-primary"></i> Show QR Code
                 </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                <a class="dropdown-item" href="#" onclick="return generatePTWPDF(event, '${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
             </div>
@@ -1759,7 +1759,7 @@ function getActiveActionButtons(request){
                 <a class="dropdown-item" href="javascript:void(0)" onclick="showPermitQR('${permitId}')">
                     <i class="fas fa-qrcode text-primary"></i> Show QR Code
                 </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                <a class="dropdown-item" href="#" onclick="return generatePTWPDF(event, '${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>`;
     } else {
@@ -1780,7 +1780,7 @@ function getActiveActionButtons(request){
                 <a class="dropdown-item" href="javascript:void(0)" onclick="showPermitQR('${permitId}')">
                     <i class="fas fa-qrcode text-primary"></i> Show QR Code
                 </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                <a class="dropdown-item" href="#" onclick="return generatePTWPDF(event, '${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>`;
     }
@@ -1825,7 +1825,7 @@ function getReadOnlyActionButtons(row){
                 <a class="dropdown-item" href="javascript:void(0)" onclick="showPermitQR('${permitId}')">
                     <i class="fas fa-qrcode text-primary"></i> Show QR Code
                 </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                <a class="dropdown-item" href="#" onclick="return generatePTWPDF(event, '${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
             </div>
@@ -1909,18 +1909,33 @@ function submitExtendRequest(){
     if (dt.includes('T')) dt = dt.replace('T',' ');
     try{
         if (typeof moment === 'function'){
-            const m = moment(dt, ['YYYY-MM-DD HH:mm','YYYY-MM-DD H:mm','YYYY-MM-DD'], true);
+            // Accept date-only or date-time without seconds; always output seconds for MySQL DATETIME
+            let m = moment(dt, ['YYYY-MM-DD HH:mm:ss','YYYY-MM-DD HH:mm','YYYY-MM-DD H:mm','YYYY-MM-DD'], true);
+            if (!m.isValid()) { 
+                // Last attempt: let moment parse loosely
+                m = moment(dt);
+            }
             if (!m.isValid()) { safeToast('error','Invalid date/time format','Validation'); return; }
-            if (dt.length === 10) { dt = m.format('YYYY-MM-DD') + ' 17:00'; }
+            if (dt.length === 10) {
+                // Date only: default end of workday 17:00:00
+                m = m.startOf('day').hour(17).minute(0).second(0);
+            } else if (/^\d{4}-\d{2}-\d{2}\s+\d{1,2}:\d{2}$/.test(dt)) {
+                // Missing seconds: add :00
+                m = m.second(0);
+            }
+            dt = m.format('YYYY-MM-DD HH:mm:ss');
         }
     }catch(e){ /* ignore moment errors */ }
     try{
+        console.log(dt, remarks);
+        return;
         const res = mzAjaxRequest('ptw_approve.php','POST',{ action:'request_extend', permit_id: permitId, new_valid_to: dt, remarks: remarks });
         if (res && (res.success || res.result || res.message)){
             $('#extendModal').modal('hide');
             safeToast('success', (res.message||'Extension requested successfully'), 'Success');
             try { loadActivePTWForClosure(); } catch(e) {}
             try { loadSuspendedPTW(); } catch(e) {}
+            try { loadDashboardData(); } catch(e) {}
         } else {
             safeToast('error', (res && (res.error||res.errmsg||res.message)) || 'Failed to request extension','Error');
         }
@@ -2070,7 +2085,7 @@ function getClosedActionButtons(request){
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                <a class="dropdown-item" href="#" onclick="return generatePTWPDF(event, '${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
             </div>
@@ -2331,7 +2346,7 @@ function getUnifiedActionButtons(row){
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
+                <a class="dropdown-item" href="#" onclick="return generatePTWPDF(event, '${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
                 </a>
             </div>
@@ -2769,15 +2784,18 @@ $('#ptwModal').on('hidden.bs.modal', function () {
 });
 
 // PDF generation function
-function generatePTWPDF(ptwId) {
+function generatePTWPDF(evt, ptwId) {
+    try { if (evt && typeof evt.preventDefault === 'function') evt.preventDefault(); } catch(_e){}
+    try { if (evt && typeof evt.stopPropagation === 'function') evt.stopPropagation(); } catch(_e){}
     console.log('Print-to-PDF requested for PTW:', ptwId);
-    if (!ptwId) { safeToast('error', 'No PTW ID provided', 'Error'); return; }
+    if (!ptwId) { safeToast('error', 'No PTW ID provided', 'Error'); return false; }
     const url = `ptw_print.html?ptwId=${encodeURIComponent(ptwId)}`;
     const w = window.open(url, '_blank', 'noopener');
     if (!w) {
-        // Popup blocked; fallback
-        window.location.href = url;
+        // Popup blocked; inform user instead of navigating current tab
+        safeToast('warning', 'Popup blocked. Please allow popups for this site and try again.', 'Popup Blocked');
     }
+    return false;
 }
 </script>
 
