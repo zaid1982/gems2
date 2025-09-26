@@ -1407,16 +1407,8 @@ function handle_supervisor_approval($permit_id, $user_id, $user_site_id, $post_d
                 'Permit ' . $permit_id . ' approved by supervisor ' . $user_id . 
                 ' and moved to ' . $next_status . ': ' . $comments);
             
-            // Send notification if moving to SHE approval
-            if ($next_status === 'PENDING_SHE') {
-                try {
-                    // Send email notification to SHE team (optional)
-                    // $fn_email->send_she_notification($permit_id, $permit);
-                } catch (Exception $email_ex) {
-                    // Don't fail the approval if email fails
-                    error_log('PTW API: Email notification failed: ' . $email_ex->getMessage());
-                }
-            }
+            // Matrix A2 Supervisor Approved -> notify SHE
+            try { $fn_ptw->send_ptw_notification($permit_id, 'SUPERVISOR_APPROVED'); } catch (Exception $e) { /* non-fatal */ }
             
             // Compute display status using new mapper
             $display_status = 'New Request';
@@ -1496,13 +1488,8 @@ function handle_supervisor_rejection($permit_id, $user_id, $user_site_id, $post_
             $fn_general->log_debug('PTW', 'SUPERVISOR_REJECTED', __LINE__, 
                 'Permit ' . $permit_id . ' rejected by supervisor ' . $user_id . ': ' . $rejection_reason);
             
-            // Send notification to applicant (optional)
-            try {
-                // $fn_email->send_rejection_notification($permit_id, $permit, $rejection_reason);
-            } catch (Exception $email_ex) {
-                // Don't fail the rejection if email fails
-                error_log('PTW API: Rejection email notification failed: ' . $email_ex->getMessage());
-            }
+            // Matrix A3 Supervisor Rejected
+            try { $fn_ptw->send_ptw_notification($permit_id, 'SUPERVISOR_REJECTED'); } catch (Exception $e) { /* non-fatal */ }
             
             return array(
                 'success' => true,

@@ -285,11 +285,11 @@ function process_she_approval($permit_id, $user_id, $user_site_id, $user_role, $
     
     // Send notifications
     if ($approval_status === 'APPROVED') {
-        // Notify FM group about new permit for approval
-        $fn_ptw->send_ptw_notification($permit_id, 'FM_APPROVAL_NEEDED');
+        // Matrix A4 SHE Approved
+        $fn_ptw->send_ptw_notification($permit_id, 'SHE_APPROVED');
     } else {
-        // Notify about rejection
-        $fn_ptw->send_ptw_notification($permit_id, 'REJECTED');
+        // Matrix A5 SHE Rejected
+        $fn_ptw->send_ptw_notification($permit_id, 'SHE_REJECTED');
     }
     
     return array(
@@ -385,11 +385,11 @@ function process_fm_approval($permit_id, $user_id, $user_site_id, $user_role, $r
     
     // Send notifications
     if ($approval_status === 'APPROVED') {
-        // Notify applicant that permit is now ACTIVE and work can commence
-        $fn_ptw->send_ptw_notification($permit_id, 'ACTIVE');
+        // Matrix A6 FM Approved
+        $fn_ptw->send_ptw_notification($permit_id, 'FM_APPROVED');
     } else {
-        // Notify about rejection
-        $fn_ptw->send_ptw_notification($permit_id, 'REJECTED');
+        // Matrix A7 FM Rejected
+        $fn_ptw->send_ptw_notification($permit_id, 'FM_REJECTED');
     }
     
     return array(

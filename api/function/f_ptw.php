@@ -732,6 +732,8 @@ class Class_ptw {
             Class_db::getInstance()->db_insert('ptw_approval_log', $log_data);
             
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'PTW permit submitted for approval: ' . $permit_id);
+            // Trigger notification for supervisor pending (Matrix A1)
+            try { $this->send_ptw_notification($permit_id, 'PENDING_SUPERVISOR'); } catch (Exception $ix) { /* non-fatal */ }
             
             return true;
             
@@ -987,12 +989,219 @@ class Class_ptw {
             $refNo = isset($permit['ptw_permit_number']) && $permit['ptw_permit_number'] !== ''
                 ? $permit['ptw_permit_number']
                 : (isset($permit['ptw_request_number']) ? $permit['ptw_request_number'] : '');
-            // Log notification (simple logging for now)
+            $siteId = $permit['site_id'] ?? '';
+            // Enhanced site label resolution: try sys_site.site_name, then cli_site.siteCode/siteName,
+            // then fallback to internal site code helper, finally raw siteId.
+            $siteLabel = $siteId;
+            if (!empty($siteId)) {
+                try {
+                    $rowSys = Class_db::getInstance()->db_select_single('sys_site', array('site_id' => strval($siteId)));
+                    if ($rowSys && !empty($rowSys['site_name'])) {
+                        $siteLabel = $rowSys['site_name'];
+                    } else {
+                        $rowCli = Class_db::getInstance()->db_select_single('cli_site', array('siteId' => strval($siteId)));
+                        if ($rowCli) {
+                            if (!empty($rowCli['siteCode'])) {
+                                $siteLabel = $rowCli['siteCode'];
+                            } elseif (!empty($rowCli['siteName'])) {
+                                $siteLabel = $rowCli['siteName'];
+                            }
+                        } else {
+                            // As a last richer fallback, attempt class helper for code
+                            try { $siteLabel = $this->get_site_code($siteId); } catch (Exception $ig) { /* ignore */ }
+                        }
+                    }
+                } catch (Exception $e) {
+                    // Non-fatal; keep fallback label
+                }
+            }
+            $workType = $permit['ptw_work_type'] ?? '';
+            $risk = $permit['ptw_risk_level'] ?? '';
+            $workArea = $permit['ptw_work_area'] ?? '';
+            $level = $permit['ptw_level'] ?? '';
+            $validFrom = $permit['ptw_valid_from'] ?? '';
+            $validTo = $permit['ptw_valid_to'] ?? '';
+            $contractorCompany = $permit['ptw_contractor_company'] ?? '';
+            $contractorSupervisor = $permit['ptw_contractor_supervisor'] ?? '';
+            $applicantName = $permit['ptw_applicant_name'] ?? '';
+            $remarksSupervisor = $permit['ptw_supervisor_remarks'] ?? ($permit['ptw_remarks'] ?? '');
+            $remarksShe = $permit['ptw_she_remarks'] ?? '';
+            $remarksFm = $permit['ptw_fm_remarks'] ?? '';
+
+            // Gather recipients based on matrix.
+            // Role IDs: 24 Supervisor, 25 SHE, 26 FM.
+            $recipients = [];
+            $addRoleRecipients = function($roleId) use (&$recipients, $siteId) {
+                try {
+                    $rows = Class_db::getInstance()->db_select('sys_user_role', array('role_id' => strval($roleId)));
+                    foreach ($rows as $r) {
+                        $uid = $r['user_id'];
+                        // Validate site match
+                        $u = Class_db::getInstance()->db_select('sys_user', array('user_id' => strval($uid), 'site_id' => strval($siteId)));
+                        if (count($u) == 0) continue;
+                        $profile = Class_db::getInstance()->db_select('sys_user_profile', array('user_id' => strval($uid)));
+                        $email = '';
+                        if (count($profile) > 0 && !empty($profile[0]['user_email'])) { $email = $profile[0]['user_email']; }
+                        if (empty($email) && count($u) > 0 && !empty($u[0]['user_email'])) { $email = $u[0]['user_email']; }
+                        if (!empty($email)) { $recipients[$email] = true; }
+                    }
+                } catch (Exception $e) { /* skip silently */ }
+            };
+
+            $primaryTo = [];
+            $cc = [];
+            $attachPdf = false;
+            $attachUpdatedPdf = false; // differentiate for future
+            $eventLabel = $notification_type;
+
+            // Map notification types to matrix events
+            switch ($notification_type) {
+                case 'SUPERVISOR_APPROVED': // A2
+                    $addRoleRecipients(25); // SHE primary
+                    $primaryTo = array_keys($recipients);
+                    $recipients = [];
+                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients)); // supervisors copy
+                    break;
+                case 'SUPERVISOR_REJECTED': // A3
+                    $primaryTo = []; // applicant primary (not yet captured)
+                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients)); // supervisors copy
+                    break;
+                case 'PENDING_SUPERVISOR': // A1 new submission
+                    $addRoleRecipients(24); // supervisors
+                    $primaryTo = array_keys($recipients);
+                    break;
+                case 'SUPERVISOR_APPROVED': // A2
+                    $addRoleRecipients(25); // SHE
+                    $primaryTo = array_keys($recipients);
+                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
+                    break;
+                case 'SUPERVISOR_REJECTED': // A3
+                    $primaryTo = []; // applicant only (if email captured later)
+                    break;
+                case 'SHE_APPROVED': // A4
+                    $recipients = [];
+                    $addRoleRecipients(26); // FM
+                    $primaryTo = array_keys($recipients);
+                    $recipients = [];
+                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
+                    break;
+                case 'SHE_REJECTED': // A5
+                    $primaryTo = []; // applicant primary
+                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
+                    break;
+                case 'FM_APPROVED': // A6 final
+                    $attachPdf = true;
+                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
+                    $recipients = [];
+                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
+                    $primaryTo = []; // applicant primary
+                    break;
+                case 'FM_REJECTED': // A7
+                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
+                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
+                    $primaryTo = []; // applicant primary
+                    break;
+                case 'EXTEND_REQUEST': // B1
+                    $recipients = [];
+                    $addRoleRecipients(26); $primaryTo = array_keys($recipients);
+                    break;
+                case 'EXTEND_APPROVED': // B2
+                    $attachUpdatedPdf = true; $attachPdf = true;
+                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
+                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
+                    $primaryTo = []; // applicant
+                    break;
+                case 'CANCEL_REQUEST': // B3
+                    $recipients = [];
+                    $addRoleRecipients(26); $primaryTo = array_keys($recipients);
+                    break;
+                case 'CANCELLED': // B4
+                    $attachPdf = true;
+                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
+                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
+                    $primaryTo = []; // applicant
+                    break;
+                case 'SUSPEND_REQUEST': // B5
+                    $recipients = [];
+                    $addRoleRecipients(26); $primaryTo = array_keys($recipients);
+                    break;
+                case 'SUSPENDED': // B6
+                    $attachPdf = true;
+                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
+                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
+                    $primaryTo = []; // applicant
+                    break;
+                case 'CLOSE_REQUEST': // C1
+                    $recipients = [];
+                    $addRoleRecipients(26); $primaryTo = array_keys($recipients);
+                    break;
+                case 'CLOSED': // C2
+                    $attachPdf = true;
+                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
+                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
+                    $primaryTo = []; // applicant
+                    break;
+                default:
+                    // Unknown event; log only
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Unknown PTW notification type: ' . $notification_type);
+                    return true;
+            }
+
+            // Derive applicant/public email if captured in form data (currently not stored explicitly; placeholder)
+            $applicantEmail = '';
+            // If no primary recipients resolved and applicant email exists, use it
+            if (empty($primaryTo) && !empty($applicantEmail)) { $primaryTo[] = $applicantEmail; }
+
+            // Build subject/body templates
+            $subjectRef = (!empty($permit['ptw_permit_number']) ? $permit['ptw_permit_number'] : $refNo);
+            $subjectBase = "[GEMS][{$siteLabel}] ".$notification_type.' '.$subjectRef;
+            $rqNo = $permit['ptw_request_number'] ?? $refNo;
+            $ptwNo = $permit['ptw_permit_number'] ?? '';
+
+            $body = '<html><body style="font-family:Arial,Helvetica,sans-serif;font-size:13px">';
+            $body .= '<h3 style="margin:0 0 10px 0">Permit To Work Notification</h3>';
+            $body .= '<table cellpadding="4" cellspacing="0">';
+            $row = function($k,$v){ return '<tr><td style="font-weight:bold;padding:2px 8px 2px 0">'.htmlspecialchars($k).'</td><td>'.htmlspecialchars($v).'</td></tr>'; };
+            $body .= $row('Request No',$rqNo);
+            if ($ptwNo) $body .= $row('Permit No',$ptwNo);
+            $body .= $row('Work Type',$workType);
+            $body .= $row('Risk Level',$risk);
+            $body .= $row('Work Area',$workArea);
+            if ($level) $body .= $row('Level',$level);
+            $body .= $row('Valid From',$validFrom);
+            $body .= $row('Valid To',$validTo);
+            $body .= $row('Contractor Company',$contractorCompany);
+            if ($contractorSupervisor) $body .= $row('Contractor Supervisor',$contractorSupervisor);
+            $body .= $row('Applicant',$applicantName);
+            if ($remarksSupervisor) $body .= $row('Remarks',$remarksSupervisor);
+            if ($remarksShe) $body .= $row('SHE Remarks',$remarksShe);
+            if ($remarksFm) $body .= $row('FM Remarks',$remarksFm);
+            $body .= '</table><br/>';
+            // Build internal link (simple heuristic) and append if possible
+            $baseUrl = (isset($_SERVER['HTTP_HOST']) ? (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] : '');
+            $internalLink = $baseUrl ? ($baseUrl . '/gems2/ptw_create.html?ptw_permit_id=' . urlencode($permit_id)) : '';
+            if (!empty($internalLink)) {
+                $body .= '<p><a href="'.htmlspecialchars($internalLink).'" style="color:#0645AD">Open PTW in GEMS2</a></p>';
+            }
+            $body .= '<p style="margin-top:10px">This is an automated message. Please login to GEMS2 to take the next action.</p>';
+            $body .= '</body></html>';
+
+            // Send to each primary recipient. (CC not implemented yet in express helper; future: extend to array)
+            if (empty($primaryTo)) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No primary recipients for event '.$notification_type);
+                return true;
+            }
+            foreach ($primaryTo as $email) {
+                try {
+                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) continue;
+                    $this->fn_email->send_email_express($email, $subjectBase, $body);
+                } catch (Exception $sx) {
+                    $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Email send failed to '.$email.': '.$sx->getMessage());
+                }
+            }
+
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 
-                "Notification sent: {$notification_type} for PTW {$refNo}");
-            
-            // In a complete implementation, this would send actual emails/SMS
-            // For now, we just log the notification
+                "Notification dispatched: {$notification_type} for PTW {$refNo} to ".implode(',', $primaryTo));
             return true;
             
         } catch (Exception $ex) {

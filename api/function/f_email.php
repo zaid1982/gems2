@@ -5,6 +5,12 @@ class Class_email {
     private $fn_general;
 
     function __construct() {
+        // Ensure logger/general helper is available to avoid null dereference
+        if (!isset($this->fn_general) || $this->fn_general === null) {
+            if (class_exists('Class_general')) {
+                try { $this->fn_general = new Class_general(); } catch (Exception $e) { /* fallback silent */ }
+            }
+        }
     }
 
     private function get_exception($codes, $function, $line, $msg) {
@@ -363,8 +369,8 @@ class Class_email {
             $smtpConf = [
                 'host' => $config['smtp']['host'] ?? 'smtp.office365.com',
                 'port' => isset($config['smtp']['port']) ? intval($config['smtp']['port']) : 587,
-                'username' => $config['smtp']['username'] ?? '',
-                'password' => $config['smtp']['password'] ?? '',
+                'username' => $config['smtp']['m_username'] ?? ($config['smtp']['username'] ?? ''),
+                'password' => $config['smtp']['m_password'] ?? ($config['smtp']['password'] ?? ''),
                 'security' => strtoupper($config['smtp']['security'] ?? 'STARTTLS'), // STARTTLS|TLS|PLAIN
                 'timeout' => isset($config['smtp']['timeout']) ? intval($config['smtp']['timeout']) : 30,
             ];
@@ -637,8 +643,8 @@ class Class_email {
             $smtpConf = [
                 'host' => $config['smtp']['host'] ?? 'smtp.office365.com',
                 'port' => isset($config['smtp']['port']) ? intval($config['smtp']['port']) : 587,
-                'username' => $config['smtp']['username'] ?? '',
-                'password' => $config['smtp']['password'] ?? '',
+                'username' => $config['smtp']['m_username'] ?? ($config['smtp']['username'] ?? ''),
+                'password' => $config['smtp']['m_password'] ?? ($config['smtp']['password'] ?? ''),
                 'security' => strtoupper($config['smtp']['security'] ?? 'STARTTLS'),
                 'timeout' => isset($config['smtp']['timeout']) ? intval($config['smtp']['timeout']) : 30,
             ];
