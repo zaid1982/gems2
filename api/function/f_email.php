@@ -271,61 +271,302 @@ class Class_email {
     public function send_email () {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-
-            $arr_emailSend = Class_db::getInstance()->db_select('email_send', array(), 'email_id', '20');
-            foreach ($arr_emailSend as $emailSend) {
-                $status = '23'; // fail
-                try {
-                    $uid = md5(uniqid(time()));
-                    $header = "From: ict-support@globalfm.com.my\r\n";
-                    $header .= "MIME-Version: 1.0\r\n";
-                    $header .= "Content-Type: multipart/mixed; boundary=\"".$uid."\"\r\n\r\n";
-
-                    $nmessage = "--".$uid."\r\n";
-                    $nmessage .= "Content-type:text/html; charset=utf-8\n";
-                    $nmessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
-                    $nmessage .= $emailSend['email_html']."\r\n\r\n";
-                    $nmessage .= "--".$uid."\r\n";
-
-                    if (!empty($emailSend['email_attachment']) && !empty($emailSend['email_filename'])) {
-                        $file = $emailSend['email_attachment'];
-                        $content = file_get_contents($file);
-                        $content = chunk_split(base64_encode($content));
-                        $name = basename($file);
-                        $filename = $emailSend['email_filename'];
-
-                        $nmessage .= "Content-Type: application/octet-stream; name=\"".$filename."\"\r\n";
-                        $nmessage .= "Content-Transfer-Encoding: base64\r\n";
-                        $nmessage .= "Content-Disposition: attachment; filename=\"".$filename."\"\r\n\r\n";
-                        $nmessage .= $content."\r\n\r\n";
-                        $nmessage .= "--".$uid."--";
-                    }
-
-                    if(mail($emailSend['email_address'], $emailSend['email_title'], $nmessage, $header)) {
-                        $status = '22'; // success
-                    }
-
-                } catch(Exception $ey) {
-                }
-
-                try {
-                    Class_db::getInstance()->db_beginTransaction();
-                    Class_db::getInstance()->db_insert('email_log', array('email_template_id'=>$emailSend['email_template_id'], 'email_address'=>$emailSend['email_address'],
-                        'email_title'=>$emailSend['email_title'], 'email_html'=>$emailSend['email_html'], 'user_id'=> (is_null($emailSend['user_id'])?'':$emailSend['user_id']), 'email_retry_no'=>$emailSend['email_retry_no'],
-                        'email_attachment'=>$this->fn_general->clear_null($emailSend['email_attachment']), 'email_filename'=>$this->fn_general->clear_null($emailSend['email_filename']), 'email_id'=>$emailSend['email_id'], 'email_log_status'=>$status));
-                    Class_db::getInstance()->db_delete('email_send', array('email_id'=>$emailSend['email_id']));
-                    Class_db::getInstance()->db_commit();
-                } catch(Exception $ez) {
-                    Class_db::getInstance()->db_rollback();
-                }
-            }
-
-            return true;
+            // Delegate to the SMTP-based queue processor to keep one code path.
+            /* ------------------------------------------------------------------
+             * LEGACY IMPLEMENTATION (using PHP mail())
+             * Retained here (commented) for easy rollback if direct SMTP path has issues.
+             * To revert temporarily, comment out the return line below and uncomment this block.
+             *
+             *  // Load mail configuration
+             *  $config = @parse_ini_file(__DIR__ . '/../library/config.ini', true);
+             *  $mailFrom = $config['mail']['mail_from'] ?? 'ict-support@globalfm.com.my';
+             *  $mailEnvelopeFrom = $config['mail']['mail_envelope_from'] ?? $mailFrom;
+             *  $arr_emailSend = Class_db::getInstance()->db_select('email_send', array(), 'email_id', '20');
+             *  foreach ($arr_emailSend as $emailSend) {
+             *      $status = '23'; // fail
+             *      try {
+             *          $uid = md5(uniqid(time()));
+             *          $header = "From: " . $mailFrom . "\r\n";
+             *          $header .= "MIME-Version: 1.0\r\n";
+             *          $header .= "Content-Type: multipart/mixed; boundary=\"".$uid."\"\r\n\r\n";
+             *          $nmessage = "--".$uid."\r\n";
+             *          $nmessage .= "Content-type:text/html; charset=utf-8\n";
+             *          $nmessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+             *          $nmessage .= $emailSend['email_html']."\r\n\r\n";
+             *          $nmessage .= "--".$uid."\r\n";
+             *          if (!empty($emailSend['email_attachment']) && !empty($emailSend['email_filename'])) {
+             *              $file = $emailSend['email_attachment'];
+             *              $content = file_get_contents($file);
+             *              $content = chunk_split(base64_encode($content));
+             *              $filename = $emailSend['email_filename'];
+             *              $nmessage .= "Content-Type: application/octet-stream; name=\"".$filename."\"\r\n";
+             *              $nmessage .= "Content-Transfer-Encoding: base64\r\n";
+             *              $nmessage .= "Content-Disposition: attachment; filename=\"".$filename."\"\r\n\r\n";
+             *              $nmessage .= $content."\r\n\r\n";
+             *              $nmessage .= "--".$uid."--";
+             *          }
+             *          $fifthParam = '-f' . $mailEnvelopeFrom;
+             *          if (mail($emailSend['email_address'], $emailSend['email_title'], $nmessage, $header, $fifthParam)) {
+             *              $status = '22';
+             *          }
+             *      } catch (Exception $legacyEx) {}
+             *      try {
+             *          Class_db::getInstance()->db_beginTransaction();
+             *          Class_db::getInstance()->db_insert('email_log', array(
+             *              'email_template_id'=>$emailSend['email_template_id'],
+             *              'email_address'=>$emailSend['email_address'],
+             *              'email_title'=>$emailSend['email_title'],
+             *              'email_html'=>$emailSend['email_html'],
+             *              'user_id'=> (is_null($emailSend['user_id'])?'':$emailSend['user_id']),
+             *              'email_retry_no'=>$emailSend['email_retry_no'],
+             *              'email_attachment'=>$this->fn_general->clear_null($emailSend['email_attachment']),
+             *              'email_filename'=>$this->fn_general->clear_null($emailSend['email_filename']),
+             *              'email_id'=>$emailSend['email_id'],
+             *              'email_log_status'=>$status));
+             *          Class_db::getInstance()->db_delete('email_send', array('email_id'=>$emailSend['email_id']));
+             *          Class_db::getInstance()->db_commit();
+             *      } catch (Exception $legacyLogEx) {
+             *          Class_db::getInstance()->db_rollback();
+             *      }
+             *  }
+             */
+            return $this->send_email_365();
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
+    }
+
+    /**
+     * Send emails directly via Exchange Online (SMTP AUTH, STARTTLS) without using mail().
+     * - Reads SMTP config from api/library/config.ini under [smtp]
+     *   host (default smtp.office365.com), port (default 587), username, password, security (STARTTLS|TLS|PLAIN)
+     * - Uses [mail] mail_from and mail_envelope_from for header/envelope addresses
+     * - Mirrors send_email() queue draining and logging behavior
+     * @return bool
+     * @throws Exception
+     */
+    public function send_email_365 () {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            // Load mail and smtp configuration
+            $config = @parse_ini_file(__DIR__ . '/../library/config.ini', true);
+            if ($config === false) {
+                throw new Exception('[' . __LINE__ . '] - Unable to read config.ini');
+            }
+
+            $mailFrom = $config['mail']['mail_from'] ?? '';
+            $mailEnvelopeFrom = $config['mail']['mail_envelope_from'] ?? $mailFrom;
+
+            $smtpConf = [
+                'host' => $config['smtp']['host'] ?? 'smtp.office365.com',
+                'port' => isset($config['smtp']['port']) ? intval($config['smtp']['port']) : 587,
+                'username' => $config['smtp']['username'] ?? '',
+                'password' => $config['smtp']['password'] ?? '',
+                'security' => strtoupper($config['smtp']['security'] ?? 'STARTTLS'), // STARTTLS|TLS|PLAIN
+                'timeout' => isset($config['smtp']['timeout']) ? intval($config['smtp']['timeout']) : 30,
+            ];
+
+            if (empty($smtpConf['username']) || empty($smtpConf['password'])) {
+                throw new Exception('[' . __LINE__ . '] - SMTP credentials missing (username/password)');
+            }
+
+            $arr_emailSend = Class_db::getInstance()->db_select('email_send', array(), 'email_id', '20');
+            foreach ($arr_emailSend as $emailSend) {
+                $status = '23'; // fail by default
+                try {
+                    // Build MIME message (reuse logic similar to send_email())
+                    $uid = md5(uniqid(time()));
+
+                    // Build headers for SMTP DATA (Subject/To must be included here)
+                    $headers = '';
+                    if (!empty($mailFrom)) {
+                        $headers .= "From: " . $mailFrom . "\r\n";
+                    }
+                    $headers .= "To: " . $emailSend['email_address'] . "\r\n";
+                    $headers .= "Subject: " . $emailSend['email_title'] . "\r\n";
+                    $headers .= "Date: " . date('r') . "\r\n";
+                    $headers .= "Message-ID: <" . uniqid('', true) . "@gems2>\r\n";
+                    $headers .= "MIME-Version: 1.0\r\n";
+                    $headers .= "Content-Type: multipart/mixed; boundary=\"" . $uid . "\"\r\n";
+
+                    // Body with parts
+                    $body = "--" . $uid . "\r\n";
+                    $body .= "Content-type:text/html; charset=utf-8\r\n";
+                    $body .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+                    $body .= $emailSend['email_html'] . "\r\n\r\n";
+
+                    if (!empty($emailSend['email_attachment']) && !empty($emailSend['email_filename'])) {
+                        $file = $emailSend['email_attachment'];
+                        $content = @file_get_contents($file);
+                        if ($content === false) {
+                            throw new Exception('[' . __LINE__ . '] - Failed to read attachment');
+                        }
+                        $content = chunk_split(base64_encode($content));
+                        $filename = $emailSend['email_filename'];
+
+                        $body .= "--" . $uid . "\r\n";
+                        $body .= "Content-Type: application/octet-stream; name=\"" . $filename . "\"\r\n";
+                        $body .= "Content-Transfer-Encoding: base64\r\n";
+                        $body .= "Content-Disposition: attachment; filename=\"" . $filename . "\"\r\n\r\n";
+                        $body .= $content . "\r\n\r\n";
+                    }
+                    $body .= "--" . $uid . "--\r\n";
+
+                    // Perform SMTP send
+                    $this->smtp_send_exchange($smtpConf, $mailEnvelopeFrom ?: $mailFrom, $emailSend['email_address'], $headers, $body);
+                    $status = '22'; // success
+                } catch (Exception $ey) {
+                    $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'SMTP send failed: ' . $ey->getMessage());
+                }
+
+                // Move to log regardless of success/failure
+                try {
+                    Class_db::getInstance()->db_beginTransaction();
+                    Class_db::getInstance()->db_insert('email_log', array(
+                        'email_template_id' => $emailSend['email_template_id'],
+                        'email_address' => $emailSend['email_address'],
+                        'email_title' => $emailSend['email_title'],
+                        'email_html' => $emailSend['email_html'],
+                        'user_id' => (is_null($emailSend['user_id']) ? '' : $emailSend['user_id']),
+                        'email_retry_no' => $emailSend['email_retry_no'],
+                        'email_attachment' => $this->fn_general->clear_null($emailSend['email_attachment']),
+                        'email_filename' => $this->fn_general->clear_null($emailSend['email_filename']),
+                        'email_id' => $emailSend['email_id'],
+                        'email_log_status' => $status
+                    ));
+                    Class_db::getInstance()->db_delete('email_send', array('email_id' => $emailSend['email_id']));
+                    Class_db::getInstance()->db_commit();
+                } catch (Exception $ez) {
+                    Class_db::getInstance()->db_rollback();
+                }
+            }
+
+            return true;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Low-level SMTP sender for Exchange/Office 365 using STARTTLS and AUTH LOGIN.
+     * @param array $smtpConf {host,port,username,password,security,timeout}
+     * @param string $envelopeFrom
+     * @param string $rcptTo
+     * @param string $headers Full RFC-822 headers (must include From/To/Subject/MIME-Version/Content-Type)
+     * @param string $body MIME body
+     * @throws Exception on any SMTP failure
+     */
+    private function smtp_send_exchange(array $smtpConf, $envelopeFrom, $rcptTo, $headers, $body) {
+        $host = $smtpConf['host'];
+        $port = $smtpConf['port'];
+        $security = strtoupper($smtpConf['security']);
+        $username = $smtpConf['username'];
+        $password = $smtpConf['password'];
+        $timeout = $smtpConf['timeout'];
+
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, "Connecting SMTP {$host}:{$port} ({$security})");
+
+        $errno = 0; $errstr = '';
+        $fp = @stream_socket_client("tcp://{$host}:{$port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT);
+        if (!$fp) {
+            throw new Exception('[' . __LINE__ . "] - Unable to connect SMTP: {$errstr} ({$errno})");
+        }
+        stream_set_timeout($fp, $timeout);
+
+        list($code,) = $this->smtp_read_response($fp);
+        if ($code !== 220) {
+            fclose($fp);
+            throw new Exception('[' . __LINE__ . "] - SMTP greeting failed ({$code})");
+        }
+
+        $this->smtp_cmd($fp, 'EHLO gems2.local');
+
+        if ($security === 'STARTTLS') {
+            $this->smtp_cmd_expect($fp, 'STARTTLS', 220);
+            $cryptoMethod = defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT') ? STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT : STREAM_CRYPTO_METHOD_TLS_CLIENT;
+            if (!@stream_socket_enable_crypto($fp, true, $cryptoMethod)) {
+                fclose($fp);
+                throw new Exception('[' . __LINE__ . '] - STARTTLS negotiation failed');
+            }
+            // EHLO again after STARTTLS
+            $this->smtp_cmd($fp, 'EHLO gems2.local');
+        }
+
+        // AUTH LOGIN
+        $this->smtp_cmd_expect($fp, 'AUTH LOGIN', 334);
+        $this->smtp_cmd_expect($fp, base64_encode($username), 334);
+        $this->smtp_cmd_expect($fp, base64_encode($password), 235);
+
+        // MAIL FROM / RCPT TO
+        $this->smtp_cmd_expect($fp, 'MAIL FROM:<' . $envelopeFrom . '>', 250);
+        $this->smtp_cmd_expect($fp, 'RCPT TO:<' . $rcptTo . '>', 250);
+
+        // DATA
+        $this->smtp_cmd_expect($fp, 'DATA', 354);
+
+        // Build final DATA block: headers + CRLF + body
+        $data = rtrim($headers, "\r\n") . "\r\n\r\n" . $this->smtp_dot_stuff($body) . "\r\n.\r\n";
+        $this->smtp_write($fp, $data);
+        list($code2,) = $this->smtp_read_response($fp);
+        if ($code2 !== 250) {
+            $this->smtp_cmd($fp, 'QUIT');
+            fclose($fp);
+            throw new Exception('[' . __LINE__ . "] - SMTP DATA not accepted ({$code2})");
+        }
+
+        $this->smtp_cmd($fp, 'QUIT');
+        fclose($fp);
+    }
+
+    // Helper: write a command with CRLF
+    private function smtp_write($fp, $data) {
+        $written = @fwrite($fp, $data);
+        if ($written === false) {
+            throw new Exception('[' . __LINE__ . '] - SMTP write failed');
+        }
+    }
+
+    // Helper: send a command and ignore specific response content
+    private function smtp_cmd($fp, $cmd) {
+        $this->smtp_write($fp, $cmd . "\r\n");
+        $this->smtp_read_response($fp); // consume
+    }
+
+    // Helper: send a command and expect a specific status code
+    private function smtp_cmd_expect($fp, $cmd, $expectCode) {
+        $this->smtp_write($fp, $cmd . "\r\n");
+        list($code,) = $this->smtp_read_response($fp);
+        if ($code !== $expectCode) {
+            throw new Exception('[' . __LINE__ . "] - Unexpected SMTP response code {$code} for '{$cmd}' (expected {$expectCode})");
+        }
+    }
+
+    // Helper: read SMTP response, returns [code, lines]
+    private function smtp_read_response($fp) {
+        $lines = [];
+        while (($line = @fgets($fp, 515)) !== false) { // 512 chars + CRLF
+            $lines[] = rtrim($line, "\r\n");
+            if (preg_match('/^(\d{3})[\s]/', $line, $m)) {
+                $code = intval($m[1]);
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'SMTP <= ' . implode(' | ', $lines));
+                return [$code, $lines];
+            }
+        }
+        throw new Exception('[' . __LINE__ . '] - SMTP read timeout or connection closed');
+    }
+
+    // Helper: dot-stuff the body per RFC 5321 Section 4.5.2
+    private function smtp_dot_stuff($body) {
+        $body = preg_replace('/\r?\n/', "\r\n", $body); // normalize to CRLF
+        $body = preg_replace('/\n\./', "\n..", $body); // dot-stuff lines beginning with '.'
+        if (strpos($body, "\r\n.") === 0) {
+            $body = ".." . substr($body, 1);
+        }
+        return $body;
     }
 
     /**
@@ -337,19 +578,108 @@ class Class_email {
     public function send_email_express ($receiver, $title, $content) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            // Reuse direct SMTP sender (no queue)
+            /* ------------------------------------------------------------------
+             * LEGACY EXPRESS IMPLEMENTATION (mail()) retained for rollback:
+             *  $config = @parse_ini_file(__DIR__ . '/../library/config.ini', true);
+             *  $mailFrom = $config['mail']['mail_from'] ?? 'ict-support@globalfm.com.my';
+             *  $mailEnvelopeFrom = $config['mail']['mail_envelope_from'] ?? $mailFrom;
+             *  $uid = md5(uniqid(time()));
+             *  $header = "From: " . $mailFrom . "\r\n";
+             *  $header .= "MIME-Version: 1.0\r\n";
+             *  $header .= "Content-Type: multipart/mixed; boundary=\"" . $uid . "\"\r\n\r\n";
+             *  $nmessage = "--" . $uid . "\r\n";
+             *  $nmessage .= "Content-type:text/html; charset=utf-8\n";
+             *  $nmessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+             *  $nmessage .= $content . "\r\n\r\n";
+             *  $nmessage .= "--" . $uid . "\r\n"; // (no attachment in legacy express path)
+             *  mail($receiver, $title, $nmessage, $header, '-f' . $mailEnvelopeFrom);
+             */
+            $this->send_email_365_direct($receiver, $title, $content);
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
 
-            $uid = md5(uniqid(time()));
-            $header = "From: ict-support@globalfm.com.my\r\n";
-            $header .= "MIME-Version: 1.0\r\n";
-            $header .= "Content-Type: multipart/mixed; boundary=\"" . $uid . "\"\r\n\r\n";
+    /**
+     * Direct SMTP (Exchange 365) send without touching the email queue.
+     * Builds a MIME message (optionally with one attachment) and sends immediately.
+     * @param string $to Recipient email address
+     * @param string $subject Subject line
+     * @param string $htmlBody HTML body content
+     * @param string $attachmentPath (optional) full path to file to attach
+     * @param string $attachmentName (optional) override filename shown to user
+     * @return bool
+     * @throws Exception
+     */
+    public function send_email_365_direct($to, $subject, $htmlBody, $attachmentPath = '', $attachmentName = '') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
-            $nmessage = "--" . $uid . "\r\n";
-            $nmessage .= "Content-type:text/html; charset=utf-8\n";
-            $nmessage .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
-            $nmessage .= $content . "\r\n\r\n";
-            $nmessage .= "--" . $uid . "\r\n";
+            if (empty($to)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter to empty');
+            }
+            if (empty($subject)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter subject empty');
+            }
+            if (empty($htmlBody)) {
+                $htmlBody = '<html><body><p>(Empty Body)</p></body></html>';
+            }
 
-            mail($receiver, $title, $nmessage, $header, '-fict-support@globalfm.com.my');
+            // Load config
+            $config = @parse_ini_file(__DIR__ . '/../library/config.ini', true);
+            if ($config === false) {
+                throw new Exception('[' . __LINE__ . '] - Unable to read config.ini');
+            }
+            $mailFrom = $config['mail']['mail_from'] ?? '';
+            $mailEnvelopeFrom = $config['mail']['mail_envelope_from'] ?? $mailFrom;
+            $smtpConf = [
+                'host' => $config['smtp']['host'] ?? 'smtp.office365.com',
+                'port' => isset($config['smtp']['port']) ? intval($config['smtp']['port']) : 587,
+                'username' => $config['smtp']['username'] ?? '',
+                'password' => $config['smtp']['password'] ?? '',
+                'security' => strtoupper($config['smtp']['security'] ?? 'STARTTLS'),
+                'timeout' => isset($config['smtp']['timeout']) ? intval($config['smtp']['timeout']) : 30,
+            ];
+            if (empty($smtpConf['username']) || empty($smtpConf['password'])) {
+                throw new Exception('[' . __LINE__ . '] - SMTP credentials missing');
+            }
+
+            $boundary = md5(uniqid(time()));
+            $headers = '';
+            if (!empty($mailFrom)) {
+                $headers .= 'From: ' . $mailFrom . "\r\n";
+            }
+            $headers .= 'To: ' . $to . "\r\n";
+            $headers .= 'Subject: ' . $subject . "\r\n";
+            $headers .= 'Date: ' . date('r') . "\r\n";
+            $headers .= 'Message-ID: <' . uniqid('', true) . '@gems2>' . "\r\n";
+            $headers .= 'MIME-Version: 1.0' . "\r\n";
+            $headers .= 'Content-Type: multipart/mixed; boundary="' . $boundary . '"' . "\r\n";
+
+            $body = '--' . $boundary . "\r\n";
+            $body .= "Content-type:text/html; charset=utf-8\r\n";
+            $body .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+            $body .= $htmlBody . "\r\n\r\n";
+
+            if (!empty($attachmentPath) && is_file($attachmentPath)) {
+                $raw = @file_get_contents($attachmentPath);
+                if ($raw === false) {
+                    throw new Exception('[' . __LINE__ . '] - Unable to read attachment');
+                }
+                $encoded = chunk_split(base64_encode($raw));
+                $fname = !empty($attachmentName) ? $attachmentName : basename($attachmentPath);
+                $body .= '--' . $boundary . "\r\n";
+                $body .= 'Content-Type: application/octet-stream; name="' . $fname . '"' . "\r\n";
+                $body .= "Content-Transfer-Encoding: base64\r\n";
+                $body .= 'Content-Disposition: attachment; filename="' . $fname . '"' . "\r\n\r\n";
+                $body .= $encoded . "\r\n\r\n";
+            }
+            $body .= '--' . $boundary . "--\r\n";
+
+            $this->smtp_send_exchange($smtpConf, $mailEnvelopeFrom ?: $mailFrom, $to, $headers, $body);
+            return true;
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
