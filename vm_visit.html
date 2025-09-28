@@ -15,11 +15,11 @@
   :root { --vm-bg:#f6f8fa; --vm-primary:#1266f1; --vm-primary-dark:#0d47a1; --vm-muted:#627d98; --vm-border:#e1e7ef; --vm-text:#102a43; }
   body { background:var(--vm-bg); color:var(--vm-text); }
   /* Header to match PTW public form */
-  .vm-header { padding: 1.5rem 0 .75rem; }
-  .vm-header .title { font-size: 2rem; font-weight: 800; letter-spacing: .2px; }
-  .vm-header .subtitle { color: var(--vm-muted); margin-top: .25rem; }
+  .vm-header { padding: 1.25rem 0 .5rem; }
+  .vm-header .title { font-size: 2rem; font-weight: 800; letter-spacing: .2px; line-height: 1.2; }
+  .vm-header .subtitle { color: var(--vm-muted); margin-top: .25rem; font-size: .975rem; }
   .vm-header .title i { color: #2f80ed; }
-  .vm-page { max-width: 980px; margin: 0 auto; }
+  .vm-page { max-width: 980px; margin: 0 auto; padding-left: .75rem; padding-right: .75rem; }
   /* Help banner */
   .vm-help { background: #d8f3ff; border: 1px solid #c3ecff; color: #0b4c6a; border-radius: 0; padding: .75rem 1rem; }
   .vm-help i { color: #2f80ed; }
@@ -29,7 +29,7 @@
   .vm-tabs .nav-link.active { background: #2f80ed; color: #fff; border-color: #2f80ed; }
   .vm-tabs .nav-link i { margin-right: .4rem; }
   .vm-card { border-radius: 0; border: 1px solid var(--vm-border); overflow:hidden; }
-  .vm-card .card-body { padding: 1.5rem; }
+  .vm-card .card-body { padding: 1.25rem; }
   @media (min-width: 768px){ .vm-card .card-body { padding: 2rem; } }
   .page-header-title { font-weight: 700; }
   .page-description { color: var(--vm-muted); }
@@ -47,6 +47,73 @@
   /* Help icon styling */
   .help-icon { color: var(--vm-muted); cursor: help; font-size: .95rem; }
   .help-icon:hover { color: var(--vm-primary); }
+  /* Header + company logo */
+  .global-header { background: #fff; border-bottom: 1px solid var(--vm-border); }
+  .global-header .company-logo { display: flex; align-items: center; justify-content: center; padding: .5rem 0; }
+  .global-header .company-logo img { display: block; max-height: 48px; max-width: 90%; height: auto; width: auto; object-fit: contain; }
+  /* Remove unused spacer row inside header */
+  .global-header .row.mt-3 { margin-top: 0 !important; display: none; }
+  @media (max-width: 767.98px){
+    .global-header .company-logo { padding: .5rem 0; }
+    .global-header .company-logo img { max-height: 42px; }
+  }
+  /* Photo area tweaks */
+  #photoPreview { max-height: 320px; object-fit: contain; }
+  .vm-photo-actions { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: .5rem; }
+  .vm-photo-actions .btn { width: 100%; }
+  /* Refined buttons for photo controls */
+  .vm-photo-actions .btn {
+    text-transform: none !important;
+    letter-spacing: .1px;
+    font-weight: 600;
+    border-width: 2px;
+    padding: .75rem .5rem;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    box-shadow: 0 2px 0 rgba(16,42,67,.03);
+  }
+  .vm-photo-actions .btn i { font-size: 1rem; line-height: 1; }
+  .vm-photo-actions .btn:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(16,42,67,.06); }
+  /* Force primary/secondary colors to our palette (override skin) */
+  .vm-photo-actions .btn-outline-primary { color: var(--vm-primary) !important; border-color: var(--vm-primary) !important; }
+  .vm-photo-actions .btn-outline-primary:hover,
+  .vm-photo-actions .btn-outline-primary:focus { background: var(--vm-primary) !important; color: #fff !important; }
+  .vm-photo-actions .btn-outline-secondary { color: #2f80ed !important; border-color: #2f80ed !important; }
+  .vm-photo-actions .btn-outline-secondary:hover,
+  .vm-photo-actions .btn-outline-secondary:focus { background: #2f80ed !important; color: #fff !important; }
+  .vm-photo-actions .btn-outline-danger { color: #d63636 !important; border-color: #d63636 !important; }
+  .vm-photo-actions .btn-outline-danger:hover,
+  .vm-photo-actions .btn-outline-danger:focus { background: #d63636 !important; color: #fff !important; }
+  /* Bottom action buttons */
+  .vm-actions .btn { text-transform: none !important; font-weight: 700; letter-spacing: .2px; padding: .85rem 1rem; }
+  #btnSubmit.btn-primary { background: var(--vm-primary); border-color: var(--vm-primary); }
+  #btnSubmit.btn-primary:hover { background: var(--vm-primary-dark); border-color: var(--vm-primary-dark); }
+  #btnReset.btn-outline-secondary { color: #4b5563; border-color: #cbd5e1; }
+  #btnReset.btn-outline-secondary:hover { background: #f1f5f9; color: #111827; }
+  @media (max-width: 767.98px){
+    .vm-header { padding-top: 1rem; }
+    .vm-header .title { font-size: 1.5rem; }
+    .vm-header .subtitle { font-size: .9rem; }
+    .vm-page { padding-left: .5rem; padding-right: .5rem; }
+    .vm-card .card-body { padding: 1rem; }
+    .page-description { font-size: .95rem; }
+    /* Stack action buttons */
+    .vm-actions { flex-wrap: wrap; }
+    .vm-actions .btn { flex: 1 1 100%; }
+    /* Photo preview smaller on phones */
+    #photoPreview { max-height: 240px; }
+    /* Make photo controls 2 columns on phones for bigger tap targets */
+    .vm-photo-actions { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    /* Input sizes */
+    .form-control, .input-group-text { font-size: 1rem; }
+  }
+  @media (max-width: 575.98px){
+    .vm-header .title { font-size: 1.35rem; }
+    .vm-help { font-size: .95rem; }
+  }
   </style>
 </head>
 <body class="fixed-sn light-blue-skin">
@@ -77,7 +144,7 @@
       </li>
     </ul> -->
   </div>
-  <div class="container-fluid vm-page" style="padding-left:0; padding-right:0;">
+  <div class="container-fluid vm-page">
     <div class="card vm-card shadow-sm">
       <div class="card-body">
         <h5 class="mb-3 page-header-title"><i class="fas fa-id-badge me-2"></i> Visitor Details</h5>
@@ -93,7 +160,7 @@
               <label class="form-label required">Contact No <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Mobile number with country code, e.g. +60 12-3456789."></i></label>
               <div class="input-group" id="grpContact">
                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                <input class="form-control" name="contact_no" placeholder="e.g. +60 12-3456789" required>
+                <input class="form-control" name="contact_no" placeholder="e.g. +60 12-3456789" required inputmode="tel">
               </div>
               <div class="invalid-feedback">Please enter a valid contact number.</div>
             </div>
@@ -101,7 +168,7 @@
               <label class="form-label required">IC / ID <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="National ID or passport number (digits only for MyKad)."></i></label>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                <input class="form-control" name="ic_no" placeholder="e.g. 880101015555" required>
+                <input class="form-control" name="ic_no" placeholder="e.g. 880101015555" required inputmode="numeric" pattern="[0-9]*">
               </div>
               <div class="invalid-feedback">IC/ID must be digits only.</div>
             </div>
@@ -120,7 +187,7 @@
             </div>
             <div class="col-md-3">
               <label class="form-label required">Party Size <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Total number of visitors in your group, including you."></i></label>
-              <input class="form-control" name="party_size" type="number" min="1" max="999" value="1" required>
+              <input class="form-control" name="party_size" type="number" min="1" max="999" value="1" required inputmode="numeric" pattern="[0-9]*">
               <div class="invalid-feedback">Party size must be between 1 and 999.</div>
             </div>
             <div class="col-md-6 mb-3">
@@ -141,17 +208,17 @@
                 <div class="card-body p-3">
                   <div class="row g-2 align-items-center">
                     <div class="col-12">
-                      <img id="photoPreview" alt="Visitor photo preview" class="img-thumbnail w-100 d-none" style="max-height: 320px; object-fit: contain;">
+                      <img id="photoPreview" alt="Visitor photo preview" class="img-thumbnail w-100 d-none">
                       <div id="photoPlaceholder" class="text-center text-muted py-4" style="border:2px dashed #d7dde5;">
                         <i class="fas fa-camera mb-2" style="font-size: 2rem;"></i>
                         <div>Tap a button below to take a photo or upload</div>
                       </div>
                     </div>
-                    <div class="col-12 d-flex flex-wrap gap-2 mt-2">
-                      <button type="button" id="btnPhotoBack" class="btn btn-outline-primary"><i class="fas fa-camera me-1"></i>Use Back Camera</button>
-                      <button type="button" id="btnPhotoFront" class="btn btn-outline-primary"><i class="fas fa-user me-1"></i>Use Front Camera</button>
-                      <button type="button" id="btnPhotoUpload" class="btn btn-outline-secondary"><i class="fas fa-upload me-1"></i>Upload From Gallery</button>
-                      <button type="button" id="btnPhotoRemove" class="btn btn-outline-danger ms-auto"><i class="fas fa-times me-1"></i>Remove</button>
+                    <div class="col-12 vm-photo-actions mt-2">
+                      <button type="button" id="btnPhotoBack" class="btn btn-outline-primary"><i class="fas fa-camera me-1"></i>Back Camera</button>
+                      <button type="button" id="btnPhotoFront" class="btn btn-outline-primary"><i class="fas fa-user me-1"></i>Front Camera</button>
+                      <button type="button" id="btnPhotoUpload" class="btn btn-outline-secondary"><i class="fas fa-upload me-1"></i>Upload</button>
+                      <button type="button" id="btnPhotoRemove" class="btn btn-outline-danger"><i class="fas fa-times me-1"></i>Remove</button>
                     </div>
                   </div>
                   <input type="file" id="photo" name="photo" accept="image/*" class="d-none">
