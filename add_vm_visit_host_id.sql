@@ -17,6 +17,17 @@ JOIN vm_host h ON h.site_id = v.site_id AND h.name = v.host_name
 SET v.host_id = h.host_id
 WHERE v.host_id IS NULL;
 
+-- Add photo_path column for storing visitor photo path if missing
+SET @col := (
+  SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'vm_visit' AND COLUMN_NAME = 'photo_path'
+);
+SET @sql := IF(@col = 0,
+  'ALTER TABLE vm_visit ADD COLUMN photo_path VARCHAR(255) NULL AFTER host_id',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
 -- Optional: add index for faster lookups
 -- Add index if missing (portable across MySQL versions)
 SET @idx := (

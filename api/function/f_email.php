@@ -693,6 +693,95 @@ class Class_email {
     }
 
     /**
+     * Direct SMTP (Exchange 365) send with an inline image referenced by CID.
+     * Builds a multipart/related MIME so the image renders inside the HTML body.
+     * @param string $to Recipient email address
+     * @param string $subject Subject line
+     * @param string $htmlBody HTML body content which should include <img src="cid:...">
+     * @param string $imagePath Absolute file path of the image (jpg/png)
+     * @param string $imageName Optional filename to present to the client
+     * @param string $imageCid Content-ID used in the HTML (default 'inline_image')
+     * @return bool
+     * @throws Exception
+     */
+    public function send_email_365_inline_image($to, $subject, $htmlBody, $imagePath, $imageName = '', $imageCid = 'inline_image') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            if (empty($to)) throw new Exception('[' . __LINE__ . '] - Parameter to empty');
+            if (empty($subject)) throw new Exception('[' . __LINE__ . '] - Parameter subject empty');
+            if (empty($htmlBody)) $htmlBody = '<html><body><p>(Empty Body)</p></body></html>';
+            if (empty($imagePath) || !is_file($imagePath)) throw new Exception('[' . __LINE__ . '] - Inline image not found');
+
+            // Load config
+            $config = @parse_ini_file(__DIR__ . '/../library/config.ini', true);
+            if ($config === false) {
+                throw new Exception('[' . __LINE__ . '] - Unable to read config.ini');
+            }
+            $mailFrom = $config['mail']['mail_from'] ?? '';
+            $mailEnvelopeFrom = $config['mail']['mail_envelope_from'] ?? $mailFrom;
+            $smtpConf = [
+                'host' => $config['smtp']['host'] ?? 'smtp.office365.com',
+                'port' => isset($config['smtp']['port']) ? intval($config['smtp']['port']) : 587,
+                'username' => $config['smtp']['m_username'] ?? ($config['smtp']['username'] ?? ''),
+                'password' => $config['smtp']['m_password'] ?? ($config['smtp']['password'] ?? ''),
+                'security' => strtoupper($config['smtp']['security'] ?? 'STARTTLS'),
+                'timeout' => isset($config['smtp']['timeout']) ? intval($config['smtp']['timeout']) : 30,
+            ];
+            if (empty($smtpConf['username']) || empty($smtpConf['password'])) {
+                throw new Exception('[' . __LINE__ . '] - SMTP credentials missing');
+            }
+
+            $imageRaw = @file_get_contents($imagePath);
+            if ($imageRaw === false) throw new Exception('[' . __LINE__ . '] - Unable to read image');
+            $ext = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
+            $mime = 'image/jpeg';
+            if ($ext === 'png') $mime = 'image/png';
+            elseif ($ext === 'jpg' || $ext === 'jpeg') $mime = 'image/jpeg';
+            elseif ($ext === 'heic' || $ext === 'heif') $mime = 'image/heic';
+            else {
+                // try mime_content_type
+                $det = function_exists('mime_content_type') ? mime_content_type($imagePath) : '';
+                if ($det && stripos($det, 'png') !== false) $mime = 'image/png';
+                elseif ($det && stripos($det, 'heic') !== false) $mime = 'image/heic';
+            }
+            $encoded = chunk_split(base64_encode($imageRaw));
+            $fname = !empty($imageName) ? $imageName : basename($imagePath);
+
+            // Build multipart/related
+            $boundary = md5(uniqid('rel', true));
+            $headers = '';
+            if (!empty($mailFrom)) { $headers .= 'From: ' . $mailFrom . "\r\n"; }
+            $headers .= 'To: ' . $to . "\r\n";
+            $headers .= 'Subject: ' . $subject . "\r\n";
+            $headers .= 'Date: ' . date('r') . "\r\n";
+            $headers .= 'Message-ID: <' . uniqid('', true) . '@gems2>' . "\r\n";
+            $headers .= 'MIME-Version: 1.0' . "\r\n";
+            $headers .= 'Content-Type: multipart/related; boundary="' . $boundary . '"; type="text/html"' . "\r\n";
+
+            $body = '';
+            // HTML part
+            $body .= '--' . $boundary . "\r\n";
+            $body .= "Content-Type: text/html; charset=utf-8\r\n";
+            $body .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+            $body .= $htmlBody . "\r\n\r\n";
+            // Image part (inline)
+            $body .= '--' . $boundary . "\r\n";
+            $body .= 'Content-Type: ' . $mime . '; name="' . $fname . '"' . "\r\n";
+            $body .= "Content-Transfer-Encoding: base64\r\n";
+            $body .= 'Content-ID: <' . $imageCid . '>' . "\r\n";
+            $body .= 'Content-Disposition: inline; filename="' . $fname . '"' . "\r\n\r\n";
+            $body .= $encoded . "\r\n\r\n";
+            $body .= '--' . $boundary . "--\r\n";
+
+            $this->smtp_send_exchange($smtpConf, $mailEnvelopeFrom ?: $mailFrom, $to, $headers, $body);
+            return true;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $title
      * @param $message
      * @param $token

@@ -41,7 +41,7 @@ class Class_vm {
         return [$errors, compact('name','contact','ic','company','email','party','host','hostId','purpose','siteId')];
     }
 
-    public function createVisit($payload, $userId=null){
+    public function createVisit($payload, $userId=null, $files=null){
         list($errors,$v)=$this->validateVisitPayload($payload);
         if(!empty($errors)) return ['success'=>false,'errors'=>$errors];
         // Ensure site exists to avoid FK violation
@@ -64,6 +64,166 @@ class Class_vm {
             $hostIdToStore = intval($v['hostId']);
             $resolvedHostName = $hostRow['name']; // canonical name
         }
+        // Handle photo upload sources
+    $relativePhotoPath = '';
+    $uploadedPhotoPath = '';
+    $jsonPhotoPath = '';
+    // Absolute filesystem fallbacks (not stored in DB; used only for email inline)
+    $uploadedPhotoAbs = '';
+    $jsonPhotoAbs = '';
+        try {
+            // Prefer file upload via $_FILES['photo']
+            if (is_array($files) && isset($files['photo']) && isset($files['photo']['tmp_name'])) {
+                $errCode = isset($files['photo']['error']) ? intval($files['photo']['error']) : -1;
+                $errMap = [
+                    UPLOAD_ERR_OK=>'OK',
+                    UPLOAD_ERR_INI_SIZE=>'INI_SIZE',
+                    UPLOAD_ERR_FORM_SIZE=>'FORM_SIZE',
+                    UPLOAD_ERR_PARTIAL=>'PARTIAL',
+                    UPLOAD_ERR_NO_FILE=>'NO_FILE',
+                    UPLOAD_ERR_NO_TMP_DIR=>'NO_TMP_DIR',
+                    UPLOAD_ERR_CANT_WRITE=>'CANT_WRITE',
+                    UPLOAD_ERR_EXTENSION=>'EXTENSION'
+                ];
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Processing uploaded photo file; upload_error=' . ($errMap[$errCode] ?? strval($errCode)));
+                if ($errCode !== UPLOAD_ERR_OK) {
+                    // Don't bail out; continue to try JSON/base64 fallback below
+                }
+                $tmp = $files['photo']['tmp_name'];
+                $size = isset($files['photo']['size']) ? intval($files['photo']['size']) : 0;
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'tmp_exists='.(file_exists($tmp)?'1':'0').', is_uploaded='.(function_exists('is_uploaded_file') && @is_uploaded_file($tmp)?'1':'0'));
+                if ($size > 0) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Uploaded photo size: ' . $size);
+                    $finfo = function_exists('finfo_open') ? finfo_open(FILEINFO_MIME_TYPE) : false;
+                    $mime = $finfo ? finfo_file($finfo, $tmp) : (mime_content_type($tmp) ?: 'application/octet-stream');
+                    if ($finfo) { finfo_close($finfo); }
+                    // Derive extension prefering MIME, then original filename
+                    $ext = '';
+                    if ($mime === 'image/jpeg' || $mime === 'image/jpg') $ext = 'jpg';
+                    else if ($mime === 'image/png') $ext = 'png';
+                    else if ($mime === 'image/heic' || $mime === 'image/heif') $ext = 'heic';
+                    if ($ext === '' && !empty($files['photo']['name'])) {
+                        $fn = strtolower($files['photo']['name']);
+                        if (substr($fn, -4) === '.png') $ext = 'png';
+                        else if (substr($fn, -4) === '.jpg') $ext = 'jpg';
+                        else if (substr($fn, -5) === '.jpeg') $ext = 'jpg';
+                        else if (substr($fn, -5) === '.heic') $ext = 'heic';
+                    }
+                    if ($ext !== '') {
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Determined photo extension: ' . $ext);
+                        $baseDir = dirname(__DIR__, 2); // project root
+                        // Ensure uploads root exists
+                        $uploadsRoot = $baseDir . '/uploads';
+                        if (!is_dir($uploadsRoot)) {
+                            $mkRoot = @mkdir($uploadsRoot, 0775, true);
+                            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads root (0775) result=' . ($mkRoot?'1':'0'));
+                            if (!$mkRoot) {
+                                $mkRoot2 = @mkdir($uploadsRoot, 0777, true);
+                                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads root (0777) retry result=' . ($mkRoot2?'1':'0'));
+                            }
+                        }
+                        // Ensure uploads/vm exists
+                        $uploadDir = $uploadsRoot . '/vm';
+                        if (!is_dir($uploadDir)) {
+                            $mk = @mkdir($uploadDir, 0775, true);
+                            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads/vm (0775) result=' . ($mk?'1':'0'));
+                            if (!$mk) {
+                                $mk2 = @mkdir($uploadDir, 0777, true);
+                                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads/vm (0777) retry result=' . ($mk2?'1':'0'));
+                            }
+                        }
+                        // Try to improve permissions if not writable
+                        if (!is_writable($uploadDir)) { @chmod($uploadDir, 0775); }
+                        if (!is_writable($uploadDir)) { @chmod($uploadDir, 0777); }
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Uploading photo to: ' . $uploadDir . ' (writable=' . (is_writable($uploadDir)?'1':'0') . ')');
+                        $fname = 'vm_' . intval($v['siteId']) . '_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+                        $dest = $uploadDir . '/' . $fname;
+                        $moved = @move_uploaded_file($tmp, $dest);
+                        if (!$moved) { $moved = @rename($tmp, $dest); }
+                        if (!$moved) {
+                            $raw = @file_get_contents($tmp);
+                            if ($raw !== false) { $moved = (@file_put_contents($dest, $raw) !== false); }
+                        }
+                        if ($moved) {
+                            $uploadedPhotoPath = 'uploads/vm/' . $fname;
+                            $relativePhotoPath = $uploadedPhotoPath;
+                        }
+                        if (!$moved) {
+                            // Fallback: write to a system temp directory so we can still embed inline in email
+                            $tmpRoot = rtrim(sys_get_temp_dir(), '/');
+                            $tmpDest = $tmpRoot . '/' . $fname;
+                            $wrote = false;
+                            $raw = @file_get_contents($tmp);
+                            if ($raw !== false) { $wrote = (@file_put_contents($tmpDest, $raw) !== false); }
+                            if ($wrote) {
+                                $uploadedPhotoAbs = $tmpDest;
+                                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Photo saved to temp fallback: ' . $tmpDest);
+                            } else {
+                                $lastErr = error_get_last();
+                                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Photo upload failed; last_error=' . ($lastErr ? ($lastErr['message'] ?? 'n/a') : 'n/a'));
+                            }
+                        } else {
+                            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Photo upload succeeded');
+                        }
+                    }
+                }
+            }
+            // Fallback: base64 in payload under 'photo_base64'
+            if ($uploadedPhotoPath === '' && isset($payload['photo_base64']) && is_string($payload['photo_base64']) && $payload['photo_base64'] !== '') {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Processing base64 photo from payload');
+                $b64 = $payload['photo_base64'];
+                if (strpos($b64, 'base64,') !== false) { $b64 = substr($b64, strpos($b64, 'base64,') + 7); }
+                $raw = base64_decode($b64, true);
+                if ($raw !== false && strlen($raw) > 0 && strlen($raw) <= 8 * 1024 * 1024) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Decoded base64 photo size: ' . strlen($raw));
+                    // naive type sniff from header
+                    $sig = substr($raw, 0, 4);
+                    $ext = 'jpg';
+                    if (strncmp($sig, "\x89PNG", 4) === 0) { $ext = 'png'; }
+                    $baseDir = dirname(__DIR__, 2);
+                    // Ensure uploads root and vm dir exist
+                    $uploadsRoot = $baseDir . '/uploads';
+                    if (!is_dir($uploadsRoot)) {
+                        $mkRoot = @mkdir($uploadsRoot, 0775, true);
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads root (0775) result=' . ($mkRoot?'1':'0'));
+                        if (!$mkRoot) {
+                            $mkRoot2 = @mkdir($uploadsRoot, 0777, true);
+                            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads root (0777) retry result=' . ($mkRoot2?'1':'0'));
+                        }
+                    }
+                    $uploadDir = $uploadsRoot . '/vm';
+                    if (!is_dir($uploadDir)) {
+                        $mk = @mkdir($uploadDir, 0775, true);
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads/vm (0775) result=' . ($mk?'1':'0'));
+                        if (!$mk) {
+                            $mk2 = @mkdir($uploadDir, 0777, true);
+                            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads/vm (0777) retry result=' . ($mk2?'1':'0'));
+                        }
+                    }
+                    if (!is_writable($uploadDir)) { @chmod($uploadDir, 0775); }
+                    if (!is_writable($uploadDir)) { @chmod($uploadDir, 0777); }
+                    $fname = 'vm_' . intval($v['siteId']) . '_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+                    $dest = $uploadDir . '/' . $fname;
+                    $wrote = (@file_put_contents($dest, $raw) !== false);
+                    if ($wrote) {
+                        $jsonPhotoPath = 'uploads/vm/' . $fname;
+                        $relativePhotoPath = $jsonPhotoPath;
+                    } else {
+                        // Fallback to system temp
+                        $tmpRoot = rtrim(sys_get_temp_dir(), '/');
+                        $tmpDest = $tmpRoot . '/' . $fname;
+                        if (@file_put_contents($tmpDest, $raw) !== false) {
+                            $jsonPhotoAbs = $tmpDest;
+                            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Base64 photo saved to temp fallback: ' . $tmpDest);
+                        }
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            // ignore photo errors; continue without attachment
+            try { if(isset($this->fn_general)) { $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Photo save failed: ' . $e->getMessage()); } } catch(Exception $ee) {}
+        }
+
         $insert=[
             'site_id'=>(int)$v['siteId'],
             'name'=>$v['name'],
@@ -78,6 +238,18 @@ class Class_vm {
             'created_via'=>isset($payload['created_via'])?$this->sanitize($payload['created_via']):'WEB_FORM',
             'created_by'=>$userId?:null
         ];
+        // Optionally store photo path if column exists (pre-insert convenience, will be ensured post-insert too)
+        if ($uploadedPhotoPath !== '' || $jsonPhotoPath !== '') {
+            try {
+                static $hasPhotoPathCol = null;
+                if ($hasPhotoPathCol === null) {
+                    $sql = "SELECT COUNT(*) as c FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='vm_visit' AND COLUMN_NAME='photo_path'";
+                    $cols = Class_db::getInstance()->db_raw_select_colm_prepared($sql, [], 'c', 0);
+                    $hasPhotoPathCol = !empty($cols) && intval($cols[0])>0;
+                }
+                if ($hasPhotoPathCol) { $insert['photo_path'] = ($uploadedPhotoPath !== '' ? $uploadedPhotoPath : $jsonPhotoPath); }
+            } catch(Exception $e) { /* ignore */ }
+        }
         // Add host_id column if it exists in schema (safe during transition)
         try {
             if($hostIdToStore!==null){
@@ -91,6 +263,76 @@ class Class_vm {
             }
         } catch(Exception $e){ /* ignore detection errors */ }
         $id=Class_db::getInstance()->db_insert('vm_visit',$insert);
+
+        // If JSON payload provides 'photo' (binary or base64 string), save it now under uploads/visitor/{visit_id}/
+        try {
+            if (isset($payload['photo']) && is_string($payload['photo']) && $payload['photo']!=='') {
+                $rawStr = $payload['photo'];
+                $ext = 'jpg';
+                // data URL format support
+                if (strpos($rawStr, 'base64,') !== false) {
+                    // e.g., data:image/jpeg;base64,....
+                    $header = substr($rawStr, 0, strpos($rawStr, 'base64,') );
+                    if (stripos($header, 'image/png') !== false) { $ext = 'png'; }
+                    else if (stripos($header, 'image/jpeg') !== false || stripos($header, 'image/jpg') !== false) { $ext = 'jpg'; }
+                    $rawStr = substr($rawStr, strpos($rawStr, 'base64,') + 7);
+                }
+                // Try base64 decode first; if fails, treat as raw binary string
+                $bytes = base64_decode($rawStr, true);
+                if ($bytes === false) { $bytes = $rawStr; }
+                if ($bytes !== '' && strlen($bytes) > 0) {
+                    $baseDir = dirname(__DIR__, 2);
+                    // Ensure uploads root and visitor dir exist
+                    $uploadsRoot = $baseDir . '/uploads';
+                    if (!is_dir($uploadsRoot)) {
+                        $mkRoot = @mkdir($uploadsRoot, 0775, true);
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads root (0775) result=' . ($mkRoot?'1':'0'));
+                        if (!$mkRoot) {
+                            $mkRoot2 = @mkdir($uploadsRoot, 0777, true);
+                            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads root (0777) retry result=' . ($mkRoot2?'1':'0'));
+                        }
+                    }
+                    $dir = $uploadsRoot . '/visitor/' . intval($id);
+                    if (!is_dir($dir)) {
+                        $mk = @mkdir($dir, 0775, true);
+                        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads/visitor/{id} (0775) result=' . ($mk?'1':'0'));
+                        if (!$mk) {
+                            $mk2 = @mkdir($dir, 0777, true);
+                            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'mkdir uploads/visitor/{id} (0777) retry result=' . ($mk2?'1':'0'));
+                        }
+                    }
+                    $fname = 'photo.' . $ext;
+                    $abs = $dir . '/' . $fname;
+                    $wrote = (@file_put_contents($abs, $bytes) !== false);
+                    if ($wrote) {
+                        $jsonPhotoPath = 'uploads/visitor/' . intval($id) . '/' . $fname;
+                        $relativePhotoPath = $jsonPhotoPath;
+                        // Update DB photo_path
+                        $sql = "SELECT COUNT(*) as c FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='vm_visit' AND COLUMN_NAME='photo_path'";
+                        $cols = Class_db::getInstance()->db_raw_select_colm_prepared($sql, [], 'c', 0);
+                        if (!empty($cols) && intval($cols[0])>0) {
+                            Class_db::getInstance()->db_update('vm_visit', ['photo_path'=>$jsonPhotoPath], ['visit_id'=>strval($id)]);
+                        }
+                    } else {
+                        // Fallback to temp for email inline only
+                        $tmpRoot = rtrim(sys_get_temp_dir(), '/');
+                        $tmpDest = $tmpRoot . '/visitor_' . intval($id) . '_' . $fname;
+                        if (@file_put_contents($tmpDest, $bytes) !== false) {
+                            $jsonPhotoAbs = $tmpDest;
+                            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'JSON photo saved to temp fallback: ' . $tmpDest);
+                        }
+                    }
+                }
+            } else if ($relativePhotoPath !== '') {
+                // Fallback: ensure earlier saved path persists even if not set in initial insert
+                $sql = "SELECT COUNT(*) as c FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME='vm_visit' AND COLUMN_NAME='photo_path'";
+                $cols = Class_db::getInstance()->db_raw_select_colm_prepared($sql, [], 'c', 0);
+                if (!empty($cols) && intval($cols[0])>0) {
+                    $finalPath = ($uploadedPhotoPath !== '' ? $uploadedPhotoPath : $relativePhotoPath);
+                    Class_db::getInstance()->db_update('vm_visit', ['photo_path'=>$finalPath], ['visit_id'=>strval($id)]);
+                }
+            }
+        } catch(Exception $e) { /* ignore */ }
 
         // Notify host via email (best-effort; failure doesn't block submission)
         try {
@@ -120,9 +362,33 @@ class Class_vm {
                     if(!empty($siteRow) && !empty($siteRow['site_name'])){ $siteName = $siteRow['site_name']; }
                 } catch(Exception $e) { /* ignore */ }
                 $subject = 'Visitor arrival notice';
+                // Build optional inline photo block (prefer absolute temp fallbacks; else uploaded relative path)
+                $inlinePath = '';
+                if ($uploadedPhotoAbs !== '' && is_file($uploadedPhotoAbs)) {
+                    $inlinePath = $uploadedPhotoAbs;
+                } else if ($jsonPhotoAbs !== '' && is_file($jsonPhotoAbs)) {
+                    $inlinePath = $jsonPhotoAbs;
+                } else {
+                    $finalPhotoPath = ($uploadedPhotoPath !== '' ? $uploadedPhotoPath : ($jsonPhotoPath !== '' ? $jsonPhotoPath : $relativePhotoPath));
+                    if ($finalPhotoPath !== '') {
+                        $baseDir = dirname(__DIR__, 2);
+                        $abs = $baseDir . '/' . $finalPhotoPath;
+                        if (is_file($abs)) { $inlinePath = $abs; }
+                    }
+                }
+                $photoBlock = '';
+                if ($inlinePath !== '') {
+                    $photoBlock = '<div style="margin:10px 0; display:flex; align-items:flex-start; gap:16px;">'
+                        .   '<div style="border:1px solid #ddd; padding:4px; background:#f9f9f9;">'
+                        .     '<img src="cid:visitor_photo" alt="Visitor Photo" '
+                        .     'style="display:block; width:120px; height:160px; object-fit:cover; border:0;" />'
+                        .   '</div>'
+                        . '</div>';
+                }
                 $htmlBody = '<html><body>'
                     . '<p>Dear ' . $safe($resolvedHostName) . ',</p>'
                     . '<p>A visitor has arrived and is looking for you.</p>'
+                    . $photoBlock
                     . '<ul>'
                     . '<li><strong>Name:</strong> ' . $safe($v['name']) . '</li>'
                     . '<li><strong>IC/ID:</strong> ' . $safe($v['ic']) . '</li>'
@@ -135,7 +401,12 @@ class Class_vm {
                     . '</ul>'
                     . '<p>Thank you.</p>'
                     . '</body></html>';
-                $mailer->send_email_express($recipient, $subject, $htmlBody);
+                if ($inlinePath !== '') {
+                    // Use inline image sender
+                    $mailer->send_email_365_inline_image($recipient, $subject, $htmlBody, $inlinePath, 'visitor_photo', 'visitor_photo');
+                } else {
+                    $mailer->send_email_express($recipient, $subject, $htmlBody);
+                }
             }
         } catch(Exception $e) {
             // Best-effort: do not block the submission; log if general helper available

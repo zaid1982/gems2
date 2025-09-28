@@ -18,11 +18,13 @@ try {
   $method=$_SERVER['REQUEST_METHOD'];
   switch($method){
     case 'POST':
-        $raw=file_get_contents('php://input');
-        $data=json_decode($raw,true);
-        if(!is_array($data)) $data=$_POST; // fallback form encoded
+  $raw=file_get_contents('php://input');
+  $data=json_decode($raw,true);
+  if(!is_array($data)) $data=$_POST; // fallback form encoded
+  // Support multipart/form-data submissions with file uploads
+  $files = isset($_FILES) && is_array($_FILES) ? $_FILES : null;
         $userId=null; // public form for now
-        $res=$fn_vm->createVisit($data,$userId);
+  $res=$fn_vm->createVisit($data,$userId,$files);
         if(!$res['success']){ $form['errors']=$res['errors']; break; }
         $form['success']=true; $form['result']=$res; $form['message']=Class_constant::SUC_VM_VISIT_SUBMITTED; break;
     case 'GET':

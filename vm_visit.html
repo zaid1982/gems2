@@ -82,7 +82,7 @@
       <div class="card-body">
         <h5 class="mb-3 page-header-title"><i class="fas fa-id-badge me-2"></i> Visitor Details</h5>
         <p class="page-description mb-4">Your information helps us ensure a smooth and secure check-in experience.</p>
-        <form id="visitForm" autocomplete="off" novalidate>
+        <form id="visitForm" autocomplete="off" novalidate enctype="multipart/form-data">
           <div class="row g-3">
             <div class="col-md-6 mb-3">
               <label class="form-label required">Name <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Enter your full name as per ID."></i></label>
@@ -133,6 +133,31 @@
               <label class="form-label required">Purpose <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Briefly describe why you are visiting."></i></label>
               <textarea class="form-control" name="purpose" rows="3" maxlength="2000" required placeholder="Briefly describe the purpose of your visit"></textarea>
               <div class="invalid-feedback">Please describe your purpose (1–2000 chars).</div>
+            </div>
+            <!-- Photo capture/upload -->
+            <div class="col-12 mb-3">
+              <label class="form-label required">Visitor Photo <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Take a photo (camera) or upload from gallery. Max 8 MB. JPG/PNG."></i></label>
+              <div class="card" style="border:1px dashed var(--vm-border);">
+                <div class="card-body p-3">
+                  <div class="row g-2 align-items-center">
+                    <div class="col-12">
+                      <img id="photoPreview" alt="Visitor photo preview" class="img-thumbnail w-100 d-none" style="max-height: 320px; object-fit: contain;">
+                      <div id="photoPlaceholder" class="text-center text-muted py-4" style="border:2px dashed #d7dde5;">
+                        <i class="fas fa-camera mb-2" style="font-size: 2rem;"></i>
+                        <div>Tap a button below to take a photo or upload</div>
+                      </div>
+                    </div>
+                    <div class="col-12 d-flex flex-wrap gap-2 mt-2">
+                      <button type="button" id="btnPhotoBack" class="btn btn-outline-primary"><i class="fas fa-camera me-1"></i>Use Back Camera</button>
+                      <button type="button" id="btnPhotoFront" class="btn btn-outline-primary"><i class="fas fa-user me-1"></i>Use Front Camera</button>
+                      <button type="button" id="btnPhotoUpload" class="btn btn-outline-secondary"><i class="fas fa-upload me-1"></i>Upload From Gallery</button>
+                      <button type="button" id="btnPhotoRemove" class="btn btn-outline-danger ms-auto"><i class="fas fa-times me-1"></i>Remove</button>
+                    </div>
+                  </div>
+                  <input type="file" id="photo" name="photo" accept="image/*" class="d-none">
+                </div>
+              </div>
+              <div class="invalid-feedback" id="photoError">Please provide a photo (JPG/PNG, max 8 MB).</div>
             </div>
             <div class="col-md-6 mb-3">
               <label class="form-label">Date / Time <i class="far fa-question-circle help-icon" data-mdb-toggle="tooltip" title="Current date and time at the site."></i></label>
@@ -198,6 +223,17 @@
     const submitBtn = document.getElementById('btnSubmit');
     const btnText = submitBtn.querySelector('.btn-text');
     const btnSpinner = submitBtn.querySelector('.btn-spinner');
+  // Photo elements
+  const photoInput = document.getElementById('photo');
+  const photoPreview = document.getElementById('photoPreview');
+  const photoPlaceholder = document.getElementById('photoPlaceholder');
+  const photoError = document.getElementById('photoError');
+  const btnPhotoBack = document.getElementById('btnPhotoBack');
+  const btnPhotoFront = document.getElementById('btnPhotoFront');
+  const btnPhotoUpload = document.getElementById('btnPhotoUpload');
+  const btnPhotoRemove = document.getElementById('btnPhotoRemove');
+  // Holds processed JPEG blob for submission
+  let photoBlob = null;
     const params=new URLSearchParams(window.location.search);
     if(params.get('site')) siteField.value=params.get('site');
   function refreshClock(){ const now = new Date().toLocaleString(); dtInput.value = now; }
@@ -205,6 +241,7 @@
 
     function clearFieldErrors(){
       form.querySelectorAll('.is-invalid').forEach(el=>el.classList.remove('is-invalid'));
+      if (photoError) photoError.style.display = 'none';
     }
     form.addEventListener('reset', ()=>{ setTimeout(()=>{ clearFieldErrors(); refreshClock(); },50); });
 
@@ -228,6 +265,93 @@
       }
       if(message){ feedback.textContent = message; }
     }
+
+    // Photo helpers
+    function validatePhotoFile(file){
+      if (!file) return false;
+      const okType = ['image/jpeg','image/jpg','image/png'].includes((file.type||'').toLowerCase());
+      const okSize = file.size <= 8*1024*1024;
+      return okType && okSize;
+    }
+    function showPhoto(file){
+      if (!file) { return; }
+      const url = URL.createObjectURL(file);
+      photoPreview.src = url;
+      photoPreview.classList.remove('d-none');
+      photoPlaceholder.classList.add('d-none');
+    }
+    function clearPhoto(){
+      photoInput.value = '';
+      photoPreview.src = '';
+      photoPreview.classList.add('d-none');
+      photoPlaceholder.classList.remove('d-none');
+      photoBlob = null;
+    }
+    btnPhotoRemove.addEventListener('click', clearPhoto);
+    function triggerPhoto(capture){
+      if (capture === 'user' || capture === 'environment') {
+        photoInput.setAttribute('capture', capture);
+      } else {
+        photoInput.removeAttribute('capture');
+      }
+      photoInput.click();
+    }
+    btnPhotoBack.addEventListener('click', ()=>triggerPhoto('environment'));
+    btnPhotoFront.addEventListener('click', ()=>triggerPhoto('user'));
+    btnPhotoUpload.addEventListener('click', ()=>triggerPhoto(null));
+    photoInput.addEventListener('change', function(){
+      const file = photoInput.files && photoInput.files[0];
+      if (!file) { return; }
+      if (file.size > 8*1024*1024) {
+        clearPhoto();
+        photoError.textContent = 'Photo too large. Max 8 MB.';
+        photoError.style.display = 'block';
+        return;
+      }
+      // Convert any image to JPEG using canvas to ensure broad email client support
+      const reader = new FileReader();
+      reader.onload = function(){
+        const img = new Image();
+        img.onload = function(){
+          const maxW = 800, maxH = 800;
+          let { width:w, height:h } = img;
+          if (w > maxW || h > maxH){
+            const scale = Math.min(maxW / w, maxH / h);
+            w = Math.round(w * scale); h = Math.round(h * scale);
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob(function(blob){
+            if (!blob) {
+              clearPhoto();
+              photoError.textContent = 'Failed to process photo. Try again.';
+              photoError.style.display = 'block';
+              return;
+            }
+            photoBlob = blob; // JPEG by default
+            // Update preview from canvas
+            photoPreview.src = canvas.toDataURL('image/jpeg', 0.9);
+            photoPreview.classList.remove('d-none');
+            photoPlaceholder.classList.add('d-none');
+            photoError.style.display = 'none';
+          }, 'image/jpeg', 0.9);
+        };
+        img.onerror = function(){
+          clearPhoto();
+          photoError.textContent = 'Invalid image file.';
+          photoError.style.display = 'block';
+        };
+        img.src = reader.result;
+      };
+      reader.onerror = function(){
+        clearPhoto();
+        photoError.textContent = 'Failed to read file.';
+        photoError.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
 
     // Host directory: populate from vm_host API for the selected site
     function setHostOptions(options){
@@ -280,9 +404,22 @@
       e.preventDefault();
       setLoading(true);
       clearFieldErrors();
-      const data = Object.fromEntries(new FormData(form).entries());
-      data.party_size = data.party_size || '1';
-      fetch('api/vm.php', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)})
+      // Require a photo
+      const hasPhoto = photoInput.files && photoInput.files[0];
+      if (!hasPhoto){
+        setLoading(false);
+        photoError.textContent = 'Please provide a visitor photo.';
+        photoError.style.display = 'block';
+        photoPlaceholder.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+      const fd = new FormData(form);
+      // If we created a processed JPEG blob, replace the original photo with it
+      if (photoBlob) {
+        fd.set('photo', new File([photoBlob], 'visitor.jpg', { type: 'image/jpeg' }));
+      }
+      if (!fd.get('party_size')) fd.set('party_size','1');
+      fetch('api/vm.php', { method:'POST', body: fd })
         .then(r=>r.json())
         .then(resp=>{
           const ok = !!(resp && (resp.success === true || (resp.result && resp.result.success === true)));
@@ -302,7 +439,7 @@
           } else if ($.fn.modal) {
             $('#successModal').modal('show');
           }
-          form.reset(); refreshClock();
+          form.reset(); clearPhoto(); refreshClock();
         })
         .catch(err=>{ toastr.error('Submission failed'); console.error(err); })
         .finally(()=>{ setLoading(false); });
