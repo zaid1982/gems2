@@ -418,9 +418,9 @@ class Class_ptw {
                     LEFT JOIN sys_user she ON p.approved_she_by = she.user_id
             LEFT JOIN sys_user fm ON p.approved_fm_by = fm.user_id
             LEFT JOIN sys_user psu ON p.ptw_supervisor_id = psu.user_id
-            WHERE p.ptw_permit_id = ? AND p.site_id = ?";
+            WHERE p.ptw_permit_id = ?";
 
-        $permit = $this->execute_raw_query($sql, array($permitIdStr, $siteIdStr));
+            $permit = $this->execute_raw_query($sql, array($permitIdStr));
             
             if (empty($permit)) {
                 return null;
