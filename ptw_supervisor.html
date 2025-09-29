@@ -1927,8 +1927,6 @@ function submitExtendRequest(){
         }
     }catch(e){ /* ignore moment errors */ }
     try{
-        console.log(dt, remarks);
-        return;
         const res = mzAjaxRequest('ptw_approve.php','POST',{ action:'request_extend', permit_id: permitId, new_valid_to: dt, remarks: remarks });
         if (res && (res.success || res.result || res.message)){
             $('#extendModal').modal('hide');
