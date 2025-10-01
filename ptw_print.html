@@ -301,6 +301,31 @@
             align-items: center;
             justify-content: center;
         }
+
+        /* --- Readonly/Disabled Styling for Print Page --- */
+        /* Keep disabled controls readable (not greyed out) */
+        input[disabled], textarea[disabled], select[disabled] {
+            color: #000 !important;
+            background: #fff !important;
+            -webkit-text-fill-color: #000; /* Safari */
+            opacity: 1 !important;
+        }
+        input[disabled]::placeholder, textarea[disabled]::placeholder {
+            color: #000 !important;
+            opacity: 1 !important;
+        }
+        /* Checkboxes/radios stay visible but non-interactive */
+        input[type="checkbox"],[type="radio"] {
+            pointer-events: none;
+        }
+        input[type="checkbox"][disabled], input[type="radio"][disabled] {
+            opacity: 1 !important;
+            filter: none !important;
+        }
+        /* Prevent mouse interactions globally on form controls */
+        input, select, textarea, button {
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -1075,6 +1100,33 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
 
 </body>
 </html>
+<script>
+// Disable all form controls for print-only view
+(function makePrintReadonly(){
+    try {
+        var controls = document.querySelectorAll('input, select, textarea, button');
+        controls.forEach(function(el){
+            // Hide buttons entirely in print view
+            if (el.tagName && el.tagName.toLowerCase() === 'button') {
+                el.disabled = true;
+                el.style.display = 'none';
+                el.setAttribute('aria-disabled','true');
+                return;
+            }
+            // Mark as readonly and disabled to block edits and focus
+            try { el.readOnly = true; } catch(_e){}
+            el.setAttribute('readonly','readonly');
+            el.disabled = true;
+            el.setAttribute('aria-disabled','true');
+            try { el.tabIndex = -1; } catch(_e){}
+        });
+        // Also disable any contenteditable containers
+        document.querySelectorAll('[contenteditable=""], [contenteditable="true"]').forEach(function(el){
+            el.setAttribute('contenteditable','false');
+        });
+    } catch(_e) {}
+})();
+</script>
 <script>
 // Global auth helpers: get token from sessionStorage or localStorage and build headers
 (function(){
