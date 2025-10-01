@@ -1324,6 +1324,10 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
 
     function setText(id, v){ const el=document.getElementById(id); if(el) el.textContent = v || '-'; }
     function setChecked(id, val){ const el=document.getElementById(id); if(el) el.checked = !!val; }
+    function _val(v){ return v==null ? '' : String(v).trim(); }
+    function _boolish(v){ if (v===true || v===1) return true; const s=_val(v).toLowerCase(); return s==='1' || s==='true' || s==='y' || s==='yes'; }
+    function _statusApproved(s){ s=_val(s).toUpperCase(); return s==='APPROVED' || s==='APPROVE' || s==='YES' || s==='OK' || s==='ACCEPTED' || s==='VERIFIED'; }
+    function _statusRejected(s){ s=_val(s).toUpperCase(); return s==='REJECTED' || s==='NOT_APPROVED' || s==='NOT APPROVED' || s==='DECLINED' || s==='NO'; }
     function renderUserSignature(userId, imgId, wrapId, lineId){
         try{
             if(!userId) return;
@@ -1388,8 +1392,16 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             renderUserSignature(sheUserId, 'appr_she_sig_img', 'appr_she_sig_imgwrap', 'appr_she_sig_line');
             const sheDesig = (sheNested && (sheNested.designationDesc || sheNested.designation)) || d.approved_she_designation || d.she_designation || '';
             setText('appr_she_designation', sheDesig);
-            setChecked('appr_she_approved', d.approved_she_status === 'APPROVED' || d.she_approved === true || d.she_approved === 1);
-            setChecked('appr_she_not_approved', d.approved_she_status === 'NOT_APPROVED' || d.she_rejected === true || d.she_rejected === 1);
+            // Robust SHE status mapping (handle strings, numbers, booleans, and dates)
+            let sheApproved = _boolish(d.she_approved) || _statusApproved(d.approved_she_status) || !!sheDate;
+            let sheRejected = _boolish(d.she_rejected) || _statusRejected(d.approved_she_status) || _boolish(d.she_not_approved);
+            if (sheApproved && sheRejected) {
+                // If both are somehow true, prefer explicit REJECTED status over date inferred
+                if (_statusRejected(d.approved_she_status)) { sheApproved = false; sheRejected = true; }
+                else { sheApproved = true; sheRejected = false; }
+            }
+            setChecked('appr_she_approved', sheApproved);
+            setChecked('appr_she_not_approved', sheRejected);
 
             // FM
             const fmUserId = (fmNested && fmNested.userId) || d.approved_fm_by || null;
@@ -1403,8 +1415,15 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             renderUserSignature(fmUserId, 'appr_fm_sig_img', 'appr_fm_sig_imgwrap', 'appr_fm_sig_line');
             const fmDesig = (fmNested && (fmNested.designationDesc || fmNested.designation)) || d.approved_fm_designation || d.fm_designation || '';
             setText('appr_fm_designation', fmDesig);
-            setChecked('appr_fm_approved', d.approved_fm_status === 'APPROVED' || d.fm_approved === true || d.fm_approved === 1);
-            setChecked('appr_fm_not_approved', d.approved_fm_status === 'NOT_APPROVED' || d.fm_rejected === true || d.fm_rejected === 1);
+            // Robust FM status mapping
+            let fmApproved = _boolish(d.fm_approved) || _statusApproved(d.approved_fm_status) || !!fmDate;
+            let fmRejected = _boolish(d.fm_rejected) || _statusRejected(d.approved_fm_status) || _boolish(d.fm_not_approved);
+            if (fmApproved && fmRejected) {
+                if (_statusRejected(d.approved_fm_status)) { fmApproved = false; fmRejected = true; }
+                else { fmApproved = true; fmRejected = false; }
+            }
+            setChecked('appr_fm_approved', fmApproved);
+            setChecked('appr_fm_not_approved', fmRejected);
         })
         .catch(()=>{});
 })();
