@@ -150,4 +150,21 @@ class Constant {
         'update' => 'Asset Information successfully updated!',
         'delete' => 'Asset successfully removed!'
     );
+
+    public static $space = array(
+        'add' => 'Space __ successfully registered!',
+        'update' => 'Space __ successfully updated!',
+        'disable' => 'Space __ successfully disabled from booking!',
+        'enable' => 'Space __ successfully enabled!',
+        'delete' => 'Space __ successfully removed!',
+        'errAlreadyExist' => 'Space __ already exists for this site!'
+    );
+
+    public static $spaceReservation = array(
+        'reserve' => 'Reservation successfully created and auto-approved!',
+        'cancel' => 'Reservation successfully canceled!',
+        'errOverlap' => 'The selected time overlaps with an existing reservation.',
+        'errPast' => 'Reservation start time must be in the future.',
+        'errInvalidWindow' => 'Reservation end time must be later than start time.'
+    );
 }

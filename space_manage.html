@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>GEMS 2.0</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+  <link href="css/style.css" rel="stylesheet">
+  <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+  <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header>
+  <div class="includeHtml" id="h-nav_left"></div>
+  <div class="includeHtml" id="h-nav_top"></div>
+  <style>
+    /* PTW Supervisor/space.html card styling */
+    :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #3730a3;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --success-dark: #047857;
+            --success-light: #6ee7b7;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --danger-dark: #991b1b;
+            --danger-light: #fecaca;
+            --info-color: #3b82f6;
+            --light-bg: #f8fafc;
+            --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+        }
+        .title-box { border: lightgray 1px solid; border-radius: 5px; font-size: 13px; }
+        .title-box-title { position: relative; top: -0.7em; margin-left: 1em; display: inline; background-color: white; }
+        .title-box-content { padding-top: 0.3rem; padding-left: 1rem; padding-right: 1rem; }
+        /* PTW Supervisor-inspired card styling */
+        .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: visible; }
+        .main-content-card .card-header { background: linear-gradient(60deg,#26c6da,#00acc1); color:#fff; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+        .main-content-card .card-body { padding: 1rem 1.25rem; }
+        .header-actions .btn { margin-left:.25rem; }
+        .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
+        /* Ensure ancestor containers do not hide overflowed dropdowns */
+        .main-content-card .dropdown, .dataTables_wrapper .dropdown { position: relative; }
+        /* Wider dropdown for action items */
+        .action-split .dropdown-menu { min-width: 240px; z-index: 3000; }
+        /* Compact status select to avoid truncation */
+        .status-filter { min-width: 140px; }
+        /* Helpers */
+        .d-none { display: none !important; }
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 32px;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 32px;
+            box-shadow: var(--card-shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+        .page-header h2 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Badge Styling */
+        .badge-modern {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-success-dark {
+            background: rgba(16, 185, 129, 1);
+            color: var(--success-dark);
+        }
+
+        .badge-success-light {
+            background: rgba(16, 185, 129, 0.3);
+            color: var(--success-light);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .badge-danger-dark {
+            background: rgb(184, 51, 51);
+            color: var(--danger-dark);
+        }
+
+        .badge-danger-light {
+            background: rgba(239, 68, 68, 0.3);
+            color: var(--danger-light);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info-color);
+        }
+
+        .badge-dark {
+            background: rgba(31, 41, 55, 0.1);
+            color: #1f2937;
+        }
+
+        /* Dark green for Closed status */
+        .badge-closed {
+            background: rgba(6, 95, 70, 0.15); /* #065f46 with transparency */
+            color: #065f46;
+        }
+
+    /* Ensure native checkboxes in the asset picker are visible (MDB hides them by default) */
+    #dtSpmPickAsset .chkSpmPick,
+    #chkSpmPickAll {
+      opacity: 1 !important;
+      position: static !important;
+      transform: none !important;
+      -webkit-appearance: checkbox !important;
+      appearance: checkbox !important;
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      cursor: pointer;
+      accent-color: #26c6da; /* modern browsers */
+    }
+    #dtSpmPickAsset th:first-child, #dtSpmPickAsset td:first-child {
+      text-align: center;
+      vertical-align: middle;
+    }
+  </style>
+</header>
+<main>
+  <div class="container-fluid">
+    <section class="mb-5 mt-lg-5">
+      <!-- Page Header (matches space.html structure) -->
+    <div class="page-header">
+        <h2><i class="fas fa-door-open mr-3"></i><span id="lblSpcMngTitle">Space Management</span></h2>
+        <p><span id="lblSpcMngSubtitle">Review and manage spaces within the organization</span></p>
+    </div>
+
+      <!-- Space Info Section -->
+      <div class="main-content-card mb-4">
+        <div class="card-header">
+          <div class="header-title">Space Info</div>
+          <div class="d-flex align-items-center header-actions">
+            <button id="btnSpmOpenCalendar" class="btn btn-outline-white btn-rounded btn-sm px-2 mr-2" title="Open Calendar"><i class="fas fa-calendar-alt mr-1"></i>Calendar</button>
+            <button id="btnSpmSaveInfo" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Save Changes"><i class="fas fa-save mr-1"></i>Save</button>
+          </div>
+        </div>
+        <div class="card-body">
+                <form id="frmSpcInfo">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="md-form md-outline mt-0">
+                        <input id="txtSpmName" type="text" class="form-control" required>
+                        <label for="txtSpmName" class="active">Space Name *</label>
+                        <small class="form-text text-muted">A clear, recognizable name for this space.</small>
+                      </div>
+                      <div class="select-outline mt-0 mb-3">
+                        <select id="optSpmStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                          <option value="AVAILABLE">Available</option>
+                          <option value="ACTIVE">Active</option>
+                          <option value="RESERVED">Reserved</option>
+                          <option value="DISABLED">Disabled</option>
+                        </select>
+                        <label id="lblSpmStatus" for="optSpmStatus">Status</label>
+                      </div>
+                      <div class="select-outline mt-0 mb-3">
+                        <select id="optSpmLocation" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                        <label id="lblSpmLocation" for="optSpmLocation">Location</label>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="select-outline mt-0 mb-3">
+                        <select id="optSpmCategory" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                        <label id="lblSpmCategory" for="optSpmCategory">Category</label>
+                      </div>
+                      <div class="select-outline mt-0 mb-3">
+                        <select id="optSpmType" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                        <label id="lblSpmType" for="optSpmType">Type</label>
+                      </div>
+                      <div class="md-form md-outline mt-0">
+                        <input id="txtSpmArea" type="number" class="form-control" min="0" step="0.01">
+                        <label for="txtSpmArea" class="active">Area (m²)</label>
+                      </div>
+                      <div class="md-form md-outline mt-0">
+                        <input id="txtSpmCapacity" type="number" class="form-control" min="0" step="1">
+                        <label for="txtSpmCapacity" class="active">Capacity (pax)</label>
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <div class="md-form md-outline mt-0">
+                        <textarea id="txaSpmDesc" class="md-textarea form-control" rows="3"></textarea>
+                        <label for="txaSpmDesc" class="active">Description</label>
+                        <small class="form-text text-muted">Optional notes, features, or usage guidelines.</small>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+        </div>
+      </div>
+
+      <!-- Linked Assets Section -->
+      <div class="main-content-card mb-4">
+        <div class="card-header">
+          <div class="header-title">Linked Assets</div>
+          <div class="d-flex align-items-center header-actions">
+            <button id="btnSpmAttachAsset" class="btn btn-outline-white btn-rounded btn-sm px-2"><i class="fas fa-link"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="dtSpmAssets" class="table table-hover mb-0 display responsive" width="100%">
+              <thead><tr class="th-strong"><th style="width:4%">#</th><th style="width:18%">Asset No</th><th>Name</th><th style="width:22%">Serial No</th><th style="width:22%">Linked At</th><th style="width:80px"></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reservations Section -->
+      <div class="main-content-card mb-4">
+        <div class="card-header">
+          <div class="header-title">Reservations</div>
+          <div class="d-flex align-items-center header-actions">
+            <button id="btnSpmRefreshResv" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Refresh"><i class="fas fa-sync"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="dtSpmResv" class="table table-hover mb-0 display responsive" width="100%">
+              <thead>
+                <tr class="th-strong">
+                  <th style="width:4%">#</th>
+                  <th style="width:24%">Start</th>
+                  <th style="width:24%">End</th>
+                  <th style="width:28%">Requester</th>
+                  <th style="width:12%">Status</th>
+                  <th style="width:120px"></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Media Section -->
+      <div class="main-content-card mb-4">
+        <div class="card-header">
+          <div class="header-title">Media</div>
+          <div class="d-flex align-items-center header-actions">
+            <button id="btnSpmUploadPhotos" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Upload Photos"><i class="fas fa-camera"></i></button>
+            <button id="btnSpmUploadFloor" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Upload Floorplan"><i class="fas fa-file-image"></i></button>
+            <button id="btnSpmDeleteMedia" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Delete Selected"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Hidden inputs for file selection -->
+          <input type="file" id="inpSpmPhotos" accept="image/*" multiple class="d-none" />
+          <input type="file" id="inpSpmFloor" accept="image/*" class="d-none" />
+
+          <div id="spmMediaGrid" class="row"></div>
+          <small class="text-muted d-block mt-2">Tip: Click a thumbnail to preview. Use the checkbox to select items to delete. Only one floorplan is kept; uploading a new one replaces the old.</small>
+        </div>
+      </div>
+  </section>
+
+    <!-- Attach Assets Modal (site-scoped picker) -->
+    <div class="modal fade" id="modalSpmPickAsset" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header primary-color white-text">
+            <h5 class="modal-title"><i class="fas fa-link"></i> Attach Assets</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6 select-outline">
+                <select id="optSpmPickContract" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                <label for="optSpmPickContract">Contract (site-scoped)</label>
+              </div>
+              <div class="col-md-6">
+                <div class="md-form md-outline mt-0">
+                  <input type="text" id="txtSpmPickSearch" class="form-control">
+                  <label for="txtSpmPickSearch" class="active">Search asset name / no / serial</label>
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table id="dtSpmPickAsset" class="table table-hover mb-0 display responsive" width="100%">
+                <thead>
+                  <tr class="th-strong">
+                    <th style="width:36px"><input type="checkbox" id="chkSpmPickAll"></th>
+                    <th>Asset No</th>
+                    <th>Name</th>
+                    <th>Serial No</th>
+                    <th style="width:120px">Group</th>
+                    <th style="width:120px">Category</th>
+                    <th style="width:120px">Type</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="mr-auto text-muted small"><span id="lblSpmPickCount">0 selected</span></div>
+            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+            <button type="button" id="btnSpmPickAttach" class="btn btn-primary btn-sm"><i class="fas fa-paperclip mr-1"></i>Attach Selected</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancel Reservation Modal -->
+    <div class="modal fade" id="modalCancelResv" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header warning-color white-text"><h5 class="modal-title"><i class="fas fa-ban"></i> Cancel Reservation</h5><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button></div>
+          <div class="modal-body">
+            <p>Provide an optional reason for cancellation:</p>
+            <div class="md-form md-outline mt-0"><textarea id="txaSpmCancelReason" class="md-textarea form-control" rows="3"></textarea><label id="lblSpmCancelReason" for="txaSpmCancelReason" class="active">Reason</label></div>
+          </div>
+          <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button><button type="button" id="btnSpmCancelConfirm" class="btn btn-warning btn-sm">Cancel Reservation</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+  </div>
+</main>
+
+<script type="text/javascript">$('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf()); });</script>
+<script type="text/javascript" src="js/popper.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/pages/main_space_manage.js"></script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5; --primary-dark: #3730a3; --info-color:#3b82f6; --success-color:#10b981;
+            --border-radius-lg: 16px; --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: visible; }
+        .main-content-card .card-header { background: linear-gradient(60deg,#26c6da,#00acc1); color:#fff; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+        .main-content-card .card-body { padding: 1rem 1.25rem; }
+        .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
+        .page-header { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; padding: 32px; border-radius: var(--border-radius-lg); margin-bottom: 32px; box-shadow: var(--card-shadow-lg); position: relative; overflow: hidden; }
+        .page-header::before { content:''; position:absolute; top:0; right:0; width:200px; height:200px; background:rgba(255,255,255,.1); border-radius:50%; transform: translate(50%,-50%); }
+        .page-header h2{ font-size:2.25rem; font-weight:700; margin-bottom:8px; position:relative; z-index:1; }
+        .page-header p{ font-size:1.125rem; opacity:.9; margin-bottom:0; position:relative; z-index:1; }
+    </style>
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<main>
+    <div class="container-fluid">
+        <div class="page-header">
+            <h2><i class="fas fa-map-marker-alt mr-3"></i>Space Location Management</h2>
+            <p>Manage Space Locations used by Space module</p>
+        </div>
+        <section class="mb-5 mt-lg-5 sectionSpaceLocation">
+            <div class="main-content-card mb-4">
+                <div class="card-header">
+                    <div class="header-title">Space Location</div>
+                    <div class="d-flex align-items-center header-actions"></div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-5 col-lg-12 mr-0">
+                            <div class="px-1 pt-2">
+                                <h6 class="pb-2">Filters:</h6>
+                                <div class="row">
+                                    <div class="col-md-12 select-outline">
+                                        <select id="optLocStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                                            <option value="">All</option>
+                                            <option value="1" selected>Active</option>
+                                            <option value="0">Inactive</option>
+                                        </select>
+                                        <label for="optLocStatus">Status</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-7 col-lg-12">
+                            <div class="px-1 pt-2">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="md-form md-outline mt-0">
+                                            <input type="text" id="txtLocSearch" class="form-control">
+                                            <label for="txtLocSearch" class="active">Keyword Search</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <p class="mb-0 text-muted">Add, edit, activate or deactivate locations.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-content-card">
+                <div class="card-header">
+                    <div class="header-title">Location List</div>
+                    <div class="d-flex align-items-center header-actions">
+                        <button type="button" id="btnLocAdd" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Add"><i class="fas fa-plus mt-0"></i></button>
+                        <button type="button" id="btnDtLocRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Refresh"><i class="fas fa-sync mt-0"></i></button>
+                        <div id="btnDtLocExport" class="ml-2"></div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="dtLoc" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                            <thead>
+                                <tr class="th-strong">
+                                    <th style="max-width:30px">#</th>
+                                    <th style="min-width:180px">Location Name</th>
+                                    <th style="min-width:220px">Description</th>
+                                    <th style="max-width:80px">Status</th>
+                                    <th style="min-width:80px"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="includeHtml" id="h-modal_change_password"></div>
+        <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    </div>
+</main>
+
+<!-- Modal: Add/Edit Location -->
+<div class="modal fade" id="modalLocForm" tabindex="-1" role="dialog" aria-labelledby="modalLocFormLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLocFormLabel">Add Location</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <form id="frmLoc">
+          <input type="hidden" id="hidLocId" value="">
+          <div class="md-form md-outline mt-0">
+            <input type="text" id="txtLocName" class="form-control" required>
+            <label for="txtLocName" class="active">Location Name *</label>
+          </div>
+          <div class="md-form md-outline mt-0">
+            <input type="text" id="txtLocDesc" class="form-control">
+            <label for="txtLocDesc" class="active">Description</label>
+          </div>
+          <div class="select-outline">
+            <select id="optLocStatusForm" class="mdb-select md-form md-outline colorful-select mt-0">
+                <option value="1" selected>Active</option>
+                <option value="0">Inactive</option>
+            </select>
+            <label for="optLocStatusForm">Status *</label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="btnLocSave">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="js/popper.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/pages/main_space_location.js"></script>
+</body>
+</html>

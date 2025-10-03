@@ -57,6 +57,8 @@ class General {
     public function getUrlArr (string $requestUri, string $apiName): array {
         try {
             $this->checkEmptyParams(array($requestUri, $apiName));
+            // Normalize the URI: drop query string and known noise to ensure apiName matches cleanly
+            $requestUri = parse_url($requestUri, PHP_URL_PATH) ?? $requestUri;
             $requestUri = str_replace('?%22%22', '', $requestUri);
             $urlArr = explode('/', $requestUri);
             $isApiName = false;

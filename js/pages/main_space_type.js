@@ -1,0 +1,49 @@
+function MainSpaceType(){
+  const className='MainSpaceType';
+  let self=this; let oTable; let modalSpaceTypeClass; let modalConfirmDeleteClass;
+  this.init=function(){
+    oTable=$('#dtSpcTyp').DataTable({ bLengthChange:false,bFilter:true,aaSorting:[[1,'asc']], language:_DATATABLE_LANGUAGE, fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=oTable.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)); }, drawCallback:function(){ $('[data-toggle="tooltip"]').tooltip(); $('.lnkSpcTypEdit').off('click').on('click', function(){ const id=$(this).attr('id'); const idx=id.indexOf('_'); if(idx>0){ const rowId=id.substr(idx+1); const current=oTable.row(parseInt(rowId)).data(); modalSpaceTypeClass.edit(current['spaceTypeId'], rowId);} }); $('.lnkSpcTypDeactivate').off('click').on('click', function(){ const id=$(this).attr('id'); const idx=id.indexOf('_'); if(idx>0){ const rowId=id.substr(idx+1); const current=oTable.row(parseInt(rowId)).data(); modalSpaceTypeClass.deactivate(current['spaceTypeId'], rowId);} }); $('.lnkSpcTypActivate').off('click').on('click', function(){ const id=$(this).attr('id'); const idx=id.indexOf('_'); if(idx>0){ const rowId=id.substr(idx+1); const current=oTable.row(parseInt(rowId)).data(); modalSpaceTypeClass.activate(current['spaceTypeId'], rowId);} }); $('.lnkSpcTypDelete').off('click').on('click', function(){ const id=$(this).attr('id'); const idx=id.indexOf('_'); if(idx>0){ const rowId=id.substr(idx+1); const current=oTable.row(parseInt(rowId)).data(); modalConfirmDeleteClass.delete(current['spaceTypeId'], modalSpaceTypeClass);} }); }, aoColumns:[ {mData:null,bSortable:false}, {mData:'spaceTypeName'}, {mData:'spaceTypeDesc'}, {mData:null, mRender:function(data,type,row){ const status = parseInt(row['spaceTypeStatus'])===1; const color=status?'success':'danger'; const text=status?'Active':'Inactive'; return '<h6><span class="badge badge-pill '+color+' z-depth-2">'+text+'</span></h6>'; } }, {mData:null,bSortable:false,sClass:'text-center', mRender:function(data,type,row,meta){ let label='<a><i class="fas fa-edit lnkSpcTypEdit" id="lnkSpcTypEdit_'+meta.row+'" data-toggle="tooltip" title="Edit"></i></a>&nbsp;&nbsp;'; if(parseInt(row['spaceTypeStatus'])===1){ label+='<a><i class="fas fa-toggle-off lnkSpcTypDeactivate" id="lnkSpcTypDeactivate_'+meta.row+'" data-toggle="tooltip" title="Deactivate"></i></a>&nbsp;&nbsp;'; } else { label+='<a><i class="fas fa-toggle-on lnkSpcTypActivate" id="lnkSpcTypActivate_'+meta.row+'" data-toggle="tooltip" title="Activate"></i></a>&nbsp;&nbsp;'; } label+='<a><i class="fas fa-trash-alt lnkSpcTypDelete" id="lnkSpcTypDelete_'+meta.row+'" data-toggle="tooltip" title="Delete"></i></a>'; return label; } }, {mData:'spaceTypeId', visible:false} ] });
+    $("#dtSpcTyp_filter").hide();
+    $('#txtSpcTypSearch').on('keyup change', function(){ oTable.search($(this).val()).draw(); });
+    $('#btnSpcTypAdd').on('click', function(){ modalSpaceTypeClass.add(); });
+    $('#btnSpcTypRefresh').on('click', function(){ ShowLoader(); setTimeout(function(){ try{ self.genTable(1);} catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 200); });
+    self.genTable(0);
+  };
+
+  this.genTable=function(refresh){ const token=sessionStorage.getItem('token'); const headers= token?{'Authorization':'Bearer '+token}:{ }; $.ajax({ url:'api/ref_space_type.php', method:'GET', dataType:'json', headers}).done(function(resp){ if(resp&&resp.success){ oTable.clear().rows.add(resp.result||[]).draw(); } else { toastr['error']((resp&&resp.errmsg)||_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR);} }).fail(function(){ toastr['error'](_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR); }); };
+
+  this.addTableAct=function(row){ oTable.row.add(row).draw(); };
+  this.updateTableAct=function(row, idx){ const current=oTable.row(idx).data(); if(typeof row['spaceTypeName']!=='undefined') current['spaceTypeName']=row['spaceTypeName']; if(typeof row['spaceTypeDesc']!=='undefined') current['spaceTypeDesc']=row['spaceTypeDesc']; if(typeof row['spaceTypeStatus']!=='undefined') current['spaceTypeStatus']=row['spaceTypeStatus']; oTable.row(idx).data(current).draw(); };
+
+  this.getClassName=function(){ return className; };
+  this.setModalSpaceTypeClass=function(modal){ modalSpaceTypeClass=modal; };
+  this.setModalConfirmDeleteClass=function(modal){ modalConfirmDeleteClass=modal; };
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  ShowLoader();
+  let pending = $('.includeHtml').length;
+  function boot(){
+    try{
+      if (typeof initiatePages === 'function') { initiatePages(); }
+      const mcd=new ModalConfirmDelete();
+      const mst=new ModalSpaceType();
+      const main=new MainSpaceType();
+      mst.setClassFrom(main);
+      main.setModalSpaceTypeClass(mst);
+      main.setModalConfirmDeleteClass(mcd);
+      main.init();
+      mst.init();
+    } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR); }
+    HideLoader();
+  }
+  if (pending === 0) { setTimeout(boot, 200); }
+  else {
+    $('.includeHtml').each(function(){
+      const id=$(this).attr('id');
+      $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf(), function(){
+        pending--; if (pending===0) { setTimeout(boot, 50); }
+      });
+    });
+  }
+});

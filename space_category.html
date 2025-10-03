@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link href="css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    <style>
+        .th-strong th { font-weight: 600; }
+    </style>
+    </head>
+<body class="fixed-sn light-blue-skin">
+<header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+  </header>
+<main>
+  <div class="container-fluid">
+    <section class="mb-5 mt-lg-5">
+      <div class="card card-cascade narrower">
+        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+          <div>
+            <button type="button" id="btnSpcCatAdd" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" title="Add Category"><i class="fas fa-plus mt-0"></i></button>
+            <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Space Category" data-content="Manage space categories (create, edit, activate/deactivate, delete)."><i class="fas fa-info mt-0 mx-1"></i></a>
+            <button type="button" id="btnSpcCatRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" title="Refresh"><i class="fas fa-sync mt-0"></i></button>
+          </div>
+          <a href="javascript:void(0);" class="text-white mx-3">Space Category</a>
+          <div id="btnSpcCatExport"></div>
+        </div>
+        <div class="px-4 pb-4">
+          <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
+            <div>
+              <i class="fas fa-search mt-2" aria-hidden="true"></i>
+              <input type="text" id="txtSpcCatSearch" class="form-control form-control-sm" style="width:250px;max-width:250px">
+              <label for="txtSpcCatSearch" class="ml-4">Search</label>
+            </div>
+          </form>
+          <div class="table-responsive">
+            <table id="dtSpcCat" class="table table-hover mb-0 display responsive" width="100%">
+              <thead>
+                <tr class="th-strong">
+                  <th style="width: 4%">#</th>
+                  <th style="width: 28%">Category Name</th>
+                  <th>Description</th>
+                  <th style="width: 12%">Status</th>
+                  <th style="width: 80px"></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    <div class="includeHtml" id="h-modal_space_category"></div>
+  </div>
+</main>
+
+<script type="text/javascript">
+  $('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf()); });
+</script>
+<script type="text/javascript" src="js/popper.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/pages/modal_confirm_delete.js"></script>
+<script type="text/javascript" src="js/pages/modal_space_category.js"></script>
+<script type="text/javascript" src="js/pages/main_space_category.js"></script>
+</body>
+</html>

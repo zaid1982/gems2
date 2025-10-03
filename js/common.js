@@ -2010,7 +2010,6 @@ function mzOpenUpload (uploadId) {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            delete link;
         } catch (e) {
             toastr['error'](e.message, _ALERT_TITLE_ERROR);
         }
@@ -2028,7 +2027,6 @@ function mzDownloadFile (file) {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            delete link;
         } catch (e) {
             toastr['error'](e.message, _ALERT_TITLE_ERROR);
         }

@@ -1,3 +1,65 @@
+## GEMS2 — AI Agent Quick Guide
+
+Purpose: make agents productive fast in this PHP monolith by documenting real patterns, workflows, and gotchas used here.
+
+### Architecture
+- Stack: Plain PHP under Apache/XAMPP at `htdocs/gems2`.
+  - Frontend: `*.html` pages use modules in `js/pages/` with helpers in `js/common.js`.
+  - Backend APIs: `api/*.php`; shared classes in `api/class/`, traits in `api/trait/`.
+- Two API styles coexist:
+  1) Core (e.g., Work Orders) built on `General.php` + `DbMysql.php` + traits.
+  2) PTW module uses `api/function/Class_*` helpers with their own flows.
+- Auth: JWT required by default. Public endpoints explicitly use an `ext` path segment to bypass. Toggle debug with `Constant::$isLogged`.
+
+### Core API conventions (General/DbMysql stack)
+- Routing: `$apiName` from filename → `$urlArr = General::getUrlArr($_SERVER['REQUEST_URI'], $apiName)`.
+- Envelope: always return `{ success, result, error, errmsg }` then `json_encode` and exit.
+- Transactions: wrap writes in `DbMysql::beginTransaction()`/`commit()`; `rollback()` on exceptions.
+- Site filtering: apply via `SiteFilterTrait` (admins roles `1,10` are exempt). Add `/site/{siteId}` variants and validate access.
+- Example (`api/wo_v3.php`):
+  - `GET /api/wo_v3.php/pending_assign/site/{siteId}` → `WoTask::pendingAssignBySite($siteId)`.
+  - `PUT /api/wo_v3.php/submit_assign/{woTaskId}` with `{ woTaskAssignedTo }` → submit, email/noti, audit.
+  - `GET /api/wo_v3.php/preview_mrf_pdf/{woTaskId}` → ensure PDF via TCPDF and return link.
+
+### Frontend patterns
+- Each page wires a JS module in `js/pages/*`.
+  - Role/site helpers: `mzGetUserInfoByParam('siteId')`, `mzIsRoleExist('1,10')` from `js/common.js`.
+  - Non-admin UIs disable site dropdowns and call site-scoped endpoints like `.../endpoint/site/${userSite}`.
+
+### Developer workflows
+- Run locally: serve via Apache/XAMPP and open `http://localhost/gems2/home.html` (or any page).
+- Dependencies: `composer install` (Excel via `phpoffice/phpspreadsheet`, etc.).
+- PDFs: Work Orders use TCPDF at `api/pdf/tcpdf_include.php`; PTW PDFs via `api/ptw_pdf.php` with `api/pdf/templates/ptw_form_html_replica.html`.
+- Database: apply root `*.sql` and curated bundles under `maintenance/` (e.g., staging deployment scripts) with your MySQL client.
+- Deploy: `./deploy_production.sh` (rsync) — excludes `developer/`, `.git/`, logs. Never deploy `developer/`.
+
+### Work Orders (WO) highlights
+- Main API: `api/wo_v3.php`; domain/services: `WoTask`, `WflTask`, `Email`, `Noti`, `NotiWeb`, `WoMrfPdf`.
+- Public complaint create: `POST /api/wo_v3.php` with `{ siteId, complaint, image? }` → generate WO no, create workflow, notify, audit.
+- Lists: `pending_assign|submitted_assign|pending_verify|submitted_verify` (+ `/site/{siteId}` variants).
+- Admin update: `PUT /api/wo_v3.php/update_by_admin/{woTaskId}`; details via `GET /api/wo_v3.php/{woTaskId}`.
+- Patterns: standard envelope, wrap writes in transactions, call `saveAudit` on state changes.
+
+### Email and notifications
+- Email: `api/class/Email.php` → `prepare(receiverId, templateId, params, fullName?, email?)` enqueues to `email_send`.
+- Mobile push: `api/class/Noti.php` → `prepare(receiverId, notiTextId, params)` enqueues to `noti_send` (requires `sys_user.userToken`).
+- Web noti: `api/class/NotiWeb.php` → `insert/getByUserId/delete` (types: 1=WO assign, 2=WR assign, 3=WO verify, 4=WO images zip).
+- Frontend polls `noti_web` (via rewrite to `api/noti_web.php`); delete for type 4 also removes file.
+
+### PTW module overview
+- Files: `api/ptw.php` (create/update/list + supervisor), `api/ptw_approve.php` (SHE/FM + extend/cancel/suspend/close), `api/ptw_approval.php` (view/inline approve), logic in `api/function/f_ptw.php`.
+- Public form: `ptw_form.html` posts to `api/ptw.php` with `public_user=Public User` and numeric `site_id`.
+- Auth/site: `Class_login::check_jwt(Authorization)` with dev token allowances; site from `sys_user.site_id` unless public submit.
+- Status flow: `DRAFT → PENDING_SUPERVISOR → PENDING_SHE → PENDING_FM → ACTIVE` → `EXTENDED` or closure path; history records `action_type`.
+- Numbers: RQ at submit `RQPTW{site}{yymmdd}{seq}`; PTW at supervisor approval `PTW{site}{yymmdd}{seq}`.
+
+### Asset Management (PTW-style)
+- APIs: `api/asset.php` (CRUD + totals/list by contract), refs: `api/asset_group.php`, `api/asset_category.php`, `api/asset_type.php`, `api/asset_brand.php`, `api/asset_model.php`.
+- JWT mandatory; non-admins constrained to `sys_user.site_id` for reads. Totals (`type=total_asset`) force site to user site.
+- Actions: `PUT action=save|submit|update|deactivate|activate`, audits `57-61`; delete audits `62`. Refs update version/audits `31-35`.
+- Frontend: `asset.html` + `js/pages/main_asset.js`; ref modals like `js/pages/modal_asset_group.js` using `mzAjaxRequest('asset_group.php', ...)` and toasts.
+
+Key files to study: `api/wo_v3.php`, `api/class/General.php`, `api/class/DbMysql.php`, `api/trait/SiteFilterTrait.php`, `api/ptw*.php`, `api/function/f_ptw.php`, `js/common.js`, `deploy_production.sh`, `developer/README.md`.
 ## GEMS2 – AI Agent Quick Guide
 
 Purpose: Make agents productive fast in this PHP monolith by documenting the real patterns, workflows, and conventions used here.

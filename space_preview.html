@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link href="css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header>
+  <div class="includeHtml" id="h-nav_left"></div>
+  <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<main>
+  <div class="container-fluid">
+    <section class="mb-5 mt-lg-5">
+      <div class="card card-cascade narrower">
+        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+          <div>
+            <a href="space.html" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" title="Back to Spaces"><i class="fas fa-arrow-left mt-0"></i></a>
+            <button type="button" id="btnSpcPrevRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" title="Refresh"><i class="fas fa-sync mt-0"></i></button>
+          </div>
+          <a href="javascript:void(0);" class="text-white mx-3" id="lblSpcTitle">Space Preview</a>
+          <div>
+            <a href="javascript:void(0);" id="btnSpcPrevReserve" class="btn btn-warning btn-rounded btn-sm px-2" data-toggle="tooltip" title="Reserve this Space"><i class="fas fa-calendar-plus mr-1"></i>Reserve</a>
+          </div>
+        </div>
+
+        <div class="px-4 pb-4">
+          <div class="row mb-3">
+            <div class="col-lg-8">
+              <h4 class="font-weight-bold mb-0" id="spcName">-</h4>
+              <div class="mt-2">
+                <span id="spcStatusBadge"></span>
+              </div>
+            </div>
+            <div class="col-lg-4 text-lg-right mt-3 mt-lg-0">
+              <small class="text-muted d-block">Created: <span id="spcCreatedAt">-</span></small>
+              <small class="text-muted d-block">Updated: <span id="spcUpdatedAt">-</span></small>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+              <div class="card z-depth-1">
+                <div class="card-body py-3">
+                  <h6 class="font-weight-bold mb-3"><i class="fas fa-info-circle mr-2"></i>Details</h6>
+                  <div class="row mb-2"><div class="col-5 text-muted">Site</div><div class="col-7" id="spcSite">-</div></div>
+                  <div class="row mb-2"><div class="col-5 text-muted">Location</div><div class="col-7" id="spcLocation">-</div></div>
+                  <div class="row mb-2"><div class="col-5 text-muted">Category</div><div class="col-7" id="spcCategory">-</div></div>
+                  <div class="row mb-2"><div class="col-5 text-muted">Type</div><div class="col-7" id="spcType">-</div></div>
+                  <div class="row mb-2"><div class="col-5 text-muted">Area</div><div class="col-7" id="spcArea">-</div></div>
+                  <div class="row mb-2"><div class="col-5 text-muted">Capacity</div><div class="col-7" id="spcCapacity">-</div></div>
+                  <div class="row mb-0"><div class="col-5 text-muted">Description</div><div class="col-7" id="spcDesc">-</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6 mb-4">
+              <div class="card z-depth-1">
+                <div class="card-body py-3">
+                  <h6 class="font-weight-bold mb-3"><i class="fas fa-cubes mr-2"></i>Assets Linked</h6>
+                  <div class="table-responsive">
+                    <table id="dtSpcAssets" class="table table-hover mb-0 display responsive" width="100%">
+                      <thead>
+                        <tr class="th-strong">
+                          <th style="width:4%">#</th>
+                          <th style="width:18%">Asset No</th>
+                          <th>Name</th>
+                          <th style="width:22%">Serial No</th>
+                          <th style="width:22%">Linked At</th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+              <div class="card z-depth-1">
+                <div class="card-body py-3">
+                  <h6 class="font-weight-bold mb-3"><i class="fas fa-images mr-2"></i>Media</h6>
+                  <div id="spcMediaEmpty" class="text-muted" style="display:none;">No media uploaded.</div>
+                  <div class="row" id="spcMediaGrid"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+              <div class="card z-depth-1">
+                <div class="card-body py-3">
+                  <h6 class="font-weight-bold mb-3"><i class="fas fa-calendar-alt mr-2"></i>Upcoming Reservations</h6>
+                  <div class="table-responsive">
+                    <table id="dtSpcResv" class="table table-hover mb-0 display responsive" width="100%">
+                      <thead>
+                        <tr class="th-strong">
+                          <th style="width:4%">#</th>
+                          <th style="width:30%">Start</th>
+                          <th style="width:30%">End</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+  </div>
+</main>
+
+<!-- Reserve Modal -->
+<div class="modal fade" id="modalSpcPrevReserve" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header primary-color white-text">
+        <h5 class="modal-title"><i class="fas fa-plus-circle"></i> New Reservation</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="md-form md-outline mt-0">
+          <input id="dtSpcPrevStart" type="datetime-local" class="form-control">
+          <label for="dtSpcPrevStart" class="active">Start</label>
+        </div>
+        <div class="md-form md-outline mt-0">
+          <input id="dtSpcPrevEnd" type="datetime-local" class="form-control">
+          <label for="dtSpcPrevEnd" class="active">End</label>
+        </div>
+        <div class="md-form md-outline mt-0">
+          <input id="txtSpcPrevName" type="text" class="form-control" placeholder="Optional">
+          <label for="txtSpcPrevName" class="active">Requester Name</label>
+        </div>
+        <div class="md-form md-outline mt-0">
+          <input id="txtSpcPrevEmail" type="text" class="form-control" placeholder="Optional">
+          <label for="txtSpcPrevEmail" class="active">Requester Email</label>
+        </div>
+        <div class="md-form md-outline mt-0">
+          <textarea id="txaSpcPrevNotes" class="md-textarea form-control" rows="3" placeholder="Optional"></textarea>
+          <label for="txaSpcPrevNotes" class="active">Special Request / Notes</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+        <button type="button" id="btnSpcPrevCreate" class="btn btn-primary btn-sm">Create</button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+<script type="text/javascript">
+  $('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf()); });
+</script>
+<script type="text/javascript" src="js/popper.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/pages/main_space_preview.js"></script>
+</body>
+</html>
