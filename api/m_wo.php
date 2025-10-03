@@ -143,10 +143,48 @@ try {
             $zoneId = filter_input(INPUT_POST, 'zoneId');
             $complaintImageUploads = array();
             $complaintImages = filter_input(INPUT_POST, 'complaintImages', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+
+            // Normalize coordinates: accept from explicit fields or parse from woTaskLocation ("lat,lng"),
+            // and coerce empty/undefined/null-like strings to actual NULL values.
+            $normalizeCoord = function ($val) {
+                if ($val === null) return null;
+                if (is_array($val)) return null;
+                $val = trim((string)$val);
+                if ($val === '' || strtolower($val) === 'null' || strtolower($val) === 'undefined') return null;
+                // Some clients may send with degree symbols or extra chars; keep only valid float pattern
+                // If not numeric after trim, drop to null
+                if (!is_numeric($val)) return null;
+                return (string) (float) $val;
+            };
+
+            // If explicit coords are missing, try to parse from woTaskLocation
+            $parsedLat = null; $parsedLng = null;
+            if (!empty($woTaskLocation) && strpos($woTaskLocation, ',') !== false) {
+                $parts = explode(',', $woTaskLocation, 2);
+                $latStr = isset($parts[0]) ? trim($parts[0]) : '';
+                $lngStr = isset($parts[1]) ? trim($parts[1]) : '';
+                $parsedLat = $normalizeCoord($latStr);
+                $parsedLng = $normalizeCoord($lngStr);
+            }
+
+            $woTaskLatitude = $normalizeCoord(!empty($woTaskLatitude) ? $woTaskLatitude : $parsedLat);
+            $woTaskLongitude = $normalizeCoord(!empty($woTaskLongitude) ? $woTaskLongitude : $parsedLng);
+
+            // Also normalize location string to avoid accidental spaces-only values
+            $woTaskLocation = is_null($woTaskLocation) ? '' : trim((string)$woTaskLocation);
+
             if (!empty($complaintImages)) {
                 foreach ($complaintImages as $complaintImage) {
                     $uploadId = $fn_general->uploadDocument($complaintImage, 9, $jwt_data->userId);
-                    $complaintImageUpload = array('uploadId' => $uploadId, 'description' => $complaintImage['description'], 'longitude' => $complaintImage['longitude'], 'latitude' => $complaintImage['latitude']);
+                    // Normalize per-image coordinates as well
+                    $imgLng = isset($complaintImage['longitude']) ? $normalizeCoord($complaintImage['longitude']) : null;
+                    $imgLat = isset($complaintImage['latitude']) ? $normalizeCoord($complaintImage['latitude']) : null;
+                    $complaintImageUpload = array(
+                        'uploadId' => $uploadId,
+                        'description' => isset($complaintImage['description']) ? $complaintImage['description'] : '',
+                        'longitude' => $imgLng,
+                        'latitude' => $imgLat
+                    );
                     array_push($complaintImageUploads, $complaintImageUpload);
                 }
             }

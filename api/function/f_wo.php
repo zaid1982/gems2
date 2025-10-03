@@ -267,8 +267,9 @@ class Class_wo {
             }
 
             // Convert empty strings to NULL for longitude and latitude to prevent MySQL errors
-            $woTaskLongitude = (empty($woTaskLongitude) || $woTaskLongitude === '') ? null : $woTaskLongitude;
-            $woTaskLatitude = (empty($woTaskLatitude) || $woTaskLatitude === '') ? null : $woTaskLatitude;
+            // Use strict checks so valid zero values ('0' or 0) are retained.
+            $woTaskLongitude = ($woTaskLongitude === '' || $woTaskLongitude === null) ? null : $woTaskLongitude;
+            $woTaskLatitude = ($woTaskLatitude === '' || $woTaskLatitude === null) ? null : $woTaskLatitude;
 
             $arrWhere = array('transaction_id'=>$task['transaction_id'], 'wo_task_no'=>$woTaskNo, 'wo_task_type'=>$woTaskType, 'wo_task_type_init'=>$woTaskType, 'zone_id'=>$zoneId, 'wo_task_location'=>$woTaskLocation, 'wo_task_complaint'=>$woTaskComplaint,
                 'wo_task_longitude'=>$woTaskLongitude, 'wo_task_latitude'=>$woTaskLatitude, 'site_id'=>$siteId, 'wo_task_created_by'=>$task['task_created_user'], 'wo_task_is_helpdesk'=>$isHelpdesk, 'wo_task_status'=>'24');
