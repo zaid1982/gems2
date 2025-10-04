@@ -119,6 +119,11 @@ try {
             $reason = isset($bodyParams['reason']) ? $bodyParams['reason'] : null;
             $result = $fnMain->cancelReservation($reservationId, $reason);
             $formData['errmsg'] = Constant::$spaceReservation['cancel'];
+        } else if (isset($urlArr[1]) && isset($urlArr[2]) && $urlArr[1] === 'reservation' && $urlArr[3] === 'reschedule') {
+            // PUT /api/space.php/reservation/{id}/reschedule
+            $reservationId = intval($urlArr[2]);
+            $result = $fnMain->rescheduleReservation($reservationId, is_array($bodyParams)?$bodyParams:array());
+            $formData['errmsg'] = Constant::$spaceReservation['reschedule'];
         } else if (isset($urlArr[1])) {
             $spaceId = intval($urlArr[1]);
             $result = $fnMain->update($spaceId, $bodyParams);

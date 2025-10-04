@@ -33,7 +33,7 @@
     .page-header h2 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; }
     .page-header p { font-size: 1rem; opacity: 0.95; margin: 0; position: relative; z-index: 1; }
     .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
-    .main-content-card .card-header { background: linear-gradient(60deg,#26c6da,#00acc1); color:#fff; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+    .main-content-card .card-header { background: #f8fafc; color:#000; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
     .main-content-card .card-body { padding: 1rem 1.25rem; }
     .header-actions .btn { margin-left:.25rem; }
     .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
@@ -46,6 +46,66 @@
     .detail-item { padding:8px 10px; background:#f8fafc; border-radius:8px; }
     .detail-item .label { font-size:.75rem; color:#6b7280; text-transform:uppercase; letter-spacing:.04em; }
     .detail-item .value { font-size:.95rem; color:#111827; }
+    /* Filter chips */
+    .chip-group { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { border:1px solid var(--primary-color); color:var(--primary-color); background:#fff; border-radius:16px; font-size:.8rem; cursor:pointer; }
+    .chip.chip-active { background:var(--primary-color); color:#fff; }
+    /* Totals summary */
+    .stat-pill { display:inline-flex; align-items:center; gap:6px; background:#f1f5f9; border-radius:999px; padding:6px 10px; margin-right:8px; font-size:.8rem; }
+    .stat-pill .icon { width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border-radius:50%; }
+    .stat-upcoming .icon { background:#10b981; color:#fff; }
+    .stat-past .icon { background:#64748b; color:#fff; }
+    .stat-canceled .icon { background:#ef4444; color:#fff; }
+    .stat-hours .icon { background:#2563eb; color:#fff; }
+    /* Segmented buttons */
+    .segmented-group{ display:inline-flex; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+    .segmented-btn{ background:#fff; color:#374151; padding:8px 12px; border:none; border-right:1px solid #e5e7eb; font-weight:600; letter-spacing:.2px; }
+    .segmented-btn:last-child{ border-right:none; }
+    .segmented-btn:hover{ background:#f8fafc; }
+    .segmented-btn:active{ background:#eef2ff; }
+    /* Table polish */
+    #dtMyResv thead th{ font-weight:700; color:#374151; border-bottom:2px solid #e5e7eb; }
+    #dtMyResv tbody tr:hover{ background:#f9fafb; }
+    /* Icon buttons (row actions) */
+    .icon-btn{ border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+    .icon-btn:hover{ background:#f3f4f6; }
+    /* Skeleton loading overlay */
+    .skeleton-overlay{ position:relative; width:100%; }
+    .skeleton-line{ height:34px; margin:6px 0; border-radius:8px; background:linear-gradient(90deg,#f3f4f6 25%,#e5e7eb 37%,#f3f4f6 63%); background-size:400% 100%; animation:skeletonShimmer 1.4s ease infinite; }
+    @keyframes skeletonShimmer{ 0%{ background-position:100% 0 } 100%{ background-position:-100% 0 } }
+    /* Mobile bottom sheet for details modal */
+    @media (max-width: 768px){
+      #modalMyResvDetails .modal-dialog{ margin:0; position:fixed; bottom:0; left:0; right:0; }
+      #modalMyResvDetails .modal-content{ border-top-left-radius:16px; border-top-right-radius:16px; }
+    }
+    /* Calendar grid */
+    .calendar-grid{ display:grid; grid-template-columns: repeat(7, 1fr); gap:8px; }
+    .cal-cell{ background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:8px; min-height:80px; position:relative; }
+    .cal-cell .date{ font-weight:700; color:#374151; }
+  .cal-cell .badge{ position:absolute; bottom:8px; left:8px; right:8px; padding:6px 10px; border-radius:999px; font-size:.78rem; background:#2563eb; color:#fff; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; box-shadow:0 2px 6px rgba(0,0,0,.12); }
+  .cal-cell .badge:hover{ background:#1d4ed8; }
+    /* Day timeline */
+  .day-timeline{ position:relative; width:100%; height:48px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; }
+  .tl-ticks{ position:absolute; top:4px; left:0; right:0; height:14px; }
+  .tl-tick{ position:absolute; font-size:.7rem; color:#64748b; transform:translateX(-50%); }
+  .tl-block{ position:absolute; top:20px; height:24px; border-radius:6px; background:#c7d2fe; color:#111827; font-size:.75rem; line-height:24px; text-align:center; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+    .tl-block.conflict{ background:#fecaca; }
+    /* Range timeline */
+    #rangeTimeline{ position:relative; width:100%; }
+    .range-day{ display:flex; align-items:center; gap:8px; margin:8px 0; }
+    .range-label{ width:100px; color:#374151; font-weight:600; }
+    .range-bar{ position:relative; flex:1; height:24px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; }
+    .range-block{ position:absolute; height:20px; top:2px; background:#c7d2fe; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+  /* Week view */
+  .week-grid{ display:grid; grid-template-columns: 80px 1fr; gap:12px; }
+  .week-time-col{ position:relative; }
+  .week-time-slot{ height:40px; border-bottom:1px dashed #e5e7eb; font-size:.75rem; color:#64748b; display:flex; align-items:flex-start; justify-content:flex-end; padding-right:6px; }
+  .week-days{ display:grid; grid-template-columns: repeat(7, 1fr); gap:8px; }
+  .week-day-col{ position:relative; min-height:640px; background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; }
+  .week-day-header{ position:sticky; top:0; background:#fff; border-bottom:1px solid #e5e7eb; padding:6px 8px; font-weight:700; color:#374151; z-index:2; }
+  .week-slot{ position:relative; height:40px; border-bottom:1px dashed #e5e7eb; }
+  .wk-block{ position:absolute; left:6px; right:6px; border-radius:8px; background:#c7d2fe; color:#111827; font-size:.75rem; padding:4px 6px; box-shadow:0 1px 2px rgba(0,0,0,.08); }
+  .wk-block.conflict{ background:#fecaca; }
   </style>
   <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
   <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
@@ -67,7 +127,7 @@
         <div class="card-header">
           <div class="header-title">Filters</div>
           <div class="d-flex align-items-center header-actions">
-            <button id="btnMyResvRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+            <button id="btnMyResvRefresh" class="btn btn-outline-dark btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
           </div>
         </div>
         <div class="card-body">
@@ -85,20 +145,39 @@
               <label for="optMyResvStatus">Status</label>
             </div> -->
             <div class="col-md-4">
-              <div class="md-form md-outline mt-0">
+              <div class="md-form md-outline mt-0 d-flex align-items-center justify-content-md-end">
                 <input type="date" id="dtMyResvFrom" class="form-control">
                 <label for="dtMyResvFrom" class="active">From</label>
               </div>
             </div>
             <div class="col-md-4">
-              <div class="md-form md-outline mt-0">
+              <div class="md-form md-outline mt-0 d-flex align-items-center justify-content-md-end">
                 <input type="date" id="dtMyResvTo" class="form-control">
                 <label for="dtMyResvTo" class="active">To</label>
               </div>
             </div>
+            <div class="col-md-4 d-flex align-items-start justify-content-md-end">
+              <div class="segmented-group" role="group" aria-label="Date presets">
+                <button id="btnPresetToday" class="segmented-btn" aria-label="Preset Today">TODAY</button>
+                <button id="btnPresetNext7" class="segmented-btn" aria-label="Preset next 7 days">NEXT 7 DAYS</button>
+                <button id="btnPresetThisWeek" class="segmented-btn" aria-label="Preset this week">THIS WEEK</button>
+              </div>
+            </div>
           </div>
-          <div class="row">
-            
+          <div class="row mt-2">
+            <div class="col-12">
+              <div id="myResvStatusChips" class="chip-group">
+                <button class="chip chip-active" data-filter="all">All</button>
+                <button class="chip" data-filter="upcoming">Upcoming</button>
+                <button class="chip" data-filter="past">Past</button>
+                <button class="chip" data-filter="canceled">Canceled</button>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-12">
+              <div id="myResvTotals" class="d-flex align-items-center flex-wrap"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -106,8 +185,30 @@
       <div class="main-content-card">
         <div class="card-header">
           <div class="header-title">Reservations</div>
+          <div class="d-flex align-items-center header-actions">
+            <div id="dtMyResvButtons" class="d-none"></div>
+            <div class="segmented-group ml-2" id="myResvExportToggle" role="group" aria-label="Export">
+              <button class="segmented-btn" data-export="csv" aria-label="Export CSV">CSV</button>
+              <button class="segmented-btn" data-export="excel" aria-label="Export Excel">EXCEL</button>
+              <button class="segmented-btn" data-export="print" aria-label="Export Print">PRINT</button>
+            </div>
+            <div class="ml-2 segmented-group" id="myResvViewToggle" role="group" aria-label="View toggle">
+              <button class="segmented-btn" data-view="table" aria-label="Table view">TABLE</button>
+              <button class="segmented-btn" data-view="calendar" aria-label="Calendar view">CALENDAR</button>
+              <button class="segmented-btn" data-view="timeline" aria-label="Timeline view">TIMELINE</button>
+              <button class="segmented-btn" data-view="week" aria-label="Week view">WEEK</button>
+            </div>
+          </div>
         </div>
         <div class="card-body">
+          <div id="myResvLoading" class="skeleton-overlay d-none" aria-hidden="true">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+          </div>
           <div class="table-responsive">
             <table id="dtMyResv" class="table table-hover table-sm mb-0 display responsive" width="100%">
               <thead>
@@ -122,6 +223,40 @@
               </thead>
               <tbody></tbody>
             </table>
+          </div>
+          <!-- Calendar View -->
+          <div id="calendarView" class="mt-3 d-none">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="d-flex align-items-center">
+                <button id="calPrev" class="icon-btn" aria-label="Previous month"><i class="fas fa-chevron-left"></i></button>
+                <div id="calMonthLabel" class="ml-2 font-weight-bold"></div>
+              </div>
+              <button id="calNext" class="icon-btn" aria-label="Next month"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div id="calGrid" class="calendar-grid"></div>
+            <div class="mt-3">
+              <div class="label">Day Timeline</div>
+              <div id="calDayTimeline" class="day-timeline"></div>
+            </div>
+          </div>
+          <!-- Timeline View -->
+          <div id="timelineView" class="mt-3 d-none">
+            <div class="label mb-2">Timeline</div>
+            <div id="rangeTimeline"></div>
+          </div>
+          <!-- Week Day View -->
+          <div id="weekView" class="mt-3 d-none">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="d-flex align-items-center">
+                <button id="wkPrev" class="icon-btn" aria-label="Previous week"><i class="fas fa-chevron-left"></i></button>
+                <div id="wkLabel" class="ml-2 font-weight-bold"></div>
+              </div>
+              <button id="wkNext" class="icon-btn" aria-label="Next week"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div id="wkGrid" class="week-grid">
+              <div class="week-time-col" id="wkTimeCol"></div>
+              <div class="week-days" id="wkDays"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -173,6 +308,63 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
             <button type="button" id="btnMyResvDetailsCancel" class="btn btn-warning btn-sm"><i class="fas fa-ban mr-1"></i>Cancel Reservation</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reschedule Modal -->
+    <div class="modal fade" id="modalMyResvReschedule" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document" style="max-width: 900px;">
+        <div class="modal-content">
+          <div class="modal-header primary-color white-text">
+            <h5 class="modal-title"><i class="fas fa-clock-rotate-left"></i> Reschedule Reservation</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <div class="detail-grid">
+              <div class="detail-item">
+                <div class="label">Date</div>
+                <input type="date" id="reschDate" class="form-control">
+              </div>
+              <div class="detail-item">
+                <div class="label">Space</div>
+                <div id="reschSpaceName" class="value">-</div>
+              </div>
+              <div class="detail-item">
+                <div class="label">Start Time</div>
+                <input type="time" id="reschStart" class="form-control">
+              </div>
+              <div class="detail-item">
+                <div class="label">End Time</div>
+                <input type="time" id="reschEnd" class="form-control">
+              </div>
+            </div>
+            <div class="mt-3">
+              <div id="reschConflict" class="alert alert-warning d-none" role="alert"></div>
+              <div id="reschSuggestion" class="alert alert-info d-none" role="alert"></div>
+            </div>
+            <div class="mt-3">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="segmented-group" id="reschModeToggle" role="group" aria-label="Reschedule mode">
+                  <button class="segmented-btn chip-active" data-mode="inputs">INPUTS</button>
+                  <button class="segmented-btn" data-mode="calendar">CALENDAR</button>
+                </div>
+                <div class="d-flex align-items-center" id="reschWkNav" style="display:none;">
+                  <button id="reschWkPrev" class="icon-btn" aria-label="Previous week"><i class="fas fa-chevron-left"></i></button>
+                  <div id="reschWkLabel" class="ml-2 font-weight-bold"></div>
+                  <button id="reschWkNext" class="icon-btn ml-2" aria-label="Next week"><i class="fas fa-chevron-right"></i></button>
+                </div>
+              </div>
+              <div id="reschWeekView" class="week-grid d-none">
+                <div class="week-time-col" id="reschWkTimeCol"></div>
+                <div class="week-days" id="reschWkDays"></div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+            <button type="button" id="btnMyResvConfirmReschedule" class="btn btn-primary btn-sm">Save</button>
           </div>
         </div>
       </div>

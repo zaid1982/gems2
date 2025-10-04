@@ -628,6 +628,90 @@ class Space extends General {
     }
 
     /**
+     * Ensure no overlapping reservation exists excluding a specific reservation id
+     * @param int $spaceId
+     * @param DateTime $start
+     * @param DateTime $end
+     * @param int $excludeReservationId
+     * @throws Exception
+     */
+    private function assertAvailabilityExcept(int $spaceId, DateTime $start, DateTime $end, int $excludeReservationId): void
+    {
+        try {
+            $stmt = DbMysql::$DBH->prepare(
+                'SELECT COUNT(*) AS cnt FROM spc_reservation 
+                 WHERE space_id = ? AND reservation_status = ? AND reservation_id <> ?
+                   AND reservation_start < ? AND reservation_end > ?'
+            );
+            $stmt->execute(array($spaceId, self::RESERVATION_RESERVED, $excludeReservationId, $end->format('Y-m-d H:i:s'), $start->format('Y-m-d H:i:s')));
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = null;
+            if (intval($row['cnt'] ?? 0) > 0) {
+                throw new Exception(Constant::$spaceReservation['errOverlap'], 31);
+            }
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Reschedule an existing reservation (owner or admin)
+     * @param int $reservationId
+     * @param array $params
+     * @return array
+     * @throws Exception
+     */
+    public function rescheduleReservation(int $reservationId, array $params): array
+    {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($reservationId, 'reservationId');
+            parent::checkMandatoryArray($params, array('startDateTime', 'endDateTime'));
+
+            $reservation = $this->getReservation($reservationId, true);
+            if (empty($reservation)) {
+                throw new Exception('Reservation not found', 31);
+            }
+
+            $spaceId = intval($reservation['spaceId']);
+            $siteId = intval($reservation['siteId']);
+
+            if (!$this->isAdministrator()) {
+                $this->validateSiteAccess($siteId);
+                if (intval($reservation['requestedBy']) !== intval($this->userId)) {
+                    throw new Exception('You can only reschedule your own reservation', 31);
+                }
+            }
+
+            if (($reservation['reservationStatus'] ?? '') === self::RESERVATION_CANCELED) {
+                throw new Exception('Cannot reschedule a canceled reservation', 31);
+            }
+
+            $start = new DateTime($params['startDateTime']);
+            $end = new DateTime($params['endDateTime']);
+            if ($end <= $start) {
+                throw new Exception(Constant::$spaceReservation['errInvalidWindow'], 31);
+            }
+            if ($start < new DateTime()) {
+                throw new Exception(Constant::$spaceReservation['errPast'], 31);
+            }
+
+            $this->assertAvailabilityExcept($spaceId, $start, $end, $reservationId);
+
+            DbMysql::update(self::$reservationTable, array(
+                'reservationStart' => $start->format('Y-m-d H:i:s'),
+                'reservationEnd' => $end->format('Y-m-d H:i:s')
+            ), array('reservationId'=>$reservationId));
+
+            $this->saveAudit(75, 'Space reservation rescheduled (#'.$reservationId.')');
+
+            return $this->getReservation($reservationId);
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * Synchronise asset linkage
      * @param int $spaceId
      * @param array $assetIds

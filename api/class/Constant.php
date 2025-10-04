@@ -163,6 +163,7 @@ class Constant {
     public static $spaceReservation = array(
         'reserve' => 'Reservation successfully created and auto-approved!',
         'cancel' => 'Reservation successfully canceled!',
+        'reschedule' => 'Reservation successfully rescheduled!',
         'errOverlap' => 'The selected time overlaps with an existing reservation.',
         'errPast' => 'Reservation start time must be in the future.',
         'errInvalidWindow' => 'Reservation end time must be later than start time.'

@@ -2,6 +2,10 @@ function MainSpacePreview(){
   const className='MainSpacePreview';
   let self=this; let oAssetTable; let oResvTable; let spaceId=0;
   let currentData=null;
+  // View state
+  let upcomingData=[];
+  let calRefDate=new Date(); // month anchor
+  let wkRefDate=new Date(); // week anchor
 
   this.init=function(){
     spaceId = self.getQueryInt('id');
@@ -14,6 +18,22 @@ function MainSpacePreview(){
     $('#btnSpcPrevRefresh').on('click', function(){ self.load(); });
     $('#btnSpcPrevReserve').on('click', function(){ self.openReserveModal(); });
     $('#btnSpcPrevCreate').on('click', function(){ self.createReservation(); });
+    // View toggles
+    $('#spcResvViewToggle .segmented-btn').on('click', function(){
+      const v=$(this).data('view');
+      $('#spcResvViewToggle .segmented-btn').removeClass('chip-active'); $(this).addClass('chip-active');
+      $('#spcResvTableWrap,#spcCalendarView,#spcTimelineView,#spcWeekView').addClass('d-none');
+      if(v==='table'){ $('#spcResvTableWrap').removeClass('d-none'); }
+      else if(v==='calendar'){ $('#spcCalendarView').removeClass('d-none'); self.renderCalendarView(); }
+      else if(v==='timeline'){ $('#spcTimelineView').removeClass('d-none'); self.renderRangeTimeline(); }
+      else if(v==='week'){ $('#spcWeekView').removeClass('d-none'); self.renderWeekView(); }
+    });
+    // Calendar nav
+    $('#spcCalPrev').on('click', function(){ calRefDate.setMonth(calRefDate.getMonth()-1); self.renderCalendarView(); });
+    $('#spcCalNext').on('click', function(){ calRefDate.setMonth(calRefDate.getMonth()+1); self.renderCalendarView(); });
+    // Week nav
+    $('#spcWkPrev').on('click', function(){ wkRefDate.setDate(wkRefDate.getDate()-7); self.renderWeekView(); });
+    $('#spcWkNext').on('click', function(){ wkRefDate.setDate(wkRefDate.getDate()+7); self.renderWeekView(); });
     self.load();
   };
 
@@ -29,9 +49,10 @@ function MainSpacePreview(){
   this.render=function(d){
     $('#lblSpcTitle').text('Space: '+(d.spaceName||'-'));
     $('#spcName').text(d.spaceName||'-');
-    const status=(d.spaceStatus||'').toUpperCase();
-    const color = status==='ACTIVE'?'success':(status==='AVAILABLE'?'primary':(status==='RESERVED'?'warning':'secondary'));
-    $('#spcStatusBadge').html('<h6><span class="badge badge-pill '+color+' z-depth-2">'+(status||'-')+'</span></h6>');
+  const rawStatus=(d.spaceStatus||'').toUpperCase();
+  const badgeText = (rawStatus==='DISABLED' || rawStatus==='INACTIVE' || rawStatus==='DECOMMISSIONED') ? 'DISABLED' : 'AVAILABLE';
+  const cls = badgeText==='AVAILABLE' ? 'badge-modern badge-success-dark' : 'badge-modern badge-danger-dark';
+  $('#spcStatusBadge').html('<span class="'+cls+'">'+badgeText+'</span>');
   $('#spcSite').text(d.siteName||d.siteId||'-');
     $('#spcLocation').text(d.locationName||'-');
     $('#spcCategory').text(d.categoryName||'-');
@@ -46,7 +67,11 @@ function MainSpacePreview(){
     // media gallery
     self.renderMedia(d.media||[]);
     // upcoming reservations
-    oResvTable.clear().rows.add(d.upcomingReservations||[]).draw();
+    upcomingData = d.upcomingReservations||[];
+    oResvTable.clear().rows.add(upcomingData).draw();
+    // Ensure default table view visible
+    $('#spcResvTableWrap').removeClass('d-none');
+    $('#spcCalendarView,#spcTimelineView,#spcWeekView').addClass('d-none');
   };
 
   this.openReserveModal=function(){
@@ -120,6 +145,76 @@ function MainSpacePreview(){
       $col.append($a);
       $grid.append($col);
     });
+  };
+
+  // Helpers
+  function getDayStart(date){ const d=new Date(date); d.setHours(0,0,0,0); return d; }
+  function getWeekStart(date){ const d=new Date(date); const day=d.getDay(); const diff=d.getDate()-day+(day===0?-6:1); d.setDate(diff); d.setHours(0,0,0,0); return d; } // ISO week start (Mon)
+  function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+
+  // Calendar (month grid + day timeline)
+  this.renderCalendarView=function(){
+    const monthStart=new Date(calRefDate.getFullYear(), calRefDate.getMonth(), 1); const monthEnd=new Date(calRefDate.getFullYear(), calRefDate.getMonth()+1, 0);
+    $('#spcCalMonthLabel').text(moment(monthStart).format('MMMM YYYY'));
+    const $grid=$('#spcCalGrid'); $grid.empty();
+    // Build array of days including leading blanks to start on Monday
+    const firstDayIdx=(monthStart.getDay()+6)%7; // Monday=0
+    for(let i=0;i<firstDayIdx;i++){ $grid.append('<div class="cal-cell" aria-hidden="true"></div>'); }
+    const daysInMonth=monthEnd.getDate();
+    for(let d=1; d<=daysInMonth; d++){
+      const cur=new Date(monthStart.getFullYear(), monthStart.getMonth(), d);
+      const curStr=moment(cur).format('YYYY-MM-DD');
+      const items=upcomingData.filter(x=> moment(x.reservationStart).format('YYYY-MM-DD')===curStr );
+      const $cell=$('<div class="cal-cell"></div>');
+      $cell.append('<div class="date">'+d+'</div>');
+      if(items.length){ $cell.append('<div class="badge">'+items.length+' upcoming</div>'); }
+      $grid.append($cell);
+    }
+    // Day timeline for today within selected month
+    self.renderDayTimelineForDate(new Date());
+  };
+
+  this.renderDayTimelineForDate=function(date){
+    const $tl=$('#spcCalDayTimeline'); $tl.empty(); const width=$tl.width()||600;
+    // Ticks every 2 hours
+    const $ticks=$('<div class="tl-ticks"></div>');
+    for(let h=0; h<=24; h+=2){ const x=(h/24)*width; const $t=$('<div class="tl-tick"></div>').css({ left:x+'px' }).text(h.toString().padStart(2,'0')+':00'); $ticks.append($t); }
+    $tl.append($ticks);
+    const dayStart=getDayStart(date);
+    const dayItems=upcomingData.filter(x=>{ const s=moment(x.reservationStart).toDate(); return s>=dayStart && s< new Date(dayStart.getTime()+24*3600*1000); });
+    dayItems.forEach(function(it){
+      const s=moment(it.reservationStart).toDate(); const e=moment(it.reservationEnd).toDate();
+      const startH=s.getHours()+s.getMinutes()/60; const endH=e.getHours()+e.getMinutes()/60; const left=clamp((startH/24)*width,0,width-10);
+      const w=clamp(((endH-startH)/24)*width, 20, width-left);
+      const $b=$('<div class="tl-block"></div>').css({ left:left+'px', width:w+'px' }).text(moment(it.reservationStart).format('HH:mm')+'-'+moment(it.reservationEnd).format('HH:mm'));
+      $tl.append($b);
+    });
+  };
+
+  // Timeline view (compact range per reservation)
+  this.renderRangeTimeline=function(){
+    const $wrap=$('#spcRangeTimeline'); $wrap.empty();
+    if(!upcomingData.length){ $wrap.append('<div class="text-muted">No upcoming reservations</div>'); return; }
+    // Group by day label
+    const groups={};
+    upcomingData.forEach(function(it){ const key=moment(it.reservationStart).format('YYYY-MM-DD'); if(!groups[key]) groups[key]=[]; groups[key].push(it); });
+    Object.keys(groups).sort().forEach(function(day){
+      const items=groups[day]; const $row=$('<div class="range-day"></div>'); $row.append('<div class="range-label">'+moment(day).format('ddd, MMM D')+'</div>');
+      const $bar=$('<div class="range-bar"></div>'); const width=600; // fallback width; CSS will size
+      items.forEach(function(it){ const s=moment(it.reservationStart).toDate(); const e=moment(it.reservationEnd).toDate(); const startH=s.getHours()+s.getMinutes()/60; const endH=e.getHours()+e.getMinutes()/60; const left=(startH/24)*100; const w=((endH-startH)/24)*100; const $b=$('<div class="range-block"></div>').css({ left:left+'%', width:w+'%' }); $bar.append($b); });
+      $row.append($bar); $wrap.append($row);
+    });
+  };
+
+  // Week view
+  this.renderWeekView=function(){
+    const start=getWeekStart(wkRefDate); const end=new Date(start.getTime()+7*24*3600*1000);
+    $('#spcWkLabel').text(moment(start).format('MMM D')+' - '+moment(new Date(end.getTime()-1)).format('MMM D'));
+    const $timeCol=$('#spcWkTimeCol'); const $days=$('#spcWkDays'); $timeCol.empty(); $days.empty();
+    for(let h=0; h<24; h++){ $timeCol.append('<div class="week-time-slot">'+(h.toString().padStart(2,'0'))+':00</div>'); }
+    for(let i=0;i<7;i++){ const d=new Date(start.getTime()+i*24*3600*1000); const $col=$('<div class="week-day-col"></div>'); $col.append('<div class="week-day-header">'+moment(d).format('ddd, MMM D')+'</div>'); for(let h=0; h<24; h++){ $col.append('<div class="week-slot"></div>'); } $days.append($col); }
+    // Place blocks
+    upcomingData.forEach(function(it){ const s=moment(it.reservationStart).toDate(); const e=moment(it.reservationEnd).toDate(); if(s<end && e>start){ const dayIdx=Math.floor((getDayStart(s).getTime()-start.getTime())/(24*3600*1000)); if(dayIdx>=0 && dayIdx<7){ const $col=$days.children().eq(dayIdx); const totalH=24*40; const top=( (s.getHours()+s.getMinutes()/60) /24 )*totalH; const height=Math.max(24, ((e - s)/(3600*1000))/24*totalH ); const $b=$('<div class="wk-block"></div>').css({ top:top+'px', height:height+'px' }).text(moment(s).format('HH:mm')+'-'+moment(e).format('HH:mm')); $col.append($b); } } });
   };
 
   this.getQueryInt=function(key){ const urlParams=new URLSearchParams(window.location.search); const v=parseInt(urlParams.get(key)); return isNaN(v)?0:v; };
