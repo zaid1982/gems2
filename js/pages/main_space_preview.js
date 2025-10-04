@@ -16,7 +16,7 @@ function MainSpacePreview(){
   // Upcoming reservations table
   oResvTable=$('#dtSpcResv').DataTable({ bLengthChange:false,bFilter:false,aaSorting:[[1,'asc']], language:_DATATABLE_LANGUAGE, fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=oResvTable.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)); }, aoColumns:[ {mData:null,bSortable:false}, {mData:'reservationStart', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }}, {mData:'reservationEnd', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }}, {mData:'reservationStatus'} ] });
     $('#btnSpcPrevRefresh').on('click', function(){ self.load(); });
-    $('#btnSpcPrevReserve').on('click', function(){ self.openReserveModal(); });
+  $('#btnSpcPrevReserve').on('click', function(){ self.openReserveModal(); });
     $('#btnSpcPrevCreate').on('click', function(){ self.createReservation(); });
     // View toggles
     $('#spcResvViewToggle .segmented-btn').on('click', function(){
@@ -75,33 +75,11 @@ function MainSpacePreview(){
   };
 
   this.openReserveModal=function(){
-    // default times: next full hour for 1 hour slot
-    const now = new Date(); now.setMinutes(0,0,0); now.setHours(now.getHours()+1);
-    const startIso = new Date(now).toISOString().slice(0,16);
-    const endIso = new Date(now.getTime()+60*60*1000).toISOString().slice(0,16);
-    $('#dtSpcPrevStart').val(startIso);
-    $('#dtSpcPrevEnd').val(endIso);
-    // prefill name/email from user info
-    try {
-      const fullName = (function(){
-        try {
-          const first = (typeof mzGetUserInfoByParam === 'function') ? (mzGetUserInfoByParam('userFirstName')||'') : '';
-          const last = (typeof mzGetUserInfoByParam === 'function') ? (mzGetUserInfoByParam('userLastName')||'') : '';
-          const name = (first + ' ' + last).trim(); if (name) return name;
-        } catch(e){}
-        try { let ui=sessionStorage.getItem('userInfo'); if(ui){ ui=JSON.parse(ui); const n=((ui.userFirstName||'')+' '+(ui.userLastName||'')).trim(); if(n) return n; } } catch(e){}
-        return '';
-      })();
-      const email = (function(){
-        try { if (typeof mzGetUserInfoByParam === 'function') return mzGetUserInfoByParam('userEmail')||''; } catch(e){}
-        try { let ui=sessionStorage.getItem('userInfo'); if(ui){ ui=JSON.parse(ui); return ui.userEmail||''; } } catch(e){}
-        return '';
-      })();
-      $('#txtSpcPrevName').val(fullName);
-      $('#txtSpcPrevEmail').val(email);
-    } catch(e) { $('#txtSpcPrevName').val(''); $('#txtSpcPrevEmail').val(''); }
-    $('#txaSpcPrevNotes').val('');
-    $('#modalSpcPrevReserve').modal('show');
+    if(!spaceId){ toastr['error']('Missing space id','Error'); return; }
+    const url = new URL(window.location.origin + window.location.pathname.replace(/[^/]+$/, 'space_calendar.html'));
+    url.searchParams.set('id', spaceId);
+    url.searchParams.set('from', 'preview');
+    window.location.href = url.toString();
   };
 
   this.createReservation=function(){

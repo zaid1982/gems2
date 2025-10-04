@@ -9,6 +9,24 @@
 
   function headers(){ const t=sessionStorage.getItem('token'); return t?{'Authorization':'Bearer '+t}:{ }; }
   function getQueryInt(key){ const urlParams=new URLSearchParams(window.location.search); const v=parseInt(urlParams.get(key)); return isNaN(v)?0:v; }
+  function currentUserId(){
+    try {
+      if (typeof mzGetUserInfoByParam === 'function') {
+        const uid = mzGetUserInfoByParam('userId');
+        if (uid) { const parsed = parseInt(uid, 10); if (!isNaN(parsed)) { return parsed; } }
+      }
+    } catch(e){}
+    try {
+      let info = sessionStorage.getItem('userInfo');
+      if (info) { info = JSON.parse(info); const uid = info.userId || info.userID || info.userid; if (uid) { const parsed = parseInt(uid, 10); if (!isNaN(parsed)) { return parsed; } } }
+    } catch(e){}
+    return 0;
+  }
+  function isAdministrator(){
+    try { if (typeof mzIsRoleExist === 'function') { return !!mzIsRoleExist('1,10'); } }
+    catch(e){}
+    return false;
+  }
 
   function fetchSpace(){ return $.ajax({ url:'api/space.php/'+spaceId, method:'GET', dataType:'json', headers: headers()}); }
   function fetchReservations(start, end){ const qs = '?from='+encodeURIComponent(start)+'&to='+encodeURIComponent(end); return $.ajax({ url:'api/space.php/'+spaceId+'/reservation'+qs, method:'GET', dataType:'json', headers: headers()}); }
@@ -86,25 +104,45 @@
       },
       eventClick: function(arg){
         const r = arg.event.extendedProps || {};
-        cancelResvId = parseInt(r.reservationId||arg.event.id);
+  const requestedByRaw = (r.requestedBy!==undefined)?r.requestedBy:(r.requested_by!==undefined?r.requested_by:null);
+  let requestedById = 0;
+  if (requestedByRaw!==null && requestedByRaw!==undefined){ const parsedReq = parseInt(requestedByRaw, 10); requestedById = isNaN(parsedReq)?0:parsedReq; }
+        const currentUid = currentUserId();
+        const admin = isAdministrator();
+  const status = r.reservationStatus || arg.event.title || '';
         const start = moment(r.reservationStart||arg.event.start).format('YYYY-MM-DD HH:mm');
         const end = moment(r.reservationEnd||arg.event.end).format('YYYY-MM-DD HH:mm');
         const name = r.requestedByName || '-';
         const contact = r.requestedByContact || '';
-        const status = r.reservationStatus || arg.event.title || '';
+        const isCanceled = (status||'').toUpperCase()==='CANCELED';
+        const isOwner = (!!requestedById && !!currentUid && requestedById===currentUid);
+        const canCancel = !isCanceled && (admin || isOwner);
+  const eventIdRaw = r.reservationId||arg.event.id;
+  const parsedEventId = parseInt(eventIdRaw, 10);
+  cancelResvId = (canCancel && !isNaN(parsedEventId)) ? parsedEventId : null;
         let html = '<div><strong>'+status+'</strong></div>'
           + '<div>'+start+' — '+end+'</div>'
           + '<div class="mt-1">'+name+(contact?(' <small class="text-muted">'+contact+'</small>'):'')+'</div>';
         $('#spcEvtSummary').html(html);
-        const isCanceled = (status||'').toUpperCase()==='CANCELED';
-        $('#btnSpcCancelEvt').prop('disabled', isCanceled);
+        const $cancelBtn = $('#btnSpcCancelEvt');
+        const $cancelBlock = $('#txaSpcCancelReason').closest('.md-form');
+        if ($cancelBlock.length){ $cancelBlock.toggle(canCancel); }
+        $cancelBtn.toggle(canCancel).prop('disabled', !canCancel);
         $('#txaSpcCancelReason').val('');
         $('#modalSpcEvent').modal('show');
       },
       events: function(fetchInfo, success, failure){
         // fetchInfo.startStr/endStr are ISO strings
         fetchReservations(fetchInfo.startStr, fetchInfo.endStr)
-          .done(function(resp){ if(resp&&resp.success){ const events=(resp.result||[]).map(toEvent); success(events); } else { failure((resp&&resp.errmsg)||'Failed to load reservations'); } })
+          .done(function(resp){
+            if(resp&&resp.success){
+              const rows = (resp.result||[]).filter(function(item){ return ((item.reservationStatus||'').toUpperCase()==='RESERVED'); });
+              const events = rows.map(toEvent);
+              success(events);
+            } else {
+              failure((resp&&resp.errmsg)||'Failed to load reservations');
+            }
+          })
           .fail(function(jq){ failure(jq.responseText||'Network error'); });
       }
     });
@@ -144,6 +182,8 @@
     // Load shared includes then boot
     let pending = $('.includeHtml').length;
     function boot(){
+      try { if (typeof initiatePages === 'function') { initiatePages(); } }
+      catch(e) { console && console.warn && console.warn('initiatePages failed', e); }
       fetchSpace()
         .done(function(resp){ if(resp&&resp.success){ currentSpace = resp.result||{}; loadTitle(); initCalendar(); wireButtons(); } else { toastr['error']((resp&&resp.errmsg)||'Failed to load space'); } })
         .fail(function(){ toastr['error']('Failed to load space'); });
