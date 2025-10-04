@@ -59,7 +59,7 @@ class Class_sql
                     sys_nav_second.nav_second_page
                 FROM
                     (SELECT
-                            nav_id, nav_second_id, MIN(nav_role_turn) AS turn
+                            nav_id, nav_second_id, MAX(nav_role_turn) AS turn
                     FROM sys_nav_role
                     WHERE role_id IN ([roles])
                     GROUP BY nav_id, nav_second_id) AS nav_role

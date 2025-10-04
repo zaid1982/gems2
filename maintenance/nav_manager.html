@@ -4,82 +4,407 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Navigation Manager</title>
+  <link rel="stylesheet" href="../css/fontawesome-pro-6.5.1-web/css/all.min.css" />
   <style>
-    body { font-family: Arial, sans-serif; background:#f4f6f9; margin:0; padding:20px; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    h1 { margin-bottom: 10px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-    .card { background:#fff; border-radius:10px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding:16px; }
-    .card h2 { margin: 0 0 12px; font-size: 18px; }
-    label { display:block; font-size:12px; color:#555; margin-top:8px; }
-    input, select { width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; margin-top:4px; }
-    button { padding:8px 12px; border:none; border-radius:6px; cursor:pointer; background:#2d89ef; color:#fff; margin-top:10px; }
-    button.secondary { background:#666; }
-    table { width:100%; border-collapse:collapse; margin-top:10px; font-size: 13px; }
-    th, td { border-bottom:1px solid #eee; padding:8px; text-align:left; }
-    th { background:#fafafa; }
-    .row { display:flex; gap:8px; align-items:end; }
-    .row > div { flex:1; }
-    .muted { color:#888; font-size: 12px; }
+    :root {
+      color-scheme: light;
+      font-family: "Inter", Arial, sans-serif;
+    }
+    body { background:#f4f6f9; margin:0; padding:24px; }
+  .container { max-width: 1260px; margin: 0 auto; }
+  h1 { margin:0 0 6px; font-weight:600; color:#243047; }
+  .subtitle { color:#65708a; margin:0 0 24px; }
+  .page-header { max-width:1260px; margin:0 auto 24px; background:linear-gradient(135deg,#2f3f72 0%,#4257a7 100%); color:#fff; padding:26px 32px; border-radius:18px; box-shadow:0 18px 36px rgba(23,41,98,0.18); display:flex; align-items:flex-start; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+  .page-header-info { max-width:720px; }
+  .page-header-kicker { display:inline-flex; align-items:center; gap:6px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.75); background:rgba(255,255,255,0.12); padding:4px 10px; border-radius:999px; margin-bottom:12px; }
+  .page-header-info h1 { color:#fff; font-size:28px; margin:0 0 10px; }
+  .page-header-info p { margin:0; color:rgba(255,255,255,0.85); line-height:1.5; }
+  .page-header-actions { display:flex; gap:12px; align-items:center; }
+  .page-header-actions .btn { margin-top:0; background:rgba(255,255,255,0.18); color:#fff; border:1px solid rgba(255,255,255,0.35); }
+  .page-header-actions .btn:hover { background:rgba(255,255,255,0.28); box-shadow:0 10px 22px rgba(18,36,94,0.25); }
+  .icon-picker { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .icon-picker input { flex:1 1 200px; }
+  .icon-picker .btn { flex:0 0 auto; margin-top:0; }
+  .icon-preview { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:8px 12px; border:1px dashed #c6d0eb; border-radius:8px; background:#f5f8ff; color:#243047; min-width:96px; font-size:16px; }
+  .icon-preview.empty { color:#8d97b2; background:#f6f7fb; }
+  .icon-preview code { background:rgba(36,48,71,0.08); padding:2px 6px; border-radius:6px; font-size:11px; color:#243047; }
+  .icon-helper { margin-top:6px; }
+  .icon-helper code { background:rgba(36,48,71,0.08); padding:2px 6px; border-radius:6px; }
+  .icon-cell { display:inline-flex; align-items:center; gap:8px; background:#f6f8ff; padding:6px 10px; border-radius:10px; border:1px solid #e0e7f8; color:#1f2c45; font-size:13px; }
+  .icon-cell i { font-size:16px; color:#1f6feb; }
+  .icon-cell code { background:rgba(31,111,235,0.1); padding:2px 6px; border-radius:6px; font-size:11px; color:#1f3d7a; }
+  .icon-none { color:#8d97b2; font-size:12px; }
+  .form-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  .form-actions .btn { margin-top:0; }
+  .icon-browser-backdrop { position:fixed; inset:0; background:rgba(20,28,54,0.58); display:none; align-items:center; justify-content:center; padding:40px 24px; z-index:2000; }
+  .icon-browser-backdrop.show { display:flex; }
+  .icon-browser { background:#fff; border-radius:18px; box-shadow:0 24px 54px rgba(16,28,68,0.28); width:min(960px,100%); max-height:80vh; display:flex; flex-direction:column; overflow:hidden; }
+  .icon-browser-header { display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid #e2e8f5; }
+  .icon-browser-header h3 { margin:0; font-size:18px; color:#1c293b; }
+  .icon-browser-close { background:none; border:none; color:#4b5d7d; font-size:14px; cursor:pointer; font-weight:600; }
+  .icon-browser-close:hover { color:#1f2c45; }
+  .icon-browser-controls { padding:16px 24px; display:flex; gap:12px; align-items:center; border-bottom:1px solid #edf2ff; flex-wrap:wrap; }
+  .icon-browser-controls input { flex:1 1 220px; }
+  .icon-browser-count { font-size:12px; color:#66708c; text-transform:uppercase; letter-spacing:0.06em; }
+  .icon-browser-grid { flex:1 1 auto; overflow:auto; padding:20px 24px 28px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; }
+  .icon-browser-option { border:1px solid #e0e7fa; border-radius:12px; padding:14px 12px; display:flex; flex-direction:column; gap:10px; cursor:pointer; transition:all .2s ease; background:#fff; align-items:flex-start; min-height:108px; text-align:left; }
+  .icon-browser-option:hover { border-color:#4b71f1; box-shadow:0 12px 24px rgba(34,54,128,0.16); transform:translateY(-2px); }
+  .icon-browser-option.active { border-color:#1f6feb; box-shadow:0 12px 26px rgba(31,111,235,0.24); }
+  .icon-browser-option:focus-visible { outline:2px solid #1f6feb; outline-offset:3px; }
+  .icon-browser-option .icon { font-size:26px; color:#2c3f69; }
+  .icon-browser-option .info { display:flex; flex-direction:column; gap:6px; width:100%; }
+  .icon-browser-option .name { font-size:13px; font-weight:600; color:#1f2c45; }
+  .icon-browser-option .meta { display:flex; gap:6px; flex-wrap:wrap; }
+  .icon-browser-option .code { font-size:11px; color:#4b5d7d; background:#f1f4ff; padding:2px 6px; border-radius:6px; }
+  .icon-browser-option .tag { font-size:11px; padding:2px 6px; background:#eef3ff; color:#4b71f1; border-radius:999px; text-transform:uppercase; letter-spacing:0.05em; }
+  .icon-browser-empty, .icon-browser-loading { grid-column:1 / -1; text-align:center; color:#8d97b2; padding:40px 0; font-size:14px; }
+    .grid-two { display:grid; grid-template-columns: repeat(auto-fit,minmax(340px,1fr)); gap:18px; }
+    .grid-full { display:grid; grid-template-columns: 1fr; gap:18px; margin-top:18px; }
+    .card { background:#fff; border-radius:14px; box-shadow:0 8px 24px rgba(15,35,95,0.08); padding:20px 22px; position:relative; overflow:hidden; }
+    .card h2 { margin:0 0 14px; font-size:18px; font-weight:600; color:#1c293b; display:flex; align-items:center; gap:8px; }
+    .card h2 span.tag { font-size:12px; text-transform:uppercase; letter-spacing:0.05em; color:#4b71f1; background:rgba(75,113,241,0.1); padding:2px 8px; border-radius:12px; }
+    label { display:block; font-size:12px; font-weight:600; color:#4f5c77; text-transform:uppercase; letter-spacing:0.04em; margin-top:12px; }
+    input, select { width:100%; padding:9px 10px; border:1px solid #d8dfea; border-radius:8px; margin-top:6px; font-size:13px; background:#fff; color:#1d2736; transition:border-color .2s ease; }
+    input:focus, select:focus { outline:none; border-color:#4b71f1; box-shadow:0 0 0 2px rgba(75,113,241,0.15); }
+    select[multiple] { min-height:140px; }
+    .row { display:flex; gap:14px; flex-wrap:wrap; }
+    .row > div { flex:1 1 160px; min-width:160px; }
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:9px 14px; border-radius:8px; border:none; cursor:pointer; margin-top:16px; font-weight:600; font-size:13px; background:#1f6feb; color:#fff; transition:box-shadow .2s ease, transform .2s ease; }
+    .btn.secondary { background:#6b7280; }
+    .btn.outline { background:#fff; color:#1f6feb; border:1px solid rgba(31,111,235,0.4); }
+    .btn:hover { box-shadow:0 10px 20px rgba(31,111,235,0.25); transform:translateY(-1px); }
+    table { width:100%; border-collapse:collapse; margin-top:18px; font-size:13px; }
+    th, td { border-bottom:1px solid #e6eaf5; padding:9px 8px; text-align:left; }
+    th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#7b87a4; background:#f9faff; }
+    tr:hover td { background:#f7f9ff; }
+    .muted { color:#7e8ca8; font-size:12px; margin-top:18px; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-bottom:10px; }
+    .chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:#ecf2ff; color:#2854d0; border-radius:16px; font-size:12px; font-weight:600; }
+    .helper-text { font-size:11px; color:#8d97b2; margin-top:6px; }
+    .section-title { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:6px; }
+    .section-title span { font-size:12px; color:#7e8ca8; }
+    .pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:11px; background:#f1f5ff; color:#4b71f1; text-transform:uppercase; letter-spacing:0.05em; }
+    .no-data { text-align:center; padding:24px; color:#8d97b2; font-size:13px; }
+    @media (max-width: 768px) {
+      .row { flex-direction:column; }
+      select[multiple] { min-height:120px; }
+      .icon-picker { flex-direction:column; align-items:stretch; }
+      .icon-picker .btn { width:100%; }
+      .icon-preview { width:100%; justify-content:flex-start; }
+    }
   </style>
   <script>
     const api = (action, body) => fetch('nav_manager.php', {
-      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ action, ...(body||{}) })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ action, ...(body || {}) })
     }).then(r => r.json());
+
+  let roleFilter = 'all';
+  let assignmentSearch = '';
+  const ICON_BROWSER_LIMIT = 400;
+  let iconBrowserTerm = '';
+  let iconBrowserLoading = false;
+  let editingNavId = null;
+  let editingSubmenuId = null;
 
     async function loadAll() {
       const res = await api('list_all');
-      if (!res.success) { alert(res.error || 'Failed to load'); return; }
+      if (!res.success) { alert(res.error || 'Failed to load navigation data'); return; }
       window._data = res.data;
       renderNavs();
       renderSubmenus();
-      renderAssignments();
       fillSelects();
+      renderAssignments();
+      setNavFormMode();
+      setSubFormMode();
     }
 
     function fillSelects() {
-      const navSel = document.getElementById('submenu_nav_id');
-      navSel.innerHTML = '';
-      _data.navs.forEach(n => navSel.insertAdjacentHTML('beforeend', `<option value="${n.nav_id}">${n.nav_desc} (#${n.nav_id})</option>`));
+      const navOptions = (_data.navs || []).map(n => `<option value="${n.nav_id}">${n.nav_desc} (#${n.nav_id})</option>`).join('');
+      document.querySelectorAll('[data-nav-options]').forEach(sel => {
+        const previous = sel.value;
+        sel.innerHTML = navOptions;
+        if (previous && sel.querySelector(`option[value="${previous}"]`)) {
+          sel.value = previous;
+        }
+      });
 
-      const roleSel = document.getElementById('assign_role_id');
-      roleSel.innerHTML = '';
-      _data.roles.forEach(r => roleSel.insertAdjacentHTML('beforeend', `<option value="${r.role_id}">${r.role_desc} (#${r.role_id})</option>`));
+      rebuildSubmenuSelect('assign_nav_second_id', document.getElementById('assign_nav_id')?.value, false);
+      rebuildSubmenuSelect('bulk_nav_second_ids', document.getElementById('bulk_nav_id')?.value, true);
 
-      const navSel2 = document.getElementById('assign_nav_id');
-      navSel2.innerHTML = '';
-      _data.navs.forEach(n => navSel2.insertAdjacentHTML('beforeend', `<option value="${n.nav_id}">${n.nav_desc} (#${n.nav_id})</option>`));
+      // Single role select for quick assignment
+      const roleSelect = document.getElementById('assign_role_id');
+      if (roleSelect) {
+        const prev = roleSelect.value;
+        roleSelect.innerHTML = (_data.roles || []).map(r => `<option value="${r.role_id}">${r.role_desc} (#${r.role_id})</option>`).join('');
+        if (prev && roleSelect.querySelector(`option[value="${prev}"]`)) {
+          roleSelect.value = prev;
+        }
+      }
 
-      rebuildSubmenuSelect();
+      renderRoleFilterOptions();
+      renderRoleMultiOptions('bulk_role_ids', document.getElementById('bulk_role_search')?.value || '');
+      renderRoleMultiOptions('copy_target_role_ids', document.getElementById('copy_target_role_search')?.value || '');
+      renderSourceRoleOptions();
     }
 
-    function rebuildSubmenuSelect() {
-      const navId = document.getElementById('assign_nav_id').value;
-      const subSel = document.getElementById('assign_nav_second_id');
-      subSel.innerHTML = '';
-      _data.submenus.filter(s => String(s.nav_id) === String(navId))
-        .forEach(s => subSel.insertAdjacentHTML('beforeend', `<option value="${s.nav_second_id}">${s.nav_second_desc} (${s.nav_second_page})</option>`));
+    function renderRoleFilterOptions() {
+      const filterSelect = document.getElementById('role_filter');
+      if (!filterSelect) return;
+      const previous = roleFilter;
+      filterSelect.innerHTML = '<option value="all">All roles</option>' + (_data.roles || []).map(r => `<option value="${r.role_id}">${r.role_desc} (#${r.role_id})</option>`).join('');
+      if (previous && filterSelect.querySelector(`option[value="${previous}"]`)) {
+        filterSelect.value = previous;
+      } else {
+        roleFilter = 'all';
+        filterSelect.value = 'all';
+      }
+      renderRoleSummary();
     }
 
-    async function createNav() {
-      const nav_desc = document.getElementById('nav_desc').value.trim();
-      const nav_status = document.getElementById('nav_status').value;
-      if (!nav_desc) return alert('nav_desc required');
-      const res = await api('create_nav', { nav_desc, nav_status });
-      if (!res.success) return alert(res.error);
+    function renderSourceRoleOptions() {
+      const sel = document.getElementById('copy_source_role_id');
+      if (!sel) return;
+      const prev = sel.value;
+      sel.innerHTML = (_data.roles || []).map(r => `<option value="${r.role_id}">${r.role_desc} (#${r.role_id})</option>`).join('');
+      if (prev && sel.querySelector(`option[value="${prev}"]`)) {
+        sel.value = prev;
+      }
+    }
+
+    function renderRoleMultiOptions(selectId, searchTerm = '') {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+      const previousValues = getSelectedValues(selectId);
+      const lower = searchTerm.toLowerCase();
+      const roles = (_data.roles || []).filter(r => {
+        if (previousValues.includes(String(r.role_id))) return true;
+        if (!lower) return true;
+        return r.role_desc.toLowerCase().includes(lower) || String(r.role_id).includes(lower);
+      });
+      select.innerHTML = roles.map(r => `<option value="${r.role_id}">${r.role_desc} (#${r.role_id})</option>`).join('');
+      setSelectedValues(selectId, previousValues);
+    }
+
+    function rebuildSubmenuSelect(targetId, navId, allowMulti = false) {
+      const select = document.getElementById(targetId);
+      if (!select) return;
+      const previous = getSelectedValues(targetId);
+      select.innerHTML = '';
+      const matching = (_data.submenus || []).filter(s => String(s.nav_id) === String(navId));
+      if (!allowMulti) {
+        select.insertAdjacentHTML('beforeend', '<option value="">-- choose submenu (optional) --</option>');
+      }
+      matching.forEach(s => {
+        select.insertAdjacentHTML('beforeend', `<option value="${s.nav_second_id}">${s.nav_second_desc} (${s.nav_second_page})</option>`);
+      });
+      if (allowMulti) {
+        setSelectedValues(targetId, previous);
+      } else if (previous.length && select.querySelector(`option[value="${previous[0]}"]`)) {
+        select.value = previous[0];
+      } else {
+        select.value = '';
+      }
+    }
+
+    function getSelectedValues(selectId) {
+      const el = document.getElementById(selectId);
+      if (!el) return [];
+      return Array.from(el.selectedOptions || []).map(opt => opt.value);
+    }
+
+    function setSelectedValues(selectId, values = []) {
+      const el = document.getElementById(selectId);
+      if (!el) return;
+      const set = new Set(values.map(String));
+      Array.from(el.options || []).forEach(opt => {
+        opt.selected = set.has(opt.value);
+      });
+    }
+
+    function normalizeIconName(name = '') {
+      if (name === null || name === undefined) return '';
+      return String(name).trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+    }
+
+    function updateNavIconPreview() {
+      const input = document.getElementById('nav_icon');
+      const preview = document.getElementById('nav_icon_preview');
+      if (!input || !preview) return;
+      const value = input.value;
+      const normalized = normalizeIconName(value);
+      if (input.value !== normalized) {
+        input.value = normalized;
+      }
+      if (!normalized) {
+        preview.classList.add('empty');
+        preview.replaceChildren(document.createTextNode('none'));
+      } else {
+        preview.classList.remove('empty');
+        preview.replaceChildren();
+  const iconEl = document.createElement('i');
+  iconEl.classList.add('fas');
+  iconEl.classList.add(`fa-${normalized}`);
+        preview.appendChild(iconEl);
+        const code = document.createElement('code');
+        code.textContent = normalized;
+        preview.appendChild(code);
+      }
+    }
+
+    function setNavFormMode() {
+      const submitBtn = document.getElementById('nav_submit_btn');
+      const cancelBtn = document.getElementById('nav_cancel_btn');
+      const status = document.getElementById('nav_form_status');
+      if (!submitBtn || !cancelBtn || !status) return;
+      if (editingNavId) {
+        submitBtn.textContent = 'Update menu';
+        cancelBtn.style.display = 'inline-flex';
+  const navList = (_data && Array.isArray(_data.navs)) ? _data.navs : [];
+  const nav = navList.find(n => Number(n.nav_id) === Number(editingNavId));
+        const label = nav && nav.nav_desc ? ` (${nav.nav_desc})` : '';
+        status.textContent = `Editing main menu #${editingNavId}${label}`;
+      } else {
+        submitBtn.textContent = 'Save menu';
+        cancelBtn.style.display = 'none';
+        status.textContent = 'Define a main menu entry and optionally assign an icon.';
+      }
+    }
+
+    function resetNavForm() {
+      editingNavId = null;
+      const descInput = document.getElementById('nav_desc');
+      const statusInput = document.getElementById('nav_status');
+      const iconInput = document.getElementById('nav_icon');
+      if (descInput) descInput.value = '';
+      if (statusInput) statusInput.value = '1';
+      if (iconInput) iconInput.value = '';
+      updateNavIconPreview();
+      setNavFormMode();
+    }
+
+    async function submitNav() {
+      const descInput = document.getElementById('nav_desc');
+      const statusInput = document.getElementById('nav_status');
+      const iconInput = document.getElementById('nav_icon');
+  const nav_desc = descInput ? descInput.value.trim() : '';
+  const rawStatus = statusInput ? parseInt(statusInput.value, 10) : 1;
+  const nav_status = Number.isNaN(rawStatus) ? 1 : rawStatus;
+      const nav_icon = normalizeIconName(iconInput ? iconInput.value : '');
+      if (!nav_desc) {
+        alert('Main menu description is required');
+        return;
+      }
+  const payload = { nav_desc, nav_status, nav_icon };
+      let res;
+      if (editingNavId) {
+        payload.nav_id = editingNavId;
+        res = await api('update_nav', payload);
+      } else {
+        res = await api('create_nav', payload);
+      }
+      if (!res.success) {
+        alert(res.error || 'Failed to save menu');
+        return;
+      }
       await loadAll();
+      resetNavForm();
     }
 
-    async function createSub() {
-      const nav_id = document.getElementById('submenu_nav_id').value;
-      const nav_second_desc = document.getElementById('nav_second_desc').value.trim();
-      const nav_second_page = document.getElementById('nav_second_page').value.trim();
-      const nav_second_status = document.getElementById('nav_second_status').value;
-      if (!nav_id || !nav_second_desc || !nav_second_page) return alert('All fields required');
-      const res = await api('create_submenu', { nav_id, nav_second_desc, nav_second_page, nav_second_status });
-      if (!res.success) return alert(res.error);
+    function startEditNav(navId) {
+      const nav = (_data.navs || []).find(n => Number(n.nav_id) === Number(navId));
+      if (!nav) return;
+      editingNavId = Number(navId);
+      const descInput = document.getElementById('nav_desc');
+      const statusInput = document.getElementById('nav_status');
+      const iconInput = document.getElementById('nav_icon');
+      if (descInput) descInput.value = nav.nav_desc || '';
+      if (statusInput) statusInput.value = String(nav.nav_status ?? '1');
+      if (iconInput) iconInput.value = normalizeIconName(nav.nav_icon || '');
+      updateNavIconPreview();
+      setNavFormMode();
+      if (descInput) descInput.focus();
+    }
+
+    function setSubFormMode() {
+      const submitBtn = document.getElementById('submenu_submit_btn');
+      const cancelBtn = document.getElementById('submenu_cancel_btn');
+      const status = document.getElementById('submenu_form_status');
+      if (!submitBtn || !cancelBtn || !status) return;
+      if (editingSubmenuId) {
+        submitBtn.textContent = 'Update submenu';
+        cancelBtn.style.display = 'inline-flex';
+  const submenuList = (_data && Array.isArray(_data.submenus)) ? _data.submenus : [];
+  const submenu = submenuList.find(s => Number(s.nav_second_id) === Number(editingSubmenuId));
+        const label = submenu && submenu.nav_second_desc ? ` (${submenu.nav_second_desc})` : '';
+        status.textContent = `Editing submenu #${editingSubmenuId}${label}`;
+      } else {
+        submitBtn.textContent = 'Save submenu';
+        cancelBtn.style.display = 'none';
+        status.textContent = 'Add a submenu entry under the selected main menu.';
+      }
+    }
+
+    function resetSubForm() {
+      editingSubmenuId = null;
+      const parentSelect = document.getElementById('submenu_nav_id');
+      const descInput = document.getElementById('nav_second_desc');
+      const pageInput = document.getElementById('nav_second_page');
+      const statusInput = document.getElementById('nav_second_status');
+      if (parentSelect && parentSelect.options.length && !parentSelect.value) {
+        parentSelect.selectedIndex = 0;
+      }
+      if (descInput) descInput.value = '';
+      if (pageInput) pageInput.value = '';
+      if (statusInput) statusInput.value = '1';
+      setSubFormMode();
+    }
+
+    async function submitSub() {
+      const parentSelect = document.getElementById('submenu_nav_id');
+      const descInput = document.getElementById('nav_second_desc');
+      const pageInput = document.getElementById('nav_second_page');
+      const statusInput = document.getElementById('nav_second_status');
+      const nav_id = parentSelect ? parseInt(parentSelect.value, 10) : 0;
+      const nav_second_desc = descInput ? descInput.value.trim() : '';
+      const nav_second_page = pageInput ? pageInput.value.trim() : '';
+      const rawStatus = statusInput ? parseInt(statusInput.value, 10) : 1;
+      const nav_second_status = Number.isNaN(rawStatus) ? 1 : rawStatus;
+      if (!nav_id || !nav_second_desc || !nav_second_page) {
+        alert('All submenu fields are required');
+        return;
+      }
+      const payload = { nav_id, nav_second_desc, nav_second_page, nav_second_status };
+      let res;
+      if (editingSubmenuId) {
+        payload.nav_second_id = editingSubmenuId;
+        res = await api('update_submenu', payload);
+      } else {
+        res = await api('create_submenu', payload);
+      }
+      if (!res.success) {
+        alert(res.error || 'Failed to save submenu');
+        return;
+      }
       await loadAll();
+      resetSubForm();
+    }
+
+    function startEditSubmenu(navSecondId) {
+      const submenu = (_data.submenus || []).find(s => Number(s.nav_second_id) === Number(navSecondId));
+      if (!submenu) return;
+      editingSubmenuId = Number(navSecondId);
+      const parentSelect = document.getElementById('submenu_nav_id');
+      const descInput = document.getElementById('nav_second_desc');
+      const pageInput = document.getElementById('nav_second_page');
+      const statusInput = document.getElementById('nav_second_status');
+      if (parentSelect) parentSelect.value = String(submenu.nav_id);
+      if (descInput) descInput.value = submenu.nav_second_desc || '';
+      if (pageInput) pageInput.value = submenu.nav_second_page || '';
+      if (statusInput) statusInput.value = String(submenu.nav_second_status ?? '1');
+      setSubFormMode();
+      if (descInput) descInput.focus();
     }
 
     async function assignRole() {
@@ -87,16 +412,245 @@
       const nav_id = document.getElementById('assign_nav_id').value;
       const nav_second_id = document.getElementById('assign_nav_second_id').value;
       const nav_role_turn = document.getElementById('assign_nav_role_turn').value;
-      if (!role_id || !nav_id || !nav_second_id) return alert('All fields required');
+      if (!role_id || !nav_id) return alert('Role and menu are required');
       const res = await api('assign_role', { role_id, nav_id, nav_second_id, nav_role_turn });
-      if (!res.success) return alert(res.error);
+      if (!res.success) return alert(res.error || 'Unable to assign role');
       await loadAll();
     }
 
-    async function unassignRole(role_id, nav_second_id) {
-      if (!confirm('Remove assignment?')) return;
-      const res = await api('unassign_role', { role_id, nav_second_id });
-      if (!res.success) return alert(res.error);
+    async function assignRoleBulk() {
+      const role_ids = getSelectedValues('bulk_role_ids');
+      const nav_id = document.getElementById('bulk_nav_id').value;
+      const nav_second_ids = getSelectedValues('bulk_nav_second_ids');
+      if (!role_ids.length || !nav_id || !nav_second_ids.length) {
+        alert('Select at least one role and one submenu');
+        return;
+      }
+      const res = await api('assign_role_multi', {
+        role_ids: JSON.stringify(role_ids),
+        nav_id,
+        nav_second_ids: JSON.stringify(nav_second_ids)
+      });
+      if (!res.success) return alert(res.error || 'Bulk assignment failed');
+      const created = res.data?.created ?? 0;
+      const skipped = res.data?.skipped ?? 0;
+      alert(`Bulk assignment completed. Created ${created} mapping(s), skipped ${skipped}.`);
+      await loadAll();
+    }
+
+    async function copyRoleNavs() {
+      const source = document.getElementById('copy_source_role_id').value;
+      const targetIds = getSelectedValues('copy_target_role_ids').filter(id => id !== source);
+      const mode = document.getElementById('copy_mode').value;
+      if (!source || !targetIds.length) {
+        alert('Select a source role and at least one target role');
+        return;
+      }
+      const actionLabel = mode === 'replace' ? 'replace existing assignments' : 'merge with existing assignments';
+      if (!confirm(`Copy navigation from the selected source role to ${targetIds.length} role(s) and ${actionLabel}?`)) {
+        return;
+      }
+      const res = await api('copy_role_navs', {
+        source_role_id: source,
+        target_role_ids: JSON.stringify(targetIds),
+        mode
+      });
+      if (!res.success) return alert(res.error || 'Copy operation failed');
+      const created = res.data?.created ?? 0;
+      const skipped = res.data?.skipped ?? 0;
+      alert(`Copy completed (${mode}). Created ${created} mapping(s), skipped ${skipped}.`);
+      await loadAll();
+    }
+
+    function setIconBrowserLoading(isLoading) {
+      const grid = document.getElementById('icon_browser_grid');
+      const countEl = document.getElementById('icon_browser_count');
+      iconBrowserLoading = isLoading;
+      if (!grid) return;
+      if (isLoading) {
+        grid.innerHTML = '<div class="icon-browser-loading">Loading icon catalog…</div>';
+        if (countEl) countEl.textContent = 'Loading…';
+      }
+    }
+
+    async function loadIconCatalog() {
+      if (window._iconCatalog) return;
+  const response = await fetch('../css/fontawesome-pro-6.5.1-web/metadata/icons.json');
+      if (!response.ok) {
+        throw new Error('Failed to load Font Awesome metadata');
+      }
+      const data = await response.json();
+      const catalog = [];
+      Object.entries(data).forEach(([name, meta]) => {
+        const styles = meta.styles || [];
+        if (!styles.includes('solid')) return;
+        const label = meta.label || name;
+        const terms = meta.search?.terms || [];
+        const searchText = [name, label, ...terms].join(' ').toLowerCase();
+        catalog.push({ name, label, styles, searchText });
+      });
+      catalog.sort((a, b) => a.name.localeCompare(b.name));
+      window._iconCatalog = catalog;
+    }
+
+    async function openIconBrowser() {
+      const backdrop = document.getElementById('icon_browser');
+      if (!backdrop) return;
+      backdrop.classList.add('show');
+      backdrop.setAttribute('aria-hidden', 'false');
+      try {
+        if (!window._iconCatalog) {
+          setIconBrowserLoading(true);
+          await loadIconCatalog();
+        }
+        setIconBrowserLoading(false);
+        const searchInput = document.getElementById('icon_browser_search');
+        const currentTerm = iconBrowserTerm || '';
+        if (searchInput) {
+          searchInput.value = currentTerm;
+          setTimeout(() => searchInput.focus({ preventScroll: true }), 60);
+        }
+        filterIconBrowser(currentTerm);
+      } catch (error) {
+        console.error(error);
+        alert('Unable to load icon catalog. Please ensure Font Awesome assets are available.');
+        backdrop.classList.remove('show');
+        backdrop.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    function closeIconBrowser() {
+      const backdrop = document.getElementById('icon_browser');
+      if (backdrop) {
+        backdrop.classList.remove('show');
+        backdrop.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    function filterIconBrowser(term = '') {
+      if (!window._iconCatalog) {
+        setIconBrowserLoading(true);
+        return;
+      }
+      iconBrowserTerm = (term || '').trim().toLowerCase();
+      const results = iconBrowserTerm
+        ? window._iconCatalog.filter(icon => icon.searchText.includes(iconBrowserTerm))
+        : window._iconCatalog;
+      renderIconBrowser(results);
+    }
+
+    function formatIconStyle(styles = []) {
+      if (!styles.length) return '';
+      if (styles.includes('solid')) return 'Solid';
+      const first = styles[0] || '';
+      return first.charAt(0).toUpperCase() + first.slice(1);
+    }
+
+    function renderIconBrowser(list = []) {
+      const grid = document.getElementById('icon_browser_grid');
+      const countEl = document.getElementById('icon_browser_count');
+      if (!grid) return;
+      grid.innerHTML = '';
+      const currentValue = (document.getElementById('nav_icon')?.value || '').trim().toLowerCase();
+      if (!list.length) {
+        grid.innerHTML = '<div class="icon-browser-empty">No icons match your search. Try another keyword.</div>';
+      } else {
+        const fragment = document.createDocumentFragment();
+        const visible = [];
+        const seen = new Set();
+        if (currentValue) {
+          const currentIcon = list.find(icon => icon.name === currentValue);
+          if (currentIcon) {
+            visible.push(currentIcon);
+            seen.add(currentIcon.name);
+          }
+        }
+        for (const icon of list) {
+          if (visible.length >= ICON_BROWSER_LIMIT) break;
+          if (seen.has(icon.name)) continue;
+          visible.push(icon);
+          seen.add(icon.name);
+        }
+
+        visible.forEach(icon => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'icon-browser-option' + (currentValue && currentValue === icon.name ? ' active' : '');
+          button.dataset.icon = icon.name;
+
+          const preview = document.createElement('span');
+          preview.className = 'icon';
+          const iconElement = document.createElement('i');
+          iconElement.classList.add('fas', `fa-${icon.name}`);
+          preview.appendChild(iconElement);
+
+          const info = document.createElement('div');
+          info.className = 'info';
+
+          const nameEl = document.createElement('span');
+          nameEl.className = 'name';
+          nameEl.textContent = icon.label || icon.name;
+          info.appendChild(nameEl);
+
+          const meta = document.createElement('div');
+          meta.className = 'meta';
+          const codeEl = document.createElement('span');
+          codeEl.className = 'code';
+          codeEl.textContent = `fa-${icon.name}`;
+          meta.appendChild(codeEl);
+          const styleLabel = formatIconStyle(icon.styles);
+          if (styleLabel) {
+            const tagEl = document.createElement('span');
+            tagEl.className = 'tag';
+            tagEl.textContent = styleLabel;
+            meta.appendChild(tagEl);
+          }
+          info.appendChild(meta);
+
+          button.append(preview, info);
+          fragment.appendChild(button);
+        });
+
+        grid.appendChild(fragment);
+
+        if (list.length > ICON_BROWSER_LIMIT) {
+          const note = document.createElement('div');
+          note.className = 'icon-browser-empty';
+          note.textContent = `Showing first ${ICON_BROWSER_LIMIT} icons. Refine your search to narrow the list.`;
+          grid.appendChild(note);
+        }
+      }
+
+      if (countEl) {
+        const total = list.length;
+        const suffix = total === 1 ? 'icon' : 'icons';
+        const extra = total > ICON_BROWSER_LIMIT ? ` (showing first ${ICON_BROWSER_LIMIT})` : '';
+        countEl.textContent = `${total} ${suffix}${extra}`;
+      }
+    }
+
+    function handleIconGridClick(event) {
+      const target = event.target.closest('[data-icon]');
+      if (!target) return;
+      const iconName = target.dataset.icon;
+      if (iconName) {
+        selectIcon(iconName);
+      }
+    }
+
+    function selectIcon(iconName) {
+      const input = document.getElementById('nav_icon');
+      if (input) {
+        input.value = normalizeIconName(iconName);
+        updateNavIconPreview();
+      }
+      closeIconBrowser();
+    }
+
+    async function unassignRole(role_id, nav_id, nav_second_id) {
+      if (!confirm('Remove this assignment?')) return;
+      const res = await api('unassign_role', { role_id, nav_id, nav_second_id });
+      if (!res.success) return alert(res.error || 'Unable to remove assignment');
       await loadAll();
     }
 
@@ -104,53 +658,172 @@
       const turn = prompt('New order (integer):');
       if (!turn) return;
       const res = await api('update_order', { role_id, nav_id, nav_second_id, nav_role_turn: turn });
-      if (!res.success) return alert(res.error);
+      if (!res.success) return alert(res.error || 'Unable to update order');
       await loadAll();
     }
 
     function renderNavs() {
       const el = document.getElementById('tbl_navs');
-      el.innerHTML = `<tr><th>ID</th><th>Description</th><th>Status</th></tr>`;
-      _data.navs.forEach(n => el.insertAdjacentHTML('beforeend', `<tr><td>${n.nav_id}</td><td>${n.nav_desc}</td><td>${n.nav_status}</td></tr>`));
+      if (!el) return;
+  el.innerHTML = `<tr><th>ID</th><th>Description</th><th>Icon</th><th>Status</th><th>Actions</th></tr>`;
+      const rows = _data.navs || [];
+      rows.forEach(n => {
+        const iconName = normalizeIconName(n.nav_icon || '');
+        const iconCell = iconName
+          ? `<span class="icon-cell"><i class="fas fa-${iconName}"></i><code>${iconName}</code></span>`
+          : '<span class="icon-none">No icon</span>';
+  const actions = `<button type="button" class="btn outline" style="margin-top:0" onclick="startEditNav(${n.nav_id})">Edit</button>`;
+  el.insertAdjacentHTML('beforeend', `<tr><td>${n.nav_id}</td><td>${n.nav_desc}</td><td>${iconCell}</td><td>${n.nav_status}</td><td>${actions}</td></tr>`);
+      });
+      if (!rows.length) {
+  el.insertAdjacentHTML('beforeend', `<tr><td colspan="5" class="no-data">No main menus defined yet.</td></tr>`);
+      }
+      const badge = document.getElementById('nav_count');
+      if (badge) {
+        const total = rows.length;
+        badge.textContent = `${total} menu${total === 1 ? '' : 's'}`;
+      }
     }
 
     function renderSubmenus() {
       const el = document.getElementById('tbl_submenus');
-      el.innerHTML = `<tr><th>ID</th><th>Nav ID</th><th>Desc</th><th>Page</th><th>Status</th></tr>`;
-      _data.submenus.forEach(s => el.insertAdjacentHTML('beforeend', `<tr><td>${s.nav_second_id}</td><td>${s.nav_id}</td><td>${s.nav_second_desc}</td><td>${s.nav_second_page}</td><td>${s.nav_second_status}</td></tr>`));
+      if (!el) return;
+  el.innerHTML = `<tr><th>ID</th><th>Menu</th><th>Description</th><th>Page</th><th>Status</th><th>Actions</th></tr>`;
+      const rows = _data.submenus || [];
+      rows.forEach(s => {
+        const nav = (_data.navs || []).find(n => n.nav_id == s.nav_id);
+  const actions = `<button type="button" class="btn outline" style="margin-top:0" onclick="startEditSubmenu(${s.nav_second_id})">Edit</button>`;
+  el.insertAdjacentHTML('beforeend', `<tr><td>${s.nav_second_id}</td><td>${nav ? nav.nav_desc : s.nav_id}</td><td>${s.nav_second_desc}</td><td>${s.nav_second_page}</td><td>${s.nav_second_status}</td><td>${actions}</td></tr>`);
+      });
+      if (!rows.length) {
+  el.insertAdjacentHTML('beforeend', `<tr><td colspan="6" class="no-data">No submenus defined yet.</td></tr>`);
+      }
+      const badge = document.getElementById('submenu_count');
+      if (badge) {
+        const total = rows.length;
+        badge.textContent = `${total} submenu${total === 1 ? '' : 's'}`;
+      }
     }
 
     function renderAssignments() {
       const el = document.getElementById('tbl_assign');
-      el.innerHTML = `<tr><th>Role</th><th>Nav</th><th>Submenu</th><th>Turn</th><th>Actions</th></tr>`;
-      _data.assignments.forEach(a => {
-        const role = _data.roles.find(r => r.role_id == a.role_id);
-        const nav = _data.navs.find(n => n.nav_id == a.nav_id);
-        const sub = _data.submenus.find(s => s.nav_second_id == a.nav_second_id);
+      if (!el) return;
+      el.innerHTML = `<tr><th>Role</th><th>Menu</th><th>Submenu</th><th>Order</th><th>Actions</th></tr>`;
+      const filtered = (_data.assignments || []).filter(a => {
+        const matchesRole = roleFilter === 'all' || String(a.role_id) === String(roleFilter);
+        if (!matchesRole) return false;
+        if (!assignmentSearch) return true;
+        const nav = (_data.navs || []).find(n => n.nav_id == a.nav_id);
+        const sub = (_data.submenus || []).find(s => s.nav_second_id == a.nav_second_id);
+        const navDesc = nav?.nav_desc ?? '';
+        const subDesc = sub?.nav_second_desc ?? (a.nav_second_id === null ? 'parent only' : '');
+        const subPage = sub?.nav_second_page ?? '';
+        const text = [navDesc, subDesc, subPage].join(' ').toLowerCase();
+        return text.includes(assignmentSearch);
+      });
+      filtered.forEach(a => {
+        const role = (_data.roles || []).find(r => r.role_id == a.role_id);
+        const nav = (_data.navs || []).find(n => n.nav_id == a.nav_id);
+        const sub = (_data.submenus || []).find(s => s.nav_second_id == a.nav_second_id);
+        const submenuLabel = sub
+          ? `${sub.nav_second_desc} (${sub.nav_second_page})`
+          : (a.nav_second_id === null ? '<span class="chip">Parent only</span>' : `#${a.nav_second_id}`);
         el.insertAdjacentHTML('beforeend', `<tr>
-          <td>${role ? role.role_desc : a.role_id} (#${a.role_id})</td>
-          <td>${nav ? nav.nav_desc : a.nav_id} (#${a.nav_id})</td>
-          <td>${sub ? sub.nav_second_desc : a.nav_second_id} (#${a.nav_second_id})</td>
+          <td>${role ? `${role.role_desc} (#${role.role_id})` : `#${a.role_id}`}</td>
+          <td>${nav ? `${nav.nav_desc} (#${nav.nav_id})` : `#${a.nav_id}`}</td>
+          <td>${submenuLabel}</td>
           <td>${a.nav_role_turn}</td>
           <td>
-            <button onclick="updateOrder(${a.role_id}, ${a.nav_id}, ${a.nav_second_id})">Set Order</button>
-            <button class="secondary" onclick="unassignRole(${a.role_id}, ${a.nav_second_id})">Unassign</button>
+            <button class="btn outline" style="margin-top:0" onclick="updateOrder(${a.role_id}, ${a.nav_id}, ${a.nav_second_id === null ? 'null' : a.nav_second_id})">Reorder</button>
+            <button class="btn secondary" style="margin-top:0" onclick="unassignRole(${a.role_id}, ${a.nav_id}, ${a.nav_second_id === null ? 'null' : a.nav_second_id})">Unassign</button>
           </td>
         </tr>`);
       });
+      if (!filtered.length) {
+        el.insertAdjacentHTML('beforeend', `<tr><td colspan="5" class="no-data">No assignments match the current filter.</td></tr>`);
+      }
+      renderRoleSummary(filtered.length);
     }
 
-    window.addEventListener('DOMContentLoaded', loadAll);
+    function renderRoleSummary(filteredCount = null) {
+      const badge = document.getElementById('role_summary');
+      if (!badge) return;
+      const total = filteredCount !== null ? filteredCount : (_data.assignments || []).length;
+      const label = roleFilter === 'all'
+        ? 'All roles'
+        : ((_data.roles || []).find(r => String(r.role_id) === String(roleFilter))?.role_desc || `Role #${roleFilter}`);
+      badge.textContent = `${label}: ${total} assignment${total === 1 ? '' : 's'}`;
+    }
+
+    function handleNavChange(navId, targetId, allowMulti = false) {
+      rebuildSubmenuSelect(targetId, document.getElementById(navId)?.value, allowMulti);
+    }
+
+    function setRoleFilter(value) {
+      roleFilter = value || 'all';
+      renderAssignments();
+    }
+
+    function setAssignmentSearch(term) {
+      assignmentSearch = (term || '').toLowerCase();
+      renderAssignments();
+    }
+
+    function filterBulkRoles() {
+      const term = document.getElementById('bulk_role_search').value || '';
+      renderRoleMultiOptions('bulk_role_ids', term);
+    }
+
+    function filterCopyTargetRoles() {
+      const term = document.getElementById('copy_target_role_search').value || '';
+      renderRoleMultiOptions('copy_target_role_ids', term);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadAll();
+      updateNavIconPreview();
+      setNavFormMode();
+      setSubFormMode();
+      const grid = document.getElementById('icon_browser_grid');
+      if (grid) {
+        grid.addEventListener('click', handleIconGridClick);
+      }
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        const backdrop = document.getElementById('icon_browser');
+        if (backdrop && backdrop.classList.contains('show')) {
+          event.preventDefault();
+          closeIconBrowser();
+        }
+      }
+    });
+
+    function goBack() {
+      window.location.href = 'dashboard.html';
+    }
   </script>
 </head>
 <body>
+  <div class="page-header">
+    <div class="page-header-info">
+      <span class="page-header-kicker">Maintenance Utility</span>
+      <h1>Navigation Manager</h1>
+      <p>Curate menus, submenus, and quickly map them across many roles without juggling spreadsheets.</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn" onclick="goBack()">← Back to Dashboard</button>
+    </div>
+  </div>
   <div class="container">
-    <h1>Navigation Manager</h1>
-    <p class="muted">Create main menus and submenus, and manage role assignments and ordering.</p>
 
-    <div class="grid">
+    <div class="grid-two">
       <div class="card">
-        <h2>Create / Update Main Menu</h2>
+        <div class="section-title">
+          <h2>Main Menus <span class="tag">Top level</span></h2>
+          <span id="nav_count" class="pill">0 menus</span>
+        </div>
         <div class="row">
           <div>
             <label>Main menu description</label>
@@ -163,17 +836,33 @@
               <option value="0">Inactive</option>
             </select>
           </div>
+          <div style="flex:1 1 260px;">
+            <label>Menu icon</label>
+            <div class="icon-picker">
+              <input id="nav_icon" placeholder="e.g., home" oninput="updateNavIconPreview()" />
+              <button type="button" class="btn outline" onclick="openIconBrowser()">Browse icons</button>
+              <span id="nav_icon_preview" class="icon-preview empty">none</span>
+            </div>
+            <div class="helper-text icon-helper">Stored as Font Awesome name. Example: <code>home</code> renders <i class="fas fa-home"></i>.</div>
+          </div>
         </div>
-        <button onclick="createNav()">Save Menu</button>
+        <div id="nav_form_status" class="helper-text"></div>
+        <div class="form-actions">
+          <button class="btn" id="nav_submit_btn" type="button" onclick="submitNav()">Save menu</button>
+          <button class="btn secondary" id="nav_cancel_btn" type="button" onclick="resetNavForm()" style="display:none;">Cancel edit</button>
+        </div>
         <table id="tbl_navs"></table>
       </div>
 
       <div class="card">
-        <h2>Create / Update Submenu</h2>
+        <div class="section-title">
+          <h2>Submenus <span class="tag">Second level</span></h2>
+          <span id="submenu_count" class="pill">0 submenus</span>
+        </div>
         <div class="row">
           <div>
             <label>Parent menu</label>
-            <select id="submenu_nav_id"></select>
+            <select id="submenu_nav_id" data-nav-options></select>
           </div>
           <div>
             <label>Submenu description</label>
@@ -193,12 +882,32 @@
             </select>
           </div>
         </div>
-        <button onclick="createSub()">Save Submenu</button>
+        <div id="submenu_form_status" class="helper-text"></div>
+        <div class="form-actions">
+          <button class="btn" id="submenu_submit_btn" type="button" onclick="submitSub()">Save submenu</button>
+          <button class="btn secondary" id="submenu_cancel_btn" type="button" onclick="resetSubForm()" style="display:none;">Cancel edit</button>
+        </div>
         <table id="tbl_submenus"></table>
       </div>
+    </div>
 
+    <div class="grid-full">
       <div class="card">
-        <h2>Role Assignment & Order</h2>
+        <div class="section-title">
+          <h2>Role assignments <span class="tag">Manage access</span></h2>
+          <span id="role_summary" class="pill">All roles</span>
+        </div>
+        <div class="toolbar">
+          <div style="flex:1 1 220px; min-width:220px;">
+            <label>Filter by role</label>
+            <select id="role_filter" onchange="setRoleFilter(this.value)"></select>
+          </div>
+          <div style="flex:1 1 220px; min-width:220px;">
+            <label>Search submenu</label>
+            <input id="assignment_search" placeholder="Filter by keyword" oninput="setAssignmentSearch(this.value)" />
+          </div>
+        </div>
+
         <div class="row">
           <div>
             <label>Role</label>
@@ -206,10 +915,8 @@
           </div>
           <div>
             <label>Menu</label>
-            <select id="assign_nav_id" onchange="rebuildSubmenuSelect()"></select>
+            <select id="assign_nav_id" data-nav-options onchange="handleNavChange('assign_nav_id','assign_nav_second_id', false)"></select>
           </div>
-        </div>
-        <div class="row">
           <div>
             <label>Submenu</label>
             <select id="assign_nav_second_id"></select>
@@ -219,12 +926,87 @@
             <input id="assign_nav_role_turn" type="number" min="1" placeholder="auto" />
           </div>
         </div>
-        <button onclick="assignRole()">Assign Role</button>
+        <button class="btn" onclick="assignRole()">Assign role to submenu</button>
+
         <table id="tbl_assign"></table>
       </div>
     </div>
 
-    <p class="muted">Tip: This tool is intended for local/UAT maintenance. Protect or remove in production.</p>
+    <div class="grid-two" style="margin-top:18px;">
+      <div class="card">
+        <h2>Bulk assign <span class="tag">One submenu → many roles</span></h2>
+        <div class="row">
+          <div>
+            <label>Search roles</label>
+            <input id="bulk_role_search" placeholder="Type to filter roles" oninput="filterBulkRoles()" />
+          </div>
+          <div>
+            <label>Roles to assign</label>
+            <select id="bulk_role_ids" multiple></select>
+            <div class="helper-text">Tip: Hold ⌘/Ctrl to multi-select.</div>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Menu</label>
+            <select id="bulk_nav_id" data-nav-options onchange="handleNavChange('bulk_nav_id','bulk_nav_second_ids', true)"></select>
+          </div>
+          <div>
+            <label>Submenus</label>
+            <select id="bulk_nav_second_ids" multiple></select>
+            <div class="helper-text">Select one or more submenus under the chosen menu.</div>
+          </div>
+        </div>
+        <button class="btn" onclick="assignRoleBulk()">Assign submenu(s) to selected roles</button>
+      </div>
+
+      <div class="card">
+        <h2>Copy navigation <span class="tag">Reuse mapping</span></h2>
+        <div class="row">
+          <div>
+            <label>Source role</label>
+            <select id="copy_source_role_id"></select>
+          </div>
+          <div>
+            <label>Copy mode</label>
+            <select id="copy_mode">
+              <option value="merge">Merge (keep existing)</option>
+              <option value="replace">Replace (overwrite)</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Search target roles</label>
+            <input id="copy_target_role_search" placeholder="Filter roles" oninput="filterCopyTargetRoles()" />
+          </div>
+          <div>
+            <label>Target roles</label>
+            <select id="copy_target_role_ids" multiple></select>
+            <div class="helper-text">Selected roles will inherit the source navigation.</div>
+          </div>
+        </div>
+        <button class="btn" onclick="copyRoleNavs()">Copy navigation to selected roles</button>
+      </div>
+    </div>
+
+    <p class="muted">This utility is intended for local/UAT maintenance. Restrict access or remove it in production environments.</p>
+  </div>
+
+  <div id="icon_browser" class="icon-browser-backdrop" onclick="closeIconBrowser()" aria-hidden="true">
+    <div class="icon-browser" onclick="event.stopPropagation()">
+      <div class="icon-browser-header">
+        <h3>Choose an icon</h3>
+        <button type="button" class="icon-browser-close" onclick="closeIconBrowser()">Close</button>
+      </div>
+      <div class="icon-browser-controls">
+        <input id="icon_browser_search" type="search" placeholder="Search by name or keyword" oninput="filterIconBrowser(this.value)" autocomplete="off" />
+        <span id="icon_browser_count" class="icon-browser-count">0 icons</span>
+      </div>
+      <div id="icon_browser_grid" class="icon-browser-grid">
+        <div class="icon-browser-loading">Loading icon catalog…</div>
+      </div>
+    </div>
   </div>
 </body>
 </html>
