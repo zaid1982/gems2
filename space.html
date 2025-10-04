@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #3730a3;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --success-dark: #047857;
+            --success-light: #6ee7b7;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --danger-dark: #991b1b;
+            --danger-light: #fecaca;
+            --info-color: #3b82f6;
+            --light-bg: #f8fafc;
+            --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+        }
+        .title-box { border: lightgray 1px solid; border-radius: 5px; font-size: 13px; }
+        .title-box-title { position: relative; top: -0.7em; margin-left: 1em; display: inline; background-color: white; }
+        .title-box-content { padding-top: 0.3rem; padding-left: 1rem; padding-right: 1rem; }
+        /* PTW Supervisor-inspired card styling */
+        .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: visible; }
+        .main-content-card .card-header { background: linear-gradient(60deg,#26c6da,#00acc1); color:#fff; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+        .main-content-card .card-body { padding: 1rem 1.25rem; }
+        .header-actions .btn { margin-left:.25rem; }
+        .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
+        /* Ensure ancestor containers do not hide overflowed dropdowns */
+        .main-content-card .dropdown, .dataTables_wrapper .dropdown { position: relative; }
+        /* Wider dropdown for action items */
+        .action-split .dropdown-menu { min-width: 240px; z-index: 3000; }
+        /* Compact status select to avoid truncation */
+        .status-filter { min-width: 140px; }
+        /* Helpers */
+        .d-none { display: none !important; }
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 32px;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 32px;
+            box-shadow: var(--card-shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+        .page-header h2 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Badge Styling */
+        .badge-modern {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-success-dark {
+            background: rgba(16, 185, 129, 1);
+            color: var(--success-dark);
+        }
+
+        .badge-success-light {
+            background: rgba(16, 185, 129, 0.3);
+            color: var(--success-light);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .badge-danger-dark {
+            background: rgb(184, 51, 51);
+            color: var(--danger-dark);
+        }
+
+        .badge-danger-light {
+            background: rgba(239, 68, 68, 0.3);
+            color: var(--danger-light);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info-color);
+        }
+
+        .badge-dark {
+            background: rgba(31, 41, 55, 0.1);
+            color: #1f2937;
+        }
+
+        /* Dark green for Closed status */
+        .badge-closed {
+            background: rgba(6, 95, 70, 0.15); /* #065f46 with transparency */
+            color: #065f46;
+        }
+    </style>
+	<script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<main>
+    <div class="container-fluid">
+
+        <div class="page-header">
+            <h2><i class="fas fa-door-open mr-3"></i>Space Management Dashboard</h2>
+            <p>Review and manage spaces within the organization</p>
+        </div>
+
+        <section class="mb-5 mt-lg-5 sectionSpaceMain">
+            <!-- Filters & Options Card (PTW style) -->
+            <!-- <div class="main-content-card mb-4">
+                <div class="card-header">
+                    <div class="header-title">Space Management</div>
+                    <div class="d-flex align-items-center header-actions"></div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-5 col-lg-12 mr-0">
+                            <div class="px-1 pt-2">
+                                <h6 class="pb-2">Filters:</h6>
+                                <div class="row">
+                                    <div class="col-md-12 select-outline">
+                                        <select id="optSpcSiteId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                                        <label for="optSpcSiteId">Site</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 select-outline">
+                                        <select id="optSpcStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                                            <option value="">All Status</option>
+                                            <option value="AVAILABLE">Available</option>
+                                            <option value="RESERVED">Reserved</option>
+                                            <option value="DISABLED">Disabled</option>
+                                        </select>
+                                        <label for="optSpcStatus">Status</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-7 col-lg-12">
+                            <div class="px-1 pt-2">
+                                <div class="row">
+                                    <div class="col-md-7 select-outline">
+                                        <select id="optSpcColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
+                                            <option value="" disabled>Choose Column Visibility</option>
+                                            <option value="1" selected>Space Name</option>
+                                            <option value="2" selected>Location</option>
+                                            <option value="3">Category</option>
+                                            <option value="4">Type</option>
+                                            <option value="5">Area</option>
+                                            <option value="6">Capacity</option>
+                                            <option value="7" selected>Status</option>
+                                        </select>
+                                        <label for="optSpcColumns">Columns Visibility</label>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="md-form md-outline mt-0">
+                                            <input type="text" id="txtSpcSearch" class="form-control">
+                                            <label for="txtSpcSearch" class="active">Keyword Search</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <p class="mb-0 text-muted">Manage spaces, assets, media and reservations.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- List Card (PTW style) -->
+            <div class="main-content-card">
+                <div class="card-header">
+                    <div class="header-title">Space List</div>
+                    <div class="d-flex align-items-center header-actions">
+                        <button type="button" id="btnSpcAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Space"><i class="fas fa-plus mt-0"></i></button>
+                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Space List" data-content="Space directory with booking."><i class="fas fa-info mt-0 mx-1"></i></a>
+                        <button type="button" id="btnDtSpcRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                        <div id="btnDtSpcExport" class="ml-2"></div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="dtSpc" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                            <thead>
+                                <tr class="th-strong">
+                                    <th style="max-width:30px">#</th>
+                                    <th style="min-width:120px">Space Name</th>
+                                    <th style="min-width:100px">Location</th>
+                                    <th style="min-width:120px">Category</th>
+                                    <th style="min-width:120px">Type</th>
+                                    <th style="min-width:60px">Area</th>
+                                    <th style="min-width:60px">Capacity</th>
+                                    <th style="max-width:55px">Status</th>
+                                    <th style="min-width:42px"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    </div>
+</main>
+<!-- Create Space Modal -->
+<div class="modal fade" id="modalSpcForm" tabindex="-1" role="dialog" aria-labelledby="modalSpcFormLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalSpcFormLabel">Create Space</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frmSpc">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSpcName" class="form-control" required>
+                                <label for="txtSpcName" class="active">Space Name *</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 select-outline">
+                            <select id="optSpcStatusForm" class="mdb-select md-form md-outline colorful-select mt-0">
+                                <option value="AVAILABLE" selected>Available</option>
+                                <option value="DISABLED">Disabled</option>
+                            </select>
+                            <label for="optSpcStatusForm">Status *</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 select-outline">
+                            <select id="optSpcLocation" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                            <label for="optSpcLocation">Location</label>
+                        </div>
+                        <div class="col-md-4 select-outline">
+                            <select id="optSpcCategory" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                            <label for="optSpcCategory">Category</label>
+                        </div>
+                        <div class="col-md-4 select-outline">
+                            <select id="optSpcType" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                            <label for="optSpcType">Type</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="md-form md-outline mt-0">
+                                <input type="number" id="txtSpcArea" class="form-control" min="0" step="0.01">
+                                <label for="txtSpcArea" class="active">Area (m²)</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="md-form md-outline mt-0">
+                                <input type="number" id="txtSpcCapacity" class="form-control" min="0" step="1">
+                                <label for="txtSpcCapacity" class="active">Capacity</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSpcDesc" class="form-control">
+                                <label for="txtSpcDesc" class="active">Description</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSpcSave">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="js/popper.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/pages/main_space.js"></script>
+</body>
+</html>

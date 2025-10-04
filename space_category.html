@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0</title>
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+    <link href="css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    <style>
+        :root {
+          --primary-color: #4f46e5;
+          --primary-dark: #3730a3;
+          --light-bg: #f8fafc;
+        }
+        .page-header {
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+          color: white;
+          padding: 24px 32px;
+          border-radius: 16px;
+          margin: 24px 0 16px 0;
+          box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .page-header h2 { font-size: 1.75rem; font-weight: 700; margin: 0; }
+        .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+        .main-content-card .card-header { background: #f8fafc; color:#000; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+        .main-content-card .card-body { padding: 1rem 1.25rem; }
+        .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
+        .icon-btn{ border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+        .icon-btn:hover{ background:#f3f4f6; }
+        .th-strong th { font-weight: 700; color:#374151; border-bottom:2px solid #e5e7eb; }
+        /* Segmented buttons */
+        .segmented-group{ display:inline-flex; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+        .segmented-btn{ background:#fff; color:#374151; padding:8px 12px; border:none; border-right:1px solid #e5e7eb; font-weight:600; letter-spacing:.2px; }
+        .segmented-btn:last-child{ border-right:none; }
+        .segmented-btn:hover{ background:#f8fafc; }
+        .badge-modern { padding: 6px 10px; border-radius: 16px; font-size: .75rem; font-weight: 600; display:inline-block; }
+        .badge-success-dark { background: rgba(16, 185, 129, 1); color: #fff; }
+        .badge-warning { background: rgba(245, 158, 11, 0.9); color: #fff; }
+        .badge-danger-dark { background: rgb(184, 51, 51); color: #fff; }
+    </style>
+    </head>
+<body class="fixed-sn light-blue-skin">
+<header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+  </header>
+<main>
+  <div class="container-fluid">
+    <section class="mb-5 mt-lg-5">
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <h2 class="mb-0"><i class="fas fa-cubes mr-3"></i>Space Category</h2>
+        <div class="d-flex align-items-center">
+          <button type="button" id="btnSpcCatAdd" class="icon-btn" data-toggle="tooltip" title="Add Category"><i class="fas fa-plus"></i></button>
+          <a tabindex="0" role="button" class="icon-btn ml-2" data-toggle="popover" data-trigger="focus" title="Space Category" data-content="Manage space categories (create, edit, activate/deactivate, delete)."><i class="fas fa-info"></i></a>
+          <button type="button" id="btnSpcCatRefresh" class="icon-btn ml-2" data-toggle="tooltip" title="Refresh"><i class="fas fa-sync"></i></button>
+        </div>
+      </div>
+
+      <div class="main-content-card mb-4">
+        <div class="card-header">
+          <div class="header-title">Filters</div>
+          <div class="d-flex align-items-center header-actions">
+            <div id="dtSpcCatButtons" class="d-none"></div>
+            <div class="segmented-group ml-2" id="spcCatExportToggle" role="group" aria-label="Export">
+              <button class="segmented-btn" data-export="csv" aria-label="Export CSV">CSV</button>
+              <button class="segmented-btn" data-export="excel" aria-label="Export Excel">EXCEL</button>
+              <button class="segmented-btn" data-export="print" aria-label="Export Print">PRINT</button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="md-form md-outline mt-0">
+                <input type="text" id="txtSpcCatSearch" class="form-control">
+                <label for="txtSpcCatSearch" class="active">Search</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-content-card">
+        <div class="card-header">
+          <div class="header-title">Categories</div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="dtSpcCat" class="table table-hover mb-0 display responsive" width="100%">
+              <thead>
+                <tr class="th-strong">
+                  <th style="width: 4%">#</th>
+                  <th style="width: 28%">Category Name</th>
+                  <th>Description</th>
+                  <th style="width: 12%">Status</th>
+                  <th style="width: 80px"></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    <div class="includeHtml" id="h-modal_space_category"></div>
+  </div>
+</main>
+
+<script type="text/javascript">
+  $('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf()); });
+</script>
+<script type="text/javascript" src="js/popper.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<script type="text/javascript" src="js/modules/toastr.js"></script>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/pages/modal_confirm_delete.js"></script>
+<script type="text/javascript" src="js/pages/modal_space_category.js"></script>
+<script type="text/javascript" src="js/pages/main_space_category.js"></script>
+</body>
+</html>

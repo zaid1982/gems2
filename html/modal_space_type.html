@@ -1,0 +1,40 @@
+<div class="modal fade" id="modal_space_type" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-center">
+        <h4 class="text-white mt-2 ml-2" id="lblMstTitle"></h4>
+        <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="formMst">
+          <div class="select-outline mt-2">
+            <select id="optMstCategoryId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+            <label for="optMstCategoryId" id="lblMstCategoryId">Category *</label>
+            <p class="font-small text-danger" id="optMstCategoryIdErr"></p>
+          </div>
+          <div class="md-form md-outline mt-0">
+            <input type="text" id="txtMstName" class="form-control">
+            <label for="txtMstName" id="lblMstName">Type Name *</label>
+            <p class="font-small text-danger" id="txtMstNameErr"></p>
+          </div>
+          <div class="md-form md-outline">
+            <textarea id="txaMstDesc" class="md-textarea form-control" rows="3"></textarea>
+            <label for="txaMstDesc" id="lblMstDesc" class="text-muted">Description</label>
+            <p class="font-small text-danger" id="txaMstDescErr"></p>
+          </div>
+          <h6 class="font-small">Status:</h6>
+          <div class="form-check pl-0 ml-3">
+            <input type="checkbox" class="form-check-input" id="chkMstStatus" name="chkMstStatus" value="1">
+            <label class="form-check-label" for="chkMstStatus">Active</label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer p-2">
+        <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+        <button id="btnMstSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+      </div>
+    </div>
+  </div>
+</div>

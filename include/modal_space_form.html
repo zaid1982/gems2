@@ -1,0 +1,72 @@
+<div class="modal fade" id="modalSpaceForm" tabindex="-1" role="dialog" aria-labelledby="modalSpaceFormLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalSpaceFormLabel">Add Space</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="frmSpace">
+          <div class="form-row">
+            <div class="col-md-6 md-form md-outline">
+              <input type="text" id="txtSpcName" class="form-control" />
+              <label for="txtSpcName">Space Name *</label>
+              <small id="txtSpcNameErr" class="form-text text-danger"></small>
+            </div>
+            <div class="col-md-6 select-outline">
+              <select id="optSpcFormSiteId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+              <label for="optSpcFormSiteId">Site *</label>
+              <small id="optSpcFormSiteIdErr" class="form-text text-danger"></small>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="col-md-6 select-outline">
+              <select id="optSpcLocation" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+              <label for="optSpcLocation">Location</label>
+            </div>
+            <div class="col-md-6 select-outline">
+              <select id="optSpcCategory" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+              <label for="optSpcCategory">Category</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="col-md-6 select-outline">
+              <select id="optSpcType" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+              <label for="optSpcType">Type</label>
+            </div>
+            <div class="col-md-3 md-form md-outline">
+              <input type="text" id="txtSpcArea" class="form-control" />
+              <label for="txtSpcArea">Area (sqm)</label>
+            </div>
+            <div class="col-md-3 md-form md-outline">
+              <input type="text" id="txtSpcCapacity" class="form-control" />
+              <label for="txtSpcCapacity">Capacity</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="col-md-12 md-form md-outline">
+              <textarea id="txtSpcDesc" rows="3" class="form-control md-textarea"></textarea>
+              <label for="txtSpcDesc">Description</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="col-md-6 select-outline">
+              <select id="optSpcStatusForm" class="mdb-select md-form md-outline colorful-select mt-0">
+                <option value="AVAILABLE">Available</option>
+                <option value="ACTIVE">Active</option>
+                <option value="DISABLED">Disabled</option>
+              </select>
+              <label for="optSpcStatusForm">Status *</label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" id="btnSpcSave" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
