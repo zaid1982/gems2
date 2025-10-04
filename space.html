@@ -33,9 +33,9 @@
         .title-box { border: lightgray 1px solid; border-radius: 5px; font-size: 13px; }
         .title-box-title { position: relative; top: -0.7em; margin-left: 1em; display: inline; background-color: white; }
         .title-box-content { padding-top: 0.3rem; padding-left: 1rem; padding-right: 1rem; }
-        /* PTW Supervisor-inspired card styling */
-        .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: visible; }
-        .main-content-card .card-header { background: linear-gradient(60deg,#26c6da,#00acc1); color:#fff; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+    /* Modern card styling */
+    .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: visible; }
+    .main-content-card .card-header { background: #f8fafc; color:#000; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
         .main-content-card .card-body { padding: 1rem 1.25rem; }
         .header-actions .btn { margin-left:.25rem; }
         .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
@@ -146,6 +146,13 @@
             background: rgba(6, 95, 70, 0.15); /* #065f46 with transparency */
             color: #065f46;
         }
+        /* Segmented buttons + icon buttons */
+        .segmented-group{ display:inline-flex; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+        .segmented-btn{ background:#fff; color:#374151; padding:8px 12px; border:none; border-right:1px solid #e5e7eb; font-weight:600; letter-spacing:.2px; }
+        .segmented-btn:last-child{ border-right:none; }
+        .segmented-btn:hover{ background:#f8fafc; }
+        .icon-btn{ border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+        .icon-btn:hover{ background:#f3f4f6; }
     </style>
 	<script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
@@ -158,84 +165,53 @@
 <main>
     <div class="container-fluid">
 
-        <div class="page-header">
-            <h2><i class="fas fa-door-open mr-3"></i>Space Management Dashboard</h2>
-            <p>Review and manage spaces within the organization</p>
+        <div class="page-header d-flex align-items-center justify-content-between">
+            <div>
+                <h2 class="mb-0"><i class="fas fa-door-open mr-3"></i>Space Management</h2>
+                <p class="mb-0">Review and manage spaces within the organization</p>
+            </div>
+            <div class="d-flex align-items-center">
+                <button type="button" id="btnSpcAdd" class="icon-btn" data-toggle="tooltip" title="Add Space"><i class="fas fa-plus"></i></button>
+                <a tabindex="0" role="button" class="icon-btn ml-2" data-toggle="popover" data-trigger="focus" title="Space List" data-content="Space directory with booking."><i class="fas fa-info"></i></a>
+                <button type="button" id="btnDtSpcRefresh" class="icon-btn ml-2" data-toggle="tooltip" title="Refresh"><i class="fas fa-sync"></i></button>
+            </div>
         </div>
 
         <section class="mb-5 mt-lg-5 sectionSpaceMain">
-            <!-- Filters & Options Card (PTW style) -->
-            <!-- <div class="main-content-card mb-4">
+            <!-- Filters Card (modern concept) -->
+            <div class="main-content-card mb-4">
                 <div class="card-header">
-                    <div class="header-title">Space Management</div>
-                    <div class="d-flex align-items-center header-actions"></div>
+                    <div class="header-title">Filters</div>
+                    <div class="d-flex align-items-center header-actions">
+                        <div id="dtSpcButtons" class="d-none"></div>
+                        <div class="segmented-group ml-2" id="spcExportToggle" role="group" aria-label="Export">
+                            <button class="segmented-btn" data-export="csv" aria-label="Export CSV">CSV</button>
+                            <button class="segmented-btn" data-export="excel" aria-label="Export Excel">EXCEL</button>
+                            <button class="segmented-btn" data-export="print" aria-label="Export Print">PRINT</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-xl-5 col-lg-12 mr-0">
-                            <div class="px-1 pt-2">
-                                <h6 class="pb-2">Filters:</h6>
-                                <div class="row">
-                                    <div class="col-md-12 select-outline">
-                                        <select id="optSpcSiteId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                                        <label for="optSpcSiteId">Site</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12 select-outline">
-                                        <select id="optSpcStatus" class="mdb-select md-form md-outline colorful-select mt-0">
-                                            <option value="">All Status</option>
-                                            <option value="AVAILABLE">Available</option>
-                                            <option value="RESERVED">Reserved</option>
-                                            <option value="DISABLED">Disabled</option>
-                                        </select>
-                                        <label for="optSpcStatus">Status</label>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="col-md-4 select-outline">
+                            <select id="optSpcSiteId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                            <label for="optSpcSiteId">Site</label>
                         </div>
-                        <div class="col-xl-7 col-lg-12">
-                            <div class="px-1 pt-2">
-                                <div class="row">
-                                    <div class="col-md-7 select-outline">
-                                        <select id="optSpcColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
-                                            <option value="" disabled>Choose Column Visibility</option>
-                                            <option value="1" selected>Space Name</option>
-                                            <option value="2" selected>Location</option>
-                                            <option value="3">Category</option>
-                                            <option value="4">Type</option>
-                                            <option value="5">Area</option>
-                                            <option value="6">Capacity</option>
-                                            <option value="7" selected>Status</option>
-                                        </select>
-                                        <label for="optSpcColumns">Columns Visibility</label>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtSpcSearch" class="form-control">
-                                            <label for="txtSpcSearch" class="active">Keyword Search</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-2">
-                                    <p class="mb-0 text-muted">Manage spaces, assets, media and reservations.</p>
-                                </div>
+                        
+                        <div class="col-md-8 d-flex align-items-center justify-content-end">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtSpcSearch" class="form-control">
+                                <label for="txtSpcSearch" class="active">Search</label>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div> -->
+            </div>
 
-            <!-- List Card (PTW style) -->
+            <!-- List Card (modern concept) -->
             <div class="main-content-card">
                 <div class="card-header">
-                    <div class="header-title">Space List</div>
-                    <div class="d-flex align-items-center header-actions">
-                        <button type="button" id="btnSpcAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Space"><i class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Space List" data-content="Space directory with booking."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtSpcRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                        <div id="btnDtSpcExport" class="ml-2"></div>
-                    </div>
+                    <div class="header-title">Spaces</div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -340,6 +316,7 @@
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
 <script type="text/javascript" src="js/addons/crypto.js"></script>
 <script type="text/javascript" src="js/addons/moment.min.js"></script>

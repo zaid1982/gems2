@@ -803,9 +803,15 @@ function initiatePages() {
         minScrollbarLength: 20
     });*/
 
-    // Material Select Initialization
+    // Material Select Initialization (guard against double init)
     $(document).ready(function () {
-        $('.mdb-select').materialSelect();
+        $('.mdb-select').each(function(){
+            var $sel = $(this);
+            // Only initialize if not yet wrapped by MDB select wrapper
+            if (!$sel.parent().hasClass('select-wrapper')) {
+                try { $sel.materialSelect(); } catch(e) { /* ignore */ }
+            }
+        });
         $(".mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
     });
 

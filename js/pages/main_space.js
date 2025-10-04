@@ -10,17 +10,19 @@
         return $.ajax({ url: 'api/space.php' + buildQuery(params), method: 'GET', dataType: 'json', headers });
     }
     function buildQuery(params) { const q = []; if (params.siteId) q.push('siteId=' + encodeURIComponent(params.siteId)); if (params.status) q.push('status=' + encodeURIComponent(params.status)); return q.length ? ('?' + q.join('&')) : ''; }
-    function statusBadge(status) { const map = { AVAILABLE: 'success', ACTIVE: 'info', RESERVED: 'warning', DISABLED: 'danger' }; const cls = map[status] || 'secondary'; return '<span class="badge badge-modern badge-compact badge-' + cls + '">' + status + '</span>'; }
+    function statusBadge(status) { const map = { AVAILABLE: 'success-dark', RESERVED: 'warning', DISABLED: 'danger-dark', ACTIVE: 'info' }; const cls = map[status] || 'dark'; return '<span class="badge-modern badge-' + cls + '">' + status + '</span>'; }
 
     function initDataTable() {
         const isAdmin = mzIsRoleExist('1,10');
-        dt = $('#dtSpc').DataTable({ language: _DATATABLE_LANGUAGE, searching: true, ordering: true, responsive: true, paging: true, columnDefs: [{ targets: 0, orderable: false, searchable: false }, { targets: -1, orderable: false, searchable: false }], order: [[1, 'asc']], data: [], columns: [ { data: null, render: function() { return ''; } }, { data: 'spaceName' }, { data: 'locationName', defaultContent: '' }, { data: 'categoryName', defaultContent: '' }, { data: 'typeName', defaultContent: '' }, { data: 'spaceArea', defaultContent: '' }, { data: 'spaceCapacity', defaultContent: '' }, { data: 'spaceStatus', render: function(d){ return statusBadge(d); } }, { data: null, render: function(row){ 
+    dt = $('#dtSpc').DataTable({ language: _DATATABLE_LANGUAGE, searching: true, ordering: true, responsive: true, paging: true, dom:'Bfrtip', buttons:[{extend:'csv', title:'spaces'},{extend:'excel', title:'spaces'},{extend:'print', title:'spaces'}], columnDefs: [{ targets: 0, orderable: false, searchable: false }, { targets: -1, orderable: false, searchable: false }], order: [[1, 'asc']], data: [], columns: [ { data: null, render: function() { return ''; } }, { data: 'spaceName' }, { data: 'locationName', defaultContent: '' }, { data: 'categoryName', defaultContent: '' }, { data: 'typeName', defaultContent: '' }, { data: 'spaceArea', defaultContent: '' }, { data: 'spaceCapacity', defaultContent: '' }, { data: 'spaceStatus', render: function(d){ return statusBadge(d); } }, { data: null, render: function(row){ 
             let html = '<div class="btn-group btn-group-sm" role="group">';
             if (isAdmin) { html += '<button type="button" class="btn btn-outline-secondary btnSpcManage" title="Manage"><i class="fas fa-tools"></i></button>'; }
             html += '<button type="button" class="btn btn-outline-primary btnSpcView" title="View"><i class="fa fa-eye"></i></button>';
             html += '</div>'; return html; 
         } } ] });
-        dt.on('order.dt search.dt', function () { dt.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) { cell.innerHTML = i + 1; }); }).draw();
+    dt.on('order.dt search.dt', function () { dt.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) { cell.innerHTML = i + 1; }); }).draw();
+    const $btns=$(dt.buttons().container()); $('#dtSpcButtons').append($btns).addClass('d-none');
+    $('#spcExportToggle .segmented-btn').on('click', function(){ const type=$(this).data('export'); if(type==='csv'){ dt.button(0).trigger(); } else if(type==='excel'){ dt.button(1).trigger(); } else if(type==='print'){ dt.button(2).trigger(); } });
     }
 
     function loadSpaces() {
@@ -46,14 +48,18 @@
     function initFilters() {
         const userSite = mzGetUserInfoByParam('siteId'); currentSiteId = userSite || ''; const isAdmin = mzIsRoleExist('1,10');
         if (!isAdmin && userSite) { $('#optSpcSiteId').append('<option value="' + userSite + '" selected>' + mzGetUserInfoByParam('siteName') + '</option>'); $('#optSpcSiteId').prop('disabled', true); } else { $('#optSpcSiteId').append('<option value="">All Sites</option>'); }
-        // Destroy existing instances to avoid duplicate dropdowns created by global init
-        try { $('#optSpcStatus').materialSelect('destroy'); } catch(e){}
-        try { $('#optSpcColumns').materialSelect('destroy'); } catch(e){}
-        try { $('#optSpcSiteId').materialSelect('destroy'); } catch(e){}
+    // Destroy existing instances to avoid duplicate dropdowns created by global init
+    try { $('#optSpcStatus').materialSelect('destroy'); } catch(e){}
+    try { $('#optSpcColumns').materialSelect('destroy'); } catch(e){}
+    try { $('#optSpcSiteId').materialSelect('destroy'); } catch(e){}
+    // Also destroy if already wrapped (defensive)
+    if ($('#optSpcStatus').parent().hasClass('select-wrapper')) { try { $('#optSpcStatus').materialSelect('destroy'); } catch(e){} }
+    if ($('#optSpcColumns').parent().hasClass('select-wrapper')) { try { $('#optSpcColumns').materialSelect('destroy'); } catch(e){} }
+    if ($('#optSpcSiteId').parent().hasClass('select-wrapper')) { try { $('#optSpcSiteId').materialSelect('destroy'); } catch(e){} }
         // Re-initialize after updating options/disabled state
-        $('#optSpcStatus').materialSelect();
-        $('#optSpcColumns').materialSelect();
-        $('#optSpcSiteId').materialSelect();
+    $('#optSpcStatus').materialSelect();
+    $('#optSpcColumns').materialSelect();
+    $('#optSpcSiteId').materialSelect();
         $('#optSpcStatus').on('change', loadSpaces); $('#optSpcSiteId').on('change', function(){ currentSiteId = $(this).val(); loadSpaces(); }); $('#txtSpcSearch').on('keyup', function(){ dt.search(this.value).draw(); });
         // For non-admins, default status to AVAILABLE to show bookable spaces first
         if (!isAdmin) {
@@ -158,8 +164,8 @@
     }
 
     function initButtons() {
-        $('#btnDtSpcRefresh').on('click', loadSpaces);
-        $('#btnSpcAdd').on('click', openCreateModal);
+    $('#btnDtSpcRefresh').on('click', loadSpaces);
+    $('#btnSpcAdd').on('click', openCreateModal);
     $('#dtSpc').on('click', '.btnSpcView', function(){ const data = dt.row($(this).closest('tr')).data(); if (data && data.spaceId) { window.location.href = 'space_preview.html?id=' + data.spaceId; } });
     $('#btnSpcSave').on('click', saveSpace);
     $('#dtSpc').on('click', '.btnSpcManage', function(){ const data = dt.row($(this).closest('tr')).data(); if (data && data.spaceId) { window.location.href = 'space_manage.html?id=' + data.spaceId; } });
@@ -170,6 +176,7 @@
         let pending = $('.includeHtml').length;
         if (pending === 0) {
             try { if (typeof initiatePages === 'function') { initiatePages(); } } catch(e) { /* no-op */ }
+            $('[data-toggle="popover"]').popover(); $('[data-toggle="tooltip"]').tooltip();
             initDataTable(); initFilters(); initButtons(); loadSpaces();
         } else {
             $('.includeHtml').each(function(){
@@ -178,6 +185,7 @@
                 $('#'+id).load(target, function(){
                     pending--; if (pending === 0) {
                         try { if (typeof initiatePages === 'function') { initiatePages(); } } catch(e) { /* no-op */ }
+                        $('[data-toggle="popover"]').popover(); $('[data-toggle="tooltip"]').tooltip();
                         initDataTable(); initFilters(); initButtons(); loadSpaces();
                     }
                 });
