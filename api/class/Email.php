@@ -40,7 +40,27 @@ class Email extends General {
                     }
                 }
                 $emailHtml = str_replace ("[fullName]", $receiverName, $emailHtml);
-                DbMysql::insert('email_send', array('emailTemplateId'=>$emailTemplateId, 'emailAddress'=>$emailAddress, 'emailTitle'=>$emailTitle, 'emailHtml'=>$emailHtml, 'userId'=>$receiverId));
+                // Optional attachment support: pass 'emailAttachment' and 'emailFilename' in emailParams
+                $attachmentPath = '';
+                $attachmentName = '';
+                if (array_key_exists('emailAttachment', $emailParams) && !empty($emailParams['emailAttachment'])) {
+                    $attachmentPath = $emailParams['emailAttachment'];
+                }
+                if (array_key_exists('emailFilename', $emailParams) && !empty($emailParams['emailFilename'])) {
+                    $attachmentName = $emailParams['emailFilename'];
+                }
+                $insertArr = array(
+                    'emailTemplateId' => $emailTemplateId,
+                    'emailAddress' => $emailAddress,
+                    'emailTitle' => $emailTitle,
+                    'emailHtml' => $emailHtml,
+                    'userId' => $receiverId
+                );
+                if (!empty($attachmentPath) && !empty($attachmentName)) {
+                    $insertArr['emailAttachment'] = $attachmentPath;
+                    $insertArr['emailFilename'] = $attachmentName;
+                }
+                DbMysql::insert('email_send', $insertArr);
             }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());

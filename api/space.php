@@ -4,6 +4,7 @@ require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
 require_once 'class/Space.php';
+require_once 'class/Email.php';
 
 $apiName = 'space.php';
 $isTransaction = false;

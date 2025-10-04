@@ -449,8 +449,31 @@ class Space extends General {
 
             $reservationId = DbMysql::insert(self::$reservationTable, $insertArr);
             $this->saveAudit(73, 'Space reservation auto-approved (Space '.$space['spaceName'].', Reservation #'.$reservationId.')');
+            $reservation = $this->getReservation($reservationId);
 
-            return $this->getReservation($reservationId);
+            // Email notifications: Created (attach ICS)
+            try {
+                $email = new Email($this->userId, $this->isLogged);
+                $paramsEmail = array(
+                    'space_name' => $space['spaceName'],
+                    'location_name' => DbMysql::selectColumn('ref_space_location', array('spaceLocationId'=>intval($space['spaceLocationId'])), 'spaceLocationName'),
+                    'reservation_start' => $reservation['reservationStart'],
+                    'reservation_end' => $reservation['reservationEnd']
+                );
+                // Build ICS invite
+                $icsPath = $this->buildReservationIcs($space, $reservation, 'CREATED');
+                if (!empty($icsPath)) {
+                    $paramsEmail['emailAttachment'] = $icsPath;
+                    $paramsEmail['emailFilename'] = 'Reservation_'.$reservationId.'.ics';
+                }
+                // requester
+                $email->prepare(intval($this->userId), 25, $paramsEmail);
+                // space owner/maintainer (if stored); fallback to site manager role by convention
+                $siteManagerId = DbMysql::selectColumn('sys_user_role', array('siteId'=>intval($siteId), 'roleId'=>'IN|1,10'), 'userId');
+                if (!empty($siteManagerId)) { $email->prepare(intval($siteManagerId), 25, $paramsEmail); }
+            } catch (Throwable $ex) { /* log only */ DbMysql::logError(__CLASS__, __FUNCTION__, __LINE__, 'Email prepare error: '.$ex->getMessage()); }
+
+            return $reservation;
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -494,8 +517,32 @@ class Space extends General {
             ), array('reservationId'=>$reservationId));
 
             $this->saveAudit(74, 'Space reservation canceled (#'.$reservationId.')');
+            $reservation = $this->getReservation($reservationId);
 
-            return $this->getReservation($reservationId);
+            // Email notifications: Canceled (attach ICS cancellation notice)
+            try {
+                $space = DbMysql::select(self::$tableName, array('spaceId'=>intval($reservation['spaceId'])), true);
+                $email = new Email($this->userId, $this->isLogged);
+                $paramsEmail = array(
+                    'space_name' => $space['spaceName'],
+                    'location_name' => DbMysql::selectColumn('ref_space_location', array('spaceLocationId'=>intval($space['spaceLocationId'])), 'spaceLocationName'),
+                    'reservation_start' => $reservation['reservationStart'],
+                    'reservation_end' => $reservation['reservationEnd'],
+                    'cancel_reason' => $reason ?? ''
+                );
+                $icsPath = $this->buildReservationIcs($space, $reservation, 'CANCELED');
+                if (!empty($icsPath)) {
+                    $paramsEmail['emailAttachment'] = $icsPath;
+                    $paramsEmail['emailFilename'] = 'Reservation_'.$reservationId.'_cancel.ics';
+                }
+                // requester
+                $email->prepare(intval($reservation['requestedBy']), 27, $paramsEmail);
+                // space/site manager
+                $siteManagerId = DbMysql::selectColumn('sys_user_role', array('siteId'=>intval($reservation['siteId']), 'roleId'=>'IN|1,10'), 'userId');
+                if (!empty($siteManagerId)) { $email->prepare(intval($siteManagerId), 27, $paramsEmail); }
+            } catch (Throwable $ex) { DbMysql::logError(__CLASS__, __FUNCTION__, __LINE__, 'Email prepare error: '.$ex->getMessage()); }
+
+            return $reservation;
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -698,14 +745,41 @@ class Space extends General {
 
             $this->assertAvailabilityExcept($spaceId, $start, $end, $reservationId);
 
+            $oldStart = $reservation['reservationStart'];
+            $oldEnd = $reservation['reservationEnd'];
             DbMysql::update(self::$reservationTable, array(
                 'reservationStart' => $start->format('Y-m-d H:i:s'),
                 'reservationEnd' => $end->format('Y-m-d H:i:s')
             ), array('reservationId'=>$reservationId));
 
             $this->saveAudit(75, 'Space reservation rescheduled (#'.$reservationId.')');
+            $reservation = $this->getReservation($reservationId);
 
-            return $this->getReservation($reservationId);
+            // Email notifications: Updated (attach ICS with new time)
+            try {
+                $space = DbMysql::select(self::$tableName, array('spaceId'=>intval($reservation['spaceId'])), true);
+                $email = new Email($this->userId, $this->isLogged);
+                $paramsEmail = array(
+                    'space_name' => $space['spaceName'],
+                    'location_name' => DbMysql::selectColumn('ref_space_location', array('spaceLocationId'=>intval($space['spaceLocationId'])), 'spaceLocationName'),
+                    'old_start' => $oldStart,
+                    'old_end' => $oldEnd,
+                    'reservation_start' => $reservation['reservationStart'],
+                    'reservation_end' => $reservation['reservationEnd']
+                );
+                $icsPath = $this->buildReservationIcs($space, $reservation, 'UPDATED');
+                if (!empty($icsPath)) {
+                    $paramsEmail['emailAttachment'] = $icsPath;
+                    $paramsEmail['emailFilename'] = 'Reservation_'.$reservationId.'_update.ics';
+                }
+                // requester
+                $email->prepare(intval($reservation['requestedBy']), 26, $paramsEmail);
+                // site manager
+                $siteManagerId = DbMysql::selectColumn('sys_user_role', array('siteId'=>intval($reservation['siteId']), 'roleId'=>'IN|1,10'), 'userId');
+                if (!empty($siteManagerId)) { $email->prepare(intval($siteManagerId), 26, $paramsEmail); }
+            } catch (Throwable $ex) { DbMysql::logError(__CLASS__, __FUNCTION__, __LINE__, 'Email prepare error: '.$ex->getMessage()); }
+
+            return $reservation;
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -972,6 +1046,84 @@ class Space extends General {
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
+    }
+
+    /**
+     * Build a simple ICS calendar invite for a reservation and save it to a temp folder.
+     * Returns absolute file path or empty string on failure.
+     * @param array $space Row from spc_space with keys like spaceName, siteId, spaceLocationId
+     * @param array $reservation Row from spc_reservation with start/end and requestedBy
+     * @param string $eventType CREATED|UPDATED|CANCELED (mapped to METHOD)
+     * @return string
+     */
+    private function buildReservationIcs(array $space, array $reservation, string $eventType = 'CREATED'): string
+    {
+        try {
+            $uid = 'RES-' . ($reservation['reservationId'] ?? uniqid());
+            $summary = 'Reservation: ' . ($space['spaceName'] ?? 'Space');
+            $locationName = DbMysql::selectColumn('ref_space_location', array('spaceLocationId'=>intval($space['spaceLocationId'] ?? 0)), 'spaceLocationName');
+            $location = !empty($locationName) ? $locationName : 'N/A';
+            $desc = 'Space reservation for ' . ($space['spaceName'] ?? 'Space');
+            $start = new DateTime($reservation['reservationStart']);
+            $end = new DateTime($reservation['reservationEnd']);
+            $dtStamp = (new DateTime())->setTimezone(new DateTimeZone('UTC'));
+            $dtStartUtc = (clone $start)->setTimezone(new DateTimeZone('UTC'));
+            $dtEndUtc = (clone $end)->setTimezone(new DateTimeZone('UTC'));
+            $method = 'REQUEST';
+            $statusLine = '';
+            if ($eventType === 'CANCELED') {
+                $method = 'CANCEL';
+                $statusLine = "STATUS:CANCELLED\r\n";
+            }
+
+            // Organizer and attendee: we use requestedBy email if available
+            $attendeeEmail = DbMysql::selectColumn('sys_user_profile', array('userId'=>intval($reservation['requestedBy'] ?? 0), 'user_profile_status'=>'1'), 'userEmail');
+            $organizerEmail = DbMysql::selectColumn('sys_user_profile', array('userId'=>intval($this->userId), 'user_profile_status'=>'1'), 'userEmail');
+            $attendeeLine = !empty($attendeeEmail) ? ('ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=' . $attendeeEmail . ':MAILTO:' . $attendeeEmail . "\r\n") : '';
+            $organizerLine = !empty($organizerEmail) ? ('ORGANIZER:MAILTO:' . $organizerEmail . "\r\n") : '';
+
+            $ics = "BEGIN:VCALENDAR\r\n".
+                "PRODID:-//GEMS2//Space Reservation//EN\r\n".
+                "VERSION:2.0\r\n".
+                "CALSCALE:GREGORIAN\r\n".
+                "METHOD:" . $method . "\r\n".
+                "BEGIN:VEVENT\r\n".
+                "UID:" . $uid . "@gems2\r\n".
+                "DTSTAMP:" . $dtStamp->format('Ymd\THis\Z') . "\r\n".
+                "DTSTART:" . $dtStartUtc->format('Ymd\THis\Z') . "\r\n".
+                "DTEND:" . $dtEndUtc->format('Ymd\THis\Z') . "\r\n".
+                $organizerLine.
+                $attendeeLine.
+                $statusLine.
+                "SUMMARY:" . $this->escapeIcsText($summary) . "\r\n".
+                "LOCATION:" . $this->escapeIcsText($location) . "\r\n".
+                "DESCRIPTION:" . $this->escapeIcsText($desc) . "\r\n".
+                "END:VEVENT\r\n".
+                "END:VCALENDAR\r\n";
+
+            $folder = __DIR__ . '/../../tmp/ics';
+            if (!is_dir($folder)) {
+                @mkdir($folder, 0777, true);
+            }
+            $fname = $folder . '/' . $uid . '.ics';
+            if (@file_put_contents($fname, $ics) === false) {
+                return '';
+            }
+            return realpath($fname) ?: $fname;
+        } catch (Throwable $ex) {
+            DbMysql::logError(__CLASS__, __FUNCTION__, __LINE__, 'ICS build error: ' . $ex->getMessage());
+            return '';
+        }
+    }
+
+    /**
+     * Escape text for ICS fields per RFC (commas, semicolons, newlines)
+     */
+    private function escapeIcsText(string $text): string
+    {
+        $text = str_replace(["\r\n", "\n", "\r"], "\\n", $text);
+        $text = str_replace([',', ';'], ['\\,', '\\;'], $text);
+        return $text;
     }
 
     /**
