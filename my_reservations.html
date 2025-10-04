@@ -11,6 +11,42 @@
   <link rel="stylesheet" href="css/mdb.min.css">
   <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
   <link href="css/style.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4f46e5;
+      --primary-dark: #3730a3;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --light-bg: #f8fafc;
+      --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    .page-header {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 32px;
+      border-radius: 16px;
+      margin: 24px 0 16px 0;
+      box-shadow: var(--card-shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header h2 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; }
+    .page-header p { font-size: 1rem; opacity: 0.95; margin: 0; position: relative; z-index: 1; }
+    .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    .main-content-card .card-header { background: linear-gradient(60deg,#26c6da,#00acc1); color:#fff; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+    .main-content-card .card-body { padding: 1rem 1.25rem; }
+    .header-actions .btn { margin-left:.25rem; }
+    .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
+    /* Badges for status */
+    .badge-modern { padding: 6px 10px; border-radius: 16px; font-size: .75rem; font-weight: 600; display:inline-block; }
+    .badge-success-dark { background: rgba(16, 185, 129, 1); color: #fff; }
+    .badge-warning { background: rgba(245, 158, 11, 0.9); color: #fff; }
+    .badge-danger-dark { background: rgb(184, 51, 51); color: #fff; }
+    .detail-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .detail-item { padding:8px 10px; background:#f8fafc; border-radius:8px; }
+    .detail-item .label { font-size:.75rem; color:#6b7280; text-transform:uppercase; letter-spacing:.04em; }
+    .detail-item .value { font-size:.95rem; color:#111827; }
+  </style>
   <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
   <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
@@ -31,12 +67,12 @@
         <div class="card-header">
           <div class="header-title">Filters</div>
           <div class="d-flex align-items-center header-actions">
-            <button id="btnMyResvRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Refresh"><i class="fas fa-sync"></i></button>
+            <button id="btnMyResvRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
           </div>
         </div>
         <div class="card-body">
-          <div class="row">
-            <div class="col-md-4 select-outline">
+          <div class="row pt-5">
+            <!-- <div class="col-md-4 select-outline">
               <select id="optMyResvSite" class="mdb-select md-form md-outline colorful-select mt-0"></select>
               <label for="optMyResvSite">Site</label>
             </div>
@@ -47,21 +83,22 @@
                 <option value="CANCELED">Canceled</option>
               </select>
               <label for="optMyResvStatus">Status</label>
-            </div>
+            </div> -->
             <div class="col-md-4">
               <div class="md-form md-outline mt-0">
                 <input type="date" id="dtMyResvFrom" class="form-control">
                 <label for="dtMyResvFrom" class="active">From</label>
               </div>
             </div>
-          </div>
-          <div class="row">
             <div class="col-md-4">
               <div class="md-form md-outline mt-0">
                 <input type="date" id="dtMyResvTo" class="form-control">
                 <label for="dtMyResvTo" class="active">To</label>
               </div>
             </div>
+          </div>
+          <div class="row">
+            
           </div>
         </div>
       </div>
@@ -72,7 +109,7 @@
         </div>
         <div class="card-body">
           <div class="table-responsive">
-            <table id="dtMyResv" class="table table-hover mb-0 display responsive" width="100%">
+            <table id="dtMyResv" class="table table-hover table-sm mb-0 display responsive" width="100%">
               <thead>
                 <tr class="th-strong">
                   <th style="width:4%">#</th>
@@ -104,6 +141,43 @@
       </div>
     </div>
 
+    <!-- Details Modal -->
+    <div class="modal fade" id="modalMyResvDetails" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header primary-color white-text">
+            <h5 class="modal-title"><i class="fas fa-calendar-check"></i> Reservation Details</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-2">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <strong>Space:</strong> <a id="lnkMyResvSpace" href="#" target="_blank"><span id="lblMyResvSpaceName">-</span></a>
+                </div>
+                <div id="lblMyResvStatus" class="badge-modern badge-success-dark">RESERVED</div>
+              </div>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-item"><div class="label">Start</div><div id="lblMyResvStart" class="value">-</div></div>
+              <div class="detail-item"><div class="label">End</div><div id="lblMyResvEnd" class="value">-</div></div>
+              <div class="detail-item"><div class="label">Reservation #</div><div id="lblMyResvId" class="value">-</div></div>
+              <div class="detail-item"><div class="label">Requester</div><div id="lblMyResvRequester" class="value">-</div></div>
+              <div class="detail-item"><div class="label">Contact</div><div id="lblMyResvContact" class="value">-</div></div>
+            </div>
+            <div class="mt-3">
+              <div class="label">Notes</div>
+              <div id="lblMyResvNotes" class="value">-</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+            <button type="button" id="btnMyResvDetailsCancel" class="btn btn-warning btn-sm"><i class="fas fa-ban mr-1"></i>Cancel Reservation</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="includeHtml" id="h-modal_change_password"></div>
   </div>
 </main>
@@ -118,6 +192,7 @@
 <script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
+<script type="text/javascript" src="js/addons/crypto.js"></script>
 <script type="text/javascript" src="js/addons/moment.min.js"></script>
 <script type="text/javascript" src="js/modules/toastr.js"></script>
 <script type="text/javascript" src="js/common.js"></script>

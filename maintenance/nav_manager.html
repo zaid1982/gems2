@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Navigation Manager</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f6f9; margin:0; padding:20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { margin-bottom: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .card { background:#fff; border-radius:10px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding:16px; }
+    .card h2 { margin: 0 0 12px; font-size: 18px; }
+    label { display:block; font-size:12px; color:#555; margin-top:8px; }
+    input, select { width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; margin-top:4px; }
+    button { padding:8px 12px; border:none; border-radius:6px; cursor:pointer; background:#2d89ef; color:#fff; margin-top:10px; }
+    button.secondary { background:#666; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; font-size: 13px; }
+    th, td { border-bottom:1px solid #eee; padding:8px; text-align:left; }
+    th { background:#fafafa; }
+    .row { display:flex; gap:8px; align-items:end; }
+    .row > div { flex:1; }
+    .muted { color:#888; font-size: 12px; }
+  </style>
+  <script>
+    const api = (action, body) => fetch('nav_manager.php', {
+      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ action, ...(body||{}) })
+    }).then(r => r.json());
+
+    async function loadAll() {
+      const res = await api('list_all');
+      if (!res.success) { alert(res.error || 'Failed to load'); return; }
+      window._data = res.data;
+      renderNavs();
+      renderSubmenus();
+      renderAssignments();
+      fillSelects();
+    }
+
+    function fillSelects() {
+      const navSel = document.getElementById('submenu_nav_id');
+      navSel.innerHTML = '';
+      _data.navs.forEach(n => navSel.insertAdjacentHTML('beforeend', `<option value="${n.nav_id}">${n.nav_desc} (#${n.nav_id})</option>`));
+
+      const roleSel = document.getElementById('assign_role_id');
+      roleSel.innerHTML = '';
+      _data.roles.forEach(r => roleSel.insertAdjacentHTML('beforeend', `<option value="${r.role_id}">${r.role_desc} (#${r.role_id})</option>`));
+
+      const navSel2 = document.getElementById('assign_nav_id');
+      navSel2.innerHTML = '';
+      _data.navs.forEach(n => navSel2.insertAdjacentHTML('beforeend', `<option value="${n.nav_id}">${n.nav_desc} (#${n.nav_id})</option>`));
+
+      rebuildSubmenuSelect();
+    }
+
+    function rebuildSubmenuSelect() {
+      const navId = document.getElementById('assign_nav_id').value;
+      const subSel = document.getElementById('assign_nav_second_id');
+      subSel.innerHTML = '';
+      _data.submenus.filter(s => String(s.nav_id) === String(navId))
+        .forEach(s => subSel.insertAdjacentHTML('beforeend', `<option value="${s.nav_second_id}">${s.nav_second_desc} (${s.nav_second_page})</option>`));
+    }
+
+    async function createNav() {
+      const nav_desc = document.getElementById('nav_desc').value.trim();
+      const nav_status = document.getElementById('nav_status').value;
+      if (!nav_desc) return alert('nav_desc required');
+      const res = await api('create_nav', { nav_desc, nav_status });
+      if (!res.success) return alert(res.error);
+      await loadAll();
+    }
+
+    async function createSub() {
+      const nav_id = document.getElementById('submenu_nav_id').value;
+      const nav_second_desc = document.getElementById('nav_second_desc').value.trim();
+      const nav_second_page = document.getElementById('nav_second_page').value.trim();
+      const nav_second_status = document.getElementById('nav_second_status').value;
+      if (!nav_id || !nav_second_desc || !nav_second_page) return alert('All fields required');
+      const res = await api('create_submenu', { nav_id, nav_second_desc, nav_second_page, nav_second_status });
+      if (!res.success) return alert(res.error);
+      await loadAll();
+    }
+
+    async function assignRole() {
+      const role_id = document.getElementById('assign_role_id').value;
+      const nav_id = document.getElementById('assign_nav_id').value;
+      const nav_second_id = document.getElementById('assign_nav_second_id').value;
+      const nav_role_turn = document.getElementById('assign_nav_role_turn').value;
+      if (!role_id || !nav_id || !nav_second_id) return alert('All fields required');
+      const res = await api('assign_role', { role_id, nav_id, nav_second_id, nav_role_turn });
+      if (!res.success) return alert(res.error);
+      await loadAll();
+    }
+
+    async function unassignRole(role_id, nav_second_id) {
+      if (!confirm('Remove assignment?')) return;
+      const res = await api('unassign_role', { role_id, nav_second_id });
+      if (!res.success) return alert(res.error);
+      await loadAll();
+    }
+
+    async function updateOrder(role_id, nav_id, nav_second_id) {
+      const turn = prompt('New order (integer):');
+      if (!turn) return;
+      const res = await api('update_order', { role_id, nav_id, nav_second_id, nav_role_turn: turn });
+      if (!res.success) return alert(res.error);
+      await loadAll();
+    }
+
+    function renderNavs() {
+      const el = document.getElementById('tbl_navs');
+      el.innerHTML = `<tr><th>ID</th><th>Description</th><th>Status</th></tr>`;
+      _data.navs.forEach(n => el.insertAdjacentHTML('beforeend', `<tr><td>${n.nav_id}</td><td>${n.nav_desc}</td><td>${n.nav_status}</td></tr>`));
+    }
+
+    function renderSubmenus() {
+      const el = document.getElementById('tbl_submenus');
+      el.innerHTML = `<tr><th>ID</th><th>Nav ID</th><th>Desc</th><th>Page</th><th>Status</th></tr>`;
+      _data.submenus.forEach(s => el.insertAdjacentHTML('beforeend', `<tr><td>${s.nav_second_id}</td><td>${s.nav_id}</td><td>${s.nav_second_desc}</td><td>${s.nav_second_page}</td><td>${s.nav_second_status}</td></tr>`));
+    }
+
+    function renderAssignments() {
+      const el = document.getElementById('tbl_assign');
+      el.innerHTML = `<tr><th>Role</th><th>Nav</th><th>Submenu</th><th>Turn</th><th>Actions</th></tr>`;
+      _data.assignments.forEach(a => {
+        const role = _data.roles.find(r => r.role_id == a.role_id);
+        const nav = _data.navs.find(n => n.nav_id == a.nav_id);
+        const sub = _data.submenus.find(s => s.nav_second_id == a.nav_second_id);
+        el.insertAdjacentHTML('beforeend', `<tr>
+          <td>${role ? role.role_desc : a.role_id} (#${a.role_id})</td>
+          <td>${nav ? nav.nav_desc : a.nav_id} (#${a.nav_id})</td>
+          <td>${sub ? sub.nav_second_desc : a.nav_second_id} (#${a.nav_second_id})</td>
+          <td>${a.nav_role_turn}</td>
+          <td>
+            <button onclick="updateOrder(${a.role_id}, ${a.nav_id}, ${a.nav_second_id})">Set Order</button>
+            <button class="secondary" onclick="unassignRole(${a.role_id}, ${a.nav_second_id})">Unassign</button>
+          </td>
+        </tr>`);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', loadAll);
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Navigation Manager</h1>
+    <p class="muted">Create main menus and submenus, and manage role assignments and ordering.</p>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Create / Update Main Menu</h2>
+        <div class="row">
+          <div>
+            <label>Main menu description</label>
+            <input id="nav_desc" placeholder="e.g., Asset Management" />
+          </div>
+          <div>
+            <label>Status</label>
+            <select id="nav_status">
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="createNav()">Save Menu</button>
+        <table id="tbl_navs"></table>
+      </div>
+
+      <div class="card">
+        <h2>Create / Update Submenu</h2>
+        <div class="row">
+          <div>
+            <label>Parent menu</label>
+            <select id="submenu_nav_id"></select>
+          </div>
+          <div>
+            <label>Submenu description</label>
+            <input id="nav_second_desc" placeholder="e.g., Spaces" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Submenu page (file)</label>
+            <input id="nav_second_page" placeholder="e.g., space.html" />
+          </div>
+          <div>
+            <label>Status</label>
+            <select id="nav_second_status">
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="createSub()">Save Submenu</button>
+        <table id="tbl_submenus"></table>
+      </div>
+
+      <div class="card">
+        <h2>Role Assignment & Order</h2>
+        <div class="row">
+          <div>
+            <label>Role</label>
+            <select id="assign_role_id"></select>
+          </div>
+          <div>
+            <label>Menu</label>
+            <select id="assign_nav_id" onchange="rebuildSubmenuSelect()"></select>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Submenu</label>
+            <select id="assign_nav_second_id"></select>
+          </div>
+          <div>
+            <label>Order (optional)</label>
+            <input id="assign_nav_role_turn" type="number" min="1" placeholder="auto" />
+          </div>
+        </div>
+        <button onclick="assignRole()">Assign Role</button>
+        <table id="tbl_assign"></table>
+      </div>
+    </div>
+
+    <p class="muted">Tip: This tool is intended for local/UAT maintenance. Protect or remove in production.</p>
+  </div>
+</body>
+</html>

@@ -125,94 +125,34 @@ WHERE NOT EXISTS (
   SELECT 1 FROM sys_nav_role WHERE role_id = 10 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_TYPE
 );
 
--- General roles: show user-facing items only (Spaces, My Reservations)
--- If any of these role_ids don’t exist in your DB, the insert may fail if FK constraints exist.
--- Remove/adjust the lines as needed for your environment.
-SET @GEN_ROLES := '2,3,4,5,7,8,9';
+-- Dynamically grant to all active non-admin roles (every role in ref_role with status=1 and NOT IN (1,10))
+-- Spaces
+INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
+SELECT r.role_id,
+       @PARENT_NAV_ID,
+       @SID_SPACES,
+       COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = r.role_id), 1)
+FROM ref_role r
+WHERE r.role_status = 1
+  AND r.role_id NOT IN (1,10)
+  AND NOT EXISTS (
+    SELECT 1 FROM sys_nav_role x
+    WHERE x.role_id = r.role_id AND x.nav_id = @PARENT_NAV_ID AND x.nav_second_id = @SID_SPACES
+  );
 
--- Role 2
+-- My Reservations
 INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 2, @PARENT_NAV_ID, @SID_SPACES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 2), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 2 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_SPACES
-);
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 2, @PARENT_NAV_ID, @SID_MYRES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 2), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 2 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_MYRES
-);
-
--- Role 3
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 3, @PARENT_NAV_ID, @SID_SPACES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 3), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 3 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_SPACES
-);
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 3, @PARENT_NAV_ID, @SID_MYRES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 3), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 3 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_MYRES
-);
-
--- Role 4
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 4, @PARENT_NAV_ID, @SID_SPACES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 4), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 4 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_SPACES
-);
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 4, @PARENT_NAV_ID, @SID_MYRES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 4), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 4 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_MYRES
-);
-
--- Role 5
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 5, @PARENT_NAV_ID, @SID_SPACES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 5), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 5 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_SPACES
-);
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 5, @PARENT_NAV_ID, @SID_MYRES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 5), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 5 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_MYRES
-);
-
--- Role 7
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 7, @PARENT_NAV_ID, @SID_SPACES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 7), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 7 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_SPACES
-);
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 7, @PARENT_NAV_ID, @SID_MYRES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 7), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 7 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_MYRES
-);
-
--- Role 8
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 8, @PARENT_NAV_ID, @SID_SPACES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 8), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 8 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_SPACES
-);
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 8, @PARENT_NAV_ID, @SID_MYRES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 8), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 8 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_MYRES
-);
-
--- Role 9
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 9, @PARENT_NAV_ID, @SID_SPACES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 9), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 9 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_SPACES
-);
-INSERT INTO sys_nav_role (role_id, nav_id, nav_second_id, nav_role_turn)
-SELECT 9, @PARENT_NAV_ID, @SID_MYRES, COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = 9), 1)
-WHERE NOT EXISTS (
-  SELECT 1 FROM sys_nav_role WHERE role_id = 9 AND nav_id = @PARENT_NAV_ID AND nav_second_id = @SID_MYRES
-);
+SELECT r.role_id,
+       @PARENT_NAV_ID,
+       @SID_MYRES,
+       COALESCE((SELECT MAX(nav_role_turn)+1 FROM sys_nav_role WHERE role_id = r.role_id), 1)
+FROM ref_role r
+WHERE r.role_status = 1
+  AND r.role_id NOT IN (1,10)
+  AND NOT EXISTS (
+    SELECT 1 FROM sys_nav_role x
+    WHERE x.role_id = r.role_id AND x.nav_id = @PARENT_NAV_ID AND x.nav_second_id = @SID_MYRES
+  );
 
 -- 5) Verification helpers (optional; run manually)
 -- List the Space submenu entries under the chosen main menu

@@ -27,15 +27,50 @@
       fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=dt.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)); },
       aoColumns:[
         { mData:null, bSortable:false },
-        { mData:null, mRender:function(d,t,row){ const sn=row.spaceName||('Space #'+row.spaceId); return '<a href="space_preview.html?id='+row.spaceId+'">'+sn+'</a>'; } },
-        { mData:'reservationStart', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; } },
-        { mData:'reservationEnd', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; } },
-        { mData:'reservationStatus' },
-        { mData:null, bSortable:false, sClass:'text-center', mRender:function(d,t,row){ const disabled=(row.reservationStatus||'')==='CANCELED'; return '<button class="btn btn-sm btn-outline-warning btnMyResvCancel" '+(disabled?'disabled':'')+' data-id="'+row.reservationId+'"><i class="fas fa-ban"></i></button>'; } }
+        { mData:null, mRender:function(d,t,row){ const id=(row.spaceId??row.space_id); const sn=row.spaceName||('Space #'+(id||'')); return '<a href="space_preview.html?id='+(id||'')+'">'+sn+'</a>'; } },
+        { mData:function(row){ return row.reservationStart||row.reservation_start||null; }, mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; } },
+        { mData:function(row){ return row.reservationEnd||row.reservation_end||null; }, mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; } },
+        { mData:function(row){ return row.reservationStatus||row.reservation_status||''; } },
+        { mData:null, bSortable:false, sClass:'text-center', mRender:function(d,t,row){ const status=(row.reservationStatus||row.reservation_status||''); const disabled=status==='CANCELED'; const rid=(row.reservationId??row.reservation_id); return '<button class="btn btn-sm btn-outline-warning btnMyResvCancel" '+(disabled?'disabled':'')+' data-id="'+(rid||'')+'"><i class="fas fa-ban"></i></button>'; } }
       ]
     });
     $('#dtMyResv').on('click','.btnMyResvCancel', function(){ toCancelId=parseInt($(this).data('id')); $('#txaMyResvReason').val(''); $('#modalMyResvCancel').modal('show'); });
     $('#btnMyResvConfirmCancel').on('click', doCancel);
+    // Show reservation detail on row click (excluding button clicks)
+    $('#dtMyResv tbody').on('click', 'tr', function(e){
+      if($(e.target).closest('.btnMyResvCancel').length) return; // ignore cancel button
+      const data = dt.row(this).data(); if(!data) return;
+      const spaceId = data.spaceId || data.space_id || '';
+      const spaceName = data.spaceName || ('Space #' + spaceId);
+      const start = data.reservationStart || data.reservation_start || null;
+      const end = data.reservationEnd || data.reservation_end || null;
+      const status = (data.reservationStatus || data.reservation_status || '').toUpperCase();
+      const rid = data.reservationId || data.reservation_id || '';
+      const notes = data.specialRequest || data.special_request || '';
+      const by = data.requestedByName || data.requested_by_name || '';
+      const contact = data.requestedByContact || data.requested_by_contact || '';
+
+      $('#lblMyResvSpaceName').text(spaceName);
+      $('#lnkMyResvSpace').attr('href', 'space_preview.html?id=' + spaceId);
+      $('#lblMyResvStatus').text(status).removeClass('badge-success-dark badge-warning badge-danger-dark')
+        .addClass(status==='RESERVED'?'badge-success-dark':(status==='CANCELED'?'badge-danger-dark':'badge-warning'));
+      $('#lblMyResvStart').text(start?moment(start).format('YYYY-MM-DD HH:mm'):'-');
+      $('#lblMyResvEnd').text(end?moment(end).format('YYYY-MM-DD HH:mm'):'-');
+      $('#lblMyResvId').text(rid||'-');
+      $('#lblMyResvRequester').text(by||'-');
+      $('#lblMyResvContact').text(contact||'-');
+      $('#lblMyResvNotes').text(notes||'-');
+
+      // Attach cancel action for details modal
+      $('#btnMyResvDetailsCancel').off('click').on('click', function(){
+        toCancelId = parseInt(rid);
+        $('#modalMyResvDetails').modal('hide');
+        $('#txaMyResvReason').val('');
+        $('#modalMyResvCancel').modal('show');
+      });
+
+      $('#modalMyResvDetails').modal('show');
+    });
   }
 
   function loadData(){
@@ -57,6 +92,11 @@
       .done(function(resp){ if(resp&&resp.success){ toastr['success'](resp.errmsg||'Canceled', _ALERT_TITLE_SUCCESS); $('#modalMyResvCancel').modal('hide'); loadData(); } else { toastr['error']((resp&&resp.errmsg)||_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR);} })
       .fail(function(){ toastr['error'](_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR); })
       .always(function(){ $('#btnMyResvConfirmCancel').prop('disabled', false); toCancelId=null; });
+    // restore modal to cancel mode
+    $('#modalMyResvCancel .modal-title').html('<i class="fas fa-ban"></i> Cancel Reservation');
+    $('#modalMyResvCancel .primary-color').removeClass('primary-color').addClass('warning-color');
+    $('#txaMyResvReason').closest('.md-form').show();
+    $('#btnMyResvConfirmCancel').show();
   }
 
   $(document).ready(function(){
