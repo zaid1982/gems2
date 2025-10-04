@@ -16,14 +16,27 @@
             --primary-color: #4f46e5; --primary-dark: #3730a3; --info-color:#3b82f6; --success-color:#10b981;
             --border-radius-lg: 16px; --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
+        .page-header { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; padding: 24px 32px; border-radius: var(--border-radius-lg); margin: 24px 0 16px 0; box-shadow: var(--card-shadow-lg); position: relative; overflow: hidden; }
+        .page-header::before { content:''; position:absolute; top:0; right:0; width:200px; height:200px; background:rgba(255,255,255,.1); border-radius:50%; transform: translate(50%,-50%); }
+        .page-header h2{ font-size:1.75rem; font-weight:700; margin-bottom:8px; position:relative; z-index:1; }
+        .page-header p{ font-size:1rem; opacity:.9; margin-bottom:0; position:relative; z-index:1; }
         .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: visible; }
-        .main-content-card .card-header { background: linear-gradient(60deg,#26c6da,#00acc1); color:#fff; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+        .main-content-card .card-header { background: #f8fafc; color:#000; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
         .main-content-card .card-body { padding: 1rem 1.25rem; }
         .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
-        .page-header { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; padding: 32px; border-radius: var(--border-radius-lg); margin-bottom: 32px; box-shadow: var(--card-shadow-lg); position: relative; overflow: hidden; }
-        .page-header::before { content:''; position:absolute; top:0; right:0; width:200px; height:200px; background:rgba(255,255,255,.1); border-radius:50%; transform: translate(50%,-50%); }
-        .page-header h2{ font-size:2.25rem; font-weight:700; margin-bottom:8px; position:relative; z-index:1; }
-        .page-header p{ font-size:1.125rem; opacity:.9; margin-bottom:0; position:relative; z-index:1; }
+        .icon-btn{ border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+        .icon-btn:hover{ background:#f3f4f6; }
+        .th-strong th { font-weight: 700; color:#374151; border-bottom:2px solid #e5e7eb; }
+        /* Segmented buttons */
+        .segmented-group{ display:inline-flex; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+        .segmented-btn{ background:#fff; color:#374151; padding:8px 12px; border:none; border-right:1px solid #e5e7eb; font-weight:600; letter-spacing:.2px; }
+        .segmented-btn:last-child{ border-right:none; }
+        .segmented-btn:hover{ background:#f8fafc; }
+        /* Badges */
+        .badge-modern { padding: 6px 10px; border-radius: 16px; font-size: .75rem; font-weight: 600; display:inline-block; }
+        .badge-success-dark { background: rgba(16, 185, 129, 1); color: #fff; }
+        .badge-warning { background: rgba(245, 158, 11, 0.9); color: #fff; }
+        .badge-danger-dark { background: rgb(184, 51, 51); color: #fff; }
     </style>
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
@@ -35,46 +48,37 @@
 </header>
 <main>
     <div class="container-fluid">
-        <div class="page-header">
-            <h2><i class="fas fa-map-marker-alt mr-3"></i>Space Location Management</h2>
-            <p>Manage Space Locations used by Space module</p>
-        </div>
+                <div class="page-header d-flex align-items-center justify-content-between">
+                        <div>
+                            <h2 class="mb-0"><i class="fas fa-map-marker-alt mr-3"></i>Space Location</h2>
+                            <p class="mb-0">Manage space locations used by Space module</p>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <button type="button" id="btnLocAdd" class="icon-btn" data-toggle="tooltip" title="Add Location"><i class="fas fa-plus"></i></button>
+                            <a tabindex="0" role="button" class="icon-btn ml-2" data-toggle="popover" data-trigger="focus" title="Space Location" data-content="Add, edit, activate/deactivate locations."><i class="fas fa-info"></i></a>
+                            <button type="button" id="btnDtLocRefresh" class="icon-btn ml-2" data-toggle="tooltip" title="Refresh"><i class="fas fa-sync"></i></button>
+                        </div>
+                </div>
         <section class="mb-5 mt-lg-5 sectionSpaceLocation">
             <div class="main-content-card mb-4">
                 <div class="card-header">
-                    <div class="header-title">Space Location</div>
-                    <div class="d-flex align-items-center header-actions"></div>
+                    <div class="header-title">Filters</div>
+                    <div class="d-flex align-items-center header-actions">
+                        <div id="dtLocButtons" class="d-none"></div>
+                        <div class="segmented-group ml-2" id="locExportToggle" role="group" aria-label="Export">
+                          <button class="segmented-btn" data-export="csv" aria-label="Export CSV">CSV</button>
+                          <button class="segmented-btn" data-export="excel" aria-label="Export Excel">EXCEL</button>
+                          <button class="segmented-btn" data-export="print" aria-label="Export Print">PRINT</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-xl-5 col-lg-12 mr-0">
-                            <div class="px-1 pt-2">
-                                <h6 class="pb-2">Filters:</h6>
-                                <div class="row">
-                                    <div class="col-md-12 select-outline">
-                                        <select id="optLocStatus" class="mdb-select md-form md-outline colorful-select mt-0">
-                                            <option value="">All</option>
-                                            <option value="1" selected>Active</option>
-                                            <option value="0">Inactive</option>
-                                        </select>
-                                        <label for="optLocStatus">Status</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-7 col-lg-12">
-                            <div class="px-1 pt-2">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="md-form md-outline mt-0">
-                                            <input type="text" id="txtLocSearch" class="form-control">
-                                            <label for="txtLocSearch" class="active">Keyword Search</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-2">
-                                    <p class="mb-0 text-muted">Add, edit, activate or deactivate locations.</p>
-                                </div>
+                        
+                        <div class="col-md-6">
+                            <div class="md-form md-outline mt-0">
+                                <input type="text" id="txtLocSearch" class="form-control">
+                                <label for="txtLocSearch" class="active">Search</label>
                             </div>
                         </div>
                     </div>
@@ -83,12 +87,7 @@
 
             <div class="main-content-card">
                 <div class="card-header">
-                    <div class="header-title">Location List</div>
-                    <div class="d-flex align-items-center header-actions">
-                        <button type="button" id="btnLocAdd" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Add"><i class="fas fa-plus mt-0"></i></button>
-                        <button type="button" id="btnDtLocRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Refresh"><i class="fas fa-sync mt-0"></i></button>
-                        <div id="btnDtLocExport" class="ml-2"></div>
-                    </div>
+                    <div class="header-title">Locations</div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -157,6 +156,7 @@
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
 <script type="text/javascript" src="js/addons/crypto.js"></script>
 <script type="text/javascript" src="js/addons/moment.min.js"></script>

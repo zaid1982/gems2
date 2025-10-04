@@ -14,7 +14,36 @@
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
     <style>
-        .th-strong th { font-weight: 600; }
+        :root {
+          --primary-color: #4f46e5;
+          --primary-dark: #3730a3;
+          --light-bg: #f8fafc;
+        }
+        .page-header {
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+          color: white;
+          padding: 24px 32px;
+          border-radius: 16px;
+          margin: 24px 0 16px 0;
+          box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .page-header h2 { font-size: 1.75rem; font-weight: 700; margin: 0; }
+        .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+        .main-content-card .card-header { background: #f8fafc; color:#000; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+        .main-content-card .card-body { padding: 1rem 1.25rem; }
+        .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
+        .icon-btn{ border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+        .icon-btn:hover{ background:#f3f4f6; }
+        .th-strong th { font-weight: 700; color:#374151; border-bottom:2px solid #e5e7eb; }
+        /* Segmented buttons */
+        .segmented-group{ display:inline-flex; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+        .segmented-btn{ background:#fff; color:#374151; padding:8px 12px; border:none; border-right:1px solid #e5e7eb; font-weight:600; letter-spacing:.2px; }
+        .segmented-btn:last-child{ border-right:none; }
+        .segmented-btn:hover{ background:#f8fafc; }
+        .badge-modern { padding: 6px 10px; border-radius: 16px; font-size: .75rem; font-weight: 600; display:inline-block; }
+        .badge-success-dark { background: rgba(16, 185, 129, 1); color: #fff; }
+        .badge-warning { background: rgba(245, 158, 11, 0.9); color: #fff; }
+        .badge-danger-dark { background: rgb(184, 51, 51); color: #fff; }
     </style>
     </head>
 <body class="fixed-sn light-blue-skin">
@@ -25,24 +54,44 @@
 <main>
   <div class="container-fluid">
     <section class="mb-5 mt-lg-5">
-      <div class="card card-cascade narrower">
-        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-          <div>
-            <button type="button" id="btnSpcCatAdd" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" title="Add Category"><i class="fas fa-plus mt-0"></i></button>
-            <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Space Category" data-content="Manage space categories (create, edit, activate/deactivate, delete)."><i class="fas fa-info mt-0 mx-1"></i></a>
-            <button type="button" id="btnSpcCatRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" title="Refresh"><i class="fas fa-sync mt-0"></i></button>
-          </div>
-          <a href="javascript:void(0);" class="text-white mx-3">Space Category</a>
-          <div id="btnSpcCatExport"></div>
+      <div class="page-header d-flex align-items-center justify-content-between">
+        <h2 class="mb-0"><i class="fas fa-cubes mr-3"></i>Space Category</h2>
+        <div class="d-flex align-items-center">
+          <button type="button" id="btnSpcCatAdd" class="icon-btn" data-toggle="tooltip" title="Add Category"><i class="fas fa-plus"></i></button>
+          <a tabindex="0" role="button" class="icon-btn ml-2" data-toggle="popover" data-trigger="focus" title="Space Category" data-content="Manage space categories (create, edit, activate/deactivate, delete)."><i class="fas fa-info"></i></a>
+          <button type="button" id="btnSpcCatRefresh" class="icon-btn ml-2" data-toggle="tooltip" title="Refresh"><i class="fas fa-sync"></i></button>
         </div>
-        <div class="px-4 pb-4">
-          <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
-            <div>
-              <i class="fas fa-search mt-2" aria-hidden="true"></i>
-              <input type="text" id="txtSpcCatSearch" class="form-control form-control-sm" style="width:250px;max-width:250px">
-              <label for="txtSpcCatSearch" class="ml-4">Search</label>
+      </div>
+
+      <div class="main-content-card mb-4">
+        <div class="card-header">
+          <div class="header-title">Filters</div>
+          <div class="d-flex align-items-center header-actions">
+            <div id="dtSpcCatButtons" class="d-none"></div>
+            <div class="segmented-group ml-2" id="spcCatExportToggle" role="group" aria-label="Export">
+              <button class="segmented-btn" data-export="csv" aria-label="Export CSV">CSV</button>
+              <button class="segmented-btn" data-export="excel" aria-label="Export Excel">EXCEL</button>
+              <button class="segmented-btn" data-export="print" aria-label="Export Print">PRINT</button>
             </div>
-          </form>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="md-form md-outline mt-0">
+                <input type="text" id="txtSpcCatSearch" class="form-control">
+                <label for="txtSpcCatSearch" class="active">Search</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-content-card">
+        <div class="card-header">
+          <div class="header-title">Categories</div>
+        </div>
+        <div class="card-body">
           <div class="table-responsive">
             <table id="dtSpcCat" class="table table-hover mb-0 display responsive" width="100%">
               <thead>

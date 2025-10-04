@@ -1,11 +1,12 @@
+
 (function(){
   'use strict';
   let dt; let editingId = null;
   function headers(){ const t=sessionStorage.getItem('token'); return t?{'Authorization':'Bearer '+t}:{ }; }
-  function statusBadge(v){ const cls = v? 'success':'danger'; const txt=v? 'Active':'Inactive'; return '<span class="badge badge-modern badge-'+cls+'">'+txt+'</span>'; }
+  function statusBadge(v){ const cls = v? 'badge-modern badge-success-dark':'badge-modern badge-danger-dark'; const txt=v? 'Active':'Inactive'; return '<span class="'+cls+'">'+txt+'</span>'; }
 
   function initDataTable(){
-    dt = $('#dtLoc').DataTable({ language:_DATATABLE_LANGUAGE, searching:true, ordering:true, responsive:true, paging:true,
+    dt = $('#dtLoc').DataTable({ language:_DATATABLE_LANGUAGE, searching:true, ordering:true, responsive:true, paging:true, dom:'Bfrtip', buttons:[{extend:'csv', title:'space_locations'},{extend:'excel', title:'space_locations'},{extend:'print', title:'space_locations'}],
       columnDefs:[{targets:0, orderable:false, searchable:false},{targets:-1, orderable:false, searchable:false}], order:[[1,'asc']], data:[],
       columns:[
         { data:null, render:function(){ return ''; } },
@@ -17,6 +18,8 @@
       ]
     });
     dt.on('order.dt search.dt', function () { dt.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) { cell.innerHTML = i + 1; }); }).draw();
+    const $btns=$(dt.buttons().container()); $('#dtLocButtons').append($btns).addClass('d-none');
+    $('#locExportToggle .segmented-btn').on('click', function(){ const type=$(this).data('export'); if(type==='csv'){ dt.button(0).trigger(); } else if(type==='excel'){ dt.button(1).trigger(); } else if(type==='print'){ dt.button(2).trigger(); } });
   }
 
   function loadList(){ ShowLoader(); const status = $('#optLocStatus').val(); const qs = status!==''?('?status='+encodeURIComponent(status)) : ''; $.ajax({ url:'api/space_location.php'+qs, method:'GET', dataType:'json', headers:headers()})
@@ -47,5 +50,5 @@
 
   function initButtons(){ $('#btnDtLocRefresh').on('click', loadList); $('#btnLocAdd').on('click', function(){ openModal(null); }); $('#btnLocSave').on('click', save); $('#dtLoc').on('click','.btnLocEdit', function(){ const row = dt.row($(this).closest('tr')).data(); openModal(row); }); $('#dtLoc').on('click','.btnLocActivate', function(){ const row = dt.row($(this).closest('tr')).data(); setStatus(row,true); }); $('#dtLoc').on('click','.btnLocDeactivate', function(){ const row = dt.row($(this).closest('tr')).data(); setStatus(row,false); }); }
 
-  $(document).ready(function(){ let pending=$('.includeHtml').length; if(pending===0){ try{ if(typeof initiatePages==='function'){ initiatePages(); } }catch(e){} initDataTable(); initFilters(); initButtons(); loadList(); } else { $('.includeHtml').each(function(){ const id=$(this).attr('id'); const target='html/'+id.substr(2)+'.html?'+new Date().valueOf(); $('#'+id).load(target, function(){ pending--; if(pending===0){ try{ if(typeof initiatePages==='function'){ initiatePages(); } }catch(e){} initDataTable(); initFilters(); initButtons(); loadList(); } }); }); } });
+  $(document).ready(function(){ let pending=$('.includeHtml').length; if(pending===0){ try{ if(typeof initiatePages==='function'){ initiatePages(); } }catch(e){} $('[data-toggle="popover"]').popover(); $('[data-toggle="tooltip"]').tooltip(); initDataTable(); initFilters(); initButtons(); loadList(); } else { $('.includeHtml').each(function(){ const id=$(this).attr('id'); const target='html/'+id.substr(2)+'.html?'+new Date().valueOf(); $('#'+id).load(target, function(){ pending--; if(pending===0){ try{ if(typeof initiatePages==='function'){ initiatePages(); } }catch(e){} $('[data-toggle="popover"]').popover(); $('[data-toggle="tooltip"]').tooltip(); initDataTable(); initFilters(); initButtons(); loadList(); } }); }); } });
 })();
