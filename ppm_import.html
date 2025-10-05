@@ -17,76 +17,6 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-        .import-step {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: #f9f9f9;
-        }
-        .import-step.active {
-            border-color: #007bff;
-            background: #e7f3ff;
-        }
-        .import-step.completed {
-            border-color: #28a745;
-            background: #d4edda;
-        }
-        .step-number {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #6c757d;
-            color: white;
-            text-align: center;
-            line-height: 30px;
-            margin-right: 10px;
-        }
-        .step-number.active {
-            background: #007bff;
-        }
-        .step-number.completed {
-            background: #28a745;
-        }
-        .file-drop-zone {
-            border: 2px dashed #ccc;
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-        .file-drop-zone:hover {
-            border-color: #007bff;
-        }
-        .file-drop-zone.dragover {
-            border-color: #007bff;
-            background: #e7f3ff;
-        }
-        .preview-table {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .error-row {
-            background-color: #ffebee !important;
-        }
-        .warning-row {
-            background-color: #fff3cd !important;
-        }
-        .success-row {
-            background-color: #d4edda !important;
-        }
-        .template-download {
-            background: #e8f4fd;
-            border: 1px solid #bee5eb;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-    </style>
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <!--JQuery Migrate-->
@@ -95,7 +25,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
-<body class="fixed-sn light-blue-skin">
+<body class="fixed-sn ppm-import-page">
 <!--Main Navigation-->
 <header>
     <!-- Sidebar navigation -->
@@ -108,10 +38,10 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionPpmMain">
-            <div class="card card-cascade narrower">
+            <div class="card card-cascade narrower theme-surface ppm-card">
                 <!--Section: Header-->
                 <section>
-                    <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
+                    <div class="view view-cascade gradient-card-header ppm-card-header">
                         <h2 class="h2-responsive mb-0"><i class="fa fa-upload mr-2"></i>PPM Import</h2>
                         <p class="text-white-50 mb-0">Import PPM tasks from Excel file with comprehensive validation</p>
                     </div>
@@ -124,8 +54,8 @@
                             <div class="col-12">
                                 
                                 <!-- Step 1: Template & File Selection -->
-                                <div class="import-step active" id="step1">
-                                    <h4><span class="step-number active" id="step1-number">1</span> Template & File Selection</h4>
+                                <div class="import-step active theme-surface" id="step1">
+                                    <h4 class="d-flex align-items-center"><span class="step-number active" id="step1-number">1</span> Template & File Selection</h4>
                                     
                                     <!-- Template Download -->
                                     <div class="template-download">
@@ -179,8 +109,8 @@
                                 </div>
 
                                 <!-- Step 2: File Upload & Processing -->
-                                <div class="import-step" id="step2">
-                                    <h4><span class="step-number" id="step2-number">2</span> File Upload & Processing</h4>
+                                <div class="import-step theme-surface" id="step2">
+                                    <h4 class="d-flex align-items-center"><span class="step-number" id="step2-number">2</span> File Upload & Processing</h4>
                                     
                                     <div class="upload-progress mb-3">
                                         <label>Upload Progress:</label>
@@ -202,8 +132,8 @@
                                 </div>
 
                                 <!-- Step 3: Preview & Validation -->
-                                <div class="import-step" id="step3">
-                                    <h4><span class="step-number" id="step3-number">3</span> Preview & Validation</h4>
+                                <div class="import-step theme-surface" id="step3">
+                                    <h4 class="d-flex align-items-center"><span class="step-number" id="step3-number">3</span> Preview & Validation</h4>
                                     
                                     <div id="validationSummary"></div>
                                     
@@ -220,8 +150,8 @@
                                 </div>
 
                                 <!-- Step 4: Import Results -->
-                                <div class="import-step" id="step4">
-                                    <h4><span class="step-number" id="step4-number">4</span> Import Results</h4>
+                                <div class="import-step theme-surface" id="step4">
+                                    <h4 class="d-flex align-items-center"><span class="step-number" id="step4-number">4</span> Import Results</h4>
                                     
                                     <div id="importResults"></div>
                                     

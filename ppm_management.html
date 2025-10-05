@@ -17,17 +17,13 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
 	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 
-<body class="fixed-sn light-blue-skin">
+<body class="fixed-sn">
 <!--Main Navigation-->
 <header>
     <!-- Sidebar navigation -->
@@ -40,18 +36,18 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionPmgMain">
-            <div class="card card-cascade narrower">
+            <div class="card card-cascade narrower theme-surface">
                 <!--Section: Search Function & Chart-->
                 <section>
                     <div class="row">
                         <!--Search Function-->
                         <div class="col-xl-5 col-lg-12 mr-0">
-                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
+                            <div class="view view-cascade gradient-card-header">
                                 <h2 class="h2-responsive mb-0">PPM Management</h2>
                             </div>
                             <div class="card-body card-body-cascade">
                                 <div class="px-3 pt-3">
-                                    <h6>PPM Status:</h6>
+                                    <h6 class="theme-text-ink-strong">PPM Status:</h6>
                                     <div class="mt-1 pb-2">
                                         <ul class="striped list-unstyled pl-2">
                                             <li><a href="javascript:void(0);" id="linkPmgAll"></a></li>
@@ -59,7 +55,7 @@
                                             <li><a href="javascript:void(0);" id="linkPmg2"></a></li>
                                         </ul>
                                     </div>
-                                    <h6 class="pb-3">Search:</h6>
+                                    <h6 class="pb-3 theme-text-ink-strong">Search:</h6>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
                                             <select id="optPmgContractId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
@@ -111,7 +107,7 @@
                         </div>
                         <!--Chart-->
                         <div class="col-xl-7 col-lg-12">
-                            <div class="view view-cascade z-depth-4 mb-3">
+                            <div class="view view-cascade theme-surface mb-3">
                                 <div id="chartPmgAssetByStatus" style="height: 616px; margin: 0"></div>
                             </div>
                             <div class="card-body">
@@ -149,8 +145,8 @@
                 </section>
                 <!--Section: Table-->
                 <section>
-                    <div class="card card-cascade narrower z-depth-0">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div class="card card-cascade narrower theme-surface">
+                        <div class="view view-cascade gradient-card-header narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
                             <div>
                                 <button type="button" id="btnPmgAssignBatch" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="PPM Bulk Assign"><i class="fas fa-layer-plus mt-0"></i></button>
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
@@ -160,7 +156,7 @@
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Asset List</a>
                             <div>
-                                <div id="btnDtPmgAssetExport"></div>
+                                <div id="btnDtPmgAssetExport" class="btn-group"></div>
                             </div>
                         </div>
                         <div class="px-4 pb-4">
@@ -199,8 +195,8 @@
                     </div>
                 </section>
                 <section id="divPmgScheduled">
-                    <div class="card card-cascade narrower z-depth-0 pt-4">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div class="card card-cascade narrower theme-surface pt-4">
+                        <div class="view view-cascade gradient-card-header narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
                             <div>
                                <!-- <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Scheduled PPM List"
@@ -209,7 +205,7 @@
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Scheduled PPM List - <span id="lblPmgScheduledTitle" class="font-italic"></span></a>
                             <div>
-                                <div id="btnDtPmgScheduledExport"></div>
+                                <div id="btnDtPmgScheduledExport" class="btn-group"></div>
                             </div>
                         </div>
                         <div class="px-4 pb-4">

@@ -1,3 +1,1546 @@
+.ppm-import-page .import-step .btn {
+    margin-right: 0.5rem;
+}
+.ppm-import-page .btn-primary:hover,
+.ppm-import-page .btn-success:hover,
+.ppm-import-page .btn-info:hover {
+    box-shadow: var(--gfm-shadow-hover);
+}
+.ppm-import-page .btn-primary,
+.ppm-import-page .btn-success,
+.ppm-import-page .btn-info,
+.ppm-import-page .btn-secondary {
+    border-radius: var(--gfm-radius-base);
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+.ppm-import-page .btn-primary,
+.ppm-import-page .btn-success,
+.ppm-import-page .btn-info {
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.ppm-import-page .btn-secondary {
+    border: 1px solid var(--gfm-color-mist);
+}
+.ppm-import-page .btn-primary,
+.ppm-import-page .btn-success,
+.ppm-import-page .btn-info,
+.ppm-import-page .btn-secondary {
+    border-radius: var(--gfm-radius-base);
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+.ppm-import-page .btn-primary,
+.ppm-import-page .btn-success,
+.ppm-import-page .btn-info {
+    box-shadow: var(--gfm-shadow-base);
+}
+.ppm-import-page .btn-primary,
+.ppm-import-page .btn-success,
+.ppm-import-page .btn-info,
+.ppm-import-page .btn-secondary {
+    border-radius: var(--gfm-radius-base);
+    font-weight: var(--gfm-font-weight-strong);
+}
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap");
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 1 — Design Tokens                                           */
+/* -------------------------------------------------------------------------- */
+
+:root {
+    /* Brand palette */
+    --gfm-color-primary: #0055B8;
+    --gfm-color-secondary: #00ADA8;
+    --gfm-color-tertiary: #09AEB2;
+    --gfm-color-accent: #CEEFF0;
+    --gfm-color-surface: #F7F9FB;
+    --gfm-color-alert: #DF4E4F;
+    --gfm-color-action-dark: #69727D;
+
+    /* Neutral ramp */
+    --gfm-color-ink-strong: #243746;
+    --gfm-color-ink: #5B676F;
+    --gfm-color-ink-muted: #7E8F9A;
+    --gfm-color-cloud: #C3C3C3;
+    --gfm-color-mist: #E7EAEC;
+    --gfm-color-white: #FFFFFF;
+
+    /* On-color contrasts */
+    --gfm-color-on-primary: #FFFFFF;
+    --gfm-color-on-secondary: #FFFFFF;
+    --gfm-color-on-tertiary: #FFFFFF;
+    --gfm-color-on-accent: #243746;
+    --gfm-color-on-surface: var(--gfm-color-ink-strong);
+
+    /* Gradients */
+    --gfm-gradient-primary: linear-gradient(135deg, var(--gfm-color-primary), var(--gfm-color-secondary));
+    --gfm-gradient-secondary: linear-gradient(135deg, var(--gfm-color-secondary), var(--gfm-color-tertiary));
+
+    /* Typography */
+    --gfm-font-family-base: "Lato", "Helvetica Neue", Arial, sans-serif;
+    --gfm-font-family-heading: "Lato", "Helvetica Neue", Arial, sans-serif;
+    --gfm-font-weight-heading: 900;
+    --gfm-font-weight-strong: 700;
+    --gfm-font-weight-regular: 400;
+    --gfm-font-size-body: 14px;
+    --gfm-font-size-heading-xl: clamp(2.625rem, 1.8295rem + 2.5455vw, 4.375rem);
+    --gfm-font-size-heading-lg: clamp(2.125rem, 1.515rem + 1.8182vw, 3.5rem);
+    --gfm-font-size-heading-md: clamp(1.5rem, 1.226rem + 0.7273vw, 2.25rem);
+    --gfm-font-letterspacing-heading: 1px;
+
+    /* Motion & shape */
+    --gfm-radius-base: 12px;
+    --gfm-radius-pill: 999px;
+    --gfm-transition-base: 0.2s ease-in-out;
+    --gfm-shadow-base: 0 16px 32px rgba(36, 55, 70, 0.12);
+    --gfm-shadow-hover: 0 18px 34px rgba(36, 55, 70, 0.16);
+}
+
+.theme-text-primary {
+    color: var(--gfm-color-primary) !important;
+}
+
+.theme-text-secondary {
+    color: var(--gfm-color-secondary) !important;
+}
+
+.theme-text-ink {
+    color: var(--gfm-color-ink) !important;
+}
+
+.theme-text-ink-strong {
+    color: var(--gfm-color-ink-strong) !important;
+}
+
+.theme-bg-primary {
+    background-color: var(--gfm-color-primary) !important;
+    color: var(--gfm-color-on-primary) !important;
+}
+
+.theme-bg-secondary {
+    background-color: var(--gfm-color-secondary) !important;
+    color: var(--gfm-color-on-secondary) !important;
+}
+
+.theme-bg-accent {
+    background-color: var(--gfm-color-accent) !important;
+    color: var(--gfm-color-on-accent) !important;
+}
+
+.theme-surface {
+    background-color: var(--gfm-color-white);
+    color: var(--gfm-color-on-surface);
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    transition: box-shadow var(--gfm-transition-base);
+}
+
+.theme-gradient-primary {
+    background-image: var(--gfm-gradient-primary) !important;
+    color: var(--gfm-color-on-primary) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 2 — Global Theme Wiring                                    */
+/* -------------------------------------------------------------------------- */
+
+body {
+    font-family: var(--gfm-font-family-base);
+    font-weight: var(--gfm-font-weight-regular);
+    font-size: var(--gfm-font-size-body);
+    color: var(--gfm-color-ink);
+    background-color: var(--gfm-color-mist);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--gfm-font-family-heading);
+    font-weight: var(--gfm-font-weight-heading);
+    letter-spacing: var(--gfm-font-letterspacing-heading);
+    color: var(--gfm-color-ink-strong);
+    line-height: 1.2;
+}
+
+h1 { font-size: var(--gfm-font-size-heading-xl); }
+h2 { font-size: var(--gfm-font-size-heading-lg); }
+h3 { font-size: var(--gfm-font-size-heading-md); }
+
+p, label, span, li {
+    color: var(--gfm-color-ink);
+}
+
+strong, b {
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+a {
+    color: var(--gfm-color-primary);
+    transition: color var(--gfm-transition-base);
+}
+
+a:hover,
+a:focus {
+    color: var(--gfm-color-secondary);
+    text-decoration: none;
+}
+
+.side-nav.sn-bg-4 {
+    background-image: var(--gfm-gradient-primary);
+    box-shadow: 0 12px 24px rgba(0, 85, 184, 0.25);
+}
+
+.side-nav.sn-bg-4 .collapsible a,
+.side-nav.sn-bg-4 .collapsible-header,
+.side-nav.sn-bg-4 .collapsible-body li a,
+.side-nav.sn-bg-4 .logo-sn span,
+.side-nav.sn-bg-4 .logo-sn a {
+    color: var(--gfm-color-on-primary) !important;
+}
+
+.side-nav.sn-bg-4 .collapsible-body {
+    background-color: rgba(0, 85, 184, 0.15);
+}
+
+.navbar.double-nav {
+    background-image: var(--gfm-gradient-secondary);
+    box-shadow: 0 8px 20px rgba(0, 173, 168, 0.25);
+}
+
+.navbar.double-nav .nav-link,
+.navbar.double-nav .breadcrumb-dn p,
+.navbar.double-nav .navbar-brand,
+.navbar.double-nav .dropdown-menu span,
+.navbar.double-nav .dropdown-item {
+    color: var(--gfm-color-on-primary) !important;
+}
+
+.navbar.double-nav .dropdown-menu {
+    background-color: rgba(0, 85, 184, 0.92);
+    border: none;
+    box-shadow: 0 12px 24px rgba(36, 55, 70, 0.18);
+}
+
+.navbar.double-nav .dropdown-item:hover,
+.navbar.double-nav .dropdown-item:focus {
+    background-color: rgba(0, 173, 168, 0.25);
+    color: var(--gfm-color-on-primary) !important;
+}
+
+.navbar.double-nav .badge {
+    background-color: var(--gfm-color-tertiary);
+    color: var(--gfm-color-on-tertiary);
+}
+
+.fixed-sn .content-wrapper,
+main .container-fluid {
+    background-color: transparent;
+}
+
+.card,
+.view.view-cascade {
+    border-radius: var(--gfm-radius-base);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 3 — Component Quick Wins                                   */
+/* -------------------------------------------------------------------------- */
+
+.card {
+    background-color: var(--gfm-color-white);
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+    transition: box-shadow var(--gfm-transition-base), transform var(--gfm-transition-base);
+}
+
+.stats-card .gradient-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+}
+
+.stats-card .gradient-card-header .data {
+    text-align: right;
+}
+
+.stats-card .gradient-card-header i {
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: var(--gfm-radius-base);
+}
+
+.progress {
+    border-radius: var(--gfm-radius-base);
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.4s ease;
+}
+
+.card:hover {
+    box-shadow: var(--gfm-shadow-hover);
+}
+
+.theme-icon-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--gfm-radius-base);
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+    box-shadow: var(--gfm-shadow-base);
+    font-size: 1.75rem;
+}
+
+.theme-icon-chip i {
+    color: inherit;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 8 — PTW Form Refresh                                       */
+/* -------------------------------------------------------------------------- */
+
+.ptw-page main {
+    background-color: transparent;
+}
+
+.ptw-card {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    transition: box-shadow var(--gfm-transition-base);
+}
+
+.ptw-card:hover {
+    box-shadow: var(--gfm-shadow-hover);
+}
+
+.ptw-tab-header {
+    background-color: var(--gfm-color-white);
+    border-bottom: 1px solid var(--gfm-color-mist);
+}
+
+.ptw-tab-header .nav-link {
+    color: var(--gfm-color-ink);
+    font-weight: var(--gfm-font-weight-strong);
+    padding: 1rem;
+    transition: color var(--gfm-transition-base), border-color var(--gfm-transition-base);
+}
+
+.ptw-tab-header .nav-tabs .nav-link {
+    border: none;
+}
+
+.ptw-tab-header .nav-link.active {
+    color: var(--gfm-color-primary);
+    background-color: var(--gfm-color-white);
+    border-bottom: 3px solid var(--gfm-color-primary);
+}
+
+.ptw-tab-header .nav-tabs .nav-link.active {
+    border: none;
+}
+
+.ptw-tab-header .nav-link:not(.active):hover {
+    color: var(--gfm-color-secondary);
+}
+
+.ptw-card-header {
+    background-image: var(--gfm-gradient-primary);
+    color: var(--gfm-color-on-primary);
+    border: none;
+    padding: 1rem 1.5rem;
+}
+
+.ptw-card-header--primary {
+    background-image: var(--gfm-gradient-primary);
+}
+
+.ptw-card-header--alert {
+    background-image: linear-gradient(135deg, var(--gfm-color-alert), rgba(223, 78, 79, 0.85));
+}
+
+.ptw-card-header--success {
+    background-image: linear-gradient(135deg, var(--gfm-color-secondary), rgba(0, 173, 168, 0.75));
+}
+
+.ptw-card-header--warning {
+    background-image: linear-gradient(135deg, #ffda7a, #ffd24d);
+    color: var(--gfm-color-ink-strong);
+}
+
+.ptw-page .view-mode-header {
+    background-image: var(--gfm-gradient-primary);
+    color: var(--gfm-color-on-primary);
+}
+
+.ptw-page .view-mode-indicator {
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+    box-shadow: 0 4px 12px rgba(0, 173, 168, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.ptw-page .approval-section {
+    background-color: var(--gfm-color-surface);
+    border: 1px solid var(--gfm-color-mist);
+    border-radius: var(--gfm-radius-base);
+}
+
+.ptw-page .approval-section.supervisor {
+    border-color: var(--gfm-color-primary);
+    background-color: rgba(0, 85, 184, 0.08);
+}
+
+.ptw-page .approval-section.she {
+    border-color: var(--gfm-color-secondary);
+    background-color: rgba(0, 173, 168, 0.12);
+}
+
+.ptw-page .approval-section.facility-manager {
+    border-color: var(--gfm-color-alert);
+    background-color: rgba(223, 78, 79, 0.12);
+}
+
+.ptw-page .btn-save {
+    background-image: var(--gfm-gradient-secondary);
+    border: none;
+    color: var(--gfm-color-on-primary);
+}
+
+.ptw-page .btn-save:hover {
+    background-image: linear-gradient(135deg, var(--gfm-color-secondary), var(--gfm-color-primary));
+}
+
+.ptw-page .form-control:focus,
+.ptw-page .native-dropdown select:focus {
+    border-color: var(--gfm-color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(0, 85, 184, 0.2);
+}
+
+.ptw-page .public-form-header {
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+}
+
+.ptw-page #coldWorkSection .card-header {
+    background-image: var(--gfm-gradient-primary);
+    color: var(--gfm-color-on-primary);
+}
+
+.ptw-page #hotWorkSection .card-header {
+    background-image: linear-gradient(135deg, var(--gfm-color-alert), rgba(223, 78, 79, 0.85));
+    color: var(--gfm-color-on-primary);
+}
+
+.ptw-page #confinedSpaceSection .card-header {
+    background-image: linear-gradient(135deg, var(--gfm-color-secondary), var(--gfm-color-accent));
+    color: var(--gfm-color-on-primary);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 9 — WO Assign Refresh                                      */
+/* -------------------------------------------------------------------------- */
+
+.wo-page main {
+    background-color: transparent;
+}
+
+.wo-overview .wo-overview__header {
+    padding: 1.5rem;
+}
+
+.wo-overview .wo-overview__header h5,
+.wo-overview .wo-overview__header h6 {
+    color: var(--gfm-color-on-primary);
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+.wo-subnav {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.wo-tab-group .wo-tab-button {
+    margin-right: 0;
+}
+
+.wo-tab-group .wo-tab-button + .wo-tab-button {
+    margin-top: 0.75rem;
+}
+
+@media (min-width: 576px) {
+    .wo-tab-group .wo-tab-button + .wo-tab-button {
+        margin-top: 0;
+        margin-left: 0.75rem;
+    }
+}
+
+.wo-tab-button {
+    background-image: var(--gfm-gradient-primary);
+    color: var(--gfm-color-on-primary);
+    font-weight: var(--gfm-font-weight-strong);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    box-shadow: var(--gfm-shadow-base);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-image var(--gfm-transition-base), box-shadow var(--gfm-transition-base);
+}
+
+.wo-tab-button i {
+    margin-right: 0.5rem;
+}
+
+.wo-tab-button .wo-tab-badge {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: var(--gfm-color-on-primary);
+    margin-left: 0.75rem;
+    min-width: 32px;
+}
+
+.wo-tab-button.lighten-2 {
+    background-image: none;
+    background-color: var(--gfm-color-surface);
+    color: var(--gfm-color-ink-strong);
+    box-shadow: inset 0 0 0 1px var(--gfm-color-mist);
+}
+
+.wo-tab-button.lighten-2 .wo-tab-badge {
+    background-color: var(--gfm-color-mist);
+    color: var(--gfm-color-ink-strong);
+}
+
+.wo-tab-button:hover {
+    box-shadow: var(--gfm-shadow-hover);
+}
+
+.wo-card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.wo-card-header {
+    color: var(--gfm-color-on-primary);
+    font-weight: var(--gfm-font-weight-strong);
+    padding: 1.25rem 1.5rem;
+    gap: 0.75rem;
+}
+
+.wo-card-header i {
+    font-size: 1.25rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 10 — PPM Import Refresh                                    */
+/* -------------------------------------------------------------------------- */
+
+.ppm-import-page main {
+    background-color: transparent;
+}
+
+.ppm-card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.ppm-card-header {
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.5rem 2rem;
+}
+
+.ppm-card-header p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.ppm-import-page .import-step {
+    border: 1px solid var(--gfm-color-mist);
+    border-radius: var(--gfm-radius-base);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--gfm-shadow-base);
+    transition: border-color var(--gfm-transition-base), box-shadow var(--gfm-transition-base), transform var(--gfm-transition-base);
+}
+
+.ppm-import-page .import-step.active {
+    border-color: var(--gfm-color-primary);
+    box-shadow: var(--gfm-shadow-hover);
+}
+
+.ppm-import-page .import-step.completed {
+    border-color: var(--gfm-color-secondary);
+}
+
+.ppm-import-page .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: var(--gfm-color-ink-muted);
+    color: var(--gfm-color-white);
+    font-weight: var(--gfm-font-weight-strong);
+    margin-right: 0.75rem;
+}
+
+.ppm-import-page .step-number.active {
+    background-color: var(--gfm-color-primary);
+}
+
+.ppm-import-page .step-number.completed {
+    background-color: var(--gfm-color-secondary);
+}
+
+.ppm-import-page .file-drop-zone {
+    border: 2px dashed var(--gfm-color-mist);
+    border-radius: var(--gfm-radius-base);
+    padding: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color var(--gfm-transition-base), background-color var(--gfm-transition-base);
+}
+
+.ppm-import-page .file-drop-zone:hover {
+    border-color: var(--gfm-color-secondary);
+}
+
+.ppm-import-page .file-drop-zone.dragover {
+    border-color: var(--gfm-color-primary);
+    background-color: rgba(0, 85, 184, 0.08);
+}
+
+.ppm-import-page .template-download {
+    background-color: rgba(0, 173, 168, 0.08);
+    border: 1px solid rgba(0, 173, 168, 0.25);
+    border-radius: var(--gfm-radius-base);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.ppm-import-page .preview-table {
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: var(--gfm-radius-base);
+    border: 1px solid var(--gfm-color-mist);
+}
+
+.ppm-import-page .error-row {
+    background-color: rgba(223, 78, 79, 0.12) !important;
+}
+
+.ppm-import-page .warning-row {
+    background-color: rgba(255, 210, 77, 0.18) !important;
+}
+
+.ppm-import-page .success-row {
+    background-color: rgba(0, 173, 168, 0.15) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 11 — PPM Reschedule Refresh                                */
+/* -------------------------------------------------------------------------- */
+
+.ppm-reschedule-page main {
+    background-color: transparent;
+}
+
+.ppm-reschedule-section {
+    position: relative;
+}
+
+.ppm-reschedule-card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.ppm-reschedule-card__header {
+    background-image: var(--gfm-gradient-primary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.75rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ppm-reschedule-card__header h2 {
+    color: var(--gfm-color-on-primary);
+}
+
+.ppm-reschedule-card__header h2 i {
+    font-size: 1.75rem;
+    margin-right: 0.75rem;
+}
+
+.ppm-reschedule-card__header p {
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: var(--gfm-font-weight-regular);
+}
+
+.ppm-reschedule-search {
+    background-color: var(--gfm-color-white);
+    border: 1px solid rgba(0, 85, 184, 0.12);
+    border-radius: var(--gfm-radius-base);
+    padding: 1.75rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 12px 28px rgba(36, 55, 70, 0.08);
+}
+
+.ppm-reschedule-search__heading h6 {
+    color: var(--gfm-color-ink-strong);
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+.ppm-reschedule-search__heading p {
+    color: var(--gfm-color-ink);
+}
+
+.ppm-reschedule-table-card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+    margin-top: 2.5rem;
+}
+
+.ppm-reschedule-table__toolbar {
+    padding: 1rem 2rem;
+    gap: 1.25rem;
+}
+
+.ppm-reschedule-table__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.ppm-reschedule-table__title {
+    font-size: 1.125rem;
+    font-weight: var(--gfm-font-weight-strong);
+    color: rgba(255, 255, 255, 0.85);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.ppm-reschedule-table__export {
+    display: flex;
+    align-items: center;
+}
+
+.ppm-reschedule-table__body {
+    padding: 2rem;
+}
+
+.ppm-reschedule-table {
+    border-radius: var(--gfm-radius-base);
+    overflow: hidden;
+}
+
+.ppm-reschedule-table__col--index {
+    width: 40px;
+    max-width: 40px;
+}
+
+.ppm-reschedule-table__col--reschedule-status {
+    width: 140px;
+    max-width: 140px;
+}
+
+.ppm-reschedule-table__col--status {
+    width: 110px;
+    max-width: 110px;
+}
+
+.ppm-reschedule-table__col--actions {
+    width: 56px;
+    min-width: 56px;
+}
+
+@media (max-width: 991.98px) {
+    .ppm-reschedule-table__toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .ppm-reschedule-table__title {
+        letter-spacing: 0.06em;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 12 — PPM Set Form Refresh                                  */
+/* -------------------------------------------------------------------------- */
+
+.ppm-set-page main {
+    background-color: transparent;
+}
+
+.ppm-set-toolbar-wrapper {
+    position: relative;
+}
+
+.ppm-set-toolbar {
+    border-radius: var(--gfm-radius-base);
+    padding: 1.5rem 2rem;
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.ppm-set-toolbar__title {
+    gap: 1rem;
+}
+
+.ppm-set-toolbar__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.18);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+.ppm-set-toolbar__icon i {
+    color: inherit;
+}
+
+.ppm-set-toolbar__actions .btn {
+    box-shadow: none;
+}
+
+.ppm-set-toolbar__actions .btn:hover {
+    box-shadow: var(--gfm-shadow-hover);
+}
+
+.ppm-set-card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.ppm-set-card__header {
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.5rem 2rem;
+    border-top-left-radius: var(--gfm-radius-base);
+    border-top-right-radius: var(--gfm-radius-base);
+    gap: 1rem;
+}
+
+.ppm-set-card__header h5 {
+    color: var(--gfm-color-on-primary);
+}
+
+.ppm-set-card__header p {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.ppm-set-card__header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.25rem;
+}
+
+.ppm-set-card__controls {
+    gap: 0.75rem;
+}
+
+.ppm-set-primary-action {
+    min-width: 220px;
+}
+
+.ppm-set-table {
+    border-radius: var(--gfm-radius-base);
+    overflow: hidden;
+}
+
+.ppm-set-table__col--index {
+    width: 48px;
+    max-width: 48px;
+}
+
+.ppm-set-table__col--action {
+    width: 64px;
+    min-width: 64px;
+}
+
+@media (max-width: 767.98px) {
+    .ppm-set-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.25rem;
+    }
+
+    .ppm-set-toolbar__actions {
+        width: 100%;
+    }
+
+    .ppm-set-toolbar__actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 13 — PPM Set Management Refresh                            */
+/* -------------------------------------------------------------------------- */
+
+.ppm-set-management-page main {
+    background-color: transparent;
+}
+
+.ppm-set-management-hero__content {
+    border-radius: var(--gfm-radius-base);
+    padding: 1.75rem 2.25rem;
+    box-shadow: var(--gfm-shadow-base);
+    gap: 1.5rem;
+}
+
+.ppm-set-management-hero__title {
+    gap: 1rem;
+    color: var(--gfm-color-on-primary);
+}
+
+.ppm-set-management-hero__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.18);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.5rem;
+}
+
+.ppm-set-management-hero__icon i {
+    color: inherit;
+}
+
+.ppm-set-management-hero__meta {
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: var(--gfm-font-weight-regular);
+}
+
+.ppm-set-management-filters__card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+    padding: 1.5rem 2rem;
+}
+
+.ppm-set-management-filters__content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
+
+.ppm-set-management-filters__dropdown .btn {
+    min-width: 220px;
+}
+
+.ppm-set-management-filters__summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: var(--gfm-font-weight-strong);
+    color: var(--gfm-color-ink);
+}
+
+.ppm-set-management-filters__label {
+    color: var(--gfm-color-ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+}
+
+.ppm-set-management-filters__value {
+    color: var(--gfm-color-ink-strong);
+}
+
+.ppm-set-management-table-card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.ppm-set-management-table-card__header {
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.5rem 2rem;
+    border-top-left-radius: var(--gfm-radius-base);
+    border-top-right-radius: var(--gfm-radius-base);
+    gap: 1rem;
+}
+
+.ppm-set-management-table-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.25rem;
+}
+
+.ppm-set-management-table-card__header h5 {
+    color: var(--gfm-color-on-primary);
+}
+
+.ppm-set-management-table-card__header p {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.ppm-set-management-table {
+    border-radius: var(--gfm-radius-base);
+    overflow: hidden;
+}
+
+.ppm-set-management-table__col--index {
+    width: 48px;
+    max-width: 48px;
+}
+
+.ppm-set-management-table__col--actions {
+    width: 64px;
+    min-width: 64px;
+}
+
+@media (max-width: 767.98px) {
+    .ppm-set-management-filters__content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .ppm-set-management-filters__dropdown .btn {
+        width: 100%;
+    }
+
+    .ppm-set-management-filters__summary {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 14 — PPM Set Modal Refresh                                 */
+/* -------------------------------------------------------------------------- */
+
+.ppm-set-modal {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    overflow: hidden;
+}
+
+.ppm-set-modal__header {
+    background-image: var(--gfm-gradient-primary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.75rem 2rem;
+    border-bottom: none;
+}
+
+.ppm-set-modal__title {
+    gap: 1rem;
+}
+
+.ppm-set-modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
+}
+
+.ppm-set-modal__subtitle {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.9rem;
+}
+
+.ppm-set-modal__close span {
+    color: var(--gfm-color-on-primary);
+    font-size: 1.75rem;
+}
+
+.ppm-set-modal__body {
+    padding: 1.75rem 2rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-set-modal__body .md-form,
+.ppm-set-modal__body .select-outline {
+    margin-bottom: 1.5rem;
+}
+
+.ppm-set-modal__body .prefix,
+.ppm-set-modal__body .select-prefix {
+    color: var(--gfm-color-secondary);
+}
+
+.ppm-set-modal__select .select-dropdown li.active span,
+.ppm-set-modal__select .select-dropdown li span:hover {
+    color: var(--gfm-color-primary);
+}
+
+.ppm-set-modal__footer {
+    border-top: 1px solid var(--gfm-color-mist);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-set-modal__footer .btn {
+    min-width: 140px;
+}
+
+@media (max-width: 575.98px) {
+    .ppm-set-modal__header,
+    .ppm-set-modal__body,
+    .ppm-set-modal__footer {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .ppm-set-modal__footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ppm-set-modal__footer .btn {
+        width: 100%;
+    }
+}
+
+.view.view-cascade.gradient-card-header,
+.gradient-card-header.aqua-gradient,
+.gradient-card-header.blue-gradient,
+.gradient-card-header.rgba-cyan-strong,
+.gradient-card-header.primary-color,
+.gradient-card-header.blue {
+    background-image: var(--gfm-gradient-primary) !important;
+    background-color: var(--gfm-color-primary) !important;
+    color: var(--gfm-color-on-primary) !important;
+    border-top-left-radius: var(--gfm-radius-base);
+    border-top-right-radius: var(--gfm-radius-base);
+    border: none;
+    box-shadow: none;
+}
+
+.gradient-card-header .btn-outline-white {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn {
+    border-radius: var(--gfm-radius-base);
+    font-weight: var(--gfm-font-weight-strong);
+    text-transform: none;
+    transition: transform var(--gfm-transition-base),
+                box-shadow var(--gfm-transition-base),
+                background-color var(--gfm-transition-base),
+                color var(--gfm-transition-base),
+                border-color var(--gfm-transition-base);
+}
+
+.btn.btn-rounded,
+.btn.btn-rounded.btn-sm,
+.btn.btn-rounded.btn-lg {
+    border-radius: var(--gfm-radius-pill);
+}
+
+.btn:hover,
+.btn:focus {
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 15 — PPM Set Asset Select Modal Refresh                     */
+/* -------------------------------------------------------------------------- */
+
+.ppm-set-asset-modal {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    overflow: hidden;
+}
+
+.ppm-set-asset-modal__header {
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.75rem 2rem;
+    border-bottom: none;
+}
+
+.ppm-set-asset-modal__title {
+    gap: 1rem;
+}
+
+.ppm-set-asset-modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.22);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.35rem;
+    margin-right: 0.75rem;
+}
+
+.ppm-set-asset-modal__subtitle {
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 0.95rem;
+}
+
+.ppm-set-asset-modal__close span {
+    color: var(--gfm-color-on-primary);
+    font-size: 1.75rem;
+}
+
+.ppm-set-asset-modal__body {
+    padding: 1.75rem 2rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-set-asset-modal__table-card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.ppm-set-asset-modal__table-card-header {
+    background-image: var(--gfm-gradient-primary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.5rem 1.75rem;
+    border-top-left-radius: var(--gfm-radius-base);
+    border-top-right-radius: var(--gfm-radius-base);
+    gap: 1rem;
+}
+
+.ppm-set-asset-modal__table-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.22);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.2rem;
+}
+
+.ppm-set-asset-modal__table-card-header p {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.ppm-set-asset-modal__table {
+    border-radius: var(--gfm-radius-base);
+    overflow: hidden;
+}
+
+.ppm-set-asset-modal__col--index {
+    width: 56px;
+    max-width: 56px;
+}
+
+.ppm-set-asset-modal__footer {
+    border-top: 1px solid var(--gfm-color-mist);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-set-asset-modal__footer .btn {
+    min-width: 180px;
+}
+
+@media (max-width: 575.98px) {
+    .ppm-set-asset-modal__header,
+    .ppm-set-asset-modal__body,
+    .ppm-set-asset-modal__footer {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .ppm-set-asset-modal__footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ppm-set-asset-modal__footer .btn {
+        width: 100%;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 16 — PPM Asset Group Management Refresh                    */
+/* -------------------------------------------------------------------------- */
+
+.ppm-asset-page main {
+    background-color: transparent;
+}
+
+.ppm-asset-hero__content {
+    border-radius: var(--gfm-radius-base);
+    padding: 1.75rem 2.25rem;
+    box-shadow: var(--gfm-shadow-base);
+    gap: 1.5rem;
+}
+
+.ppm-asset-hero__title {
+    gap: 1rem;
+    color: var(--gfm-color-on-primary);
+}
+
+.ppm-asset-hero__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.18);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.5rem;
+}
+
+.ppm-asset-hero__icon i {
+    color: inherit;
+}
+
+.ppm-asset-hero__meta {
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: var(--gfm-font-weight-regular);
+}
+
+.ppm-asset-filters__card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+    padding: 1.5rem 2rem;
+}
+
+.ppm-asset-filters__content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
+
+.ppm-asset-filters__dropdown .btn {
+    min-width: 220px;
+}
+
+.ppm-asset-filters__summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: var(--gfm-font-weight-strong);
+    color: var(--gfm-color-ink);
+}
+
+.ppm-asset-filters__label {
+    color: var(--gfm-color-ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+}
+
+.ppm-asset-filters__value {
+    color: var(--gfm-color-ink-strong);
+}
+
+.ppm-asset-table-card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.ppm-asset-table-card__header {
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.5rem 2rem;
+    border-top-left-radius: var(--gfm-radius-base);
+    border-top-right-radius: var(--gfm-radius-base);
+    gap: 1rem;
+}
+
+.ppm-asset-table-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.25rem;
+}
+
+.ppm-asset-table-card__header p {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.ppm-asset-table {
+    border-radius: var(--gfm-radius-base);
+    overflow: hidden;
+}
+
+.ppm-asset-table__col--index {
+    width: 48px;
+    max-width: 48px;
+}
+
+.ppm-asset-table__col--actions {
+    width: 64px;
+    min-width: 64px;
+}
+
+@media (max-width: 767.98px) {
+    .ppm-asset-filters__content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .ppm-asset-filters__dropdown .btn {
+        width: 100%;
+    }
+
+    .ppm-asset-filters__summary {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+    transform: translateY(-1px);
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.btn-primary {
+    background-color: var(--gfm-color-primary);
+    border-color: var(--gfm-color-primary);
+    color: var(--gfm-color-on-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--gfm-color-secondary);
+    border-color: var(--gfm-color-secondary);
+    color: var(--gfm-color-on-primary);
+}
+
+.btn-secondary {
+    background-color: var(--gfm-color-secondary);
+    border-color: var(--gfm-color-secondary);
+    color: var(--gfm-color-on-secondary);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: var(--gfm-color-tertiary);
+    border-color: var(--gfm-color-tertiary);
+}
+
+.btn-outline-primary,
+.btn-outline-secondary {
+    border-width: 2px;
+}
+
+.btn-outline-primary {
+    color: var(--gfm-color-primary);
+    border-color: var(--gfm-color-primary);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color: rgba(0, 85, 184, 0.08);
+}
+
+.btn-outline-secondary {
+    color: var(--gfm-color-secondary);
+    border-color: var(--gfm-color-secondary);
+    background-color: transparent;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background-color: rgba(0, 173, 168, 0.08);
+}
+
+.btn-outline-white {
+    color: var(--gfm-color-on-primary);
+    border-color: rgba(255, 255, 255, 0.65);
+    background-color: transparent;
+}
+
+.btn-outline-white:hover,
+.btn-outline-white:focus {
+    color: var(--gfm-color-on-primary);
+    border-color: var(--gfm-color-on-primary);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.badge {
+    border-radius: var(--gfm-radius-pill);
+    padding: 0.35rem 0.75rem;
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+.badge-primary {
+    background-color: var(--gfm-color-primary);
+    color: var(--gfm-color-on-primary);
+}
+
+.badge-secondary {
+    background-color: var(--gfm-color-secondary);
+    color: var(--gfm-color-on-secondary);
+}
+
+.table thead th {
+    background-color: var(--gfm-color-mist);
+    color: var(--gfm-color-ink-strong);
+    border: none;
+}
+
+.table thead tr {
+    box-shadow: inset 0 -1px 0 rgba(36, 55, 70, 0.08);
+}
+
+.striped li,
+.table tbody tr {
+    border-bottom-color: rgba(36, 55, 70, 0.08);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Legacy custom styles (to be refactored)                                   */
+/* -------------------------------------------------------------------------- */
+
 /* Your custom styles */
 .pl-3_5 {
     padding-left: 1.2rem !important;
@@ -38,10 +1581,8 @@
 .modal-dialog{
     overflow-y: initial !important
 }
-.modal-body{
-    /*max-height: calc(100vh - 235px);
-    overflow-y: auto;*/
-}
+/* Legacy note: modal bodies previously constrained via
+   max-height calc(100vh - 235px) and overflow auto. */
 
 .cascading-admin-card {
     margin-top: 1.25rem; }
@@ -757,6 +2298,1267 @@ input:-webkit-autofill {
 .form-control:disabled {
     background-color: #f6f3f3 !important;
     opacity: 1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 17 — PPM Asset Modal Refresh                                */
+/* -------------------------------------------------------------------------- */
+
+.ppm-asset-modal {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    overflow: hidden;
+}
+
+.ppm-asset-modal__header {
+    background-image: var(--gfm-gradient-primary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.75rem 2rem;
+    border-bottom: none;
+}
+
+.ppm-asset-modal__title {
+    gap: 1rem;
+}
+
+.ppm-asset-modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.4rem;
+    margin-right: 0.75rem;
+}
+
+.ppm-asset-modal__subtitle {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.95rem;
+}
+
+.ppm-asset-modal__close span {
+    color: var(--gfm-color-on-primary);
+    font-size: 1.75rem;
+}
+
+.ppm-asset-modal__body {
+    padding: 1.75rem 2rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-asset-modal__body .md-form,
+.ppm-asset-modal__body .select-outline {
+    margin-bottom: 1.5rem;
+}
+
+.ppm-asset-modal__select .select-dropdown li.active span,
+.ppm-asset-modal__select .select-dropdown li span:hover {
+    color: var(--gfm-color-primary);
+}
+
+.ppm-asset-modal__footer {
+    border-top: 1px solid var(--gfm-color-mist);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-asset-modal__footer .btn {
+    min-width: 160px;
+}
+
+@media (max-width: 575.98px) {
+    .ppm-asset-modal__header,
+    .ppm-asset-modal__body,
+    .ppm-asset-modal__footer {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .ppm-asset-modal__footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ppm-asset-modal__footer .btn {
+        width: 100%;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 18 — PPM Asset Select Modal Refresh                         */
+/* -------------------------------------------------------------------------- */
+
+.ppm-asset-select-modal {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    overflow: hidden;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 19 — PPM Asset Detail Section Refresh                       */
+/* -------------------------------------------------------------------------- */
+
+.ppm-asset-detail {
+    gap: 1.5rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 20 — PPM Task Modal Refresh                                 */
+/* -------------------------------------------------------------------------- */
+
+.ppm-task-modal {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    overflow: hidden;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 21 — PPM Group Modal Refresh                                */
+/* -------------------------------------------------------------------------- */
+
+.ppm-group-modal {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    overflow: hidden;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 22 — PPM Group User Modal Refresh                           */
+/* -------------------------------------------------------------------------- */
+
+.ppm-group-user-modal {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    overflow: hidden;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 23 — PPM Reschedule Modal Refresh                           */
+/* -------------------------------------------------------------------------- */
+
+.ppm-reschedule-modal {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    overflow: hidden;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 24 — PPM Group Detail Section Refresh                       */
+/* -------------------------------------------------------------------------- */
+
+.ppm-group-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Phase 1 · Step 25 — PPM Group Boards Refresh                               */
+/* -------------------------------------------------------------------------- */
+
+.ppm-group-board {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.ppm-group-board:last-of-type {
+    margin-bottom: 0;
+}
+
+.ppm-group-board__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1.75rem;
+    color: var(--gfm-color-on-primary);
+}
+
+.ppm-group-board--technician .ppm-group-board__header {
+    background-image: var(--gfm-gradient-primary);
+}
+
+.ppm-group-board--supervisor .ppm-group-board__header {
+    background-image: var(--gfm-gradient-secondary);
+}
+
+.ppm-group-board--engineer .ppm-group-board__header {
+    background-image: linear-gradient(135deg, #6d28d9, #3b82f6);
+}
+
+.ppm-group-board--wo .ppm-group-board__header {
+    background-image: linear-gradient(135deg, #ff8a5c, #ff5d5d);
+}
+
+.ppm-group-board__title {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.ppm-group-board__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.18);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.6rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.ppm-group-board__eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    font-weight: var(--gfm-font-weight-strong);
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.ppm-group-board__heading {
+    color: var(--gfm-color-on-primary);
+    font-size: 1.3rem;
+}
+
+.ppm-group-board__actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.ppm-group-board__actions .btn {
+    font-weight: var(--gfm-font-weight-strong);
+    min-width: 108px;
+}
+
+.ppm-group-board__body {
+    padding: 1.75rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-group-board__table-wrapper {
+    border: 1px solid var(--gfm-color-mist);
+    border-radius: var(--gfm-radius-base);
+    overflow: hidden;
+}
+
+.ppm-group-board__table thead th {
+    background-color: rgba(0, 85, 184, 0.06);
+    color: var(--gfm-color-ink-strong);
+    border-bottom: 1px solid var(--gfm-color-mist);
+}
+
+.ppm-group-board__table tbody td {
+    vertical-align: middle;
+}
+
+@media (max-width: 991.98px) {
+    .ppm-group-board__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ppm-group-board__actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .ppm-group-board__header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.25rem;
+    }
+}
+
+.ppm-group-detail__info-card,
+.ppm-group-detail__list-card {
+    border: none;
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    overflow: hidden;
+}
+
+.ppm-group-detail__header,
+.ppm-group-detail__list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1.75rem;
+    color: var(--gfm-color-on-primary);
+}
+
+.ppm-group-detail__header {
+    background-image: var(--gfm-gradient-primary);
+}
+
+.ppm-group-detail__list-header {
+    background-image: var(--gfm-gradient-secondary);
+}
+
+.ppm-group-detail__header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.ppm-group-detail__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.18);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.6rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.ppm-group-detail__eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    font-weight: var(--gfm-font-weight-strong);
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.ppm-group-detail__title {
+    font-size: 1.35rem;
+    color: var(--gfm-color-on-primary);
+    margin: 0;
+}
+
+.ppm-group-detail__body,
+.ppm-group-detail__list-body {
+    padding: 1.75rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-group-detail__body .row + .row {
+    margin-top: 1rem;
+}
+
+.ppm-group-detail__body .md-form,
+.ppm-group-detail__body .select-outline {
+    margin-bottom: 0;
+}
+
+.ppm-group-detail__body .md-form > label,
+.ppm-group-detail__body .select-outline > label {
+    color: var(--gfm-color-ink-muted);
+}
+
+.ppm-group-detail__status {
+    margin-top: 1.5rem;
+    padding: 1rem 1.25rem;
+    background-color: rgba(0, 85, 184, 0.06);
+    border-radius: var(--gfm-radius-base);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.ppm-group-detail__status-label {
+    font-weight: var(--gfm-font-weight-strong);
+    color: var(--gfm-color-ink-strong);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.8rem;
+}
+
+.ppm-group-detail__status .form-check-label {
+    color: var(--gfm-color-ink-strong);
+}
+
+.ppm-group-detail__actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ppm-group-detail__actions .btn {
+    min-width: 150px;
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+.ppm-group-detail__list-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.ppm-group-detail__list-actions .btn {
+    font-weight: var(--gfm-font-weight-strong);
+    min-width: 108px;
+}
+
+.ppm-group-detail__table-wrapper {
+    border-radius: var(--gfm-radius-base);
+    overflow: hidden;
+    border: 1px solid var(--gfm-color-mist);
+}
+
+.ppm-group-detail__table thead th {
+    background-color: rgba(0, 85, 184, 0.06);
+    color: var(--gfm-color-ink-strong);
+    border-bottom: 1px solid var(--gfm-color-mist);
+}
+
+.ppm-group-detail__table tbody td {
+    vertical-align: middle;
+}
+
+@media (max-width: 991.98px) {
+    .ppm-group-detail__list-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ppm-group-detail__list-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .ppm-group-detail__header,
+    .ppm-group-detail__list-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.25rem;
+    }
+
+    .ppm-group-detail__list-actions {
+        width: 100%;
+    }
+
+    .ppm-group-detail__status {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ppm-group-detail__actions {
+        justify-content: stretch;
+    }
+
+    .ppm-group-detail__actions .btn {
+        width: 100%;
+    }
+}
+
+.ppm-reschedule-modal__header {
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.75rem 1.75rem 1.5rem;
+    border-bottom: none;
+}
+
+.ppm-reschedule-modal__title {
+    gap: 1.25rem;
+}
+
+.ppm-reschedule-modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.18);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.6rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.ppm-reschedule-modal__subtitle {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.95rem;
+    font-weight: var(--gfm-font-weight-regular);
+}
+
+.ppm-reschedule-modal__close {
+    color: var(--gfm-color-on-primary);
+    opacity: 1;
+    transform: translateY(-6px);
+}
+
+.ppm-reschedule-modal__close span {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.ppm-reschedule-modal__body {
+    padding: 2rem 1.75rem 1.5rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-reschedule-modal__section {
+    border: 1px solid var(--gfm-color-mist);
+    border-radius: var(--gfm-radius-base);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--gfm-color-surface);
+}
+
+.ppm-reschedule-modal__section:last-of-type {
+    margin-bottom: 0;
+}
+
+.ppm-reschedule-modal__section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.ppm-reschedule-modal__section-title {
+    margin: 0;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gfm-color-ink-strong);
+}
+
+.ppm-reschedule-modal__section-hint {
+    font-size: 0.85rem;
+    color: var(--gfm-color-ink-muted);
+}
+
+.ppm-reschedule-modal__body .md-form,
+.ppm-reschedule-modal__body .select-outline {
+    margin-bottom: 1.25rem;
+}
+
+.ppm-reschedule-modal__body .md-form > label,
+.ppm-reschedule-modal__body .select-outline > label {
+    color: var(--gfm-color-ink-muted);
+}
+
+.ppm-reschedule-modal__body .md-form .form-control[disabled] {
+    background-color: rgba(231, 234, 236, 0.35);
+    border-radius: var(--gfm-radius-base);
+    padding: 0.65rem 1rem;
+}
+
+.ppm-reschedule-modal__body .mdb-select.md-form.md-outline .select-dropdown li.active span,
+.ppm-reschedule-modal__body .mdb-select.md-form.md-outline .select-dropdown li span:hover {
+    background-color: rgba(0, 173, 168, 0.12);
+    color: var(--gfm-color-secondary);
+}
+
+.ppm-reschedule-modal__body .mdb-select.md-form.md-outline .select-dropdown li.selected span {
+    color: var(--gfm-color-primary);
+}
+
+.ppm-reschedule-modal__footer {
+    border-top: 1px solid var(--gfm-color-mist);
+    background-color: var(--gfm-color-white);
+    padding: 1rem 1.75rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.ppm-reschedule-modal__footer .btn {
+    min-width: 140px;
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+@media (max-width: 767.98px) {
+    .ppm-reschedule-modal__body {
+        padding: 1.5rem;
+    }
+
+    .ppm-reschedule-modal__section {
+        padding: 1.25rem;
+    }
+
+    .ppm-reschedule-modal__footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ppm-reschedule-modal__footer .btn {
+        width: 100%;
+    }
+}
+
+.ppm-group-user-modal__header {
+    background-image: var(--gfm-gradient-primary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.75rem 1.75rem 1.5rem;
+    border-bottom: none;
+}
+
+.ppm-group-user-modal__title {
+    gap: 1.25rem;
+}
+
+.ppm-group-user-modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.6rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.ppm-group-user-modal__subtitle {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.95rem;
+    font-weight: var(--gfm-font-weight-regular);
+}
+
+.ppm-group-user-modal__close {
+    color: var(--gfm-color-on-primary);
+    opacity: 1;
+    transform: translateY(-6px);
+}
+
+.ppm-group-user-modal__close span {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.ppm-group-user-modal__body {
+    padding: 2rem 1.75rem 1.5rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-group-user-modal__section {
+    border: 1px solid var(--gfm-color-mist);
+    border-radius: var(--gfm-radius-base);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--gfm-color-surface);
+}
+
+.ppm-group-user-modal__section:last-of-type {
+    margin-bottom: 0;
+}
+
+.ppm-group-user-modal__section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.ppm-group-user-modal__section-title {
+    margin: 0;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gfm-color-ink-strong);
+}
+
+.ppm-group-user-modal__section-hint {
+    font-size: 0.85rem;
+    color: var(--gfm-color-ink-muted);
+}
+
+.ppm-group-user-modal__body .md-form,
+.ppm-group-user-modal__body .select-outline {
+    margin-bottom: 1.25rem;
+}
+
+.ppm-group-user-modal__body .md-form > label,
+.ppm-group-user-modal__body .select-outline > label {
+    color: var(--gfm-color-ink-muted);
+}
+
+.ppm-group-user-modal__body .md-form .form-control[disabled] {
+    background-color: rgba(231, 234, 236, 0.35);
+    border-radius: var(--gfm-radius-base);
+    padding: 0.65rem 1rem;
+}
+
+.ppm-group-user-modal__body .mdb-select.md-form.md-outline .select-dropdown li.active span,
+.ppm-group-user-modal__body .mdb-select.md-form.md-outline .select-dropdown li span:hover {
+    background-color: rgba(0, 173, 168, 0.12);
+    color: var(--gfm-color-secondary);
+}
+
+.ppm-group-user-modal__body .mdb-select.md-form.md-outline .select-dropdown li.selected span {
+    color: var(--gfm-color-primary);
+}
+
+.ppm-group-user-modal__footer {
+    border-top: 1px solid var(--gfm-color-mist);
+    background-color: var(--gfm-color-white);
+    padding: 1rem 1.75rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.ppm-group-user-modal__footer .btn {
+    min-width: 140px;
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+@media (max-width: 767.98px) {
+    .ppm-group-user-modal__body {
+        padding: 1.5rem;
+    }
+
+    .ppm-group-user-modal__section {
+        padding: 1.25rem;
+    }
+
+    .ppm-group-user-modal__footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ppm-group-user-modal__footer .btn {
+        width: 100%;
+    }
+}
+
+.ppm-group-modal__header {
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.75rem 1.75rem 1.5rem;
+    border-bottom: none;
+}
+
+.ppm-group-modal__title {
+    gap: 1.25rem;
+}
+
+.ppm-group-modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.18);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.6rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.ppm-group-modal__subtitle {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.95rem;
+    font-weight: var(--gfm-font-weight-regular);
+}
+
+.ppm-group-modal__close {
+    color: var(--gfm-color-on-primary);
+    opacity: 1;
+    transform: translateY(-6px);
+}
+
+.ppm-group-modal__close span {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.ppm-group-modal__body {
+    padding: 2rem 1.75rem 1.5rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-group-modal__section {
+    border: 1px solid var(--gfm-color-mist);
+    border-radius: var(--gfm-radius-base);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--gfm-color-surface);
+}
+
+.ppm-group-modal__section:last-of-type {
+    margin-bottom: 0;
+}
+
+.ppm-group-modal__section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.ppm-group-modal__section-title {
+    margin: 0;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gfm-color-ink-strong);
+}
+
+.ppm-group-modal__section-hint {
+    font-size: 0.85rem;
+    color: var(--gfm-color-ink-muted);
+}
+
+.ppm-group-modal__body .md-form,
+.ppm-group-modal__body .select-outline {
+    margin-bottom: 1.25rem;
+}
+
+.ppm-group-modal__body .md-form > label,
+.ppm-group-modal__body .select-outline > label {
+    color: var(--gfm-color-ink-muted);
+}
+
+.ppm-group-modal__body .md-form .form-control[disabled] {
+    background-color: rgba(231, 234, 236, 0.35);
+    border-radius: var(--gfm-radius-base);
+    padding: 0.65rem 1rem;
+}
+
+.ppm-group-modal__body .mdb-select.md-form.md-outline .select-dropdown li.active span,
+.ppm-group-modal__body .mdb-select.md-form.md-outline .select-dropdown li span:hover {
+    background-color: rgba(0, 173, 168, 0.12);
+    color: var(--gfm-color-secondary);
+}
+
+.ppm-group-modal__body .mdb-select.md-form.md-outline .select-dropdown li.selected span {
+    color: var(--gfm-color-primary);
+}
+
+.ppm-group-modal__footer {
+    border-top: 1px solid var(--gfm-color-mist);
+    background-color: var(--gfm-color-white);
+    padding: 1rem 1.75rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.ppm-group-modal__footer .btn {
+    min-width: 140px;
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+@media (max-width: 767.98px) {
+    .ppm-group-modal__body {
+        padding: 1.5rem;
+    }
+
+    .ppm-group-modal__section {
+        padding: 1.25rem;
+    }
+
+    .ppm-group-modal__footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ppm-group-modal__footer .btn {
+        width: 100%;
+    }
+}
+
+.ppm-task-modal__header {
+    background-image: var(--gfm-gradient-primary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.75rem 1.75rem 1.5rem;
+    border-bottom: none;
+}
+
+.ppm-task-modal__title {
+    gap: 1.25rem;
+}
+
+.ppm-task-modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.75rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.ppm-task-modal__subtitle {
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: var(--gfm-font-weight-regular);
+    font-size: 0.95rem;
+}
+
+.ppm-task-modal__close {
+    color: var(--gfm-color-on-primary);
+    opacity: 1;
+    transform: translateY(-6px);
+}
+
+.ppm-task-modal__close span {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.ppm-task-modal__body {
+    padding: 2rem 1.75rem 1.5rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-task-modal__section {
+    border: 1px solid var(--gfm-color-mist);
+    border-radius: var(--gfm-radius-base);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--gfm-color-surface);
+}
+
+.ppm-task-modal__section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.ppm-task-modal__section-title {
+    margin: 0;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gfm-color-ink-strong);
+}
+
+.ppm-task-modal__section-hint {
+    font-size: 0.85rem;
+    color: var(--gfm-color-ink-muted);
+}
+
+.ppm-task-modal__body .md-form,
+.ppm-task-modal__body .select-outline {
+    margin-bottom: 1.25rem;
+}
+
+.ppm-task-modal__body .md-form > label,
+.ppm-task-modal__body .select-outline > label {
+    color: var(--gfm-color-ink-muted);
+}
+
+.ppm-task-modal__body .md-form .form-control[disabled] {
+    background-color: rgba(231, 234, 236, 0.35);
+    border-radius: var(--gfm-radius-base);
+    padding: 0.65rem 1rem;
+}
+
+.ppm-task-modal__body .mdb-select.md-form.md-outline .select-dropdown li.active span,
+.ppm-task-modal__body .mdb-select.md-form.md-outline .select-dropdown li span:hover {
+    background-color: rgba(0, 173, 168, 0.12);
+    color: var(--gfm-color-secondary);
+}
+
+.ppm-task-modal__body .mdb-select.md-form.md-outline .select-dropdown li.selected span {
+    color: var(--gfm-color-primary);
+}
+
+.ppm-task-modal__footer {
+    border-top: 1px solid var(--gfm-color-mist);
+    background-color: var(--gfm-color-white);
+    padding: 1rem 1.75rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.ppm-task-modal__footer .btn {
+    min-width: 140px;
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+@media (max-width: 767.98px) {
+    .ppm-task-modal__body {
+        padding: 1.5rem;
+    }
+
+    .ppm-task-modal__section {
+        padding: 1.25rem;
+    }
+
+    .ppm-task-modal__footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ppm-task-modal__footer .btn {
+        width: 100%;
+    }
+}
+
+.ppm-asset-detail__toolbar {
+    margin-bottom: 1.5rem;
+}
+
+.ppm-asset-detail__breadcrumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.ppm-asset-detail__breadcrumbs-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gfm-color-ink-muted);
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+.ppm-asset-detail__breadcrumbs-value {
+    font-size: 1.125rem;
+    color: var(--gfm-color-ink-strong);
+    font-weight: var(--gfm-font-weight-strong);
+}
+
+.ppm-asset-detail__toolbar .btn {
+    min-width: 160px;
+}
+
+.ppm-asset-detail__hero {
+    border-radius: var(--gfm-radius-base);
+    box-shadow: var(--gfm-shadow-base);
+    overflow: hidden;
+}
+
+.ppm-asset-detail__hero-header {
+    padding: 1.5rem 1.75rem;
+}
+
+.ppm-asset-detail__hero-label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.78);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.ppm-asset-detail__hero-title {
+    margin: 0;
+    color: var(--gfm-color-on-primary);
+    font-weight: var(--gfm-font-weight-heading);
+}
+
+.ppm-asset-detail__hero-meta {
+    display: grid;
+    gap: 1rem;
+    padding: 1.5rem 1.75rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-asset-detail__hero-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ppm-asset-detail__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(0, 173, 168, 0.12);
+    color: var(--gfm-color-secondary);
+    font-size: 1.5rem;
+}
+
+.ppm-asset-detail__meta-title {
+    margin: 0;
+    color: var(--gfm-color-ink-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.ppm-asset-detail__meta-value {
+    margin: 0;
+    color: var(--gfm-color-ink-strong);
+    font-weight: var(--gfm-font-weight-strong);
+    font-size: 1.25rem;
+}
+
+.ppm-asset-detail__card,
+.ppm-asset-detail__list-card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+}
+
+.ppm-asset-detail__card-header,
+.ppm-asset-detail__list-card-header {
+    padding: 1.25rem 1.75rem;
+    border: none;
+    color: var(--gfm-color-on-primary);
+}
+
+.ppm-asset-detail__field {
+    padding: 0.5rem 0;
+    color: var(--gfm-color-ink-strong);
+    font-weight: var(--gfm-font-weight-strong);
+    margin: 0;
+}
+
+.ppm-asset-detail__divider {
+    border: none;
+    height: 1px;
+    background-color: rgba(36, 55, 70, 0.12);
+    margin: 0;
+}
+
+.ppm-asset-detail__card-footer {
+    border-top: 1px solid var(--gfm-color-mist);
+    padding: 1rem 1.75rem;
+    gap: 0.75rem;
+}
+
+.ppm-asset-detail__table {
+    border-radius: var(--gfm-radius-base);
+    overflow: hidden;
+}
+
+.ppm-asset-detail__table-col--index {
+    width: 48px;
+    max-width: 48px;
+}
+
+.ppm-asset-detail__list-footer {
+    border-top: 1px solid var(--gfm-color-mist);
+    padding: 1rem 1.75rem;
+}
+
+@media (max-width: 767.98px) {
+    .ppm-asset-detail__toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .ppm-asset-detail__toolbar .btn {
+        width: 100%;
+    }
+
+    .ppm-asset-detail__hero-meta {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+.ppm-asset-select-modal__header {
+    background-image: var(--gfm-gradient-secondary);
+    color: var(--gfm-color-on-primary);
+    padding: 1.75rem 2rem;
+    border-bottom: none;
+}
+
+.ppm-asset-select-modal__title {
+    gap: 1rem;
+}
+
+.ppm-asset-select-modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--gfm-radius-base);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--gfm-color-on-primary);
+    font-size: 1.35rem;
+    margin-right: 0.75rem;
+}
+
+.ppm-asset-select-modal__subtitle {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.95rem;
+}
+
+.ppm-asset-select-modal__close span {
+    color: var(--gfm-color-on-primary);
+    font-size: 1.75rem;
+}
+
+.ppm-asset-select-modal__body {
+    padding: 1.75rem 2rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-asset-select-modal__summary-card {
+    border: none;
+    box-shadow: var(--gfm-shadow-base);
+    margin-bottom: 1.5rem;
+}
+
+.ppm-asset-select-modal__summary-card-body {
+    padding: 1.5rem 1.75rem;
+    background-color: rgba(0, 173, 168, 0.08);
+    border-radius: var(--gfm-radius-base);
+}
+
+.ppm-asset-select-modal__summary-label {
+    font-weight: var(--gfm-font-weight-strong);
+    color: var(--gfm-color-ink-muted);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.ppm-asset-select-modal__divider {
+    border: none;
+    height: 1px;
+    background-color: rgba(36, 55, 70, 0.08);
+    margin: 0.75rem 0 0;
+}
+
+.ppm-asset-select-modal__select {
+    margin-top: 0.5rem;
+}
+
+.ppm-asset-select-modal__select .select-dropdown li.active span,
+.ppm-asset-select-modal__select .select-dropdown li span:hover {
+    color: var(--gfm-color-primary);
+}
+
+.ppm-asset-select-modal__footer {
+    border-top: 1px solid var(--gfm-color-mist);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    background-color: var(--gfm-color-white);
+}
+
+.ppm-asset-select-modal__footer .btn {
+    min-width: 170px;
+}
+
+@media (max-width: 575.98px) {
+    .ppm-asset-select-modal__header,
+    .ppm-asset-select-modal__body,
+    .ppm-asset-select-modal__footer {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .ppm-asset-select-modal__footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ppm-asset-select-modal__footer .btn {
+        width: 100%;
+    }
 }
 
 .table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:before, table.dataTable thead .sorting_desc_disabled:after {

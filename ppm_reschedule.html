@@ -8,7 +8,7 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
@@ -19,16 +19,13 @@
     <link href="css/style.css" rel="stylesheet">
     <!-- Stepper CSS - minified-->
     <link href="css/addons-pro/steppers.css" rel="stylesheet">
-    <style>
-
-    </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
 	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 
-<body class="fixed-sn light-blue-skin">
+<body class="fixed-sn ppm-reschedule-page">
 <!--Main Navigation-->
 <header>
     <!-- Sidebar navigation -->
@@ -41,20 +38,24 @@
 <main>
     <div class="container-fluid">
         <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionPrsMain">
-            <div class="card card-cascade narrower">
+        <section class="mb-5 mt-lg-5 sectionPrsMain ppm-reschedule-section">
+            <div class="card card-cascade narrower theme-surface ppm-reschedule-card">
                 <!--Section: Search Function & Chart-->
                 <section>
                     <div class="row">
                         <!--Search Function-->
                         <div class="col-xl-12 col-lg-12 mr-0">
-                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                                <h2 class="h2-responsive mb-0">Reschedule PPM</h2>
+                            <div class="view view-cascade gradient-card-header ppm-reschedule-card__header">
+                                <h2 class="h2-responsive mb-1 d-flex align-items-center"><i class="far fa-calendar-alt mr-3"></i>Reschedule PPM</h2>
+                                <p class="mb-0 text-white-50">Review maintenance tasks, adjust schedules, and monitor reschedule approvals.</p>
                             </div>
                             <div class="card-body card-body-cascade">
-                                <div class="card-body pt-3">
-                                    <h6 class="pb-3">Search:</h6>
-                                    <div class="row">
+                                <div class="ppm-reschedule-search">
+                                    <div class="ppm-reschedule-search__heading">
+                                        <h6 class="mb-1">Search</h6>
+                                        <p class="mb-0">Filter work orders by site, schedule window, or status to pinpoint the right records.</p>
+                                    </div>
+                                    <div class="row mt-4">
                                         <div class="col-md-12 select-outline">
                                             <select id="optPrsSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
                                             <label for="optPrsSiteId">Site</label>
@@ -96,25 +97,23 @@
                 </section>
                 <!--Section: Table-->
                 <section>
-                    <div class="card card-cascade narrower z-depth-0">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="Track and Monitoring"
-                                   data-content="Track current checkpoint for all transactions."><i class="fas fa-info mt-0 mx-1"></i></a>
+                    <div class="card card-cascade narrower theme-surface ppm-reschedule-table-card">
+                        <div class="view view-cascade gradient-card-header ppm-reschedule-table__toolbar d-flex flex-wrap align-items-center justify-content-between">
+                            <div class="ppm-reschedule-table__actions d-flex align-items-center">
+                                <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Track and Monitoring" data-content="Track current checkpoint for all transactions."><i class="fas fa-info mt-0 mx-1"></i></button>
                                 <button type="button" id="btnDtPrsListRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
-                            <a href="javascript:void(0);" class="text-white mx-3 pl-5">PPM List</a>
-                            <div>
+                            <span class="ppm-reschedule-table__title">PPM List</span>
+                            <div class="ppm-reschedule-table__export d-flex align-items-center">
                                 <div id="btnDtPrsListExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4">
+                        <div class="ppm-reschedule-table__body px-4 pb-4">
                             <div class="table-responsive">
-                                <table id="dtPrsList" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                                <table id="dtPrsList" class="table table-hover table-sm mb-0 display responsive ppm-reschedule-table" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
-                                        <th scope="row" style="max-width: 30px">#</th>
+                                        <th scope="col" class="ppm-reschedule-table__col ppm-reschedule-table__col--index">#</th>
                                         <th>Work Order No</th>
                                         <th>Asset No</th>
                                         <th>Asset Group</th>
@@ -124,9 +123,9 @@
                                         <th>Final Date</th>
                                         <th>Frequency</th>
                                         <th>PPM Group</th>
-                                        <th style="max-width: 80px">Reschedule Status</th>
-                                        <th style="max-width: 70px">Status</th>
-                                        <th style="width: 40px; min-width: 40px"></th>
+                                        <th class="ppm-reschedule-table__col ppm-reschedule-table__col--reschedule-status">Reschedule Status</th>
+                                        <th class="ppm-reschedule-table__col ppm-reschedule-table__col--status">Status</th>
+                                        <th class="ppm-reschedule-table__col ppm-reschedule-table__col--actions"></th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>

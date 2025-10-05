@@ -31,7 +31,7 @@
 	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 
-<body class="fixed-sn light-blue-skin">
+<body class="fixed-sn">
 <!--Main Navigation-->
 <header>
     <!-- Sidebar navigation -->
@@ -45,7 +45,7 @@
         <!--Section: Notification panel-->
         <section class="mt-2 mb-4 sectionHmeMain">
             <!--Navbar-->
-            <nav class="navbar navbar-expand navbar-dark mdb-color lighten-1 z-depth-4 pt-3 pb-1 pr-0 mb-3">
+            <nav class="navbar navbar-expand theme-gradient-primary z-depth-4 pt-3 pb-1 pr-0 mb-3">
                 <div class="row w-100">
                     <div class="col-6">
                         <h5 class="font-weight-500 mb-2" id="lblHmeReportType"></h5>
@@ -55,7 +55,7 @@
                     </div>
                 </div>
             </nav>
-            <nav class="navbar navbar-expand navbar-dark mdb-color lighten-3 z-depth-4 pb-0">
+            <nav class="navbar navbar-expand theme-gradient-primary z-depth-4 pb-0">
                 <div class="collapse navbar-collapse">
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item dropdown mr-2 active">
@@ -108,8 +108,8 @@
             <div class="row mt-4">
                 <!-- Intro Card: Jumlah Seminar -->
                 <div class="col-xl-3 col-md-6 mb-4 divHmeTopStats_ppm">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-black-strong">
+                    <div class="card card-cascade cascading-admin-card theme-surface">
+                        <div class="view view-cascade gradient-card-header">
                             <div class="admin-up">
                                 <i class="fa fas fa-qrcode blue accent-1"></i>
                                 <div class="data">
@@ -118,15 +118,15 @@
                                 </div>
                             </div>
                             <div class="card-body card-body-cascade">
-                                <p class="card-text text-white">Total active asset<br/><strong>Current</strong></p>
+                                <p class="card-text theme-text-ink">Total active asset<br/><strong>Current</strong></p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- Intro Card: Jumlah Syarikat -->
                 <div class="col-xl-3 col-md-6 mb-4 divHmeTopStats_ppm">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-black-strong">
+                    <div class="card card-cascade cascading-admin-card theme-surface">
+                        <div class="view view-cascade gradient-card-header">
                             <div class="admin-up">
                                 <i class="fa far fa-tasks warning-color"></i>
                                 <div class="data">
@@ -135,15 +135,15 @@
                                 </div>
                             </div>
                             <div class="card-body card-body-cascade">
-                                <p class="card-text text-white" id="lblHmeTotalPpmTitle"></p>
+                                <p class="card-text theme-text-ink" id="lblHmeTotalPpmTitle"></p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- Intro Card: Jumlah Peserta -->
                 <div class="col-xl-3 col-md-6 mb-4 divHmeTopStats_ppm">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-black-strong">
+                    <div class="card card-cascade cascading-admin-card theme-surface">
+                        <div class="view view-cascade gradient-card-header">
                             <div class="admin-up">
                                 <i class="fa fas fa-exclamation-triangle red accent-2"></i>
                                 <div class="data">
@@ -152,15 +152,15 @@
                                 </div>
                             </div>
                             <div class="card-body card-body-cascade">
-                                <p class="card-text text-white" id="lblHmeTotalPpmLateTitle"></p>
+                                <p class="card-text theme-text-ink" id="lblHmeTotalPpmLateTitle"></p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- Intro Card: Attendance -->
                 <div class="col-xl-3 col-md-6 mb-4 divHmeTopStats_ppm">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-black-strong">
+                    <div class="card card-cascade cascading-admin-card theme-surface">
+                        <div class="view view-cascade gradient-card-header">
                             <div class="admin-up">
                                 <i class="fa fas fa-check green lighten-1"></i>
                                 <div class="data">
@@ -169,49 +169,49 @@
                                 </div>
                             </div>
                             <div class="card-body card-body-cascade">
-                                <div class="progress mb-3">
-                                    <div class="progress-bar bg-primary" id="divBarHmePercAttendance" role="progressbar" style="width: 0%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress mb-3" style="background-color: rgba(36, 55, 70, 0.1);">
+                                    <div class="progress-bar theme-bg-secondary" id="divBarHmePercAttendance" role="progressbar" style="width: 0%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <p class="card-text text-white" id="lblHmePercPpmDoneTitle"></p>
+                                <p class="card-text theme-text-ink" id="lblHmePercPpmDoneTitle"></p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-sm-12 mb-4">
-                    <div class="card z-depth-4">
+                    <div class="card theme-surface">
                         <div class="card-body p-0">
                             <div id="chartHme1" style="height: 400px; margin: 0"></div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-sm-12 mb-4">
-                    <div class="card z-depth-4">
+                    <div class="card theme-surface">
                         <div class="card-body p-0">
                             <div id="chartHme2" style="height: 400px; margin: 0"></div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-12 mb-4">
-                    <div class="card z-depth-4">
+                    <div class="card theme-surface">
                         <div class="card-body p-0">
                             <div id="chartHme3" style="height: 504px; margin: 0"></div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-12 mb-4">
-                    <div class="card z-depth-4">
+                    <div class="card theme-surface">
                         <div class="card-body p-0">
                             <div id="chartHme4" style="height: 504px; margin: 0"></div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-12 mb-4">
-                    <div class="card z-depth-4">
+                    <div class="card theme-surface">
                         <div class="card-body p-0">
                             <div id="chartHme5" style="height: 240px; margin: 0"></div>
                         </div>
                     </div>
-                    <div class="card z-depth-4 mt-4">
+                    <div class="card theme-surface mt-4">
                         <div class="card-body p-0">
                             <div id="chartHme6" style="height: 240px; margin: 0"></div>
                         </div>
@@ -219,8 +219,8 @@
                 </div>
             </div>
 
-            <div class="card card-cascade narrower mt-4 grey lighten-4 z-depth-4" id="divHmeTable_wo">
-                <div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+            <div class="card card-cascade narrower mt-4 theme-surface" id="divHmeTable_wo">
+                <div class="view view-cascade gradient-card-header narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
                     <div>
                         <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                            data-toggle="popover" data-trigger="focus" title=">Work Order List"
@@ -229,7 +229,7 @@
                     </div>
                     <a href="javascript:void(0);" class="text-white mx-3">Work Order List</a>
                     <div>
-                        <div id="btnDtHmeDataWoExport"></div>
+                        <div id="btnDtHmeDataWoExport" class="btn-group"></div>
                     </div>
                 </div>
                 <div class="px-4 pb-4">
@@ -316,8 +316,8 @@
                 </div>
             </div>
 
-            <div class="card card-cascade narrower mt-4 grey lighten-4 z-depth-4" id="divHmeTable_ppm">
-                <div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+            <div class="card card-cascade narrower mt-4 theme-surface" id="divHmeTable_ppm">
+                <div class="view view-cascade gradient-card-header narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
                     <div>
                         <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                            data-toggle="popover" data-trigger="focus" title=">PPM List"
@@ -326,7 +326,7 @@
                     </div>
                     <a href="javascript:void(0);" class="text-white mx-3">PPM List</a>
                     <div>
-                        <div id="btnDtHmeDataPpmExport"></div>
+                        <div id="btnDtHmeDataPpmExport" class="btn-group"></div>
                     </div>
                 </div>
                 <div class="px-4 pb-4">

@@ -8,15 +8,14 @@
     <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/mdb.css?5">
+    <link rel="stylesheet" href="css/mdb.min.css">
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <link href="css/style.css?6" rel="stylesheet">
-    <style></style>
+    <link href="css/style.css" rel="stylesheet">
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
-<body class="fixed-sn light-blue-skin">
+<body class="fixed-sn ppm-set-management-page">
 <header>
     <div class="includeHtml" id="h-nav_left"></div>
     <div class="includeHtml" id="h-nav_top"></div>
@@ -24,45 +23,62 @@
 <main>
     <div class="container-fluid" id="divWssPageWidth">
         <div id="mdb-lightbox-ui"></div>
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 mb-4 pb-1 sectionPsmMain">
-            <h5 class="navbar-text white-text font-weight-bold ml-3 mt-1">
-                <i class="fa fa-layer-group mr-1"></i> PPM Set Management
-            </h5>
-        </nav>
-        <section class="mb-3 sectionPsmMain">
-            <nav class="navbar navbar-expand navbar-dark cyan darken-2 z-depth-3 mb-3">
-                <div class="collapse navbar-collapse">
-                    <ul class="navbar-nav mr-auto" id="ulPsmContract">
-                        <li class="nav-item dropdown mr-2 cyan darken-1">
-                            <a class="nav-link dropdown-toggle z-depth-1" id="navPsmContract" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select Site Contract&nbsp;&nbsp;&nbsp;</a>
-                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navPsmContract" id="divPsmContract"></div>
-                        </li>
-                    </ul>
-                    <h6 class="navbar-text white-text font-weight-bold ml-3 mt-1 mb-0" id="h6PsmContractName">
-                        <i class="fa fa-building mr-1"></i> Site Contract: <span id="lblPsmContractName"></span>
-                    </h6>
+        <section class="sectionPsmMain ppm-set-management-hero mt-3 mb-4">
+            <div class="ppm-set-management-hero__content gradient-card-header d-flex flex-wrap align-items-start justify-content-between">
+                <div class="ppm-set-management-hero__title d-flex align-items-start">
+                    <span class="ppm-set-management-hero__icon"><i class="fa fa-layer-group"></i></span>
+                    <div>
+                        <h4 class="mb-1">PPM Set Management</h4>
+                        <p class="mb-0 text-white-50">Select a contract to view, create, and maintain its preventive maintenance sets.</p>
+                    </div>
                 </div>
-            </nav>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="float-left cyan" style="width: 16px; height: 48px">&nbsp;</div>
-                            <h5 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;"><i class="fas fa-list-alt mr-1"></i> PPM Set List</h5>
+                <div class="ppm-set-management-hero__meta text-white-70">
+                    <span class="d-block">Updated data syncs automatically after each save.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="sectionPsmMain ppm-set-management-filters mb-4">
+            <div class="theme-surface ppm-set-management-filters__card">
+                <div class="ppm-set-management-filters__content">
+                    <div class="ppm-set-management-filters__dropdown">
+                        <div class="dropdown" id="ulPsmContract">
+                            <a class="btn btn-outline-primary dropdown-toggle" id="navPsmContract" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Select Site Contract
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navPsmContract" id="divPsmContract"></div>
                         </div>
-                        <div class="card-body pt-4">
-                            <div class="table-responsive">
-                                <table id="dtPsm" class="table table-tight table-hover mb-0 display responsive">
+                    </div>
+                    <div class="ppm-set-management-filters__summary" id="h6PsmContractName">
+                        <span class="ppm-set-management-filters__label"><i class="fa fa-building mr-2"></i>Site Contract:</span>
+                        <span class="ppm-set-management-filters__value" id="lblPsmContractName"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="sectionPsmMain ppm-set-management-table-wrapper mb-4">
+            <div class="card theme-surface ppm-set-management-table-card">
+                <div class="ppm-set-management-table-card__header d-flex align-items-start">
+                    <span class="ppm-set-management-table-card__icon"><i class="fas fa-list-alt"></i></span>
+                    <div>
+                        <h5 class="mb-1">PPM Set List</h5>
+                        <p class="mb-0">Review all configured sets for the selected contract and navigate into detail screens as needed.</p>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="table-responsive">
+                        <table id="dtPsm" class="table table-tight table-hover mb-0 display responsive ppm-set-management-table">
                                     <thead>
                                     <tr class="th-strong">
-                                        <th>#</th>
+                                        <th class="ppm-set-management-table__col ppm-set-management-table__col--index">#</th>
                                         <th>PPM Set Name</th>
                                         <th>Description</th>
                                         <th>Asset Type</th>
                                         <th>PPM Executor Group</th>
                                         <th>Total Assets in Set</th>
                                         <th>Status</th>
-                                        <th style="width: 12px; min-width: 12px">&nbsp;</th>
+                                        <th class="ppm-set-management-table__col ppm-set-management-table__col--actions">&nbsp;</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -70,8 +86,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
         </section>
         </div>
     <div class="includeHtml" id="h-modal_change_password"></div>

@@ -44,7 +44,7 @@
 	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 
-<body class="fixed-sn light-blue-skin">
+<body class="fixed-sn">
 <!--Main Navigation-->
 <header>
     <!-- Sidebar navigation -->
@@ -57,18 +57,18 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionAszMain">
-            <div class="card card-cascade narrower">
+            <div class="card card-cascade narrower theme-surface">
                 <!--Section: Search Function & Chart-->
                 <section>
                     <div class="row">
                         <!--Search Function-->
                         <div class="col-xl-5 col-lg-12 mr-0">
-                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
+                            <div class="view view-cascade gradient-card-header">
                                 <h2 class="h2-responsive mb-0">Asset Management</h2>
                             </div>
                             <div class="card-body card-body-cascade">
                                 <div class="px-3 pt-3">
-                                    <h6>Status:</h6>
+                                    <h6 class="theme-text-ink-strong">Status:</h6>
                                     <div class="mt-1 pb-2">
                                         <ul class="striped list-unstyled pl-2">
                                             <li><a href="javascript:void(0);" id="linkAszAll"></a></li>
@@ -77,7 +77,7 @@
                                             <li><a href="javascript:void(0);" id="linkAsz5"></a></li>
                                         </ul>
                                     </div>
-                                    <h6 class="pb-3">Search:</h6>
+                                    <h6 class="pb-3 theme-text-ink-strong">Search:</h6>
                                     <div class="row">
                                         <div class="col-md-12 select-outline">
                                             <select id="optAszContractId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
@@ -113,7 +113,7 @@
                         </div>
                         <!--Chart-->
                         <div class="col-xl-7 col-lg-12">
-                            <div class="view view-cascade z-depth-3">
+                            <div class="view view-cascade theme-surface">
                                 <div id="chartAszAssetByType" style="height: 517px; margin: 0"></div>
                             </div>
                             <div class="card-body">
@@ -150,8 +150,8 @@
                 </section>
                 <!--Section: Table-->
                 <section>
-                    <div class="card card-cascade narrower z-depth-0">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div class="card card-cascade narrower theme-surface">
+                        <div class="view view-cascade gradient-card-header narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
                             <div>
                                 <button type="button" id="btnAszAssetAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset"><i class="fas fa-plus mt-0"></i></button>
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
@@ -161,7 +161,7 @@
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Asset List</a>
                             <div>
-                                <div id="btnDtAszAssetExport"></div>
+                                <div id="btnDtAszAssetExport" class="btn-group"></div>
                             </div>
                         </div>
                         <div class="px-4 pb-4">

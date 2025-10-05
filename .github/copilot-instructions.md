@@ -1,191 +1,106 @@
 ## GEMS2 — AI Agent Quick Guide
 
-Purpose: make agents productive fast in this PHP monolith by documenting real patterns, workflows, and gotchas used here.
+### Architecture & Workflows
+- Plain PHP app served by Apache/XAMPP (`htdocs/gems2`). Pages in the repo root load JS controllers from `js/pages/*` while shared utilities live in `js/common.js`.
+- Navigation and modal fragments are stored in `html/` and injected with `$('.includeHtml').each(...).load('html/'+id.substr(2)+'.html')` before `initiatePages()` runs.
+- APIs under `api/*.php` split into the General/DbMysql stack and PTW helpers (`api/function/Class_*`). Responses must follow `{ success, result, error, errmsg }` and enforce JWT unless a route starts with `ext`.
+- Role/site enforcement is handled client-side through `mzGetUserInfoByParam`/`mzIsRoleExist` and server-side via `SiteFilterTrait`; many list endpoints expose `/site/{siteId}` variants.
 
-### Architecture
-- Stack: Plain PHP under Apache/XAMPP at `htdocs/gems2`.
-  - Frontend: `*.html` pages use modules in `js/pages/` with helpers in `js/common.js`.
-  - Backend APIs: `api/*.php`; shared classes in `api/class/`, traits in `api/trait/`.
-- Two API styles coexist:
-  1) Core (e.g., Work Orders) built on `General.php` + `DbMysql.php` + traits.
-  2) PTW module uses `api/function/Class_*` helpers with their own flows.
-- Auth: JWT required by default. Public endpoints explicitly use an `ext` path segment to bypass. Toggle debug with `Constant::$isLogged`.
+### Styling System Summary
+- Bootstrap 4 + Material Design for Bootstrap (MDB Pro) provide the base skin (`css/bootstrap.min.css`, `css/mdb.min.css`), including body skins like `light-blue-skin` and gradient helpers such as `aqua-gradient`.
+- Project-specific utilities (spacing tweaks, bold table headers, hover color pairs) live in `css/style.css`; examples: `.pl-4_5`, `.th-strong`, `.hoverable`.
+- Vendor add-ons ship precompiled: DataTables CSS under `js/vendor/datatables/css`, MDB extras under `css/addons*/` and `css/modules/`.
+- Font Awesome Pro 6.5.1 is bundled in `css/fontawesome-pro-6.5.1-web`; use `fa`/`fas`/`fa-duotone` classes instead of embedding SVGs manually.
+- Complex pages embed scoped `<style>` blocks near the top of each `.html` (see `space_calendar.html` for `:root` tokens or `ptw_form.html` for view-mode styling).
+- There is no Tailwind/PostCSS pipeline. The `scss/` directory mirrors MDB sources but nothing compiles automatically—edit `css/style.css` for quick overrides and only recompile SCSS if you deliberately refresh vendor bundles.
 
-### Core API conventions (General/DbMysql stack)
-- Routing: `$apiName` from filename → `$urlArr = General::getUrlArr($_SERVER['REQUEST_URI'], $apiName)`.
-- Envelope: always return `{ success, result, error, errmsg }` then `json_encode` and exit.
-- Transactions: wrap writes in `DbMysql::beginTransaction()`/`commit()`; `rollback()` on exceptions.
-- Site filtering: apply via `SiteFilterTrait` (admins roles `1,10` are exempt). Add `/site/{siteId}` variants and validate access.
-- Example (`api/wo_v3.php`):
-  - `GET /api/wo_v3.php/pending_assign/site/{siteId}` → `WoTask::pendingAssignBySite($siteId)`.
-  - `PUT /api/wo_v3.php/submit_assign/{woTaskId}` with `{ woTaskAssignedTo }` → submit, email/noti, audit.
-  - `GET /api/wo_v3.php/preview_mrf_pdf/{woTaskId}` → ensure PDF via TCPDF and return link.
+### Global Layout & Utilities
+- Typical skeleton loads shared chrome before page content:
 
-### Frontend patterns
-- Each page wires a JS module in `js/pages/*`.
-  - Role/site helpers: `mzGetUserInfoByParam('siteId')`, `mzIsRoleExist('1,10')` from `js/common.js`.
-  - Non-admin UIs disable site dropdowns and call site-scoped endpoints like `.../endpoint/site/${userSite}`.
+```html
+<!-- asset_type.html -->
+<body class="fixed-sn light-blue-skin">
+  <header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+  </header>
+  <main>
+    <div class="container-fluid">
+      <section class="mb-5 mt-lg-5">
+        <div class="card card-cascade narrower">
+          <div class="view view-cascade gradient-card-header aqua-gradient ...">
+            ...
+```
 
-### Developer workflows
-- Run locally: serve via Apache/XAMPP and open `http://localhost/gems2/home.html` (or any page).
-- Dependencies: `composer install` (Excel via `phpoffice/phpspreadsheet`, etc.).
-- PDFs: Work Orders use TCPDF at `api/pdf/tcpdf_include.php`; PTW PDFs via `api/ptw_pdf.php` with `api/pdf/templates/ptw_form_html_replica.html`.
-- Database: apply root `*.sql` and curated bundles under `maintenance/` (e.g., staging deployment scripts) with your MySQL client.
-- Deploy: `./deploy_production.sh` (rsync) — excludes `developer/`, `.git/`, logs. Never deploy `developer/`.
+- Pages call `ShowLoader()` → `initiatePages()` → instantiate their `Main*` module once the fragments have loaded.
+- Core utility snippet from `css/style.css`:
 
-### Work Orders (WO) highlights
-- Main API: `api/wo_v3.php`; domain/services: `WoTask`, `WflTask`, `Email`, `Noti`, `NotiWeb`, `WoMrfPdf`.
-- Public complaint create: `POST /api/wo_v3.php` with `{ siteId, complaint, image? }` → generate WO no, create workflow, notify, audit.
-- Lists: `pending_assign|submitted_assign|pending_verify|submitted_verify` (+ `/site/{siteId}` variants).
-- Admin update: `PUT /api/wo_v3.php/update_by_admin/{woTaskId}`; details via `GET /api/wo_v3.php/{woTaskId}`.
-- Patterns: standard envelope, wrap writes in transactions, call `saveAudit` on state changes.
+```css
+/* css/style.css */
+.pl-4_5 { padding-left: 40px !important; }
+.th-strong th { font-weight: 900 !important; }
+.success-lighter-hover { color: #98F874; transition: .4s; }
+.success-lighter-hover:hover { color: #35BD02; }
+```
 
-### Email and notifications
-- Email: `api/class/Email.php` → `prepare(receiverId, templateId, params, fullName?, email?)` enqueues to `email_send`.
-- Mobile push: `api/class/Noti.php` → `prepare(receiverId, notiTextId, params)` enqueues to `noti_send` (requires `sys_user.userToken`).
-- Web noti: `api/class/NotiWeb.php` → `insert/getByUserId/delete` (types: 1=WO assign, 2=WR assign, 3=WO verify, 4=WO images zip).
-- Frontend polls `noti_web` (via rewrite to `api/noti_web.php`); delete for type 4 also removes file.
+- Example token usage on `space_calendar.html`:
 
-### PTW module overview
-- Files: `api/ptw.php` (create/update/list + supervisor), `api/ptw_approve.php` (SHE/FM + extend/cancel/suspend/close), `api/ptw_approval.php` (view/inline approve), logic in `api/function/f_ptw.php`.
-- Public form: `ptw_form.html` posts to `api/ptw.php` with `public_user=Public User` and numeric `site_id`.
-- Auth/site: `Class_login::check_jwt(Authorization)` with dev token allowances; site from `sys_user.site_id` unless public submit.
-- Status flow: `DRAFT → PENDING_SUPERVISOR → PENDING_SHE → PENDING_FM → ACTIVE` → `EXTENDED` or closure path; history records `action_type`.
-- Numbers: RQ at submit `RQPTW{site}{yymmdd}{seq}`; PTW at supervisor approval `PTW{site}{yymmdd}{seq}`.
+```css
+:root {
+  --primary-color: #4f46e5;
+  --primary-dark: #3730a3;
+}
+.page-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border-radius: 16px;
+}
+```
 
-### Asset Management (PTW-style)
-- APIs: `api/asset.php` (CRUD + totals/list by contract), refs: `api/asset_group.php`, `api/asset_category.php`, `api/asset_type.php`, `api/asset_brand.php`, `api/asset_model.php`.
-- JWT mandatory; non-admins constrained to `sys_user.site_id` for reads. Totals (`type=total_asset`) force site to user site.
-- Actions: `PUT action=save|submit|update|deactivate|activate`, audits `57-61`; delete audits `62`. Refs update version/audits `31-35`.
-- Frontend: `asset.html` + `js/pages/main_asset.js`; ref modals like `js/pages/modal_asset_group.js` using `mzAjaxRequest('asset_group.php', ...)` and toasts.
+### Component Patterns
+- **Buttons & tabs** – Combine MDB classes for contour and color. Example from `asset_type.html`: `<button class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main">…</button>`.
+- **Cards & headers** – Wrap sections in `card card-cascade narrower` with gradient headers (`view view-cascade gradient-card-header aqua-gradient`) and `z-depth-*` shadows (`home.html`, `asset.html`).
+- **Forms** – Use `md-form md-outline` structures with `mdb-select` for dropdowns; re-run `$('.mdb-select').materialSelect()` after options change (`js/pages/main_asset.js`).
+- **Tables/DataTables** – Markup: `<table class="table table-hover mb-0 display responsive">` and header row `.th-strong`. Status badges are rendered in JS as `<span class="badge badge-pill ${statusColor} z-depth-2">…</span>` (`js/pages/main_asset.js`, rows ~63-96).
+- **Modals** – Follow MDB pattern: `modal-header primary-color white-text` for creation flows, `warning-color` for destructive actions (`space_calendar.html`, `ptw_form.html`).
+- **Extending hover variants** – Duplicate the lighten/darken pattern in `css/style.css` when introducing new color families:
 
-Key files to study: `api/wo_v3.php`, `api/class/General.php`, `api/class/DbMysql.php`, `api/trait/SiteFilterTrait.php`, `api/ptw*.php`, `api/function/f_ptw.php`, `js/common.js`, `deploy_production.sh`, `developer/README.md`.
-## GEMS2 – AI Agent Quick Guide
+```diff
+ /* css/style.css */
+ .success-lighter-hover { color: #98F874; transition: .4s; }
+ .success-lighter-hover:hover { color: #35BD02; }
++.success-darker-hover { color: #00C851; transition: .4s; }
++.success-darker-hover:hover { color: #007c32; }
+```
 
-Purpose: Make agents productive fast in this PHP monolith by documenting the real patterns, workflows, and conventions used here.
+### Page-by-Page Styling Notes
+| Route/Page | Layout wrapper | Notable classes/components | Local module/style files | Gotchas |
+| --- | --- | --- | --- | --- |
+| `home.html` + `js/pages/main_home.js` | `sectionHmeMain` inside `card card-cascade` stat grid | `cascading-admin-card`, stacked `mdb-color` navbars, progress bars | Relies on `css/style.css`; no inline overrides | Background images under `img/background/` supply card art—keep ids `lblHme*` intact for JS |
+| `asset.html` + `js/pages/main_asset.js` | `card card-cascade narrower` split into filter panel + chart + table | `mdb-select md-outline` filters, striped status list, DataTables export buttons | Inline `.title-box*` styles near top + global `css/style.css` utilities | Re-init `mdb-select` after `mzOptionStop`; search input expects `.md-form` wrapper |
+| `asset_type.html` + `js/pages/main_asset_type.js` | Dual gradient cards with stacked DataTables | `btn-outline-white` toolbars, popovers, nested cards | No inline CSS; depends on `css/style.css` utilities and `html/modal_*` fragments | `sectionAtyModel` stays hidden until a type is selected; tooltips require `material-tooltip-main` |
+| `wo_assign.html` + `js/pages/main_wo_assign.js` | Navbar ribbons plus `z-depth-3` table cards under `sectionWssMain` | `btnWssTab` pseudo-tabs, `table-custom-badge`, cyan accent bars | Global utilities only | Load `html/section_wo.html` before `SectionWo()` or styles/scripts for modal cards are missing |
+| `ptw_form.html` + `js/pages/main_ptw_form.js` | Wide form inside `#divPtwPageWidth` with steppers | MDB Stepper (`css/addons-pro/steppers.min.css`), `view-mode-*` helpers, signature pad styling | Extensive inline CSS block governs view/edit state + `css/style.css` | File is >6k lines—update both view and public mode styles; keep gradient colors aligned with approval roles |
+| `space_calendar.html` + `js/pages/main_space_calendar.js` | Gradient `.page-header` + `.main-content-card` around FullCalendar | `btn-outline-white btn-rounded` actions, FullCalendar container `#spcCalendar` | Inline `:root` token block + `js/vendor/full-calendar-5.9.0/lib/main.min.css` | JS waits for `.includeHtml` fragments (see pending counter) before calling `boot()`—don’t move the loader |
 
-### Architecture at a glance
-- Stack: Plain PHP under Apache/XAMPP (`htdocs/gems2`). Frontend pages in `*.html` with JS modules in `js/pages/`. Backend APIs in `api/*.php` with core classes in `api/class/` and shared traits in `api/trait/`.
-- Two API styles coexist:
-  1) Core APIs (e.g., Work Orders) use `General.php` + `DbMysql.php` + trait helpers.
-  2) PTW module uses `api/function/*` classes (`Class_*`) and its own helpers.
-- Auth: JWT required by default; public endpoints use a path segment `ext` to bypass. Debug logs toggle with `Constant::$isLogged`.
+### Do / Don’t
+- **Do** add reusable tweaks to `css/style.css`; follow existing naming like `.mt-4_5` for fractional spacing helpers.
+- **Do** load shared fragments through `.includeHtml` before instantiating page controllers; many styles rely on nav markup being present.
+- **Do** re-run MDB initialisers (`materialSelect`, `initPhotoSwipeFromDOM`, etc.) after injecting dynamic HTML so styles attach.
+- **Don’t** edit `css/mdb.min.css` or other vendor bundles directly—override in `css/style.css` or recompile the SCSS sources if you must.
+- **Don’t** drop body skin classes (`fixed-sn light-blue-skin`); they control sidenav theming and scrollbar styling.
+- **Don’t** introduce new icon fonts; stick with the bundled Font Awesome Pro set.
 
-### Core API conventions (General/DbMysql stack)
-- Route entry: `require_once` class files → `$apiName` from filename → `$urlArr = General::getUrlArr($_SERVER['REQUEST_URI'], $apiName)` → enforce JWT unless URL starts with `ext`.
-- Response envelope is always `{ success, result, error, errmsg }` and JSON-encoded at the end.
-- Transactions: wrap writes in `DbMysql::beginTransaction()`/`commit()` with rollback on exceptions.
-- Site filtering: Use `SiteFilterTrait` via `General`; admins (roles `1,10`) are exempt. See `SITE_FILTERING_IMPLEMENTATION.md`.
-- Example (from `api/wo_v3.php`):
-  - `GET /api/wo_v3.php/pending_assign/site/{siteId}` → `WoTask::pendingAssignBySite($siteId)` (validates site access).
-  - `POST /api/wo_v3.php` (no path) creates a public complaint (requires `siteId`).
-  - `GET /api/wo_v3.php/preview_mrf_pdf/{woTaskId}` generates/returns MRF PDF via TCPDF.
+### Build/Test Styling
+- No automated CSS build—edits to `css/style.css` or page-level `<style>` blocks take effect on refresh. Back up the file before large changes.
+- Optional rebuild: compile MDB in a temp file and diff before replacing production assets, e.g.
 
-### Frontend patterns
-- Each page `*.html` uses a module in `js/pages/*`. Shared helpers live in `js/common.js`:
-  - `mzGetUserInfoByParam('siteId')` to get user site, `mzIsRoleExist('1,10')` for admin checks.
-  - Non-admins call site-scoped endpoints like `.../endpoint/site/${userSite}` and UI site dropdowns are disabled.
+```bash
+cd /Applications/XAMPP/xamppfiles/htdocs/gems2
+sass scss/mdb.scss css/mdb.custom.css
+```
 
-### Developer workflows
-- Run locally: host under Apache/XAMPP and open `http://localhost/gems2/home.html` (or other pages).
-- PHP deps (Excel): run `composer install` (see `composer.json` for `phpoffice/phpspreadsheet`).
-- PDFs: Work Orders use TCPDF (`api/pdf/tcpdf_include.php`). PTW PDFs use `api/ptw_pdf.php` with HTML template `api/pdf/templates/ptw_form_html_replica.html`.
-- Database: apply root `*.sql` files and curated bundles in `maintenance/` (e.g., `staging-deployment-db-schema-safe.sql`) using your MySQL client.
-- Deploy: use `./deploy_production.sh` (rsync). Excludes `developer/`, `.git/`, logs, etc. Never deploy `developer/` (see `developer/README.md`).
+  (requires local Sass CLI; only needed when you intentionally update MDB sources.)
+- Preview pages via Apache at `http://localhost/gems2/<page>.html`. For DataTables/FullCalendar screens, click through filtering/export actions to confirm gradients and hover helpers remain legible.
 
-### Adding a new core API endpoint
-1) Create `api/feature_x.php` and include needed class/trait files.
-2) Parse route with `General::getUrlArr`, enforce JWT unless `ext` path is intentional.
-3) Return the standard envelope; log via `General::logDebug` when `Constant::$isLogged` is true.
-4) For site-scoped data, add `/site/{siteId}` variant that calls `*BySite($siteId)` and validates access.
-
-### Work Orders (WO) lifecycle
-- Entry/API: `api/wo_v3.php` with `WoTask` (domain), `WflTask` (workflow), `Email`, `Noti`, `NotiWeb`, and `WoMrfPdf` (PDF).
-- Public complaint create (no path): `POST /api/wo_v3.php` with JSON `{ siteId, complaint, image? }`.
-  - Server selects Public User for the site, validates `cli_site.groupId` vs `sys_user_role(roleId=6)` group, optionally saves image upload, generates WO number (`WoTask::generateNo(siteId)`), creates workflow (`WflTask::createNew`), submits initial complaint, then emails/notifies recipients and writes audit.
-- Assignment lists:
-  - `GET /api/wo_v3.php/pending_assign` and `/pending_assign/site/{siteId}`
-  - `GET /api/wo_v3.php/submitted_assign` and `/submitted_assign_total` (+ `/site/{siteId}` variants)
-- Verification lists:
-  - `GET /api/wo_v3.php/pending_verify` and `/pending_verify/site/{siteId}`
-  - `GET /api/wo_v3.php/submitted_verify` and `/submitted_verify_total` (+ `/site/{siteId}` variants)
-- Assign work: `PUT /api/wo_v3.php/submit_assign/{woTaskId}` with body `{ woTaskAssignedTo }`.
-  - Loads task, binds workflow by transaction, validates allowed state (`checkValidity`), submits assignment, triggers emails/notifications, saves audit; response sets `errmsg` to assign message.
-- Reassign: `PUT /api/wo_v3.php/reassign/{woTaskId}` with body `{ woTaskAssignedTo }`.
-- Reject public complaint: `PUT /api/wo_v3.php/reject_complaint/{woTaskId}` with body `{ remark }`.
-  - Valid only when `woTaskTypeInit === 6` (Public Complaint). Sends email to public contact and saves audit.
-- Admin update: `PUT /api/wo_v3.php/update_by_admin/{woTaskId}` body `{ ...fields }` → updates fields and audits.
-- Details and helpers:
-  - `GET /api/wo_v3.php/{woTaskId}` for full details
-  - `GET /api/wo_v3.php/by_assetId/{assetId}`
-  - `GET /api/wo_v3.php/material_list/{id}`
-- MRF PDF: `GET /api/wo_v3.php/preview_mrf_pdf/{woTaskId}` ensures PDF exists (`WoMrfPdf::createPdf`) and returns link via `WoTask::getPdfLink`.
-- Patterns to mirror:
-  - Standard envelope `{success,result,error,errmsg}`; wrap writes in transactions; call `saveAudit` on state changes.
-  - Site variants use `/site/{siteId}` and must validate access; non-admin frontends call the site-scoped endpoints.
-  - Frontend modules: `js/pages/main_wo_assign.js`, `js/pages/main_wo_verify.js`, `js/pages/main_mrf.js` use `mzGetUserInfoByParam` and `mzIsRoleExist` for site/admin logic.
-
-### Email and notifications
-- Services (core stack):
-  - Email: `api/class/Email.php` → `prepare(receiverId, templateId, params, fullName?, emailAddress?)`
-    - Loads `email_template` + `email_parameter`, validates all placeholders exist in `params`, substitutes (also `[fullName]`), resolves recipient from `sys_user`/`sys_user_profile` unless overridden, then enqueues into `email_send`.
-  - Mobile push: `api/class/Noti.php` → `prepare(receiverId, notiTextId, params)`
-    - Loads `noti_text` + `noti_parameter`, validates placeholders, resolves `sys_user.userToken`, enqueues into `noti_send`.
-  - Web notifications: `api/class/NotiWeb.php` → `insert(type, userId, info)` / `getByUserId()` / `delete(id)`
-    - Writes to `noti_web` with display metadata. Types: 1=WO assign, 2=WR assign, 3=WO verify, 4=WO images zip link. `delete` removes the linked file for type 4.
-- Queues and delivery:
-  - Enqueue tables: `email_send`, `noti_send` (processed by background jobs; PTW uses helpers in `api/function/f_email.php` with batching and deletion post-send). Most API flows enqueue; they do not send synchronously.
-- API endpoints and frontend:
-  - `.htaccess` rewrites `noti_web` → `api/noti_web.php`. Frontend (`js/common.js`) calls `GET noti_web/by_userId` to fetch and `DELETE noti_web/{id}` to clear.
-- Usage patterns (examples from `api/wo_v3.php`):
-  - On public complaint create: For each recipient →
-    - `Email->prepare(recipientUserId, 4, { task_no })`
-    - `Noti->prepare(recipientUserId, 5, { task_no })`
-    - `NotiWeb->insert(isWr ? 2 : 1, recipientUserId, woTaskNo)`
-  - On assignment submit: template/text chosen by WR vs WO
-    - Email template: `11` (WR) or `5` (WO); Noti text: `12` (WR) or `6` (WO)
-  - On reject public complaint: send to public email without a user account
-    - `Email->prepare(1, 10, { task_no, comment }, publicName, publicEmail)`
-- Gotchas:
-  - All template placeholders must be provided or `prepare` throws.
-  - Mobile push requires `sys_user.userToken`; missing tokens result in no insert.
-  - Toggle debug logs via `Constant::$isLogged` to trace enqueues.
-
-### PTW module (Permit to Work)
-- Files: `api/ptw.php` (create/update/list + supervisor actions), `api/ptw_approve.php` (SHE/FM approvals + extend/cancel/suspend/close), `api/ptw_approval.php` (view-mode + inline approvals), logic in `api/function/f_ptw.php`, PDFs in `api/ptw_pdf*.php`.
-- Public entry: `ptw_form.html` posts to `api/ptw.php` with `public_user=Public User` and must include `site_id` (server assigns request number and routes workflow).
-- Auth: `Class_login::check_jwt(Authorization)` with dev allowances (e.g., `Bearer valid_test_token_for_fm_dashboard` or fallback `userId=1` for local). Site scope from `sys_user.site_id` unless public submit provides `site_id`.
-- Workflow/status: `DRAFT → PENDING_SUPERVISOR → PENDING_SHE → PENDING_FM → ACTIVE`; then `EXTENDED` or closure (`PENDING_CLOSURE → COMPLETED`). Other transitions: `REJECTED`, `CANCELLED`, `SUSPENDED`, `EXPIRED`. History table records `action_type` events.
-- Numbering: request at submit (`RQPTW{site}{yymmdd}{seq}`) and permit at supervisor approval (`PTW{site}{yymmdd}{seq}`) based on per-site daily sequence.
-- Endpoints (examples):
-  - GET `api/ptw.php?action=list|statistics|dashboard_data|details&permit_id=...`
-  - POST `api/ptw.php` with `action=supervisor_approve|supervisor_reject|supervisor_return_for_modification` (or create when no `action`)
-  - POST `api/ptw_approve.php` with `action=she_approve|she_reject|fm_approve|fm_reject|request_extend|approve_extend|request_close|approve_close|request_cancel|approve_cancel|request_suspend|approve_suspend`
-  - View mode via `api/ptw_approval.php` (also supports `public_token`).
-- Public submit rules: required `work_description`, `work_area`, `work_type`, `valid_from`, `applicant_name`, and numeric `site_id`. Date-only `valid_from/valid_to` are expanded to 08:00/17:00.
-- PDFs: Prefer `api/ptw_pdf.php` with `type=html_template`; guarded preview generates only after final approval.
-
-### Key files to study
-- Core: `api/wo_v3.php`, `api/class/General.php`, `api/class/DbMysql.php`, `api/trait/SiteFilterTrait.php`.
-- PTW: `api/ptw.php`, `api/ptw_approve.php`, `api/ptw_approval.php`, `api/function/f_ptw.php`, `api/ptw_pdf.php`.
-- Frontend helpers: `js/common.js` (role/site helpers). Deploy/tools: `deploy_production.sh`, `developer/README.md`, `SITE_FILTERING_IMPLEMENTATION.md`.
-
-### Asset Management
-- Backend APIs (PTW-style classes):
-  - `api/asset.php` (assets CRUD + totals/list by contract)
-  - Reference/masters: `api/asset_group.php`, `api/asset_category.php`, `api/asset_type.php`, `api/asset_brand.php`, `api/asset_model.php`
-- Auth & site filtering:
-  - JWT via `Class_login::check_jwt` is required.
-  - Non-admins (not roles `1,10`) are site-restricted: asset reads validate that the asset/contract belongs to the user’s `sys_user.site_id`; totals (`type=total_asset`) force `siteId` to the user’s site if provided differently.
-- Core endpoints (examples):
-  - GET `api/asset.php?assetId={id}` → single asset (site-validated for non-admins)
-  - GET `api/asset.php?contractId={id}` → list assets by contract (site-validated)
-  - GET `api/asset.php?type=total_asset&clientId={cid}&siteId={sid}` → totals (site forced for non-admins)
-  - POST `api/asset.php` → create, then internal update; audits with codes `56`
-  - PUT `api/asset.php?assetId={id}` with `action=save|submit|update|deactivate|activate` → updates status/fields; audits `57/58/59/60/61` and success messages from `Class_constant`
-  - DELETE `api/asset.php?assetId={id}` → deletes; audit `62`
-- Reference data CRUD patterns (same envelope/transactions): `api/asset_group.php` supports GET list/single, POST add, PUT update/deactivate/activate, DELETE with audit/version updates (`31-35`). Similar files exist for category/type/brand/model.
-- Frontend modules:
-  - Main pages: `asset.html` + `js/pages/main_asset.js` (DataTables with filters; non-admins use their site to filter contract options via `mzGetUserInfoByParam` and `mzIsRoleExist`).
-  - Reference modals: `js/pages/modal_asset_group.js` (add/edit/delete), and similar for category/type/brand/model; use `mzAjaxRequest('asset_group.php', ...)` style endpoints and show toasts.
-  - Patterns: filter options use `mzOption`/`mzOptionStop`, search via DataTables, action columns toggled by status, and role checks hide add buttons for non-privileged roles.
+---
+Let me know what feels unclear or if you need deeper styling notes for other pages.

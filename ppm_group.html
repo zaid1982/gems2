@@ -8,7 +8,7 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
@@ -19,16 +19,13 @@
     <link href="css/style.css" rel="stylesheet">
     <!-- Stepper CSS - minified-->
     <link href="css/addons-pro/steppers.css" rel="stylesheet">
-    <style>
-
-    </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
 	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 
-<body class="fixed-sn light-blue-skin">
+<body class="fixed-sn">
 <!--Main Navigation-->
 <header>
     <!-- Sidebar navigation -->
@@ -43,16 +40,18 @@
         <section class="section mb-5 mt-lg-5 sectionPgrMain">
             <div class="row">
                 <div class="col-md-7" id="divPgrMain">
-                    <div class="card card-cascade cascading-admin-card user-card mt-4">
-                        <div class="admin-up d-flex justify-content-start">
-                            <i class="fas fa-users rgba-cyan-strong py-4 z-depth-3"></i>
-                            <div class="data">
-                                <h3 class="font-weight-bold dark-grey-text ml-3">Group Management</h3>
+                    <div class="card card-cascade cascading-admin-card user-card mt-4 theme-surface">
+                        <div class="admin-up d-flex align-items-center px-4 pt-4">
+                            <span class="theme-icon-chip">
+                                <i class="fas fa-users"></i>
+                            </span>
+                            <div class="data ml-3">
+                                <h3 class="mb-0 theme-text-ink-strong">Group Management</h3>
                             </div>
                         </div>
                         <div class="card-body card-body-cascade pb-0">
                             <form id="formPgrSearch">
-                                <h6 class="pb-3 pt-3">Filter:</h6>
+                                <h6 class="pb-3 pt-3 theme-text-ink-strong">Filter:</h6>
                                 <div class="row">
                                     <div class="col-md-12 select-outline">
                                         <select id="optPgrClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
@@ -67,194 +66,238 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="card-footer">
-                            <button type="button" id="btnPgrSearch" class="btn btn-outline-orange btn-rounded waves-effect btn-sm float-right" disabled>
+                        <div class="card-footer border-0 bg-transparent pt-0 pb-4 px-4">
+                            <button type="button" id="btnPgrSearch" class="btn btn-primary btn-rounded btn-sm float-right" disabled>
                                 <i class="fas fa-search mr-1"></i> Search
                             </button>
                         </div>
                     </div>
                     
-                    <div class="card card-cascade narrower mb-5 mt-5">
-                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <button type="button" id="btnPgrTechnicianAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Technician Group"><i class="fas fa-plus mt-0"></i></button>
+                    <div class="ppm-group-board ppm-group-board--technician theme-surface mt-5">
+                        <div class="ppm-group-board__header">
+                            <div class="ppm-group-board__title">
+                                <span class="ppm-group-board__icon"><i class="fa-duotone fa-user-helmet-safety"></i></span>
+                                <div>
+                                    <p class="ppm-group-board__eyebrow mb-1">Technician</p>
+                                    <h4 class="ppm-group-board__heading mb-0">PPM Executor Group</h4>
+                                </div>
                             </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">PPM Executor Group</a>
-                            <div>
-                                <button type="button" id="btnDtPgrTechnicianRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                            </div>
-                        </div>
-                        <div class="table-responsive pb-4">
-                            <table id="dtPgrTechnician" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
-                                <thead>
-                                <tr class="th-strong">
-                                    <th style="width: 5%">#</th>
-                                    <th>Group Name</th>
-                                    <th style="width: 30%">Report To</th>
-                                    <th style="width: 15%">Total User</th>
-                                    <th style="width: 15%">Status</th>
-                                    <th style="width: 64px; min-width: 64px"></th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="card card-cascade narrower mb-5 mt-5">
-                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <button type="button" id="btnPgrSupervisorAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Supervisor Group"><i class="fas fa-plus mt-0"></i></button>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">PPM Reviewer Group</a>
-                            <div>
-                                <button type="button" id="btnDtPgrSupervisorRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            <div class="ppm-group-board__actions">
+                                <button type="button" id="btnPgrTechnicianAdd" class="btn btn-outline-white btn-sm" data-toggle="tooltip" data-placement="top" title="Add Technician Group"><i class="fas fa-plus mr-1"></i> Add</button>
+                                <button type="button" id="btnDtPgrTechnicianRefresh" class="btn btn-outline-white btn-sm" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mr-1"></i> Refresh</button>
                             </div>
                         </div>
-                        <div class="table-responsive pb-4">
-                            <table id="dtPgrSupervisor" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
-                                <thead>
-                                <tr class="th-strong">
-                                    <th style="width: 5%">#</th>
-                                    <th>Group Name</th>
-                                    <th style="width: 30%">Report To</th>
-                                    <th style="width: 15%">Total User</th>
-                                    <th style="width: 15%">Status</th>
-                                    <th style="width: 64px; min-width: 64px"></th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+                        <div class="ppm-group-board__body">
+                            <div class="ppm-group-board__table-wrapper table-responsive">
+                                <table id="dtPgrTechnician" class="table table-hover table-sm mb-0 display responsive ppm-group-board__table" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr class="th-strong">
+                                            <th style="width: 5%">#</th>
+                                            <th>Group Name</th>
+                                            <th style="width: 30%">Report To</th>
+                                            <th style="width: 15%">Total User</th>
+                                            <th style="width: 15%">Status</th>
+                                            <th style="width: 64px; min-width: 64px"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card card-cascade narrower mb-5 mt-5">
-                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <button type="button" id="btnPgrEngineerAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Engineer Group"><i class="fas fa-plus mt-0"></i></button>
+                    <div class="ppm-group-board ppm-group-board--supervisor theme-surface">
+                        <div class="ppm-group-board__header">
+                            <div class="ppm-group-board__title">
+                                <span class="ppm-group-board__icon"><i class="fa-duotone fa-user-tie"></i></span>
+                                <div>
+                                    <p class="ppm-group-board__eyebrow mb-1">Supervisor</p>
+                                    <h4 class="ppm-group-board__heading mb-0">PPM Reviewer Group</h4>
+                                </div>
                             </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">PPM Verifier Group</a>
-                            <div>
-                                <button type="button" id="btnDtPgrEngineerRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            <div class="ppm-group-board__actions">
+                                <button type="button" id="btnPgrSupervisorAdd" class="btn btn-outline-white btn-sm" data-toggle="tooltip" data-placement="top" title="Add Supervisor Group"><i class="fas fa-plus mr-1"></i> Add</button>
+                                <button type="button" id="btnDtPgrSupervisorRefresh" class="btn btn-outline-white btn-sm" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mr-1"></i> Refresh</button>
                             </div>
                         </div>
-                        <div class="table-responsive pb-4">
-                            <table id="dtPgrEngineer" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
-                                <thead>
-                                <tr class="th-strong">
-                                    <th style="width: 5%">#</th>
-                                    <th>Group Name</th>
-                                    <th style="width: 15%">Total User</th>
-                                    <th style="width: 15%">Status</th>
-                                    <th style="width: 64px; min-width: 64px"></th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+                        <div class="ppm-group-board__body">
+                            <div class="ppm-group-board__table-wrapper table-responsive">
+                                <table id="dtPgrSupervisor" class="table table-hover table-sm mb-0 display responsive ppm-group-board__table" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr class="th-strong">
+                                            <th style="width: 5%">#</th>
+                                            <th>Group Name</th>
+                                            <th style="width: 30%">Report To</th>
+                                            <th style="width: 15%">Total User</th>
+                                            <th style="width: 15%">Status</th>
+                                            <th style="width: 64px; min-width: 64px"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card card-cascade narrower mb-5 mt-5">
-                        <div class="view view-cascade gradient-card-header orange darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <button type="button" id="btnPgrWoTechnicianAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add WO Technician Group"><i class="fas fa-plus mt-0"></i></button>
+                    <div class="ppm-group-board ppm-group-board--engineer theme-surface">
+                        <div class="ppm-group-board__header">
+                            <div class="ppm-group-board__title">
+                                <span class="ppm-group-board__icon"><i class="fa-duotone fa-user-hard-hat"></i></span>
+                                <div>
+                                    <p class="ppm-group-board__eyebrow mb-1">Engineer</p>
+                                    <h4 class="ppm-group-board__heading mb-0">PPM Verifier Group</h4>
+                                </div>
                             </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">WO Executor Group</a>
-                            <div>
-                                <button type="button" id="btnDtPgrWoTechnicianRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            <div class="ppm-group-board__actions">
+                                <button type="button" id="btnPgrEngineerAdd" class="btn btn-outline-white btn-sm" data-toggle="tooltip" data-placement="top" title="Add Engineer Group"><i class="fas fa-plus mr-1"></i> Add</button>
+                                <button type="button" id="btnDtPgrEngineerRefresh" class="btn btn-outline-white btn-sm" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mr-1"></i> Refresh</button>
                             </div>
                         </div>
-                        <div class="table-responsive pb-4">
-                            <table id="dtPgrWoTechnician" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
-                                <thead>
-                                <tr class="th-strong">
-                                    <th style="width: 5%">#</th>
-                                    <th>Group Name</th>
-                                    <th style="width: 15%">Total User</th>
-                                    <th style="width: 15%">Status</th>
-                                    <th style="width: 64px; min-width: 64px"></th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+                        <div class="ppm-group-board__body">
+                            <div class="ppm-group-board__table-wrapper table-responsive">
+                                <table id="dtPgrEngineer" class="table table-hover table-sm mb-0 display responsive ppm-group-board__table" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr class="th-strong">
+                                            <th style="width: 5%">#</th>
+                                            <th>Group Name</th>
+                                            <th style="width: 15%">Total User</th>
+                                            <th style="width: 15%">Status</th>
+                                            <th style="width: 64px; min-width: 64px"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ppm-group-board ppm-group-board--wo theme-surface">
+                        <div class="ppm-group-board__header">
+                            <div class="ppm-group-board__title">
+                                <span class="ppm-group-board__icon"><i class="fa-duotone fa-screwdriver-wrench"></i></span>
+                                <div>
+                                    <p class="ppm-group-board__eyebrow mb-1">Work Order</p>
+                                    <h4 class="ppm-group-board__heading mb-0">WO Executor Group</h4>
+                                </div>
+                            </div>
+                            <div class="ppm-group-board__actions">
+                                <button type="button" id="btnPgrWoTechnicianAdd" class="btn btn-outline-white btn-sm" data-toggle="tooltip" data-placement="top" title="Add WO Technician Group"><i class="fas fa-plus mr-1"></i> Add</button>
+                                <button type="button" id="btnDtPgrWoTechnicianRefresh" class="btn btn-outline-white btn-sm" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mr-1"></i> Refresh</button>
+                            </div>
+                        </div>
+                        <div class="ppm-group-board__body">
+                            <div class="ppm-group-board__table-wrapper table-responsive">
+                                <table id="dtPgrWoTechnician" class="table table-hover table-sm mb-0 display responsive ppm-group-board__table" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr class="th-strong">
+                                            <th style="width: 5%">#</th>
+                                            <th>Group Name</th>
+                                            <th style="width: 15%">Total User</th>
+                                            <th style="width: 15%">Status</th>
+                                            <th style="width: 64px; min-width: 64px"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
                 </div>
                 <div class="col-md-5" id="divPgrDetails">
-                    <div class="card mt-4">
-                        <div class="card-header stylish-color">
-                            <h5 class="font-weight-bold white-text ml-3 mt-2">Group Information</h5>
+                    <div class="ppm-group-detail mt-4">
+                        <div class="ppm-group-detail__info-card theme-surface">
+                            <div class="ppm-group-detail__header theme-gradient-primary">
+                                <div class="ppm-group-detail__header-content">
+                                    <span class="ppm-group-detail__icon"><i class="fa-duotone fa-users-gear"></i></span>
+                                    <div>
+                                        <p class="ppm-group-detail__eyebrow mb-1">PPM Group</p>
+                                        <h4 class="ppm-group-detail__title mb-0">Group Information</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ppm-group-detail__body">
+                                <form id="formPgrInfo">
+                                    <div class="row">
+                                        <div class="col-12 col-md-6">
+                                            <div class="md-form md-outline mt-0">
+                                                <input type="text" id="txtPgrInfoClientName" class="form-control" disabled>
+                                                <label for="txtPgrInfoClientName" id="lblPgrInfoClientName">Client</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="md-form md-outline mt-0">
+                                                <input type="text" id="txtPgrInfoSiteName" class="form-control" disabled>
+                                                <label for="txtPgrInfoSiteName" id="lblPgrInfoSiteName">Site</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 col-md-6">
+                                            <div class="md-form md-outline mt-0">
+                                                <input type="text" id="txtPgrInfoRoleDesc" class="form-control" disabled>
+                                                <label for="txtPgrInfoRoleDesc" id="lblPgrInfoRoleDesc">Role</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <div class="md-form md-outline mt-0">
+                                                <input type="text" id="txtPgrInfoGroupName" class="form-control">
+                                                <label for="txtPgrInfoGroupName" id="lblPgrInfoGroupName">Group Name <span class="text-danger">*</span></label>
+                                                <p class="font-small text-danger" id="txtPgrInfoGroupNameErr"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 select-outline" id="divPgrInfoReportTo">
+                                            <select id="optPgrInfoReportTo" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true"></select>
+                                            <label for="optPgrInfoReportTo">Report to <span class="text-danger">*</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="ppm-group-detail__status">
+                                        <span class="ppm-group-detail__status-label">Status</span>
+                                        <div class="form-check mb-0">
+                                            <input type="checkbox" class="form-check-input" id="chkPgrInfoStatus" name="chkPgrInfoStatus" value="1">
+                                            <label class="form-check-label" for="chkPgrInfoStatus">Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="ppm-group-detail__actions">
+                                        <button type="button" id="btnPgrInfoUpdate" class="btn btn-primary" disabled>
+                                            <i class="fas fa-save mr-1"></i> Update
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                        <div class="card-body px-2">
-                            <form id="formPgrInfo">
-                                <div class="col-md-12">
-                                    <div class="md-form md-outline">
-                                        <input type="text" id="txtPgrInfoClientName" class="form-control" disabled>
-                                        <label for="txtPgrInfoClientName" id="lblPgrInfoClientName">Client</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="md-form md-outline">
-                                        <input type="text" id="txtPgrInfoSiteName" class="form-control" disabled>
-                                        <label for="txtPgrInfoSiteName" id="lblPgrInfoSiteName">Site</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="md-form md-outline">
-                                        <input type="text" id="txtPgrInfoRoleDesc" class="form-control" disabled>
-                                        <label for="txtPgrInfoRoleDesc" id="lblPgrInfoRoleDesc">Role</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="md-form md-outline">
-                                        <input type="text" id="txtPgrInfoGroupName" class="form-control">
-                                        <label for="txtPgrInfoGroupName" id="lblPgrInfoGroupName">Group Name *</label>
-                                        <p class="font-small text-danger" id="txtPgrInfoGroupNameErr"></p>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 select-outline" id="divPgrInfoReportTo">
-                                    <select id="optPgrInfoReportTo" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true"></select>
-                                    <label for="optPgrInfoReportTo">Report to *</label>
-                                </div>
-                                <div class="col-md-12">
-                                    <h6 class="font-small">Status:</h6>
-                                    <div class="form-check pl-0 ml-3">
-                                        <input type="checkbox" class="form-check-input" id="chkPgrInfoStatus" name="chkPgrInfoStatus" value="1">
-                                        <label class="form-check-label" for="chkPgrInfoStatus">Active</label>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="card-footer">
-                            <button type="button" id="btnPgrInfoUpdate" class="btn btn-outline-dark-green btn-rounded waves-effect btn-sm float-right" disabled>
-                                <i class="fas fa-save mr-1"></i> Update
-                            </button>
-                        </div>
-                    </div>
 
-                    <div class="card card-cascade narrower mb-5 mt-5">
-                        <div class="view view-cascade gradient-card-header stylish-color narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <button type="button" id="btnPgrUserAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Engineer Group"><i class="fas fa-plus mt-0"></i></button>
+                        <div class="ppm-group-detail__list-card theme-surface">
+                            <div class="ppm-group-detail__list-header theme-gradient-secondary">
+                                <div class="ppm-group-detail__header-content">
+                                    <span class="ppm-group-detail__icon"><i class="fa-duotone fa-users-line"></i></span>
+                                    <div>
+                                        <p class="ppm-group-detail__eyebrow mb-1">Assignments</p>
+                                        <h4 class="ppm-group-detail__title mb-0">User List</h4>
+                                    </div>
+                                </div>
+                                <div class="ppm-group-detail__list-actions">
+                                    <button type="button" id="btnPgrUserAdd" class="btn btn-outline-white btn-sm" data-toggle="tooltip" data-placement="top" title="Add Group User"><i class="fas fa-plus mr-1"></i> Add</button>
+                                    <button type="button" id="btnDtPgrUserRefresh" class="btn btn-outline-white btn-sm" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mr-1"></i> Refresh</button>
+                                </div>
                             </div>
-                            <a href="javascript:void(0);" class="mx-3 white-text">User List</a>
-                            <div>
-                                <button type="button" id="btnDtPgrUserRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            <div class="ppm-group-detail__list-body">
+                                <div class="ppm-group-detail__table-wrapper table-responsive">
+                                    <table id="dtPgrUser" class="table table-hover table-sm mb-0 display responsive ppm-group-detail__table" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr class="th-strong">
+                                                <th style="width: 5%">#</th>
+                                                <th>Name</th>
+                                                <th style="width: 15%">Status</th>
+                                                <th style="width: 32px; min-width: 32px"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-                        <div class="table-responsive pb-4">
-                            <table id="dtPgrUser" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
-                                <thead>
-                                <tr class="th-strong">
-                                    <th style="width: 5%">#</th>
-                                    <th>Name</th>
-                                    <th style="width: 15%">Status</th>
-                                    <th style="width: 32px; min-width: 32px"></th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
                         </div>
                     </div>
                 </div>

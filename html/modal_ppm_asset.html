@@ -1,55 +1,61 @@
 <div class="modal fade" id="modal_ppm_asset" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-notify modal-info mt-5 pt-3 mb-5" role="document">
-        <div class="modal-content">
-            <div class="modal-header d-flex justify-content-center pt-3 pb-1">
-                <h3 class="text-white ml-2" id="h4MpaTitle"></h3>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white  pr-3 pt-3" data-dismiss="modal" aria-label="Close">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content ppm-asset-modal">
+            <div class="modal-header ppm-asset-modal__header">
+                <div class="ppm-asset-modal__title d-flex align-items-start">
+                    <span class="ppm-asset-modal__icon"><i class="fas fa-users"></i></span>
+                    <div>
+                        <h3 class="modal-title mb-1" id="h4MpaTitle"></h3>
+                        <p class="ppm-asset-modal__subtitle mb-0">Provide the core metadata and assignment details for this asset group.</p>
+                    </div>
+                </div>
+                <button type="button" class="close ppm-asset-modal__close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body pb-0">
-                <form class="pt-2-5" id="formMpa">
+            <div class="modal-body ppm-asset-modal__body">
+                <form id="formMpa">
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="md-form md-outline mt-0">
+                            <div class="md-form md-outline">
                                 <input type="text" id="txtMpaName" class="form-control">
                                 <label for="txtMpaName" id="lblMpaName">PPM Asset Group Name <span class="text-danger">*</span></label>
                                 <p class="font-small text-danger" id="txtMpaNameErr"></p>
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <div class="md-form md-outline mt-0">
+                            <div class="md-form md-outline">
                                 <textarea id="txaMpaDesc" class="md-textarea form-control" rows="3"></textarea>
                                 <label for="txaMpaDesc" id="lblMpaDesc" class="text-muted">Description</label>
                                 <p class="font-small text-danger" id="txaMpaDescErr"></p>
                             </div>
                         </div>
-                        <div class="col-md-12 select-outline mb-2" id="optMpaAssetGroup_">
-                            <select id="optMpaAssetGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
+                        <div class="col-md-12 select-outline ppm-asset-modal__select" id="optMpaAssetGroup_">
+                            <select id="optMpaAssetGroup" class="mdb-select md-form md-outline colorful-select dropdown-primary" data-stop-refresh="true"></select>
                             <label for="optMpaAssetGroup" id="lblMpaAssetGroup">Asset Group <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optMpaAssetGroupErr"></p>
                         </div>
-                        <div class="col-md-12 select-outline mb-2" id="optMpaAssetCategory_">
-                            <select id="optMpaAssetCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
+                        <div class="col-md-12 select-outline ppm-asset-modal__select" id="optMpaAssetCategory_">
+                            <select id="optMpaAssetCategory" class="mdb-select md-form md-outline colorful-select dropdown-primary" data-stop-refresh="true"></select>
                             <label for="optMpaAssetCategory" id="lblMpaAssetCategory">Asset Category <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optMpaAssetCategoryErr"></p>
                         </div>
-                        <div class="col-md-12 select-outline mb-2" id="optMpaAssetType_">
-                            <select id="optMpaAssetType" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
+                        <div class="col-md-12 select-outline ppm-asset-modal__select" id="optMpaAssetType_">
+                            <select id="optMpaAssetType" class="mdb-select md-form md-outline colorful-select dropdown-primary" data-stop-refresh="true"></select>
                             <label for="optMpaAssetType" id="lblMpaAssetType">Asset Type <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optMpaAssetTypeErr"></p>
                         </div>
-                        <div class="col-md-12 select-outline mb-2" id="optMpaPpmGroupId_">
-                            <select id="optMpaPpmGroupId" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
+                        <div class="col-md-12 select-outline ppm-asset-modal__select" id="optMpaPpmGroupId_">
+                            <select id="optMpaPpmGroupId" class="mdb-select md-form md-outline colorful-select dropdown-primary" data-stop-refresh="true"></select>
                             <label for="optMpaPpmGroupId" id="lblMpaPpmGroupId">PPM Executor Group <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optMpaPpmGroupIdErr"></p>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer p-1">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
-                <button id="btnMpaSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            <div class="modal-footer ppm-asset-modal__footer">
+                <button class="btn btn-outline-secondary" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMpaSubmit" class="btn btn-primary"><i class="far fa-paper-plane mr-1"></i> Submit</button>
             </div>
         </div>
     </div>

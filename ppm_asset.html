@@ -12,22 +12,18 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?5">
+    <link rel="stylesheet" href="css/mdb.min.css">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css?6" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <link href="css/style.css" rel="stylesheet">
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <!--JQuery Migrate-->
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
-<body class="fixed-sn light-blue-skin">
+<body class="fixed-sn ppm-asset-page">
 <!--Main Navigation-->
 <header>
     <!-- Sidebar navigation -->
@@ -39,72 +35,71 @@
 <main>
     <div class="container-fluid" id="divWssPageWidth">
         <div id="mdb-lightbox-ui"></div>
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 mb-4 pb-1 sectionPgrMain">
-            <h5 class="navbar-text white-text font-weight-bold ml-3 mt-1">
-                <i class="fa fa-users mr-1"></i> PPM Asset Group Management
-            </h5>
-        </nav>
-        <section class="mb-3 sectionPgrMain">
-            <nav class="navbar navbar-expand navbar-dark cyan darken-2 z-depth-3 mb-3">
-                <div class="collapse navbar-collapse">
-                    <ul class="navbar-nav mr-auto" id="ulPgrContract">
-                        <li class="nav-item dropdown mr-2 cyan darken-1">
-                            <a class="nav-link dropdown-toggle z-depth-1" id="navPgrContract" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select Site Contract&nbsp;&nbsp;&nbsp;</a>
-                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navPgrContract" id="divPgrContract"></div>
-                        </li>
-                    </ul>
-                    <h6 class="navbar-text white-text font-weight-bold ml-3 mt-1 mb-0" id="h6PgrContractName">
-                        <i class="fa fa-building mr-1"></i> Site Contract: <span id="lblPgrContractName"></span>
-                    </h6>
+        <section class="sectionPgrMain ppm-asset-hero mt-3 mb-4">
+            <div class="ppm-asset-hero__content gradient-card-header d-flex flex-wrap align-items-start justify-content-between">
+                <div class="ppm-asset-hero__title d-flex align-items-start">
+                    <span class="ppm-asset-hero__icon"><i class="fa fa-users"></i></span>
+                    <div>
+                        <h4 class="mb-1">PPM Asset Group Management</h4>
+                        <p class="mb-0 text-white-50">Oversee preventive maintenance groupings and drill into asset-level schedules.</p>
+                    </div>
                 </div>
-            </nav>
-            <!--<div class="row">
-                <div class="col-md-12 select-outline">
-                    <select class="mdb-select md-form md-outline colorful-select mt-0" searchable="Search here.." multiple>
-                        <option value="" disabled selected>Choose your car</option>
-                        <option value="2" data-secondary-text="Production year: 2012">Volkswagen Passat</option>
-                        <option value="3" data-secondary-text="Production year: 2017">Subaru Legacy</option>
-                        <option value="3" data-secondary-text="Production year: 2015">Hyundai Elantra</option>
-                        <option value="3" data-secondary-text="Production year: 2019">Honda Civic</option>
-                        <option value="3" data-secondary-text="Production year: 2016">Audi A6</option>
-                    </select>
-                    <label class="">Example label</label>
-                    <button class="btn-save btn btn-primary btn-sm">Save</button>
+                <div class="ppm-asset-hero__meta text-white-70">
+                    <span class="d-block">Contract-based data syncs after each refresh.</span>
                 </div>
-            </div>-->
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="float-left cyan" style="width: 16px; height: 48px">&nbsp;</div>
-                            <h5 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;"><i class="fas fa-tasks mr-1"></i> PPM Asset Group List</h5>
+            </div>
+        </section>
+
+        <section class="sectionPgrMain ppm-asset-filters mb-4">
+            <div class="theme-surface ppm-asset-filters__card">
+                <div class="ppm-asset-filters__content">
+                    <div class="ppm-asset-filters__dropdown" id="ulPgrContract">
+                        <div class="dropdown">
+                            <a class="btn btn-outline-primary dropdown-toggle" id="navPgrContract" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select Site Contract</a>
+                            <div class="dropdown-menu" aria-labelledby="navPgrContract" id="divPgrContract"></div>
                         </div>
-                        <div class="card-body pt-4">
-                            <div class="table-responsive">
-                                <table id="dtPgr" class="table table-tight table-hover mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>PPM Asset Group Name</th>
-                                        <th>Description</th>
-                                        <th>Asset Group</th>
-                                        <th>Asset Category</th>
-                                        <th>Asset Type</th> <!--5-->
-                                        <th>Document No</th>
-                                        <th>Issue No</th>
-                                        <th>Date Start</th>
-                                        <th>Frequency</th>
-                                        <th>Total Assets</th> <!--10-->
-                                        <th>Total PPM</th>
-                                        <th>Created Time</th>
-                                        <th>Status</th>
-                                        <th style="width: 12px; min-width: 12px">&nbsp;</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
+                    </div>
+                    <div class="ppm-asset-filters__summary" id="h6PgrContractName">
+                        <span class="ppm-asset-filters__label"><i class="fa fa-building mr-2"></i>Site Contract:</span>
+                        <span class="ppm-asset-filters__value" id="lblPgrContractName"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="sectionPgrMain ppm-asset-table-wrapper mb-4">
+            <div class="card theme-surface ppm-asset-table-card">
+                <div class="ppm-asset-table-card__header d-flex align-items-start">
+                    <span class="ppm-asset-table-card__icon"><i class="fas fa-tasks"></i></span>
+                    <div>
+                        <h5 class="mb-1">PPM Asset Group List</h5>
+                        <p class="mb-0">Browse asset group definitions, track task counts, and launch detailed editors.</p>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="table-responsive">
+                        <table id="dtPgr" class="table table-tight table-hover mb-0 display responsive ppm-asset-table">
+                            <thead>
+                            <tr class="th-strong">
+                                <th class="ppm-asset-table__col ppm-asset-table__col--index">#</th>
+                                <th>PPM Asset Group Name</th>
+                                <th>Description</th>
+                                <th>Asset Group</th>
+                                <th>Asset Category</th>
+                                <th>Asset Type</th>
+                                <th>Document No</th>
+                                <th>Issue No</th>
+                                <th>Date Start</th>
+                                <th>Frequency</th>
+                                <th>Total Assets</th>
+                                <th>Total PPM</th>
+                                <th>Created Time</th>
+                                <th>Status</th>
+                                <th class="ppm-asset-table__col ppm-asset-table__col--actions">&nbsp;</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>

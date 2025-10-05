@@ -1,46 +1,73 @@
 <div class="modal fade" id="modal_ppm_reschedule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content">
-            <!--Header-->
-            <div class="modal-header d-flex justify-content-center">
-                <h4 class="text-white mt-2 ml-2"><i class="far fa-calendar-check text-white"></i> &nbsp;Reschedule PPM Date</h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content ppm-reschedule-modal">
+            <div class="modal-header ppm-reschedule-modal__header">
+                <div class="ppm-reschedule-modal__title d-flex align-items-start">
+                    <span class="ppm-reschedule-modal__icon"><i class="fa-duotone fa-calendar-clock"></i></span>
+                    <div>
+                        <h3 class="modal-title mb-1" id="lblMprTitle">Reschedule PPM Date</h3>
+                        <p class="ppm-reschedule-modal__subtitle mb-0">Review the existing schedule and choose a new execution date.</p>
+                    </div>
+                </div>
+                <button type="button" class="close ppm-reschedule-modal__close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <!--Body-->
-            <div class="modal-body">
+            <div class="modal-body ppm-reschedule-modal__body">
                 <form id="formMpr">
-                    <div class="md-form md-outline mt-4">
-                        <input type="text" id="txtMprPpmTaskNo" class="form-control active" disabled>
-                        <label for="txtMprPpmTaskNo" id="lblMprPpmTaskNo">PPM Task No</label>
-                    </div>
-                    <div class="md-form md-outline">
-                        <input type="text" id="txtMprPpmTaskStartDate" class="form-control active" disabled>
-                        <label for="txtMprPpmTaskStartDate" id="lblMprPpmTaskStartDate">Scheduled Date</label>
-                    </div>
-                    <div class="md-form md-outline">
-                        <input type="text" id="txtMprPpmTaskScheduleDate" class="form-control active" disabled>
-                        <label for="txtMprPpmTaskScheduleDate" id="lblMprPpmTaskScheduleDate">Final Date</label>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline">
-                            <select id="optMprFrequency" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
-                            <label for="optMprFrequency" id="lblMprFrequency">Frequency *</label>
-                            <p class="font-small text-danger" id="optMprFrequencyErr"></p>
+                    <div class="ppm-reschedule-modal__section">
+                        <div class="ppm-reschedule-modal__section-header">
+                            <h6 class="ppm-reschedule-modal__section-title">Current Schedule</h6>
+                            <p class="ppm-reschedule-modal__section-hint mb-0">These read-only details outline the task’s existing timeline.</p>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtMprPpmTaskNo" class="form-control active" disabled>
+                                    <label for="txtMprPpmTaskNo" id="lblMprPpmTaskNo">PPM Task No</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtMprPpmTaskStartDate" class="form-control active" disabled>
+                                    <label for="txtMprPpmTaskStartDate" id="lblMprPpmTaskStartDate">Scheduled Date</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtMprPpmTaskScheduleDate" class="form-control active" disabled>
+                                    <label for="txtMprPpmTaskScheduleDate" id="lblMprPpmTaskScheduleDate">Final Date</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMprNewDate" class="form-control datepicker" readonly>
-                        <label for="txtMprNewDate" id="lblMprNewDate">New Scheduled Date *</label>
-                        <p class="font-small text-danger" id="txtMprNewDateErr"></p>
+                    <div class="ppm-reschedule-modal__section">
+                        <div class="ppm-reschedule-modal__section-header">
+                            <h6 class="ppm-reschedule-modal__section-title">Adjust Schedule</h6>
+                            <p class="ppm-reschedule-modal__section-hint mb-0">Select the next frequency window and rescheduled date.</p>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12 select-outline">
+                                <select id="optMprFrequency" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                                <label for="optMprFrequency" id="lblMprFrequency">Frequency <span class="text-danger">*</span></label>
+                                <p class="font-small text-danger" id="optMprFrequencyErr"></p>
+                            </div>
+                        </div>
+                        <div class="row mt-1">
+                            <div class="col-md-6">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtMprNewDate" class="form-control datepicker" readonly>
+                                    <label for="txtMprNewDate" id="lblMprNewDate">New Scheduled Date <span class="text-danger">*</span></label>
+                                    <p class="font-small text-danger" id="txtMprNewDateErr"></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer p-2">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMprSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="modal-footer ppm-reschedule-modal__footer">
+                <button class="btn btn-outline-secondary" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMprSubmit" class="btn btn-primary" disabled><i class="far fa-paper-plane mr-1"></i> Submit</button>
             </div>
         </div>
     </div>

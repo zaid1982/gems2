@@ -1,46 +1,71 @@
 <div class="modal fade" id="modal_ppm_group" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content">
-            <!--Header-->
-            <div class="modal-header d-flex justify-content-center">
-                <h4 class="text-white mt-2 ml-2"><i class="fas fa-plus text-white"></i> &nbsp;Add PPM Group</h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content ppm-group-modal">
+            <div class="modal-header ppm-group-modal__header">
+                <div class="ppm-group-modal__title d-flex align-items-start">
+                    <span class="ppm-group-modal__icon"><i class="fa-duotone fa-users-gear"></i></span>
+                    <div>
+                        <h3 class="modal-title mb-1" id="lblMpgTitle">Add PPM Group</h3>
+                        <p class="ppm-group-modal__subtitle mb-0">Create a dedicated executor group and link it to the right reporting structure.</p>
+                    </div>
+                </div>
+                <button type="button" class="close ppm-group-modal__close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <!--Body-->
-            <div class="modal-body">
+            <div class="modal-body ppm-group-modal__body">
                 <form id="formMpg">
-                    <div class="md-form md-outline mt-4">
-                        <input type="text" id="txtMpgClient" class="form-control" disabled>
-                        <label for="txtMpgClient" id="lblMpgClient">Client</label>
+                    <div class="ppm-group-modal__section">
+                        <div class="ppm-group-modal__section-header">
+                            <h6 class="ppm-group-modal__section-title">Context</h6>
+                            <p class="ppm-group-modal__section-hint mb-0">These fields reflect the client, site, and role you’re currently managing.</p>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtMpgClient" class="form-control" disabled>
+                                    <label for="txtMpgClient" id="lblMpgClient">Client</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtMpgSite" class="form-control" disabled>
+                                    <label for="txtMpgSite" id="lblMpgSite">Site</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtMpgRole" class="form-control" disabled>
+                                    <label for="txtMpgRole" id="lblMpgRole">Role</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMpgSite" class="form-control" disabled>
-                        <label for="txtMpgSite" id="lblMpgSite">Site</label>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMpgRole" class="form-control" disabled>
-                        <label for="txtMpgRole" id="lblMpgRole">Role</label>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMpgName" class="form-control">
-                        <label for="txtMpgName" id="lblMpgName">Group Name *</label>
-                        <p class="font-small text-danger" id="txtMpgNameErr"></p>
-                    </div>
-                    <div class="row" id="divMpgReportTo">
-                        <div class="col-md-12 select-outline mt-0">
-                            <select id="optMpgReportTo" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
-                            <label for="optMpgReportTo" id="lblMpgReportTo">Report To *</label>
-                            <p class="font-small text-danger" id="optMpgReportToErr"></p>
+                    <div class="ppm-group-modal__section">
+                        <div class="ppm-group-modal__section-header">
+                            <h6 class="ppm-group-modal__section-title">Assignment Details</h6>
+                            <p class="ppm-group-modal__section-hint mb-0">Provide the group name and configure reporting if required.</p>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <div class="md-form md-outline mt-0">
+                                    <input type="text" id="txtMpgName" class="form-control">
+                                    <label for="txtMpgName" id="lblMpgName">Group Name <span class="text-danger">*</span></label>
+                                    <p class="font-small text-danger" id="txtMpgNameErr"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-12 select-outline mt-0" id="divMpgReportTo">
+                                <select id="optMpgReportTo" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                                <label for="optMpgReportTo" id="lblMpgReportTo">Report To <span class="text-danger">*</span></label>
+                                <p class="font-small text-danger" id="optMpgReportToErr"></p>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer p-2">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMpgSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="modal-footer ppm-group-modal__footer">
+                <button class="btn btn-outline-secondary" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
+                <button id="btnMpgSubmit" class="btn btn-primary" disabled><i class="far fa-paper-plane mr-1"></i> Submit</button>
             </div>
         </div>
     </div>
