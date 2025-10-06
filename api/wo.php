@@ -64,6 +64,31 @@ try {
                 $kpiType = filter_input(INPUT_GET, 'kpiType');
                 $result = $fn_wo->get_wo_task_dashboard_list2($clientId, $siteId, $dateFrom, $dateTo, '', $kpiType);
             }
+            else if ($type === 'dashboard_table') {
+                $clientId = filter_input(INPUT_GET, 'clientId');
+                $siteId = filter_input(INPUT_GET, 'siteId');
+                $dateFrom = filter_input(INPUT_GET, 'dateFrom');
+                $dateTo = filter_input(INPUT_GET, 'dateTo');
+                $kpiType = filter_input(INPUT_GET, 'kpiType');
+                $draw = isset($_GET['draw']) ? intval($_GET['draw']) : 0;
+                $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
+                $length = isset($_GET['length']) ? intval($_GET['length']) : 10;
+                $searchValue = '';
+                if (isset($_GET['search']) && is_array($_GET['search']) && isset($_GET['search']['value'])) {
+                    $searchValue = $_GET['search']['value'];
+                }
+                $orderColumn = null;
+                $orderDir = 'desc';
+                if (isset($_GET['order']) && is_array($_GET['order']) && isset($_GET['order'][0]['column'])) {
+                    $orderColumn = intval($_GET['order'][0]['column']);
+                    if (isset($_GET['order'][0]['dir'])) {
+                        $orderDir = $_GET['order'][0]['dir'];
+                    }
+                }
+                $datatableResult = $fn_wo->get_wo_dashboard_datatable($clientId, $siteId, $dateFrom, $dateTo, $start, $length, $searchValue, $orderColumn, $orderDir, $kpiType);
+                $datatableResult['draw'] = $draw;
+                $result = $datatableResult;
+            }
             else if ($type === 'total_by_site_status') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $dateFrom = filter_input(INPUT_GET, 'dateFrom');

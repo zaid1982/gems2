@@ -149,7 +149,36 @@ function MainHome() {
         oTableWo =  $('#dtHmeDataWo').DataTable({
             bLengthChange: false,
             bFilter: true,
-            "aaSorting": [1, 'desc'],
+            processing: true,
+            serverSide: true,
+            order: [[1, 'desc']],
+            ajax: {
+                url: 'api/wo.php?type=dashboard_table',
+                type: 'GET',
+                data: function (d) {
+                    d.clientId = clientId;
+                    d.siteId = siteId;
+                    d.dateFrom = dateFrom;
+                    d.dateTo = dateTo;
+                },
+                beforeSend: function (xhr) {
+                    const token = sessionStorage.getItem('token');
+                    if (token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    }
+                },
+                dataSrc: function (json) {
+                    if (!json.success || typeof json.result === 'undefined') {
+                        const message = json.errmsg !== '' ? json.errmsg : _ALERT_MSG_ERROR_DEFAULT;
+                        toastr['error'](message, _ALERT_TITLE_ERROR);
+                        return [];
+                    }
+                    json.recordsTotal = json.result.recordsTotal;
+                    json.recordsFiltered = json.result.recordsFiltered;
+                    json.draw = typeof json.result.draw !== 'undefined' ? json.result.draw : json.draw;
+                    return json.result.data;
+                }
+            },
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableWo.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
@@ -378,21 +407,43 @@ function MainHome() {
         }).container().appendTo($('#btnDtHmeDataWoExport'));
 
         $('#btnDtHmeDataWoRefresh').on('click', function () {
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    self.genTableHmeDataWo();
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
-                HideLoader();
-            }, 300);
+            self.genTableHmeDataWo();
         });
 
         oTablePpm =  $('#dtHmeDataPpm').DataTable({
             bLengthChange: false,
             bFilter: true,
-            //"aaSorting": [1, 'asc'],
+            processing: true,
+            serverSide: true,
+            order: [[3, 'asc']],
+            ajax: {
+                url: 'api/ppm.php?type=dashboard_table',
+                type: 'GET',
+                data: function (d) {
+                    d.clientId = clientId;
+                    d.siteId = siteId;
+                    d.dateFrom = dateFrom;
+                    d.dateTo = dateTo;
+                    d.isRoutine = '0';
+                },
+                beforeSend: function (xhr) {
+                    const token = sessionStorage.getItem('token');
+                    if (token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    }
+                },
+                dataSrc: function (json) {
+                    if (!json.success || typeof json.result === 'undefined') {
+                        const message = json.errmsg !== '' ? json.errmsg : _ALERT_MSG_ERROR_DEFAULT;
+                        toastr['error'](message, _ALERT_TITLE_ERROR);
+                        return [];
+                    }
+                    json.recordsTotal = json.result.recordsTotal;
+                    json.recordsFiltered = json.result.recordsFiltered;
+                    json.draw = typeof json.result.draw !== 'undefined' ? json.result.draw : json.draw;
+                    return json.result.data;
+                }
+            },
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTablePpm.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
@@ -577,11 +628,7 @@ function MainHome() {
         }).container().appendTo($('#btnDtHmeDataPpmExport'));
 
         $('#btnDtHmeDataPpmRefresh').on('click', function () {
-            ShowLoader(); setTimeout(function () {
-                try {
-                    self.genTableHmeDataPpm();
-                } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
-            HideLoader(); }, 300);
+            self.genTableHmeDataPpm();
         });
 
         $('#btnHmeDownloadImageDo').on('click', function () {
@@ -668,7 +715,7 @@ function MainHome() {
             self.generateChartPpmTop5Execute();
             self.generateChartPpmBottom5Execute();
             self.generateChartPpmAverageExecuteByTrade();
-            self.genTableHmeDataPpm();
+            self.genTableHmeDataPpm(true);
         } else if (reportId === '2') {
             $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
             $('.divHmeTopStats_wo, #divHmeTable_wo').show();
@@ -678,20 +725,22 @@ function MainHome() {
             self.generateChartWoAverageExecuteByTrade();
             self.generateChartWoTop5Execute();
             self.generateChartWoBottom5Execute();
-            self.genTableHmeDataWo();
+            self.genTableHmeDataWo(true);
         }
         $('#lblHmeReportType').text(reportType);
         $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+'</i>');
     };
 
-    this.genTableHmeDataWo = function () {
-        const dataWo = mzAjaxRequest('wo.php?type=dashboard_list&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo, 'GET');
-        oTableWo.clear().rows.add(dataWo).draw();
+    this.genTableHmeDataWo = function (resetPaging) {
+        if (oTableWo) {
+            oTableWo.ajax.reload(null, resetPaging === true);
+        }
     };
 
-    this.genTableHmeDataPpm = function () {
-        const dataPpm = mzAjaxRequest('ppm.php?type=dashboard_list&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo, 'GET');
-        oTablePpm.clear().rows.add(dataPpm).draw();
+    this.genTableHmeDataPpm = function (resetPaging) {
+        if (oTablePpm) {
+            oTablePpm.ajax.reload(null, resetPaging === true);
+        }
     };
 
     this.generateTotalAsset = function () {

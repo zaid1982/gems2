@@ -2346,6 +2346,179 @@ class Class_wo {
     }
 
     /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $dateStart
+     * @param string $dateEnd
+     * @param int $start
+     * @param int $length
+     * @param string $searchValue
+     * @param int|null $orderColumn
+     * @param string $orderDir
+     * @param string $kpiType
+     * @return array
+     * @throws Exception
+     */
+    public function get_wo_dashboard_datatable ($clientId='', $siteId='', $dateStart='', $dateEnd='', $start=0, $length=10, $searchValue='', $orderColumn=null, $orderDir='desc', $kpiType='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            $start = intval($start) < 0 ? 0 : intval($start);
+            $length = intval($length);
+            if ($length <= 0) {
+                $length = 10;
+            } else if ($length > 200) {
+                $length = 200;
+            }
+
+            if (empty($dateStart) || empty($dateEnd)) {
+                $date = new DateTime();
+                $dateStart = $date->format('Y-m-01');
+                $dateEnd = $date->format('Y-m-t');
+            }
+
+            $baseWhere = array('DATE(wo_task_time_created)'=>'>='.$dateStart, 'DATE(wo_task_time_created) '=>'<='.$dateEnd);
+            if (empty($siteId) || $siteId === '0') {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $baseWhere['site_id'] = '('.$siteIdStr.')';
+                }
+            } else {
+                $baseWhere['site_id'] = $siteId;
+            }
+
+            if ($kpiType === 'responseTime') {
+                $baseWhere['wo_task_status'] = 'N(25)';
+                $baseWhere['wo_task_type'] = '<>2';
+            } else if ($kpiType === 'mitigateTime') {
+                $baseWhere['wo_task_time_executed'] = 'is not NULL';
+                $baseWhere['wo_task_type'] = '<>2';
+            } else if ($kpiType === 'serviceQuality') {
+                $baseWhere['wo_task_status'] = '16';
+                $baseWhere['wo_task_type'] = '<>2';
+                $baseWhere['wo_task_rate'] = 'is not NULL';
+            } else if ($kpiType === 'turnaroundTime') {
+                $baseWhere['wo_task_status'] = 'N(25)';
+                $baseWhere['wo_task_type'] = '<>2';
+            }
+
+            $whereWithSearch = $baseWhere;
+            if (!empty($searchValue)) {
+                $escapedSearch = addslashes(str_replace(array('%', '_'), array('\%', '\_'), $searchValue));
+                $searchClause = "(wo_task_no LIKE '%".$escapedSearch."%' OR wo_task_request_no LIKE '%".$escapedSearch."%' OR wo_task_location LIKE '%".$escapedSearch."%' OR wo_task_complaint LIKE '%".$escapedSearch."%')";
+                $whereWithSearch['w1'] = $searchClause;
+            }
+
+            $orderableColumns = array(
+                1 => 'wo_task_time_created',
+                2 => 'wo_task_request_no',
+                3 => 'wo_task_no',
+                4 => 'site_id',
+                5 => 'wo_task_location',
+                6 => 'wo_task_type',
+                7 => 'wo_task_created_by',
+                8 => 'wo_task_complaint',
+                9 => 'wo_task_severity',
+                10 => 'ppm_group_id',
+                11 => 'wo_task_assigned_to',
+                12 => 'wo_task_repair_desc',
+                13 => 'wo_task_rate',
+                14 => 'wo_task_status'
+            );
+            $orderDir = strtolower($orderDir) === 'asc' ? 'ASC' : 'DESC';
+            $orderSql = 'wo_task_time_created DESC';
+            if (!is_null($orderColumn) && array_key_exists($orderColumn, $orderableColumns)) {
+                $orderSql = $orderableColumns[$orderColumn] . ' ' . $orderDir;
+            }
+
+            $limitSql = $start . ',' . $length;
+
+            $arrSeverity = $this->fn_general->getSeverityName();
+            $arrWoType = $this->get_wo_type();
+
+            $totalRecords = Class_db::getInstance()->db_count('vg_wo_dashboard', $baseWhere);
+            $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vg_wo_dashboard', $whereWithSearch);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('vg_wo_dashboard', $whereWithSearch, $orderSql, $limitSql);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row_result['woTaskId'] = $dataLocal['wo_task_id'];
+                $row_result['woTaskNoOri'] = $dataLocal['wo_task_no'];
+                $row_result['woTaskNo'] = $dataLocal['wo_task_is_wr'] === '1' && $dataLocal['wo_task_wr_confirm'] !== '1' ? '-' : $dataLocal['wo_task_no'];
+                $row_result['woTaskRequestNo'] = $this->fn_general->clear_null($dataLocal['wo_task_request_no'], '-');
+                $row_result['woTaskType'] = $this->fn_general->clear_null($dataLocal['wo_task_type'], '0');
+                $row_result['woTaskTypeDesc'] = $arrWoType[intval($this->fn_general->clear_null($dataLocal['wo_task_type'], '0'))];
+                $row_result['woTaskIsWr'] = $dataLocal['wo_task_is_wr'];
+                $row_result['siteId'] = $dataLocal['site_id'];
+                $row_result['woTaskLocation'] = $this->fn_general->clear_null($dataLocal['wo_task_location']);
+                $row_result['woTaskComplaint'] = $this->fn_general->clear_null($dataLocal['wo_task_complaint']);
+                $row_result['woTaskAssignedTo'] = $this->fn_general->clear_null($dataLocal['wo_task_assigned_to']);
+                $row_result['ppmGroupId'] = $this->fn_general->clear_null($dataLocal['ppm_group_id']);
+                $row_result['woTaskSeverity'] = $arrSeverity[intval($this->fn_general->clear_null($dataLocal['wo_task_severity'], '0'))];
+                $row_result['woTaskRepairDesc'] = $this->fn_general->clear_null($dataLocal['wo_task_repair_desc']);
+                $row_result['woTaskRateOri'] = $this->fn_general->clear_null($dataLocal['wo_task_rate']);
+                $row_result['woTaskRate'] = empty($dataLocal['wo_task_rate']) ? '' : $dataLocal['wo_task_rate'].' / 5';
+                $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
+                $row_result['pdfIdWr'] = $this->fn_general->clear_null($dataLocal['pdf_id_wr']);
+                $row_result['woTaskCreatedBy'] = $dataLocal['wo_task_created_by'];
+                $row_result['woTaskFixedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_fixed_by']);
+                $row_result['woTaskAssignedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_assigned_by']);
+                $row_result['woTaskVerifiedBy'] = $this->fn_general->clear_null($dataLocal['wo_task_verified_by']);
+                $row_result['woTaskTimeCreated'] = str_replace('-', '/', $dataLocal['wo_task_time_created']);
+                $row_result['woTaskTimeResponded'] = str_replace('-', '/', $dataLocal['wo_task_time_responded']);
+                $row_result['woTaskTimeAssigned'] = str_replace('-', '/', $dataLocal['wo_task_time_assigned']);
+                $row_result['woTaskTimeWrChecked'] = str_replace('-', '/', $dataLocal['wo_task_time_wr_checked']);
+                $row_result['woTaskTimeWrVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_wr_verified']);
+                $row_result['woTaskTimeExecuted'] = str_replace('-', '/', $dataLocal['wo_task_time_executed']);
+                $row_result['woTaskTimeVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_verified']);
+                $row_result['durationResponded'] = $this->fn_general->timeDiff($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
+                $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
+                $row_result['kpiResponseResult'] = '';
+                $durationResponded = $this->fn_general->timeDiffMinute($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
+                if ($durationResponded !== '') {
+                    if ($dataLocal['wo_task_severity'] === '5') {
+                        $row_result['kpiResponseResult'] = $durationResponded <= 15 ? 'Success' : 'Fail';
+                    } else if ($dataLocal['wo_task_severity'] === '4') {
+                        $row_result['kpiResponseResult'] = $durationResponded <= 15 ? 'Success' : 'Fail';
+                    } else if ($dataLocal['wo_task_severity'] === '3') {
+                        $row_result['kpiResponseResult'] = $durationResponded <= 30 ? 'Success' : 'Fail';
+                    }
+                }
+                $row_result['durationMitigated'] = $this->fn_general->timeDiff($row_result['woTaskTimeCreated'], $row_result['woTaskTimeExecuted']);
+                $row_result['kpiMitigateResult'] = '';
+                $durationMitigated = $this->fn_general->timeDiffHour($row_result['woTaskTimeCreated'], $row_result['woTaskTimeExecuted']);
+                if ($durationMitigated !== '') {
+                    if ($dataLocal['wo_task_severity'] === '5') {
+                        $row_result['kpiMitigateResult'] = $durationMitigated <= 3 ? 'Success' : 'Fail';
+                    } else if ($dataLocal['wo_task_severity'] === '4') {
+                        $row_result['kpiMitigateResult'] = $durationMitigated <= 24 ? 'Success' : 'Fail';
+                    } else if ($dataLocal['wo_task_severity'] === '3') {
+                        $row_result['kpiMitigateResult'] = $durationMitigated <= 168 ? 'Success' : 'Fail';
+                    }
+                }
+                $row_result['assistants'] = $dataLocal['assistants'];
+                $row_result['assetId'] = $dataLocal['asset_id'];
+                $row_result['assetNo'] = $dataLocal['asset_no'];
+                array_push($result, $row_result);
+            }
+
+            return array(
+                'recordsTotal' => intval($totalRecords),
+                'recordsFiltered' => intval($filteredRecords),
+                'data' => $result
+            );
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $siteId
      * @return array
      * @throws Exception

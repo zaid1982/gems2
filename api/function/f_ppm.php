@@ -2835,7 +2835,28 @@ class Class_ppm {
             }
 
             $result = array();
-            $dataLocals = Class_db::getInstance()->db_select('vw_ppm_list', array('site_id'=>$siteId, 'YEAR(ppm_task_start_date)'=>$year, 'MONTH(ppm_task_start_date) - 1'=>$month, 'ppm_is_routine'=>$isRoutine));
+            $whereClause = array('site_id'=>$siteId, 'YEAR(ppm_task_start_date)'=>$year, 'MONTH(ppm_task_start_date) - 1'=>$month);
+            if ($isRoutine !== '' && !is_null($isRoutine)) {
+                $whereClause['ppm_is_routine'] = $isRoutine;
+            }
+
+            $retryRoutineFilter = isset($whereClause['ppm_is_routine']);
+            $dataLocals = array();
+            $attempt = 0;
+            while (true) {
+                try {
+                    $dataLocals = Class_db::getInstance()->db_select('vw_ppm_list', $whereClause);
+                    break;
+                } catch (Exception $ex) {
+                    if ($retryRoutineFilter && $attempt === 0 && strpos($ex->getMessage(), 'ppm_is_routine') !== false) {
+                        unset($whereClause['ppm_is_routine']);
+                        $retryRoutineFilter = false;
+                        $attempt++;
+                        continue;
+                    }
+                    throw $ex;
+                }
+            }
             foreach ($dataLocals as $dataLocal) {
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
                 $row_result['ppmTaskNo'] = $dataLocal['ppm_task_no'];
@@ -2877,6 +2898,197 @@ class Class_ppm {
             }
 
             return $result;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param string $clientId
+     * @param string $siteId
+     * @param string $dateStart
+     * @param string $dateEnd
+     * @param int $start
+     * @param int $length
+     * @param string $searchValue
+     * @param int|null $orderColumn
+     * @param string $orderDir
+     * @param string $isRoutine
+     * @return array
+     * @throws Exception
+     */
+    public function get_ppm_dashboard_datatable ($clientId='', $siteId='', $dateStart='', $dateEnd='', $start=0, $length=10, $searchValue='', $orderColumn=null, $orderDir='desc', $isRoutine='0') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            $start = intval($start) < 0 ? 0 : intval($start);
+            $length = intval($length);
+            if ($length <= 0) {
+                $length = 10;
+            } else if ($length > 200) {
+                $length = 200;
+            }
+
+            if (empty($dateStart) || empty($dateEnd)) {
+                $date = new DateTime();
+                $dateStart = $date->format('Y-m-01');
+                $dateEnd = $date->format('Y-m-t');
+            }
+
+            if ($isRoutine === '' || is_null($isRoutine)) {
+                $isRoutine = '0';
+            }
+
+            $baseWhere = array('DATE(ppm_task_start_date)'=>'>='.$dateStart, 'DATE(ppm_task_start_date) '=>'<='.$dateEnd);
+            if (empty($siteId) || $siteId === '0') {
+                if (empty($clientId)) {
+                    throw new Exception('[' . __LINE__ . '] - Parameter clientId empty');
+                }
+                $siteIds = Class_db::getInstance()->db_select_colm('cli_site', array('client_id'=>$clientId, 'site_status'=>'1'), 'site_id');
+                if (!empty($siteIds)) {
+                    $siteIdStr = implode(',', $siteIds);
+                    $baseWhere['site_id'] = '('.$siteIdStr.')';
+                }
+            } else {
+                $baseWhere['site_id'] = $siteId;
+            }
+
+            if ($isRoutine !== '' && !is_null($isRoutine)) {
+                $baseWhere['ppm_is_routine'] = $isRoutine;
+            }
+
+            $whereWithSearch = $baseWhere;
+            if (!empty($searchValue)) {
+                $escapedSearch = addslashes(str_replace(array('%', '_'), array('\%', '\_'), $searchValue));
+                $searchClause = "(ppm_task_no LIKE '%".$escapedSearch."%' OR document_no LIKE '%".$escapedSearch."%' OR asset_no LIKE '%".$escapedSearch."%' OR asset_name LIKE '%".$escapedSearch."%' OR ppm_task_remark LIKE '%".$escapedSearch."%')";
+                $whereWithSearch['w1'] = $searchClause;
+            }
+
+            $orderableColumns = array(
+                1 => 'ppm_task_no',
+                2 => 'site_id',
+                3 => 'ppm_task_start_date',
+                4 => 'frequency',
+                5 => 'document_no',
+                6 => 'asset_no',
+                7 => 'asset_name',
+                15 => 'ppm_task_remark',
+                20 => 'ppm_task_time_start',
+                21 => 'ppm_task_time_serviced',
+                22 => 'ppm_task_time_checked',
+                23 => 'ppm_task_time_verified',
+                24 => 'lateness',
+                27 => 'within_status',
+                28 => 'ppm_task_status'
+            );
+            $orderDir = strtolower($orderDir) === 'asc' ? 'ASC' : 'DESC';
+            $orderSql = 'ppm_task_start_date DESC';
+            if (!is_null($orderColumn) && array_key_exists($orderColumn, $orderableColumns)) {
+                $orderSql = $orderableColumns[$orderColumn] . ' ' . $orderDir;
+            }
+
+            $limitSql = $start . ',' . $length;
+
+            $retryRoutineFilter = array_key_exists('ppm_is_routine', $baseWhere);
+            $totalRecords = 0;
+            $filteredRecords = 0;
+            $attempt = 0;
+            while (true) {
+                try {
+                    $totalRecords = Class_db::getInstance()->db_count('vw_ppm_list', $baseWhere);
+                    $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vw_ppm_list', $whereWithSearch);
+                    break;
+                } catch (Exception $ex) {
+                    if ($retryRoutineFilter && $attempt === 0 && strpos($ex->getMessage(), 'ppm_is_routine') !== false) {
+                        unset($baseWhere['ppm_is_routine']);
+                        if (isset($whereWithSearch['ppm_is_routine'])) {
+                            unset($whereWithSearch['ppm_is_routine']);
+                        }
+                        $retryRoutineFilter = false;
+                        $attempt++;
+                        continue;
+                    }
+                    throw $ex;
+                }
+            }
+
+            $result = array();
+            $dataLocals = array();
+            $attemptSelect = 0;
+            $countsNeedRefresh = false;
+            while (true) {
+                try {
+                    $dataLocals = Class_db::getInstance()->db_select('vw_ppm_list', $whereWithSearch, $orderSql, $limitSql);
+                    break;
+                } catch (Exception $ex) {
+                    if ($retryRoutineFilter && $attemptSelect === 0 && strpos($ex->getMessage(), 'ppm_is_routine') !== false) {
+                        if (isset($baseWhere['ppm_is_routine'])) {
+                            unset($baseWhere['ppm_is_routine']);
+                        }
+                        if (isset($whereWithSearch['ppm_is_routine'])) {
+                            unset($whereWithSearch['ppm_is_routine']);
+                        }
+                        $retryRoutineFilter = false;
+                        $attemptSelect++;
+                        $countsNeedRefresh = true;
+                        continue;
+                    }
+                    throw $ex;
+                }
+            }
+
+            if ($countsNeedRefresh) {
+                $totalRecords = Class_db::getInstance()->db_count('vw_ppm_list', $baseWhere);
+                $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vw_ppm_list', $whereWithSearch);
+            }
+            foreach ($dataLocals as $dataLocal) {
+                $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
+                $row_result['ppmTaskNo'] = $dataLocal['ppm_task_no'];
+                $row_result['siteId'] = $dataLocal['site_id'];
+                $row_result['ppmTaskStartDate'] = str_replace('-', '/', $dataLocal['ppm_task_start_date']);
+                $row_result['ppmTaskScheduleDate'] = str_replace('-', '/', $dataLocal['ppm_task_schedule_date']);
+                $row_result['frequency'] = $this->fn_general->clear_null($dataLocal['frequency']);
+                $row_result['frequencyIds'] = $this->fn_general->clear_null($dataLocal['frequency_ids']);
+                $uploadIdsRaw = $this->fn_general->clear_null($dataLocal['upload_ids']);
+                $row_result['uploadIds'] = $uploadIdsRaw === '' ? array() : explode('||', $uploadIdsRaw);
+                $row_result['documentNo'] = $this->fn_general->clear_null($dataLocal['document_no']);
+                $row_result['assetNo'] = $this->fn_general->clear_null($dataLocal['asset_no']);
+                $row_result['assetName'] = $this->fn_general->clear_null($dataLocal['asset_name']);
+                $row_result['assetGroupId'] = $dataLocal['asset_group_id'];
+                $row_result['assetCategoryId'] = $dataLocal['asset_category_id'];
+                $row_result['assetTypeId'] = $dataLocal['asset_type_id'];
+                $row_result['assetLocationCode'] = $this->fn_general->clear_null($dataLocal['asset_location_code']);
+                $row_result['assetLocationDesc'] = $this->fn_general->clear_null($dataLocal['asset_location_desc']);
+                $row_result['assetBlock'] = $this->fn_general->clear_null($dataLocal['asset_block']);
+                $row_result['assetLevel'] = $this->fn_general->clear_null($dataLocal['asset_level']);
+                $row_result['ppmTaskRemark'] = $this->fn_general->clear_null($dataLocal['ppm_task_remark']);
+                $row_result['ppmGroupId'] = $dataLocal['ppm_group_id'];
+                $row_result['ppmTaskIsScheduled'] = $dataLocal['ppm_task_is_scheduled'];
+                $row_result['executor'] = $this->fn_general->clear_null($dataLocal['ppm_task_assigned_to']);
+                $row_result['ppmTaskServicedBy'] = $this->fn_general->clear_null($dataLocal['ppm_task_serviced_by']);
+                $row_result['reviewer'] = $this->fn_general->clear_null($dataLocal['ppm_task_checked_by']);
+                $row_result['verifier'] = $this->fn_general->clear_null($dataLocal['ppm_task_verified_by']);
+                $row_result['ppmTaskTimeStart'] = str_replace('-', '/', $dataLocal['ppm_task_time_start']);
+                $row_result['ppmTaskTimeServiced'] = str_replace('-', '/', $dataLocal['ppm_task_time_serviced']);
+                $row_result['ppmTaskTimeChecked'] = str_replace('-', '/', $dataLocal['ppm_task_time_checked']);
+                $row_result['ppmTaskTimeVerified'] = str_replace('-', '/', $dataLocal['ppm_task_time_verified']);
+                $row_result['lateness'] = $dataLocal['lateness'];
+                $row_result['lateness2'] = $dataLocal['lateness2'];
+                $row_result['ppmMinExecTime'] = $dataLocal['ppm_task_min_exec_time'];
+                $row_result['ppmMaxExecTime'] = $dataLocal['ppm_task_max_exec_time'];
+                $row_result['withinStatus'] = $dataLocal['within_status'];
+                $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
+                $row_result['ppmTaskStatus'] = $dataLocal['ppm_task_status'];
+                array_push($result, $row_result);
+            }
+
+            return array(
+                'recordsTotal' => intval($totalRecords),
+                'recordsFiltered' => intval($filteredRecords),
+                'data' => $result
+            );
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
