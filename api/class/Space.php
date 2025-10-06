@@ -81,7 +81,25 @@ class Space extends General {
                 LEFT JOIN ref_space_category cat ON cat.space_category_id = s.space_category_id
                 LEFT JOIN ref_space_type typ ON typ.space_type_id = s.space_type_id";
 
-            return DbMysql::selectSqlAll($sql, $where, 0, false, 'spaceName');
+            $spaces = DbMysql::selectSqlAll($sql, $where, 0, false, 'spaceName');
+            if (!empty($spaces)) {
+                $coverMap = $this->getCoverPhotoMap(array_column($spaces, 'spaceId'));
+                foreach ($spaces as &$space) {
+                    $sid = intval($space['spaceId'] ?? 0);
+                    if (isset($coverMap[$sid])) {
+                        $space['coverPhotoUrl'] = $coverMap[$sid]['url'];
+                        $space['coverPhotoCaption'] = $coverMap[$sid]['caption'];
+                        $space['coverPhotoUploadId'] = $coverMap[$sid]['uploadId'];
+                    } else {
+                        $space['coverPhotoUrl'] = '';
+                        $space['coverPhotoCaption'] = '';
+                        $space['coverPhotoUploadId'] = null;
+                    }
+                }
+                unset($space);
+            }
+
+            return $spaces;
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }
@@ -1022,6 +1040,52 @@ class Space extends General {
                 $media['downloadUrl'] = $this->getUploadLink(intval($media['uploadId']));
             }
             return $mediaList;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Retrieve latest photo for each supplied space id
+     * @param array $spaceIds
+     * @return array<int,array{url:string,caption:string,uploadId:int|null}>
+     * @throws Exception
+     */
+    private function getCoverPhotoMap(array $spaceIds): array
+    {
+        try {
+            if (empty($spaceIds)) {
+                return array();
+            }
+            $filtered = array();
+            foreach ($spaceIds as $sid) {
+                $sid = intval($sid);
+                if ($sid > 0) {
+                    $filtered[$sid] = $sid;
+                }
+            }
+            if (empty($filtered)) {
+                return array();
+            }
+            $where = array(
+                'spaceId' => 'IN|'.implode(',', $filtered),
+                'mediaType' => 'PHOTO'
+            );
+            $mediaList = DbMysql::selectAll(self::$mediaTable, $where, 0, false, 'mediaCreatedAt', 'DESC');
+            $map = array();
+            foreach ($mediaList as $media) {
+                $sid = intval($media['spaceId'] ?? 0);
+                if ($sid <= 0 || isset($map[$sid])) {
+                    continue;
+                }
+                $uploadId = intval($media['uploadId'] ?? 0);
+                $map[$sid] = array(
+                    'url' => $this->getUploadLink($uploadId),
+                    'caption' => $media['mediaCaption'] ?? '',
+                    'uploadId' => $uploadId > 0 ? $uploadId : null
+                );
+            }
+            return $map;
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

@@ -807,6 +807,9 @@ function initiatePages() {
     $(document).ready(function () {
         $('.mdb-select').each(function(){
             var $sel = $(this);
+            if ($sel.data('mdbSkip') === true || $sel.attr('data-mdb-skip') === 'true') {
+                return;
+            }
             // Only initialize if not yet wrapped by MDB select wrapper
             if (!$sel.parent().hasClass('select-wrapper')) {
                 try { $sel.materialSelect(); } catch(e) { /* ignore */ }
