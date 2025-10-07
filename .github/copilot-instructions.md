@@ -3,7 +3,11 @@
 Purpose: make agents productive fast in this PHP monolith by documenting real patterns, workflows, and gotchas used here.
 
 ### Architecture
-- Stack: Plain PHP under Apache/XAMPP at `htdocs/gems2`.
+- Stack: Plain ### Zone Management
+- API: `api/zone_template.php` (dedicated endpoint) streams an Excel import template with current sites and status list.
+- Import: `POST api/zone.php/import` with multipart `file` upload processes Excel and returns stats (`success`, `failed`, `skipped`, `errors`).
+- Backend: `Zone::downloadTemplate()` generates template; `Zone::importFromExcel()` parses and bulk-inserts zones using PhpSpreadsheet.
+- Frontend: `zone.html` + `js/pages/main_zone.js` provide "Download Template" and "Import Zones" DataTables buttons with file picker and progress feedback.under Apache/XAMPP at `htdocs/gems2`.
   - Frontend: `*.html` pages use modules in `js/pages/` with helpers in `js/common.js`.
   - Backend APIs: `api/*.php`; shared classes in `api/class/`, traits in `api/trait/`.
 - Two API styles coexist:
@@ -54,10 +58,6 @@ Purpose: make agents productive fast in this PHP monolith by documenting real pa
 - Numbers: RQ at submit `RQPTW{site}{yymmdd}{seq}`; PTW at supervisor approval `PTW{site}{yymmdd}{seq}`.
 
 ### Asset Management (PTW-style)
-- APIs: `api/asset.php` (CRUD + totals/list by contract), refs: `api/asset_group.php`, `api/asset_category.php`, `api/asset_type.php`, `api/asset_brand.php`, `api/asset_model.php`.
-- JWT mandatory; non-admins constrained to `sys_user.site_id` for reads. Totals (`type=total_asset`) force site to user site.
-- Actions: `PUT action=save|submit|update|deactivate|activate`, audits `57-61`; delete audits `62`. Refs update version/audits `31-35`.
-- Frontend: `asset.html` + `js/pages/main_asset.js`; ref modals like `js/pages/modal_asset_group.js` using `mzAjaxRequest('asset_group.php', ...)` and toasts.
 
 Key files to study: `api/wo_v3.php`, `api/class/General.php`, `api/class/DbMysql.php`, `api/trait/SiteFilterTrait.php`, `api/ptw*.php`, `api/function/f_ptw.php`, `js/common.js`, `deploy_production.sh`, `developer/README.md`.
 ## GEMS2 – AI Agent Quick Guide
@@ -189,3 +189,8 @@ Purpose: Make agents productive fast in this PHP monolith by documenting the rea
   - Main pages: `asset.html` + `js/pages/main_asset.js` (DataTables with filters; non-admins use their site to filter contract options via `mzGetUserInfoByParam` and `mzIsRoleExist`).
   - Reference modals: `js/pages/modal_asset_group.js` (add/edit/delete), and similar for category/type/brand/model; use `mzAjaxRequest('asset_group.php', ...)` style endpoints and show toasts.
   - Patterns: filter options use `mzOption`/`mzOptionStop`, search via DataTables, action columns toggled by status, and role checks hide add buttons for non-privileged roles.
+
+### Zone Management
+- API: `api/zone.php` exposes `GET /template` to stream an Excel import template with current sites and status list.
+- Backend template builder lives in `api/class/Zone.php::downloadTemplate()` using PhpSpreadsheet; ensure Composer autoload is available when invoking it.
+- Frontend: `zone.html` + `js/pages/main_zone.js` render a “Download Template” DataTables button that calls the endpoint and saves `zone_template.xlsx` for bulk imports.

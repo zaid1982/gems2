@@ -36,6 +36,8 @@ function MainZone () {
                 { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnZneHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Zone List', titleAttr: 'Copy', exportOptions: mzExportOpt},
                 { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnZneHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Zone List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
                 { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3 btnZneHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - FCA Zone List', titleAttr: 'PDF', exportOptions: mzExportOpt},
+                { text: '<i class="fas fa-download mr-2"></i>Download Template', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0', attr: { id: 'btnZneDownloadTemplate' }, titleAttr: 'Download Zone Template'},
+                { text: '<i class="fas fa-upload mr-2"></i>Import Zones', className: 'btn btn-outline-purple btn-sm px-2 ml-0', attr: { id: 'btnZneImport' }, titleAttr: 'Import Zones from Excel'},
                 { text: '<i class="fas fa-plus mr-2"></i>Add New Zone', className: 'btn btn-outline-red btn-sm px-2 ml-0', attr: { id: 'btnZneAdd' }, titleAttr: 'Add New FCA Zone'}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
@@ -44,6 +46,12 @@ function MainZone () {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
+                $('#btnZneDownloadTemplate').off('click').on('click', function () {
+                    self.downloadTemplate();
+                });
+                $('#btnZneImport').off('click').on('click', function () {
+                    self.showImportDialog();
+                });
                 $('#btnZneAdd').off('click').on('click', function () {
                     modalZoneClass.add();
                 });
@@ -113,5 +121,123 @@ function MainZone () {
 
     this.getBaseAppPath = function () {
         return baseAppPath;
+    };
+
+    this.downloadTemplate = function () {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                let header = {
+                    'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                };
+                if (sessionStorage.getItem('token') !== null) {
+                    header['Authorization'] = 'Bearer ' + sessionStorage.getItem('token');
+                }
+                
+                fetch('api/zone_template.php', {
+                    method: 'GET',
+                    headers: header
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to download template');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'zone_template_' + new Date().getTime() + '.xlsx';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                    HideLoader();
+                    toastr['success']('Template downloaded successfully', _ALERT_TITLE_SUCCESS);
+                })
+                .catch(error => {
+                    HideLoader();
+                    toastr['error'](error.message, _ALERT_TITLE_ERROR);
+                });
+            } catch (e) {
+                HideLoader();
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+        }, 200);
+    };
+
+    this.showImportDialog = function () {
+        // Create hidden file input
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.xlsx,.xls';
+        fileInput.style.display = 'none';
+        
+        fileInput.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                self.uploadZoneFile(file);
+            }
+            document.body.removeChild(fileInput);
+        };
+        
+        document.body.appendChild(fileInput);
+        fileInput.click();
+    };
+
+    this.uploadZoneFile = function (file) {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                let header = {};
+                if (sessionStorage.getItem('token') !== null) {
+                    header['Authorization'] = 'Bearer ' + sessionStorage.getItem('token');
+                }
+
+                fetch('zone/import', {
+                    method: 'POST',
+                    headers: header,
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    HideLoader();
+                    if (data.success) {
+                        const stats = data.result;
+                        let message = `Import completed:\n`;
+                        message += `✓ ${stats.success} zones added\n`;
+                        if (stats.failed > 0) {
+                            message += `✗ ${stats.failed} failed\n`;
+                        }
+                        if (stats.skipped > 0) {
+                            message += `⊘ ${stats.skipped} skipped\n`;
+                        }
+                        
+                        if (stats.errors.length > 0) {
+                            message += `\nErrors:\n${stats.errors.slice(0, 5).join('\n')}`;
+                            if (stats.errors.length > 5) {
+                                message += `\n... and ${stats.errors.length - 5} more`;
+                            }
+                        }
+                        
+                        toastr['success'](message, _ALERT_TITLE_SUCCESS);
+                        self.genTable(); // Refresh the table
+                    } else {
+                        throw new Error(data.errmsg || 'Import failed');
+                    }
+                })
+                .catch(error => {
+                    HideLoader();
+                    toastr['error'](error.message, _ALERT_TITLE_ERROR);
+                });
+            } catch (e) {
+                HideLoader();
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+        }, 200);
     };
 }

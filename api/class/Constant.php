@@ -13,8 +13,8 @@ class Constant {
     public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
     // public static $folderDebug = '/Applications/XAMPP/logs/gems/debug/';
     //public static $folderError = '../../../logs/gems/error/';
-    public static string $folderError = 'C:\xampp\logs\gems\error\\';
-    // public static $folderError = '/Applications/XAMPP/logs/gems/error/';
+    // public static string $folderError = 'C:\xampp\logs\gems\error\\';
+    public static $folderError = '/Applications/XAMPP/logs/gems/error/';
     // public static $url = '//localhost/gems2/api/';
     //public static $url = '//gems.globalfm.com.my/api/';
     public static $url = '//gems.metadatasystem.my/api/';
@@ -52,7 +52,7 @@ class Constant {
         'update' => 'Zone __ successfully updated!',
         'delete' => 'Zone __ successfully removed!',
         'errStillExist' => 'Zone __ cannot be deleted because it still exist in FCA record!',
-        'errAlreadyExist' => 'Zone __ already exist under similar site!'
+    'errAlreadyExist' => 'Zone code __ already exist under similar site!'
     );
 
     public static $fcaDefectCategory = array(
