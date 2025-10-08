@@ -44,7 +44,6 @@ try {
         $fnMain->checkJwt(apache_request_headers());
     }
 
-    $fnMain->logDebug('API', $apiName, __LINE__, 'URL HELLO parts: ' . json_encode($urlArr));
 
     if ('GET' === $requestMethod) {
 

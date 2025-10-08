@@ -148,7 +148,15 @@ function MainZone () {
                     const url = window.URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = 'zone_template_' + new Date().getTime() + '.xlsx';
+                    const now = new Date();
+                    const pad = n => n.toString().padStart(2, '0');
+                    const formattedDate = now.getFullYear().toString() +
+                        pad(now.getMonth() + 1) +
+                        pad(now.getDate()) + '_' +
+                        pad(now.getHours()) +
+                        pad(now.getMinutes()) +
+                        pad(now.getSeconds());
+                    link.download = 'zone_template_' + formattedDate + '.xlsx';
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);

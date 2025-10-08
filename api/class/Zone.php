@@ -264,8 +264,8 @@ class Zone extends General {
 
             DbMysql::close();
 
-            // Clean any output buffers to prevent corruption
-            if (ob_get_length()) {
+            // Clean all output buffers to prevent corruption
+            while (ob_get_level() > 0) {
                 ob_end_clean();
             }
 
@@ -310,7 +310,7 @@ class Zone extends General {
             ];
 
             // Start from row 3 (skip header and sample)
-            for ($row = 3; $row <= $highestRow; $row++) {
+            for ($row = 2; $row <= $highestRow; $row++) {
                 $siteCell = trim($sheet->getCell('A' . $row)->getValue() ?? '');
                 $zoneType = trim($sheet->getCell('B' . $row)->getValue() ?? '');
                 $zoneCode = trim($sheet->getCell('C' . $row)->getValue() ?? '');
@@ -328,7 +328,7 @@ class Zone extends General {
                 try {
                     // Parse site ID from "ID - Name" format
                     if (!preg_match('/^(\d+)\s*-/', $siteCell, $matches)) {
-                        throw new Exception("Invalid site format in row $row");
+                        throw new Exception("Invalid site format in row $row. Expected format: ID - Name (e.g., 1 - Main Site)");
                     }
                     $siteId = intval($matches[1]);
 
