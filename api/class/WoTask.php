@@ -325,7 +325,10 @@ class WoTask extends General {
             parent::checkEmptyInteger($this->userId, 'userId');
             parent::checkEmptyInteger($this->woTaskId, 'woTaskId');
             parent::checkEmptyInteger($transactionId, 'transactionId');
-            parent::checkMandatoryArray($columns, array('woTaskType', 'woTaskSeverity', 'ppmGroupId', 'woTaskAssignedTo', 'woTaskMaxAssistant'));
+            parent::checkMandatoryArray($columns, array('woTaskType', 'woTaskSeverity', 'ppmGroupId', 'woTaskAssignedTo'));
+            if (!array_key_exists('woTaskMaxAssistant', $columns) || $columns['woTaskMaxAssistant'] === '' || $columns['woTaskMaxAssistant'] === null) {
+                $columns['woTaskMaxAssistant'] = 0;
+            }
 
             $columns['woTaskAssignedBy'] = $this->userId;
             $columns['woTaskTimeAssigned'] = 'NOW()';

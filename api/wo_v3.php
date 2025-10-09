@@ -163,7 +163,11 @@ try {
             $fnTask->userId = $fnMain->userId;
             $fnMain->woTaskIsWr = $woTask['woTaskIsWr'];
             $fnTask->setByTransaction($woTask['transactionId']);
-            $fnTask->checkValidity($fnMain->woTaskIsWr === 1 ? 17 : 12);
+            $checkpointId = intval($fnTask->wflTask['checkpointId'] ?? 0);
+            if (!in_array($checkpointId, array(12, 17), true)) {
+                throw new Exception(Constant::$task['errAlreadySubmitted'], 31);
+            }
+            $fnTask->checkValidity($checkpointId);
             $fnTask->submit('', 10, 8, 0, 0, $bodyParams['woTaskAssignedTo']);
             $fnMain->submitAssign($bodyParams, $woTask['transactionId']);
             $emailTemplateId = $fnMain->woTaskIsWr === 1 ? 11 : 5;
