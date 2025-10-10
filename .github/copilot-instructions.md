@@ -18,6 +18,7 @@
 9. **Debugging aides.** Toggle verbose logs with `Constant::$isLogged = true`. Utility scripts in repo root (`debug_*`, `check_*`) help inspect data inconsistencies; prefer running them in-browser via `http://localhost/gems2/debug_*.php`.
 10. **When adding endpoints.** Require needed classes, parse `$urlArr`, guard with JWT unless path starts with `/ext`, validate site, wrap DB writes in transactions, queue comms, and finish with `General::outputResult($success, $result, $error, $errmsg)` (or manual `json_encode` equivalent used here).
 11. **UI wiring example.** `zone.html` binds DataTables buttons in `js/pages/main_zone.js` to `api/zone_template.php` (download) and `api/zone.php/import` (upload). This pattern—HTML button → `js/pages/*` handler → `mzAjaxRequest` → API—is repeated across modules.
+12. **SQL views live in code.** `Class_db::get_sql()` resolves `vw_*`, `vg_*`, `mw_*`, etc. from `api/library/sql.php`; update those definitions when adjusting view-backed queries or adding new virtual tables.
 
 Key references: `api/wo_v3.php`, `api/class/General.php`, `api/class/DbMysql.php`, `api/trait/SiteFilterTrait.php`, `api/function/f_ptw.php`, `api/ptw*.php`, `api/asset*.php`, `js/common.js`, `deploy_production.sh`, `developer/README.md`.
 ## GEMS2 – AI Agent Quick Guide

@@ -917,6 +917,45 @@ class Class_sql
                     FROM ppm_task_upload
                     WHERE ppm_task_upload_type = 3
                     GROUP BY ppm_task_id) task_upload ON task_upload.ppm_task_id = ppm_task.ppm_task_id";
+            } else if ($title === 'vg_ppm_dashboard') {
+                $sql = "SELECT 
+                    ppm_task.*,
+                    cli_contract.site_id,
+                    ppm.ppm_task_no AS document_no,
+                    ppm.ppm_group_id,
+                    task_frequency.frequency_ids,
+                    task_frequency.frequency,
+                    ast_asset.asset_no,
+                    ast_asset.asset_name,
+                    ast_asset.asset_location_code,
+                    ast_asset.asset_location_desc,
+                    ast_asset.asset_group_id,
+                    ast_asset.asset_category_id,
+                    ast_asset.asset_type_id,
+                    ast_asset.asset_block,
+                    ast_asset.asset_level,
+                    task_upload.upload_ids,
+                    IF ((ppm_task_time_serviced IS NULL AND CURDATE() > ppm_task_schedule_date) OR DATE(ppm_task_time_serviced) > ppm_task_schedule_date, 'Late', 'On-time') AS lateness,
+                    CASE WHEN ppm_task_time_serviced IS NULL AND CURDATE() <= ppm_task_schedule_date THEN 'In Progress'
+                        WHEN ppm_task_time_serviced IS NULL AND CURDATE() > ppm_task_schedule_date THEN 'Not Started'
+                        WHEN DATE(ppm_task_time_serviced) > ppm_task_schedule_date THEN 'Late'
+                        ELSE 'On-time' END AS lateness2,
+                    CASE WHEN ppm_task_min_exec_time IS NULL OR ppm_task_max_exec_time IS NULL OR ppm_task_time_start IS NULL OR ppm_task_time_serviced IS NULL THEN ''
+                        WHEN TIMEDIFF(ppm_task_time_serviced, ppm_task_time_start) < ppm_task_min_exec_time THEN 'Less'
+                        WHEN TIMEDIFF(ppm_task_time_serviced, ppm_task_time_start) <= ppm_task_max_exec_time THEN 'Within'
+                        ELSE 'Exceed' END AS within_status
+                FROM ppm_task
+                LEFT JOIN ppm ON ppm.ppm_id = ppm_task.ppm_id
+                LEFT JOIN cli_contract ON cli_contract.contract_id = ppm.contract_id
+                LEFT JOIN ast_asset ON ast_asset.asset_id = ppm.asset_id
+                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(ppm_task_frequency.frequency_id) AS frequency_ids, GROUP_CONCAT(frequency_name SEPARATOR ', ') AS frequency
+                    FROM ppm_task_frequency
+                    LEFT JOIN ppm_frequency ON ppm_frequency.frequency_id = ppm_task_frequency.frequency_id
+                    GROUP BY ppm_task_id) task_frequency ON task_frequency.ppm_task_id = ppm_task.ppm_task_id
+                LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(ppm_task_upload.upload_id SEPARATOR '||') AS upload_ids
+                    FROM ppm_task_upload
+                    WHERE ppm_task_upload_type = 3
+                    GROUP BY ppm_task_id) task_upload ON task_upload.ppm_task_id = ppm_task.ppm_task_id";
             } else if ($title === 'vw_client_with_severity') {
                 $sql = "SELECT
                     cli_client.*,

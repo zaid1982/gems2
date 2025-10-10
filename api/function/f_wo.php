@@ -2406,10 +2406,79 @@ class Class_wo {
                 $baseWhere['wo_task_type'] = '<>2';
             }
 
+            $arrSeverity = $this->fn_general->getSeverityName();
+            $arrWoType = $this->get_wo_type();
+
             $whereWithSearch = $baseWhere;
             if (!empty($searchValue)) {
-                $escapedSearch = addslashes(str_replace(array('%', '_'), array('\%', '\_'), $searchValue));
-                $searchClause = "(wo_task_no LIKE '%".$escapedSearch."%' OR wo_task_request_no LIKE '%".$escapedSearch."%' OR wo_task_location LIKE '%".$escapedSearch."%' OR wo_task_complaint LIKE '%".$escapedSearch."%')";
+                $escapedSearch = addslashes(str_replace(array('%', '_'), array('\\%', '\\_'), $searchValue));
+                $searchLike = "'%".$escapedSearch."%'";
+                $searchLower = strtolower($searchValue);
+
+                $matchingWoTypeIds = array();
+                foreach ($arrWoType as $typeId => $typeName) {
+                    if (empty($typeId) || empty($typeName)) {
+                        continue;
+                    }
+                    if (stripos($typeName, $searchLower) !== false) {
+                        $matchingWoTypeIds[] = intval($typeId);
+                    }
+                }
+
+                $matchingSeverityIds = array();
+                foreach ($arrSeverity as $severityId => $severityName) {
+                    if (empty($severityId) || empty($severityName)) {
+                        continue;
+                    }
+                    if (stripos($severityName, $searchLower) !== false) {
+                        $matchingSeverityIds[] = intval($severityId);
+                    }
+                }
+
+                $arrStatus = $this->fn_general->getRefStatus();
+                $matchingStatusIds = array();
+                foreach ($arrStatus as $statusId => $statusDesc) {
+                    if (empty($statusId) || empty($statusDesc)) {
+                        continue;
+                    }
+                    if (stripos($statusDesc, $searchLower) !== false) {
+                        $matchingStatusIds[] = intval($statusId);
+                    }
+                }
+
+                $userIdSubQuery = "(SELECT su.user_id FROM sys_user su WHERE su.user_status = '1' AND (su.user_first_name LIKE " . $searchLike . " OR su.user_last_name LIKE " . $searchLike . " OR CONCAT(su.user_first_name, ' ', su.user_last_name) LIKE " . $searchLike . " OR su.user_name LIKE " . $searchLike . "))";
+
+                $userMatchClause = "(wo_task_created_by IN " . $userIdSubQuery . " OR wo_task_assigned_to IN " . $userIdSubQuery . " OR wo_task_assigned_by IN " . $userIdSubQuery . " OR wo_task_fixed_by IN " . $userIdSubQuery . " OR wo_task_verified_by IN " . $userIdSubQuery . " OR (assistants IS NOT NULL AND assistants <> '' AND EXISTS (SELECT 1 FROM sys_user su2 WHERE su2.user_status = '1' AND (su2.user_first_name LIKE " . $searchLike . " OR su2.user_last_name LIKE " . $searchLike . " OR CONCAT(su2.user_first_name, ' ', su2.user_last_name) LIKE " . $searchLike . " OR su2.user_name LIKE " . $searchLike . ") AND FIND_IN_SET(su2.user_id, assistants))))";
+
+                $searchConditions = array(
+                    "wo_task_no LIKE " . $searchLike,
+                    "wo_task_request_no LIKE " . $searchLike,
+                    "wo_task_location LIKE " . $searchLike,
+                    "wo_task_complaint LIKE " . $searchLike,
+                    "wo_task_repair_desc LIKE " . $searchLike,
+                    "wo_task_time_created LIKE " . $searchLike,
+                    "wo_task_time_assigned LIKE " . $searchLike,
+                    "wo_task_time_executed LIKE " . $searchLike,
+                    "wo_task_time_verified LIKE " . $searchLike,
+                    "asset_no LIKE " . $searchLike,
+                    "wo_task_rate LIKE " . $searchLike,
+                    "CONCAT(wo_task_rate, ' / 5') LIKE " . $searchLike,
+                    $userMatchClause,
+                    "(site_id IN (SELECT site_id FROM cli_site WHERE site_desc LIKE " . $searchLike . " OR site_name LIKE " . $searchLike . " OR site_code LIKE " . $searchLike . "))",
+                    "(ppm_group_id IN (SELECT ppm_group_id FROM ppm_group WHERE ppm_group_name LIKE " . $searchLike . "))"
+                );
+
+                if (!empty($matchingWoTypeIds)) {
+                    $searchConditions[] = "wo_task_type IN (" . implode(',', $matchingWoTypeIds) . ")";
+                }
+                if (!empty($matchingSeverityIds)) {
+                    $searchConditions[] = "wo_task_severity IN (" . implode(',', $matchingSeverityIds) . ")";
+                }
+                if (!empty($matchingStatusIds)) {
+                    $searchConditions[] = "wo_task_status IN (" . implode(',', $matchingStatusIds) . ")";
+                }
+
+                $searchClause = '(' . implode(' OR ', $searchConditions) . ')';
                 $whereWithSearch['w1'] = $searchClause;
             }
 
@@ -2436,9 +2505,6 @@ class Class_wo {
             }
 
             $limitSql = $start . ',' . $length;
-
-            $arrSeverity = $this->fn_general->getSeverityName();
-            $arrWoType = $this->get_wo_type();
 
             $totalRecords = Class_db::getInstance()->db_count('vg_wo_dashboard', $baseWhere);
             $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vg_wo_dashboard', $whereWithSearch);

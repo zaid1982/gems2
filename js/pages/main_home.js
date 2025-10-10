@@ -28,6 +28,8 @@ function MainHome() {
     let dateTo;
     let modalWoReassignClass;
     let modalWoEditClass;
+    let woSearchTimer;
+    let woSearchKeyword = '';
     const isAdmin = mzIsRoleExist('1,19');
     
     this.init = function () {
@@ -344,8 +346,21 @@ function MainHome() {
                 ]
         });
         $("#dtHmeDataWo_filter").hide();
+        $('#txtHmeDataWoSearch, #txtHmeDataPpmSearch').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+            }
+        });
+
         $('#txtHmeDataWoSearch').on('keyup change', function () {
-            oTableWo.search($(this).val()).draw();
+            const value = $.trim($(this).val());
+            clearTimeout(woSearchTimer);
+            woSearchTimer = setTimeout(function () {
+                if (woSearchKeyword !== value) {
+                    woSearchKeyword = value;
+                }
+                oTableWo.search(value).draw();
+            }, 250);
         });
         
         oTableWo.column(2).visible(false);

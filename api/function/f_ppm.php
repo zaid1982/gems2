@@ -2959,10 +2959,63 @@ class Class_ppm {
                 $baseWhere['ppm_is_routine'] = $isRoutine;
             }
 
+            $arrStatus = $this->fn_general->getRefStatus();
+
             $whereWithSearch = $baseWhere;
             if (!empty($searchValue)) {
-                $escapedSearch = addslashes(str_replace(array('%', '_'), array('\%', '\_'), $searchValue));
-                $searchClause = "(ppm_task_no LIKE '%".$escapedSearch."%' OR document_no LIKE '%".$escapedSearch."%' OR asset_no LIKE '%".$escapedSearch."%' OR asset_name LIKE '%".$escapedSearch."%' OR ppm_task_remark LIKE '%".$escapedSearch."%')";
+                $escapedSearch = addslashes(str_replace(array('%', '_'), array('\\%', '\\_'), $searchValue));
+                $searchLike = "'%".$escapedSearch."%'";
+                $searchLower = strtolower($searchValue);
+
+                $matchingStatusIds = array();
+                foreach ($arrStatus as $statusId => $statusDesc) {
+                    if (empty($statusId) || empty($statusDesc)) {
+                        continue;
+                    }
+                    if (stripos($statusDesc, $searchLower) !== false) {
+                        $matchingStatusIds[] = intval($statusId);
+                    }
+                }
+
+                $userIdSubQuery = "(SELECT su.user_id FROM sys_user su WHERE su.user_status = '1' AND (su.user_first_name LIKE " . $searchLike . " OR su.user_last_name LIKE " . $searchLike . " OR CONCAT(su.user_first_name, ' ', su.user_last_name) LIKE " . $searchLike . " OR su.user_name LIKE " . $searchLike . "))";
+
+                $tableAlias = 'mainTable';
+                $userMatchClause = "(" . $tableAlias . ".ppm_task_assigned_to IN " . $userIdSubQuery . " OR " . $tableAlias . ".ppm_task_serviced_by IN " . $userIdSubQuery . " OR " . $tableAlias . ".ppm_task_checked_by IN " . $userIdSubQuery . " OR " . $tableAlias . ".ppm_task_verified_by IN " . $userIdSubQuery . ")";
+
+                $searchConditions = array(
+                    $tableAlias . ".ppm_task_no LIKE " . $searchLike,
+                    $tableAlias . ".document_no LIKE " . $searchLike,
+                    $tableAlias . ".asset_no LIKE " . $searchLike,
+                    $tableAlias . ".asset_name LIKE " . $searchLike,
+                    $tableAlias . ".ppm_task_remark LIKE " . $searchLike,
+                    $tableAlias . ".frequency LIKE " . $searchLike,
+                    $tableAlias . ".frequency_ids LIKE " . $searchLike,
+                    $tableAlias . ".ppm_task_time_start LIKE " . $searchLike,
+                    $tableAlias . ".ppm_task_time_serviced LIKE " . $searchLike,
+                    $tableAlias . ".ppm_task_time_checked LIKE " . $searchLike,
+                    $tableAlias . ".ppm_task_time_verified LIKE " . $searchLike,
+                    $tableAlias . ".ppm_task_schedule_date LIKE " . $searchLike,
+                    $tableAlias . ".lateness LIKE " . $searchLike,
+                    $tableAlias . ".lateness2 LIKE " . $searchLike,
+                    $tableAlias . ".within_status LIKE " . $searchLike,
+                    $userMatchClause,
+                    "(" . $tableAlias . ".site_id IN (SELECT site_id FROM cli_site WHERE site_desc LIKE " . $searchLike . " OR site_name LIKE " . $searchLike . " OR site_code LIKE " . $searchLike . "))",
+                    "(" . $tableAlias . ".ppm_group_id IN (SELECT ppm_group_id FROM ppm_group WHERE ppm_group_name LIKE " . $searchLike . "))",
+                    "(" . $tableAlias . ".asset_group_id IN (SELECT asset_group_id FROM ast_asset_group WHERE asset_group_name LIKE " . $searchLike . "))",
+                    "(" . $tableAlias . ".asset_category_id IN (SELECT asset_category_id FROM ast_asset_category WHERE asset_category_name LIKE " . $searchLike . "))",
+                    "(" . $tableAlias . ".asset_type_id IN (SELECT asset_type_id FROM ast_asset_type WHERE asset_type_name LIKE " . $searchLike . "))"
+                );
+
+                if (!empty($matchingStatusIds)) {
+                    $searchConditions[] = $tableAlias . ".ppm_task_status IN (" . implode(',', $matchingStatusIds) . ")";
+                }
+
+                if ($searchLower === 'routine' || $searchLower === 'non-routine' || $searchLower === 'non routine') {
+                    $routineVal = ($searchLower === 'routine') ? "'1'" : "'0'";
+                    $searchConditions[] = $tableAlias . ".ppm_is_routine = " . $routineVal;
+                }
+
+                $searchClause = '(' . implode(' OR ', $searchConditions) . ')';
                 $whereWithSearch['w1'] = $searchClause;
             }
 
@@ -2997,8 +3050,8 @@ class Class_ppm {
             $attempt = 0;
             while (true) {
                 try {
-                    $totalRecords = Class_db::getInstance()->db_count('vw_ppm_list', $baseWhere);
-                    $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vw_ppm_list', $whereWithSearch);
+                    $totalRecords = Class_db::getInstance()->db_count('vg_ppm_dashboard', $baseWhere);
+                    $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vg_ppm_dashboard', $whereWithSearch);
                     break;
                 } catch (Exception $ex) {
                     if ($retryRoutineFilter && $attempt === 0 && strpos($ex->getMessage(), 'ppm_is_routine') !== false) {
@@ -3020,7 +3073,7 @@ class Class_ppm {
             $countsNeedRefresh = false;
             while (true) {
                 try {
-                    $dataLocals = Class_db::getInstance()->db_select('vw_ppm_list', $whereWithSearch, $orderSql, $limitSql);
+                    $dataLocals = Class_db::getInstance()->db_select('vg_ppm_dashboard', $whereWithSearch, $orderSql, $limitSql);
                     break;
                 } catch (Exception $ex) {
                     if ($retryRoutineFilter && $attemptSelect === 0 && strpos($ex->getMessage(), 'ppm_is_routine') !== false) {
@@ -3040,8 +3093,8 @@ class Class_ppm {
             }
 
             if ($countsNeedRefresh) {
-                $totalRecords = Class_db::getInstance()->db_count('vw_ppm_list', $baseWhere);
-                $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vw_ppm_list', $whereWithSearch);
+                $totalRecords = Class_db::getInstance()->db_count('vg_ppm_dashboard', $baseWhere);
+                $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vg_ppm_dashboard', $whereWithSearch);
             }
             foreach ($dataLocals as $dataLocal) {
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];
