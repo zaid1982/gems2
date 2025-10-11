@@ -338,7 +338,7 @@ class Space extends General {
                 $this->syncAssets($spaceId, $params['assetIds'], $siteId);
             }
 
-            if (!empty($params['photos']) || !empty($params['photosRemove']) || !empty($params['floorplan'])) {
+            if (!empty($params['photos']) || !empty($params['photosRemove']) || !empty($params['floorplan']) || array_key_exists('coverMediaId', $params)) {
                 $this->syncMedia($spaceId, $params);
             }
 
@@ -882,6 +882,9 @@ class Space extends General {
     private function syncMedia(int $spaceId, array $params): void
     {
         try {
+            $hasCoverParam = array_key_exists('coverMediaId', $params);
+            $coverMediaId = $hasCoverParam ? intval($params['coverMediaId']) : null;
+
             // Remove photos if requested
             if (!empty($params['photosRemove']) && is_array($params['photosRemove'])) {
                 foreach ($params['photosRemove'] as $mediaId) {
@@ -901,6 +904,24 @@ class Space extends General {
                     $this->deleteMedia(intval($media['spaceMediaId']));
                 }
                 $this->storeMediaBatch($spaceId, array($params['floorplan']), 'FLOORPLAN');
+            }
+
+            if ($hasCoverParam) {
+                if ($coverMediaId !== null && $coverMediaId > 0) {
+                    $coverMedia = DbMysql::select(self::$mediaTable, array('spaceMediaId'=>$coverMediaId, 'spaceId'=>$spaceId), true);
+                    parent::checkEmptyArray($coverMedia, 'spaceMedia');
+                    $mediaType = strtoupper($coverMedia['mediaType'] ?? '');
+                    if ($mediaType !== 'PHOTO') {
+                        throw new Exception('Only photo media can be selected as cover', 31);
+                    }
+                }
+
+                // Reset existing covers for this space's photos
+                DbMysql::update(self::$mediaTable, array('isCover'=>0), array('spaceId'=>$spaceId, 'mediaType'=>'PHOTO'));
+
+                if (!empty($coverMediaId)) {
+                    DbMysql::update(self::$mediaTable, array('isCover'=>1), array('spaceMediaId'=>$coverMediaId));
+                }
             }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
@@ -1038,6 +1059,7 @@ class Space extends General {
             $mediaList = DbMysql::selectAll(self::$mediaTable, array('spaceId'=>$spaceId), 0, false, 'mediaCreatedAt', 'DESC');
             foreach ($mediaList as &$media) {
                 $media['downloadUrl'] = $this->getUploadLink(intval($media['uploadId']));
+                $media['isCover'] = intval($media['isCover'] ?? ($media['is_cover'] ?? 0)) === 1 ? 1 : 0;
             }
             return $mediaList;
         } catch (Exception|Throwable $ex) {
@@ -1075,7 +1097,11 @@ class Space extends General {
             $map = array();
             foreach ($mediaList as $media) {
                 $sid = intval($media['spaceId'] ?? 0);
-                if ($sid <= 0 || isset($map[$sid])) {
+                if ($sid <= 0) {
+                    continue;
+                }
+                $isCover = intval($media['isCover'] ?? ($media['is_cover'] ?? 0)) === 1;
+                if (isset($map[$sid]) && !$isCover) {
                     continue;
                 }
                 $uploadId = intval($media['uploadId'] ?? 0);

@@ -126,10 +126,12 @@ CREATE TABLE IF NOT EXISTS `spc_space_media` (
   `upload_id` int UNSIGNED NOT NULL,
   `media_type` enum('PHOTO','FLOORPLAN') NOT NULL,
   `media_caption` varchar(150) DEFAULT NULL,
+  `is_cover` tinyint(1) NOT NULL DEFAULT 0,
   `media_created_by` int(11) DEFAULT NULL,
   `media_created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`space_media_id`),
   KEY `idx_spc_space_media_space` (`space_id`),
+  KEY `idx_spc_space_media_cover` (`space_id`,`is_cover`),
   CONSTRAINT `fk_spc_space_media_space` FOREIGN KEY (`space_id`) REFERENCES `spc_space` (`space_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_spc_space_media_upload` FOREIGN KEY (`upload_id`) REFERENCES `sys_upload` (`upload_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

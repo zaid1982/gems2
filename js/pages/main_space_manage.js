@@ -2,6 +2,7 @@ function MainSpaceManage(){
   const className='MainSpaceManage';
   let self=this; let spaceId=0; let oAssets; let oResv; let currentData=null; let cancelResvId=null;
   let selectedMediaIds=new Set();
+  let currentCoverId=0;
 
   this.init=function(){
     spaceId=self.getQueryInt('id'); if(!spaceId){ toastr['error']('Missing space id','Error'); return; }
@@ -176,14 +177,22 @@ function MainSpaceManage(){
   // region Media
   this.renderMedia=function(list){
     selectedMediaIds.clear();
+    currentCoverId=0;
     const $grid=$('#spmMediaGrid'); $grid.empty();
     if(!list||list.length===0){ $grid.append('<div class="col-12 text-muted">No media yet.</div>'); return; }
     list.forEach(function(m){
       const id=m.spaceMediaId||m.space_media_id; const url=m.downloadUrl||m.download_url||'#'; const type=(m.mediaType||m.media_type||'').toUpperCase();
       const cap=m.mediaCaption||m.media_caption||'';
+      const isCover = parseInt(m.isCover||m.is_cover||0)===1;
+      if(isCover){ currentCoverId=id; }
       const badge= type==='FLOORPLAN' ? '<span class="badge badge-info badge-modern">FLOORPLAN</span>' : '<span class="badge badge-dark badge-modern">PHOTO</span>';
-      const card = '<div class="col-md-3 col-sm-4 mb-3">'
-        +  '<div class="card h-100">'
+      const coverChip = isCover ? '<span class="badge badge-success badge-modern spm-cover-badge"><i class="fas fa-star mr-1"></i>Cover</span>' : '';
+      const coverAction = type==='PHOTO'
+        ? '<div class="spm-cover-action text-right"><button type="button" class="btn btn-sm '+(isCover?'btn-primary':'btn-outline-primary')+' btnSpmSetCover" data-id="'+id+'" '+(isCover?'disabled':'')+'>'+(isCover?'<i class="fas fa-star mr-1"></i>Cover photo':'<i class="far fa-star mr-1"></i>Set cover')+'</button></div>'
+        : '';
+      const card = '<div class="col-lg-3 col-sm-4 mb-3">'
+        +  '<div class="card h-100 spm-media-card'+(isCover?' spm-media-cover':'')+'">'
+        +    coverChip
         +    '<div class="view overlay"><img src="'+url+'" class="card-img-top" style="object-fit:cover;height:160px"><a href="'+url+'" target="_blank"><div class="mask rgba-white-slight"></div></a></div>'
         +    '<div class="card-body py-2">'
         +      '<div class="d-flex justify-content-between align-items-center">'
@@ -191,6 +200,7 @@ function MainSpaceManage(){
         +        '<div><input type="checkbox" class="chkSpmMedia" data-id="'+id+'"></div>'
         +      '</div>'
         +      (cap?('<div class="small text-muted mt-1">'+cap+'</div>'):'')
+        +      coverAction
         +    '</div>'
         +  '</div>'
         +'</div>';
@@ -198,6 +208,7 @@ function MainSpaceManage(){
     });
     // Track selection
     $grid.off('change','.chkSpmMedia').on('change','.chkSpmMedia', function(){ const id=parseInt($(this).data('id')); if($(this).is(':checked')) selectedMediaIds.add(id); else selectedMediaIds.delete(id); });
+    $grid.off('click','.btnSpmSetCover').on('click','.btnSpmSetCover', function(){ const id=parseInt($(this).data('id')); if($(this).is(':disabled')){ return; } self.setCoverMedia(id); });
   };
 
   this.handlePhotoUpload=function(files){ if(!files||files.length===0) return; self.filesToPayload(files, false).then(function(payload){ self.syncMedia(payload); }); };
@@ -213,6 +224,13 @@ function MainSpaceManage(){
   };
 
   this.deleteSelectedMedia=function(){ if(selectedMediaIds.size===0){ toastr['warning']('Select media to delete'); return; } self.syncMedia({}); };
+  
+  this.setCoverMedia=function(mediaId){ if(!mediaId){ return; }
+    ShowLoader(); $.ajax({ url:'api/space.php/'+spaceId, method:'PUT', data:JSON.stringify({ coverMediaId: mediaId }), contentType:'application/json', dataType:'json', headers:self.headers()})
+      .done(function(resp){ if(resp&&resp.success){ toastr['success']('Cover photo updated', _ALERT_TITLE_SUCCESS); self.load(); } else { toastr['error']((resp&&resp.errmsg)||_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR);} })
+      .fail(function(){ toastr['error'](_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR); })
+      .always(function(){ HideLoader(); });
+  };
   // endregion
 
   this.saveInfo=function(){ const payload={}; const n=$('#txtSpmName').val().trim(); if(n) payload.spaceName=n; const s=$('#optSpmStatus').val(); if(s) payload.status=s; const l=$('#optSpmLocation').val(); if(l) payload.locationId=parseInt(l); const c=$('#optSpmCategory').val(); if(c) payload.categoryId=parseInt(c); const t=$('#optSpmType').val(); if(t) payload.typeId=parseInt(t); const a=$('#txtSpmArea').val(); if(a!=='') payload.area=a; const cp=$('#txtSpmCapacity').val(); if(cp!=='') payload.capacity=cp; const d=$('#txaSpmDesc').val(); if(d!=='') payload.description=d; ShowLoader(); $.ajax({ url:'api/space.php/'+spaceId, method:'PUT', data:JSON.stringify(payload), contentType:'application/json', dataType:'json', headers:self.headers()}).done(function(resp){ if(resp&&resp.success){ toastr['success'](resp.errmsg||'Updated', _ALERT_TITLE_SUCCESS); self.load(); } else { toastr['error']((resp&&resp.errmsg)||_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR);} }).fail(function(){ toastr['error'](_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR); }).always(function(){ HideLoader(); }); };

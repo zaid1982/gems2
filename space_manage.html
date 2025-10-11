@@ -53,6 +53,11 @@
         .action-split .dropdown-menu { min-width: 240px; z-index: 3000; }
         /* Compact status select to avoid truncation */
         .status-filter { min-width: 140px; }
+    .spm-media-card { position: relative; transition: box-shadow .2s ease; }
+    .spm-media-card.spm-media-cover { border: 2px solid var(--primary-color); box-shadow: 0 0 0 2px rgba(79,70,229,0.15); }
+    .spm-cover-badge { position: absolute; top: 10px; left: 16px; z-index: 5; }
+    .spm-cover-action { margin-top: 0.5rem; }
+    .spm-cover-action .btn { padding: 0.35rem 0.9rem; font-size: 0.75rem; letter-spacing: .02em; }
         /* Helpers */
         .d-none { display: none !important; }
         .page-header {
@@ -307,7 +312,7 @@
           <input type="file" id="inpSpmFloor" accept="image/*" class="d-none" />
 
           <div id="spmMediaGrid" class="row"></div>
-          <small class="text-muted d-block mt-2">Tip: Click a thumbnail to preview. Use the checkbox to select items to delete. Only one floorplan is kept; uploading a new one replaces the old.</small>
+          <small class="text-muted d-block mt-2">Tip: Click a thumbnail to preview. Use the checkbox to select items to delete. Use “Set cover” on a photo to pick the thumbnail shown in Space Browse. Only one floorplan is kept; uploading a new one replaces the old.</small>
         </div>
       </div>
   </section>
