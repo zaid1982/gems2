@@ -1059,7 +1059,9 @@ class Space extends General {
             $mediaList = DbMysql::selectAll(self::$mediaTable, array('spaceId'=>$spaceId), 0, false, 'mediaCreatedAt', 'DESC');
             foreach ($mediaList as &$media) {
                 $media['downloadUrl'] = $this->getUploadLink(intval($media['uploadId']));
-                $media['isCover'] = intval($media['isCover'] ?? ($media['is_cover'] ?? 0)) === 1 ? 1 : 0;
+                $mediaType = strtoupper($media['mediaType'] ?? ($media['media_type'] ?? ''));
+                $isCoverFlag = intval($media['isCover'] ?? ($media['is_cover'] ?? 0)) === 1;
+                $media['isCover'] = ($mediaType === 'PHOTO' && $isCoverFlag) ? 1 : 0;
             }
             return $mediaList;
         } catch (Exception|Throwable $ex) {

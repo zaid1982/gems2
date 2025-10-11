@@ -182,14 +182,16 @@ function MainSpaceManage(){
     if(!list||list.length===0){ $grid.append('<div class="col-12 text-muted">No media yet.</div>'); return; }
     list.forEach(function(m){
       const id=m.spaceMediaId||m.space_media_id; const url=m.downloadUrl||m.download_url||'#'; const type=(m.mediaType||m.media_type||'').toUpperCase();
-      const cap=m.mediaCaption||m.media_caption||'';
-      const isCover = parseInt(m.isCover||m.is_cover||0)===1;
+  const cap=m.mediaCaption||m.media_caption||'';
+  const isCover = type==='PHOTO' && parseInt(m.isCover||m.is_cover||0)===1;
       if(isCover){ currentCoverId=id; }
       const badge= type==='FLOORPLAN' ? '<span class="badge badge-info badge-modern">FLOORPLAN</span>' : '<span class="badge badge-dark badge-modern">PHOTO</span>';
-      const coverChip = isCover ? '<span class="badge badge-success badge-modern spm-cover-badge"><i class="fas fa-star mr-1"></i>Cover</span>' : '';
-      const coverAction = type==='PHOTO'
-        ? '<div class="spm-cover-action text-right"><button type="button" class="btn btn-sm '+(isCover?'btn-primary':'btn-outline-primary')+' btnSpmSetCover" data-id="'+id+'" '+(isCover?'disabled':'')+'>'+(isCover?'<i class="fas fa-star mr-1"></i>Cover photo':'<i class="far fa-star mr-1"></i>Set cover')+'</button></div>'
+  const coverChip = isCover ? '<span class="badge badge-success badge-modern spm-cover-badge"><i class="fas fa-star mr-1"></i>Cover</span>' : '';
+      const coverButton = type==='PHOTO'
+        ? '<button type="button" class="btn btn-sm '+(isCover?'btn-primary':'btn-outline-primary')+' btnSpmSetCover" data-id="'+id+'" '+(isCover?'disabled':'')+'>'+(isCover?'<i class="fas fa-star mr-1"></i>Cover photo':'<i class="far fa-star mr-1"></i>Set cover')+'</button>'
         : '';
+      const deleteButton = '<button type="button" class="btn btn-sm btn-outline-danger btnSpmDeleteOne" data-id="'+id+'"><i class="fas fa-trash mr-1"></i>Delete</button>';
+      const actionRow = '<div class="spm-card-actions">'+(coverButton||'')+deleteButton+'</div>';
       const card = '<div class="col-lg-3 col-sm-4 mb-3">'
         +  '<div class="card h-100 spm-media-card'+(isCover?' spm-media-cover':'')+'">'
         +    coverChip
@@ -200,7 +202,7 @@ function MainSpaceManage(){
         +        '<div><input type="checkbox" class="chkSpmMedia" data-id="'+id+'"></div>'
         +      '</div>'
         +      (cap?('<div class="small text-muted mt-1">'+cap+'</div>'):'')
-        +      coverAction
+        +      actionRow
         +    '</div>'
         +  '</div>'
         +'</div>';
@@ -209,6 +211,14 @@ function MainSpaceManage(){
     // Track selection
     $grid.off('change','.chkSpmMedia').on('change','.chkSpmMedia', function(){ const id=parseInt($(this).data('id')); if($(this).is(':checked')) selectedMediaIds.add(id); else selectedMediaIds.delete(id); });
     $grid.off('click','.btnSpmSetCover').on('click','.btnSpmSetCover', function(){ const id=parseInt($(this).data('id')); if($(this).is(':disabled')){ return; } self.setCoverMedia(id); });
+    $grid.off('click','.btnSpmDeleteOne').on('click','.btnSpmDeleteOne', function(){ const id=parseInt($(this).data('id')); self.confirmDeleteMedia([id]); });
+    $grid.off('click','.spm-media-card').on('click','.spm-media-card', function(e){
+      if($(e.target).closest('button,.btn,a,.chkSpmMedia,label').length){ return; }
+      const $chk=$(this).find('.chkSpmMedia');
+      if(!$chk.length){ return; }
+      const isChecked=!$chk.prop('checked');
+      $chk.prop('checked', isChecked).trigger('change');
+    });
   };
 
   this.handlePhotoUpload=function(files){ if(!files||files.length===0) return; self.filesToPayload(files, false).then(function(payload){ self.syncMedia(payload); }); };
@@ -223,7 +233,15 @@ function MainSpaceManage(){
     ShowLoader(); $.ajax({ url:'api/space.php/'+spaceId, method:'PUT', data:JSON.stringify(payload), contentType:'application/json', dataType:'json', headers:self.headers()}).done(function(resp){ if(resp&&resp.success){ toastr['success'](resp.errmsg||'Updated', _ALERT_TITLE_SUCCESS); self.load(); } else { toastr['error']((resp&&resp.errmsg)||_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR);} }).fail(function(){ toastr['error'](_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR); }).always(function(){ HideLoader(); });
   };
 
-  this.deleteSelectedMedia=function(){ if(selectedMediaIds.size===0){ toastr['warning']('Select media to delete'); return; } self.syncMedia({}); };
+  this.deleteSelectedMedia=function(){ if(selectedMediaIds.size===0){ toastr['warning']('Select media to delete'); return; } self.confirmDeleteMedia(Array.from(selectedMediaIds)); };
+  
+  this.confirmDeleteMedia=function(ids){ ids=(ids||[]).filter(function(v){ return parseInt(v)>0; }); if(ids.length===0){ return; }
+    const msg= ids.length>1 ? 'Delete '+ids.length+' selected media items?' : 'Delete this media item?';
+    if(!confirm(msg)){ return; }
+    self.deleteMediaByIds(ids);
+  };
+  
+  this.deleteMediaByIds=function(ids){ selectedMediaIds.clear(); const payload={ photosRemove: ids }; ShowLoader(); $.ajax({ url:'api/space.php/'+spaceId, method:'PUT', data:JSON.stringify(payload), contentType:'application/json', dataType:'json', headers:self.headers()}).done(function(resp){ if(resp&&resp.success){ toastr['success']('Media deleted', _ALERT_TITLE_SUCCESS); self.load(); } else { toastr['error']((resp&&resp.errmsg)||_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR);} }).fail(function(){ toastr['error'](_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR); }).always(function(){ HideLoader(); }); };
   
   this.setCoverMedia=function(mediaId){ if(!mediaId){ return; }
     ShowLoader(); $.ajax({ url:'api/space.php/'+spaceId, method:'PUT', data:JSON.stringify({ coverMediaId: mediaId }), contentType:'application/json', dataType:'json', headers:self.headers()})
