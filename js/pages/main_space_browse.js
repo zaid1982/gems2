@@ -67,7 +67,7 @@
 
   function normalizeSpace(space){
     const status = (space.spaceStatus || '').toUpperCase();
-    const coverUrl = (space.coverPhotoUrl && space.coverPhotoUrl.length) ? space.coverPhotoUrl : 'img/no-image.png';
+    const coverUrl = (space.coverPhotoUrl && space.coverPhotoUrl.length) ? space.coverPhotoUrl : 'img/background/no-image.png';
     return Object.assign({}, space, {
       normalizedStatus: status,
       coverPhotoUrl: coverUrl,
@@ -258,14 +258,14 @@
 
       const $media = $('<div class="space-card__media"></div>');
       const $img = $('<img>', {
-        src: space.coverPhotoUrl || 'img/no-image.png',
+        src: space.coverPhotoUrl || 'img/background/no-image.png',
         alt: space.spaceName ? space.spaceName : 'Space photo'
       });
       $img.on('error', function(){
         const $el = $(this);
         if ($el.data('fallback-applied')) { return; }
         $el.data('fallback-applied', true);
-        $el.attr('src', 'img/no-image.png');
+        $el.attr('src', 'img/background/no-image.png');
       });
       $media.append($img);
 

@@ -116,7 +116,7 @@ function MainSpacePreview(){
       const $a = $('<a>', { href: url, target: '_blank', class: 'd-block' });
       const $view = $('<div>', { class: 'view overlay z-depth-1 rounded' });
       const $img = $('<img>', { src: url, class: 'img-fluid', alt: 'media' });
-      $img.on('error', function(){ $(this).attr('src', 'img/no-image.png'); });
+      $img.on('error', function(){ $(this).attr('src', 'img/background/no-image.png'); });
       const $mask = $('<div>', { class: 'mask flex-center rgba-black-strong text-white-50', style: 'font-size:12px;' }).text(caption);
       $view.append($img).append($mask);
       $a.append($view);

@@ -125,7 +125,35 @@
             background: rgb(184, 51, 51);
             color: var(--danger-dark);
         }
-
+            .icon-btn{ border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+            .view-toggle .icon-btn { border-top-right-radius:0; border-bottom-right-radius:0; }
+            .view-toggle .icon-btn + .icon-btn { margin-left:0; border-left:0; }
+            .view-toggle .icon-btn:last-child { border-top-right-radius:8px; border-bottom-right-radius:8px; }
+            .icon-btn.is-active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); box-shadow: 0 4px 6px rgba(79,70,229,0.25); }
+            .icon-btn.is-active:hover { background: var(--primary-dark); color:#fff; }
+            .space-card-grid { display: flex; flex-wrap: wrap; margin-left: -0.75rem; margin-right: -0.75rem; }
+            .space-card-grid__col { padding: 0.75rem; width: 100%; }
+            @media (min-width: 576px) { .space-card-grid__col { width: 50%; } }
+            @media (min-width: 1200px) { .space-card-grid__col { width: 33.333%; } }
+            .space-card { background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); overflow: hidden; display: flex; flex-direction: column; height: 100%; transition: transform .25s ease, box-shadow .25s ease; border: 1px solid rgba(148, 163, 184, 0.25); }
+            .space-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12); }
+            .space-card__media { position: relative; aspect-ratio: 16/9; background: #f1f5f9; overflow: hidden; }
+            .space-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+            .space-card__badge { position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: #fff; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 10px; border-radius: 999px; font-weight: 600; }
+            .space-card__badge--available { background: rgba(16, 185, 129, 0.9); }
+            .space-card__badge--reserved { background: rgba(245, 158, 11, 0.9); }
+            .space-card__badge--disabled { background: rgba(248, 113, 113, 0.95); }
+            .space-card__body { padding: 18px 20px; flex: 1 1 auto; display: flex; flex-direction: column; gap: 10px; }
+            .space-card__title { font-size: 1.05rem; font-weight: 700; color: #0f172a; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+            .space-card__subtitle { color: #475569; font-size: 0.9rem; display:flex; align-items:center; gap:0.35rem; }
+            .space-card__meta { display: flex; align-items: center; color: #64748b; font-size: 0.82rem; gap: 0.4rem; }
+            .space-card__meta i { color: #94a3b8; }
+            .space-card__stats { margin-top: auto; color: #475569; font-size: 0.8rem; display:flex; gap:0.5rem; }
+            .space-card__stats i { color: #6366f1; }
+            .space-card__actions { padding: 16px 20px 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+            .space-card__actions .btn { flex: 1 1 auto; }
+            .space-card__actions .btn-secondary { background:#e2e8f0; color:#0f172a; border:none; }
+            #spcCardEmpty { border:1px dashed #cbd5f5; border-radius:12px; padding:2.5rem; text-align:center; color:#475569; margin-top:1rem; }
         .badge-danger-light {
             background: rgba(239, 68, 68, 0.3);
             color: var(--danger-light);
@@ -179,17 +207,10 @@
 
         <section class="mb-5 mt-lg-5 sectionSpaceMain">
             <!-- Filters Card (modern concept) -->
-            <div class="main-content-card mb-4">
+            <!-- <div class="main-content-card mb-4">
                 <div class="card-header">
                     <div class="header-title">Filters</div>
-                    <div class="d-flex align-items-center header-actions">
-                        <div id="dtSpcButtons" class="d-none"></div>
-                        <div class="segmented-group ml-2" id="spcExportToggle" role="group" aria-label="Export">
-                            <button class="segmented-btn" data-export="csv" aria-label="Export CSV">CSV</button>
-                            <button class="segmented-btn" data-export="excel" aria-label="Export Excel">EXCEL</button>
-                            <button class="segmented-btn" data-export="print" aria-label="Export Print">PRINT</button>
-                        </div>
-                    </div>
+                    
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -206,15 +227,27 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- List Card (modern concept) -->
             <div class="main-content-card">
                 <div class="card-header">
                     <div class="header-title">Spaces</div>
+                    <div class="d-flex align-items-center header-actions">
+                        <div class="d-flex align-items-center view-toggle">
+                            <button type="button" id="btnSpcViewList" class="icon-btn is-active" title="List view"><i class="fas fa-list"></i></button>
+                            <button type="button" id="btnSpcViewCard" class="icon-btn" title="Card view"><i class="fas fa-th-large"></i></button>
+                        </div>
+                        <div id="dtSpcButtons" class="d-none"></div>
+                        <div class="segmented-group ml-2" id="spcExportToggle" role="group" aria-label="Export">
+                            <button class="segmented-btn" data-export="csv" aria-label="Export CSV">CSV</button>
+                            <button class="segmented-btn" data-export="excel" aria-label="Export Excel">EXCEL</button>
+                            <button class="segmented-btn" data-export="print" aria-label="Export Print">PRINT</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div id="spcTableWrapper" class="table-responsive">
                         <table id="dtSpc" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
                             <thead>
                                 <tr class="th-strong">
@@ -231,6 +264,13 @@
                             </thead>
                             <tbody></tbody>
                         </table>
+                    </div>
+                    <div id="spcCardWrapper" class="d-none">
+                        <div class="space-card-grid" id="spcCardGrid"></div>
+                        <div id="spcCardEmpty" class="d-none">
+                            <h5 class="font-weight-bold mb-2">No spaces match the current filters</h5>
+                            <p class="mb-0">Try selecting a different status or adjust your filters to explore more spaces.</p>
+                        </div>
                     </div>
                 </div>
             </div>
