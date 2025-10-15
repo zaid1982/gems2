@@ -1377,8 +1377,18 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             const supDesig = (supNested && (supNested.designationDesc || supNested.designation)) || d.approved_supervisor_designation || d.supervisor_designation || '';
             setText('appr_sup_designation', supDesig);
             renderUserSignature(supUserId, 'appr_sup_sig_img', 'appr_sup_sig_imgwrap', 'appr_sup_sig_line');
-            setChecked('appr_sup_approved', d.approved_supervisor_status === 'APPROVED' || d.supervisor_approved === true || d.supervisor_approved === 1 || !!supDate);
-            setChecked('appr_sup_not_approved', d.approved_supervisor_status === 'NOT_APPROVED' || d.supervisor_rejected === true || d.supervisor_rejected === 1);
+            const supStatusRaw = d.ptw_supervisor_approval || d.approved_supervisor_status || '';
+            let supRejected = _statusRejected(supStatusRaw) || _boolish(d.supervisor_rejected) || _boolish(d.supervisor_not_approved);
+            let supApproved = false;
+            if (!supRejected) {
+                supApproved = _boolish(d.supervisor_approved) || _statusApproved(supStatusRaw);
+                if (!supApproved && supDate && !_statusRejected(supStatusRaw) && !_boolish(d.supervisor_not_approved)) {
+                    supApproved = true;
+                }
+            }
+            if (supRejected) { supApproved = false; }
+            setChecked('appr_sup_approved', supApproved);
+            setChecked('appr_sup_not_approved', supRejected);
 
             // SHE
             const sheUserId = (sheNested && sheNested.userId) || d.approved_she_by || null;
@@ -1393,13 +1403,17 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             const sheDesig = (sheNested && (sheNested.designationDesc || sheNested.designation)) || d.approved_she_designation || d.she_designation || '';
             setText('appr_she_designation', sheDesig);
             // Robust SHE status mapping (handle strings, numbers, booleans, and dates)
-            let sheApproved = _boolish(d.she_approved) || _statusApproved(d.approved_she_status) || !!sheDate;
-            let sheRejected = _boolish(d.she_rejected) || _statusRejected(d.approved_she_status) || _boolish(d.she_not_approved);
-            if (sheApproved && sheRejected) {
-                // If both are somehow true, prefer explicit REJECTED status over date inferred
-                if (_statusRejected(d.approved_she_status)) { sheApproved = false; sheRejected = true; }
-                else { sheApproved = true; sheRejected = false; }
+            const sheStatusRaw = d.ptw_she_approval || d.approved_she_status || '';
+            let sheRejected = _statusRejected(sheStatusRaw) || _boolish(d.she_rejected) || _boolish(d.she_not_approved);
+            let sheApproved = false;
+            if (!sheRejected) {
+                sheApproved = _boolish(d.she_approved) || _statusApproved(sheStatusRaw);
+                if (!sheApproved && sheDate && !_statusRejected(sheStatusRaw) && !_boolish(d.she_not_approved)) {
+                    // Fallback: treat timestamp as approval only when no rejection flags are present
+                    sheApproved = true;
+                }
             }
+            if (sheRejected) { sheApproved = false; }
             setChecked('appr_she_approved', sheApproved);
             setChecked('appr_she_not_approved', sheRejected);
 
@@ -1416,12 +1430,16 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             const fmDesig = (fmNested && (fmNested.designationDesc || fmNested.designation)) || d.approved_fm_designation || d.fm_designation || '';
             setText('appr_fm_designation', fmDesig);
             // Robust FM status mapping
-            let fmApproved = _boolish(d.fm_approved) || _statusApproved(d.approved_fm_status) || !!fmDate;
-            let fmRejected = _boolish(d.fm_rejected) || _statusRejected(d.approved_fm_status) || _boolish(d.fm_not_approved);
-            if (fmApproved && fmRejected) {
-                if (_statusRejected(d.approved_fm_status)) { fmApproved = false; fmRejected = true; }
-                else { fmApproved = true; fmRejected = false; }
+            const fmStatusRaw = d.ptw_fm_approval || d.approved_fm_status || '';
+            let fmRejected = _statusRejected(fmStatusRaw) || _boolish(d.fm_rejected) || _boolish(d.fm_not_approved);
+            let fmApproved = false;
+            if (!fmRejected) {
+                fmApproved = _boolish(d.fm_approved) || _statusApproved(fmStatusRaw);
+                if (!fmApproved && fmDate && !_statusRejected(fmStatusRaw) && !_boolish(d.fm_not_approved)) {
+                    fmApproved = true;
+                }
             }
+            if (fmRejected) { fmApproved = false; }
             setChecked('appr_fm_approved', fmApproved);
             setChecked('appr_fm_not_approved', fmRejected);
         })
