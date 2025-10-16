@@ -3,6 +3,9 @@ function MainLicense(){
   let self = this;
   let oTable;
   let modalLicenseClass;
+  let statusFilter = 'all';
+  let rowsCache = [];
+  // list-only view
 
   const isWarning = (row)=>{
     const n = Number(row.daysToExpire);
@@ -52,15 +55,68 @@ function MainLicense(){
       return d;
     } catch(e){ return d; }
   };
+  const deriveStatus = (row)=>{
+    const n = Number(row.daysToExpire);
+    if (!Number.isFinite(n)) return 'na';
+    if (n < 0) return 'expired';
+    if (isWarning(row)) return 'expiring';
+    return 'valid';
+  };
+  const updateMetrics = ()=>{
+    const total = rowsCache.length;
+    let expiring = 0, expired = 0, valid = 0, na = 0;
+    rowsCache.forEach(row=>{
+      const st = deriveStatus(row);
+      if (st === 'valid') valid++;
+      else if (st === 'expiring') expiring++;
+      else if (st === 'expired') expired++;
+      else na++;
+    });
+    $('#metricTotal').text(total);
+    $('#metricExpiring').text(expiring);
+    $('#metricExpired').text(expired);
+    $('#metricNoExpiry').text(na);
+  };
+  // no cards/toggle needed in list-only mode
+  const updateResultsSummary = ()=>{
+    if (!oTable) { return; }
+    const info = oTable.page.info();
+    if (!info) { return; }
+    const showing = info.recordsDisplay;
+    const total = info.recordsTotal;
+    $('#lblLicenseCount').text(`Showing ${showing} of ${total} license${total === 1 ? '' : 's'}`);
+  };
+  const updateLastRefreshed = ()=>{
+    const label = $('#lblLicenseUpdated span');
+    if (!label.length) { return; }
+    const now = typeof moment === 'function' ? moment().format('DD MMM YYYY, h:mm A') : new Date().toLocaleString();
+    label.text(now);
+  };
+
+  // Custom filter hook for DataTables (status filter)
+  $.fn.dataTable.ext.search.push(function(settings, data, dataIndex){
+    if (!oTable || settings.nTable !== oTable.table().node()) {
+      return true;
+    }
+    if (statusFilter === 'all') {
+      return true;
+    }
+    const rowData = settings.aoData[dataIndex] ? settings.aoData[dataIndex]._aData : null;
+    if (!rowData) { return true; }
+    return deriveStatus(rowData) === statusFilter;
+  });
 
   this.init = function(){
     oTable = $('#dtLcnData').DataTable({
       bLengthChange:false,
-      bFilter:true,
+      searching:true,
       aaSorting:[[3,'asc']],
       language:_DATATABLE_LANGUAGE,
       pageLength:25,
       autoWidth:false,
+      dom:"<'row d-none'<'col-sm-12'f>>"+
+          "<'row'<'col-sm-12'tr>>"+
+          "<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
       fnRowCallback: function(nRow, aData, iDisplayIndex){
         const info = $(this).DataTable().page.info();
         $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
@@ -74,14 +130,17 @@ function MainLicense(){
             $(nRow).addClass('table-warning');
           }
         }
+        // Attach responsive labels for mobile card view
+        const $cells = $('td', nRow);
+        $cells.eq(0).attr('data-label', '#');
+        $cells.eq(1).attr('data-label', 'Title');
+        $cells.eq(2).attr('data-label', 'Start Date');
+        $cells.eq(3).attr('data-label', 'End Date');
+        $cells.eq(4).attr('data-label', 'Days Left');
+        $cells.eq(5).attr('data-label', 'Status');
+        $cells.eq(6).attr('data-label', 'File');
+        $cells.eq(7).attr('data-label', 'Actions');
       },
-      dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>"+
-           "<'row'<'col-sm-12'tr>>"+
-           "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
-      buttons:[
-        { text:'<i class="fas fa-sync"></i>', className:'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr:'Refresh', action: ()=> self.genTable() },
-        { text:'<i class=\"fas fa-plus\"></i> Add', className:'btn btn-outline-primary btn-sm px-2 ml-2', titleAttr:'Add License', action: ()=> modalLicenseClass.add() }
-      ],
       columnDefs:[
         { bSortable:false, targets:[0,6,7] },
         { className:'text-center', targets:[0,4,5,6,7] },
@@ -102,7 +161,24 @@ function MainLicense(){
       ]
     });
 
-    $('#btnLcnAdd').on('click', ()=> modalLicenseClass.add());
+  $('#btnLicenseAdd').on('click', ()=> modalLicenseClass.add());
+    $('#btnLicenseRefresh').on('click', ()=> self.genTable());
+  // no view toggle
+
+    $('#txtLicenseSearch').on('input', function(){
+      const term = this.value || '';
+      oTable.search(term).draw();
+    });
+
+    $('#optLicenseStatus').on('change', function(){
+      statusFilter = this.value || 'all';
+      oTable.draw();
+      updateResultsSummary();
+    });
+
+    oTable.on('draw', function(){
+      updateResultsSummary();
+    });
 
     const tbody = $('#dtLcnData tbody');
     tbody.on('click', '.lnkLcnEdit', function(){
@@ -117,7 +193,11 @@ function MainLicense(){
 
   this.genTable = function(){
     const dataDb = mzAjaxRequest2('license', 'GET');
-    oTable.clear().rows.add(dataDb).draw();
+    rowsCache = Array.isArray(dataDb) ? dataDb : [];
+    oTable.clear().rows.add(rowsCache).draw();
+    updateMetrics();
+    updateResultsSummary();
+    updateLastRefreshed();
   };
 
   this.setModalLicenseClass = function(_modal){ modalLicenseClass = _modal; };

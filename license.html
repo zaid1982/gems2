@@ -6,14 +6,195 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <title>GEMS 2.0 - License</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/mdb.min.css">
   <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
   <link href="css/style.css" rel="stylesheet">
   <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
   <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <style>
+    :root {
+      --license-primary: #4338ca;
+      --license-accent: #38bdf8;
+      --license-bg: #f1f5f9;
+      --license-text: #0f172a;
+      --license-muted: #64748b;
+      --license-border-radius: 22px;
+      --license-shadow: 0 24px 50px -32px rgba(30, 41, 59, 0.55);
+      --license-card-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.38);
+    }
+
+    body { background: var(--license-bg); }
+    main { padding: 1.5rem 0 3rem; }
+
+    .license-section { margin-top: 1.5rem; }
+
+    .license-page-header {
+      background: linear-gradient(135deg, rgba(67,56,202,1) 0%, rgba(56,189,248,0.95) 100%);
+      color: #fff;
+      padding: 36px 32px;
+      border-radius: 28px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--license-shadow);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .license-page-header::after {
+      content: '';
+      position: absolute;
+      right: -70px;
+      top: -70px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      filter: blur(0px);
+    }
+
+    .license-page-header .header-text { position: relative; z-index: 1; max-width: 680px; }
+    .license-page-header h2 { font-size: 2.25rem; font-weight: 700; margin-bottom: 10px; }
+    .license-page-header p { margin: 0; font-size: 1.05rem; opacity: 0.95; }
+
+    .license-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px; }
+    .license-page-header .header-actions .btn { border-radius: 999px; padding: 0.55rem 1.6rem; font-weight: 600; min-width: 150px; }
+    .license-page-header .header-actions .btn-outline-light { border-color: rgba(255,255,255,0.7); color: #fff; }
+    .license-page-header .header-actions .btn-outline-light:hover { background: rgba(255,255,255,0.15); }
+
+    .license-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .metric-card {
+      background: #fff;
+      border-radius: var(--license-border-radius);
+      padding: 20px 22px;
+      box-shadow: var(--license-card-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      right: -40px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: rgba(67,56,202,0.08);
+    }
+
+    .metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--license-muted); margin-bottom: 6px; }
+    .metric-value { font-size: 2rem; font-weight: 700; color: var(--license-text); }
+    .metric-subtext { font-size: 0.85rem; color: var(--license-muted); margin-top: 6px; }
+
+    .filter-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px 28px;
+      box-shadow: 0 25px 50px -32px rgba(15, 23, 42, 0.35);
+    }
+
+    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .filter-label { font-size: .78rem; text-transform: uppercase; font-weight: 600; letter-spacing: .08em; color: var(--license-muted); margin-bottom: 6px; }
+
+    .filter-card .form-control,
+    .filter-card .custom-select {
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      padding: 10px 14px;
+      box-shadow: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .filter-card .form-control:focus,
+    .filter-card .custom-select:focus {
+      border-color: rgba(67,56,202,0.75);
+      box-shadow: 0 0 0 0.15rem rgba(67, 56, 202, 0.1);
+    }
+
+    .results-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-top: 22px; gap: 12px; color: var(--license-text); }
+    .results-summary .summary-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--license-muted); }
+
+    .license-data-card { margin-top: 32px; background: #fff; border-radius: 24px; box-shadow: 0 28px 60px -40px rgba(15, 23, 42, 0.45); padding: 18px 24px; }
+    .license-data-card h6 { font-weight: 700; color: var(--license-text); margin-bottom: 18px; }
+
+    .license-table-wrapper { border-radius: 18px; overflow: hidden; }
+    #dtLcnData { width: 100% !important; border-collapse: collapse !important; }
+    #dtLcnData thead th {
+      background: #eef2ff;
+      color: #3730a3;
+      font-weight: 700;
+      border: none;
+      padding: 0.9rem 0.75rem;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: .06em;
+    }
+    #dtLcnData tbody tr { background: #fff; }
+    #dtLcnData tbody td { border-bottom: 1px solid #f1f5f9; padding: 0.85rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--license-text); }
+    #dtLcnData tbody tr:last-child td { border-bottom: none; }
+
+    #dtLcnData tbody tr.table-danger td { background: rgba(248, 113, 113, 0.12); }
+    #dtLcnData tbody tr.table-warning td { background: rgba(250, 204, 21, 0.18); }
+
+    .badge-success { background: rgba(34, 197, 94, 0.18); color: #166534; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px; }
+    .badge-warning { background: rgba(250, 204, 21, 0.15); color: #854d0e; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px; }
+    .badge-danger { background: rgba(248, 113, 113, 0.18); color: #991b1b; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px; }
+    .badge-secondary { background: rgba(148, 163, 184, 0.18); color: #475569; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px; }
+
+    .license-table-wrapper .btn { border-radius: 10px; }
+
+    .dataTables_wrapper .dataTables_info { padding-top: 1rem; color: var(--license-muted); font-size: 0.85rem; }
+    .dataTables_wrapper .dataTables_paginate { padding-top: 0.75rem; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button { border-radius: 12px !important; border: none !important; margin: 0 3px !important; padding: 0.35rem 0.75rem !important; background: #e2e8f0 !important; color: #1e293b !important; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #4338ca !important; color: #fff !important; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled { background: #e2e8f0 !important; color: #94a3b8 !important; }
+
+    .dataTables_filter { display: none !important; }
+
+    .license-empty-state { text-align: center; padding: 48px 24px; color: var(--license-muted); }
+  .license-empty-state i { font-size: 48px; color: #818cf8; margin-bottom: 12px; }
+
+    /* View remains list-only; cards/toggle removed */
+
+  @media (max-width: 991.98px) {
+      .license-page-header { padding: 28px 24px; }
+      .license-page-header h2 { font-size: 2rem; }
+      .license-page-header::after { width: 200px; height: 200px; right: -60px; top: -60px; }
+    }
+
+    @media (max-width: 767.98px) {
+      main { padding-top: 1rem; }
+      .license-page-header { padding: 24px 20px; gap: 18px; }
+      .license-page-header h2 { font-size: 1.8rem; }
+      .license-page-header .header-actions .btn { min-width: 0; width: 100%; }
+      .license-metrics { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+
+      /* Turn the table into stacked cards */
+      #dtLcnData { display: block; }
+      #dtLcnData thead { display: none; }
+      #dtLcnData tbody { display: block; width: 100%; }
+      #dtLcnData tbody tr { display: block; margin-bottom: 14px; border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 10px 25px -18px rgba(15, 23, 42, 0.35); }
+      #dtLcnData tbody tr td { display: flex; align-items: flex-start; justify-content: space-between; padding: 0.75rem 0.95rem; border-bottom: 1px solid #f1f5f9; }
+      #dtLcnData tbody tr td:last-child { border-bottom: none; }
+      #dtLcnData tbody tr td::before { content: attr(data-label); font-weight: 600; color: var(--license-muted); margin-right: 12px; }
+      #dtLcnData tbody tr td.text-center { justify-content: space-between; }
+      #dtLcnData tbody tr td:nth-child(1) { font-weight: 700; color: var(--license-text); }
+      #dtLcnData tbody tr td:nth-child(7),
+      #dtLcnData tbody tr td:nth-child(8) { justify-content: flex-end; }
+    }
+  </style>
 </head>
 <body class="fixed-sn light-blue-skin">
 <header>
@@ -21,31 +202,95 @@
   <div class="includeHtml" id="h-nav_top"></div>
 </header>
 <main>
-  <div class="container-fluid">
-    <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1">
-      <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">License Management</h5>
-      <button type="button" class="btn btn-outline-white btn-rounded btn-sm px-2 mr-3" id="btnLcnAdd" title="Add License"><i class="fas fa-plus mt-0"></i></button>
-    </nav>
-    <section class="mt-4 mb-3">
-      <div class="card z-depth-3 mb-4_5">
-        <div class="card-body pt-4">
-          <div class="table-responsive">
-            <table id="dtLcnData" class="table table-hover table-sm mb-0 display responsive">
-              <thead>
-              <tr class="th-strong">
-                <th>#</th>
-                <th>Title</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Days Left</th>
-                <th>Status</th>
-                <th>File</th>
-                <th></th>
-              </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+  <div class="container-fluid license-layout">
+    <section class="license-section">
+      <div class="license-page-header">
+        <div class="header-text">
+          <h2><i class="fas fa-id-badge mr-3"></i>License Center</h2>
+          <p>Track expiring licenses, download documents instantly, and keep your compliance calendar under control.</p>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn btn-outline-light" id="btnLicenseRefresh">
+            <i class="fas fa-sync-alt mr-2"></i>Refresh
+          </button>
+          <button type="button" class="btn btn-primary" id="btnLicenseAdd">
+            <i class="fas fa-plus mr-2"></i>New License
+          </button>
+        </div>
+      </div>
+
+      <div class="license-metrics">
+        <div class="metric-card">
+          <div class="metric-label">Active licenses</div>
+          <div class="metric-value" id="metricTotal">-</div>
+          <div class="metric-subtext">Across your assigned site</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Expiring soon</div>
+          <div class="metric-value text-warning" id="metricExpiring">-</div>
+          <div class="metric-subtext">Within configured warning window</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Expired</div>
+          <div class="metric-value text-danger" id="metricExpired">-</div>
+          <div class="metric-subtext">Require immediate action</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">No expiry date</div>
+          <div class="metric-value text-secondary" id="metricNoExpiry">-</div>
+          <div class="metric-subtext">Items without end date recorded</div>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-grid">
+          <div>
+            <div class="filter-label">Search</div>
+            <input type="text" id="txtLicenseSearch" class="form-control" placeholder="Search by title or keyword">
           </div>
+          <div>
+            <div class="filter-label">Status</div>
+            <select id="optLicenseStatus" class="custom-select">
+              <option value="all" selected>All statuses</option>
+              <option value="valid">Valid</option>
+              <option value="expiring">Expiring soon</option>
+              <option value="expired">Expired</option>
+              <option value="na">No expiry date</option>
+            </select>
+          </div>
+          <div>
+            <div class="filter-label">Warning threshold</div>
+            <div class="summary-pill"><i class="fas fa-bell mr-2"></i><span>Default warning: 30 days unless overridden per record.</span></div>
+          </div>
+        </div>
+        <div class="results-summary">
+          <div class="d-flex align-items-center" style="gap:12px; flex-wrap: wrap;">
+            <div id="lblLicenseCount">Loading licenses…</div>
+            <div class="summary-pill" id="lblLicenseUpdated"><i class="far fa-clock mr-2"></i>Last refreshed: <span class="font-weight-bold">-</span></div>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- List (Table) View -->
+      <div id="licenseListView" class="license-data-card">
+        <h6 class="d-flex align-items-center mb-3"><i class="fas fa-layer-group mr-2 text-primary"></i>Active License Register</h6>
+        <div class="license-table-wrapper">
+          <table id="dtLcnData" class="table table-hover mb-0 display">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>Title</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Days Left</th>
+              <th>Status</th>
+              <th>File</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -54,6 +299,18 @@
   <div class="includeHtml" id="h-modal_confirm_delete"></div>
   <div class="includeHtml" id="h-modal_license"></div>
 </main>
+
+<!-- Loading Modal (for consistency with dashboard pages) -->
+<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content text-center py-4">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+      <div>Loading, please wait...</div>
+    </div>
+  </div>
+ </div>
 
 <script type="text/javascript">
   $('.includeHtml').each(function () {
