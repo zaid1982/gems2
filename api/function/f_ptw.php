@@ -1056,27 +1056,21 @@ class Class_ptw {
 
             // Map notification types to matrix events
             switch ($notification_type) {
+                case 'PENDING_SUPERVISOR': // A1 new submission
+                    $addRoleRecipients(24); // supervisors (site-scoped)
+                    $primaryTo = array_keys($recipients);
+                    break;
                 case 'SUPERVISOR_APPROVED': // A2
-                    $addRoleRecipients(25); // SHE primary
+                    $recipients = [];
+                    $addRoleRecipients(25); // SHE
                     $primaryTo = array_keys($recipients);
                     $recipients = [];
                     $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients)); // supervisors copy
                     break;
                 case 'SUPERVISOR_REJECTED': // A3
                     $primaryTo = []; // applicant primary (not yet captured)
+                    $recipients = [];
                     $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients)); // supervisors copy
-                    break;
-                case 'PENDING_SUPERVISOR': // A1 new submission
-                    $addRoleRecipients(24); // supervisors
-                    $primaryTo = array_keys($recipients);
-                    break;
-                case 'SUPERVISOR_APPROVED': // A2
-                    $addRoleRecipients(25); // SHE
-                    $primaryTo = array_keys($recipients);
-                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
-                    break;
-                case 'SUPERVISOR_REJECTED': // A3
-                    $primaryTo = []; // applicant only (if email captured later)
                     break;
                 case 'SHE_APPROVED': // A4
                     $recipients = [];
@@ -1087,59 +1081,73 @@ class Class_ptw {
                     break;
                 case 'SHE_REJECTED': // A5
                     $primaryTo = []; // applicant primary
+                    $recipients = [];
                     $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
                     break;
                 case 'FM_APPROVED': // A6 final
                     $attachPdf = true;
+                    $recipients = [];
                     $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
                     $recipients = [];
                     $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
                     $primaryTo = []; // applicant primary
                     break;
                 case 'FM_REJECTED': // A7
+                    $recipients = [];
                     $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
+                    $recipients = [];
                     $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
                     $primaryTo = []; // applicant primary
                     break;
-                case 'EXTEND_REQUEST': // B1
+                // Lifecycle requests (align to ptw_approve.php events)
+                case 'EXTENSION_REQUESTED': // B1 (was EXTEND_REQUEST)
                     $recipients = [];
-                    $addRoleRecipients(26); $primaryTo = array_keys($recipients);
+                    $addRoleRecipients(26); // FM
+                    $primaryTo = array_keys($recipients);
                     break;
-                case 'EXTEND_APPROVED': // B2
+                case 'EXTENDED': // B2 (was EXTEND_APPROVED)
                     $attachUpdatedPdf = true; $attachPdf = true;
-                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
-                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
-                    $primaryTo = []; // applicant
-                    break;
-                case 'CANCEL_REQUEST': // B3
+                    // Notify SHE and Supervisors (acting as CC semantics until applicant email captured)
                     $recipients = [];
-                    $addRoleRecipients(26); $primaryTo = array_keys($recipients);
+                    $addRoleRecipients(24); $primaryTo = array_merge($primaryTo, array_keys($recipients));
+                    $recipients = [];
+                    $addRoleRecipients(25); $primaryTo = array_merge($primaryTo, array_keys($recipients));
+                    break;
+                case 'CANCELLATION_REQUESTED': // B3 (was CANCEL_REQUEST)
+                    $recipients = [];
+                    $addRoleRecipients(26); // FM
+                    $primaryTo = array_keys($recipients);
                     break;
                 case 'CANCELLED': // B4
                     $attachPdf = true;
-                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
-                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
-                    $primaryTo = []; // applicant
-                    break;
-                case 'SUSPEND_REQUEST': // B5
                     $recipients = [];
-                    $addRoleRecipients(26); $primaryTo = array_keys($recipients);
+                    $addRoleRecipients(24); $primaryTo = array_merge($primaryTo, array_keys($recipients));
+                    $recipients = [];
+                    $addRoleRecipients(25); $primaryTo = array_merge($primaryTo, array_keys($recipients));
+                    break;
+                case 'SUSPENSION_REQUESTED': // B5 (was SUSPEND_REQUEST)
+                    $recipients = [];
+                    $addRoleRecipients(26); // FM
+                    $primaryTo = array_keys($recipients);
                     break;
                 case 'SUSPENDED': // B6
                     $attachPdf = true;
-                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
-                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
-                    $primaryTo = []; // applicant
-                    break;
-                case 'CLOSE_REQUEST': // C1
                     $recipients = [];
-                    $addRoleRecipients(26); $primaryTo = array_keys($recipients);
+                    $addRoleRecipients(24); $primaryTo = array_merge($primaryTo, array_keys($recipients));
+                    $recipients = [];
+                    $addRoleRecipients(25); $primaryTo = array_merge($primaryTo, array_keys($recipients));
+                    break;
+                case 'CLOSURE_REQUESTED': // C1 (was CLOSE_REQUEST)
+                    $recipients = [];
+                    $addRoleRecipients(26); // FM
+                    $primaryTo = array_keys($recipients);
                     break;
                 case 'CLOSED': // C2
                     $attachPdf = true;
-                    $addRoleRecipients(24); $cc = array_merge($cc, array_keys($recipients));
-                    $addRoleRecipients(25); $cc = array_merge($cc, array_keys($recipients));
-                    $primaryTo = []; // applicant
+                    $recipients = [];
+                    $addRoleRecipients(24); $primaryTo = array_merge($primaryTo, array_keys($recipients));
+                    $recipients = [];
+                    $addRoleRecipients(25); $primaryTo = array_merge($primaryTo, array_keys($recipients));
                     break;
                 default:
                     // Unknown event; log only
