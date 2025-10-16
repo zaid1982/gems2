@@ -22,10 +22,21 @@
     $('#locExportToggle .segmented-btn').on('click', function(){ const type=$(this).data('export'); if(type==='csv'){ dt.button(0).trigger(); } else if(type==='excel'){ dt.button(1).trigger(); } else if(type==='print'){ dt.button(2).trigger(); } });
   }
 
-  function loadList(){ ShowLoader(); const status = $('#optLocStatus').val(); const qs = status!==''?('?status='+encodeURIComponent(status)) : ''; $.ajax({ url:'api/space_location.php'+qs, method:'GET', dataType:'json', headers:headers()})
+  function loadList(){
+    ShowLoader();
+    let qs = '';
+    const $statusEl = $('#optLocStatus');
+    if ($statusEl.length) {
+      const status = $statusEl.val();
+      if (status === '0' || status === '1') {
+        qs = '?status=' + encodeURIComponent(status);
+      }
+    }
+    $.ajax({ url:'api/space_location.php'+qs, method:'GET', dataType:'json', headers:headers()})
     .done(function(resp){ if(resp&&resp.success){ dt.clear().rows.add(resp.result||[]).draw(); } else { toastr['error']((resp&&resp.errmsg)||_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR);} })
     .fail(function(j){ toastr['error'](_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR); })
-    .always(function(){ HideLoader(); }); }
+      .always(function(){ HideLoader(); });
+  }
 
   function openModal(row){ editingId = (row&&row.spaceLocationId)? parseInt(row.spaceLocationId): null; $('#frmLoc')[0].reset(); $('#hidLocId').val(editingId||''); $('#txtLocName').val(row?row.spaceLocationName:''); $('#txtLocDesc').val(row?row.spaceLocationDesc:''); try{$('#optLocStatusForm').materialSelect('destroy');}catch(e){} $('#optLocStatusForm').val(row? String(parseInt(row.spaceLocationStatus||0)):'1'); $('#optLocStatusForm').materialSelect(); $('#modalLocFormLabel').text(editingId? 'Edit Location':'Add Location'); $('#modalLocForm').modal('show'); }
 
@@ -46,7 +57,15 @@
     .fail(function(){ toastr['error'](_ALERT_MSG_ERROR_DEFAULT,_ALERT_TITLE_ERROR); })
     .always(function(){ HideLoader(); }); }
 
-  function initFilters(){ try{$('#optLocStatus').materialSelect('destroy');}catch(e){} $('#optLocStatus').materialSelect(); $('#optLocStatus').on('change', loadList); $('#txtLocSearch').on('keyup', function(){ dt.search(this.value).draw(); }); }
+  function initFilters(){
+    const $status = $('#optLocStatus');
+    if ($status.length) {
+      try { $status.materialSelect('destroy'); } catch(e){}
+      $status.materialSelect();
+      $status.on('change', loadList);
+    }
+    $('#txtLocSearch').on('keyup', function(){ dt.search(this.value).draw(); });
+  }
 
   function initButtons(){ $('#btnDtLocRefresh').on('click', loadList); $('#btnLocAdd').on('click', function(){ openModal(null); }); $('#btnLocSave').on('click', save); $('#dtLoc').on('click','.btnLocEdit', function(){ const row = dt.row($(this).closest('tr')).data(); openModal(row); }); $('#dtLoc').on('click','.btnLocActivate', function(){ const row = dt.row($(this).closest('tr')).data(); setStatus(row,true); }); $('#dtLoc').on('click','.btnLocDeactivate', function(){ const row = dt.row($(this).closest('tr')).data(); setStatus(row,false); }); }
 
