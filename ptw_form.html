@@ -1656,7 +1656,7 @@
                                                         </div>
                                                         <div class="form-check ">
                                                             <input type="checkbox" class="form-check-input" id="hotGoughing">
-                                                            <label class="form-check-label" for="hotGoughing">Goughing</label>
+                                                            <label class="form-check-label" for="hotGoughing">Gouging</label>
                                                         </div>
                                                         <div class="form-check ">
                                                             <input type="checkbox" class="form-check-input" id="hotPostWeldHeatTreatment">
@@ -6464,6 +6464,10 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         if (helpElement) {
             console.log('Help element found:', helpElement);
             
+            //check if the element is already shown
+            const isShown = helpElement.classList.contains('show');
+            console.log('Is help element currently shown?', isShown);
+            
             // Hide all other help examples first
             document.querySelectorAll('.help-example.show').forEach(el => {
                 if (el.id !== helpId) {
@@ -6476,9 +6480,13 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             });
             
             // Toggle the clicked help example
-            const isCurrentlyShown = helpElement.classList.contains('show');
-            helpElement.classList.toggle('show');
+            // const isCurrentlyShown = helpElement.classList.contains('show');
             
+            // somehow rely on class were not working, so check if style contains display:none
+            const computedStyle = window.getComputedStyle(helpElement);
+            const isHidden = computedStyle.display === 'none';
+            const isCurrentlyShown = !isHidden;
+
             // Force visibility with inline styles to override any CSS conflicts
             if (!isCurrentlyShown) {
                 // Show the element
