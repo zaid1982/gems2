@@ -1120,32 +1120,47 @@
         
         /* Special styling for documents section - better readability */
         .documents-section .checkbox-grid {
-            gap: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px 16px;
             padding: 12px 0;
         }
         
         .documents-section .checkbox-item {
-            padding: 14px 18px;
+            display: flex;
+            align-items: center; /* top-align so checkbox sits with the first line of the label */
+            gap: 12px;
+            padding: 12px 14px;
             font-size: 1rem;
-            min-height: 52px;
+            min-height: 52px; /* allows small items to look consistent; container still grows with content */
             border-radius: 8px;
-            line-height: 1.4;
+            line-height: 1.35;
+            border: 1px solid #e9ecef;
+            background: #fff;
+        }
+        
+        .documents-section .checkbox-item .form-check-input {
+            width: 18px; height: 18px; margin-top: 2px; /* slight nudge to align with first text baseline */
+            flex: 0 0 auto; vertical-align: top;
         }
         
         .documents-section .checkbox-item .form-check-label {
+            display: block; /* ensure multiline labels flow naturally */
             font-weight: 500;
             color: #495057;
+            line-height: 1.3;
         }
         
         .documents-section .checkbox-item:hover .form-check-label {
             color: #4285f4;
         }
         
+        /* Phones and small tablets: 1 column ≤576px, 2 columns 577–768px; desktop remains 3 columns */
         @media (max-width: 576px) {
-            .documents-section .checkbox-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 16px;
-            }
+            .documents-section .checkbox-grid { grid-template-columns: 1fr; }
+        }
+        @media (min-width: 577px) and (max-width: 768px) {
+            .documents-section .checkbox-grid { grid-template-columns: repeat(2, 1fr); }
         }
         
         @media (min-width: 1200px) {
@@ -1160,6 +1175,175 @@
         #divPtwPageWidth .mb-4 { margin-bottom: 1rem !important; }
         #divPtwPageWidth .mb-3 { margin-bottom: 0.75rem !important; }
         #divPtwPageWidth .alert { margin-bottom: 0.75rem; }
+
+        /* --- Mobile-only enhancements (do not change desktop styles) --- */
+        /* Target common phone widths first; safely scoped to this page container */
+        @media (max-width: 576px) {
+            /* Container padding and full-width cards */
+            #divPtwPageWidth { padding-left: 10px; padding-right: 10px; }
+            #divPtwPageWidth .card { border-radius: 8px; }
+            #divPtwPageWidth .card-body { padding: 0.85rem; }
+
+            /* Title and header spacing */
+            #divPtwPageWidth .public-form-header h2 { font-size: 1.15rem; line-height: 1.3; }
+            #divPtwPageWidth .public-form-header p { font-size: 0.9rem; }
+
+            /* Make tabs horizontally scrollable instead of wrapping into multiple lines */
+            #divPtwPageWidth .nav-tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            #divPtwPageWidth .nav-tabs .nav-item { flex: 0 0 auto; }
+            #divPtwPageWidth .nav-tabs .nav-link { white-space: nowrap; padding: 0.5rem 0.75rem; font-size: 0.9rem; }
+
+            /* Inputs hit-area and font sizes */
+            #divPtwPageWidth input.form-control,
+            #divPtwPageWidth select.form-control,
+            #divPtwPageWidth textarea.form-control { font-size: 0.95rem; min-height: 40px; }
+            #divPtwPageWidth .form-group { margin-bottom: 0.75rem; }
+
+            /* Button stacking and full-width actions */
+            #divPtwPageWidth .btn { font-size: 0.95rem; padding: 0.5rem 0.75rem; }
+            #divPtwPageWidth .ptw-edit-actions { gap: 8px; }
+            #divPtwPageWidth .ptw-edit-actions .btn { width: 100%; }
+            #divPtwPageWidth .card-footer .row > [class*='col-'] { margin-bottom: 0.5rem; }
+
+            /* Tables: enable responsive horizontal scroll */
+            #divPtwPageWidth .table-responsive, 
+            #divPtwPageWidth table { width: 100%; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            #divPtwPageWidth table td, 
+            #divPtwPageWidth table th { white-space: nowrap; }
+
+            /* Workers table tweaks */
+            #divPtwPageWidth #workersTable td, 
+            #divPtwPageWidth #workersTable th { padding: 0.5rem; }
+
+            /* Workers table → card layout on mobile */
+            #divPtwPageWidth #workersTable { display: block; overflow: visible; }
+            #divPtwPageWidth #workersTable thead { display: none; }
+            #divPtwPageWidth #workersTable tbody { display: block; width: 100%; }
+            #divPtwPageWidth #workersTable tbody tr { 
+                display: block; 
+                width: 100%; 
+                border: 1px solid #e9ecef; 
+                border-radius: 8px; 
+                box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+                background: #fff;
+                margin-bottom: 12px; 
+            }
+            #divPtwPageWidth #workersTable tbody tr td { 
+                display: flex; 
+                align-items: center; 
+                justify-content: space-between; 
+                gap: 8px;
+                border: none; 
+                border-bottom: 1px solid #f1f3f5; 
+                padding: 0.6rem 0.75rem; 
+                font-size: 0.95rem; 
+            }
+            #divPtwPageWidth #workersTable tbody tr td:last-child { border-bottom: none; }
+            #divPtwPageWidth #workersTable tbody tr td::before { 
+                content: attr(data-label);
+                font-weight: 600; 
+                color: #495057; 
+            }
+            /* Fallback labels via column position when data-label isn't set */
+            #divPtwPageWidth #workersTable tbody tr td:nth-child(1)::before { content: 'No'; }
+            #divPtwPageWidth #workersTable tbody tr td:nth-child(2)::before { content: 'Name'; }
+            #divPtwPageWidth #workersTable tbody tr td:nth-child(3)::before { content: 'Designation'; }
+            #divPtwPageWidth #workersTable tbody tr td:nth-child(4)::before { content: 'Identification No'; }
+            #divPtwPageWidth #workersTable tbody tr td:nth-child(5)::before { content: 'Action'; }
+            /* Align the action cell content to the end and keep buttons visible */
+            #divPtwPageWidth #workersTable tbody tr td:nth-child(5) { 
+                justify-content: flex-end; 
+            }
+            #divPtwPageWidth #workersTable .btn { white-space: nowrap; }
+
+            /* Documents table → card layout on mobile */
+            #divPtwPageWidth #documentsTable { display: block; overflow: visible; }
+            #divPtwPageWidth #documentsTable thead { display: none; }
+            #divPtwPageWidth #documentsTable tbody { display: block; width: 100%; }
+            #divPtwPageWidth #documentsTable tbody tr { 
+                display: block; 
+                width: 100%; 
+                border: 1px solid #e9ecef; 
+                border-radius: 8px; 
+                box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+                background: #fff;
+                margin-bottom: 12px; 
+            }
+            #divPtwPageWidth #documentsTable tbody tr td { 
+                display: flex; 
+                align-items: center; 
+                justify-content: space-between; 
+                gap: 8px;
+                border: none; 
+                border-bottom: 1px solid #f1f3f5; 
+                padding: 0.6rem 0.75rem; 
+                font-size: 0.95rem; 
+                white-space: normal; 
+                word-break: break-word;
+            }
+            #divPtwPageWidth #documentsTable tbody tr td:last-child { border-bottom: none; }
+            #divPtwPageWidth #documentsTable tbody tr td::before { 
+                content: attr(data-label);
+                font-weight: 600; 
+                color: #495057; 
+                padding-right: 8px;
+            }
+            /* Fallback labels via column position when data-label isn't set */
+            #divPtwPageWidth #documentsTable tbody tr td:nth-child(1)::before { content: 'No'; }
+            #divPtwPageWidth #documentsTable tbody tr td:nth-child(2)::before { content: 'Name'; }
+            #divPtwPageWidth #documentsTable tbody tr td:nth-child(3)::before { content: 'Action'; }
+            /* Align the action cell content to the end and keep buttons together */
+            #divPtwPageWidth #documentsTable tbody tr td:nth-child(3) { 
+                justify-content: flex-end; 
+            }
+            #divPtwPageWidth #documentsTable .btn { white-space: nowrap; }
+            /* Special handling for the empty-state row */
+            #divPtwPageWidth #documentsTable tbody tr#noDocumentsRow { 
+                border: none; box-shadow: none; background: transparent; 
+            }
+            #divPtwPageWidth #documentsTable tbody tr#noDocumentsRow td { 
+                display: block; border: none; text-align: center; padding: 0.75rem; color: #6c757d; 
+            }
+            #divPtwPageWidth #documentsTable tbody tr#noDocumentsRow td::before { content: none; }
+
+            /* Signature pad responsive sizing */
+            #divPtwPageWidth .signature-pad { width: 100%; }
+            #divPtwPageWidth .signature-pad canvas { width: 100% !important; height: auto !important; }
+
+            /* Documents upload area */
+            #divPtwPageWidth .file-upload-area { padding: 12px; }
+            #divPtwPageWidth .documents-table table { font-size: 0.9rem; }
+
+            /* Checkbox list density */
+            #divPtwPageWidth .checkbox-grid { grid-template-columns: 1fr; gap: 10px; }
+            #divPtwPageWidth .checkbox-item { padding: 10px 12px; }
+
+            /* Help popovers keep inside viewport */
+            #divPtwPageWidth .help-example { left: 0 !important; right: 0 !important; transform: none !important; }
+        }
+
+        /* Small tablets and larger phones */
+        @media (min-width: 577px) and (max-width: 768px) {
+            #divPtwPageWidth { padding-left: 12px; padding-right: 12px; }
+            #divPtwPageWidth .card-body { padding: 1rem; }
+            #divPtwPageWidth .nav-tabs .nav-link { padding: 0.6rem 0.85rem; }
+            #divPtwPageWidth .checkbox-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Extra mobile rule: stack date From/To fields into separate lines on phones */
+        @media (max-width: 576px) {
+            /* Find the specific row containing the date inputs and make both columns full width */
+            #divPtwPageWidth .row:has(#dtPtwValidFrom) > [class*='col-'],
+            #divPtwPageWidth .row:has(#dtPtwValidTo) > [class*='col-'] {
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+            }
+            /* Add a bit of vertical spacing between them */
+            #divPtwPageWidth .row:has(#dtPtwValidFrom) > [class*='col-'] + [class*='col-'],
+            #divPtwPageWidth .row:has(#dtPtwValidTo) > [class*='col-'] + [class*='col-'] {
+                margin-top: 0.5rem;
+            }
+        }
     </style>
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
