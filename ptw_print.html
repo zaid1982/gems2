@@ -790,42 +790,38 @@
                             <div><strong>Mandatory</strong></div>
                             <div><input id="ppe_safety_helmet" type="checkbox"><label for="ppe_safety_helmet">Safety helmet</label></div>
                             <div><input id="ppe_safety_shoes" type="checkbox"><label for="ppe_safety_shoes">Safety shoes</label></div>
-                            <div><input id="ppe_high_vis_vest" type="checkbox"><label for="ppe_high_vis_vest">High visibility vest</label></div>
                             <div style="margin-top:6px;"><strong>Fall protection</strong></div>
-                            <div><input id="ppe_full_body_harness_visual" type="checkbox" disabled><label for="ppe_full_body_harness_visual">Full Body Harness with lanyard</label></div>
+                            <div><input id="ppe_full_body_harness" type="checkbox"><label for="ppe_full_body_harness">Full Body Harness with lanyard</label></div>
                         </div>
                         <div class="ppe-category">
                             <div><strong>Respiratory Protection</strong></div>
-                            <div><input id="ppe_respirator" type="checkbox"><label for="ppe_respirator">Half mask respirator</label></div>
-                            <div><input id="ppe_scba" type="checkbox"><label for="ppe_scba">Full face respirator (SCBA)</label></div>
-                            <div><input id="ppe_dust_mask" type="checkbox"><label for="ppe_dust_mask">Dust mask</label></div>
-                            <div><input id="ppe_air_line_set_visual" type="checkbox" disabled><label for="ppe_air_line_set_visual">Air line set</label></div>
-                            <div><input id="ppe_hood_visual" type="checkbox" disabled><label for="ppe_hood_visual">Hood</label></div>
+                            <div><input id="ppe_half_mask_respirator" type="checkbox"><label for="ppe_half_mask_respirator">Half mask respirator</label></div>
+                            <div><input id="ppe_full_face_respirator_scba" type="checkbox"><label for="ppe_full_face_respirator_scba">Full face respirator (SCBA)</label></div>
+                            <div><input id="ppe_air_line_set" type="checkbox"><label for="ppe_air_line_set">Air line set</label></div>
+                            <div><input id="ppe_hood" type="checkbox"><label for="ppe_hood">Hood</label></div>
                         </div>
                         <div class="ppe-category">
                             <div><strong>Eye, Face &amp; Body Protection</strong></div>
-                            <div><input id="ppe_safety_glasses" type="checkbox"><label for="ppe_safety_glasses">Goggles</label></div>
+                            <div><input id="ppe_goggles" type="checkbox"><label for="ppe_goggles">Goggles</label></div>
                             <div><input id="ppe_face_shield" type="checkbox"><label for="ppe_face_shield">Face shield</label></div>
-                            <div><input id="ppe_welding_mask_visual" type="checkbox" disabled><label for="ppe_welding_mask_visual">Welding mask</label></div>
-                            <div><input id="ppe_coveralls" type="checkbox"><label for="ppe_coveralls">Disposable suit</label></div>
+                            <div><input id="ppe_welding_mask" type="checkbox"><label for="ppe_welding_mask">Welding mask</label></div>
+                            <div><input id="ppe_disposable_suit" type="checkbox"><label for="ppe_disposable_suit">Disposable suit</label></div>
                             <div><input id="ppe_chemical_suit" type="checkbox"><label for="ppe_chemical_suit">Chemical suit</label></div>
-                            <div><input id="ppe_rubber_boots_visual" type="checkbox" disabled><label for="ppe_rubber_boots_visual">Rubber boots</label></div>
+                            <div><input id="ppe_rubber_boots" type="checkbox"><label for="ppe_rubber_boots">Rubber boots</label></div>
                         </div>
                         <div class="ppe-category">
                             <div><strong>Hand Protection</strong></div>
-                            <div><input id="ppe_work_gloves" type="checkbox"><label for="ppe_work_gloves">Work gloves</label></div>
+                            <div><input id="ppe_cotton_gloves" type="checkbox"><label for="ppe_cotton_gloves">Cotton gloves</label></div>
+                            <div><input id="ppe_leather_gloves" type="checkbox"><label for="ppe_leather_gloves">Leather gloves</label></div>
+                            <div><input id="ppe_rubber_gloves" type="checkbox"><label for="ppe_rubber_gloves">Rubber gloves</label></div>
                             <div><input id="ppe_chemical_gloves" type="checkbox"><label for="ppe_chemical_gloves">Chemical gloves</label></div>
-                            <div><input id="ppe_cotton_gloves_visual" type="checkbox" disabled><label for="ppe_cotton_gloves_visual">Cotton gloves</label></div>
-                            <div><input id="ppe_leather_gloves_visual" type="checkbox" disabled><label for="ppe_leather_gloves_visual">Leather gloves</label></div>
-                            <div><input id="ppe_rubber_gloves_visual" type="checkbox" disabled><label for="ppe_rubber_gloves_visual">Rubber gloves</label></div>
-                            <div><input id="ppe_cut_resistant" type="checkbox"><label for="ppe_cut_resistant">Cut resistant gloves</label></div>
                         </div>
                         <div class="ppe-category">
                             <div><strong>Hearing protection</strong></div>
                             <div><input id="ppe_ear_plugs" type="checkbox"><label for="ppe_ear_plugs">Ear plug</label></div>
                             <div><input id="ppe_ear_muffs" type="checkbox"><label for="ppe_ear_muffs">Ear muff</label></div>
                             <div style="margin-top:6px;"><strong>Others</strong></div>
-                            <div><input id="ppe_life_jacket_visual" type="checkbox" disabled><label for="ppe_life_jacket_visual">Life jacket/vest</label></div>
+                            <div><input id="ppe_life_jacket" type="checkbox"><label for="ppe_life_jacket">Life jacket/vest</label></div>
                             <div class="form-group" style="display:flex; align-items:center; gap:6px; flex-direction: row;">
                                 <input id="ppe_others_checkbox" type="checkbox">
                                 <label for="ppe_others" style="margin:0;">Others (pls specify):</label>
@@ -1257,7 +1253,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             setVal('s1_applicant_name', d.ptw_applicant_name || '');
             setVal('s1_applicant_contact', d.ptw_applicant_contact || '');
             // New fields per compliance template
-            setVal('s1_staff_or_nric', d.ptw_staff_no || d.ptw_applicant_staff_no || d.ptw_applicant_nric || d.ptw_nric || d.txtStaffNoNRIC || '');
+            setVal('s1_staff_or_nric', d.ptw_staff_no || d.ptw_applicant_staff_no || d.ptw_applicant_nric || d.ptw_nric || d.ptw_staff_nric || '');
             setVal('s1_supervisor_name', d.ptw_contractor_supervisor || d.ptw_supervisor_name || '');
             setVal('s1_supervisor_contact', d.ptw_supervisor_contact || '');
             setVal('s1_identification_no', d.ptw_identification_no || d.txtIdentificationNo || '');
@@ -2205,33 +2201,77 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                 const dSpan = document.getElementById('contractor_ack_designation');
                 if (dSpan && desig) dSpan.textContent = desig;
             } catch(_e){}
-            // PPE binding from hazard checklist (flat keys start with ppe_)
+            // PPE binding from hazard checklist with legacy→new ID mapping
             try {
                 let haz = {};
                 if (d.ptw_hazard_checklist) {
                     haz = typeof d.ptw_hazard_checklist === 'string' ? JSON.parse(d.ptw_hazard_checklist) : d.ptw_hazard_checklist;
                 }
-                const ppe = haz || {};
-                const ids = [
-                    'ppe_safety_helmet','ppe_safety_shoes','ppe_high_vis_vest','ppe_dust_mask',
-                    'ppe_respirator','ppe_scba','ppe_safety_glasses','ppe_face_shield',
-                    'ppe_coveralls','ppe_chemical_suit','ppe_work_gloves','ppe_chemical_gloves',
-                    'ppe_cut_resistant','ppe_ear_plugs','ppe_ear_muffs'
+                const src = haz || {};
+                // Legacy keys (left) mapped to new canonical print/form IDs (right)
+                const mapLegacyToNew = {
+                    'ppe_respirator': 'ppe_half_mask_respirator',
+                    'ppe_dust_mask': 'ppe_half_mask_respirator',
+                    'ppe_scba': 'ppe_full_face_respirator_scba',
+                    'ppe_safety_glasses': 'ppe_goggles',
+                    'ppe_coveralls': 'ppe_disposable_suit',
+                    'ppe_work_gloves': 'ppe_leather_gloves',
+                    'ppe_cut_resistant': 'ppe_leather_gloves',
+                    'ppe_air_line_set_visual': 'ppe_air_line_set',
+                    'ppe_hood_visual': 'ppe_hood',
+                    'ppe_welding_mask_visual': 'ppe_welding_mask',
+                    'ppe_rubber_boots_visual': 'ppe_rubber_boots',
+                    'ppe_cotton_gloves_visual': 'ppe_cotton_gloves',
+                    'ppe_leather_gloves_visual': 'ppe_leather_gloves',
+                    'ppe_rubber_gloves_visual': 'ppe_rubber_gloves',
+                    'ppe_full_body_harness_visual': 'ppe_full_body_harness',
+                    'ppe_life_jacket_visual': 'ppe_life_jacket',
+                    // Explicitly ignore: 'ppe_high_vis_vest'
+                };
+                const resolved = {};
+                // 1) Copy any already-new IDs (from src or flat d)
+                const newIds = [
+                    'ppe_safety_helmet','ppe_safety_shoes','ppe_full_body_harness',
+                    'ppe_half_mask_respirator','ppe_full_face_respirator_scba','ppe_air_line_set','ppe_hood',
+                    'ppe_goggles','ppe_face_shield','ppe_welding_mask','ppe_disposable_suit','ppe_chemical_suit','ppe_rubber_boots',
+                    'ppe_cotton_gloves','ppe_leather_gloves','ppe_rubber_gloves','ppe_chemical_gloves',
+                    'ppe_ear_plugs','ppe_ear_muffs','ppe_life_jacket'
                 ];
-                ids.forEach(id=>{
-                    const el = document.getElementById(id);
-                    if (el) el.checked = !!(ppe[id] || d[id]);
+                newIds.forEach(id => { if (src[id] != null) resolved[id] = src[id]; });
+                // 2) Apply legacy mapping from src and d fallback
+                const allKeys = new Set(Object.keys(src).concat(Object.keys(d||{})));
+                allKeys.forEach(k => {
+                    if (!k.startsWith('ppe_')) return;
+                    const target = mapLegacyToNew[k];
+                    if (target) {
+                        const val = src[k] != null ? src[k] : d[k];
+                        if (val != null) resolved[target] = val;
+                    } else if (newIds.includes(k)) {
+                        // already-new key present in d (fallback)
+                        if (resolved[k] == null && d[k] != null) resolved[k] = d[k];
+                    }
                 });
-                const others = ppe.ppe_others || d.ppe_others || '';
+                // 3) Bind to checkboxes in print
+                newIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        const v = resolved[id];
+                        // accept booleans, "true"/"1"/1 as truthy
+                        const checked = (v === true) || (v === 1) || (v === '1') || (typeof v === 'string' && v.toLowerCase() === 'true');
+                        el.checked = !!checked;
+                    }
+                });
+                // 4) Others text
+                const others = src.ppe_others || d.ppe_others || '';
                 const othersEl = document.getElementById('ppe_others');
                 if (othersEl) {
                     if ('value' in othersEl) {
-                        try{ othersEl.value = others; }catch(_e){ othersEl.textContent = others; }
+                        try { othersEl.value = others; } catch (_e) { othersEl.textContent = others; }
                     } else {
                         othersEl.textContent = others;
                     }
                     const chk = document.getElementById('ppe_others_checkbox');
-                    if (chk) chk.checked = !!others;
+                    if (chk) chk.checked = !!(others && others.toString().trim());
                 }
             } catch(_e){}
             const docs = Array.isArray(d.documents) ? d.documents : [];
