@@ -21,6 +21,32 @@
 12. **SQL views live in code.** `Class_db::get_sql()` resolves `vw_*`, `vg_*`, `mw_*`, etc. from `api/library/sql.php`; update those definitions when adjusting view-backed queries or adding new virtual tables.
 
 Key references: `api/wo_v3.php`, `api/class/General.php`, `api/class/DbMysql.php`, `api/trait/SiteFilterTrait.php`, `api/function/f_ptw.php`, `api/ptw*.php`, `api/asset*.php`, `js/common.js`, `deploy_production.sh`, `developer/README.md`.
+
+### Modern module UI blueprint (Header + Metrics + Filter + List)
+- Use this layout for new admin/operations pages (example: `license.html`). Keep it list-first unless the module truly needs cards.
+- Structure (top to bottom):
+  1) Gradient page header with title, short description, and primary actions on the right.
+  2) Metrics row (3–4 stat cards) with totals/warnings/errors.
+  3) Filter card containing a Search input and simple dropdowns; hide DataTables’ built-in filter and wire our own.
+  4) Main list in a styled card with DataTable; on mobile, table rows stack into card-like blocks using `td::before { content: attr(data-label) }` set via `fnRowCallback`.
+- Required patterns:
+  - CSS tokens: primary color hex 4338CA, background hex F1F5F9, text hex 0F172A, muted hex 64748B, large radius ~24–28px, soft shadows.
+  - Header classes: `.license-page-header` (or module-prefixed), `.header-text`, `.header-actions`.
+  - Metrics: `.metric-card`, `.metric-label`, `.metric-value`, `.metric-subtext`.
+  - Filters: `.filter-card`, `.filter-grid`, `.filter-label`, `.summary-pill`.
+  - List card: `.license-data-card` (or `module-data-card`), `.license-table-wrapper`.
+  - Mobile table at ≤768px: hide thead, render the DataTable wrapper as block, and make each table row display as block with border/shadow; in fnRowCallback set data-label for each TD.
+- JavaScript wiring (DataTable only):
+  - Hide built-in filter; use input with id txt<Module>Search to call oTable.search(term).draw().
+  - Add status filter via select with id opt<Module>Status and a $.fn.dataTable.ext.search predicate.
+  - Metrics: compute from the loaded array and update metricTotal, metricExpiring, metricExpired, etc.
+  - Results summary: after draw, set lbl<Module>Count with “Showing X of Y” and lbl<Module>Updated timestamp.
+- ID naming examples (License):
+  - Buttons: btnLicenseRefresh, btnLicenseAdd
+  - Search/status: txtLicenseSearch, optLicenseStatus
+  - Metrics: metricTotal, metricExpiring, metricExpired, metricNoExpiry
+  - Results: lblLicenseCount, lblLicenseUpdated
+- Reference implementation: `license.html` + `js/pages/main_license.js` in this repo.
 ## GEMS2 – AI Agent Quick Guide
 
 Purpose: Make agents productive fast in this PHP monolith by documenting the real patterns, workflows, and conventions used here.

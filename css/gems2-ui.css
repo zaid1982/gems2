@@ -1,0 +1,87 @@
+/* GEMS2 UI Design Memory Bank - shared styles
+   Provides consistent header, metrics, filter, list, pill, button, and mobile table patterns.
+*/
+:root {
+  --gems-primary: #4338CA;
+  --gems-accent: #38BDF8;
+  --gems-bg: #F1F5F9;
+  --gems-text: #0F172A;
+  --gems-muted: #64748B;
+  --gems-radius-lg: 24px;
+  --gems-shadow-lg: 0 24px 50px -32px rgba(30, 41, 59, 0.35);
+  --gems-card-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.25);
+}
+
+/* Generic page header (gradient) */
+.gems-page-header {
+  background: linear-gradient(135deg, rgba(67,56,202,1) 0%, rgba(56,189,248,0.95) 100%);
+  color: #fff;
+  padding: 28px 24px;
+  border-radius: 28px;
+  margin: 18px 0 22px;
+  box-shadow: var(--gems-shadow-lg);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+}
+.gems-page-header .header-text h2 { font-weight: 800; margin: 0 0 6px; }
+.gems-page-header .header-text p { margin: 0; opacity: 0.95; }
+.gems-page-header .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.gems-page-header .header-actions .btn { border-radius: 999px; padding: 0.5rem 1.2rem; font-weight: 600; }
+.gems-page-header .btn-outline-light { border-color: rgba(255,255,255,0.7); color: #fff; }
+.gems-page-header .btn-outline-light:hover { background: rgba(255,255,255,0.15); }
+
+/* Metric cards */
+.metric-card { background: #fff; border-radius: var(--gems-radius-lg); padding: 18px 20px; box-shadow: var(--gems-card-shadow); }
+.metric-label { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gems-muted); }
+.metric-value { font-size: 2rem; font-weight: 800; color: var(--gems-text); }
+.metric-subtext { font-size: .9rem; color: var(--gems-muted); }
+.metric-progress { height: 8px; border-radius: 8px; overflow: hidden; background: #e2e8f0; }
+.metric-progress .bar { height: 100%; background: var(--gems-primary); }
+
+/* Filter card */
+.filter-card { background:#fff; border-radius: var(--gems-radius-lg); padding: 18px 20px; box-shadow: var(--gems-card-shadow); }
+.filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 14px; }
+.filter-label { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gems-muted); margin-bottom: 6px; }
+.filter-card .form-control, .filter-card .btn, .filter-card .dropdown-toggle { border-radius: 12px; }
+/* Unified input and dropdown appearance */
+.filter-card .btn-outline-secondary, .filter-card .dropdown-toggle {
+  background: #fff; color: var(--gems-text); border: 2px solid rgba(56,189,248,0.45); padding: 0.6rem 1rem;
+  box-shadow: 0 8px 26px -18px rgba(56,189,248,0.65);
+}
+.filter-card .form-control {
+  background: #fff; border: 2px solid rgba(56,189,248,0.45); padding: 0.6rem 1rem; height: auto; line-height: 1.25;
+  box-shadow: 0 8px 26px -18px rgba(56,189,248,0.65);
+}
+.filter-card .form-control[readonly] { background: #fff; opacity: 1; }
+.filter-card .form-control:focus { border-color: var(--gems-accent); box-shadow: 0 0 0 .2rem rgba(56,189,248,.25); }
+
+/* Results summary pill */
+.summary-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: #eef2f7; color: #1e293b; border-radius: 999px; font-size: .9rem; }
+
+/* Data list card + wrapper */
+.module-data-card { background:#fff; border-radius: var(--gems-radius-lg); box-shadow: var(--gems-card-shadow); }
+.module-table-wrapper { overflow: auto; width: 100%; }
+
+/* Button and badge utilities */
+.btn-icon { width: 34px; height: 34px; border-radius: 999px !important; display: inline-flex; align-items: center; justify-content: center; padding: 0 !important; }
+.badge-soft { border-radius: 999px; padding: .35rem .6rem; font-weight: 700; }
+.badge-soft-primary { background: rgba(67,56,202,.12); color: #4338CA; }
+.badge-soft-success { background: rgba(34,197,94,.12); color: #22C55E; }
+.badge-soft-warning { background: rgba(245,158,11,.12); color: #F59E0B; }
+.badge-soft-danger { background: rgba(239,68,68,.12); color: #EF4444; }
+.badge-soft-muted { background: rgba(148,163,184,.16); color: #334155; }
+
+/* DataTables cosmetic defaults to match design */
+.dataTables_wrapper .dataTables_info { padding-top: .75rem; color: var(--gems-muted); font-size: .9rem; }
+.dataTables_wrapper .dataTables_paginate { padding-top: .5rem; }
+.dataTables_wrapper .dataTables_paginate .paginate_button { border-radius: 12px !important; border: none !important; margin: 0 3px !important; padding: 0.35rem 0.75rem !important; background: #e2e8f0 !important; color: #1e293b !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #4338ca !important; color: #fff !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled { background: #e2e8f0 !important; color: #94a3b8 !important; }
+
+/* Mobile stacking pattern for tables */
+@media (max-width: 768px) {
+  .mobile-stack thead { display: none; }
+  .mobile-stack tbody tr { display: block; margin-bottom: 12px; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 6px 16px -12px rgba(15,23,42,.25); overflow: hidden; }
+  .mobile-stack tbody td { display: flex; width: 100%; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px dashed #e5e7eb; }
+  .mobile-stack tbody td:last-child { border-bottom: none; }
+  .mobile-stack tbody td::before { content: attr(data-label); font-weight: 600; color: #475569; margin-right: 8px; }
+}

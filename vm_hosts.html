@@ -14,8 +14,60 @@
   <style>
     body { background: #f6f8fa; }
     .page { max-width: 1100px; margin: 0 auto; padding: 2rem 0; }
-    .card, .btn, .form-control, .badge, .modal-content, .input-group-text { border-radius: 0 !important; }
-    .filters .form-control { height: 38px; }
+    /* Keep square look for cards/inputs/modals only; allow custom pills for buttons/badges */
+    .card, .form-control, .modal-content, .input-group-text { border-radius: 0 !important; }
+    .filters .form-control { height: 46px; }
+    .filters select.browser-default.custom-select { display:block !important; visibility: visible !important; width:100%; height:46px; }
+
+    /* Modern module UI blueprint (Hosts) */
+    .hosts-page-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      background: linear-gradient(135deg, #4338CA, #38BDF8); color: #fff;
+      padding: 28px; border-radius: 24px; box-shadow: 0 6px 16px rgba(2,6,23,.08);
+      margin-bottom: 16px;
+    }
+    .hosts-page-header .header-text h4 { margin: 0 0 6px; font-weight: 700; font-size: 1.6rem; }
+    .hosts-page-header .header-text .sub { margin: 0; opacity: .95; }
+    .hosts-page-header .header-actions { display:flex; flex-wrap:wrap; gap:12px; }
+    .hosts-page-header .header-actions .btn { border-radius: 999px !important; padding: 0.55rem 1.6rem; font-weight: 600; min-width: 150px; }
+    .hosts-page-header .header-actions .btn-outline-light { border-color: rgba(255,255,255,0.7) !important; color: #fff !important; }
+    .hosts-page-header .header-actions .btn-outline-light:hover { background: rgba(255,255,255,0.15) !important; }
+
+    .hosts-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+    .metric-card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 6px 16px rgba(2,6,23,.06); }
+    .metric-label { color: #64748B; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+    .metric-value { color: #0F172A; font-size: 28px; font-weight: 700; margin-top: 4px; }
+    .metric-subtext { color: #64748B; font-size: 12px; margin-top: 2px; }
+
+    .filter-card { background: #fff; border-radius: 20px; padding: 18px; margin: 16px 0; box-shadow: 0 6px 16px rgba(2,6,23,.06); }
+    .filter-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; align-items: end; }
+    .filter-label { display:block; color:#64748B; font-size:12px; margin-bottom:6px; text-transform: uppercase; letter-spacing: .06em; }
+    .filter-card .form-control, .filter-card select.browser-default.custom-select { height: 46px; padding: 10px 12px; width: 100%; border-radius: 12px !important; }
+    .filter-card input[type="text"] { padding: 8px 12px; }
+    .results-summary { display:flex; align-items:center; justify-content: space-between; gap:12px; color:#0F172A; margin-top: 8px; }
+    .summary-pill { color:#64748B; font-size: .9rem; }
+
+  /* Icon-only action buttons */
+  .btn-icon { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-width: 2px; border-radius: 50% !important; }
+  .btn-icon i { font-size: .95rem; line-height: 1; }
+  .btn-group.btn-group-sm .btn-icon { width: 32px; height: 32px; border-width: 1.5px; }
+  .btn-icon:active { transform: translateY(1px); }
+
+    /* License-style status badges (translucent, pill) */
+    .badge-success { background: rgba(34, 197, 94, 0.18) !important; color: #166534 !important; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px !important; }
+    .badge-secondary { background: rgba(148, 163, 184, 0.18) !important; color: #475569 !important; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px !important; }
+
+    /* Mobile table stack at ≤768px */
+    @media (max-width: 768px) {
+      .hosts-metrics { grid-template-columns: 1fr 1fr; }
+      .filter-grid { grid-template-columns: 1fr; }
+      #tbl thead { display: none; }
+      #tbl, #tbl tbody, #tbl tr, #tbl td { display: block; width: 100%; }
+      #tbl tr { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; box-shadow: 0 4px 10px rgba(2,6,23,.04); }
+      #tbl td { border: 0; border-bottom: 1px dashed #e5e7eb; padding: 8px 0; }
+      #tbl td:last-child { border-bottom: 0; }
+      #tbl td::before { content: attr(data-label); display: block; color: #64748B; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    }
   </style>
 </head>
 <body class="fixed-sn light-blue-skin">
@@ -25,36 +77,61 @@
   </header>
   <main>
     <div class="container-fluid page">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h4 class="mb-1"><i class="fas fa-user-tie me-2"></i> Reception: Host Directory</h4>
-          <div class="text-muted">Manage host entries for visitor registration</div>
+      <section class="hosts-page-header">
+        <div class="header-text">
+          <h4 class="mb-1"><i class="fas fa-user-tie mr-2"></i> Reception: Host Directory</h4>
+          <div class="sub">Manage host entries for visitor registration</div>
         </div>
-        <div>
-          <button id="btnAdd" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Add Host</button>
+        <div class="header-actions">
+          <button id="btnRefresh" class="btn btn-outline-light"><i class="fas fa-sync-alt mr-2"></i>Refresh</button>
+          <button id="btnAdd" class="btn btn-primary"><i class="fas fa-plus mr-2"></i>Add Host</button>
         </div>
-      </div>
+      </section>
 
-      <div class="card mb-3">
-        <div class="card-body">
-          <div class="row g-2 filters">
-            <div class="col-md-3">
-              <label class="form-label">Site</label>
-              <select id="siteId" class="browser-default custom-select">
-                <option value="" disabled selected>Select site…</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Search</label>
-              <input type="text" id="q" class="form-control" placeholder="Search name/email/contact/department">
-            </div>
-            <div class="col-md-3 d-flex align-items-end">
-              <button id="btnApply" class="btn btn-primary me-2" disabled>Apply</button>
-              <button id="btnReset" class="btn btn-outline-secondary">Reset</button>
+      <section class="hosts-metrics" id="hostsMetrics" style="display:none;">
+        <div class="metric-card">
+          <div class="metric-label">Total</div>
+          <div class="metric-value" id="metricHostTotal">0</div>
+          <div class="metric-subtext">All hosts</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Active</div>
+          <div class="metric-value" id="metricHostActive">0</div>
+          <div class="metric-subtext">Enabled for selection</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Inactive</div>
+          <div class="metric-value" id="metricHostInactive">0</div>
+          <div class="metric-subtext">Hidden from lists</div>
+        </div>
+      </section>
+
+      <section class="filter-card">
+        <div class="filter-grid filters">
+          <div>
+            <label class="filter-label">Site</label>
+            <select id="siteId" class="browser-default custom-select">
+              <option value="" disabled selected>Select site…</option>
+            </select>
+          </div>
+          <div>
+            <label class="filter-label">Search</label>
+            <input type="text" id="q" class="form-control" placeholder="Search name/email/contact/department">
+          </div>
+          <div style="align-self:center;">
+            <div class="summary-pill">
+              <span id="lblHostCount">Showing 0 of 0</span>
             </div>
           </div>
+          <div class="d-flex align-items-end" style="gap:8px;">
+            <button id="btnApply" class="btn btn-primary" disabled>Apply</button>
+            <button id="btnReset" class="btn btn-outline-secondary">Reset</button>
+          </div>
         </div>
-      </div>
+        <div class="results-summary">
+          <div id="lblHostUpdated" class="summary-pill"><i class="far fa-clock mr-2"></i>Last refreshed: <span>-</span></div>
+        </div>
+      </section>
 
       <div class="card">
         <div class="card-body">
@@ -229,8 +306,8 @@
           rows.forEach(r=>{
             const status = r.active==1 ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-secondary">Inactive</span>';
             const $act = $('<div class="btn-group btn-group-sm">')
-              .append($('<button class="btn btn-outline-primary">Edit</button>').on('click', ()=>editHost(r)))
-              .append($('<button class="btn btn-outline-danger">Delete</button>').on('click', ()=>deleteHost(r)));
+              .append($('<button class="btn btn-outline-primary btn-icon" title="Edit" data-toggle="tooltip" aria-label="Edit"><i class="fas fa-edit"></i></button>').on('click', ()=>editHost(r)))
+              .append($('<button class="btn btn-outline-danger btn-icon" title="Delete" data-toggle="tooltip" aria-label="Delete"><i class="fas fa-trash"></i></button>').on('click', ()=>deleteHost(r)));
             const tr = $('<tr/>').attr('data-host-id', r.host_id)
               .append($('<td/>').text(r.name||''))
               .append($('<td/>').text(r.email||''))
@@ -238,10 +315,42 @@
               .append($('<td/>').text(r.department||''))
               .append($('<td/>').html(status))
               .append($('<td/>').append($act));
+            // data-labels for mobile cards
+            tr.find('td').eq(0).attr('data-label','Name');
+            tr.find('td').eq(1).attr('data-label','Email');
+            tr.find('td').eq(2).attr('data-label','Contact No');
+            tr.find('td').eq(3).attr('data-label','Department');
+            tr.find('td').eq(4).attr('data-label','Status');
+            tr.find('td').eq(5).attr('data-label','Actions');
             $tbody.append(tr);
           });
           if (dt) { dt.destroy(); }
-          dt = $tbl.DataTable({ order: [[0,'asc']], pageLength: 25 });
+          dt = $tbl.DataTable({ order: [[0,'asc']], pageLength: 25, dom: 'lrtip' });
+          if ($.fn.tooltip) { $tbl.find('[data-toggle="tooltip"]').tooltip({ container: 'body' }); }
+          updateMetrics(rows);
+          updateSummary();
+          $('#hostsMetrics').show();
+          $tbl.off('draw.dt').on('draw.dt', function(){
+            if ($.fn.tooltip) { $tbl.find('[data-toggle="tooltip"]').tooltip({ container: 'body' }); }
+            updateSummary();
+          });
+        }
+
+        function updateMetrics(rows){
+          const total = Array.isArray(rows) ? rows.length : 0;
+          const active = rows.filter(r => String(r.active)==='1').length;
+          const inactive = total - active;
+          $('#metricHostTotal').text(total);
+          $('#metricHostActive').text(active);
+          $('#metricHostInactive').text(inactive);
+        }
+
+        function updateSummary(){
+          try {
+            const info = dt ? dt.page.info() : { recordsDisplay: 0, recordsTotal: 0 };
+            $('#lblHostCount').text('Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal);
+            $('#lblHostUpdated span').text(new Date().toLocaleString());
+          } catch(e){}
         }
 
         function focusRowById(id){
@@ -319,6 +428,7 @@
             .catch(e=>{ if (window.toastr) toastr.error(e.message||'Save failed'); else alert(e.message||'Save failed'); });
         });
 
+        $('#btnRefresh').on('click', function(){ if($site.val()) load(); });
         $add.on('click', function(){
           const $f = $('#hostForm')[0];
           $f.reset(); $f.host_id.value=''; $('#activeSwitch').prop('checked', true);

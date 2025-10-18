@@ -14,10 +14,11 @@
   <style>
     body { background: #f6f8fa; }
     .page { max-width: 1200px; margin: 0 auto; padding: 2rem 0; }
-    .card, .btn, .form-control, .badge, .modal-content, .input-group-text { border-radius: 0 !important; }
-  .filters .form-control { height: 38px; }
+  /* Keep square look for cards/inputs/modals only; allow custom pills for buttons/badges */
+  .card, .form-control, .modal-content, .input-group-text { border-radius: 0 !important; }
+  .filters .form-control { height: 46px; }
   /* Force native select rendering and visibility */
-  .filters select.browser-default.custom-select { display: block !important; visibility: visible !important; }
+  .filters select.browser-default.custom-select { display: block !important; visibility: visible !important; width: 100%; height: 46px; }
     .table td { vertical-align: middle; }
     .text-ellipsis { max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   /* Detail modal label/value contrast */
@@ -28,10 +29,59 @@
   .vd-photo { width: 140px; height: 180px; object-fit: cover; background: #f8fafc; display: none; }
   #vd_photo_placeholder { color:#6c757d; font-size: .9rem; }
   /* Icon-only action buttons */
-  .btn-icon { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-width: 2px; }
+  .btn-icon { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-width: 2px; border-radius: 50% !important; }
   .btn-icon i { font-size: .95rem; line-height: 1; }
   .btn-group.btn-group-sm .btn-icon { width: 32px; height: 32px; border-width: 1.5px; }
   .btn-icon:active { transform: translateY(1px); }
+
+  /* Modern module UI blueprint (Visits) */
+  .visits-page-header {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    background: linear-gradient(135deg, #4338CA, #6366F1); color: #fff;
+    padding: 24px 28px; border-radius: 24px; box-shadow: 0 6px 16px rgba(2,6,23,.08);
+    margin-bottom: 16px;
+  }
+  .visits-page-header .header-text h2 { margin: 0 0 4px; font-weight: 700; }
+  .visits-page-header .header-text p { margin: 0; opacity: .9; }
+  .visits-page-header .header-actions { display:flex; flex-wrap:wrap; gap:12px; }
+  .visits-page-header .header-actions .btn { border-radius: 999px !important; padding: 0.55rem 1.6rem; font-weight: 600; min-width: 150px; }
+  .visits-page-header .header-actions .btn-outline-light { border-color: rgba(255,255,255,0.7) !important; color: #fff !important; }
+  .visits-page-header .header-actions .btn-outline-light:hover { background: rgba(255,255,255,0.15) !important; }
+
+  .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0; }
+  .metric-card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 6px 16px rgba(2,6,23,.06); }
+  .metric-label { color: #64748B; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+  .metric-value { color: #0F172A; font-size: 28px; font-weight: 700; margin-top: 4px; }
+  .metric-subtext { color: #64748B; font-size: 12px; margin-top: 2px; }
+
+  .filter-card { background: #fff; border-radius: 20px; padding: 18px; margin: 16px 0; box-shadow: 0 6px 16px rgba(2,6,23,.06); }
+  .filter-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; align-items: start; }
+  .filter-label { display:block; color:#64748B; font-size:12px; margin-bottom:6px; text-transform: uppercase; letter-spacing: .06em; }
+  .summary-pill { justify-self: end; align-self: center; color:#0F172A; }
+  .filter-card .form-control, .filter-card select.browser-default.custom-select { height: 46px; padding: 10px 12px; width: 100%; border-radius: 12px !important; }
+  .filter-card input[type="date"] { padding: 8px 12px; }
+
+  .visits-data-card { background: #fff; border-radius: 20px; padding: 0; box-shadow: 0 6px 16px rgba(2,6,23,.06); }
+  .visits-table-wrapper { padding: 12px; }
+
+  /* License-style status badges (translucent, pill) */
+  .badge-success { background: rgba(34, 197, 94, 0.18) !important; color: #166534 !important; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px !important; }
+  .badge-warning { background: rgba(250, 204, 21, 0.15) !important; color: #854d0e !important; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px !important; }
+  .badge-danger { background: rgba(248, 113, 113, 0.18) !important; color: #991b1b !important; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px !important; }
+  .badge-secondary { background: rgba(148, 163, 184, 0.18) !important; color: #475569 !important; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px !important; }
+  .badge-info { background: rgba(59, 130, 246, 0.18) !important; color: #1e3a8a !important; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px !important; }
+
+  /* Mobile table stack at ≤768px */
+  @media (max-width: 768px) {
+    .metrics-row { grid-template-columns: 1fr 1fr; }
+    .filter-grid { grid-template-columns: 1fr; }
+    #tbl thead { display: none; }
+    #tbl, #tbl tbody, #tbl tr, #tbl td { display: block; width: 100%; }
+    #tbl tr { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; box-shadow: 0 4px 10px rgba(2,6,23,.04); }
+    #tbl td { border: 0; border-bottom: 1px dashed #e5e7eb; padding: 8px 0; }
+    #tbl td:last-child { border-bottom: 0; }
+    #tbl td::before { content: attr(data-label); display: block; color: #64748B; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+  }
   </style>
 </head>
 <body class="fixed-sn light-blue-skin">
@@ -47,35 +97,58 @@
   <!--Main layout-->
   <main>
     <div class="container-fluid page">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h3 class="mb-1"><i class="fas fa-clipboard-list me-2"></i> Admin: Visitor Registrations</h3>
-          <div class="text-muted">Manage and audit visitor submissions</div>
+      <section class="visits-page-header">
+        <div class="header-text">
+          <h2><i class="fas fa-clipboard-list mr-2"></i> Admin: Visitor Registrations</h2>
+          <p>Manage and audit visitor submissions</p>
         </div>
-        <div>
-          <a id="newBtn" class="btn btn-primary"><i class="fas fa-plus me-1"></i> New Registration</a>
+        <div class="header-actions">
+          <button id="btnVisitsRefresh" class="btn btn-outline-light"><i class="fas fa-sync-alt mr-2"></i> Refresh</button>
+          <a id="btnVisitsAdd" class="btn btn-primary" style="border-radius:999px !important; padding:0.55rem 1.6rem; font-weight:600; min-width:150px;"><i class="fas fa-plus mr-2"></i> New Registration</a>
         </div>
-      </div>
+      </section>
 
-      <div class="card mb-3">
-        <div class="card-body">
-          <div class="row g-2 filters">
-            <div class="col-md-3">
-              <label class="form-label">Client</label>
+      <section class="metrics-row" id="visitsMetrics" style="display:none;">
+        <div class="metric-card">
+          <div class="metric-label">Total</div>
+          <div class="metric-value" id="metricTotal">0</div>
+          <div class="metric-subtext">All records</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Checked In</div>
+          <div class="metric-value" id="metricCheckedIn">0</div>
+          <div class="metric-subtext">Currently on-site</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Checked Out</div>
+          <div class="metric-value" id="metricCheckedOut">0</div>
+          <div class="metric-subtext">Completed visits</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Cancelled</div>
+          <div class="metric-value" id="metricCancelled">0</div>
+          <div class="metric-subtext">Cancelled/Archived</div>
+        </div>
+      </section>
+
+      <section class="filter-card">
+        <div class="filter-grid filters">
+            <div class="fg-item">
+              <label class="filter-label" for="clientId">Client</label>
               <select id="clientId" class="browser-default custom-select">
                 <option value="" selected>All clients…</option>
               </select>
             </div>
-            <div class="col-md-3">
-              <label class="form-label">Date Start</label>
+            <div class="fg-item">
+              <label class="filter-label" for="dateStart">Date Start</label>
               <input type="date" class="form-control" id="dateStart">
             </div>
-            <div class="col-md-3">
-              <label class="form-label">Date End</label>
+            <div class="fg-item">
+              <label class="filter-label" for="dateEnd">Date End</label>
               <input type="date" class="form-control" id="dateEnd">
             </div>
-            <div class="col-md-2">
-              <label class="form-label">Status</label>
+            <div class="fg-item">
+              <label class="filter-label" for="status">Status</label>
               <select id="status" class="browser-default custom-select">
                 <option value="ALL">All</option>
                 <option>CHECKED_IN</option>
@@ -84,24 +157,31 @@
                 <option>ARCHIVED</option>
               </select>
             </div>
-            <div class="col-md-3">
-              <label class="form-label">Site</label>
+            <div class="fg-item">
+              <label class="filter-label" for="siteId">Site</label>
               <select id="siteId" class="browser-default custom-select">
                 <option value="" selected disabled>Select site…</option>
               </select>
               <small class="form-text text-muted mt-1">Pick a client first (optional), then choose a site to load data.</small>
             </div>
-            <div class="col-md-2">
-              <label class="form-label">Search</label>
+            <div class="fg-item">
+              <label class="filter-label" for="search">Search</label>
               <input type="text" class="form-control" id="search" placeholder="Name, contact, host...">
+            </div>
+            <div class="fg-item">
+              <!-- <label class="filter-label" for="search">Search</label> -->
+              <!-- <input type="text" class="form-control" id="search" placeholder="Name, contact, host..."> -->
+            </div>
+            <div class="summary-pill">
+              <div id="lblVisitsCount" class="mb-1">Showing 0 of 0</div>
+              <small id="lblVisitsUpdated" class="text-muted">—</small>
             </div>
           </div>
           <div class="mt-3 d-flex gap-2">
             <button id="applyBtn" class="btn btn-primary" disabled>Apply</button>
             <button id="resetBtn" class="btn btn-outline-secondary">Reset</button>
           </div>
-        </div>
-      </div>
+      </section>
 
       <div id="emptyState" class="alert alert-info d-flex align-items-center" role="alert">
         <i class="fas fa-info-circle mr-2"></i>
@@ -110,10 +190,9 @@
         </div>
       </div>
 
-      <div id="resultsCard" class="card" style="display:none;">
-        <div class="card-body">
-          <div class="table-responsive">
-            <table id="tbl" class="table table-striped table-bordered" style="width:100%">
+      <div id="resultsCard" class="visits-data-card" style="display:none;">
+        <div class="visits-table-wrapper">
+            <table id="tbl" class="table table-striped table-hover" style="width:100%">
               <thead>
                 <tr>
                   <th>Ref</th>
@@ -130,7 +209,6 @@
               </thead>
               <tbody></tbody>
             </table>
-          </div>
         </div>
       </div>
   </div>
@@ -308,7 +386,8 @@
       const $search = $('#search');
       const $ds = $('#dateStart');
       const $de = $('#dateEnd');
-      const $newBtn = $('#newBtn');
+      const $newBtn = $('#btnVisitsAdd');
+      const $refreshBtn = $('#btnVisitsRefresh');
       const params = new URLSearchParams(window.location.search);
   const siteParam = params.get('site') || '';
       const userSitePref = (typeof mzGetUserInfoByParam === 'function') ? (mzGetUserInfoByParam('siteId') || '') : '';
@@ -330,6 +409,7 @@
         $de.prop('disabled', !enabled);
         $search.prop('disabled', !enabled);
         $apply.prop('disabled', !enabled || !($site.val()));
+        $refreshBtn.prop('disabled', !enabled);
         if (!enabled) setNewHref('');
       }
 
@@ -341,6 +421,11 @@
           // Clear table contents when hiding results
           if ($.fn.dataTable.isDataTable('#tbl')) { $tbl.DataTable().clear().draw(); }
           $tbl.find('tbody').empty();
+          // Reset metrics
+          $('#visitsMetrics').hide();
+          $('#metricTotal, #metricCheckedIn, #metricCheckedOut, #metricCancelled').text('0');
+          $('#lblVisitsCount').text('Showing 0 of 0');
+          $('#lblVisitsUpdated').text('—');
         }
       }
       // Initialize UI state (no site selected by default)
@@ -386,7 +471,7 @@
             case 'CHECKED_IN': return { label: 'Checked In', cls: 'badge-success' };
             case 'CHECKED_OUT': return { label: 'Checked Out', cls: 'badge-secondary' };
             case 'CANCELLED': return { label: 'Cancelled', cls: 'badge-danger' };
-            case 'ARCHIVED': return { label: 'Archived', cls: 'badge-dark' };
+            case 'ARCHIVED': return { label: 'Archived', cls: 'badge-secondary' };
             case 'PENDING': return { label: 'Pending', cls: 'badge-warning' };
             default: return { label: titleize(s||'Unknown'), cls: 'badge-info' };
           }
@@ -404,7 +489,7 @@
           const tr = $('<tr/>')
             .append($('<td/>').text(r.visit_id))
             .append($('<td/>').text(r.arrived_at||''))
-            .append($('<td/>').text(r.site_id||''))
+            .append($('<td/>').text(r.site_name || r.siteName || r.site_id || ''))
             .append($('<td/>').text(r.name||''))
             .append($('<td/>').text(r.contact_no||''))
             .append($('<td/>').text(r.party_size||''))
@@ -412,13 +497,51 @@
             .append($('<td/>').append(statusBadge))
             .append($('<td/>').append(purpose))
             .append($('<td/>').append($act));
+          // data-labels for mobile cards
+          tr.find('td').eq(0).attr('data-label','Ref');
+          tr.find('td').eq(1).attr('data-label','Arrived At');
+          tr.find('td').eq(2).attr('data-label','Site');
+          tr.find('td').eq(3).attr('data-label','Name');
+          tr.find('td').eq(4).attr('data-label','Contact');
+          tr.find('td').eq(5).attr('data-label','Party');
+          tr.find('td').eq(6).attr('data-label','Host');
+          tr.find('td').eq(7).attr('data-label','Status');
+          tr.find('td').eq(8).attr('data-label','Purpose');
+          tr.find('td').eq(9).attr('data-label','Actions');
           $tbody.append(tr);
         });
   if ( $.fn.dataTable.isDataTable('#tbl') ) { $tbl.DataTable().destroy(); }
-  const dt = $tbl.DataTable({ order: [[1,'desc']], pageLength: 25 });
+  const dt = $tbl.DataTable({ order: [[1,'desc']], pageLength: 25, dom: 'lrtip' });
   // Initialize tooltips for action icons now and on redraw
   if ($.fn.tooltip) { $tbl.find('[data-toggle="tooltip"]').tooltip({ container: 'body' }); }
-  $tbl.off('draw.dt').on('draw.dt', function(){ if ($.fn.tooltip) { $tbl.find('[data-toggle="tooltip"]').tooltip({ container: 'body' }); } });
+  $tbl.off('draw.dt').on('draw.dt', function(){
+    if ($.fn.tooltip) { $tbl.find('[data-toggle="tooltip"]').tooltip({ container: 'body' }); }
+    updateSummary();
+  });
+
+  // Update metrics and summary
+  updateMetrics(rows);
+  updateSummary();
+  $('#visitsMetrics').show();
+      }
+
+      function updateMetrics(rows){
+        const total = rows.length;
+        const toUpper = s => String(s||'').toUpperCase();
+        const checkedIn = rows.filter(r => toUpper(r.status)==='CHECKED_IN').length;
+        const checkedOut = rows.filter(r => toUpper(r.status)==='CHECKED_OUT').length;
+        const cancelled = rows.filter(r => ['CANCELLED','ARCHIVED'].includes(toUpper(r.status))).length;
+        $('#metricTotal').text(total);
+        $('#metricCheckedIn').text(checkedIn);
+        $('#metricCheckedOut').text(checkedOut);
+        $('#metricCancelled').text(cancelled);
+      }
+
+      function updateSummary(){
+        if (!$.fn.dataTable.isDataTable('#tbl')) { return; }
+        const info = $tbl.DataTable().page.info();
+        $('#lblVisitsCount').text('Showing '+ info.recordsDisplay +' of '+ info.recordsTotal);
+        $('#lblVisitsUpdated').text(new Date().toLocaleString());
       }
 
       function viewRow(r){
@@ -430,9 +553,9 @@
             // Populate modal fields (simple fallback to '-')
             $('#vd_visit_id').text(d.visit_id || '-');
             $('#vd_arrived_at').text(d.arrived_at || '-');
-            $('#vd_site_id').text(d.site_id || '-');
+            $('#vd_site_id').text(d.site_name || d.siteName || d.site_id || '-');
             // Status as badge
-            (function(){
+              (function(){
               const key = String(d.status||'');
               const meta = (function(s){
                 const k = String(s||'').toUpperCase();
@@ -440,7 +563,7 @@
                   case 'CHECKED_IN': return { label: 'Checked In', cls: 'badge-success' };
                   case 'CHECKED_OUT': return { label: 'Checked Out', cls: 'badge-secondary' };
                   case 'CANCELLED': return { label: 'Cancelled', cls: 'badge-danger' };
-                  case 'ARCHIVED': return { label: 'Archived', cls: 'badge-dark' };
+                  case 'ARCHIVED': return { label: 'Archived', cls: 'badge-secondary' };
                   case 'PENDING': return { label: 'Pending', cls: 'badge-warning' };
                   default: return { label: String(key).toLowerCase().replace(/_/g,' ').replace(/\b\w/g, m=>m.toUpperCase()) || '-', cls: 'badge-info' };
                 }
@@ -506,6 +629,7 @@
       }
 
       $apply.on('click', load);
+      $refreshBtn.on('click', function(){ if (!$refreshBtn.prop('disabled')) { load(); } });
       $reset.on('click', function(){
         $status.val('ALL');
         $search.val('');
@@ -528,11 +652,22 @@
       function setOptionClient() {
         $client.empty();
         $client.append('<option value="" selected>All clients…</option>');
-        refClient_.forEach(c => {
-          const id = c.clientId || c.client_id;
-          const name = c.clientName || c.client_name || ('Client ' + id);
-          if (id) $client.append('<option value="'+id+'">'+name+'</option>');
-        });
+        if (Array.isArray(refClient_) && refClient_.length) {
+          refClient_.forEach(c => {
+            const id = c.clientId || c.client_id;
+            const name = c.clientName || c.client_name || ('Client ' + id);
+            if (id) $client.append('<option value="'+id+'">'+name+'</option>');
+          });
+          return Promise.resolve();
+        } else {
+          return fallbackPopulateClients().then(list => {
+            list.forEach(c => {
+              const id = c.client_id || c.clientId || c.id;
+              const name = c.client_name || c.clientName || c.name || ('Client ' + id);
+              if (id) $client.append('<option value="'+id+'">'+name+'</option>');
+            });
+          }).catch(()=>Promise.resolve());
+        }
       }
 
       function setOptionSite(clientId) {
@@ -592,15 +727,16 @@
 
       // Init refs and selectors
       loadRefs();
-      setOptionClient();
-      // If site was provided, derive and preselect its client (safe guards)
-      if (siteParam && Array.isArray(refSite_) && refSite_.length) {
-        const match = refSite_.find(s => s && String((s.siteId || s.site_id || '')) === String(siteParam));
-        if (match && (match.clientId || match.client_id)) { $client.val(match.clientId || match.client_id); }
-      }
-      // If no explicit site param, try user's preferred client first
-      if (!siteParam && userClientPref) { $client.val(userClientPref); }
-      setOptionSite($client.val() || '');
+      setOptionClient().then(() => {
+        // If site was provided, derive and preselect its client (safe guards)
+        if (siteParam && Array.isArray(refSite_) && refSite_.length) {
+          const match = refSite_.find(s => s && String((s.siteId || s.site_id || '')) === String(siteParam));
+          if (match && (match.clientId || match.client_id)) { $client.val(match.clientId || match.client_id); }
+        }
+        // If no explicit site param, try user's preferred client first
+        if (!siteParam && userClientPref) { $client.val(userClientPref); }
+        return setOptionSite($client.val() || '');
+      });
 
       function fallbackPopulateSites() {
         const token = sessionStorage.getItem('token');
@@ -617,6 +753,18 @@
             });
           })
           .catch(e=>console.error('Failed to load sites (fallback)', e));
+      }
+
+      function fallbackPopulateClients() {
+        const token = sessionStorage.getItem('token');
+        const url = token ? 'api/client.php' : 'api/validate_import.php?action=clients';
+        return fetch(url, token ? { headers: { 'Authorization': 'Bearer ' + token } } : {})
+          .then(r=>r.json())
+          .then(resp=>{
+            const list = resp.result || resp.data || [];
+            return Array.isArray(list) ? list : [];
+          })
+          .catch(e=>{ console.error('Failed to load clients (fallback)', e); return []; });
       }
     })();
   </script>

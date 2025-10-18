@@ -21,9 +21,104 @@
     <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
+    <!-- GEMS2 shared UI design memory bank -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
+            :root {
+                --home-primary: #4338ca;
+                --home-accent: #38bdf8;
+                --home-bg: #f1f5f9;
+                --home-text: #0f172a;
+                --home-muted: #64748b;
+                --home-radius: 24px;
+                --home-shadow: 0 24px 50px -32px rgba(30, 41, 59, 0.35);
+                --home-card-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.25);
+            }
 
+            body { background: var(--home-bg); }
+
+            .home-page-header {
+                background: linear-gradient(135deg, rgba(67,56,202,1) 0%, rgba(56,189,248,0.95) 100%);
+                color: #fff;
+                padding: 28px 24px;
+                border-radius: 28px;
+                margin: 18px 0 22px;
+                box-shadow: var(--home-shadow);
+                display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+            }
+            .home-page-header h2 { font-weight: 800; margin: 0 0 6px; }
+            .home-page-header p { margin: 0; opacity: 0.95; }
+            .home-page-header .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+            .home-page-header .header-actions .btn { border-radius: 999px; padding: 0.5rem 1.2rem; font-weight: 600; }
+            .home-page-header .btn-outline-light { border-color: rgba(255,255,255,0.7); color: #fff; }
+            .home-page-header .btn-outline-light:hover { background: rgba(255,255,255,0.15); }
+
+            .home-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; margin-bottom: 20px; }
+            .metric-card { background: #fff; border-radius: var(--home-radius); padding: 18px 20px; box-shadow: var(--home-card-shadow); }
+            .metric-label { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); }
+            .metric-value { font-size: 2rem; font-weight: 800; color: var(--home-text); }
+            .metric-subtext { font-size: .9rem; color: var(--home-muted); }
+            .metric-progress { height: 8px; border-radius: 8px; overflow: hidden; background: #e2e8f0; }
+            .metric-progress .bar { height: 100%; background: var(--home-primary); }
+
+            .filter-card { background:#fff; border-radius: var(--home-radius); padding: 18px 20px; box-shadow: var(--home-card-shadow); margin-bottom: 20px; }
+            .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 14px; }
+            .filter-label { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); margin-bottom: 6px; }
+            .filter-card .form-control, .filter-card .btn, .filter-card .dropdown-toggle { border-radius: 12px; }
+            /* Make date inputs match dropdown look/height */
+            .filter-card .btn-outline-secondary,
+            .filter-card .dropdown-toggle {
+                background: #fff;
+                color: var(--home-text);
+                border: 2px solid rgba(56,189,248,0.45);
+                padding: 0.6rem 1rem;
+                box-shadow: 0 8px 26px -18px rgba(56,189,248,0.65);
+            }
+            .filter-card .form-control {
+                background: #fff;
+                border: 2px solid rgba(56,189,248,0.45);
+                padding: 0.6rem 1rem;
+                height: auto;
+                line-height: 1.25;
+                box-shadow: 0 8px 26px -18px rgba(56,189,248,0.65);
+            }
+            .filter-card .form-control[readonly] {
+                background: #fff;
+                opacity: 1;
+            }
+            .filter-card .form-control:focus {
+                border-color: var(--home-accent);
+                box-shadow: 0 0 0 .2rem rgba(56,189,248,.25);
+            }
+            .results-summary { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; color: var(--home-muted); }
+
+            .home-card { background:#fff; border-radius: var(--home-radius); box-shadow: var(--home-card-shadow); }
+            .home-card .card-body { padding: 12px; }
+            .chart-card .card-body { padding: 0; }
+            .chart-container { height: 360px; margin: 0; }
+            @media (min-width: 1400px) { .chart-container { height: 400px; } }
+
+            /* Per-chart loading overlay */
+            .chart-card { position: relative; }
+            .chart-loading-overlay { position: absolute; inset: 0; background: rgba(255,255,255,0.75); backdrop-filter: blur(2px); display: none; align-items: center; justify-content: center; z-index: 5; border-radius: var(--home-radius); }
+            .chart-loading-overlay.show { display: flex; }
+
+            /* Table tweaks similar to License */
+            .dataTables_wrapper .dataTables_info { padding-top: .75rem; color: var(--home-muted); font-size: .9rem; }
+            .dataTables_wrapper .dataTables_paginate { padding-top: .5rem; }
+            .dataTables_wrapper .dataTables_paginate .paginate_button { border-radius: 12px !important; border: none !important; margin: 0 3px !important; padding: 0.35rem 0.75rem !important; background: #e2e8f0 !important; color: #1e293b !important; }
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #4338ca !important; color: #fff !important; }
+            .dataTables_wrapper .dataTables_paginate .paginate_button.disabled { background: #e2e8f0 !important; color: #94a3b8 !important; }
+
+            @media (max-width: 767.98px) {
+                .home-page-header { padding: 22px 18px; }
+                .home-page-header h2 { font-size: 1.6rem; }
+            }
+
+            /* Ensure Highcharts fullscreen/exports use white background */
+            .highcharts-fullscreen, .highcharts-fullscreen .highcharts-container { background: #ffffff !important; }
+            .highcharts-container svg rect.highcharts-background { fill: #ffffff !important; }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -42,181 +137,159 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid">
-        <!--Section: Notification panel-->
-        <section class="mt-2 mb-4 sectionHmeMain">
-            <!--Navbar-->
-            <nav class="navbar navbar-expand navbar-dark mdb-color lighten-1 z-depth-4 pt-3 pb-1 pr-0 mb-3">
-                <div class="row w-100">
-                    <div class="col-6">
-                        <h5 class="font-weight-500 mb-2" id="lblHmeReportType"></h5>
-                    </div>
-                    <div class="col-6 text-right pr-0">
-                        <p class="mb-1" id="lblHmeSelected"></p>
-                    </div>
-                </div>
-            </nav>
-            <nav class="navbar navbar-expand navbar-dark mdb-color lighten-3 z-depth-4 pb-0">
-                <div class="collapse navbar-collapse">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item dropdown mr-2 active">
-                            <a class="nav-link dropdown-toggle z-depth-1" id="navHmeReportType" data-toggle="dropdown"
-                               aria-haspopup="true" aria-expanded="false">Work Order</a>
-                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navHmeReportType" id="divHmeReportType">
-                                <a class="dropdown-item lnkHmeReportType" href="#" id="lnkHmeReportType_2">Work Order</a>
-                                <a class="dropdown-item lnkHmeReportType" href="#" id="lnkHmeReportType_1">PPM</a>
+                <!--Section: Dashboard shell -->
+                <section class="mt-2 mb-4 sectionHmeMain">
+                        <div class="home-page-header gems-page-header">
+                            <div class="header-text">
+                                <h2><i class="fas fa-chart-line mr-2"></i> <span id="lblHmeReportType"></span></h2>
+                                <p id="lblHmeSelected">&nbsp;</p>
                             </div>
-                        </li>
-                        <li class="nav-item dropdown mr-2 active">
-                            <a class="nav-link dropdown-toggle z-depth-1" id="navHmeClient" data-toggle="dropdown"
-                               aria-haspopup="true" aria-expanded="false">Client</a>
-                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navHmeClient" id="divHmeClient">
+                            <div class="header-actions">
+                                <a href="#homeFilters" class="btn btn-outline-light" id="btnHomeScrollFilters"><i class="fas fa-filter mr-2"></i>Filter</a>
+                                <button id="btnHmeDownloadImageDo" class="btn btn-light"><i class="fa fa-regular fa-file-zipper mr-2"></i>Download Wo Image File</button>
                             </div>
-                        </li>
-                        <li class="nav-item dropdown mr-2 active" id="liHmeSite">
-                            <a class="nav-link dropdown-toggle z-depth-1" id="navHmeSite" data-toggle="dropdown"
-                               aria-haspopup="true" aria-expanded="false">Site</a>
-                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navHmeSite" id="divHmeSite">
-                            </div>
-                        </li>
-                        <!--<li class="nav-item dropdown mr-2 active">
-                            <a class="nav-link dropdown-toggle" id="navHmeMonth" data-toggle="dropdown"
-                               aria-haspopup="true" aria-expanded="false">Month</a>
-                            <div class="dropdown-menu dropdown-primary" aria-labelledby="navHmeMonth" id="divHmeMonth">
-                            </div>
-                        </li>-->
-                        <li class="nav-item mx-2">
-                            <div class="md-form mt-2 mb-0">
-                                <input type="text" id="txtHmeDateFrom" class="form-control datepicker text-white pb-0">
-                                <label class="text-white-50" for="txtHmeDateFrom" id="lblHmeDateFrom">Date From</label>
-                            </div>
-                        </li>
-                        <li class="nav-item mx-2">
-                            <div class="md-form mt-2 mb-0">
-                                <input type="text" id="txtHmeDateTo" class="form-control datepicker text-white pb-0">
-                                <label class="text-white-50" for="txtHmeDateTo" id="lblHmeDateTo">Date To</label>
-                            </div>
-                        </li>
-                        <li class="nav-item mx-2">
-                            <button id="btnHmeSearch" class="btn btn-outline-white waves-effect py-2 px-4 mt-0 z-depth-1"><i class="fa fa-regular fa-magnifying-glass-arrows-rotate mr-2"></i>Filter</button>
-                            <button id="btnHmeDownloadImageDo" class="btn btn-outline-white waves-effect py-2 px-4 mt-0 z-depth-1"><i class="fa fa-regular fa-file-zipper mr-2"></i>Download Wo Image File</button>
-                        </li>
-                    </ul>
-                </div>
-                <a class="navbar-brand d-none d-md-block" href="#" id="lblHmeSelectedw"></a>
-            </nav>
-            <!--/.Navbar-->
-            <div class="row mt-4">
-                <!-- Intro Card: Jumlah Seminar -->
-                <div class="col-xl-3 col-md-6 mb-4 divHmeTopStats_ppm">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-black-strong">
-                            <div class="admin-up">
-                                <i class="fa fas fa-qrcode blue accent-1"></i>
-                                <div class="data">
-                                    <p class="text-white">TOTAL ASSETS</p>
-                                    <h4 class="font-weight-bold text-white" id="lblHmeTotalAsset">0</h4>
+                        </div>
+
+                        <div class="filter-card" id="homeFilters">
+                                            <div class="filter-grid">
+                                                <div class="dropdown">
+                                    <div class="filter-label">Report Type</div>
+                                    <a class="btn btn-outline-secondary dropdown-toggle w-100" id="navHmeReportType" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Work Order</a>
+                                    <div class="dropdown-menu dropdown-primary w-100" aria-labelledby="navHmeReportType" id="divHmeReportType">
+                                        <a class="dropdown-item lnkHmeReportType" href="#" id="lnkHmeReportType_2">Work Order</a>
+                                        <a class="dropdown-item lnkHmeReportType" href="#" id="lnkHmeReportType_1">PPM</a>
+                                    </div>
+                                </div>
+                                                <div class="dropdown">
+                                    <div class="filter-label">Client</div>
+                                    <a class="btn btn-outline-secondary dropdown-toggle w-100" id="navHmeClient" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Client</a>
+                                    <div class="dropdown-menu dropdown-primary w-100" aria-labelledby="navHmeClient" id="divHmeClient"></div>
+                                </div>
+                                                <div class="dropdown">
+                                    <div class="filter-label">Site</div>
+                                    <a class="btn btn-outline-secondary dropdown-toggle w-100" id="navHmeSite" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Site</a>
+                                    <div class="dropdown-menu dropdown-primary w-100" aria-labelledby="navHmeSite" id="divHmeSite"></div>
+                                </div>
+                                <div>
+                                    <div class="filter-label">Date From</div>
+                                    <input type="text" id="txtHmeDateFrom" class="form-control datepicker" placeholder="Date From">
+                                </div>
+                                <div>
+                                    <div class="filter-label">Date To</div>
+                                    <input type="text" id="txtHmeDateTo" class="form-control datepicker" placeholder="Date To">
+                                </div>
+                                <div style="align-self:end; display:flex; gap:8px;">
+                                    <button id="btnHmeSearch" class="btn btn-primary"><i class="fa fa-regular fa-magnifying-glass-arrows-rotate mr-2"></i>Apply Filters</button>
                                 </div>
                             </div>
-                            <div class="card-body card-body-cascade">
-                                <p class="card-text text-white">Total active asset<br/><strong>Current</strong></p>
+                            <div class="results-summary">
+                                <div id="lblHmeSelectedw"></div>
+                                <div id="lblHomeUpdated"><i class="far fa-clock mr-2"></i>Last refreshed: <span>-</span></div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <!-- Intro Card: Jumlah Syarikat -->
-                <div class="col-xl-3 col-md-6 mb-4 divHmeTopStats_ppm">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-black-strong">
-                            <div class="admin-up">
-                                <i class="fa far fa-tasks warning-color"></i>
-                                <div class="data">
-                                    <p class="text-white">TOTAL PPM</p>
-                                    <h4 class="font-weight-bold text-white" id="lblHmeTotalPpm"></h4>
+            <div class="home-metrics divHmeTopStats_ppm">
+              <div class="metric-card">
+                <div class="metric-label">Total Assets</div>
+                <div class="metric-value" id="lblHmeTotalAsset">0</div>
+                <div class="metric-subtext">Total active asset • Current</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Total PPM</div>
+                <div class="metric-value" id="lblHmeTotalPpm">-</div>
+                <div class="metric-subtext" id="lblHmeTotalPpmTitle">&nbsp;</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Total Late PPM</div>
+                <div class="metric-value" id="lblHmeTotalPpmLate">-</div>
+                <div class="metric-subtext" id="lblHmeTotalPpmLateTitle">&nbsp;</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">% PPM Done</div>
+                <div class="metric-value" id="lblHmePercPpmDone">-</div>
+                <div class="metric-progress mb-2"><div class="bar" id="divBarHmePercAttendance" style="width:0%"></div></div>
+                <div class="metric-subtext" id="lblHmePercPpmDoneTitle">&nbsp;</div>
+              </div>
+            </div>
+                                <div class="row" id="homeChartsRow">
+                                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme1">
+                                        <div class="home-card chart-card">
+                                            <div class="chart-loading-overlay" id="overlayChartHme1">
+                                                <div class="text-center">
+                                                    <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+                                                    <div class="mt-2 text-muted small">Loading…</div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <div id="chartHme1" class="chart-container"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme2">
+                                        <div class="home-card chart-card">
+                                            <div class="chart-loading-overlay" id="overlayChartHme2">
+                                                <div class="text-center">
+                                                    <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+                                                    <div class="mt-2 text-muted small">Loading…</div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <div id="chartHme2" class="chart-container"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme3">
+                                        <div class="home-card chart-card">
+                                            <div class="chart-loading-overlay" id="overlayChartHme3">
+                                                <div class="text-center">
+                                                    <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+                                                    <div class="mt-2 text-muted small">Loading…</div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <div id="chartHme3" class="chart-container"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme4">
+                                        <div class="home-card chart-card">
+                                            <div class="chart-loading-overlay" id="overlayChartHme4">
+                                                <div class="text-center">
+                                                    <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+                                                    <div class="mt-2 text-muted small">Loading…</div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <div id="chartHme4" class="chart-container"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme5">
+                                        <div class="home-card chart-card">
+                                            <div class="chart-loading-overlay" id="overlayChartHme5">
+                                                <div class="text-center">
+                                                    <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+                                                    <div class="mt-2 text-muted small">Loading…</div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <div id="chartHme5" class="chart-container"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme6">
+                                        <div class="home-card chart-card">
+                                            <div class="chart-loading-overlay" id="overlayChartHme6">
+                                                <div class="text-center">
+                                                    <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+                                                    <div class="mt-2 text-muted small">Loading…</div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-0">
+                                                <div id="chartHme6" class="chart-container"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="card-body card-body-cascade">
-                                <p class="card-text text-white" id="lblHmeTotalPpmTitle"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Intro Card: Jumlah Peserta -->
-                <div class="col-xl-3 col-md-6 mb-4 divHmeTopStats_ppm">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-black-strong">
-                            <div class="admin-up">
-                                <i class="fa fas fa-exclamation-triangle red accent-2"></i>
-                                <div class="data">
-                                    <p class="text-white">TOTAL LATE PPM</p>
-                                    <h4 class="font-weight-bold text-white" id="lblHmeTotalPpmLate"></h4>
-                                </div>
-                            </div>
-                            <div class="card-body card-body-cascade">
-                                <p class="card-text text-white" id="lblHmeTotalPpmLateTitle"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Intro Card: Attendance -->
-                <div class="col-xl-3 col-md-6 mb-4 divHmeTopStats_ppm">
-                    <div class="card card-cascade cascading-admin-card card-image z-depth-4" style="background-image: url('img/background/pen_book.jpg');">
-                        <div class="rgba-black-strong">
-                            <div class="admin-up">
-                                <i class="fa fas fa-check green lighten-1"></i>
-                                <div class="data">
-                                    <p class="text-white">% PPM DONE</p>
-                                    <h4 class="font-weight-bold text-white" id="lblHmePercPpmDone"></h4>
-                                </div>
-                            </div>
-                            <div class="card-body card-body-cascade">
-                                <div class="progress mb-3">
-                                    <div class="progress-bar bg-primary" id="divBarHmePercAttendance" role="progressbar" style="width: 0%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <p class="card-text text-white" id="lblHmePercPpmDoneTitle"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-sm-12 mb-4">
-                    <div class="card z-depth-4">
-                        <div class="card-body p-0">
-                            <div id="chartHme1" style="height: 400px; margin: 0"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-sm-12 mb-4">
-                    <div class="card z-depth-4">
-                        <div class="card-body p-0">
-                            <div id="chartHme2" style="height: 400px; margin: 0"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-12 mb-4">
-                    <div class="card z-depth-4">
-                        <div class="card-body p-0">
-                            <div id="chartHme3" style="height: 504px; margin: 0"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-12 mb-4">
-                    <div class="card z-depth-4">
-                        <div class="card-body p-0">
-                            <div id="chartHme4" style="height: 504px; margin: 0"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-12 mb-4">
-                    <div class="card z-depth-4">
-                        <div class="card-body p-0">
-                            <div id="chartHme5" style="height: 240px; margin: 0"></div>
-                        </div>
-                    </div>
-                    <div class="card z-depth-4 mt-4">
-                        <div class="card-body p-0">
-                            <div id="chartHme6" style="height: 240px; margin: 0"></div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div class="card card-cascade narrower mt-4 grey lighten-4 z-depth-4" id="divHmeTable_wo">
@@ -457,7 +530,36 @@
 <script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js?1"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js?1"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js?1"></script>
-<script type="text/javascript" src="js/vendor/highcharts/themes/dark-unica.js?1"></script>
+<script type="text/javascript">
+    // Force a light theme (white background) for charts, including fullscreen and exports
+    try {
+        Highcharts.setOptions({
+            chart: { backgroundColor: '#ffffff', style: { fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif' } },
+            colors: ['#4338CA', '#38BDF8', '#22C55E', '#F59E0B', '#EF4444', '#94A3B8'],
+            title: { style: { color: '#0F172A', fontWeight: '700' } },
+            subtitle: { style: { color: '#64748B' } },
+            xAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } }, title: { style: { color: '#64748B' } } },
+            yAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } }, title: { style: { color: '#64748B' } } },
+            legend: { itemStyle: { color: '#334155', fontWeight: '500' } },
+            tooltip: { borderColor: '#e2e8f0', backgroundColor: 'rgba(255,255,255,0.95)', style: { color: '#0F172A' } },
+            exporting: {
+                chartOptions: {
+                    chart: { backgroundColor: '#ffffff' },
+                    xAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } } },
+                    yAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } } },
+                    legend: { itemStyle: { color: '#334155' } }
+                }
+            },
+            plotOptions: {
+                series: { marker: { enabled: false, states: { hover: { enabled: true } } } },
+                column: { borderRadius: 4, pointPadding: 0.05, groupPadding: 0.08 },
+                area: { fillOpacity: 0.25 }
+            }
+        });
+    } catch (e) { /* Highcharts not ready yet; ignore */ }
+    // Helper to update the "Last refreshed" label
+    window.__homeSetUpdated = function(){ try { document.querySelector('#lblHomeUpdated span').textContent = new Date().toLocaleString(); } catch(e){} };
+</script>
 <!-- Stepper JavaScript - minified -->
 <script type="text/javascript" src="js/addons-pro/stepper.min.js"></script>
 <!-- Moment JavaScript -->

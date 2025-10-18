@@ -31,6 +31,77 @@ function MainHome() {
     let woSearchTimer;
     let woSearchKeyword = '';
     const isAdmin = mzIsRoleExist('1,19');
+    const CHART_WIDE_THRESHOLD = 8; // if x-axis or series count >= this, use full-width
+    const chartColIds = {
+        chartHme1: '#colChartHme1',
+        chartHme2: '#colChartHme2',
+        chartHme3: '#colChartHme3',
+        chartHme4: '#colChartHme4',
+        chartHme5: '#colChartHme5',
+        chartHme6: '#colChartHme6'
+    };
+    const overlayIds = {
+        chartHme1: '#overlayChartHme1',
+        chartHme2: '#overlayChartHme2',
+        chartHme3: '#overlayChartHme3',
+        chartHme4: '#overlayChartHme4',
+        chartHme5: '#overlayChartHme5',
+        chartHme6: '#overlayChartHme6'
+    };
+
+    const allCharts = ['chartHme1','chartHme2','chartHme3','chartHme4','chartHme5','chartHme6'];
+    const chartState = allCharts.reduce((acc, id, idx) => {
+        acc[id] = { isWide: false, defaultOrder: idx + 1 };
+        return acc;
+    }, {});
+
+    let orderTimer;
+    function updateChartOrder() {
+        try {
+            const wide = allCharts.filter(id => chartState[id] && chartState[id].isWide);
+            const small = allCharts.filter(id => chartState[id] && !chartState[id].isWide);
+            const ordered = wide.concat(small);
+            ordered.forEach((id, i) => {
+                const sel = chartColIds[id];
+                if (!sel) return;
+                // Use flex order so items with smaller order appear first in the row
+                $(sel).css('order', i + 1);
+            });
+        } catch (e) { /* ignore */ }
+    }
+    function scheduleUpdateChartOrder() {
+        clearTimeout(orderTimer);
+        orderTimer = setTimeout(updateChartOrder, 0);
+    }
+
+    function setChartColumnWidth(chartId, categoriesCount, seriesCount) {
+        try {
+            const sel = chartColIds[chartId];
+            if (!sel) return;
+            const $col = $(sel);
+            // Reset both options first
+            $col.removeClass('col-lg-6 col-lg-12');
+            // If many categories, take whole row; else half row
+            const cat = typeof categoriesCount === 'number' ? categoriesCount : 0;
+            const ser = typeof seriesCount === 'number' ? seriesCount : 0;
+            const isWide = (cat >= CHART_WIDE_THRESHOLD || ser >= CHART_WIDE_THRESHOLD);
+            if (isWide) {
+                $col.addClass('col-lg-12');
+            } else {
+                $col.addClass('col-lg-6');
+            }
+            if (!chartState[chartId]) chartState[chartId] = { isWide: isWide, defaultOrder: allCharts.indexOf(chartId) + 1 };
+            chartState[chartId].isWide = isWide;
+            scheduleUpdateChartOrder();
+        } catch (e) { /* ignore */ }
+    }
+
+    function showChartOverlay(chartId) {
+        try { const sel = overlayIds[chartId]; if (sel) $(sel).addClass('show'); } catch (e) { /* ignore */ }
+    }
+    function hideChartOverlay(chartId) {
+        try { const sel = overlayIds[chartId]; if (sel) $(sel).removeClass('show'); } catch (e) { /* ignore */ }
+    }
     
     this.init = function () {
         $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
@@ -844,6 +915,8 @@ function MainHome() {
             url: 'api/wo.php?type=total_by_site_status&clientId='+clientId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme1'); },
+            complete: function(){ hideChartOverlay('chartHme1'); },
             success: function (resp) {
                 if (resp.success) {
                     let siteDescs = [];
@@ -851,6 +924,7 @@ function MainHome() {
                     siteIds.forEach(function(key){
                         siteDescs.push(refSite[key]['siteDesc']);
                     });
+                    setChartColumnWidth('chartHme1', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     Highcharts.chart('chartHme1', {
                         chart: {
                             type: 'column'
@@ -941,6 +1015,8 @@ function MainHome() {
             url: 'api/wo.php?type=total_by_site_type&clientId='+clientId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme2'); },
+            complete: function(){ hideChartOverlay('chartHme2'); },
             success: function (resp) {
                 if (resp.success) {
                     let siteDescs = [];
@@ -948,6 +1024,7 @@ function MainHome() {
                     siteIds.forEach(function(key){
                         siteDescs.push(refSite[key]['siteDesc']);
                     });
+                    setChartColumnWidth('chartHme2', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     Highcharts.chart('chartHme2', {
                         chart: {
                             type: 'column'
@@ -1018,8 +1095,11 @@ function MainHome() {
             url: 'api/wo.php?type=total_by_type&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme4'); },
+            complete: function(){ hideChartOverlay('chartHme4'); },
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0, 1);
                     Highcharts.chart('chartHme4', {
                         chart: {
                             type: 'pie'
@@ -1088,8 +1168,11 @@ function MainHome() {
             url: 'api/wo.php?type=total_by_status&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme5'); },
+            complete: function(){ hideChartOverlay('chartHme5'); },
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme5', resp.result.categories ? resp.result.categories.length : 0, 1);
                     Highcharts.chart('chartHme5', {
                         chart: {
                             type: 'bar'
@@ -1165,8 +1248,11 @@ function MainHome() {
             url: 'api/wo.php?type=total_by_group&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme3'); },
+            complete: function(){ hideChartOverlay('chartHme3'); },
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme3', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     Highcharts.chart('chartHme3', {
                         chart: {
                             type: 'pie'
@@ -1235,8 +1321,11 @@ function MainHome() {
             url: 'api/wo.php?type=average_execute_by_trade&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme4'); },
+            complete: function(){ hideChartOverlay('chartHme4'); },
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0, 1);
                     Highcharts.chart('chartHme4', {
                         chart: {
                             type: 'column'
@@ -1312,8 +1401,11 @@ function MainHome() {
             url: 'api/wo.php?type=top5_execute&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme5'); },
+            complete: function(){ hideChartOverlay('chartHme5'); },
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme5', resp.result.categories ? resp.result.categories.length : 0, 1);
                     Highcharts.chart('chartHme5', {
                         chart: {
                             type: 'bar'
@@ -1387,8 +1479,11 @@ function MainHome() {
             url: 'api/wo.php?type=bottom5_execute&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme6'); },
+            complete: function(){ hideChartOverlay('chartHme6'); },
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme6', resp.result.categories ? resp.result.categories.length : 0, 1);
                     Highcharts.chart('chartHme6', {
                         chart: {
                             type: 'bar'
@@ -1463,6 +1558,8 @@ function MainHome() {
             url: 'api/ppm.php?type=total_by_site_status&clientId='+clientId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme1'); },
+            complete: function(){ hideChartOverlay('chartHme1'); },
             success: function (resp) {
                 if (resp.success) {
                     let siteDescs = [];
@@ -1470,6 +1567,7 @@ function MainHome() {
                     siteIds.forEach(function(key){
                         siteDescs.push(refSite[key]['siteDesc']);
                     });
+                    setChartColumnWidth('chartHme1', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     Highcharts.chart('chartHme1', {
                         chart: {
                             type: 'column'
@@ -1537,6 +1635,8 @@ function MainHome() {
             url: 'api/ppm.php?type=total_by_site_trade&clientId='+clientId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme2'); },
+            complete: function(){ hideChartOverlay('chartHme2'); },
             success: function (resp) {
                 if (resp.success) {
                     let siteDescs = [];
@@ -1544,6 +1644,7 @@ function MainHome() {
                     siteIds.forEach(function(key){
                         siteDescs.push(refSite[key]['siteDesc']);
                     });
+                    setChartColumnWidth('chartHme2', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     Highcharts.chart('chartHme2', {
                         chart: {
                             type: 'column'
@@ -1606,8 +1707,11 @@ function MainHome() {
             url: 'api/ppm.php?type=total_by_trade&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme3'); },
+            complete: function(){ hideChartOverlay('chartHme3'); },
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme3', resp.result && resp.result.length ? resp.result.length : 0);
                     Highcharts.chart('chartHme3', {
                         chart: {
                             type: 'pie'
@@ -1675,8 +1779,11 @@ function MainHome() {
             url: 'api/ppm.php?type=total_by_status&clientId='+clientId+'&siteId='+siteId+'&dateFrom='+dateFrom+'&dateTo='+dateTo,
             type: 'GET', headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
             dataType: 'json', async: true,
+            beforeSend: function(){ showChartOverlay('chartHme4'); },
+            complete: function(){ hideChartOverlay('chartHme4'); },
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0);
                     Highcharts.chart('chartHme4', {
                         chart: {
                             type: 'bar'
@@ -1749,6 +1856,8 @@ function MainHome() {
 
     this.generateChartPpmByLateness = function () {
         if (totalPpm >= totalLate) {
+            showChartOverlay('chartHme3');
+            setChartColumnWidth('chartHme3', 2); // lateness pie has two slices
             Highcharts.chart('chartHme3', {
                 chart: {
                     type: 'pie'
@@ -1811,6 +1920,7 @@ function MainHome() {
                         }]
                 }]
             });
+            hideChartOverlay('chartHme3');
         }
     };
 
@@ -1821,6 +1931,7 @@ function MainHome() {
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme5', resp.result.categories ? resp.result.categories.length : 0);
                     Highcharts.chart('chartHme5', {
                         chart: {
                             type: 'bar'
@@ -1896,6 +2007,7 @@ function MainHome() {
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme6', resp.result.categories ? resp.result.categories.length : 0);
                     Highcharts.chart('chartHme6', {
                         chart: {
                             type: 'bar'
@@ -1972,6 +2084,7 @@ function MainHome() {
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
+                    setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0);
                     Highcharts.chart('chartHme4', {
                         chart: {
                             type: 'column'
