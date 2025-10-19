@@ -273,17 +273,17 @@ function MainHelpdesk() {
             totalAll++;
         });
 
-        $('#linkHdkAll').html('<span class="bullet blue z-depth-2"></span> All Status <span class="badge blue float-right">'+mzFormatNumber(totalAll)+'</span>');
-        $('#linkHdk24').html('<span class="bullet orange z-depth-2"></span> '+refStatus[24]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[24])+'</span>');
-        $('#linkHdk27').html('<span class="bullet orange z-depth-2"></span> '+refStatus[27]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[27])+'</span>');
-        $('#linkHdk28').html('<span class="bullet orange z-depth-2"></span> '+refStatus[28]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[28])+'</span>');
-        $('#linkHdk29').html('<span class="bullet orange z-depth-2"></span> '+refStatus[29]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[29])+'</span>');
-        $('#linkHdk13').html('<span class="bullet orange z-depth-2"></span> '+refStatus[13]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[13])+'</span>');
-        $('#linkHdk15').html('<span class="bullet orange z-depth-2"></span> '+refStatus[15]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[15])+'</span>');
-        $('#linkHdk26').html('<span class="bullet orange z-depth-2"></span> '+refStatus[26]['statusDesc']+' <span class="badge orange float-right">'+mzFormatNumber(arrTotal[26])+'</span>');
-        $('#linkHdk16').html('<span class="bullet green z-depth-2"></span> '+refStatus[16]['statusDesc']+' <span class="badge green float-right">'+mzFormatNumber(arrTotal[16])+'</span>');
-        $('#linkHdk25').html('<span class="bullet red z-depth-2"></span> '+refStatus[25]['statusDesc']+' <span class="badge red float-right">'+mzFormatNumber(arrTotal[25])+'</span>');
-        $('#linkHdk30').html('<span class="bullet red z-depth-2"></span> '+refStatus[30]['statusDesc']+' <span class="badge red float-right">'+mzFormatNumber(arrTotal[30])+'</span>');
+    $('#linkHdkAll').html('<span class="bullet blue"></span> All Status <span class="badge blue">'+mzFormatNumber(totalAll)+'</span>');
+    $('#linkHdk24').html('<span class="bullet orange"></span> '+refStatus[24]['statusDesc']+' <span class="badge orange">'+mzFormatNumber(arrTotal[24])+'</span>');
+    $('#linkHdk27').html('<span class="bullet orange"></span> '+refStatus[27]['statusDesc']+' <span class="badge orange">'+mzFormatNumber(arrTotal[27])+'</span>');
+    $('#linkHdk28').html('<span class="bullet orange"></span> '+refStatus[28]['statusDesc']+' <span class="badge orange">'+mzFormatNumber(arrTotal[28])+'</span>');
+    $('#linkHdk29').html('<span class="bullet orange"></span> '+refStatus[29]['statusDesc']+' <span class="badge orange">'+mzFormatNumber(arrTotal[29])+'</span>');
+    $('#linkHdk13').html('<span class="bullet orange"></span> '+refStatus[13]['statusDesc']+' <span class="badge orange">'+mzFormatNumber(arrTotal[13])+'</span>');
+    $('#linkHdk15').html('<span class="bullet orange"></span> '+refStatus[15]['statusDesc']+' <span class="badge orange">'+mzFormatNumber(arrTotal[15])+'</span>');
+    $('#linkHdk26').html('<span class="bullet orange"></span> '+refStatus[26]['statusDesc']+' <span class="badge orange">'+mzFormatNumber(arrTotal[26])+'</span>');
+    $('#linkHdk16').html('<span class="bullet green"></span> '+refStatus[16]['statusDesc']+' <span class="badge green">'+mzFormatNumber(arrTotal[16])+'</span>');
+    $('#linkHdk25').html('<span class="bullet red"></span> '+refStatus[25]['statusDesc']+' <span class="badge red">'+mzFormatNumber(arrTotal[25])+'</span>');
+    $('#linkHdk30').html('<span class="bullet red"></span> '+refStatus[30]['statusDesc']+' <span class="badge red">'+mzFormatNumber(arrTotal[30])+'</span>');
 
         const chartData = [
             {name:refStatus[24]['statusDesc'], y:arrTotal[24]},

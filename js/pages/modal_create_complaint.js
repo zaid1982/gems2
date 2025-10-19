@@ -155,6 +155,7 @@ function ModalCreateComplaint() {
             formValidate.clearValidation();
             $('.divMccHideInitial').hide();
             $('#imgMccImage1, #imgMccImage2, #imgMccImage3').attr('src', 'img/background/upload_placeholder.png');
+            $('#lblMccFile1, #lblMccFile2, #lblMccFile3').text('No file chosen');
         });
 
         $('#optMccPpmGroupId').on('change', function () {
@@ -201,6 +202,7 @@ function ModalCreateComplaint() {
         $('#txfMccImage1').on('change', function () {
             $('#imgMccImage1').attr('src', 'img/background/upload_placeholder.png');
             mzDisplayImageFileInput(this, 'imgMccImage1');
+            $('#lblMccFile1').text(this.files && this.files[0] ? this.files[0].name : 'No file chosen');
             if ($('#txfMccImage1').val() !== '') {
                 formValidate.enableField('txaMccImgDesc1');
                 $('#divMccImgDesc1').show();
@@ -210,12 +212,14 @@ function ModalCreateComplaint() {
                 $('#lblMccImgDesc1').removeClass('active');
                 $('#txaMccImgDesc1Err').html('');
                 $('#divMccImgDesc1').hide();
+                $('#lblMccFile1').text('No file chosen');
             }
         });
 
         $('#txfMccImage2').on('change', function () {
             $('#imgMccImage2').attr('src', 'img/background/upload_placeholder.png');
             mzDisplayImageFileInput(this, 'imgMccImage2');
+            $('#lblMccFile2').text(this.files && this.files[0] ? this.files[0].name : 'No file chosen');
             if ($('#txfMccImage2').val() !== '') {
                 formValidate.enableField('txaMccImgDesc2');
                 $('#divMccImgDesc2').show();
@@ -225,12 +229,14 @@ function ModalCreateComplaint() {
                 $('#lblMccImgDesc2').removeClass('active');
                 $('#txaMccImgDesc2Err').html('');
                 $('#divMccImgDesc2').hide();
+                $('#lblMccFile2').text('No file chosen');
             }
         });
 
         $('#txfMccImage3').on('change', function () {
             $('#imgMccImage3').attr('src', 'img/background/upload_placeholder.png');
             mzDisplayImageFileInput(this, 'imgMccImage3');
+            $('#lblMccFile3').text(this.files && this.files[0] ? this.files[0].name : 'No file chosen');
             if ($('#txfMccImage3').val() !== '') {
                 formValidate.enableField('txaMccImgDesc3');
                 $('#divMccImgDesc3').show();
@@ -240,6 +246,7 @@ function ModalCreateComplaint() {
                 $('#lblMccImgDesc3').removeClass('active');
                 $('#txaMccImgDesc3Err').html('');
                 $('#divMccImgDesc3').hide();
+                $('#lblMccFile3').text('No file chosen');
             }
         });
 

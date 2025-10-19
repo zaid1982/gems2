@@ -19,10 +19,8 @@
     <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <!-- Shared Design System stylesheet -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -43,101 +41,129 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionHdkMain">
-            <div class="card card-cascade narrower">
-                <!--Section: Search Function & Chart-->
-                <section>
+            <div class="card card-cascade narrower gems-card-shell">
+                <!-- Modern Header -->
+                <section class="gems-page-header helpdesk-page-header">
+                    <div class="header-text">
+                        <h2>Helpdesk</h2>
+                        <p>Track and manage complaints, assignments, and verifications.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtHdkWoRefresh" class="btn btn-light btn-icon" aria-label="Refresh list" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnHdkWoAdd" class="btn btn-primary btn-icon" aria-label="Add complaint" data-toggle="tooltip" data-placement="top" title="Add New Complaint"><i class="fas fa-plus"></i></button>
+                    </div>
+                </section>
+
+                <!-- Filters -->
+                <!-- <section class="filter-card">
+                    <div class="filter-grid">
+                        <div>
+                            <label class="filter-label">Site</label>
+                            <div id="lblHdkSiteName" class="font-weight-bold"></div>
+                        </div>
+                        <div>
+                            <label class="filter-label" for="txtHdkWoSearch">Search</label>
+                            <input type="text" id="txtHdkWoSearch" class="form-control" placeholder="Search complaints..." />
+                        </div>
+                    </div>
+                </section> -->
+
+                <!-- Chart + Column Visibility -->
+                <section class="mt-4">
                     <div class="row">
-                        <!--Search Function-->
-                        <div class="col-xl-5 col-lg-12 mr-0">
-                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                                <h2 class="h2-responsive mb-0">Helpdesk</h2>
+                        <div class="col-lg-6 mb-4">
+                            <div class="gems-chart-card h-100">
+                                <div class="gems-chart-overlay" id="overlayChartHdk">
+                                    <div class="spinner-border text-primary" role="status" aria-label="Loading chart"></div>
+                                </div>
+                                <div class="gems-chart-container">
+                                    <div id="chartHdkWoByStatus" style="height: 100%; margin: 0"></div>
+                                </div>
                             </div>
-                            <div class="card-body card-body-cascade">
-                                <div class="px-3 pt-3">
-                                    <h6 id="lblHdkSiteName"></h6>
-                                    <h6 class="mt-3">Status:</h6>
-                                    <div class="mt-1 pb-2">
-                                        <ul class="striped list-unstyled pl-2">
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdkAll"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdk24"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdk27"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdk28"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdk29"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdk13"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdk15"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdk26"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdk16"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdk25"></a></li>
-                                            <li><a href="javascript:void(0);" class="linkHdkStatus" id="linkHdk30"></a></li>
-                                        </ul>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="filter-card helpdesk-controls h-100 d-flex flex-column pt-2">
+                                <div class="mb-3">
+                                    <label class="filter-label">Site</label>
+                                    <div id="lblHdkSiteName" class="font-weight-bold"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="filter-label" for="txtHdkWoSearch">Search</label>
+                                    <input type="text" id="txtHdkWoSearch" class="form-control" placeholder="Search complaints..." />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="filter-label" for="optHdkColumns">Columns Visibility</label>
+                                    <div class="select-outline">
+                                        <select id="optHdkColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
+                                            <option value="" disabled>Choose Column Visibility</option>
+                                            <option value="1" selected>Date</option>
+                                            <option value="2" selected>Request No.</option>
+                                            <option value="3" selected>Work Order No.</option>
+                                            <option value="4">Site</option>
+                                            <option value="5">Location</option>
+                                            <option value="6" selected>Complaint Type</option>
+                                            <option value="7" selected>Complainant</option>
+                                            <option value="8">Complaint Description</option>
+                                            <option value="9" selected>Severity</option>
+                                            <option value="10" selected>Trade</option>
+                                            <option value="11" selected>PIC Name</option>
+                                            <option value="12">Repair Description</option>
+                                            <option value="13">Rating</option>
+                                            <option value="14" selected>Progress</option>
+                                            <option value="21">Fixed By</option>
+                                            <option value="22">Assigned By</option>
+                                            <option value="23">Verified By</option>
+                                            <option value="24">Responded Time</option>
+                                            <option value="25">Assigned Time</option>
+                                            <option value="26">Executed Time</option>
+                                            <option value="27">Verified Time</option>
+                                        </select>
+                                        <label for="optHdkColumns">Choose Column Visibility</label>
+                                    </div>
+                                </div>
+                                <div class="mt-auto pt-3">
+                                    <div class="summary-pill d-flex justify-content-between align-items-center w-100">
+                                        <span id="lblHelpdeskCount">Showing 0 of 0</span>
+                                        <span id="lblHelpdeskUpdated">—</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!--Chart-->
-                        <div class="col-xl-7 col-lg-12">
-                            <div class="view view-cascade z-depth-4">
-                                <div id="chartHdkWoByStatus" style="height: 537px; margin: 0"></div>
-                            </div>
-                            <div class="card-body">
-                                <div class="px-3 mt-4_5">
-                                    <div class="row">
-                                        <div class="col-md-7 select-outline">
-                                            <select id="optHdkColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
-                                                <option value="" disabled>Choose Column Visibility</option>
-                                                <option value="1" selected>Date</option>
-                                                <option value="2" selected>Request No.</option>
-                                                <option value="3" selected>Work Order No.</option>
-                                                <option value="4">Site</option>
-                                                <option value="5">Location</option>
-                                                <option value="6" selected>Complaint Type</option>
-                                                <option value="7" selected>Complainant</option>
-                                                <option value="8">Complaint Description</option>
-                                                <option value="9" selected>Severity</option>
-                                                <option value="10" selected>Trade</option>
-                                                <option value="11" selected>PIC Name</option>
-                                                <option value="12">Repair Description</option>
-                                                <option value="13">Rating</option>
-                                                <option value="14" selected>Progress</option>
-                                                <option value="21">Fixed By</option>
-                                                <option value="22">Assigned By</option>
-                                                <option value="23">Verified By</option>
-                                                <option value="24">Responded Time</option>
-                                                <option value="25">Assigned Time</option>
-                                                <option value="26">Executed Time</option>
-                                                <option value="27">Verified Time</option>
-                                            </select>
-                                            <label for="optHdkColumns">Columns Visibility</label>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="md-form md-outline mt-0">
-                                                <input type="text" id="txtHdkWoSearch" class="form-control">
-                                                <label for="txtHdkWoSearch" class="active">Keyword Search</label>
-                                            </div>
-                                        </div>
+                        <div class="col-12 mb-2">
+                            <div class="filter-card helpdesk-controls gems-status-legend h-100 d-flex flex-column justify-content-center align-items-center">
+                                <label class="filter-label">Status</label>
+                                    <div class="gems-status-scroll">
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdkAll"></a>
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk24"></a>
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk27"></a>
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk28"></a>
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk29"></a>
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk13"></a>
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk15"></a>
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk26"></a>
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk16"></a>
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk25"></a>
+                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk30"></a>
                                     </div>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
                 <!--Section: Table-->
                 <section>
-                    <div class="card card-cascade narrower z-depth-0">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card">
                         <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                             <div>
-                                <button type="button" id="btnHdkWoAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add New Complaint"><i class="fas fa-plus mt-0"></i></button>
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Complaint List"
                                    data-content="Complaint List for all complaints filtered by selection."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtHdkWoRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Complaint List</a>
                             <div>
                                 <div id="btnDtHdkWoExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4">
+                        <div class="px-4 pb-4 module-table-wrapper">
                             <div class="table-responsive">
                                 <table id="dtHdkWo" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
                                     <thead>
@@ -219,7 +245,7 @@
 <script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/themes/dark-unica.js"></script>
+<!-- Enforce light theme (remove dark-unica) -->
 <!-- Moment JavaScript -->
 <script type="text/javascript" src="js/addons/moment.min.js"></script>
 
@@ -265,6 +291,9 @@
                 helpdeskClass_.setRefStatus(refStatus_);
                 helpdeskClass_.setModalCreateComplaint(modalCreateComplaint_);
                 helpdeskClass_.init();
+
+                // Show overlay until the chart is drawn
+                $('#overlayChartHdk').show();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
@@ -277,6 +306,78 @@
     document.write('<scr' + 'ipt src="js/pages/modal_create_complaint.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_helpdesk.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
+</script>
+
+<!-- Page-specific helpers: Highcharts light options, overlay + table summary/mobiles labels -->
+<script type="text/javascript">
+    // Force white backgrounds for charts and exports
+    if (window.Highcharts) {
+        var rootStyles = getComputedStyle(document.documentElement);
+        var colorText = (rootStyles.getPropertyValue('--gems-text') || '#152A46').trim();
+        var colorMuted = (rootStyles.getPropertyValue('--gems-muted') || '#4B5A72').trim();
+        var colorBg = (rootStyles.getPropertyValue('--gems-bg') || '#F2F6FA').trim();
+
+        Highcharts.setOptions({
+            chart: {
+                backgroundColor: '#FFFFFF',
+                style: { fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif', color: colorText }
+            },
+            title: { style: { color: colorText, fontWeight: '600' } },
+            xAxis: { gridLineColor: colorBg, labels: { style: { color: colorMuted } } },
+            yAxis: { gridLineColor: '#DEE6F2', labels: { style: { color: colorMuted } }, title: { style: { color: colorMuted } } },
+            legend: { itemStyle: { color: colorMuted } },
+            exporting: { chartOptions: { chart: { backgroundColor: '#FFFFFF' } } }
+        });
+    }
+
+    // Hide overlay when chart renders for the first time
+    (function handleChartOverlay() {
+        var target = document.getElementById('chartHdkWoByStatus');
+        if (!target) return;
+        var overlay = document.getElementById('overlayChartHdk');
+        var obs = new MutationObserver(function (mut) {
+            // Once Highcharts injects an <svg>, hide overlay
+            if (target.querySelector('svg')) {
+                if (overlay) overlay.style.display = 'none';
+            }
+        });
+        obs.observe(target, { childList: true, subtree: true });
+    })();
+
+    // Update results summary and add mobile data-labels each draw
+    (function hookTableDraw() {
+        function updateSummary(table) {
+            try {
+                var info = table.page.info();
+                document.getElementById('lblHelpdeskCount').textContent = 'Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal;
+                document.getElementById('lblHelpdeskUpdated').textContent = new Date().toLocaleString();
+            } catch (e) { /* noop */ }
+        }
+        function setDataLabels($table) {
+            var headers = [];
+            $table.find('thead th').each(function(){ headers.push($(this).text().trim()); });
+            $table.find('tbody tr').each(function(){
+                $('td', this).each(function(i){
+                    // Guard undefined headers
+                    var label = headers[i] || '';
+                    $(this).attr('data-label', label);
+                });
+            });
+        }
+        var attachInterval = setInterval(function(){
+            if ($.fn.dataTable && $.fn.dataTable.isDataTable('#dtHdkWo')) {
+                clearInterval(attachInterval);
+                var dt = $('#dtHdkWo').DataTable();
+                $('#dtHdkWo').on('draw.dt', function(){
+                    updateSummary(dt);
+                    setDataLabels($('#dtHdkWo'));
+                });
+                // Initial run if already drawn
+                updateSummary(dt);
+                setDataLabels($('#dtHdkWo'));
+            }
+        }, 300);
+    })();
 </script>
 
 </body>
