@@ -28,14 +28,13 @@ function MainWoVerify () {
 
         oTableWvrPending = $('#dtWvrPending').DataTable({
             bLengthChange: false,
-            bFilter: true,
+            bFilter: false,
             aaSorting: [[7, 'desc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
+            dom: "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0, 13] },
@@ -162,14 +161,13 @@ function MainWoVerify () {
 
         oTableWvrSubmitted = $('#dtWvrSubmitted').DataTable({
             bLengthChange: false,
-            bFilter: true,
+            bFilter: false,
             aaSorting: [[7, 'desc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
+            dom: "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0, 14] },
@@ -295,6 +293,9 @@ function MainWoVerify () {
             ]
         });
 
+        oTableWvrPending.buttons().container().appendTo('#btnWvrPendingExport');
+        oTableWvrSubmitted.buttons().container().appendTo('#btnWvrSubmittedExport');
+
         $('#btnWvrPending').on('click', function () {
             $('.sectionWvrTask').hide();
             $('.sectionWvrPending').show();
@@ -311,6 +312,12 @@ function MainWoVerify () {
             $('#btnWvrSubmitted').removeClass('lighten-2');
             self.genTableSubmitted();
             window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+
+        $('#txtWvrSearch').on('input', function () {
+            const term = $(this).val();
+            oTableWvrPending.search(term).draw();
+            oTableWvrSubmitted.search(term).draw();
         });
     };
 

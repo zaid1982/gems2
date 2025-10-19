@@ -16,20 +16,10 @@
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
+    <!-- Legacy styles -->
     <link href="css/style.css?4" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-        .scrollbar {
-            margin-left: 30px;
-            float: left;
-            height: 300px;
-            width: 65px;
-            background: #fff;
-            overflow-y: scroll;
-            margin-bottom: 25px;
-        }
-    </style>
+    <!-- Shared Design System stylesheet -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <!--JQuery Migrate-->
@@ -47,35 +37,77 @@
 <main>
     <div class="container-fluid" id="divWvrPageWidth">
         <div id="mdb-lightbox-ui"></div>
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 mb-4 pb-1 sectionWvrMain">
-            <h5 class="navbar-text white-text font-weight-bold ml-3 mt-1">
-                <i class="fa fa-file-alt mr-1"></i> Verify & Close Work Order (Self-Finding & Public Complaint)
-            </h5>
-            <h6 class="navbar-text white-text font-weight-bold ml-3 mt-1">
-                <i class="fa fa-building mr-1"></i> Site: <span id="lblWvrSiteName"></span>
-            </h6>
-        </nav>
-        <nav class="navbar navbar-expand navbar-dark cyan z-depth-4 mb-3 sectionWvrMain">
-            <div class="collapse navbar-collapse" id="basicExampleNav">
-                <ul class="navbar-nav mr-auto">
-                    <button class="btn mdb-color text-white my-0 py-2 px-1 px-sm-4 btnWvrTab" id="btnWvrPending" type="button">
-                        <i class="fas fa-tasks"></i><span class="mx-2">Pending Task</span><span class="badge badge-danger" id="badgeWvrTotalPending">0</span>
-                    </button>
-                    <button class="btn mdb-color lighten-2 text-white my-0 py-2 px-1 px-sm-4 btnWvrTab" id="btnWvrSubmitted" type="button">
-                        <i class="fas fa-check"></i><span class="mx-2">Submitted Task</span><span class="badge badge-danger" id="badgeWvrTotalSubmitted">0</span>
-                    </button>
-                </ul>
-            </div>
-        </nav>
-        <section class="mb-3 sectionWvrMain sectionWvrTask sectionWvrPending">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="float-left cyan " style="width: 16px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;"><i class="fas fa-tasks mr-1"></i> Pending Task List</h4>
+        <section class="sectionWvrMain mb-5 mt-lg-5">
+            <div class="card card-cascade narrower gems-card-shell wo-verify-shell">
+                <section class="gems-page-header wo-verify-page-header">
+                    <div class="header-text">
+                        <h2>Verify &amp; Close Work Orders</h2>
+                        <p>Site: <span id="lblWvrSiteName" class="font-weight-bold">—</span></p>
+                    </div>
+                </section>
+
+                <section class="mt-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="metric-card metric-card-compact h-100">
+                                <div class="metric-label">Pending Verification</div>
+                                <div class="d-flex align-items-center justify-content-between mt-2">
+                                    <div class="metric-value" id="badgeWvrTotalPending">0</div>
+                                    <i class="fas fa-clipboard-list text-primary"></i>
+                                </div>
+                                <div class="metric-subtext">Awaiting closure review</div>
+                            </div>
                         </div>
-                        <div class="card-body pt-4">
+                        <div class="col-md-6 mb-4">
+                            <div class="metric-card metric-card-compact h-100">
+                                <div class="metric-label">Recently Submitted</div>
+                                <div class="d-flex align-items-center justify-content-between mt-2">
+                                    <div class="metric-value" id="badgeWvrTotalSubmitted">0</div>
+                                    <i class="fas fa-check text-success"></i>
+                                </div>
+                                <div class="metric-subtext">Completed verifications</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="filter-card wo-verify-filters">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="txtWvrSearch">Search Tasks</label>
+                                <input type="text" id="txtWvrSearch" class="form-control" placeholder="Search by number, location, status...">
+                            </div>
+                            <div class="mt-2 mt-sm-0">
+                                <label class="filter-label d-block">View Mode</label>
+                                <div class="gems-status-scroll">
+                                    <button type="button" class="gems-status-chip btnWvrTab" id="btnWvrPending">
+                                        <i class="fas fa-tasks mr-2"></i>Pending Tasks
+                                    </button>
+                                    <button type="button" class="gems-status-chip btnWvrTab lighten-2" id="btnWvrSubmitted">
+                                        <i class="fas fa-check mr-2"></i>Submitted Tasks
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mt-4 sectionWvrMain sectionWvrTask sectionWvrPending">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div class="d-flex align-items-center">
+                                <span class="badge badge-soft badge-soft-primary mr-3"><i class="fas fa-tasks"></i></span>
+                                <h4 class="mb-0 text-white">Pending Task List</h4>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-3" data-toggle="popover" data-trigger="focus" title="Pending Task List" data-content="Tasks awaiting verification or closure action.">
+                                    <i class="fas fa-info"></i>
+                                </a>
+                                <div id="btnWvrPendingExport" class="dt-btn-slot"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
                             <div class="table-responsive">
                                 <table id="dtWvrPending" class="table table-custom-badge table-hover mb-0 display responsive">
                                     <thead>
@@ -85,49 +117,11 @@
                                         <th>Location</th>
                                         <th>Type</th>
                                         <th>Complainant</th>
-                                        <th>Severity</th> <!--5-->
+                                        <th>Severity</th>
                                         <th>Technician</th>
                                         <th>Received Time</th>
                                         <th style="width: 30px; min-width: 30px">SLA Respond</th>
                                         <th>Respond Duration</th>
-                                        <th style="width: 30px; min-width: 30px">SLA Execution</th> <!--10-->
-                                        <th>Execution Duration</th>
-                                        <th>Status</th>
-                                        <th style="width: 40px; min-width: 40px">&nbsp;</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section class="mb-3 sectionWvrMain sectionWvrTask sectionWvrSubmitted">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="float-left cyan " style="width: 16px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;"><i class="fas fa-check mr-1"></i> Submitted Task List</h4>
-                        </div>
-                        <div class="card-body pt-4">
-                            <div class="table-responsive">
-                                <table id="dtWvrSubmitted" class="table table-custom-badge table-hover mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>WO No</th>
-                                        <th>Location</th>
-                                        <th>Type</th>
-                                        <th>Complainant</th>
-                                        <th>Severity</th> <!--5-->
-                                        <th>Technician</th>
-                                        <th>Received Time</th>
-                                        <th>Submitted Time</th>
-                                        <th style="width: 30px; min-width: 30px">SLA Respond</th>
-                                        <th>Respond Duration</th> <!--10-->
                                         <th style="width: 30px; min-width: 30px">SLA Execution</th>
                                         <th>Execution Duration</th>
                                         <th>Status</th>
@@ -139,7 +133,50 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
+
+                <section class="mt-4 sectionWvrMain sectionWvrTask sectionWvrSubmitted">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div class="d-flex align-items-center">
+                                <span class="badge badge-soft badge-soft-success mr-3"><i class="fas fa-check"></i></span>
+                                <h4 class="mb-0 text-white">Submitted Task List</h4>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-3" data-toggle="popover" data-trigger="focus" title="Submitted Task List" data-content="Recently verified tasks for audit trail.">
+                                    <i class="fas fa-info"></i>
+                                </a>
+                                <div id="btnWvrSubmittedExport" class="dt-btn-slot"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="table-responsive">
+                                <table id="dtWvrSubmitted" class="table table-custom-badge table-hover mb-0 display responsive">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>WO No</th>
+                                        <th>Location</th>
+                                        <th>Type</th>
+                                        <th>Complainant</th>
+                                        <th>Severity</th>
+                                        <th>Technician</th>
+                                        <th>Received Time</th>
+                                        <th>Submitted Time</th>
+                                        <th style="width: 30px; min-width: 30px">SLA Respond</th>
+                                        <th>Respond Duration</th>
+                                        <th style="width: 30px; min-width: 30px">SLA Execution</th>
+                                        <th>Execution Duration</th>
+                                        <th>Status</th>
+                                        <th style="width: 40px; min-width: 40px">&nbsp;</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </section>
         <div class="includeHtml" id="h-section_wo"></div>

@@ -90,9 +90,12 @@ body {
 .gems-status-scroll::-webkit-scrollbar-thumb { background: rgba(75, 90, 114, 0.5); border-radius: 999px; }
 .gems-status-scroll::-webkit-scrollbar-track { background: rgba(242, 246, 250, 0.7); border-radius: 999px; }
 .gems-status-chip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: 24px; border: 1px solid rgba(21,42,70,0.08); color: var(--gems-text); background: #fff; font-size: 13px; line-height: 1.1; white-space: nowrap; transition: all .15s ease; box-shadow: 0 14px 30px -24px rgba(21,42,70,0.35); font-weight: 600; }
-.gems-status-chip.btnWssTab { cursor: pointer; background: rgba(0,77,255,0.12); border-color: rgba(0,77,255,0.3); color: var(--gems-primary); box-shadow: 0 20px 40px -28px rgba(0,77,255,0.45); }
-.gems-status-chip.btnWssTab.lighten-2 { background: #fff; border-color: rgba(21,42,70,0.1); color: var(--gems-muted); box-shadow: 0 12px 22px -20px rgba(21,42,70,0.25); }
-.gems-status-chip.btnWssTab.lighten-2:hover { color: var(--gems-primary); border-color: rgba(0,77,255,0.3); }
+.gems-status-chip.btnWssTab,
+.gems-status-chip.btnWvrTab { cursor: pointer; background: rgba(0,77,255,0.12); border-color: rgba(0,77,255,0.3); color: var(--gems-primary); box-shadow: 0 20px 40px -28px rgba(0,77,255,0.45); }
+.gems-status-chip.btnWssTab.lighten-2,
+.gems-status-chip.btnWvrTab.lighten-2 { background: #fff; border-color: rgba(21,42,70,0.1); color: var(--gems-muted); box-shadow: 0 12px 22px -20px rgba(21,42,70,0.25); }
+.gems-status-chip.btnWssTab.lighten-2:hover,
+.gems-status-chip.btnWvrTab.lighten-2:hover { color: var(--gems-primary); border-color: rgba(0,77,255,0.3); }
 .gems-status-chip:focus { border-color: rgba(0,77,255,0.35); color: var(--gems-primary); text-decoration: none; box-shadow: 0 16px 32px -24px rgba(0,77,255,0.35); }
 .gems-status-chip.active { border-color: var(--gems-primary); color: var(--gems-primary); background: rgba(0,77,255,0.08); box-shadow: 0 20px 40px -26px rgba(0,77,255,0.45); }
 .gems-status-chip .badge { margin-left: auto; }
@@ -105,6 +108,10 @@ body {
 
 /* Page-specific enhancements */
 .wo-assign-shell .module-data-card .gradient-card-header { box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); }
+.wo-verify-shell .module-data-card { border: 0; overflow: hidden; }
+.wo-verify-shell .module-data-card .gradient-card-header { box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); }
+.wo-verify-page-header.gems-page-header { margin-top: 0; margin-bottom: 28px; }
+.wo-verify-filters .gems-status-scroll { padding-top: 4px; }
 
 /* Work order detail workspace */
 .wo-detail-shell { color: var(--gems-text); }
@@ -157,6 +164,7 @@ body {
 .wo-detail-shell .btn-primary:hover { box-shadow: 0 16px 36px -20px rgba(0,77,255,0.6); }
 .wo-detail-shell .table-custom-badge thead th { border-top: 0 !important; }
 .gap-2 { gap: .5rem !important; }
+.gap-3 { gap: .75rem !important; }
 
 @media (max-width: 1199.98px) {
   .wo-card-header, .wo-card-body, .wo-card-footer { padding-left: 20px; padding-right: 20px; }
