@@ -183,7 +183,7 @@ function ModalPpm() {
                 // Manage visibility of bulk-specific elements
                 $('.divMpmHideBulk').hide(); // Hide single-assignment elements
                 $('.divMpmShowBulk').show(); // Show bulk-assignment elements (e.g. a count, not the dropdown)
-                $('#lblMpmTitle').html('<i class="fas fa-layer-plus text-white"></i> &nbsp;PPM Bulk Assign'); //
+                $('#lblMpmTitle').html('<span class="gems-modal-icon"><i class="fas fa-layer-plus"></i></span><span class="gems-modal-heading">PPM Bulk Assign</span>'); //
                 $('#modal_ppm').modal({backdrop: 'static', keyboard: false}); //
             }, 200);
          } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); } HideLoader(); 
@@ -230,7 +230,7 @@ function ModalPpm() {
             mzOptionStop('optMpmChecklistId', refChecklist, 'Choose PPM Checklist', 'checklistId', 'checklistName', {checklistStatus: '1'}, 'required', true);
             mzOptionStop('optMpmPpmGroupId', refPpmGroup, 'Choose PPM Executor Group', 'ppmGroupId', 'ppmGroupName', {roleId:'5', siteId:siteId, ppmGroupStatus: '1'}, 'required');
 
-            $('#lblMpmTitle').html('<i class="fas fa-pen-alt text-white"></i> &nbsp;Assign PPM');
+            $('#lblMpmTitle').html('<span class="gems-modal-icon"><i class="fas fa-pen-alt"></i></span><span class="gems-modal-heading">Assign PPM</span>');
             $('#modal_ppm').modal({backdrop: 'static', keyboard: false});
         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); } HideLoader(); }, 200);
     };
@@ -267,7 +267,7 @@ function ModalPpm() {
                     mzSetFieldValue('MpmAssetTypeName', refAssetType[assetTypeId]['assetTypeName'], 'text');
                     $('.divMpmHideBulk').hide();
                     $('.divMpmShowBulk').show();
-                    $('#lblMpmTitle').html('<i class="fas fa-layer-plus text-white"></i> &nbsp;PPM Bulk Assign');
+                    $('#lblMpmTitle').html('<span class="gems-modal-icon"><i class="fas fa-layer-plus"></i></span><span class="gems-modal-heading">PPM Bulk Assign</span>');
                     $('#modal_ppm').modal({backdrop: 'static', keyboard: false});
                 }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
             }, 200);

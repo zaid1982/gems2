@@ -36,10 +36,46 @@ function MainPpmManagement() {
             if (typeof contract !== 'undefined' && contract['contractId'] === '20') {
                 contractId = contract['contractId'];
                 $('#optPmgContractId').val(contractId);
-                $('#lblPmgContractId').html('Contract').addClass('active');
                 break;
             }
         }
+
+        const updateAssetSummary = function () {
+            if (!oTableAsset) {
+                return;
+            }
+            try {
+                const info = oTableAsset.page.info();
+                $('#lblPmgAssetCount').text('Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal);
+                $('#lblPmgAssetUpdated').text(new Date().toLocaleString());
+            } catch (err) {
+                // noop
+            }
+        };
+
+        const applyAssetDataLabels = function () {
+            const headers = [];
+            $('#dtPmgAsset thead th').each(function () {
+                headers.push($(this).text().trim());
+            });
+            $('#dtPmgAsset tbody tr').each(function () {
+                $('td', this).each(function (i) {
+                    $(this).attr('data-label', headers[i] || '');
+                });
+            });
+        };
+
+        const applyScheduledDataLabels = function () {
+            const headers = [];
+            $('#dtPmgScheduled thead th').each(function () {
+                headers.push($(this).text().trim());
+            });
+            $('#dtPmgScheduled tbody tr').each(function () {
+                $('td', this).each(function (i) {
+                    $(this).attr('data-label', headers[i] || '');
+                });
+            });
+        };
 
         oTableAsset =  $('#dtPmgAsset').DataTable({
             bLengthChange: false,
@@ -97,6 +133,8 @@ function MainPpmManagement() {
                         }, 300);
                     }
                 });
+                updateAssetSummary();
+                applyAssetDataLabels();
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -174,15 +212,25 @@ function MainPpmManagement() {
         $('#txtPmgAssetSearch').on('keyup change', function () {
             oTableAsset.search($(this).val()).draw();
         });
+        const setActiveStatusChip = function (target) {
+            $('#linkPmgAll, #linkPmg1, #linkPmg2').removeClass('active');
+            $(target).addClass('active');
+        };
+
         $('#linkPmgAll').on('click', function () {
+            setActiveStatusChip(this);
             oTableAsset.column(20).search('').draw();
         });
         $('#linkPmg1').on('click', function () {
+            setActiveStatusChip(this);
             oTableAsset.column(20).search('10', false, true, false).draw();
         });
         $('#linkPmg2').on('click', function () {
+            setActiveStatusChip(this);
             oTableAsset.column(20).search('11', false, true, false).draw();
         });
+
+        setActiveStatusChip('#linkPmgAll');
 
         $('#optPmgGroupId').on('change', function () {
             mzOptionStop('optPmgCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
@@ -288,6 +336,9 @@ function MainPpmManagement() {
             });
         });
 
+        updateAssetSummary();
+        applyAssetDataLabels();
+
         $('#optPmgContractId').on('change', function () {
             $('#optPmgGroupId').val(null);
             mzOption('optPmgCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: '0'});
@@ -302,7 +353,6 @@ function MainPpmManagement() {
 
         $('#btnPmgAssignBatch').on('click', function () {
             const assetTypeId = $('#optPmgTypeId').val();
-            console.log(assetTypeId);
             if (assetTypeId === '' || assetTypeId === null) {
                 toastr['error']('To perform PPM Bulk Assign, please make sure Asset Type selected in Search section!', _ALERT_TITLE_ERROR);
             }
@@ -357,6 +407,7 @@ function MainPpmManagement() {
                         }, 200);
                     }
                 });
+                applyScheduledDataLabels();
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -388,6 +439,8 @@ function MainPpmManagement() {
         $('#txtPmgScheduledSearch').on('keyup change', function () {
             oTableScheduled.search($(this).val()).draw();
         });
+
+        applyScheduledDataLabels();
 
         let cntScheduled;
         let btnScheduledOpt = {
@@ -510,14 +563,21 @@ function MainPpmManagement() {
             }
         });
 
-        $('#linkPmgAll').html('<span class="bullet blue z-depth-2"></span> All Status <span class="badge blue float-right">'+mzFormatNumber(totalAll)+'</span>');
-        $('#linkPmg1').html('<span class="bullet '+refStatus[10]['statusColor']+' z-depth-2"></span> '+refStatus[10]['statusDesc']+' <span class="badge '+refStatus[10]['statusColor']+' float-right">'+mzFormatNumber(total1)+'</span>');
-        $('#linkPmg2').html('<span class="bullet '+refStatus[11]['statusColor']+' z-depth-2"></span> '+refStatus[11]['statusDesc']+' <span class="badge '+refStatus[11]['statusColor']+' float-right">'+mzFormatNumber(total2)+'</span>');
+    $('#linkPmgAll').html('<span>All Status</span><span class="badge-soft badge-soft-muted">'+mzFormatNumber(totalAll)+'</span>');
+    $('#linkPmg1').html('<span>'+refStatus[10]['statusDesc']+'</span><span class="badge '+refStatus[10]['statusColor']+'">'+mzFormatNumber(total1)+'</span>');
+    $('#linkPmg2').html('<span>'+refStatus[11]['statusDesc']+'</span><span class="badge '+refStatus[11]['statusColor']+'">'+mzFormatNumber(total2)+'</span>');
 
         const chartData = [
             {name:refStatus[10]['statusDesc'], y:total1},
             {name:refStatus[11]['statusDesc'], y:total2}
         ];
+
+        $('#overlayChartPmg').show();
+
+        if (typeof Highcharts === 'undefined' || typeof Highcharts.chart !== 'function') {
+            $('#overlayChartPmg').hide();
+            return;
+        }
 
         Highcharts.chart('chartPmgAssetByStatus', {
             chart: {
@@ -539,7 +599,7 @@ function MainPpmManagement() {
                     dataLabels: {
                         enabled: true,
                         format: '<b>{point.name}</b>: {point.y}',
-                        color: 'white'
+                        color: '#243746'
                     }
                 }
             },
@@ -548,6 +608,8 @@ function MainPpmManagement() {
                 data: chartData
             }]
         });
+
+        $('#overlayChartPmg').hide();
     };
 
     this.getClassName = function () {

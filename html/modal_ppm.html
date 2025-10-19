@@ -1,134 +1,116 @@
-<div class="modal fade" id="modal_ppm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-notify modal-info mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content">
-            <!--Header-->
-            <div class="modal-header d-flex justify-content-center">
-                <h4 class="text-white mt-2 ml-2" id="lblMpmTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+<div class="modal fade gems-modal" id="modal_ppm" tabindex="-1" role="dialog" aria-labelledby="lblMpmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content gems-modal-card">
+            <div class="gems-modal-header">
+                <div class="gems-modal-title" id="lblMpmTitle"></div>
+                <button type="button" class="gems-modal-close" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-times"></i>
                 </button>
             </div>
-            <!--Body-->
-            <div class="modal-body pb-1">
+            <div class="gems-modal-body">
                 <form id="formMpm">
-                    <h6 class="font-small">Asset Information :</h6>
-                    <div class="row pl-2 mt-3">
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmContractName" class="form-control" disabled>
-                                <label for="txtMpmContractName" id="lblMpmContractName">Contract Name</label>
+                    <div class="gems-modal-section">
+                        <div class="gems-section-heading">Asset Information</div>
+                        <div class="gems-section-grid mt-3">
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmContractName">Contract Name</label>
+                                <input type="text" id="txtMpmContractName" class="form-control gems-field-input" disabled>
+                            </div>
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmContractDateStart">Contract Start</label>
+                                <input type="text" id="txtMpmContractDateStart" class="form-control gems-field-input" disabled>
+                            </div>
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmContractDateEnd">Contract End</label>
+                                <input type="text" id="txtMpmContractDateEnd" class="form-control gems-field-input" disabled>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmContractDateStart" class="form-control" disabled>
-                                <label for="txtMpmContractDateStart" id="lblMpmContractDateStart">Contract Start</label>
+                        <div class="gems-section-grid divMpmHideBulk">
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmAssetNo">Asset No</label>
+                                <input type="text" id="txtMpmAssetNo" class="form-control gems-field-input" disabled>
+                            </div>
+                            <div class="gems-field gems-field-span-2">
+                                <label class="gems-field-label" for="txtMpmAssetName">Asset Name</label>
+                                <input type="text" id="txtMpmAssetName" class="form-control gems-field-input" disabled>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmContractDateEnd" class="form-control" disabled>
-                                <label for="txtMpmContractDateEnd" id="lblMpmContractDateEnd">Contract End</label>
+                        <div class="gems-section-grid">
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmAssetGroupName">Asset Group</label>
+                                <input type="text" id="txtMpmAssetGroupName" class="form-control gems-field-input" disabled>
+                            </div>
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmAssetCategoryName">Asset Category</label>
+                                <input type="text" id="txtMpmAssetCategoryName" class="form-control gems-field-input" disabled>
+                            </div>
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmAssetTypeName">Asset Type</label>
+                                <input type="text" id="txtMpmAssetTypeName" class="form-control gems-field-input" disabled>
                             </div>
                         </div>
-                    </div>
-                    <div class="row pl-2 divMpmHideBulk">
-                        <div class="col-md-4">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmAssetNo" class="form-control" disabled>
-                                <label for="txtMpmAssetNo" id="lblMpmAssetNo">Asset No</label>
+                        <div class="gems-section-grid divMpmHideBulk">
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmAssetBrandName">Brand</label>
+                                <input type="text" id="txtMpmAssetBrandName" class="form-control gems-field-input" disabled>
+                            </div>
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmAssetModelName">Model</label>
+                                <input type="text" id="txtMpmAssetModelName" class="form-control gems-field-input" disabled>
                             </div>
                         </div>
-                        <div class="col-md-8">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmAssetName" class="form-control" disabled>
-                                <label for="txtMpmAssetName" id="lblMpmAssetName">Asset Name</label>
+                        <div class="gems-section-grid divMpmHideBulk">
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmLocationCodeName">Location Code</label>
+                                <input type="text" id="txtMpmLocationCodeName" class="form-control gems-field-input" disabled>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row pl-2">
-                        <div class="col-md-4">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmAssetGroupName" class="form-control" disabled>
-                                <label for="txtMpmAssetGroupName" id="lblMpmAssetGroupName">Asset Group</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmAssetCategoryName" class="form-control" disabled>
-                                <label for="txtMpmAssetCategoryName" id="lblMpmAssetCategoryName">Asset Category</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmAssetTypeName" class="form-control" disabled>
-                                <label for="txtMpmAssetTypeName" id="lblMpmAssetTypeName">Asset Type</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row pl-2 divMpmHideBulk">
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmAssetBrandName" class="form-control" disabled>
-                                <label for="txtMpmAssetBrandName" id="lblMpmAssetBrandName">Brand</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmAssetModelName" class="form-control" disabled>
-                                <label for="txtMpmAssetModelName" id="lblMpmAssetModelName">Model</label>
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmAssetCapacity">Capacity</label>
+                                <input type="text" id="txtMpmAssetCapacity" class="form-control gems-field-input" disabled>
                             </div>
                         </div>
                     </div>
-                    <div class="row pl-2 divMpmHideBulk">
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmLocationCodeName" class="form-control" disabled>
-                                <label for="txtMpmLocationCodeName" id="lblMpmLocationCodeName">Location Code</label>
+
+                    <div class="gems-modal-section">
+                        <div class="gems-section-heading">PPM Form</div>
+                        <div class="gems-section-grid mt-3">
+                            <div class="gems-field gems-field-span-2">
+                                <label class="gems-field-label" for="optMpmChecklistId">PPM Checklist <span class="text-danger">*</span></label>
+                                <div class="select-outline">
+                                    <select id="optMpmChecklistId" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true">
+                                        <option value="" disabled selected>Choose PPM Checklist</option>
+                                    </select>
+                                </div>
+                                <p class="gems-field-error" id="optMpmChecklistIdErr"></p>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmAssetCapacity" class="form-control" disabled>
-                                <label for="txtMpmAssetCapacity" id="lblMpmAssetCapacity">Capacity</label>
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="optMpmPpmGroupId">PPM Executor Group <span class="text-danger">*</span></label>
+                                <div class="select-outline">
+                                    <select id="optMpmPpmGroupId" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true">
+                                        <option value="" disabled selected>Choose PPM Executor Group</option>
+                                    </select>
+                                </div>
+                                <p class="gems-field-error" id="optMpmPpmGroupIdErr"></p>
                             </div>
-                        </div>
-                    </div>
-                    <h6 class="font-small">PPM Form :</h6>
-                    <div class="row pl-2 mt-3">
-                        <div class="col-md-12 select-outline">
-                            <select id="optMpmChecklistId" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true">
-                                <option value="" disabled selected>Choose PPM Checklist</option>
-                            </select>
-                            <label for="optMpmChecklistId" id="lblMpmChecklistId">PPM Checklist <span class="text-danger">*</span></label>
-                            <p class="font-small text-danger" id="optMpmChecklistIdErr"></p>
-                        </div>
-                        <div class="col-md-9 select-outline">
-                            <select id="optMpmPpmGroupId" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true">
-                                <option value="" disabled selected>Choose PPM Executor Group</option>
-                            </select>
-                            <label for="optMpmPpmGroupId" id="lblMpmPpmGroupId">PPM Executor Group <span class="text-danger">*</span></label>
-                            <p class="font-small text-danger" id="optMpmPpmGroupIdErr"></p>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpmPpmDateStart" class="form-control datepicker">
-                                <label for="txtMpmPpmDateStart" id="lblMpmPpmDateStart">Start PPM Date <span class="text-danger">*</span></label>
-                                <p class="font-small text-danger" id="txtMpmPpmDateStartErr"></p>
+                            <div class="gems-field">
+                                <label class="gems-field-label" for="txtMpmPpmDateStart">Start PPM Date <span class="text-danger">*</span></label>
+                                <input type="text" id="txtMpmPpmDateStart" class="form-control gems-field-input datepicker">
+                                <p class="gems-field-error" id="txtMpmPpmDateStartErr"></p>
                             </div>
-                        </div>
-                        <div class="col-md-12 select-outline divMpmShowBulk" id="optMpmAsset_">
-                            <select id="optMpmAsset" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true" searchable="Search here.." multiple></select>
-                            <label for="optMpmAsset" id="lblMpmAsset">Asset for PPM Bulk Assign <span class="text-danger">*</span></label>
-                            <p class="font-small text-danger mt-0" id="optMpmAssetErr"></p>
+                            <div class="gems-field gems-field-span-2 divMpmShowBulk" id="optMpmAsset_">
+                                <label class="gems-field-label" for="optMpmAsset">Asset for PPM Bulk Assign <span class="text-danger">*</span></label>
+                                <div class="select-outline">
+                                    <select id="optMpmAsset" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true" searchable="Search here.." multiple></select>
+                                </div>
+                                <p class="gems-field-error" id="optMpmAssetErr"></p>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer p-2">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMpmSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal"><i class="fas fa-undo-alt mr-2"></i>Close</button>
+                <button type="button" id="btnMpmSubmit" class="btn btn-primary"><i class="far fa-paper-plane mr-2"></i>Submit</button>
             </div>
         </div>
     </div>

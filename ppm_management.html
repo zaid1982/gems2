@@ -17,10 +17,9 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
+    <!-- Shared Design System stylesheet -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -40,84 +39,88 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionPmgMain">
-            <div class="card card-cascade narrower">
-                <!--Section: Search Function & Chart-->
-                <section>
+            <div class="card card-cascade narrower gems-card-shell">
+                <section class="gems-page-header ppm-page-header">
+                    <div class="header-text">
+                        <h2>PPM Management</h2>
+                        <p>Monitor preventive maintenance coverage, assignments, and schedules for every asset.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtPmgAssetRefresh" class="btn btn-light btn-icon" aria-label="Refresh list" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnPmgAssignBatch" class="btn btn-primary" aria-label="Bulk assign PPM" data-toggle="tooltip" data-placement="top" title="PPM Bulk Assign"><i class="fas fa-layer-plus mr-2"></i>Bulk Assign</button>
+                    </div>
+                </section>
+
+                <section class="mt-4">
                     <div class="row">
-                        <!--Search Function-->
-                        <div class="col-xl-5 col-lg-12 mr-0">
-                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                                <h2 class="h2-responsive mb-0">PPM Management</h2>
+                        <div class="col-xl-5 col-lg-12 mb-4">
+                            <div class="gems-chart-card h-100">
+                                <div class="gems-chart-overlay" id="overlayChartPmg">
+                                    <div class="spinner-border text-primary" role="status" aria-label="Loading chart"></div>
+                                </div>
+                                <div class="gems-chart-container">
+                                    <div id="chartPmgAssetByStatus" style="height: 100%; margin: 0"></div>
+                                </div>
                             </div>
-                            <div class="card-body card-body-cascade">
-                                <div class="px-3 pt-3">
-                                    <h6>PPM Status:</h6>
-                                    <div class="mt-1 pb-2">
-                                        <ul class="striped list-unstyled pl-2">
-                                            <li><a href="javascript:void(0);" id="linkPmgAll"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkPmg1"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkPmg2"></a></li>
-                                        </ul>
-                                    </div>
-                                    <h6 class="pb-3">Search:</h6>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
+                        </div>
+                        <div class="col-xl-7 col-lg-12 mb-4">
+                            <div class="filter-card ppm-filter-card h-100 d-flex flex-column">
+                                <div class="filter-grid w-100">
+                                    <div>
+                                        <label class="filter-label" for="optPmgContractId">Contract</label>
+                                        <div class="select-outline">
                                             <select id="optPmgContractId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
                                             <label for="optPmgContractId">Contract *</label>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
+                                    <div>
+                                        <label class="filter-label" for="optPmgGroupId">Asset Group</label>
+                                        <div class="select-outline">
                                             <select id="optPmgGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
                                                 <option value="" disabled>All Asset Group</option>
                                             </select>
                                             <label for="optPmgGroupId">Asset Group</label>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
+                                    <div>
+                                        <label class="filter-label" for="optPmgCategoryId">Asset Category</label>
+                                        <div class="select-outline">
                                             <select id="optPmgCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Asset Category</option>
                                             </select>
                                             <label for="optPmgCategoryId">Asset Category</label>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
+                                    <div>
+                                        <label class="filter-label" for="optPmgTypeId">Asset Type</label>
+                                        <div class="select-outline">
                                             <select id="optPmgTypeId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Asset Type</option>
                                             </select>
                                             <label for="optPmgTypeId">Asset Type</label>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
+                                    <div>
+                                        <label class="filter-label" for="optPmgBrandId">Brand</label>
+                                        <div class="select-outline">
                                             <select id="optPmgBrandId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Asset Brand</option>
                                             </select>
                                             <label for="optPmgBrandId">Brand</label>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
+                                    <div>
+                                        <label class="filter-label" for="optPmgModelId">Model</label>
+                                        <div class="select-outline">
                                             <select id="optPmgModelId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
                                                 <option value="" disabled>All Asset Model</option>
                                             </select>
                                             <label for="optPmgModelId">Model</label>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--Chart-->
-                        <div class="col-xl-7 col-lg-12">
-                            <div class="view view-cascade z-depth-4 mb-3">
-                                <div id="chartPmgAssetByStatus" style="height: 616px; margin: 0"></div>
-                            </div>
-                            <div class="card-body">
-                                <div class="px-3 pt-3">
-                                    <div class="row">
-                                        <div class="col-md-7 select-outline">
+                                    <div>
+                                        <label class="filter-label" for="optPmgColumns">Columns Visibility</label>
+                                        <div class="select-outline">
                                             <select id="optPmgColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
                                                 <option value="" disabled>Choose Column Visibility</option>
                                                 <option value="1">Asset Name</option>
@@ -135,35 +138,51 @@
                                             </select>
                                             <label for="optPmgColumns">Columns Visibility</label>
                                         </div>
-                                        <div class="col-md-5">
-                                            <div class="md-form md-outline mt-0">
-                                                <input type="text" id="txtPmgAssetSearch" class="form-control">
-                                                <label for="txtPmgAssetSearch" class="active">Keyword Search</label>
-                                            </div>
+                                    </div>
+                                    <div>
+                                        <label class="filter-label" for="txtPmgAssetSearch">Keyword Search</label>
+                                        <div class="md-form md-outline mt-0 mb-0">
+                                            <input type="text" id="txtPmgAssetSearch" class="form-control">
+                                            <label for="txtPmgAssetSearch" class="active">Keyword Search</label>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="mt-auto pt-3 w-100">
+                                    <div class="summary-pill d-flex justify-content-between align-items-center">
+                                        <span id="lblPmgAssetCount">Showing 0 of 0</span>
+                                        <span id="lblPmgAssetUpdated">—</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
-                <!--Section: Table-->
+
+                <section class="mb-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPmgAll"></a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPmg1"></a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPmg2"></a>
+                        </div>
+                    </div>
+                </section>
+
                 <section>
-                    <div class="card card-cascade narrower z-depth-0">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card">
                         <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                             <div>
-                                <button type="button" id="btnPmgAssignBatch" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="PPM Bulk Assign"><i class="fas fa-layer-plus mt-0"></i></button>
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Asset List"
                                    data-content="Asset List for assigned and unassigned checklist."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtPmgAssetRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Asset List</a>
-                            <div>
+                            <div class="dt-btn-slot">
                                 <div id="btnDtPmgAssetExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4">
+                        <div class="px-4 pb-4 module-table-wrapper">
                             <div class="table-responsive">
                                 <table id="dtPmgAsset" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
                                     <thead>
@@ -198,28 +217,26 @@
                         </div>
                     </div>
                 </section>
-                <section id="divPmgScheduled">
-                    <div class="card card-cascade narrower z-depth-0 pt-4">
+
+                <section id="divPmgScheduled" class="mt-5">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card">
                         <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                             <div>
-                               <!-- <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="Scheduled PPM List"
-                                   data-content="Scheduled PPM List for selected asset."><i class="fas fa-info mt-0 mx-1"></i></a>-->
                                 <button type="button" id="btnDtPmgScheduledRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Scheduled PPM List - <span id="lblPmgScheduledTitle" class="font-italic"></span></a>
-                            <div>
+                            <div class="dt-btn-slot">
                                 <div id="btnDtPmgScheduledExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4">
-                            <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
-                                <div class="">
-                                    <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                                    <input type="text" id="txtPmgScheduledSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                                    <label for="txtPmgScheduledSearch" class="ml-4">Search</label>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="filter-card mb-3">
+                                <label class="filter-label" for="txtPmgScheduledSearch">Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtPmgScheduledSearch" class="form-control">
+                                    <label for="txtPmgScheduledSearch" class="active">Search scheduled list</label>
                                 </div>
-                            </form>
+                            </div>
                             <div class="table-responsive">
                                 <table id="dtPmgScheduled" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
                                     <thead>
@@ -283,7 +300,6 @@
 <script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/themes/dark-blue.js"></script>
 <!-- QR Code -->
 <script type="text/javascript" src="js/vendor/qrCode/qrcode.min.js"></script>
 <!-- Moment JavaScript -->
@@ -384,6 +400,73 @@
     document.write('<scr' + 'ipt src="js/pages/modal_ppm.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_ppm_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
+</script>
+
+<!-- Page-specific helpers: Highcharts light theme -->
+<script type="text/javascript">
+    if (window.Highcharts) {
+        var rootStyles = getComputedStyle(document.documentElement);
+        var colorText = (rootStyles.getPropertyValue('--gems-text') || '#243746').trim();
+        var colorMuted = (rootStyles.getPropertyValue('--gems-muted') || '#7e8f9a').trim();
+        var colorBg = (rootStyles.getPropertyValue('--gems-bg') || '#e7eaec').trim();
+
+        Highcharts.setOptions({
+            chart: {
+                backgroundColor: '#FFFFFF',
+                style: {
+                    fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+                    color: colorText
+                }
+            },
+            title: {
+                style: {
+                    color: colorText,
+                    fontWeight: '600'
+                }
+            },
+            tooltip: {
+                backgroundColor: '#ffffff',
+                borderColor: 'rgba(36,55,70,0.15)',
+                style: {
+                    color: colorText
+                }
+            },
+            xAxis: {
+                gridLineColor: colorBg,
+                labels: {
+                    style: {
+                        color: colorMuted
+                    }
+                }
+            },
+            yAxis: {
+                gridLineColor: 'rgba(231,234,236,0.8)',
+                labels: {
+                    style: {
+                        color: colorMuted
+                    }
+                },
+                title: {
+                    style: {
+                        color: colorMuted
+                    }
+                }
+            },
+            legend: {
+                itemStyle: {
+                    color: colorMuted,
+                    fontWeight: '500'
+                }
+            },
+            exporting: {
+                chartOptions: {
+                    chart: {
+                        backgroundColor: '#FFFFFF'
+                    }
+                }
+            }
+        });
+    }
 </script>
 
 </body>
