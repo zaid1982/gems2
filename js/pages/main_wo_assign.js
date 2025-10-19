@@ -28,14 +28,13 @@ function MainWoAssign () {
         
         oTableWssPending = $('#dtWssPending').DataTable({
             bLengthChange: false,
-            bFilter: true,
+            bFilter: false,
             aaSorting: [[5, 'desc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
+            dom: "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0, 7] },
@@ -133,14 +132,13 @@ function MainWoAssign () {
 
         oTableWssSubmitted = $('#dtWssSubmitted').DataTable({
             bLengthChange: false,
-            bFilter: true,
+            bFilter: false,
             aaSorting: [[7, 'desc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
+            dom: "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0, 11] },
@@ -252,11 +250,15 @@ function MainWoAssign () {
             ]
         });
 
+        oTableWssPending.buttons().container().appendTo('#btnWssPendingExport');
+        oTableWssSubmitted.buttons().container().appendTo('#btnWssSubmittedExport');
+
         $('#btnWssPending').on('click', function () {
             $('.sectionWssTask').hide();
             $('.sectionWssPending').show();
             $('.btnWssTab').removeClass('lighten-2').addClass('lighten-2');
             $('#btnWssPending').removeClass('lighten-2');
+            currentTab = 'Pending';
             self.genTablePending();
             window.scrollTo({top: 0, behavior: 'smooth'});
         });
@@ -266,8 +268,15 @@ function MainWoAssign () {
             $('.sectionWssSubmitted').show();
             $('.btnWssTab').removeClass('lighten-2').addClass('lighten-2');
             $('#btnWssSubmitted').removeClass('lighten-2');
+            currentTab = 'Submitted';
             self.genTableSubmitted();
             window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+
+        $('#txtWssSearch').on('input', function () {
+            const term = $(this).val();
+            oTableWssPending.search(term).draw();
+            oTableWssSubmitted.search(term).draw();
         });
     };
 

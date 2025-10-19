@@ -1,65 +1,66 @@
-<section class="section mb-5 sectionWo">
-    <div class="row mb-2 pb-0">
-        <div class="col-md-12">
-            <button type="button" class="btn btn-grey btn-rounded float-right text-white z-depth-3"
-                    id="btnSwoBack" data-toggle="tooltip" data-placement="bottom" title="Back to Main Page">
-                <i class="fas fa-arrow-left mr-1"></i> Back to Main Page
+<section class="sectionWo wo-detail-shell mb-5">
+    <section class="gems-page-header wo-detail-header">
+        <div class="header-text">
+            <h2>Assignment Workspace</h2>
+            <p>Review complaint insights, allocate technicians, and close the loop efficiently.</p>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="btn btn-outline-light btn-rounded" id="btnSwoBack" data-toggle="tooltip" data-placement="bottom" title="Back to Main Page">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Main Page
             </button>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-5">
-            <div class="card z-depth-4 mb-3">
-                <div class="p-3 aqua-gradient text-white">
-                    <h5 id="lblSwoWoMainName"></h5>
-                    <h2 class="mt-1 mb-0 font-weight-bold"><span id="lblSwoWoMainNo"></span></h2>
+    </section>
+
+    <div class="row mt-4">
+        <div class="col-xl-4 mb-4">
+            <div class="module-data-card wo-summary-card mb-4">
+                <div class="wo-summary-label" id="lblSwoWoMainName">—</div>
+                <div class="wo-summary-number" id="lblSwoWoMainNo">—</div>
+                <div class="wo-summary-status">
+                    <span class="wo-field-label">Current Status</span>
+                    <p class="wo-summary-text" id="pSwoStatus">—</p>
                 </div>
             </div>
-            <div class="card z-depth-4 mb-3">
-                <div class="card-body">
-                    <div class="media">
-                        <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
-                            <i class="fa-duotone fa-tasks fa-2x text-info"></i>
-                        </span>
-                        <div class="media-body">
-                            <h5 class="dark-grey-text mt-0 mb-2">Transaction Status</h5>
-                            <p class="font-weight-light text-muted mb-0" id="pSwoStatus"></p>
-                        </div>
+
+            <div class="module-data-card wo-info-card mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon info"><i class="fa-duotone fa-memo-circle-info"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Complaint Summary</h5>
+                        <p class="wo-card-subtitle">Details provided by the complainant.</p>
+                    </div>
+                </div>
+                <div class="wo-card-body">
+                    <p class="wo-body-text" id="pSwoComplaint">—</p>
+                </div>
+            </div>
+
+            <div class="module-data-card wo-info-card divSwoImageLeft mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon primary"><i class="fa-duotone fa-camera"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Complaint Images</h5>
+                        <p class="wo-card-subtitle">Visual references submitted with the report.</p>
+                    </div>
+                </div>
+                <div class="wo-card-body">
+                    <div class="wo-image-grid">
+                        <div class="mdb-lightbox no-margin" id="divSwoImageComplaintLeft"></div>
                     </div>
                 </div>
             </div>
-            <div class="card z-depth-4 mb-3">
-                <div class="card-body">
-                    <div class="media">
-                        <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
-                            <i class="fa-duotone fa-memo-circle-info fa-2x text-info"></i>
-                        </span>
-                        <div class="media-body">
-                            <h5 class="dark-grey-text mt-1 mb-2">Description of Complaint</h5>
-                            <p class="font-weight-light text-muted mb-0" id="pSwoComplaint"></p>
-                        </div>
+
+            <div class="module-data-card wo-info-card divSwoAssign mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon danger"><i class="fa-duotone fa-sensor-triangle-exclamation"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Assign Work Order / Work Request</h5>
+                        <p class="wo-card-subtitle">Select assignment details before dispatching.</p>
                     </div>
                 </div>
-            </div>
-            <div class="card z-depth-3 mb-3 divSwoImageLeft">
-                <div class="card-header white p-0">
-                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">Complaint Images</h6>
-                </div>
-                <div class="card-body">
+                <div class="wo-card-body">
                     <div class="row">
-                        <div class="col-12"><div class="mdb-lightbox no-margin" id="divSwoImageComplaintLeft"></div></div>
-                    </div>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3 divSwoAssign">
-                <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left danger-color" style="width: 16px; height: 41px">&nbsp;</div>
-                    <h5 class="font-weight-bold pl-4_1 mt-2"><i class="fa-duotone fa-sensor-triangle-exclamation text-danger mr-1"></i> Assign Work Request / Work Request</h5>
-                </div>
-                <div class="card-body pb-0 px-4">
-                    <div class="row mt-2">
-                        <div class="col-lg-12 select-outline mb-2 px-2">
+                        <div class="col-12 select-outline mb-3">
                             <select id="optSwoaType" class="mdb-select md-form md-outline colorful-select mt-0 mb-0">
                                 <option value="" selected disabled>Select Category</option>
                                 <option value="1">Client Complaint</option>
@@ -72,12 +73,12 @@
                             <label for="optSwoaType" id="lblSwoaType">Category *</label>
                             <p class="font-small text-danger" id="optSwoaTypeErr"></p>
                         </div>
-                        <div class="col-lg-6 select-outline mb-2 px-2">
+                        <div class="col-md-6 select-outline mb-3">
                             <select id="optSwoaSeverity" class="mdb-select md-form md-outline colorful-select mt-0 mb-0"></select>
                             <label for="optSwoaSeverity" id="lblSwoaSeverity">Severity <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optSwoaSeverityErr"></p>
                         </div>
-                        <div class="col-md-6 select-outline mb-2 px-2" id="optSwoaMaxAssistants_">
+                        <div class="col-md-6 select-outline mb-3" id="optSwoaMaxAssistants_">
                             <select id="optSwoaMaxAssistants" class="mdb-select md-form md-outline colorful-select mt-0 mb-0">
                                 <option value="" selected disabled>Select Max. Assistants</option>
                                 <option value="0">0</option>
@@ -90,48 +91,42 @@
                             <label for="optSwoaMaxAssistants" id="lblSwoaMaxAssistants">Maximum Assistants <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optSwoaMaxAssistantsErr"></p>
                         </div>
-                        <div class="col-md-12 select-outline mb-2 px-2" id="optSwoaPpmGroup_">
+                        <div class="col-12 select-outline mb-3" id="optSwoaPpmGroup_">
                             <select id="optSwoaPpmGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
                             <label for="optSwoaPpmGroup" id="lblSwoaPpmGroup">Executor Group <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optSwoaPpmGroupErr"></p>
                         </div>
-                        <div class="col-md-12 select-outline mb-2 px-2" id="optSwoaAssignedTo_">
+                        <div class="col-12 select-outline mb-3" id="optSwoaAssignedTo_">
                             <select id="optSwoaAssignedTo" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" data-stop-refresh="true"></select>
                             <label for="optSwoaAssignedTo" id="lblSwoaAssignedTo">Executor <span class="text-danger">*</span></label>
                             <p class="font-small text-danger" id="optSwoaAssignedToErr"></p>
                         </div>
                     </div>
-                    <hr class="mt-0 divSwoaExecutorDetails">
-                    <div class="row divSwoaExecutorDetails">
-                        <div class="col-md-12 mb-3 px-2">
-                            <h6 class="font-weight-500">Executor Details :</h6>
-                        </div>
-                        <div class="col-md-12 px-2">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtSwoaUserName" class="form-control" disabled>
-                                <label for="txtSwoaUserName" id="lblSwoaUserName">Name</label>
+                    <hr class="wo-divider divSwoaExecutorDetails">
+                    <div class="divSwoaExecutorDetails">
+                        <h6 class="wo-section-heading">Executor Details</h6>
+                        <div class="wo-detail-grid">
+                            <div class="wo-field">
+                                <span class="wo-field-label">Name</span>
+                                <input type="text" id="txtSwoaUserName" class="form-control wo-field-input" disabled>
+                            </div>
+                            <div class="wo-field">
+                                <span class="wo-field-label">Phone No.</span>
+                                <input type="text" id="txtSwoaUserContactNo" class="form-control wo-field-input" disabled>
+                            </div>
+                            <div class="wo-field">
+                                <span class="wo-field-label">Email</span>
+                                <input type="text" id="txtSwoaUserEmail" class="form-control wo-field-input" disabled>
                             </div>
                         </div>
-                        <div class="col-md-12 px-2">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtSwoaUserContactNo" class="form-control" disabled>
-                                <label for="txtSwoaUserContactNo" id="lblSwoaUserContactNo">Phone No.</label>
-                            </div>
-                        </div>
-                        <div class="col-md-12 px-2">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtSwoaUserEmail" class="form-control" disabled>
-                                <label for="txtSwoaUserEmail" id="lblSwoaUserEmail">Email</label>
-                            </div>
-                        </div>
-                        <div class="col-md-12 px-2 pb-2">
+                        <div class="wo-table-shell mt-3">
                             <div class="table-responsive">
                                 <table id="dtSwoaCurrentTask" class="table table-hover table-custom-badge mb-0 display responsive">
                                     <thead>
                                     <tr class="th-strong">
-                                        <th class="pt-2">#</th>
-                                        <th class="pt-2">Current Task in Hands</th>
-                                        <th class="pt-2">Date Received</th>
+                                        <th>#</th>
+                                        <th>Current Task in Hand</th>
+                                        <th>Date Received</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -140,347 +135,312 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-footer p-1">
-                    <button type="button" class="btn btn-outline-info btn-sm z-depth-2 float-right" id="btnSwoaSubmit" data-toggle="tooltip" data-placement="bottom" title="Submit"><i class="far fa-share-from-square mr-1"></i> Submit</button>
-                    <button type="button" class="btn btn-outline-danger btn-sm z-depth-2 float-right" id="btnSwoaReject" data-toggle="tooltip" data-placement="bottom" title="Submit"><i class="far fa-ban mr-1"></i> Out of Scope</button>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3 divSwoVerify">
-                <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left danger-color" style="width: 16px; height: 41px">&nbsp;</div>
-                    <h5 class="font-weight-bold pl-4_1 mt-2"><i class="fa-duotone fa-sensor-triangle-exclamation text-danger mr-1"></i> Verify Work Order</h5>
-                </div>
-                <div class="card-body pb-0 px-4">
-                    <div class="row mt-2">
-                        <div class="col-12 px-2 mb-3">
-                            <p class="mb-0 ml-1 font-small">Action <span class="text-danger">*</span> :</p>
-                            <div class="md-form mt-0 mb-3 ml-1">
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="radSwovAction" id="radSwovAction1" value="1">
-                                    <label class="form-check-label" for="radSwovAction1">Verify</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="radSwovAction" id="radSwovAction2" value="2">
-                                    <label class="form-check-label" for="radSwovAction2">Return to Technician</label>
-                                </div>
-                            </div>
-                            <p class="font-small text-danger ml-1 my-0" id="radSwovActionErr"></p>
-                        </div>
-                        <div class="col-12 px-2 mb-3" id="optSwovRating_">
-                            <p class="mb-0 ml-1 font-small">Rating <span class="text-danger">*</span> :</p>
-                            <div class="md-form mt-0 mb-3 ml-1">
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="radSwovRating" id="radSwovRating1" value="1">
-                                    <label class="form-check-label" for="radSwovRating1">1</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="radSwovRating" id="radSwovRating2" value="2">
-                                    <label class="form-check-label" for="radSwovRating2">2</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="radSwovRating" id="radSwovRating3" value="3">
-                                    <label class="form-check-label" for="radSwovRating3">3</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="radSwovRating" id="radSwovRating4" value="4">
-                                    <label class="form-check-label" for="radSwovRating4">4</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="radSwovRating" id="radSwovRating5" value="5">
-                                    <label class="form-check-label" for="radSwovRating5">5</label>
-                                </div>
-                            </div>
-                            <p class="font-small text-danger ml-1 my-0" id="radSwovRatingErr"></p>
-                        </div>
-                        <div class="col-12 px-2">
-                            <div class="md-form md-outline mt-0">
-                                <textarea id="txaSwovRemark" class="md-textarea form-control" rows="5"></textarea>
-                                <label for="txaSwovRemark" id="lblSwovRemark" class="text-muted">Remark / Comment</label>
-                                <p class="font-small text-danger" id="txaSwovRemarkErr"></p>
-                            </div>
-                        </div>
+                <div class="wo-card-footer">
+                    <div class="d-flex flex-wrap justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-danger btn-rounded" id="btnSwoaReject" data-toggle="tooltip" data-placement="bottom" title="Mark as Out of Scope"><i class="far fa-ban mr-1"></i>Out of Scope</button>
+                        <button type="button" class="btn btn-primary btn-rounded" id="btnSwoaSubmit" data-toggle="tooltip" data-placement="bottom" title="Submit Assignment"><i class="far fa-share-from-square mr-1"></i>Submit</button>
                     </div>
                 </div>
-                <div class="card-footer p-1">
-                    <button type="button" class="btn btn-outline-info btn-sm z-depth-2 float-right" id="btnSwovSubmit" data-toggle="tooltip" data-placement="bottom" title="Submit"><i class="far fa-share-from-square mr-1"></i> Submit</button>
+            </div>
+
+            <div class="module-data-card wo-info-card divSwoVerify mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon success"><i class="fa-duotone fa-clipboard-check"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Verify Work Order</h5>
+                        <p class="wo-card-subtitle">Close the loop or return to the field team.</p>
+                    </div>
+                </div>
+                <div class="wo-card-body">
+                    <div class="wo-radio-group mb-3">
+                        <span class="wo-field-label">Action *</span>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" name="radSwovAction" id="radSwovAction1" value="1">
+                            <label class="custom-control-label" for="radSwovAction1">Verify</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" name="radSwovAction" id="radSwovAction2" value="2">
+                            <label class="custom-control-label" for="radSwovAction2">Return to Technician</label>
+                        </div>
+                        <p class="font-small text-danger mb-0" id="radSwovActionErr"></p>
+                    </div>
+                    <div class="wo-radio-group mb-3" id="optSwovRating_">
+                        <span class="wo-field-label">Rating *</span>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" name="radSwovRating" id="radSwovRating1" value="1">
+                            <label class="custom-control-label" for="radSwovRating1">1</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" name="radSwovRating" id="radSwovRating2" value="2">
+                            <label class="custom-control-label" for="radSwovRating2">2</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" name="radSwovRating" id="radSwovRating3" value="3">
+                            <label class="custom-control-label" for="radSwovRating3">3</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" name="radSwovRating" id="radSwovRating4" value="4">
+                            <label class="custom-control-label" for="radSwovRating4">4</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" class="custom-control-input" name="radSwovRating" id="radSwovRating5" value="5">
+                            <label class="custom-control-label" for="radSwovRating5">5</label>
+                        </div>
+                        <p class="font-small text-danger mb-0" id="radSwovRatingErr"></p>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="wo-field-label" for="txaSwovRemark">Remark / Comment</label>
+                        <textarea id="txaSwovRemark" class="form-control" rows="4"></textarea>
+                        <p class="font-small text-danger" id="txaSwovRemarkErr"></p>
+                    </div>
+                </div>
+                <div class="wo-card-footer">
+                    <button type="button" class="btn btn-primary btn-rounded" id="btnSwovSubmit" data-toggle="tooltip" data-placement="bottom" title="Submit"><i class="far fa-share-from-square mr-1"></i>Submit</button>
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
-            <div class="card z-depth-3 mb-3">
-                <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">Complaint Details</h6>
-                </div>
-                <div class="card-body pb-0">
-                    <div class="row">
-                        <div class="md-form col-lg-6 my-1" id="divSwoWo">
-                            <i class="fa-duotone fa-hashtag prefix text-info"></i>
-                            <label class="active pl-3_5">Work Order No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoWoNo"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-1" id="divSwoWr">
-                            <i class="fa-duotone fa-hashtag prefix text-info"></i>
-                            <label class="active pl-3_5">Work Request No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoWrNo"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
+
+        <div class="col-xl-8 mb-4">
+            <div class="module-data-card wo-info-card mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon primary"><i class="fa-duotone fa-file-lines"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Complaint Details</h5>
+                        <p class="wo-card-subtitle">Key information recorded for this work order.</p>
                     </div>
-                    <div class="row">
-                        <div class="md-form col-lg-12 my-1">
-                            <i class="fa-duotone fa-map-marked-alt prefix text-info"></i>
-                            <label class="active pl-3_5">Site</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoSite"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                </div>
+                <div class="wo-card-body">
+                    <div class="wo-detail-grid">
+                        <div class="wo-field" id="divSwoWo">
+                            <span class="wo-field-label">Work Order No.</span>
+                            <p class="wo-field-value" id="pSwoWoNo"></p>
                         </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-tag prefix text-info"></i>
-                            <label class="active pl-3">Category</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSwoCategory"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field" id="divSwoWr">
+                            <span class="wo-field-label">Work Request No.</span>
+                            <p class="wo-field-value" id="pSwoWrNo"></p>
                         </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-circle-exclamation prefix text-info"></i>
-                            <label class="active pl-3_5">Severity</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoSeverity"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Site</span>
+                            <p class="wo-field-value" id="pSwoSite"></p>
                         </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-calendar-alt prefix text-info"></i>
-                            <label class="active pl-3">Reported Date/Time</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTimeReported"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Category</span>
+                            <p class="wo-field-value" id="pSwoCategory"></p>
                         </div>
-                        <div class="md-form col-lg-12 my-1">
-                            <i class="fa-duotone fa-map-signs prefix text-info"></i>
-                            <label class="active pl-3">Location</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoLocation"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Severity</span>
+                            <p class="wo-field-value" id="pSwoSeverity"></p>
                         </div>
-                        <div class="md-form col-lg-12 my-1">
-                            <i class="fa-duotone fa-user prefix text-info"></i>
-                            <label class="active pl-3">Complainer Name</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoComplainerName"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Reported Date/Time</span>
+                            <p class="wo-field-value" id="pSwoTimeReported"></p>
                         </div>
-                        <div class="md-form col-lg-5 my-1">
-                            <i class="fa-duotone fa-phone prefix text-info"></i>
-                            <label class="active pl-3">Complainer Phone No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoComplainerPhoneNo"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Location</span>
+                            <p class="wo-field-value" id="pSwoLocation"></p>
                         </div>
-                        <div class="md-form col-lg-7 my-1">
-                            <i class="fa-duotone fa-envelope prefix text-info"></i>
-                            <label class="active pl-3">Complainer Email</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoComplainerEmail"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Complainer Name</span>
+                            <p class="wo-field-value" id="pSwoComplainerName"></p>
                         </div>
-                        <div class="md-form col-lg-5 my-1 divSwoPublic">
-                            <i class="fa-duotone fa-id-card prefix text-info"></i>
-                            <label class="active pl-3">Complainer IC No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoComplainerIcNo"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Complainer Phone No.</span>
+                            <p class="wo-field-value" id="pSwoComplainerPhoneNo"></p>
                         </div>
-                        <div class="md-form col-lg-7 my-1 divSwoPublic">
-                            <i class="fa-duotone fa-building prefix text-info"></i>
-                            <label class="active pl-3">Agency Name</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoComplainerAgency"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Complainer Email</span>
+                            <p class="wo-field-value" id="pSwoComplainerEmail"></p>
+                        </div>
+                        <div class="wo-field divSwoPublic">
+                            <span class="wo-field-label">Complainer IC No.</span>
+                            <p class="wo-field-value" id="pSwoComplainerIcNo"></p>
+                        </div>
+                        <div class="wo-field divSwoPublic">
+                            <span class="wo-field-label">Agency Name</span>
+                            <p class="wo-field-value" id="pSwoComplainerAgency"></p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card z-depth-3 mb-3 divSwoAssign">
-                <div class="card-header white p-0">
-                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">Complaint Images</h6>
+
+            <div class="module-data-card wo-info-card divSwoAssign mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon primary"><i class="fa-duotone fa-camera"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Complaint Images</h5>
+                        <p class="wo-card-subtitle">High-resolution captures for further inspection.</p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12"><div class="mdb-lightbox no-margin" id="divSwoImageComplaint"></div></div>
+                <div class="wo-card-body">
+                    <div class="wo-image-grid">
+                        <div class="mdb-lightbox no-margin" id="divSwoImageComplaint"></div>
                     </div>
                 </div>
             </div>
-            <div class="card z-depth-3 mb-3 divSwoAssigned divSwoAssessment">
-                <div class="card-header white p-0">
-                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">Work Assessment & Technician Involved</h6>
+
+            <div class="module-data-card wo-info-card divSwoAssigned divSwoAssessment mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon success"><i class="fa-duotone fa-user-helmet-safety"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Work Assessment &amp; Technician Involved</h5>
+                        <p class="wo-card-subtitle">Assignment insights and SLA tracking.</p>
+                    </div>
                 </div>
-                <div class="card-body pb-0">
-                    <div class="row">
-                        <div class="md-form col-lg-5 my-1">
-                            <i class="fa-duotone fa-people-group prefix text-info"></i>
-                            <label class="active pl-3">WO Group</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoGroup"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                <div class="wo-card-body">
+                    <div class="wo-detail-grid">
+                        <div class="wo-field">
+                            <span class="wo-field-label">WO Group</span>
+                            <p class="wo-field-value" id="pSwoGroup"></p>
                         </div>
-                        <div class="md-form col-lg-7 my-1">
-                            <i class="fa-duotone fa-user-helmet-safety prefix text-info"></i>
-                            <label class="active pl-3">Technician Name</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTechnicianName"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Technician Name</span>
+                            <p class="wo-field-value" id="pSwoTechnicianName"></p>
                         </div>
-                        <div class="md-form col-lg-5 my-1">
-                            <i class="fa-duotone fa-phone prefix text-info"></i>
-                            <label class="active pl-3">Technician Phone No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTechnicianPhoneNo"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Technician Phone</span>
+                            <p class="wo-field-value" id="pSwoTechnicianPhoneNo"></p>
                         </div>
-                        <div class="md-form col-lg-7 my-1">
-                            <i class="fa-duotone fa-envelope prefix text-info"></i>
-                            <label class="active pl-3">Technician Email</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTechnicianEmail"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Technician Email</span>
+                            <p class="wo-field-value" id="pSwoTechnicianEmail"></p>
                         </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-timeline-arrow prefix text-info"></i>
-                            <label class="active pl-3">SLA Respond</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoSlaRespond"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">SLA Respond</span>
+                            <p class="wo-field-value" id="pSwoSlaRespond"></p>
                         </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-timeline-arrow prefix text-info"></i>
-                            <label class="active pl-3">SLA Execution</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoSlaExecution"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">SLA Execution</span>
+                            <p class="wo-field-value" id="pSwoSlaExecution"></p>
                         </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-calendar-clock prefix text-info"></i>
-                            <label class="active pl-3">Time Respond</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTimeRespond"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Time Respond</span>
+                            <p class="wo-field-value" id="pSwoTimeRespond"></p>
                         </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-calendar-clock prefix text-info"></i>
-                            <label class="active pl-3">Work Completed</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoTimeExecution"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Work Completed</span>
+                            <p class="wo-field-value" id="pSwoTimeExecution"></p>
                         </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-timer prefix text-info"></i>
-                            <label class="active pl-3">Respond Duration</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoDurationRespond"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Respond Duration</span>
+                            <p class="wo-field-value" id="pSwoDurationRespond"></p>
                         </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-timer prefix text-info"></i>
-                            <label class="active pl-3">Work Duration</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoDurationExecution"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Work Duration</span>
+                            <p class="wo-field-value" id="pSwoDurationExecution"></p>
                         </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-star-sharp-half prefix text-info"></i>
-                            <label class="active pl-3">Rating</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoRating"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Rating</span>
+                            <p class="wo-field-value" id="pSwoRating"></p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card z-depth-3 mb-3 divSwoAssigned">
-                <div class="card-header white p-0">
-                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">Description of Repair</h6>
+
+            <div class="module-data-card wo-info-card divSwoAssigned mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon info"><i class="fa-duotone fa-clipboard-list"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Description of Repair</h5>
+                        <p class="wo-card-subtitle">Summary prepared by the servicing team.</p>
+                    </div>
                 </div>
-                <div class="card-body pb-0">
-                    <div class="row">
-                        <div class="md-form col-lg-12 my-1">
-                            <i class="fa-duotone fa-clipboard-list prefix text-info"></i>
-                            <label class="active pl-3">Description of Repair</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoRepair"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                <div class="wo-card-body">
+                    <p class="wo-body-text" id="pSwoRepair"></p>
+                </div>
+            </div>
+
+            <div class="module-data-card wo-info-card divSwoAssigned mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon primary"><i class="fa-duotone fa-camera"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Repair Images</h5>
+                        <p class="wo-card-subtitle">Documented results after the fix.</p>
+                    </div>
+                </div>
+                <div class="wo-card-body">
+                    <div class="wo-image-grid">
+                        <div class="mdb-lightbox no-margin" id="divSwoImageRepair"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="module-data-card wo-info-card divSwoAssigned mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon info"><i class="fa-duotone fa-box"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Asset Reference</h5>
+                        <p class="wo-card-subtitle">Linked asset information for this request.</p>
+                    </div>
+                </div>
+                <div class="wo-card-body">
+                    <div class="wo-detail-grid" id="divSwoAsset">
+                        <div class="wo-field">
+                            <span class="wo-field-label">Asset No</span>
+                            <p class="wo-field-value" id="pSwoAssetNo"></p>
+                        </div>
+                        <div class="wo-field">
+                            <span class="wo-field-label">Asset Name</span>
+                            <p class="wo-field-value" id="pSwoAssetName"></p>
+                        </div>
+                    </div>
+                    <div class="wo-empty-state" id="divSwoAssetEmpty"><i>- empty -</i></div>
+                </div>
+            </div>
+
+            <div class="module-data-card wo-info-card divSwoAssigned mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon success"><i class="fa-duotone fa-users"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Assisted Technicians</h5>
+                        <p class="wo-card-subtitle">Supporting team members on this task.</p>
+                    </div>
+                </div>
+                <div class="wo-card-body">
+                    <div class="wo-empty-state" id="divSwoAssistantsEmpty"><i>- empty -</i></div>
+                    <div class="wo-table-shell" id="divSwoAssistants">
+                        <div class="table-responsive">
+                            <table id="dtSwoAssistants" class="table table-hover table-custom-badge mb-0 display responsive">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Contact No.</th>
+                                    <th>Email</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card z-depth-3 mb-3 divSwoAssigned">
-                <div class="card-header white p-0">
-                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">Repair Images</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12"><div class="mdb-lightbox no-margin" id="divSwoImageRepair"></div></div>
+
+            <div class="module-data-card wo-info-card divSwoAssigned mb-4">
+                <div class="wo-card-header">
+                    <span class="wo-card-icon accent"><i class="fa-duotone fa-screwdriver-wrench"></i></span>
+                    <div>
+                        <h5 class="wo-card-title">Material Spare Parts</h5>
+                        <p class="wo-card-subtitle">Consumables and materials logged for this job.</p>
                     </div>
                 </div>
-            </div>
-            <div class="card z-depth-3 mb-3 divSwoAssigned">
-                <div class="card-header white p-0">
-                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">Asset No</h6>
-                </div>
-                <div class="card-body pb-0">
-                    <div class="row" id="divSwoAssetEmpty">
-                        <div class="col-12 mb-3"><i>- empty -</i></div>
-                    </div>
-                    <div class="row" id="divSwoAsset">
-                        <div class="md-form col-lg-5 my-1">
-                            <i class="fa-duotone fa-hashtag prefix text-info"></i>
-                            <label class="active pl-3">Asset No</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoAssetNo"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-7 my-1">
-                            <i class="fa-duotone fa-chair-office prefix text-info"></i>
-                            <label class="active pl-3">Asset Name</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSwoAssetName"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3 divSwoAssigned">
-                <div class="card-header white p-0">
-                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">List of Assisted Technicians</h6>
-                </div>
-                <div class="card-body pt-2">
-                    <div class="row">
-                        <div class="col-12 mt-2" id="divSwoAssistantsEmpty"><i>- empty -</i></div>
-                        <div class="col-12 px-0" id="divSwoAssistants">
-                            <div class="table-responsive">
-                                <table id="dtSwoAssistants" class="table table-hover table-custom-badge mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Name</th>
-                                        <th>Contact No.</th>
-                                        <th>Email</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3 divSwoAssigned">
-                <div class="card-header white p-0">
-                    <div class="float-left info-color" style="width: 12px; height: 35px">&nbsp;</div>
-                    <h6 class="font-weight-bold pl-4 mt-2">Material Spare Parts</h6>
-                </div>
-                <div class="card-body pt-2">
-                    <div class="row">
-                        <div class="col-12 mt-2" id="divSwoMaterialsEmpty"><i>- empty -</i></div>
-                        <div class="col-12 px-0" id="divSwoMaterials">
-                            <div class="table-responsive">
-                                <table id="dtSwoMaterials" class="table table-hover table-custom-badge mb-0 display responsive w-100">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th style="width: 50px">Request No.</th>
-                                        <th>Item</th>
-                                        <th>Item Description</th>
-                                        <th>Qty.</th>
-                                        <th>Time Ordered</th>
-                                        <th>Status</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
+                <div class="wo-card-body">
+                    <div class="wo-empty-state" id="divSwoMaterialsEmpty"><i>- empty -</i></div>
+                    <div class="wo-table-shell" id="divSwoMaterials">
+                        <div class="table-responsive">
+                            <table id="dtSwoMaterials" class="table table-hover table-custom-badge mb-0 display responsive w-100">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th>#</th>
+                                    <th style="width: 50px">Request No.</th>
+                                    <th>Item</th>
+                                    <th>Item Description</th>
+                                    <th>Qty.</th>
+                                    <th>Time Ordered</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
