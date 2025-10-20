@@ -18,9 +18,233 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
+    <!-- Page styles -->
     <style>
+        :root {
+            --fca-primary: #4338CA;
+            --fca-background: #F1F5F9;
+            --fca-text: #0F172A;
+            --fca-muted: #64748B;
+            --fca-radius: 26px;
+            --fca-shadow: 0 18px 45px -28px rgba(15, 23, 42, 0.5);
+        }
 
+        body {
+            background: var(--fca-background);
+            color: var(--fca-text);
+        }
+
+        .module-fca {
+            padding: 2.5rem 1.5rem 3rem;
+        }
+
+        .module-fca .module-page-header {
+            background: linear-gradient(135deg, rgba(67, 56, 202, 0.95), rgba(79, 70, 229, 0.85));
+            color: #fff;
+            border-radius: var(--fca-radius);
+            padding: 2.4rem 2.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: var(--fca-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-fca .module-page-header::after {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -70px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .module-fca .module-page-header .header-text { position: relative; z-index: 1; max-width: 680px; }
+        .module-fca .module-page-header .header-text h2 { font-size: 2.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .module-fca .module-page-header .header-text p { margin: 0; color: rgba(255, 255, 255, 0.78); }
+        .module-fca .module-page-header .header-text .header-subtitle { font-size: 0.85rem; text-transform: uppercase; letter-spacing: .1em; opacity: 0.78; margin-bottom: 0.8rem; }
+        .module-fca .module-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+        .module-fca .module-page-header .header-actions .btn { border-radius: 999px; padding: 0.6rem 1.55rem; font-weight: 600; }
+        .module-fca .module-page-header .header-actions .btn-outline-light { border-color: rgba(255, 255, 255, 0.7); color: #fff; }
+        .module-fca .module-page-header .header-actions .btn-outline-light:hover { background: rgba(255, 255, 255, 0.2); }
+        .module-fca .module-page-header .header-actions .btn-white { background: rgba(255, 255, 255, 0.16); color: #fff; border: none; }
+        .module-fca .module-page-header .header-actions .btn-white:hover { background: rgba(255, 255, 255, 0.28); }
+
+        .module-fca .module-tabs {
+            margin-top: 2.2rem;
+            background: #fff;
+            border-radius: var(--fca-radius);
+            padding: 1.1rem 1.25rem;
+            box-shadow: var(--fca-shadow);
+        }
+
+        .module-fca .module-tabs .tab-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .module-fca .btnFctTab {
+            border: none;
+            background: rgba(67, 56, 202, 0.08);
+            color: var(--fca-primary);
+            border-radius: 999px;
+            padding: 0.55rem 1.25rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.2s ease;
+        }
+
+        .module-fca .btnFctTab .tab-badge {
+            background: rgba(67, 56, 202, 0.18);
+            color: var(--fca-primary);
+            border-radius: 999px;
+            padding: 0.15rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .module-fca .btnFctTab.is-active {
+            background: var(--fca-primary);
+            color: #fff;
+            box-shadow: 0 10px 30px -16px rgba(67, 56, 202, 0.75);
+        }
+
+        .module-fca .btnFctTab.is-active .tab-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .module-fca .metrics-row {
+            margin-top: 2.2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .module-fca .metric-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 1.5rem 1.65rem;
+            box-shadow: var(--fca-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-fca .metric-card::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            right: -40px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: rgba(67, 56, 202, 0.08);
+        }
+
+        .module-fca .metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--fca-muted); margin-bottom: 0.55rem; }
+        .module-fca .metric-value { font-size: 2rem; font-weight: 700; color: var(--fca-text); }
+        .module-fca .metric-subtext { font-size: 0.85rem; color: var(--fca-muted); margin-top: 0.35rem; }
+
+        .module-fca .card-pill-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .module-fca .card-pill {
+            background: rgba(67, 56, 202, 0.12);
+            color: var(--fca-primary);
+            border-radius: 999px;
+            padding: 0.35rem 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .module-fca .module-meta {
+            margin-top: 1.6rem;
+            color: var(--fca-muted);
+            font-size: 0.9rem;
+        }
+
+        .module-fca .module-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(67, 56, 202, 0.12);
+            color: var(--fca-primary);
+            font-weight: 600;
+        }
+
+        .module-fca .module-data-card {
+            margin-top: 2.4rem;
+            background: #fff;
+            border-radius: var(--fca-radius);
+            box-shadow: var(--fca-shadow);
+            padding-bottom: 1.6rem;
+        }
+
+        .module-fca .module-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.75rem 2.3rem 1.25rem;
+        }
+
+        .module-fca .module-card-header h4 { margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--fca-text); }
+        .module-fca .module-card-header p { margin: 0; color: var(--fca-muted); }
+        .module-fca .module-table-wrapper { padding: 0 2.3rem; }
+        .module-fca .module-table-wrapper table { width: 100% !important; }
+        .module-fca .module-table-wrapper thead th { background: #EEF2FF; border: none; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--fca-text); }
+        .module-fca .module-table-wrapper tbody td { border-color: #E2E8F0; }
+
+        .module-fca .module-section-subtitle {
+            padding: 0 2.3rem 0.5rem;
+            color: var(--fca-muted);
+            font-size: 0.92rem;
+        }
+
+        #dtFctObserve_wrapper .dt-buttons,
+        #dtFctCorrection_wrapper .dt-buttons,
+        #dtFctRecommend_wrapper .dt-buttons,
+        #dtFctValidate_wrapper .dt-buttons {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 992px) {
+            .module-fca { padding: 2.1rem 1.05rem 2.5rem; }
+            .module-fca .module-page-header { padding: 2.1rem 2.1rem; }
+            .module-fca .module-card-header,
+            .module-fca .module-section-subtitle,
+            .module-fca .module-table-wrapper { padding-left: 1.5rem; padding-right: 1.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .module-fca .module-page-header .header-actions { width: 100%; }
+            .module-fca .module-page-header { padding: 2rem 1.8rem; }
+            .module-fca .metrics-row { grid-template-columns: 1fr; }
+            .module-fca .module-tabs { padding: 0.9rem; }
+            .module-fca .module-table-wrapper thead { display: none; }
+            .module-fca .module-table-wrapper tbody tr { display: block; margin-bottom: 1.2rem; border: 1px solid rgba(15, 23, 42, 0.1); border-radius: 18px; box-shadow: 0 15px 35px -28px rgba(15, 23, 42, 0.55); padding: 0.85rem 1rem; }
+            .module-fca .module-table-wrapper tbody td { display: flex; justify-content: space-between; border: none; padding: 0.45rem 0; font-size: 0.95rem; }
+            .module-fca .module-table-wrapper tbody td::before { content: attr(data-label); font-weight: 600; color: var(--fca-muted); margin-right: 1.25rem; text-align: left; }
+        }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -37,182 +261,222 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid" id="divFctPageWidth">
+    <div class="container-fluid module-page module-fca" id="divFctPageWidth">
         <div id="mdb-lightbox-ui"></div>
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionFctMain">
-            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
-                Facility Condition Appraisal (FCA) Task
-            </h5>
-        </nav>
-        <nav class="navbar navbar-expand navbar-dark cyan z-depth-4 mt-4 sectionFctMain">
-            <div class="collapse navbar-collapse" id="basicExampleNav">
-                <ul class="navbar-nav mr-auto">
-                    <button class="btn mdb-color text-white my-0 py-2 px-1 px-sm-4 btnFctTab" id="btnFctAudit" type="button">
-                        <i class="fas fa-eye"></i><span class="mx-2">Observe</span><span class="badge badge-danger" id="badgeFctTotalCorrection"></span>
-                    </button>
-                    <button class="btn mdb-color lighten-2 text-white my-0 py-2 px-1 px-sm-4 btnFctTab" id="btnFctRecommend" type="button">
-                        <i class="fas fa-marker"></i><span class="mx-2">Recommend</span><span class="badge badge-danger" id="badgeFctTotalRecommend"></span>
-                    </button>
-                    <button class="btn mdb-color lighten-2 text-white my-0 py-2 px-1 px-sm-4 btnFctTab" id="btnFctValidate" type="button">
-                        <i class="fas fa-check"></i><span class="mx-2">Validate</span><span class="badge badge-danger" id="badgeFctTotalValidate"></span>
-                    </button>
-                </ul>
+
+        <section class="module-page-header sectionFctMain">
+            <div class="header-text">
+                <div class="header-subtitle">Facility Condition Appraisal</div>
+                <h2>FCA Task Board</h2>
+                <p>Monitor observation submissions and move recommendations and validations forward.</p>
             </div>
-        </nav>
-        <section class="my-3 sectionFctMain sectionFctTask sectionFctObserve">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="float-left cyan " style="width: 24px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Observation Submitted List</h4>
-                        </div>
-                        <div class="card-body pt-4">
-                            <div class="table-responsive">
-                                <table id="dtFctObserve" class="table table-hover table-sm mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Audit No.</th>
-                                        <th>Site</th>
-                                        <th>Asset Group</th>
-                                        <th>Asset No.</th>
-                                        <th>Evaluated Asset</th> <!--5-->
-                                        <th>Defect Item</th>
-                                        <th>Defect Category</th>
-                                        <th>Zone</th>
-                                        <th>Area</th>
-                                        <th>Condition Scale</th> <!--10-->
-                                        <th>Evaluation Scale</th>
-                                        <th>Observation</th>
-                                        <th>Recommendation</th>
-                                        <th>Validation</th>
-                                        <th>Auditor</th> <!--15-->
-                                        <th>Validator</th>
-                                        <th>Submitted Time</th>
-                                        <th>Status</th> <!--18-->
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
+            <div class="header-actions">
+                <button type="button" id="btnFctRefresh" class="btn btn-outline-light">
+                    <i class="fas fa-sync mr-2"></i>Refresh
+                </button>
+                <button type="button" id="btnFctAddNewHeader" class="btn btn-white">
+                    <i class="fas fa-plus mr-2"></i>New FCA
+                </button>
+            </div>
+        </section>
+
+        <section class="module-tabs sectionFctMain">
+            <div class="tab-row">
+                <button class="btnFctTab is-active" id="btnFctAudit" type="button">
+                    <span>Observe</span>
+                    <span class="tab-badge" id="badgeFctTotalObserve">0</span>
+                </button>
+                <button class="btnFctTab" id="btnFctRecommend" type="button">
+                    <span>Recommend</span>
+                    <span class="tab-badge" id="badgeFctTotalRecommend">0</span>
+                </button>
+                <button class="btnFctTab" id="btnFctValidate" type="button">
+                    <span>Validate</span>
+                    <span class="tab-badge" id="badgeFctTotalValidate">0</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="metrics-row sectionFctMain">
+            <div class="metric-card">
+                <div class="metric-label">Observation submissions</div>
+                <div class="metric-value" id="metricFctObserve">0</div>
+                <div class="metric-subtext">Total observations captured by auditors</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Corrections pending</div>
+                <div class="metric-value" id="metricFctCorrection">0</div>
+                <div class="metric-subtext">Items returned for further action</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Recommendations awaiting review</div>
+                <div class="metric-value" id="metricFctRecommend">0</div>
+                <div class="metric-subtext">Tasks needing recommendation input</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Validations in queue</div>
+                <div class="metric-value" id="metricFctValidate">0</div>
+                <div class="metric-subtext">Tasks pending validation sign off</div>
+            </div>
+        </section>
+
+        <div class="module-meta sectionFctMain">
+            <span id="lblFctUpdated">Updated —</span>
+        </div>
+
+        <section class="sectionFctMain sectionFctTask sectionFctObserve">
+            <div class="module-data-card">
+                <div class="module-card-header">
+                    <div>
+                        <h4>Observation Submitted List</h4>
+                        <p>Review all submitted FCA observations and open their details in the drawer.</p>
+                    </div>
+                    <div class="card-pill-group">
+                        <span class="card-pill"><i class="fas fa-undo mr-2"></i>Corrections pending: <span id="badgeFctTotalCorrection">0</span></span>
+                    </div>
+                </div>
+                <div class="module-table-wrapper">
+                    <div class="table-responsive">
+                        <table id="dtFctObserve" class="table table-hover table-sm mb-0 display responsive">
+                            <thead>
+                            <tr class="th-strong">
+                                <th>#</th>
+                                <th>Audit No.</th>
+                                <th>Site</th>
+                                <th>Asset Group</th>
+                                <th>Asset No.</th>
+                                <th>Evaluated Asset</th>
+                                <th>Defect Item</th>
+                                <th>Defect Category</th>
+                                <th>Zone</th>
+                                <th>Area</th>
+                                <th>Condition Scale</th>
+                                <th>Evaluation Scale</th>
+                                <th>Observation</th>
+                                <th>Recommendation</th>
+                                <th>Validation</th>
+                                <th>Auditor</th>
+                                <th>Validator</th>
+                                <th>Submitted Time</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="float-left cyan " style="width: 24px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Need Correction List</h4>
-                        </div>
-                        <div class="card-body pt-4">
-                            <div class="table-responsive">
-                                <table id="dtFctCorrection" class="table table-hover table-sm mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Audit No.</th>
-                                        <th>Site</th>
-                                        <th>Asset Group</th>
-                                        <th>Asset No.</th>
-                                        <th>Evaluated Asset</th> <!--5-->
-                                        <th>Defect Item</th>
-                                        <th>Defect Category</th>
-                                        <th>Zone</th>
-                                        <th>Area</th>
-                                        <th>Condition Scale</th> <!--10-->
-                                        <th>Evaluation Scale</th>
-                                        <th>Observation</th>
-                                        <th>Recommendation</th>
-                                        <th>Validation</th>
-                                        <th>Validator</th> <!--15-->
-                                        <th>Received Time</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
+
+            <div class="module-data-card">
+                <div class="module-card-header">
+                    <div>
+                        <h4>Need Correction List</h4>
+                        <p>Observations requiring additional input before progressing.</p>
+                    </div>
+                </div>
+                <div class="module-table-wrapper">
+                    <div class="table-responsive">
+                        <table id="dtFctCorrection" class="table table-hover table-sm mb-0 display responsive">
+                            <thead>
+                            <tr class="th-strong">
+                                <th>#</th>
+                                <th>Audit No.</th>
+                                <th>Site</th>
+                                <th>Asset Group</th>
+                                <th>Asset No.</th>
+                                <th>Evaluated Asset</th>
+                                <th>Defect Item</th>
+                                <th>Defect Category</th>
+                                <th>Zone</th>
+                                <th>Area</th>
+                                <th>Condition Scale</th>
+                                <th>Evaluation Scale</th>
+                                <th>Observation</th>
+                                <th>Recommendation</th>
+                                <th>Validation</th>
+                                <th>Validator</th>
+                                <th>Received Time</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </section>
-        <section class="my-3 sectionFctMain sectionFctTask sectionFctRecommend">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="float-left cyan " style="width: 24px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">New Recommendation Task List</h4>
-                        </div>
-                        <div class="card-body pt-4">
-                            <div class="table-responsive">
-                                <table id="dtFctRecommend" class="table table-hover table-sm mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Audit No.</th>
-                                        <th>Site</th>
-                                        <th>Asset Group</th>
-                                        <th>Asset No.</th>
-                                        <th>Evaluated Asset</th> <!--5-->
-                                        <th>Defect Item</th>
-                                        <th>Defect Category</th>
-                                        <th>Zone</th>
-                                        <th>Area</th>
-                                        <th>Observation</th> <!--10-->
-                                        <th>Received Time</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
+
+        <section class="sectionFctMain sectionFctTask sectionFctRecommend">
+            <div class="module-data-card">
+                <div class="module-card-header">
+                    <div>
+                        <h4>New Recommendation Task List</h4>
+                        <p>Provide recommendation details for the observations assigned to your team.</p>
+                    </div>
+                </div>
+                <div class="module-table-wrapper">
+                    <div class="table-responsive">
+                        <table id="dtFctRecommend" class="table table-hover table-sm mb-0 display responsive">
+                            <thead>
+                            <tr class="th-strong">
+                                <th>#</th>
+                                <th>Audit No.</th>
+                                <th>Site</th>
+                                <th>Asset Group</th>
+                                <th>Asset No.</th>
+                                <th>Evaluated Asset</th>
+                                <th>Defect Item</th>
+                                <th>Defect Category</th>
+                                <th>Zone</th>
+                                <th>Area</th>
+                                <th>Observation</th>
+                                <th>Received Time</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </section>
-        <section class="my-3 sectionFctMain sectionFctTask sectionFctValidate">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="float-left cyan " style="width: 24px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">New Validation Task List</h4>
-                        </div>
-                        <div class="card-body pt-4">
-                            <div class="table-responsive">
-                                <table id="dtFctValidate" class="table table-hover table-sm mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Audit No.</th>
-                                        <th>Site</th>
-                                        <th>Asset Group</th>
-                                        <th>Asset No.</th>
-                                        <th>Evaluated Asset</th> <!--5-->
-                                        <th>Defect Item</th>
-                                        <th>Defect Category</th>
-                                        <th>Zone</th>
-                                        <th>Area</th>
-                                        <th>Condition Scale</th> <!--10-->
-                                        <th>Evaluation Scale</th>
-                                        <th>Auditor</th>
-                                        <th>Observation</th>
-                                        <th>Recommendation</th>
-                                        <th>Received Time</th> <!--15-->
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
+
+        <section class="sectionFctMain sectionFctTask sectionFctValidate">
+            <div class="module-data-card">
+                <div class="module-card-header">
+                    <div>
+                        <h4>New Validation Task List</h4>
+                        <p>Validate completed recommendations and close out FCA tasks.</p>
+                    </div>
+                </div>
+                <div class="module-table-wrapper">
+                    <div class="table-responsive">
+                        <table id="dtFctValidate" class="table table-hover table-sm mb-0 display responsive">
+                            <thead>
+                            <tr class="th-strong">
+                                <th>#</th>
+                                <th>Audit No.</th>
+                                <th>Site</th>
+                                <th>Asset Group</th>
+                                <th>Asset No.</th>
+                                <th>Evaluated Asset</th>
+                                <th>Defect Item</th>
+                                <th>Defect Category</th>
+                                <th>Zone</th>
+                                <th>Area</th>
+                                <th>Condition Scale</th>
+                                <th>Evaluation Scale</th>
+                                <th>Auditor</th>
+                                <th>Observation</th>
+                                <th>Recommendation</th>
+                                <th>Received Time</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </section>
+
         <div class="includeHtml" id="h-section_fca_info"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>

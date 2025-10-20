@@ -18,9 +18,165 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
+    <!-- Page styles -->
     <style>
+        :root {
+            --fca-all-primary: #4338CA;
+            --fca-all-accent: #38BDF8;
+            --fca-all-background: #F1F5F9;
+            --fca-all-text: #0F172A;
+            --fca-all-muted: #64748B;
+            --fca-all-radius: 26px;
+            --fca-all-shadow: 0 18px 45px -28px rgba(15, 23, 42, 0.5);
+        }
 
+        body {
+            background: var(--fca-all-background);
+            color: var(--fca-all-text);
+        }
+
+        .module-fca-all {
+            padding: 2.5rem 1.5rem 3rem;
+        }
+
+        .module-fca-all .module-page-header {
+            background: linear-gradient(135deg, rgba(67, 56, 202, 0.95), rgba(79, 70, 229, 0.88));
+            color: #fff;
+            border-radius: var(--fca-all-radius);
+            padding: 2.4rem 2.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: var(--fca-all-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-fca-all .module-page-header::after {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -70px;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .module-fca-all .module-page-header .header-text { position: relative; z-index: 1; max-width: 720px; }
+        .module-fca-all .module-page-header .header-subtitle { font-size: 0.85rem; text-transform: uppercase; letter-spacing: .1em; opacity: 0.8; margin-bottom: 0.75rem; }
+        .module-fca-all .module-page-header .header-text h2 { font-size: 2.35rem; font-weight: 700; margin-bottom: 0.45rem; }
+        .module-fca-all .module-page-header .header-text p { margin: 0; color: rgba(255, 255, 255, 0.8); }
+        .module-fca-all .module-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 0.8rem; }
+        .module-fca-all .module-page-header .header-actions .btn { border-radius: 999px; padding: 0.6rem 1.6rem; font-weight: 600; }
+        .module-fca-all .module-page-header .header-actions .btn-outline-light { border-color: rgba(255, 255, 255, 0.68); color: #fff; }
+        .module-fca-all .module-page-header .header-actions .btn-outline-light:hover { background: rgba(255, 255, 255, 0.2); }
+        .module-fca-all .module-page-header .header-actions .btn-white { background: rgba(255, 255, 255, 0.18); color: #fff; border: none; }
+        .module-fca-all .module-page-header .header-actions .btn-white:hover { background: rgba(255, 255, 255, 0.28); }
+
+        .module-fca-all .metrics-row {
+            margin-top: 2.4rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .module-fca-all .metric-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 1.5rem 1.65rem;
+            box-shadow: var(--fca-all-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-fca-all .metric-card::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            right: -42px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(67, 56, 202, 0.1);
+        }
+
+        .module-fca-all .metric-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--fca-all-muted); margin-bottom: 0.5rem; }
+        .module-fca-all .metric-value { font-size: 2.05rem; font-weight: 700; color: var(--fca-all-text); }
+        .module-fca-all .metric-subtext { font-size: 0.85rem; color: var(--fca-all-muted); margin-top: 0.35rem; }
+
+        .module-fca-all .filter-card {
+            margin-top: 2.5rem;
+            background: #fff;
+            border-radius: var(--fca-all-radius);
+            padding: 2.15rem 2.4rem;
+            box-shadow: var(--fca-all-shadow);
+        }
+
+        .module-fca-all .filter-card .filter-card-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.6rem; }
+        .module-fca-all .filter-card .filter-card-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--fca-all-text); }
+        .module-fca-all .summary-pill { background: rgba(67, 56, 202, 0.12); color: var(--fca-all-primary); padding: 0.45rem 0.95rem; border-radius: 999px; font-weight: 600; font-size: 0.9rem; }
+        .module-fca-all .filter-card label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--fca-all-muted); margin-bottom: 0.5rem; }
+        .module-fca-all .filter-grid { display: grid; gap: 1.4rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+        .module-fca-all .search-field input { border-radius: 16px; border: 1px solid rgba(15, 23, 42, 0.15); padding: 0.65rem 0.95rem; font-size: 0.96rem; }
+        .module-fca-all .filter-actions { display: flex; justify-content: flex-end; margin-top: 1.9rem; }
+        .module-fca-all .filter-actions .btn-outline { border-radius: 999px; padding: 0.65rem 1.9rem; font-weight: 600; border-color: var(--fca-all-primary); color: var(--fca-all-primary); }
+
+        .module-fca-all .module-data-card {
+            margin-top: 2.6rem;
+            background: #fff;
+            border-radius: var(--fca-all-radius);
+            box-shadow: var(--fca-all-shadow);
+            padding-bottom: 1.6rem;
+        }
+
+        .module-fca-all .module-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.75rem 2.4rem 1.25rem;
+        }
+
+        .module-fca-all .module-card-header h4 { margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--fca-all-text); }
+        .module-fca-all .module-card-header p { margin: 0; color: var(--fca-all-muted); }
+        .module-fca-all .module-card-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .module-fca-all .module-card-actions .btn { padding: 0; }
+        .module-fca-all #btnDtFcaAllExport .btn { border-radius: 999px; padding: 0.55rem 0.95rem; background: rgba(67, 56, 202, 0.12); border: none; color: var(--fca-all-primary); }
+        .module-fca-all #btnDtFcaAllExport .btn:hover { background: rgba(67, 56, 202, 0.18) !important; color: var(--fca-all-primary); }
+
+        .module-fca-all .module-table-wrapper { padding: 0 2.4rem; }
+        .module-fca-all .module-table-wrapper table { width: 100% !important; }
+        .module-fca-all .module-table-wrapper thead th { background: #EEF2FF; border: none; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--fca-all-text); }
+        .module-fca-all .module-table-wrapper tbody td { border-color: #E2E8F0; }
+
+        .module-fca-all .results-summary { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem; padding: 1.25rem 2.4rem 0; color: var(--fca-all-muted); font-size: 0.92rem; }
+
+        #dtFcaData_wrapper .dt-buttons { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        #dtFcaData_wrapper .dataTables_filter { display: none !important; }
+
+        @media (max-width: 992px) {
+            .module-fca-all { padding: 2.1rem 1.05rem 2.5rem; }
+            .module-fca-all .module-page-header { padding: 2.1rem 2.1rem; }
+            .module-fca-all .module-card-header,
+            .module-fca-all .module-table-wrapper,
+            .module-fca-all .results-summary { padding-left: 1.5rem; padding-right: 1.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .module-fca-all .module-page-header .header-actions { width: 100%; }
+            .module-fca-all .module-page-header { padding: 2rem 1.85rem; }
+            .module-fca-all .metrics-row { grid-template-columns: 1fr; }
+            .module-fca-all .filter-card { padding: 1.9rem 1.5rem; }
+            .module-fca-all .module-table-wrapper thead { display: none; }
+            .module-fca-all .module-table-wrapper tbody tr { display: block; margin-bottom: 1.2rem; border: 1px solid rgba(15, 23, 42, 0.1); border-radius: 18px; box-shadow: 0 15px 35px -28px rgba(15, 23, 42, 0.55); padding: 0.85rem 1rem; }
+            .module-fca-all .module-table-wrapper tbody td { display: flex; justify-content: space-between; border: none; padding: 0.45rem 0; font-size: 0.95rem; }
+            .module-fca-all .module-table-wrapper tbody td::before { content: attr(data-label); font-weight: 600; color: var(--fca-all-muted); margin-right: 1.25rem; text-align: left; }
+        }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -37,53 +193,116 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid" id="divFcaPageWidth">
+    <div class="container-fluid module-page module-fca-all" id="divFcaPageWidth">
         <div id="mdb-lightbox-ui"></div>
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionFcaMain">
-            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
-                Facility Condition Appraisal (FCA) Records
-            </h5>
-        </nav>
-        <section class="mt-4 mb-3 sectionFcaMain">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-body pt-4">
-                            <div class="table-responsive">
-                                <table id="dtFcaData" class="table table-hover table-sm mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Audit No.</th>
-                                        <th>Site</th>
-                                        <th>Asset Group</th>
-                                        <th>Asset No.</th>
-                                        <th>Evaluated Asset</th> <!--5-->
-                                        <th>Defect Item</th>
-                                        <th>Defect Category</th>
-                                        <th>Zone</th>
-                                        <th>Area</th>
-                                        <th>Condition Scale</th> <!--10-->
-                                        <th>Evaluation Scale</th>
-                                        <th>Observation</th>
-                                        <th>Recommendation</th>
-                                        <th>Validation</th>
-                                        <th>Auditor</th> <!--15-->
-                                        <th>Validator</th>
-                                        <th>Submitted Time</th>
-                                        <th>Recommend Time</th>
-                                        <th>Validate Time</th>
-                                        <th>Status</th> <!--20-->
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+
+        <section class="module-page-header sectionFcaMain">
+            <div class="header-text">
+                <div class="header-subtitle">Facility Condition Appraisal</div>
+                <h2>FCA Records Overview</h2>
+                <p>Audit every FCA submission and track its progress from observation through validation.</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" id="btnFcaAllRefresh" class="btn btn-outline-light" data-toggle="tooltip" data-placement="top" title="Refresh data">
+                    <i class="fas fa-sync mr-2"></i>Refresh
+                </button>
+                <button type="button" id="btnFcaAllAddNew" class="btn btn-white">
+                    <i class="fas fa-plus mr-2"></i>New FCA
+                </button>
+            </div>
+        </section>
+
+        <section class="metrics-row sectionFcaMain">
+            <div class="metric-card">
+                <div class="metric-label">Total records</div>
+                <div class="metric-value" id="metricFcaAllTotal">0</div>
+                <div class="metric-subtext">All FCA submissions in the system</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Needs recommendation</div>
+                <div class="metric-value" id="metricFcaAllPendingRecommendation">0</div>
+                <div class="metric-subtext">Observations awaiting recommendation input</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Needs validation</div>
+                <div class="metric-value" id="metricFcaAllPendingValidation">0</div>
+                <div class="metric-subtext">Recommended tasks pending validation</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Validated</div>
+                <div class="metric-value" id="metricFcaAllValidated">0</div>
+                <div class="metric-subtext">Records closed with validation notes</div>
+            </div>
+        </section>
+
+        <section class="filter-card sectionFcaMain">
+            <div class="filter-card-header">
+                <h3>Filters</h3>
+                <div class="summary-pill">Status filter reflects workflow stages</div>
+            </div>
+            <div class="filter-grid">
+                <div class="select-outline">
+                    <select id="optFcaAllStatus" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                    <label for="optFcaAllStatus">Status</label>
+                </div>
+                <div class="search-field">
+                    <label for="txtFcaAllSearch">Search FCA record</label>
+                    <input type="text" id="txtFcaAllSearch" placeholder="Search by audit no., asset, or keyword">
                 </div>
             </div>
         </section>
+
+        <section class="module-data-card sectionFcaMain">
+            <div class="module-card-header">
+                <div>
+                    <h4>FCA Records</h4>
+                    <p>Tap a row to open the detailed drawer with full observation, recommendation, and validation history.</p>
+                </div>
+                <div class="module-card-actions">
+                    <div id="btnDtFcaAllExport"></div>
+                    <a tabindex="0" role="button" class="btn btn-link text-muted p-0" data-toggle="popover" data-trigger="focus" title="About this list" data-content="Use the status filter or search field to narrow FCA records. Exports respect the current filters.">
+                        <i class="fas fa-info-circle"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="module-table-wrapper">
+                <div class="table-responsive">
+                    <table id="dtFcaData" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                        <thead>
+                        <tr class="th-strong">
+                            <th>#</th>
+                            <th>Audit No.</th>
+                            <th>Site</th>
+                            <th>Asset Group</th>
+                            <th>Asset No.</th>
+                            <th>Evaluated Asset</th>
+                            <th>Defect Item</th>
+                            <th>Defect Category</th>
+                            <th>Zone</th>
+                            <th>Area</th>
+                            <th>Condition Scale</th>
+                            <th>Evaluation Scale</th>
+                            <th>Observation</th>
+                            <th>Recommendation</th>
+                            <th>Validation</th>
+                            <th>Auditor</th>
+                            <th>Validator</th>
+                            <th>Submitted Time</th>
+                            <th>Recommend Time</th>
+                            <th>Validate Time</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="results-summary">
+                <span id="lblFcaAllCount">Showing 0 of 0 records</span>
+                <span class="summary-pill" id="lblFcaAllUpdated">Updated —</span>
+            </div>
+        </section>
+
         <div class="includeHtml" id="h-section_fca_info"></div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>

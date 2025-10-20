@@ -14,28 +14,209 @@ function MainReportWoPending() {
     let selectedYear;
     let selectedMonth;
     let userSite;
+    let tableDataCache = [];
+    let lastUpdated = null;
+    const momentAvailable = (typeof moment === 'function');
+
+    function refreshMaterialSelect(selector) {
+        const el = $(selector);
+        if (!el.length) {
+            return;
+        }
+        try {
+            el.materialSelect('destroy');
+        } catch (err) {
+            // ignore when component not initialised yet
+        }
+        el.materialSelect();
+    }
+
+    function getUserName(userId) {
+        if (!userId || !refUser) {
+            return '';
+        }
+        const key = String(userId);
+        if (refUser[key]) {
+            return refUser[key]['userFullName'] || refUser[key]['userFirstName'] || '';
+        }
+        if (Array.isArray(refUser)) {
+            const match = refUser.find(function (row) {
+                return row && String(row.userId) === key;
+            });
+            if (match) {
+                return match.userFullName || match.userFirstName || '';
+            }
+        }
+        return '';
+    }
+
+    function resolveStatus(statusId) {
+        if (statusId === undefined || statusId === null || !refStatus) {
+            return null;
+        }
+        const key = String(statusId);
+        if (refStatus[key]) {
+            return refStatus[key];
+        }
+        if (Array.isArray(refStatus)) {
+            return refStatus.find(function (row) {
+                return row && String(row.statusId) === key;
+            }) || null;
+        }
+        return null;
+    }
+
+    function getStatusBadge(statusId) {
+        const status = resolveStatus(statusId);
+        if (!status) {
+            return '';
+        }
+        const color = status.statusColor || 'badge-secondary';
+        const label = status.statusDesc || status.statusAction || status.statusName || statusId;
+        return '<span class="badge badge-pill ' + color + ' z-depth-2">' + label + '</span>';
+    }
+
+    function setDataLabels(row, apiInstance) {
+        const api = apiInstance || oTableWoPending;
+        if (!api) {
+            return;
+        }
+        const visibleIndexes = api.columns(':visible').indexes().toArray();
+        $('td', row).each(function (cellIdx) {
+            const columnIndex = visibleIndexes[cellIdx];
+            if (columnIndex === undefined) {
+                return;
+            }
+            const headerText = $(api.column(columnIndex).header()).text().trim();
+            $(this).attr('data-label', headerText);
+        });
+    }
+
+    function updateSummary() {
+        if (!oTableWoPending) {
+            return;
+        }
+        const info = typeof oTableWoPending.page === 'function' ? oTableWoPending.page.info() : null;
+        if (!info) {
+            return;
+        }
+        $('#lblRwpCount').text('Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal + ' records');
+    }
+
+    function updateTimestamp() {
+        const el = $('#lblRwpUpdated');
+        if (!el.length) {
+            return;
+        }
+        if (!lastUpdated) {
+            el.text('Updated —');
+            return;
+        }
+        if (momentAvailable && moment.isMoment(lastUpdated)) {
+            el.text('Updated ' + lastUpdated.format('DD MMM YYYY, hh:mm A'));
+        } else {
+            el.text('Updated ' + new Date(lastUpdated).toLocaleString());
+        }
+    }
+
+    function updatePeriodLabel() {
+        const el = $('#lblRwpPeriod');
+        if (!el.length) {
+            return;
+        }
+        const yearInt = parseInt(selectedYear, 10);
+        const monthInt = parseInt(selectedMonth, 10);
+        if (momentAvailable && !isNaN(yearInt) && !isNaN(monthInt)) {
+            const label = moment({ year: yearInt, month: monthInt - 1, day: 1 }).format('MMM YYYY');
+            el.text('Reporting window: ' + label);
+        } else if (!isNaN(yearInt) && !isNaN(monthInt)) {
+            el.text('Reporting window: ' + monthInt + '/' + yearInt);
+        } else {
+            el.text('Reporting window: --');
+        }
+    }
+
+    function updateMetrics(data) {
+        const metrics = {
+            total: 0,
+            older: 0,
+            avgAge: 0,
+            monthCount: 0
+        };
+        let totalAge = 0;
+        const now = momentAvailable ? moment() : null;
+        const yearInt = parseInt(selectedYear, 10);
+        const monthInt = parseInt(selectedMonth, 10);
+
+        if (!Array.isArray(data)) {
+            data = [];
+        }
+
+        metrics.total = data.length;
+
+        data.forEach(function (row) {
+            const createdRaw = row && row.woTaskTimeCreated ? row.woTaskTimeCreated : null;
+            if (!createdRaw) {
+                return;
+            }
+            let createdMoment = null;
+            if (momentAvailable) {
+                createdMoment = moment(createdRaw);
+            }
+            if (createdMoment && createdMoment.isValid()) {
+                const diffDays = now ? now.diff(createdMoment, 'days') : 0;
+                totalAge += diffDays;
+                if (diffDays > 7) {
+                    metrics.older += 1;
+                }
+                if (!isNaN(yearInt) && !isNaN(monthInt) && createdMoment.year() === yearInt && createdMoment.month() === (monthInt - 1)) {
+                    metrics.monthCount += 1;
+                }
+            } else {
+                // Fallback when moment is unavailable
+                const createdDate = new Date(createdRaw);
+                if (!isNaN(createdDate.getTime())) {
+                    const diffMs = Date.now() - createdDate.getTime();
+                    const diffDaysFallback = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    totalAge += diffDaysFallback;
+                    if (diffDaysFallback > 7) {
+                        metrics.older += 1;
+                    }
+                    if (!isNaN(yearInt) && !isNaN(monthInt) && createdDate.getFullYear() === yearInt && (createdDate.getMonth() + 1) === monthInt) {
+                        metrics.monthCount += 1;
+                    }
+                }
+            }
+        });
+
+        metrics.avgAge = metrics.total > 0 ? (totalAge / metrics.total) : 0;
+
+        $('#metricRwpTotal').text(metrics.total.toLocaleString());
+        $('#metricRwpOlder').text(metrics.older.toLocaleString());
+        $('#metricRwpAvgAge').text(metrics.avgAge.toFixed(1));
+        $('#metricRwpThisMonth').text(metrics.monthCount.toLocaleString());
+    }
 
     this.init = function () {
         userSite = mzGetUserInfoByParam('siteId');
-        
+
         mzOption('optRwpClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
-        
-        // Site filtering based on user role
+
         const siteFilter = !mzIsRoleExist('1,10') ? {clientId: '1', siteId: userSite, siteStatus: '1'} : {clientId: '1', siteStatus: '1'};
         mzOption('optRwpSiteId', refSite, 'Choose Site', 'siteId', 'siteDesc', siteFilter, 'required');
 
         clientId = '1';
         siteId = !mzIsRoleExist('1,10') ? userSite : '1';
+
         $('#optRwpClientId').val(clientId);
         $('#optRwpSiteId').val(siteId);
-        
-        // Disable site selection for non-administrators
+
         if (!mzIsRoleExist('1,10')) {
             $('#optRwpSiteId').prop('disabled', true);
         }
 
-        let dateCurrent = new Date();
-        selectedMonth = dateCurrent.getMonth()+1;
+        const dateCurrent = new Date();
+        selectedMonth = dateCurrent.getMonth() + 1;
         selectedYear = dateCurrent.getFullYear();
 
         mzOption('optRwpYearId', yearArr, 'Choose Year', 'yearId', 'yearName', {}, 'required', false);
@@ -44,129 +225,133 @@ function MainReportWoPending() {
         mzOption('optRwpMonthId', monthArr, 'Choose Month', 'monthId', 'monthName', {}, 'required', false);
         $('#optRwpMonthId').val(selectedMonth);
 
+        refreshMaterialSelect('#optRwpClientId');
+        refreshMaterialSelect('#optRwpSiteId');
+        refreshMaterialSelect('#optRwpYearId');
+        refreshMaterialSelect('#optRwpMonthId');
+
         $('#optRwpClientId').on('change', function () {
             clientId = $(this).val();
-            mzOptionStop('optRwpSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: $(this).val(), siteStatus: '1'}, 'required');
+            mzOptionStop('optRwpSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: clientId, siteStatus: '1'}, 'required');
+            if (!mzIsRoleExist('1,10')) {
+                $('#optRwpSiteId').val(userSite);
+            }
+            refreshMaterialSelect('#optRwpSiteId');
         });
 
-        const vData = [
+        const validationFields = [
             {
                 field_id: 'optRwpClientId',
                 type: 'select',
                 name: 'Client',
-                validator: {
-                    notEmpty: true
-                }
+                validator: { notEmpty: true }
             },
             {
                 field_id: 'optRwpMonthId',
                 type: 'select',
-                name: 'Year',
-                validator: {
-                    notEmpty: true
-                }
+                name: 'Month',
+                validator: { notEmpty: true }
             },
             {
                 field_id: 'optRwpYearId',
                 type: 'select',
-                name: 'Month',
-                validator: {
-                    notEmpty: true
-                }
+                name: 'Year',
+                validator: { notEmpty: true }
             }
         ];
 
-        let formValidate = new MzValidate('formRwpSearch');
-        formValidate.registerFields(vData);
+        const formValidate = new MzValidate('formRwpSearch');
+        formValidate.registerFields(validationFields);
 
         $('#btnRwpSearch').attr('disabled', !formValidate.validateForm());
-        $('#formRwpSearch').on('keyup change', function () {
+        $('#formRwpSearch').on('change keyup', 'select, input', function () {
             $('#btnRwpSearch').attr('disabled', !formValidate.validateForm());
         });
 
-        oTableWoPending = $('#dtRwpWoPending').DataTable({
-            bLengthChange: false,
-            bFilter: true,
-            autoWidth: false,
-            "aaSorting": [3, 'asc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
-                const info = oTableWoPending.page.info();
-                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
-            },
-            drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-            },
-            language: _DATATABLE_LANGUAGE,
-            aoColumns:
-                [
-                    {mData: null, bSortable: false},
-                    {mData: 'woTaskCreatedBy', mRender: function (data, type, row){
-                            return data !== null ? refUser[data]['userFullName'] : '';
-                        }},
-                    {mData: 'woTaskComplaint'},
-                    {mData: 'woTaskTimeCreated', mRender: function (data){
-                            return data.substr(0, 10);
-                        }},
-                    {mData: null,
-                        mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['woTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['woTaskStatus']]['statusDesc']+'</span></h6>';
-                        }
+        const exportOptions = {
+            columns: [0, 1, 2, 3, 4],
+            format: {
+                body: function (data, row, column) {
+                    if (column === 4) {
+                        const stripped = $('<div>').html(data).text();
+                        return stripped.trim();
                     }
-                ]
-        });
-        $("#dtRwpWoPending_filter").hide();
-        $('#txtRwpWoPendingSearch').on('keyup change', function () {
-            oTableWoPending.search($(this).val()).draw();
-        });
-
-        let cntWoPending;
-        let btnWoPendingOpt = {
-            exportOptions: {
-                columns: [ 0, 1, 2, 3, 4],
-                format: {
-                    body: function ( data, row, column ) {
-                        if (row === 0 && column === 0) {
-                            cntWoPending = 1;
-                        }
-                        if (column === 4) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
-                        }
-                        return column === 0 ? cntWoPending++ : data;
-                    }
+                    return data;
                 }
             }
         };
 
-        new $.fn.dataTable.Buttons(oTableWoPending, {
+        oTableWoPending = $('#dtRwpWoPending').DataTable({
+            bLengthChange: false,
+            bFilter: false,
+            autoWidth: false,
+            aaSorting: [[3, 'asc']],
+            language: _DATATABLE_LANGUAGE,
+            dom: "Brt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
             buttons: [
-                $.extend( true, {}, btnWoPendingOpt, {
-                    extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - Outstanding Word Order List',
+                {
+                    extend: 'print',
+                    text: '<i class="fas fa-print text-dark"></i>',
+                    title: 'GEMS 2.0 - Outstanding Work Order List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnWoPendingOpt, {
-                    extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - Outstanding Word Order List',
+                    className: 'btn btn-light btn-rounded btn-sm px-2',
+                    exportOptions: exportOptions
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel text-dark"></i>',
+                    title: 'GEMS 2.0 - Outstanding Work Order List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnWoPendingOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Outstanding Word Order List',
-                    titleAttr: 'Pdf',
+                    className: 'btn btn-light btn-rounded btn-sm px-2',
+                    exportOptions: exportOptions
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf text-dark"></i>',
+                    title: 'GEMS 2.0 - Outstanding Work Order List',
+                    titleAttr: 'PDF',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                })
+                    className: 'btn btn-light btn-rounded btn-sm px-2',
+                    exportOptions: exportOptions
+                }
+            ],
+            columnDefs: [
+                { bSortable: false, targets: [0] },
+                { className: 'text-nowrap', targets: [1, 3] }
+            ],
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
+                const api = $(this).DataTable();
+                const info = api.page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                setDataLabels(nRow, api);
+            },
+            drawCallback: function () {
+                $('[data-toggle="tooltip"]').tooltip();
+                updateSummary();
+            },
+            aoColumns: [
+                { mData: null },
+                { mData: 'woTaskCreatedBy', mRender: function (data) {
+                        return getUserName(data);
+                    } },
+                { mData: 'woTaskComplaint' },
+                { mData: 'woTaskTimeCreated', mRender: function (data) {
+                        return data ? data.substr(0, 10) : '';
+                    } },
+                { mData: 'woTaskStatus', mRender: function (data) {
+                        return getStatusBadge(data);
+                    } }
             ]
-        }).container().appendTo($('#btnDtRwpWoPendingExport'));
+        });
 
-        $('#btnDtRwpWoPendingRefresh').on('click', function () {
+        oTableWoPending.buttons().container().appendTo('#btnDtRwpWoPendingExport');
+
+        $('#txtRwpSearch').on('keyup change', function () {
+            const term = $(this).val();
+            oTableWoPending.search(term).draw();
+        });
+
+        $('#btnRwpWoPendingRefresh').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
@@ -182,9 +367,10 @@ function MainReportWoPending() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    siteId = $('#optRwpSiteId').val();
+                    siteId = $('#optRwpSiteId').val() || siteId;
                     selectedYear = $('#optRwpYearId').val();
                     selectedMonth = $('#optRwpMonthId').val();
+                    updatePeriodLabel();
                     self.genTableWoPending();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -193,12 +379,20 @@ function MainReportWoPending() {
             }, 200);
         });
 
+        updatePeriodLabel();
         self.genTableWoPending();
     };
 
     this.genTableWoPending = function () {
-        const dataWoPending = mzAjaxRequest('wo.php?type=report_wo_pending_list&siteId='+siteId+'&year='+selectedYear+'&month='+(parseInt(selectedMonth)-1), 'GET');
-        oTableWoPending.clear().rows.add(dataWoPending).draw();
+    const monthIndex = parseInt(selectedMonth, 10);
+    const monthParam = isNaN(monthIndex) ? 0 : (monthIndex - 1);
+        const dataWoPending = mzAjaxRequest('wo.php?type=report_wo_pending_list&siteId=' + siteId + '&year=' + selectedYear + '&month=' + monthParam, 'GET') || [];
+        tableDataCache = Array.isArray(dataWoPending) ? dataWoPending : [];
+        oTableWoPending.clear().rows.add(tableDataCache).draw();
+        updateMetrics(tableDataCache);
+        lastUpdated = momentAvailable ? moment() : new Date();
+        updateTimestamp();
+        updateSummary();
     };
 
     this.getClassName = function () {

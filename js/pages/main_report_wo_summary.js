@@ -12,6 +12,7 @@ function MainReportWoSummary() {
     let selectedYear;
     let selectedMonth;
     let siteColumns = [];
+    let lastUpdated;
 
     this.init = function () {
         mzOption('optRwsClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
@@ -72,8 +73,19 @@ function MainReportWoSummary() {
             bPaginate: false,
             autoWidth: false,
             ordering: false,
+            fnRowCallback: function (nRow) {
+                const columnLabels = getColumnLabels();
+                $('td', nRow).each(function (idx) {
+                    if (columnLabels[idx]) {
+                        $(this).attr('data-label', columnLabels[idx]);
+                    } else {
+                        $(this).removeAttr('data-label');
+                    }
+                });
+            },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
+                updateSummary();
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -189,25 +201,25 @@ function MainReportWoSummary() {
             buttons: [
                 $.extend( true, {}, btnWoSummaryOpt, {
                     extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
+                    text:      '<i class="fas fa-print text-dark"></i>',
                     title:     'GEMS 2.0 - Work Order Summary',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-light btn-rounded btn-sm px-2'
                 }),
                 $.extend( true, {}, btnWoSummaryOpt, {
                     extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
+                    text:      '<i class="fas fa-file-excel text-dark"></i>',
                     title:     'GEMS 2.0 - Work Order Summary',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-light btn-rounded btn-sm px-2'
                 }),
                 $.extend( true, {}, btnWoSummaryOpt, {
                     extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
+                    text:      '<i class="fas fa-file-pdf text-dark"></i>',
                     title:     'GEMS 2.0 - Work Order Summary',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-light btn-rounded btn-sm px-2'
                 })
             ]
         }).container().appendTo($('#btnDtRwsWoSummaryExport'));
@@ -239,6 +251,12 @@ function MainReportWoSummary() {
             }, 200);
         });
 
+        $('#txtRwsSearch').on('keyup change', function () {
+            const term = $(this).val();
+            oTableWoSummary.search(term);
+            oTableWoSummary.draw();
+        });
+
         self.genTableWoSummary();
     };
 
@@ -246,6 +264,9 @@ function MainReportWoSummary() {
         siteColumns = [];
         for (let i = 1; i <= 8; i++) {
             oTableWoSummary.column(i).visible(false);
+        }
+        for (let j = 0; j < 4; j++) {
+            $('#thRwsSiteDesc'+j).html('');
         }
         $.each(refSite, function (n, u) {
             if (typeof u !== 'undefined' && u['siteStatus'] !== '2' && u['clientId'] === clientId) {
@@ -260,7 +281,64 @@ function MainReportWoSummary() {
 
         const dataWoSummary = mzAjaxRequest('wo.php?type=report_wo_summary&clientId='+clientId+'&year='+selectedYear+'&month='+selectedMonth, 'GET');
         oTableWoSummary.clear().rows.add(dataWoSummary).draw();
+        updateMetrics(dataWoSummary);
+        lastUpdated = moment();
+        updateSummary();
     };
+
+    function getColumnLabels() {
+        const labels = ['Work Type'];
+        $.each(siteColumns, function (idx, site) {
+            labels.push(site['siteDesc'] + ' Open');
+            labels.push(site['siteDesc'] + ' Closed');
+        });
+        while (labels.length < 9) {
+            labels.push('');
+        }
+        return labels;
+    }
+
+    function updateMetrics(data) {
+        let totalOpen = 0;
+        let totalClosed = 0;
+
+        $.each(data, function (idx, row) {
+            if (row['woTaskType'] === 'TOTAL') {
+                $.each(siteColumns, function (i, site) {
+                    const openKey = 'open' + site['siteId'];
+                    const closedKey = 'closed' + site['siteId'];
+                    totalOpen += parseFloat(row[openKey]) || 0;
+                    totalClosed += parseFloat(row[closedKey]) || 0;
+                });
+            }
+        });
+
+        $('#metricTotalOpen').text(mzFormatNumber(totalOpen));
+        $('#metricTotalClosed').text(mzFormatNumber(totalClosed));
+
+        if (selectedYear && selectedMonth) {
+            const monthText = moment({ year: parseInt(selectedYear, 10), month: parseInt(selectedMonth, 10) - 1, day: 1 }).format('MMM YYYY');
+            $('#metricMonthLabel').text(monthText);
+        } else {
+            $('#metricMonthLabel').text('-');
+        }
+
+        $('#metricSiteCount').text(siteColumns.length);
+    }
+
+    function updateSummary() {
+        if (!oTableWoSummary) {
+            return;
+        }
+    const allRows = oTableWoSummary.rows().data().toArray();
+    const visibleRows = oTableWoSummary.rows({ search: 'applied' }).data().toArray();
+    const total = allRows.filter(function (row) { return row && row['woTaskType'] !== 'TOTAL'; }).length;
+    const filtered = visibleRows.filter(function (row) { return row && row['woTaskType'] !== 'TOTAL'; }).length;
+    $('#lblRwsCount').text('Showing ' + filtered + ' of ' + total + ' work types');
+        if (lastUpdated) {
+            $('#lblRwsUpdated').text('Updated ' + lastUpdated.format('DD MMM YYYY, HH:mm'));
+        }
+    }
 
     this.getClassName = function () {
         return className;

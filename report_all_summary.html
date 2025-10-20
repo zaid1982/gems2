@@ -5,27 +5,196 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Stepper CSS - minified-->
-    <link href="css/addons-pro/steppers.css" rel="stylesheet">
-    <style>
+    	<!-- Browser icon -->
+    	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <!-- Material Design Bootstrap -->
+        <link rel="stylesheet" href="css/mdb.min.css">
+        <!-- DataTables.net -->
+        <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+        <!-- Your custom styles (optional) -->
+        <link href="css/style.css" rel="stylesheet">
+        <link href="css/gems2-ui.css" rel="stylesheet">
+        <!-- Stepper CSS - minified-->
+        <link href="css/addons-pro/steppers.css" rel="stylesheet">
+        <style>
+            :root {
+                --rwt-primary: #2563EB;
+                --rwt-secondary: #38BDF8;
+                --rwt-background: #F1F5F9;
+                --rwt-text: #0F172A;
+                --rwt-muted: #64748B;
+                --rwt-radius: 26px;
+                --rwt-shadow: 0 22px 55px -28px rgba(15, 23, 42, 0.45);
+            }
 
-    </style>
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+            body {
+                background: var(--rwt-background);
+                color: var(--rwt-text);
+            }
+
+            .module-rwt {
+                padding: 2.5rem 1.5rem 3rem;
+            }
+
+            .module-rwt .module-page-header {
+                background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(56, 189, 248, 0.88));
+                color: #fff;
+                border-radius: var(--rwt-radius);
+                padding: 2.4rem 2.85rem;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1.5rem;
+                box-shadow: var(--rwt-shadow);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .module-rwt .module-page-header::after {
+                content: '';
+                position: absolute;
+                top: -80px;
+                right: -70px;
+                width: 250px;
+                height: 250px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.14);
+            }
+
+            .module-rwt .module-page-header .header-text { position: relative; z-index: 1; max-width: 760px; }
+            .module-rwt .module-page-header .header-subtitle { font-size: 0.85rem; text-transform: uppercase; letter-spacing: .1em; opacity: 0.82; margin-bottom: 0.75rem; }
+            .module-rwt .module-page-header .header-text h2 { font-size: 2.35rem; font-weight: 700; margin-bottom: 0.45rem; }
+            .module-rwt .module-page-header .header-text p { margin: 0; color: rgba(255, 255, 255, 0.82); }
+            .module-rwt .module-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 0.8rem; }
+            .module-rwt .module-page-header .header-actions .btn { border-radius: 999px; padding: 0.6rem 1.6rem; font-weight: 600; }
+            .module-rwt .module-page-header .header-actions .btn-outline-light { border-color: rgba(255, 255, 255, 0.68); color: #fff; }
+            .module-rwt .module-page-header .header-actions .btn-outline-light:hover { background: rgba(255, 255, 255, 0.2); }
+
+            .module-rwt .metrics-row {
+                margin-top: 2.4rem;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 1.25rem;
+            }
+
+            .module-rwt .metric-card {
+                background: #fff;
+                border-radius: 22px;
+                padding: 1.5rem 1.65rem;
+                box-shadow: var(--rwt-shadow);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .module-rwt .metric-card::after {
+                content: '';
+                position: absolute;
+                bottom: -42px;
+                right: -45px;
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                background: rgba(37, 99, 235, 0.1);
+            }
+
+            .module-rwt .metric-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--rwt-muted); margin-bottom: 0.5rem; }
+            .module-rwt .metric-value { font-size: 2.05rem; font-weight: 700; color: var(--rwt-text); }
+            .module-rwt .metric-subtext { font-size: 0.85rem; color: var(--rwt-muted); margin-top: 0.35rem; }
+
+            .module-rwt .filter-card {
+                margin-top: 2.6rem;
+                background: #fff;
+                border-radius: var(--rwt-radius);
+                padding: 2.2rem 2.4rem;
+                box-shadow: var(--rwt-shadow);
+            }
+
+            .module-rwt .filter-card .filter-card-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.6rem; }
+            .module-rwt .filter-card .filter-card-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--rwt-text); }
+            .module-rwt .summary-pill { background: rgba(37, 99, 235, 0.12); color: var(--rwt-primary); padding: 0.45rem 0.95rem; border-radius: 999px; font-weight: 600; font-size: 0.9rem; }
+            .module-rwt .filter-card label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--rwt-muted); margin-bottom: 0.5rem; }
+            .module-rwt .filter-grid { display: grid; gap: 1.4rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+            .module-rwt .filter-actions { display: flex; justify-content: flex-end; margin-top: 1.9rem; }
+            .module-rwt .filter-actions .btn-primary { border-radius: 999px; padding: 0.65rem 1.9rem; font-weight: 600; background: var(--rwt-primary); border-color: var(--rwt-primary); }
+            .module-rwt .filter-actions .btn-primary:disabled { background: rgba(37, 99, 235, 0.28); border: none; cursor: not-allowed; }
+
+            .module-rwt .module-data-card {
+                margin-top: 2.6rem;
+                background: #fff;
+                border-radius: var(--rwt-radius);
+                box-shadow: var(--rwt-shadow);
+                padding-bottom: 1.6rem;
+            }
+
+            .module-rwt .module-card-header {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+                padding: 1.75rem 2.4rem 1.25rem;
+            }
+
+            .module-rwt .module-card-header h4 { margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--rwt-text); }
+            .module-rwt .module-card-header p { margin: 0; color: var(--rwt-muted); }
+            .module-rwt .module-card-actions { display: flex; align-items: center; gap: 0.75rem; }
+            .module-rwt .module-card-actions .btn { padding: 0.5rem 1rem; border-radius: 999px; }
+            .module-rwt #btnDtRwtWoTotalExport .btn,
+            .module-rwt #btnDtRwtWoDailyExport .btn { border-radius: 999px; padding: 0.55rem 0.95rem; background: rgba(37, 99, 235, 0.12); border: none; color: var(--rwt-primary); }
+            .module-rwt #btnDtRwtWoTotalExport .btn:hover,
+            .module-rwt #btnDtRwtWoDailyExport .btn:hover { background: rgba(37, 99, 235, 0.18) !important; color: var(--rwt-primary); }
+
+            .module-rwt .module-inline-controls { display: flex; justify-content: flex-end; padding: 0 2.4rem 1.2rem; }
+            .module-rwt .module-inline-controls .search-field { width: 100%; max-width: 360px; }
+            .module-rwt .module-inline-controls .search-field .form-control { border-radius: 16px; border: 1px solid rgba(15, 23, 42, 0.15); padding: 0.65rem 0.95rem; font-size: 0.96rem; }
+
+            .module-rwt .module-table-wrapper { padding: 0 2.4rem; }
+            .module-rwt .module-table-wrapper table { width: 100% !important; }
+            .module-rwt .module-table-wrapper thead th { background: #EEF2FF; border: none; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--rwt-text); }
+            .module-rwt .module-table-wrapper thead tr:first-child th { background: #DBEAFE; }
+            .module-rwt .module-table-wrapper tbody td { border-color: #E2E8F0; }
+
+            .module-rwt .results-summary { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem; padding: 1.25rem 2.4rem 0; color: var(--rwt-muted); font-size: 0.92rem; }
+            .module-rwt .results-summary .summary-pill { background: rgba(15, 23, 42, 0.06); color: var(--rwt-text); }
+
+            #dtRwtWoTotal_wrapper .dt-buttons,
+            #dtRwtWoDaily_wrapper .dt-buttons { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+            #dtRwtWoTotal_wrapper .dataTables_filter,
+            #dtRwtWoDaily_wrapper .dataTables_filter { display: none !important; }
+
+            .module-rwt .module-daily-card { margin-top: 2.2rem; }
+            .module-rwt .module-daily-card .header-subtext { color: var(--rwt-muted); margin-top: 0.25rem; }
+
+            @media (max-width: 992px) {
+                .module-rwt { padding: 2.1rem 1.05rem 2.5rem; }
+                .module-rwt .module-page-header { padding: 2.1rem 2.1rem; }
+                .module-rwt .module-card-header,
+                .module-rwt .module-inline-controls,
+                .module-rwt .module-table-wrapper,
+                .module-rwt .results-summary { padding-left: 1.5rem; padding-right: 1.5rem; }
+            }
+
+            @media (max-width: 768px) {
+                .module-rwt .module-page-header .header-actions { width: 100%; }
+                .module-rwt .module-page-header { padding: 2rem 1.85rem; }
+                .module-rwt .metrics-row { grid-template-columns: 1fr; }
+                .module-rwt .filter-card { padding: 1.9rem 1.5rem; }
+                .module-rwt .module-inline-controls { padding: 0 1.5rem 1.1rem; }
+                .module-rwt .module-table-wrapper thead { display: none; }
+                .module-rwt .module-table-wrapper tbody tr { display: block; margin-bottom: 1.2rem; border: 1px solid rgba(15, 23, 42, 0.12); border-radius: 18px; box-shadow: 0 15px 35px -28px rgba(15, 23, 42, 0.55); padding: 0.85rem 1rem; }
+                .module-rwt .module-table-wrapper tbody td { display: flex; justify-content: space-between; border: none; padding: 0.45rem 0; font-size: 0.95rem; }
+                .module-rwt .module-table-wrapper tbody td::before { content: attr(data-label); font-weight: 600; color: var(--rwt-muted); margin-right: 1.25rem; text-align: left; }
+            }
+        </style>
+    	<!-- JQuery -->
+        <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    	<!--JQuery Migrate-->
+    	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 
 <body class="fixed-sn light-blue-skin">
@@ -39,138 +208,194 @@
 <!--Main layout-->
 
 <main>
-    <div class="container-fluid">
-        <section class="section mb-5 mt-lg-5">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card card-cascade cascading-admin-card user-card mt-4">
-                        <div class="admin-up d-flex justify-content-start">
-                            <i class="fas fa-file-alt rgba-cyan-strong py-4 z-depth-3"></i>
-                            <div class="data">
-                                <h3 class="font-weight-bold dark-grey-text ml-3">Report: Total Work Order Summary</h3>
-                            </div>
-                        </div>
-                        <div class="card-body card-body-cascade pb-0">
-                            <form id="formRwtSearch">
-                                <div class="row pt-4">
-                                    <div class="col-lg-3 col-md-4 select-outline">
-                                        <select id="optRwtYearId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optRwtYearId">Year</label>
-                                    </div>
-                                    <div class="col-lg-5 col-md-8 select-outline">
-                                        <select id="optRwtMonthId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optRwtMonthId">Month</label>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="card-footer">
-                            <button type="button" id="btnRwtSearch" class="btn btn-outline-orange btn-rounded waves-effect btn-sm float-right" disabled>
-                                <i class="fas fa-search mr-1"></i> View
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="card card-cascade narrower mb-5 mt-5">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="Report"
-                                   data-content="Total Work Order Summary"><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtRwtWoTotalRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3 pl-5">Total Work Order Summary</a>
-                            <div>
-                                <div id="btnDtRwtWoTotalExport"></div>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <div class="table-responsive">
-                                <table id="dtRwtWoTotal" class="table table-hover table-bordered table-sm mb-0 display responsive" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong text-center rgba-blue-grey-strong">
-                                        <th rowspan="2" style="vertical-align: middle; width: 23%">Site</th>
-                                        <th colspan="2">PPM</th>
-                                        <th colspan="2">Client Complaint</th>
-                                        <th colspan="2">Self Finding</th>
-                                        <th colspan="2">Request</th>
-                                        <th colspan="2">Breakdown</th>
-                                        <th colspan="2">Defect</th>
-                                        <th rowspan="2" class="text-center" style="vertical-align: middle;">Total</th>
-                                    </tr>
-                                    <tr class="th-strong rgba-blue-grey-light">
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="rgba-blue-grey-slight"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card card-cascade narrower mb-5 mt-5" id="divRwtWoDaily">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <button type="button" id="btnDtRwtWoDailyAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset"><i class="fas fa-plus mt-0"></i></button>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="Report"
-                                   data-content="Daily Work Order List"><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtRwtWoDailyRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3 pl-5">Daily Work Order - <span id="spanRwtWoDailySiteName"></span></a>
-                            <div>
-                                <div id="btnDtRwtWoDailyExport"></div>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <div class="table-responsive">
-                                <table id="dtRwtWoDaily" class="table table-hover table-bordered table-sm mb-0 display responsive" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong text-center rgba-blue-grey-strong">
-                                        <th rowspan="2" style="vertical-align: middle; width: 23%">Date</th>
-                                        <th colspan="2">PPM</th>
-                                        <th colspan="2">Client Complaint</th>
-                                        <th colspan="2">Self Finding</th>
-                                        <th colspan="2">Request</th>
-                                        <th colspan="2">Breakdown</th>
-                                        <th colspan="2">Defect</th>
-                                        <th rowspan="2" class="text-center" style="vertical-align: middle;">Total</th>
-                                    </tr>
-                                    <tr class="th-strong rgba-blue-grey-light">
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="rgba-blue-grey-slight"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
+    <div class="module-rwt">
+        <div class="container-fluid px-0">
+            <section class="module-page-header">
+                <div class="header-text">
+                    <span class="header-subtitle">Operations</span>
+                    <h2>Work Order Summary</h2>
+                    <p>Monitor monthly performance across sites and drill into daily trends when needed.</p>
                 </div>
-            </div>
-        </section>
+                <div class="header-actions">
+                    <button type="button" id="btnDtRwtWoTotalRefresh" class="btn btn-outline-light btn-icon" data-toggle="tooltip" data-placement="top" title="Refresh data">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section class="metrics-row">
+                <div class="metric-card">
+                    <div class="metric-label">Total Open</div>
+                    <div class="metric-value" id="metricRwtOpen">0</div>
+                    <div class="metric-subtext">Outstanding work orders across all categories</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Total Closed</div>
+                    <div class="metric-value" id="metricRwtClosed">0</div>
+                    <div class="metric-subtext">Completed this reporting period</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Pending Queue</div>
+                    <div class="metric-value" id="metricRwtPending">0</div>
+                    <div class="metric-subtext">Items awaiting action</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Sites Tracked</div>
+                    <div class="metric-value" id="metricRwtSites">0</div>
+                    <div class="metric-subtext">Sites contributing data this month</div>
+                </div>
+            </section>
+
+            <section class="filter-card mt-4">
+                <div class="filter-card-header">
+                    <h3>Filters</h3>
+                    <span class="summary-pill" id="lblRwtPeriod">Reporting window: --</span>
+                </div>
+                <form id="formRwtSearch">
+                    <div class="filter-grid">
+                        <div class="select-outline">
+                            <label for="optRwtYearId">Year</label>
+                            <select id="optRwtYearId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        </div>
+                        <div class="select-outline">
+                            <label for="optRwtMonthId">Month</label>
+                            <select id="optRwtMonthId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        </div>
+                    </div>
+                    <div class="filter-actions">
+                        <button type="button" id="btnRwtSearch" class="btn btn-primary" disabled>
+                            <i class="fas fa-search mr-2"></i>Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="module-data-card">
+                <div class="module-card-header">
+                    <div>
+                        <h4>Total Work Order Summary</h4>
+                        <p>Breakdown of open and closed work orders by request type.</p>
+                    </div>
+                    <div class="module-card-actions">
+                        <div id="btnDtRwtWoTotalExport"></div>
+                    </div>
+                </div>
+                <div class="module-inline-controls">
+                    <div class="search-field">
+                        <label class="sr-only" for="txtRwtTotalSearch">Search total summary</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            </div>
+                            <input type="text" id="txtRwtTotalSearch" class="form-control" placeholder="Search site or values">
+                        </div>
+                    </div>
+                </div>
+                <div class="module-table-wrapper">
+                    <div class="table-responsive">
+                        <table id="dtRwtWoTotal" class="table table-hover table-bordered table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                            <thead>
+                            <tr class="th-strong text-center">
+                                <th rowspan="2" style="vertical-align: middle; width: 23%">Site</th>
+                                <th colspan="2">PPM</th>
+                                <th colspan="2">Client Complaint</th>
+                                <th colspan="2">Self Finding</th>
+                                <th colspan="2">Request</th>
+                                <th colspan="2">Breakdown</th>
+                                <th colspan="2">Defect</th>
+                                <th rowspan="2" class="text-center" style="vertical-align: middle;">Total</th>
+                            </tr>
+                            <tr class="th-strong text-center">
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="results-summary">
+                    <span id="lblRwtTotalCount">Showing 0 of 0 rows</span>
+                    <span id="lblRwtTotalUpdated">Updated —</span>
+                </div>
+            </section>
+
+            <section class="module-data-card module-daily-card" id="divRwtWoDaily">
+                <div class="module-card-header">
+                    <div>
+                        <h4>Daily Work Order Summary</h4>
+                        <p class="header-subtext">Site detail for <span id="spanRwtWoDailySiteName">—</span></p>
+                    </div>
+                    <div class="module-card-actions">
+                        <button type="button" id="btnDtRwtWoDailyAdd" class="btn btn-light btn-icon" data-toggle="tooltip" data-placement="top" title="Add manual entry">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button type="button" id="btnDtRwtWoDailyRefresh" class="btn btn-light btn-icon" data-toggle="tooltip" data-placement="top" title="Refresh data">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                        <div id="btnDtRwtWoDailyExport"></div>
+                    </div>
+                </div>
+                <div class="module-inline-controls">
+                    <div class="search-field">
+                        <label class="sr-only" for="txtRwtDailySearch">Search daily summary</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            </div>
+                            <input type="text" id="txtRwtDailySearch" class="form-control" placeholder="Search date or category values">
+                        </div>
+                    </div>
+                </div>
+                <div class="module-table-wrapper">
+                    <div class="table-responsive">
+                        <table id="dtRwtWoDaily" class="table table-hover table-bordered table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                            <thead>
+                            <tr class="th-strong text-center">
+                                <th rowspan="2" style="vertical-align: middle; width: 23%">Date</th>
+                                <th colspan="2">PPM</th>
+                                <th colspan="2">Client Complaint</th>
+                                <th colspan="2">Self Finding</th>
+                                <th colspan="2">Request</th>
+                                <th colspan="2">Breakdown</th>
+                                <th colspan="2">Defect</th>
+                                <th rowspan="2" class="text-center" style="vertical-align: middle;">Total</th>
+                            </tr>
+                            <tr class="th-strong text-center">
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                                <th>Open</th>
+                                <th>Closed</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="results-summary">
+                    <span id="lblRwtDailyCount">Showing 0 of 0 rows</span>
+                    <span id="lblRwtDailyUpdated">Updated —</span>
+                </div>
+            </section>
+        </div>
     </div>
 
     <div class="includeHtml" id="h-modal_change_password"></div>

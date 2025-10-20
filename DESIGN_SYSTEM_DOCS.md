@@ -5,10 +5,12 @@ This guide codifies the modern module page concept used in License and other adm
 ## Visual tokens
 
 - Colors
-	- Primary: #4338CA
-	- Background: #F1F5F9
-	- Text: #0F172A
-	- Muted: #64748B
+	- Primary: #0055b8
+	- Secondary: #00ada8;
+	- Accent: #ceeff0;
+	- Background: #e7eaec
+	- Text: #243746
+	- Muted: #7e8f9a
 - Corners: large border-radius 24–28px for cards and header blocks
 - Shadows: soft shadow (e.g., 0 6px 16px rgba(2, 6, 23, 0.08)) on major cards
 - Spacing: generous padding (24–28px) inside cards; gap 12–16px between elements
@@ -17,7 +19,7 @@ This guide codifies the modern module page concept used in License and other adm
 
 Use this top-to-bottom layout on all new module pages.
 
-1) Header (gradient) with title, short description, and primary actions
+1) Header (gradient) with title, short description, and primary actions, with css: background: linear-gradient(135deg, rgba(0,77,255,1) 0%, rgba(13,255,153,0.9) 100%);
 2) Metrics row (3–4 stat cards)
 3) Filter card with search and simple dropdowns; hide DataTables’ built-in filter
 4) Main list in a styled card (DataTable); stacks on mobile

@@ -17,10 +17,165 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Stepper CSS - minified-->
     <link href="css/addons-pro/steppers.css" rel="stylesheet">
     <style>
+        :root {
+            --ppm-primary: #0055b8;
+            --ppm-secondary: #00ada8;
+            --ppm-accent: #ceeff0;
+            --ppm-background: #e7eaec;
+            --ppm-text: #243746;
+            --ppm-muted: #7e8f9a;
+            --ppm-radius: 26px;
+            --ppm-shadow: 0 18px 45px -28px rgba(36, 55, 70, 0.45);
+        }
 
+        body {
+            background: var(--ppm-background);
+            color: var(--ppm-text);
+        }
+
+        .module-ppm {
+            padding: 2.5rem 1.5rem 3rem;
+        }
+
+        .module-ppm .module-page-header {
+            background: linear-gradient(135deg, rgba(0,77,255,1) 0%, rgba(13,255,153,0.9) 100%);
+            color: #fff;
+            border-radius: var(--ppm-radius);
+            padding: 2.4rem 2.9rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.6rem;
+            box-shadow: var(--ppm-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-ppm .module-page-header::after {
+            content: '';
+            position: absolute;
+            top: -90px;
+            right: -80px;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .module-ppm .module-page-header .header-text { position: relative; z-index: 1; max-width: 720px; }
+        .module-ppm .module-page-header .header-text h2 { font-size: 2.4rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .module-ppm .module-page-header .header-text p { margin: 0; color: rgba(255, 255, 255, 0.82); }
+        .module-ppm .module-page-header .header-text .header-subtitle { font-size: 0.88rem; text-transform: uppercase; letter-spacing: .12em; opacity: 0.78; margin-bottom: 0.8rem; }
+        .module-ppm .module-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 0.8rem; }
+        .module-ppm .module-page-header .header-actions .btn { border-radius: 999px; padding: 0.6rem 1.6rem; font-weight: 600; }
+        .module-ppm .module-page-header .header-actions .btn-outline-light { border-color: rgba(255, 255, 255, 0.7); color: #fff; }
+        .module-ppm .module-page-header .header-actions .btn-outline-light:hover { background: rgba(255, 255, 255, 0.22); }
+        .module-ppm .module-page-header .header-actions .btn-white { background: rgba(255, 255, 255, 0.18); color: #fff; border: none; }
+        .module-ppm .module-page-header .header-actions .btn-white:hover { background: rgba(255, 255, 255, 0.28); }
+
+        .module-ppm .metrics-row {
+            margin-top: 2.4rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .module-ppm .metric-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 1.55rem 1.7rem;
+            box-shadow: var(--ppm-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-ppm .metric-card::after {
+            content: '';
+            position: absolute;
+            bottom: -42px;
+            right: -40px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(0, 85, 184, 0.08);
+        }
+
+        .module-ppm .metric-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--ppm-muted); margin-bottom: 0.5rem; }
+        .module-ppm .metric-value { font-size: 2.1rem; font-weight: 700; color: var(--ppm-text); }
+        .module-ppm .metric-subtext { font-size: 0.86rem; color: var(--ppm-muted); margin-top: 0.4rem; }
+
+        .module-ppm .filter-card {
+            margin-top: 2.5rem;
+            background: #fff;
+            border-radius: var(--ppm-radius);
+            padding: 2.15rem 2.4rem;
+            box-shadow: var(--ppm-shadow);
+        }
+
+        .module-ppm .filter-card .filter-card-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.6rem; }
+        .module-ppm .filter-card .filter-card-header h3 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--ppm-text); }
+        .module-ppm .summary-pill { background: rgba(0, 85, 184, 0.12); color: var(--ppm-primary); padding: 0.45rem 0.95rem; border-radius: 999px; font-weight: 600; font-size: 0.92rem; }
+        .module-ppm .filter-card label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--ppm-muted); margin-bottom: 0.5rem; }
+        .module-ppm .filter-grid { display: grid; gap: 1.4rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+        .module-ppm .search-field input { border-radius: 16px; border: 1px solid rgba(36, 55, 70, 0.15); padding: 0.65rem 0.95rem; font-size: 0.96rem; }
+        .module-ppm .filter-actions { display: flex; justify-content: flex-end; margin-top: 1.9rem; }
+        .module-ppm .filter-actions .btn-primary { border-radius: 999px; padding: 0.65rem 1.9rem; font-weight: 600; background: var(--ppm-primary); border-color: var(--ppm-primary); }
+        .module-ppm .filter-actions .btn-primary:disabled { background: rgba(0, 85, 184, 0.28); border: none; cursor: not-allowed; }
+
+        .module-ppm .module-data-card {
+            margin-top: 2.6rem;
+            background: #fff;
+            border-radius: var(--ppm-radius);
+            box-shadow: var(--ppm-shadow);
+            padding-bottom: 1.6rem;
+        }
+
+        .module-ppm .module-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.75rem 2.4rem 1.25rem;
+        }
+
+        .module-ppm .module-card-header h4 { margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--ppm-text); }
+        .module-ppm .module-card-header p { margin: 0; color: var(--ppm-muted); }
+        .module-ppm .module-table-wrapper { padding: 0 2.4rem; }
+        .module-ppm .module-table-wrapper table { width: 100% !important; }
+        .module-ppm .module-table-wrapper thead th { background: var(--ppm-accent); border: none; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ppm-text); }
+        .module-ppm .module-table-wrapper tbody td { border-color: #d3dde2; }
+        .module-ppm .results-summary { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem; padding: 1.25rem 2.4rem 0; color: var(--ppm-muted); font-size: 0.92rem; }
+
+        #btnDtRpsPpmSummaryExport .btn { border-radius: 999px; padding: 0.55rem 0.95rem; border: none; background: rgba(255, 255, 255, 0.18); color: #fff; }
+        #btnDtRpsPpmSummaryExport .btn:hover { background: rgba(255, 255, 255, 0.28) !important; }
+
+        #dtRpsPpmSummary_wrapper .dt-buttons { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        #dtRpsPpmSummary_wrapper .dataTables_filter { display: none !important; }
+
+        @media (max-width: 992px) {
+            .module-ppm { padding: 2.15rem 1.05rem 2.5rem; }
+            .module-ppm .module-page-header { padding: 2.2rem 2.1rem; }
+            .module-ppm .module-card-header,
+            .module-ppm .module-table-wrapper,
+            .module-ppm .results-summary { padding-left: 1.5rem; padding-right: 1.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .module-ppm .module-page-header .header-actions { width: 100%; }
+            .module-ppm .module-page-header { padding: 2rem 1.85rem; }
+            .module-ppm .metrics-row { grid-template-columns: 1fr; }
+            .module-ppm .filter-card { padding: 1.8rem 1.5rem; }
+            .module-ppm .module-table-wrapper thead { display: none; }
+            .module-ppm .module-table-wrapper tbody tr { display: block; margin-bottom: 1.2rem; border: 1px solid rgba(36, 55, 70, 0.12); border-radius: 18px; box-shadow: 0 15px 35px -28px rgba(36, 55, 70, 0.55); padding: 0.85rem 1rem; }
+            .module-ppm .module-table-wrapper tbody td { display: flex; justify-content: space-between; border: none; padding: 0.45rem 0; font-size: 0.95rem; }
+            .module-ppm .module-table-wrapper tbody td::before { content: attr(data-label); font-weight: 600; color: var(--ppm-muted); margin-right: 1.25rem; text-align: left; }
+        }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -39,81 +194,111 @@
 <!--Main layout-->
 
 <main>
-    <div class="container-fluid">
-        <section class="section mb-5 mt-lg-5">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card card-cascade cascading-admin-card user-card mt-4">
-                        <div class="admin-up d-flex justify-content-start">
-                            <i class="fas fa-file-alt rgba-cyan-strong py-4 z-depth-3"></i>
-                            <div class="data">
-                                <h3 class="font-weight-bold dark-grey-text ml-3">Report: PPM Summary</h3>
-                            </div>
-                        </div>
-                        <div class="card-body card-body-cascade pb-0">
-                            <form id="formRpsSearch">
-                                <h6 class="pb-3 pt-3">Filter:</h6>
-                                <div class="row">
-                                    <div class="col-md-6 select-outline">
-                                        <select id="optRpsClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optRpsClientId">Client</label>
-                                    </div>
-                                    <div class="col-md-6 select-outline">
-                                        <select id="optRpsSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true"></select>
-                                        <label for="optRpsSiteId">Site</label>
-                                    </div>
-                                    <div class="col-lg-3 col-md-4 select-outline">
-                                        <select id="optRpsYearId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optRpsYearId">Year</label>
-                                    </div>
-                                    <div class="col-lg-4 col-md-8 select-outline">
-                                        <select id="optRpsMonthId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optRpsMonthId">Month</label>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="card-footer">
-                            <button type="button" id="btnRpsSearch" class="btn btn-outline-orange btn-rounded waves-effect btn-sm float-right" disabled>
-                                <i class="fas fa-search mr-1"></i> View
-                            </button>
-                        </div>
-                    </div>
+    <div class="container-fluid module-page module-ppm">
+        <section class="module-page-header">
+            <div class="header-text">
+                <div class="header-subtitle">Planned Preventive Maintenance</div>
+                <h2>PPM Summary Report</h2>
+                <p>Review scheduled versus completed maintenance tasks across your selected portfolio.</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" id="btnDtRpsPpmSummaryRefresh" class="btn btn-outline-light" data-toggle="tooltip" data-placement="top" title="Refresh data">
+                    <i class="fas fa-sync mr-2"></i>Refresh
+                </button>
+                <div id="btnDtRpsPpmSummaryExport"></div>
+            </div>
+        </section>
 
-                    <div class="card card-cascade narrower mb-5 mt-5">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="Report"
-                                   data-content="PPM Summary"><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtRpsPpmSummaryRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3 pl-5">PPM Summary</a>
-                            <div>
-                                <div id="btnDtRpsPpmSummaryExport"></div>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <div class="table-responsive">
-                                <table id="dtRpsPpmSummary" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th style="width: 4%">#</th>
-                                        <th>Asset Type</th>
-                                        <th style="width: 15%">Frequency</th>
-                                        <th style="width: 10%">No of Asset</th>
-                                        <th style="width: 10%">Total PPM</th>
-                                        <th style="width: 10%">PPM Done</th>
-                                        <th style="width: 10%">%</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+        <section class="metrics-row">
+            <div class="metric-card">
+                <div class="metric-label">Scheduled PPM</div>
+                <div class="metric-value" id="metricPpmScheduled">0</div>
+                <div class="metric-subtext">Total tasks scheduled for the period</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Completed PPM</div>
+                <div class="metric-value" id="metricPpmCompleted">0</div>
+                <div class="metric-subtext">Tasks completed to date</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Completion rate</div>
+                <div class="metric-value" id="metricPpmCompletion">0%</div>
+                <div class="metric-subtext">Percentage of tasks completed</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Asset types tracked</div>
+                <div class="metric-value" id="metricPpmAssetTypes">0</div>
+                <div class="metric-subtext">Distinct asset categories in scope</div>
+            </div>
+        </section>
 
+        <section class="filter-card">
+            <div class="filter-card-header">
+                <h3>Filters</h3>
+                <div class="summary-pill">Site selection respects your access level</div>
+            </div>
+            <form id="formRpsSearch">
+                <div class="filter-grid">
+                    <div class="select-outline">
+                        <select id="optRpsClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        <label for="optRpsClientId">Client</label>
+                    </div>
+                    <div class="select-outline">
+                        <select id="optRpsSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true"></select>
+                        <label for="optRpsSiteId">Site</label>
+                    </div>
+                    <div class="select-outline">
+                        <select id="optRpsYearId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        <label for="optRpsYearId">Year</label>
+                    </div>
+                    <div class="select-outline">
+                        <select id="optRpsMonthId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        <label for="optRpsMonthId">Month</label>
+                    </div>
+                    <div class="search-field">
+                        <label for="txtRpsSearch">Search asset type</label>
+                        <input type="text" id="txtRpsSearch" placeholder="Search by asset type or frequency">
+                    </div>
                 </div>
+                <div class="filter-actions">
+                    <button type="button" id="btnRpsSearch" class="btn btn-primary" disabled>
+                        <i class="fas fa-search mr-2"></i>View report
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="module-data-card">
+            <div class="module-card-header">
+                <div>
+                    <h4>PPM Summary</h4>
+                    <p>Compare scheduled versus completed activities by asset type.</p>
+                </div>
+                <a tabindex="0" role="button" class="btn btn-link text-muted p-0" data-toggle="popover" data-trigger="focus" title="About this report" data-content="Export or filter by client, site, year, and month to review PPM performance.">
+                    <i class="fas fa-info-circle"></i>
+                </a>
+            </div>
+            <div class="module-table-wrapper">
+                <div class="table-responsive">
+                    <table id="dtRpsPpmSummary" class="table table-hover mb-0 display" cellspacing="0" width="100%">
+                        <thead>
+                        <tr class="th-strong">
+                            <th>#</th>
+                            <th>Asset Type</th>
+                            <th>Frequency</th>
+                            <th>No of Asset</th>
+                            <th>Total PPM</th>
+                            <th>PPM Done</th>
+                            <th>%</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="results-summary">
+                <span id="lblRpsCount">Showing 0 of 0 asset types</span>
+                <span class="summary-pill" id="lblRpsUpdated">Updated —</span>
             </div>
         </section>
     </div>

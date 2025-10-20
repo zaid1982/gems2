@@ -3333,11 +3333,11 @@ class Class_wo {
                 $row_result['siteId'] = $reportData['site_id'];
                 $row_result['siteName'] = $reportData['site_name'];
                 $row_result['isManual'] = false;
-                $row_result['open0'] = '0';
-                $row_result['closed0'] = '0';
+                $row_result['open0'] = (int) $reportData['open0'];
+                $row_result['closed0'] = (int) $reportData['closed0'];
                 for ($i=1; $i<=5; $i++) {
-                    $row_result['open'.$i] = $reportData['open'.$i];
-                    $row_result['closed'.$i] = $reportData['closed'.$i];
+                    $row_result['open'.$i] = (int) $reportData['open'.$i];
+                    $row_result['closed'.$i] = (int) $reportData['closed'.$i];
                 }
                 array_push($result, $row_result);
             }
@@ -3346,8 +3346,8 @@ class Class_wo {
             foreach ($reportPpms as $reportPpm) {
                 foreach ($result as $key => $row) {
                     if ($row['siteName'] === $reportPpm['site_name']) {
-                        $result[$key]['open0'] = $reportPpm['total_ppm_not'];
-                        $result[$key]['closed0'] = $reportPpm['total_ppm_done'];
+                        $result[$key]['open0'] = (int) $reportPpm['total_ppm_not'];
+                        $result[$key]['closed0'] = (int) $reportPpm['total_ppm_done'];
                         break;
                     }
                 }
@@ -3359,8 +3359,8 @@ class Class_wo {
                 $row_result['siteName'] = $reportManual['site_name'];
                 $row_result['isManual'] = true;
                 for ($i=0; $i<=5; $i++) {
-                    $row_result['open'.$i] = $this->fn_general->clear_null($reportManual['total_manual_open'.$i], 0);
-                    $row_result['closed'.$i] = $this->fn_general->clear_null($reportManual['total_manual_closed'.$i], 0);
+                    $row_result['open'.$i] = (int) $this->fn_general->clear_null($reportManual['total_manual_open'.$i], 0);
+                    $row_result['closed'.$i] = (int) $this->fn_general->clear_null($reportManual['total_manual_closed'.$i], 0);
                 }
                 array_push($result, $row_result);
             }
@@ -3380,12 +3380,12 @@ class Class_wo {
 
             foreach ($result as $row) {
                 for ($i=0; $i<=5; $i++) {
-                    $row_result['open'.$i] += $row['open'.$i];
-                    $row_result['closed'.$i] += $row['closed'.$i];
+                    $row_result['open'.$i] += isset($row['open'.$i]) ? (int) $row['open'.$i] : 0;
+                    $row_result['closed'.$i] += isset($row['closed'.$i]) ? (int) $row['closed'.$i] : 0;
                 }
             }
             for ($i=0; $i<=5; $i++) {
-                $row_pending['closed'.$i] = intval($row_result['open'.$i]) - intval($row_result['closed'.$i]);
+                $row_pending['closed'.$i] = (int) $row_result['open'.$i] - (int) $row_result['closed'.$i];
             }
             array_push($result, $row_result);
             array_push($result, $row_pending);

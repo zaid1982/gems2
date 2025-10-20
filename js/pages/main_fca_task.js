@@ -18,8 +18,65 @@ function MainFcaTask () {
     let modalFcaAddClass;
     let sectionFcaInfoClass;
 
+    function handleAddNew () {
+        if (!isAuditor) {
+            toastr['error']('You don\'t have permission as FCA Auditor role to perform this task!', _ALERT_TITLE_ERROR);
+            return false;
+        }
+        modalFcaAddClass.setClassFrom(self);
+        modalFcaAddClass.add();
+        return true;
+    }
+
+    function setDataLabels (row, tableInstance) {
+        if (!tableInstance) {
+            return;
+        }
+        const visibleIndexes = tableInstance.columns(':visible').indexes().toArray();
+        const cells = $('td', row);
+        cells.each(function (cellIdx) {
+            const columnIndex = visibleIndexes[cellIdx];
+            if (columnIndex === undefined) {
+                return;
+            }
+            const headerText = $(tableInstance.column(columnIndex).header()).text().trim();
+            $(this).attr('data-label', headerText);
+        });
+    }
+
+    function updateMetric (selector, value) {
+        const el = $(selector);
+        if (!el.length) {
+            return;
+        }
+        el.text(value);
+    }
+
+    function updateBadge (selector, value) {
+        const el = $(selector);
+        if (!el.length) {
+            return;
+        }
+        el.text(value);
+    }
+
+    function updateTimestamp () {
+        const el = $('#lblFctUpdated');
+        if (!el.length) {
+            return;
+        }
+        const timestamp = typeof moment === 'function' ? moment().format('DD MMM YYYY, hh:mm A') : new Date().toLocaleString();
+        el.text('Updated ' + timestamp);
+    }
+
     this.init = function () {
         isAuditor = mzIsRoleExist('22');
+
+        if (!isAuditor) {
+            $('#btnFctAddNewHeader').addClass('d-none');
+        } else {
+            $('#btnFctAddNewHeader').removeClass('d-none');
+        }
 
         oTableFctObserve = $('#dtFctObserve').DataTable({
             bLengthChange: false,
@@ -49,17 +106,11 @@ function MainFcaTask () {
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                setDataLabels(nRow, oTableFctObserve);
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('#btnFctAddNew').off('click').on('click', function () {
-                    if (!isAuditor) {
-                        toastr['error']('You don\'t have permission as FCA Auditor role to perform this task!', _ALERT_TITLE_ERROR);
-                        return false;
-                    }
-                    modalFcaAddClass.setClassFrom(self);
-                    modalFcaAddClass.add();
-                });
+                $('#btnFctAddNew').off('click').on('click', handleAddNew);
                 if ($('#divFctPageWidth').width() < 546) {
                     $(this).DataTable().column(1).visible(false);
                     $(this).DataTable().column(2).visible(false);
@@ -80,7 +131,7 @@ function MainFcaTask () {
                         return refAssetGroup[data]['assetGroupName'];
                     }},
                 {mData: 'fcaTaskAssetNo'},
-                {mData: 'fcaTaskAssetEvaluated'},  <!--5-->
+                {mData: 'fcaTaskAssetEvaluated'},
                 {mData: 'fcaTaskDefectItem'},
                 {mData: 'fcaDefectCategoryId', mRender: function(data) {
                         return data !== null ? refDefectCategory[data]['fcaDefectCategoryName'] : '';
@@ -89,7 +140,7 @@ function MainFcaTask () {
                         return data !== null ? refFcaZone[data]['fcaZoneName'] : '';
                     }},
                 {mData: 'fcaTaskArea'},
-                {mData: 'fcaTaskConditionScale', mRender: function(data) {   <!--10-->
+                {mData: 'fcaTaskConditionScale', mRender: function(data) {
                         return mzReplaceNull(refConditionScale[data]);
                     }},
                 {mData: 'fcaTaskEvaluationType', mRender: function(data) {
@@ -98,14 +149,14 @@ function MainFcaTask () {
                 {mData: 'fcaTaskObservation'},
                 {mData: 'fcaTaskRecommendation'},
                 {mData: 'fcaTaskValidation'},
-                {mData: 'fcaTaskCreatedBy', mRender: function(data) {   <!--15-->
+                {mData: 'fcaTaskCreatedBy', mRender: function(data) {
                         return data !== null ? refUser[data]['userFirstName'] : '';
                     }},
                 {mData: 'fcaTaskValidateBy', mRender: function(data) {
                         return data !== null ? refUser[data]['userFirstName'] : '';
                     }},
                 {mData: 'fcaTaskTimeCreated'},
-                {mData: 'fcaTaskStatus', mRender: function(data) {   <!--18-->
+                {mData: 'fcaTaskStatus', mRender: function(data) {
                         return refStatus[data]['statusAction'];
                     }}
             ]
@@ -151,6 +202,7 @@ function MainFcaTask () {
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                setDataLabels(nRow, oTableFctRecommend);
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -174,7 +226,7 @@ function MainFcaTask () {
                         return refAssetGroup[data]['assetGroupName'];
                     }},
                 {mData: 'fcaTaskAssetNo'},
-                {mData: 'fcaTaskAssetEvaluated'},  <!--5-->
+                {mData: 'fcaTaskAssetEvaluated'},
                 {mData: 'fcaTaskDefectItem'},
                 {mData: 'fcaDefectCategoryId', mRender: function(data) {
                         return data !== null ? refDefectCategory[data]['fcaDefectCategoryName'] : '';
@@ -183,7 +235,7 @@ function MainFcaTask () {
                         return data !== null ? refFcaZone[data]['fcaZoneName'] : '';
                     }},
                 {mData: 'fcaTaskArea'},
-                {mData: 'fcaTaskObservation'},  <!--10-->
+                {mData: 'fcaTaskObservation'},
                 {mData: 'taskTimeCreated'}
             ]
         });
@@ -228,6 +280,7 @@ function MainFcaTask () {
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                setDataLabels(nRow, oTableFctValidate);
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -252,7 +305,7 @@ function MainFcaTask () {
                         return refAssetGroup[data]['assetGroupName'];
                     }},
                 {mData: 'fcaTaskAssetNo'},
-                {mData: 'fcaTaskAssetEvaluated'},  <!--5-->
+                {mData: 'fcaTaskAssetEvaluated'},
                 {mData: 'fcaTaskDefectItem'},
                 {mData: 'fcaDefectCategoryId', mRender: function(data) {
                         return data !== null ? refDefectCategory[data]['fcaDefectCategoryName'] : '';
@@ -261,7 +314,7 @@ function MainFcaTask () {
                         return data !== null ? refFcaZone[data]['fcaZoneName'] : '';
                     }},
                 {mData: 'fcaTaskArea'},
-                {mData: 'fcaTaskConditionScale', mRender: function(data) {   <!--10-->
+                {mData: 'fcaTaskConditionScale', mRender: function(data) {
                         return mzReplaceNull(refConditionScale[data]);
                     }},
                 {mData: 'fcaTaskEvaluationType', mRender: function(data) {
@@ -272,7 +325,7 @@ function MainFcaTask () {
                     }},
                 {mData: 'fcaTaskObservation'},
                 {mData: 'fcaTaskRecommendation'},
-                {mData: 'taskTimeCreated'}   <!--15-->
+                {mData: 'taskTimeCreated'}
             ]
         });
         let oTableFctValidateTbody = $('#dtFctValidate tbody');
@@ -316,6 +369,7 @@ function MainFcaTask () {
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                setDataLabels(nRow, oTableFctCorrection);
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -340,7 +394,7 @@ function MainFcaTask () {
                         return refAssetGroup[data]['assetGroupName'];
                     }},
                 {mData: 'fcaTaskAssetNo'},
-                {mData: 'fcaTaskAssetEvaluated'},  <!--5-->
+                {mData: 'fcaTaskAssetEvaluated'},
                 {mData: 'fcaTaskDefectItem'},
                 {mData: 'fcaDefectCategoryId', mRender: function(data) {
                         return data !== null ? refDefectCategory[data]['fcaDefectCategoryName'] : '';
@@ -349,7 +403,7 @@ function MainFcaTask () {
                         return data !== null ? refFcaZone[data]['fcaZoneName'] : '';
                     }},
                 {mData: 'fcaTaskArea'},
-                {mData: 'fcaTaskConditionScale', mRender: function(data) {   <!--10-->
+                {mData: 'fcaTaskConditionScale', mRender: function(data) {
                         return mzReplaceNull(refConditionScale[data]);
                     }},
                 {mData: 'fcaTaskEvaluationType', mRender: function(data) {
@@ -358,7 +412,7 @@ function MainFcaTask () {
                 {mData: 'fcaTaskObservation'},
                 {mData: 'fcaTaskRecommendation'},
                 {mData: 'fcaTaskValidation'},
-                {mData: 'fcaTaskValidateBy', mRender: function(data) {   <!--15-->
+                {mData: 'fcaTaskValidateBy', mRender: function(data) {
                         return data !== null ? refUser[data]['userFirstName'] : '';
                     }},
                 {mData: 'taskTimeCreated'}
@@ -384,8 +438,8 @@ function MainFcaTask () {
                 try {
                     $('.sectionFctTask').hide();
                     $('.sectionFctObserve').show();
-                    $('.btnFctTab').removeClass('lighten-2').addClass('lighten-2');
-                    $('#btnFctAudit').removeClass('lighten-2');
+                    $('.btnFctTab').removeClass('is-active');
+                    $('#btnFctAudit').addClass('is-active');
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -400,8 +454,8 @@ function MainFcaTask () {
                 try {
                     $('.sectionFctTask').hide();
                     $('.sectionFctRecommend').show();
-                    $('.btnFctTab').removeClass('lighten-2').addClass('lighten-2');
-                    $('#btnFctRecommend').removeClass('lighten-2');
+                    $('.btnFctTab').removeClass('is-active');
+                    $('#btnFctRecommend').addClass('is-active');
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -416,8 +470,8 @@ function MainFcaTask () {
                 try {
                     $('.sectionFctTask').hide();
                     $('.sectionFctValidate').show();
-                    $('.btnFctTab').removeClass('lighten-2').addClass('lighten-2');
-                    $('#btnFctValidate').removeClass('lighten-2');
+                    $('.btnFctTab').removeClass('is-active');
+                    $('#btnFctValidate').addClass('is-active');
                     window.scrollTo({top: 0, behavior: 'smooth'});
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -427,6 +481,18 @@ function MainFcaTask () {
         });
 
         $('.sectionFctRecommend, .sectionFctValidate').hide();
+        $('#btnFctAddNewHeader').off('click').on('click', handleAddNew);
+        $('#btnFctRefresh').off('click').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.genTable();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 200);
+        });
         self.genTable();
     };
 
@@ -435,13 +501,25 @@ function MainFcaTask () {
         oTableFctObserve.clear().rows.add(dataObserve).draw();
         const dataRecommend = mzAjaxRequest2('fca_task/recommend', 'GET');
         oTableFctRecommend.clear().rows.add(dataRecommend).draw();
-        $('#badgeFctTotalRecommend').text(dataRecommend.length);
         const dataValidate = mzAjaxRequest2('fca_task/validate', 'GET');
         oTableFctValidate.clear().rows.add(dataValidate).draw();
-        $('#badgeFctTotalValidate').text(dataValidate.length);
         const dataCorrection = mzAjaxRequest2('fca_task/correction', 'GET');
         oTableFctCorrection.clear().rows.add(dataCorrection).draw();
-        $('#badgeFctTotalCorrection').text(dataCorrection.length);
+        const counts = {
+            observe: dataObserve.length,
+            recommend: dataRecommend.length,
+            validate: dataValidate.length,
+            correction: dataCorrection.length
+        };
+        updateMetric('#metricFctObserve', counts.observe);
+        updateMetric('#metricFctRecommend', counts.recommend);
+        updateMetric('#metricFctValidate', counts.validate);
+        updateMetric('#metricFctCorrection', counts.correction);
+        updateBadge('#badgeFctTotalObserve', counts.observe);
+        updateBadge('#badgeFctTotalRecommend', counts.recommend);
+        updateBadge('#badgeFctTotalValidate', counts.validate);
+        updateBadge('#badgeFctTotalCorrection', counts.correction);
+        updateTimestamp();
     };
 
     this.getClassName = function () {

@@ -15,113 +15,283 @@
     <link rel="stylesheet" href="css/mdb.min.css">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
     <!-- Stepper CSS - minified-->
     <link href="css/addons-pro/steppers.css" rel="stylesheet">
+    <!-- Shared theme -->
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <style>
+        :root {
+            --report-primary: #0055b8;
+            --report-bg: #e7eaec;
+            --report-text: #243746;
+            --report-muted: #7e8f9a;
+            --report-radius: 26px;
+            --report-shadow: 0 18px 45px -28px rgba(15, 23, 42, 0.5);
+        }
 
+        body {
+            background: linear-gradient(135deg, rgba(206,239,240,1) 0%, rgba(231,234,236,1) 100%) !important;
+            color: var(--report-text);
+        }
+
+        .module-report {
+            padding: 2.5rem 1.5rem 3rem;
+        }
+
+        .module-report .module-page-header {
+            background: linear-gradient(135deg, rgba(0,77,255,1) 0%, rgba(13,255,153,0.9) 100%);
+            color: #fff;
+            border-radius: var(--report-radius);
+            padding: 2.4rem 2.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            box-shadow: var(--report-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-report .module-page-header::after {
+            content: '';
+            position: absolute;
+            top: -70px;
+            right: -70px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .module-report .module-page-header .header-text { position: relative; z-index: 1; max-width: 700px; }
+        .module-report .module-page-header .header-text h2 { font-size: 2.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .module-report .module-page-header .header-text p { margin: 0; color: rgba(255, 255, 255, 0.78); }
+        .module-report .module-page-header .header-text .header-subtitle { font-size: 0.85rem; text-transform: uppercase; letter-spacing: .1em; opacity: 0.78; margin-bottom: 0.75rem; }
+        .module-report .module-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 0.8rem; }
+        .module-report .module-page-header .header-actions .btn { border-radius: 999px; padding: 0.6rem 1.6rem; font-weight: 600; }
+        .module-report .module-page-header .header-actions .btn-outline-light { border-color: rgba(255, 255, 255, 0.65); color: #fff; }
+        .module-report .module-page-header .header-actions .btn-outline-light:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .module-report #btnDtRwsWoSummaryExport .btn { border-radius: 999px; padding: 0.55rem 0.95rem; border: none; background: rgba(255, 255, 255, 0.16); color: #fff; }
+        .module-report #btnDtRwsWoSummaryExport .btn:hover { background: rgba(255, 255, 255, 0.28) !important; }
+
+        .module-report .metrics-row {
+            margin-top: 2.4rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .module-report .metric-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 1.45rem 1.6rem;
+            box-shadow: var(--report-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-report .metric-card::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            right: -40px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: rgba(67, 56, 202, 0.08);
+        }
+
+        .module-report .metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--report-muted); margin-bottom: 0.55rem; }
+        .module-report .metric-value { font-size: 2rem; font-weight: 700; color: var(--report-text); }
+        .module-report .metric-subtext { font-size: 0.85rem; color: var(--report-muted); margin-top: 0.35rem; }
+
+        .module-report .filter-card {
+            margin-top: 2.6rem;
+            background: #fff;
+            border-radius: var(--report-radius);
+            padding: 2.1rem 2.3rem;
+            box-shadow: var(--report-shadow);
+        }
+
+        .module-report .filter-card .filter-card-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.6rem; }
+        .module-report .filter-card .filter-card-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--report-text); }
+        .module-report .filter-card .summary-pill { background: rgba(67, 56, 202, 0.12); color: var(--report-primary); padding: 0.45rem 0.95rem; border-radius: 999px; font-weight: 600; font-size: 0.9rem; }
+        .module-report .filter-card .filter-grid { display: grid; gap: 1.4rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+        .module-report .filter-card label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--report-muted); margin-bottom: 0.5rem; }
+        .module-report .filter-card .search-field input { border-radius: 14px; border: 1px solid rgba(15, 23, 42, 0.12); padding: 0.6rem 0.9rem; font-size: 0.95rem; }
+        .module-report .filter-actions { display: flex; justify-content: flex-end; margin-top: 2rem; }
+        .module-report .filter-actions .btn-primary { border-radius: 999px; padding: 0.65rem 1.9rem; font-weight: 600; }
+        .module-report .filter-actions .btn-primary:disabled { background: rgba(67, 56, 202, 0.28); border: none; cursor: not-allowed; }
+
+        .module-report .module-data-card {
+            margin-top: 2.6rem;
+            background: #fff;
+            border-radius: var(--report-radius);
+            box-shadow: var(--report-shadow);
+            padding-bottom: 1.6rem;
+        }
+
+        .module-report .module-data-card .module-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1.75rem 2.3rem 1.25rem;
+        }
+
+        .module-report .module-data-card .module-card-header h4 { margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--report-text); }
+        .module-report .module-data-card .module-card-header p { margin: 0; color: var(--report-muted); }
+        .module-report .module-data-card .module-table-wrapper { padding: 0 2.3rem; }
+        .module-report .module-data-card thead th { background: #EEF2FF; border: none; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--report-text); }
+        .module-report .module-data-card tbody td { border-color: #E2E8F0; }
+        .module-report .module-data-card .results-summary { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem; padding: 1.25rem 2.3rem 0; color: var(--report-muted); font-size: 0.9rem; }
+
+        .module-report #dtRwsWoSummary_wrapper .dt-buttons { display: flex; gap: 0.65rem; }
+        .module-report #dtRwsWoSummary_wrapper .dataTables_filter { display: none !important; }
+
+        @media (max-width: 992px) {
+            .module-report { padding: 2.2rem 1.05rem 2.5rem; }
+            .module-report .module-page-header { padding: 2.1rem 2rem; }
+            .module-report .module-data-card .module-card-header,
+            .module-report .module-data-card .module-table-wrapper,
+            .module-report .module-data-card .results-summary { padding-left: 1.5rem; padding-right: 1.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .module-report .metrics-row { grid-template-columns: 1fr; }
+            .module-report .module-table-wrapper thead { display: none; }
+            .module-report .module-table-wrapper tbody tr { display: block; margin-bottom: 1.2rem; border: 1px solid rgba(15, 23, 42, 0.1); border-radius: 18px; box-shadow: 0 15px 35px -28px rgba(15, 23, 42, 0.55); padding: 0.85rem 1rem; }
+            .module-report .module-table-wrapper tbody td { display: flex; justify-content: space-between; border: none; padding: 0.45rem 0; font-size: 0.95rem; }
+            .module-report .module-table-wrapper tbody td::before { content: attr(data-label); font-weight: 600; color: var(--report-muted); margin-right: 1.25rem; text-align: left; }
+        }
     </style>
-	<!-- JQuery -->
+    <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    <!-- JQuery Migrate -->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 
 <body class="fixed-sn light-blue-skin">
 <!--Main Navigation-->
 <header>
-    <!-- Sidebar navigation -->
     <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
     <div class="includeHtml" id="h-nav_top"></div>
 </header>
-<!--Main layout-->
 
 <main>
-    <div class="container-fluid">
-        <section class="section mb-5 mt-lg-5">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card card-cascade cascading-admin-card user-card mt-4">
-                        <div class="admin-up d-flex justify-content-start">
-                            <i class="fas fa-file-alt rgba-cyan-strong py-4 z-depth-3"></i>
-                            <div class="data">
-                                <h3 class="font-weight-bold dark-grey-text ml-3">Report: Work Order Summary</h3>
-                            </div>
-                        </div>
-                        <div class="card-body card-body-cascade pb-0">
-                            <form id="formRwsSearch">
-                                <h6 class="pb-3 pt-3">Filter:</h6>
-                                <div class="row">
-                                    <div class="col-md-12 select-outline">
-                                        <select id="optRwsClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optRwsClientId">Client</label>
-                                    </div>
-                                    <!--<div class="col-md-6 select-outline">
-                                        <select id="optRwsSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optRwsSiteId">Site</label>
-                                    </div>-->
-                                    <div class="col-lg-3 col-md-4 select-outline">
-                                        <select id="optRwsYearId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optRwsYearId">Year</label>
-                                    </div>
-                                    <div class="col-lg-4 col-md-8 select-outline">
-                                        <select id="optRwsMonthId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optRwsMonthId">Month</label>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="card-footer">
-                            <button type="button" id="btnRwsSearch" class="btn btn-outline-orange btn-rounded waves-effect btn-sm float-right" disabled>
-                                <i class="fas fa-search mr-1"></i> View
-                            </button>
-                        </div>
-                    </div>
+    <div class="container-fluid module-page module-report">
+        <section class="module-page-header">
+            <div class="header-text">
+                <div class="header-subtitle">Work Order Reporting</div>
+                <h2>Work Order Summary</h2>
+                <p>Track open and closed work orders across your portfolio for the selected month.</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" id="btnDtRwsWoSummaryRefresh" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Refresh data">
+                    <i class="fas fa-sync mr-2"></i>Refresh
+                </button>
+                <div id="btnDtRwsWoSummaryExport"></div>
+            </div>
+        </section>
 
-                    <div class="card card-cascade narrower mb-5 mt-5">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="Report"
-                                   data-content="Work Order Summary"><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtRwsWoSummaryRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3 pl-5">Work Order Summary</a>
-                            <div>
-                                <div id="btnDtRwsWoSummaryExport"></div>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <div class="table-responsive">
-                                <table id="dtRwsWoSummary" class="table table-hover table-bordered mb-0 display responsive" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong text-center rgba-blue-grey-strong">
-                                        <th rowspan="2" style="vertical-align: middle">Work Type</th>
-                                        <th colspan="2" id="thRwsSiteDesc0"></th>
-                                        <th colspan="2" id="thRwsSiteDesc1"></th>
-                                        <th colspan="2" id="thRwsSiteDesc2"></th>
-                                        <th colspan="2" id="thRwsSiteDesc3"></th>
-                                    </tr>
-                                    <tr class="th-strong rgba-blue-grey-light">
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                        <th class="text-center">Open</th>
-                                        <th class="text-center">Closed</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="rgba-blue-grey-slight"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+        <section class="metrics-row">
+            <div class="metric-card">
+                <div class="metric-label">Open work orders</div>
+                <div class="metric-value" id="metricTotalOpen">0</div>
+                <div class="metric-subtext">Total open items across visible sites</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Closed work orders</div>
+                <div class="metric-value" id="metricTotalClosed">0</div>
+                <div class="metric-subtext">Completed within the reporting window</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Reporting window</div>
+                <div class="metric-value" id="metricMonthLabel">-</div>
+                <div class="metric-subtext">Month and year in focus</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Active sites</div>
+                <div class="metric-value" id="metricSiteCount">0</div>
+                <div class="metric-subtext">Sites mapped to the chosen client</div>
+            </div>
+        </section>
 
+        <section class="filter-card">
+            <div class="filter-card-header">
+                <h3>Filters</h3>
+                <div class="summary-pill">Client scope aligns with your role</div>
+            </div>
+            <form id="formRwsSearch">
+                <div class="filter-grid">
+                    <div class="select-outline">
+                        <select id="optRwsClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        <label for="optRwsClientId">Client</label>
+                    </div>
+                    <div class="select-outline">
+                        <select id="optRwsYearId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        <label for="optRwsYearId">Year</label>
+                    </div>
+                    <div class="select-outline">
+                        <select id="optRwsMonthId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        <label for="optRwsMonthId">Month</label>
+                    </div>
+                    <div class="search-field">
+                        <label for="txtRwsSearch">Search work type</label>
+                        <input type="text" id="txtRwsSearch" placeholder="Search by work type">
+                    </div>
                 </div>
+                <div class="filter-actions">
+                    <button type="button" id="btnRwsSearch" class="btn btn-primary" disabled>
+                        <i class="fas fa-search mr-2"></i>View report
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="module-data-card">
+            <div class="module-card-header">
+                <div>
+                    <h4>Work Order Summary</h4>
+                    <p>Open vs closed work orders per site for the selected criteria.</p>
+                </div>
+                <a tabindex="0" role="button" class="btn btn-link text-muted p-0" data-toggle="popover" data-trigger="focus" title="About this report" data-content="Compare open and closed work orders across sites.">
+                    <i class="fas fa-info-circle"></i>
+                </a>
+            </div>
+            <div class="module-table-wrapper">
+                <div class="table-responsive">
+                    <table id="dtRwsWoSummary" class="table table-hover mb-0 display" cellspacing="0" width="100%">
+                        <thead>
+                        <tr class="text-center align-middle">
+                            <th rowspan="2">Work Type</th>
+                            <th colspan="2" id="thRwsSiteDesc0"></th>
+                            <th colspan="2" id="thRwsSiteDesc1"></th>
+                            <th colspan="2" id="thRwsSiteDesc2"></th>
+                            <th colspan="2" id="thRwsSiteDesc3"></th>
+                        </tr>
+                        <tr>
+                            <th class="text-center">Open</th>
+                            <th class="text-center">Closed</th>
+                            <th class="text-center">Open</th>
+                            <th class="text-center">Closed</th>
+                            <th class="text-center">Open</th>
+                            <th class="text-center">Closed</th>
+                            <th class="text-center">Open</th>
+                            <th class="text-center">Closed</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="results-summary">
+                <span id="lblRwsCount">Showing 0 of 0 work types</span>
+                <span class="summary-pill" id="lblRwsUpdated">Updated —</span>
             </div>
         </section>
     </div>

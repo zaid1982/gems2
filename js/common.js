@@ -131,7 +131,7 @@ function MzValidate(name) {
         const fieldVal = type !== 'notEmptyCheck' ? fieldSelector.val() : '';
         switch (type) {
             case 'notEmpty':
-                if (val === true && (fieldVal === '' || fieldVal === null || fieldVal.length === 0))
+                if (val === true && (fieldVal === '' || fieldVal === null || fieldVal === undefined || fieldVal.length === 0))
                     return false;
                 break;
             case 'eqLength':
@@ -387,6 +387,7 @@ function MzValidate(name) {
                 result = false;
             }
         });
+        console.log('Form validation result for WoTotal:', result);
         return result;
     };
     

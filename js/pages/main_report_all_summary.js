@@ -4,6 +4,8 @@ function MainReportWoTotal() {
     let self = this;
     const yearArr = mzGetYearArray();
     const monthArr = mzGetMonthArray();
+    const totalColumnLabels = ['Site', 'PPM Open', 'PPM Closed', 'Client Complaint Open', 'Client Complaint Closed', 'Self Finding Open', 'Self Finding Closed', 'Request Open', 'Request Closed', 'Breakdown Open', 'Breakdown Closed', 'Defect Open', 'Defect Closed', 'Total'];
+    const dailyColumnLabels = ['Date', 'PPM Open', 'PPM Closed', 'Client Complaint Open', 'Client Complaint Closed', 'Self Finding Open', 'Self Finding Closed', 'Request Open', 'Request Closed', 'Breakdown Open', 'Breakdown Closed', 'Defect Open', 'Defect Closed', 'Total'];
     let oTableWoTotal;
     let oTableWoDaily;
     let selectedYear;
@@ -12,6 +14,118 @@ function MainReportWoTotal() {
     let siteId;
     let siteName;
     let isManual;
+    let totalDataCache = [];
+    let dailyDataCache = [];
+    let lastTotalUpdated = null;
+    let lastDailyUpdated = null;
+    const momentAvailable = (typeof moment === 'function');
+
+    function refreshMaterialSelect(selector) {
+        const el = $(selector);
+        if (!el.length) {
+            return;
+        }
+        try {
+            el.materialSelect('destroy');
+        } catch (err) {
+            // ignore when component not initialised yet
+        }
+        el.materialSelect();
+    }
+
+    function updatePeriodLabel() {
+        const pill = $('#lblRwtPeriod');
+        if (!pill.length) {
+            return;
+        }
+        const yearInt = parseInt(selectedYear, 10);
+        const monthInt = parseInt(selectedMonth, 10);
+        if (momentAvailable && !isNaN(yearInt) && !isNaN(monthInt)) {
+            const label = moment({ year: yearInt, month: monthInt - 1, day: 1 }).format('MMM YYYY');
+            pill.text('Reporting window: ' + label);
+        } else if (!isNaN(yearInt) && !isNaN(monthInt)) {
+            pill.text('Reporting window: ' + monthInt + '/' + yearInt);
+        } else {
+            pill.text('Reporting window: --');
+        }
+    }
+
+    function formatTimestamp(value) {
+        if (!value) {
+            return 'Updated —';
+        }
+        if (momentAvailable && moment.isMoment(value)) {
+            return 'Updated ' + value.format('DD MMM YYYY, hh:mm A');
+        }
+        return 'Updated ' + new Date(value).toLocaleString();
+    }
+
+    function updateTotalSummary() {
+        if (!oTableWoTotal) {
+            return;
+        }
+        const info = typeof oTableWoTotal.page === 'function' ? oTableWoTotal.page.info() : null;
+        if (info) {
+            $('#lblRwtTotalCount').text('Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal + ' rows');
+        }
+        $('#lblRwtTotalUpdated').text(formatTimestamp(lastTotalUpdated));
+    }
+
+    function updateDailySummary() {
+        if (!oTableWoDaily) {
+            return;
+        }
+        const info = typeof oTableWoDaily.page === 'function' ? oTableWoDaily.page.info() : null;
+        if (info) {
+            $('#lblRwtDailyCount').text('Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal + ' rows');
+        }
+        $('#lblRwtDailyUpdated').text(formatTimestamp(lastDailyUpdated));
+    }
+
+    function computeCategorySum(row, prefix) {
+        let total = 0;
+        for (let i = 0; i <= 5; i++) {
+            const val = parseInt(row ? row[prefix + i] : 0, 10);
+            if (!isNaN(val)) {
+                total += val;
+            }
+        }
+        return total;
+    }
+
+    function updateMetrics(data) {
+        if (!Array.isArray(data)) {
+            data = [];
+        }
+        const totalRow = data.find(function (row) { return row && row.siteName === 'TOTAL'; }) || {};
+        const pendingRow = data.find(function (row) { return row && row.siteName === 'PENDING'; }) || {};
+        const siteRows = data.filter(function (row) {
+            return row && row.siteName !== 'TOTAL' && row.siteName !== 'PENDING';
+        });
+
+        const totalOpen = computeCategorySum(totalRow, 'open');
+        const totalClosed = computeCategorySum(totalRow, 'closed');
+        const pendingTotal = computeCategorySum(pendingRow, 'open');
+        const sitesTracked = siteRows.length;
+
+        $('#metricRwtOpen').text(totalOpen.toLocaleString());
+        $('#metricRwtClosed').text(totalClosed.toLocaleString());
+        $('#metricRwtPending').text(pendingTotal.toLocaleString());
+        $('#metricRwtSites').text(sitesTracked.toLocaleString());
+    }
+
+    function setDataLabelsForTable(selector, labels) {
+        const $table = $(selector);
+        if (!$table.length) {
+            return;
+        }
+        $table.find('tbody tr').each(function () {
+            $('td:visible', this).each(function (idx) {
+                const label = labels[idx] || '';
+                $(this).attr('data-label', label);
+            });
+        });
+    }
 
     this.init = function () {
         $('#divRwtWoDaily').hide();
@@ -25,15 +139,10 @@ function MainReportWoTotal() {
         mzOption('optRwtMonthId', monthArr, 'Choose Month', 'monthId', 'monthName', {}, 'required', false);
         $('#optRwtMonthId').val(selectedMonth);
 
+        refreshMaterialSelect('#optRwtYearId');
+        refreshMaterialSelect('#optRwtMonthId');
+
         const vData = [
-            {
-                field_id: 'optRwtClientId',
-                type: 'select',
-                name: 'Client',
-                validator: {
-                    notEmpty: true
-                }
-            },
             {
                 field_id: 'optRwtMonthId',
                 type: 'select',
@@ -56,13 +165,14 @@ function MainReportWoTotal() {
         formValidate.registerFields(vData);
 
         $('#btnRwtSearch').attr('disabled', !formValidate.validateForm());
-        $('#formRwtSearch').on('keyup change', function () {
+
+        $('#formRwtSearch').on('keyup change', 'select, input', function () {
             $('#btnRwtSearch').attr('disabled', !formValidate.validateForm());
         });
 
         oTableWoTotal = $('#dtRwtWoTotal').DataTable({
             bLengthChange: false,
-            bFilter: true,
+            bFilter: false,
             bInfo: false,
             bPaginate: false,
             autoWidth: false,
@@ -78,6 +188,8 @@ function MainReportWoTotal() {
                         self.drillDaily(currentRow['siteId'], currentRow['siteName'], currentRow['isManual']);
                     }
                 });
+                setDataLabelsForTable('#dtRwtWoTotal', totalColumnLabels);
+                updateTotalSummary();
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -202,7 +314,6 @@ function MainReportWoTotal() {
         });
         $("#dtRwtWoTotal_filter").hide();
 
-        let cntWoTotal;
         let btnWoTotalOpt = {
             exportOptions: {
                 columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -236,12 +347,18 @@ function MainReportWoTotal() {
             ]
         }).container().appendTo($('#btnDtRwtWoTotalExport'));
 
+        $('#txtRwtTotalSearch').on('keyup change', function () {
+            const value = $(this).val();
+            oTableWoTotal.search(value).draw();
+        });
+
         $('#btnDtRwtWoTotalRefresh').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
                     self.genTableWoTotal();
                 } catch (e) {
+                        console.error('Error in btnDtRwtWoTotalRefresh:', e);
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
@@ -250,7 +367,7 @@ function MainReportWoTotal() {
 
         oTableWoDaily = $('#dtRwtWoDaily').DataTable({
             bLengthChange: false,
-            bFilter: true,
+            bFilter: false,
             bInfo: false,
             bPaginate: false,
             autoWidth: false,
@@ -271,6 +388,8 @@ function MainReportWoTotal() {
                         modalReportTotalWo.edit(currentRow['siteManualId'], siteId, rowId, selectedYear, selectedMonth, siteName, dateSplit[0]);
                     }
                 });
+                setDataLabelsForTable('#dtRwtWoDaily', dailyColumnLabels);
+                updateDailySummary();
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -396,7 +515,6 @@ function MainReportWoTotal() {
         });
         $("#dtRwtWoDaily_filter").hide();
 
-        let cntWoDaily;
         let btnWoDailyOpt = {
             exportOptions: {
                 columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
@@ -430,12 +548,18 @@ function MainReportWoTotal() {
             ]
         }).container().appendTo($('#btnDtRwtWoDailyExport'));
 
+        $('#txtRwtDailySearch').on('keyup change', function () {
+            const value = $(this).val();
+            oTableWoDaily.search(value).draw();
+        });
+
         $('#btnDtRwtWoDailyRefresh').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
                     self.genTableWoDaily();
                 } catch (e) {
+                    console.error('Error in btnDtRwtWoDailyRefresh:', e);
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
@@ -449,8 +573,10 @@ function MainReportWoTotal() {
                     selectedYear = $('#optRwtYearId').val();
                     selectedMonth = $('#optRwtMonthId').val();
                     $('#divRwtWoDaily').hide();
+                    updatePeriodLabel();
                     self.genTableWoTotal();
                 } catch (e) {
+                    console.error('Error in btnRwtSearch:', e);
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
@@ -461,17 +587,25 @@ function MainReportWoTotal() {
             modalReportTotalWo.add(siteId, selectedYear, selectedMonth, siteName);
         });
 
+        updatePeriodLabel();
         self.genTableWoTotal();
     };
 
     this.genTableWoTotal = function () {
         const dataWoTotal = mzAjaxRequest('wo.php?type=report_wo_total&year='+selectedYear+'&month='+selectedMonth, 'GET');
-        oTableWoTotal.clear().rows.add(dataWoTotal).draw();
+        totalDataCache = Array.isArray(dataWoTotal) ? dataWoTotal : [];
+        oTableWoTotal.clear().rows.add(totalDataCache).draw();
+        updateMetrics(totalDataCache);
+        lastTotalUpdated = momentAvailable ? moment() : new Date();
+        updateTotalSummary();
     };
 
     this.genTableWoDaily = function () {
         const dataWoDaily = mzAjaxRequest('wo.php?type=report_wo_daily&siteId='+siteId+'&year='+selectedYear+'&month='+selectedMonth+'&isManual='+isManual, 'GET');
-        oTableWoDaily.clear().rows.add(dataWoDaily).draw();
+        dailyDataCache = Array.isArray(dataWoDaily) ? dataWoDaily : [];
+        oTableWoDaily.clear().rows.add(dailyDataCache).draw();
+        lastDailyUpdated = momentAvailable ? moment() : new Date();
+        updateDailySummary();
     };
 
     this.drillDaily = function (_siteId, _siteName, _isManual) {
@@ -486,6 +620,7 @@ function MainReportWoTotal() {
                 self.genTableWoDaily();
                 $('#divRwtWoDaily').show();
             } catch (e) {
+                console.error('Error in drillDaily:', e);
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
             }
             HideLoader();
