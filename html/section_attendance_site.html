@@ -1,294 +1,244 @@
-<section class="section sectionAttendanceSite">
-    <nav class="navbar navbar-expand navbar-dark light-blue z-depth-3 mt-3 mb-4">
-        <div class="collapse navbar-collapse" id="basicExampleNav">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item dropdown light-blue lighten-2 navbar-custom px-2 mr-3">
-                    <a class="nav-link dropdown-toggle" id="navSacYear" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">Year</a>
-                    <div class="dropdown-menu dropdown-danger" aria-labelledby="navSacYear" id="divSacYear">
-                        <a class="dropdown-item lnkSacYear" href="#" id="lnkSacYear_2022">2022</a>
-                        <a class="dropdown-item lnkSacYear" href="#" id="lnkSacYear_2023">2023</a>
-                        <a class="dropdown-item lnkSacYear" href="#" id="lnkSacYear_2024">2024</a>
-                        <a class="dropdown-item lnkSacYear" href="#" id="lnkSacYear_2025">2025</a>
-                    </div>
-                </li>
-                <li class="nav-item dropdown light-blue lighten-2 navbar-custom px-2 mr-3">
-                    <a class="nav-link dropdown-toggle" id="navSacMonth" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">Month</a>
-                    <div class="dropdown-menu dropdown-danger" aria-labelledby="navSacMonth" id="divSacMonth">
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_1">January</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_2">February</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_3">March</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_4">April</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_5">May</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_6">June</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_7">July</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_8">August</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_9">September</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_10">October</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_11">November</a>
-                        <a class="dropdown-item lnkSacMonth" href="#" id="lnkSacMonth_12">December</a>
-                    </div>
-                </li>
-                <a class="navbar-brand d-none d-md-block font-weight-500" href="#" id="lblSacSelected"></a>
-            </ul>
+<section class="attendance-site-section sectionAttendanceSite">
+    <div class="attendance-page-header">
+        <div class="header-text">
+            <span class="badge badge-pill badge-light text-primary mb-2"><i class="fas fa-map-marker-alt mr-2"></i>Site Attendance</span>
+            <h2>Attendance Site Oversight</h2>
+            <p>Monitor group readiness, workforce participation, and geo-validity for each managed location.</p>
         </div>
-        <div class="light-blue lighten-2 navbar-custom px-1" id="divSacActivate"><a class="nav-link text-white" href="#" id="btnSacActivate"><i class="fas fa-toggle-off mr-1"></i> Activate</a></div>
-        <div class="light-blue lighten-2 navbar-custom px-1" id="divSacDeactivate"><a class="nav-link text-white" href="#" id="btnSacDeactivate"><i class="fas fa-toggle-on mr-1"></i> Deactivate</a></div>
-        <div class="light-blue lighten-2 navbar-custom px-1 ml-3" id="divSacBack"><a class="nav-link text-white" href="#" id="btnSacBack"><i class="fas fa-arrow-left mr-1"></i> Back</a></div>
-    </nav>
-    <div class="row mb-2">
-        <div class="col-md-6 col-lg-3">
-            <div class="card z-depth-3 mb-3">
-                <div class="pt-2 px-3 light-blue text-white">
-                    <h6>Attendance Site</h6>
-                    <h2 class="mt-2" id="lblSacSiteCode"></h2>
-                    <p class="mt-1 mb-2" id="lblSacSiteName"></p>
-                </div>
+        <div class="attendance-header-actions">
+            <div id="divSacBack">
+                <button type="button" class="btn btn-outline-light" id="btnSacBack"><i class="fas fa-arrow-left mr-2"></i>Back to Listing</button>
             </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card z-depth-3 mb-3">
-                <div class="pr-4">
-                    <div class="float-left light-blue" style="width: 10px; height: 113px">&nbsp;</div>
-                    <h1 class="float-left ml-4 mt-4_5"><i class="fas fa-users light-blue-text"></i></h1>
-                    <h1 class="text-right font-weight-bold mt-4 mb-0" id="lblSacTotalGroup"></h1>
-                    <p class="text-right font-small mb-1">Total Active Groups</p>
-                </div>
+            <div id="divSacActivate">
+                <button type="button" class="btn btn-outline-light" id="btnSacActivate"><i class="fas fa-toggle-off mr-2"></i>Activate</button>
             </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card z-depth-3 mb-3">
-                <div class="pr-4">
-                    <div class="float-left light-blue" style="width: 10px; height: 113px">&nbsp;</div>
-                    <h1 class="float-left ml-4 mt-4_5"><i class="fas fa-user light-blue-text"></i></h1>
-                    <h1 class="text-right font-weight-bold mt-4 mb-0" id="lblSacTotalParticipant"></h1>
-                    <p class="text-right font-small mb-1">Total Active Employees</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card z-depth-3 mb-3">
-                <div class="pr-4">
-                    <div class="float-left light-blue" style="width: 10px; height: 113px">&nbsp;</div>
-                    <h1 class="float-left ml-4 mt-4_5"><i class="fas fa-users-cog light-blue-text"></i></h1>
-                    <h2 class="text-right font-weight-bold mt-4_5 mb-0" id="lblSacSiteStatus"></h2>
-                    <p class="text-right font-small mb-1">Site Attendance Status</p>
-                </div>
+            <div id="divSacDeactivate">
+                <button type="button" class="btn btn-outline-light" id="btnSacDeactivate"><i class="fas fa-toggle-on mr-2"></i>Deactivate</button>
             </div>
         </div>
     </div>
-    <div class="row mb-2">
-        <div class="col-md-4">
-            <div class="card z-depth-3 mb-3">
-                <div class="card-body">
-                    <div class="" id="chartSacAbsent" style="margin: 0; height: 300px"></div>
-                </div>
-            </div>
+
+    <div class="attendance-metrics">
+        <div class="metric-card">
+            <div class="metric-label">Site code</div>
+            <div class="metric-value" id="lblSacSiteCode">-</div>
+            <div class="metric-subtext" id="lblSacSiteName">Loading site details…</div>
         </div>
-        <div class="col-md-4">
-            <div class="card z-depth-3 mb-3">
-                <div class="card-body">
-                    <div class="" id="chartSacLateness" style="margin: 0; height: 300px"></div>
-                </div>
-            </div>
+        <div class="metric-card">
+            <div class="metric-label">Active groups</div>
+            <div class="metric-value text-primary" id="lblSacTotalGroup">-</div>
+            <div class="metric-subtext">Groups with attendance schedules</div>
         </div>
-        <div class="col-md-4">
-            <div class="card z-depth-3 mb-3">
-                <div class="card-body">
-                    <div class="" id="chartSacValidity" style="margin: 0; height: 300px"></div>
-                </div>
-            </div>
+        <div class="metric-card">
+            <div class="metric-label">Active employees</div>
+            <div class="metric-value text-success" id="lblSacTotalParticipant">-</div>
+            <div class="metric-subtext">Participants enabled for tracking</div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card z-depth-3 mb-4_5">
-                <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
-                    <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Attendance Group List</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12 px-0">
-                            <div class="table-responsive">
-                                <table id="dtSacGroup" class="table table-hover table-sm mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Group Name</th>
-                                        <th>Supervisor</th>
-                                        <th>Category</th>
-                                        <th>Required Hours</th>
-                                        <th>Shift Mode</th> <!--5-->
-                                        <th>Holiday</th>
-                                        <th>Normal Hours</th>
-                                        <th>AM Hours</th>
-                                        <th>PM Hours</th>
-                                        <th>Morning Hours</th>  <!--10-->
-                                        <th>Evening Hours</th>
-                                        <th>Night Hours</th>
-                                        <th>OT Approver</th>
-                                        <th>Remark</th>
-                                        <th>Total Employees</th>  <!--15-->
-                                        <th>Status</th>
-                                        <th style="width: 40px; min-width: 40px">&nbsp;</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="metric-card">
+            <div class="metric-label">Attendance status</div>
+            <div class="metric-value text-info" id="lblSacSiteStatus">-</div>
+            <div class="metric-subtext">Toggle attendance availability</div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card z-depth-3 mb-4_5">
-                <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
-                    <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Monthly Employee Summary <span class="font-italic h5 font-weight-500" id="dtSacParticipantTitle"></span></h4>
+
+    <div class="attendance-filter-card">
+        <div class="filter-grid">
+            <div>
+                <div class="filter-label">Year</div>
+                <div class="filter-pill-group" id="divSacYear">
+                    <a class="lnkSacYear" href="#" id="lnkSacYear_2022">2022</a>
+                    <a class="lnkSacYear" href="#" id="lnkSacYear_2023">2023</a>
+                    <a class="lnkSacYear" href="#" id="lnkSacYear_2024">2024</a>
+                    <a class="lnkSacYear" href="#" id="lnkSacYear_2025">2025</a>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12 px-0">
-                            <div class="table-responsive">
-                                <table id="dtSacParticipant" class="table table-hover table-sm mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Employee's Name</th>
-                                        <th>Group Name</th>
-                                        <th>GF ID</th>
-                                        <th>Designation</th>
-                                        <th>Contact Number</th> <!--5-->
-                                        <th>Email</th>
-                                        <th>Competency</th>
-                                        <th>CIDB Expiry</th>
-                                        <th>Category</th>
-                                        <th>Required Hours</th> <!--10-->
-                                        <th>Shift Mode</th>
-                                        <th>Shift Initial</th>
-                                        <th>Weekly Holiday</th>
-                                        <th>Status</th>
-                                        <th>Present</th> <!--15-->
-                                        <th>Absent</th>
-                                        <th>MC</th>
-                                        <th>Annual Leave</th>
-                                        <th>Off Day</th>
-                                        <th>Rest Day</th> <!--20-->
-                                        <th>Public Holiday</th>
-                                        <th>Training</th>
-                                        <th>In Late</th>
-                                        <th>Out Early</th>
-                                        <th>Outside Perimeter</th> <!--25-->
-                                        <th>Total Hours</th>
-                                        <th style="width: 40px; min-width: 40px">&nbsp;</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+            <div>
+                <div class="filter-label">Month</div>
+                <div class="filter-pill-group" id="divSacMonth">
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_1">January</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_2">February</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_3">March</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_4">April</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_5">May</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_6">June</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_7">July</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_8">August</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_9">September</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_10">October</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_11">November</a>
+                    <a class="lnkSacMonth" href="#" id="lnkSacMonth_12">December</a>
                 </div>
             </div>
         </div>
+        <div class="results-summary">
+            <div class="summary-pill"><i class="far fa-calendar-alt"></i><span id="lblSacSelected">Select a period</span></div>
+            <div class="summary-pill d-none d-md-inline-flex"><i class="fas fa-info-circle"></i><span>Charts, rosters, and tables refresh with every selection.</span></div>
+        </div>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card z-depth-3 mb-4_5">
-                <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
-                    <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Monthly Attendance Sheet</h4>
-                </div>
-                <div class="card-body pt-2">
-                    <div class="row">
-                        <div class="col-md-12 mt-2">
-                            <a class="btn btn-outline-danger btn-sm px-2" id="btnSacRunPlanner">Reschedule Planner <i class="far fa-calendar-plus ml-2"></i></a>
-                        </div>
-                        <div class="col-md-12 px-1">
-                            <div class="table-responsive">
-                                <table id="dtSacPlanner" class="table table-bordered table-sm table-grid-small-text mb-0 display responsive" style="width: 100%; border-collapse: collapse; border-spacing: 0;">
-                                    <thead>
-                                    <tr class="th-strong text-center">
-                                        <th rowspan="2" style="width: 32px">No</th>
-                                        <th rowspan="2" style="min-width: 142px">Name</th>
-                                        <th class="table-grid-width">1</th>
-                                        <th class="table-grid-width">2</th>
-                                        <th class="table-grid-width">3</th>
-                                        <th class="table-grid-width">4</th>
-                                        <th class="table-grid-width">5</th>
-                                        <th class="table-grid-width">6</th>
-                                        <th class="table-grid-width">7</th>
-                                        <th class="table-grid-width">8</th>
-                                        <th class="table-grid-width">9</th>
-                                        <th class="table-grid-width">10</th>
-                                        <th class="table-grid-width">11</th>
-                                        <th class="table-grid-width">12</th>
-                                        <th class="table-grid-width">13</th>
-                                        <th class="table-grid-width">14</th>
-                                        <th class="table-grid-width">15</th>
-                                        <th class="table-grid-width">16</th>
-                                        <th class="table-grid-width">17</th>
-                                        <th class="table-grid-width">18</th>
-                                        <th class="table-grid-width">19</th>
-                                        <th class="table-grid-width">20</th>
-                                        <th class="table-grid-width">21</th>
-                                        <th class="table-grid-width">22</th>
-                                        <th class="table-grid-width">23</th>
-                                        <th class="table-grid-width">24</th>
-                                        <th class="table-grid-width">25</th>
-                                        <th class="table-grid-width">26</th>
-                                        <th class="table-grid-width">27</th>
-                                        <th class="table-grid-width">28</th>
-                                        <th class="table-grid-width">29</th>
-                                        <th class="table-grid-width">30</th>
-                                        <th class="table-grid-width">31</th>
-                                    </tr>
-                                    <tr class="th-strong">
-                                        <th id="thSacPlannerDay1">Su</th>
-                                        <th id="thSacPlannerDay2">Mo</th>
-                                        <th id="thSacPlannerDay3">Tu</th>
-                                        <th id="thSacPlannerDay4">We</th>
-                                        <th id="thSacPlannerDay5">Th</th>
-                                        <th id="thSacPlannerDay6">Fr</th>
-                                        <th id="thSacPlannerDay7">Sa</th>
-                                        <th id="thSacPlannerDay8">Su</th>
-                                        <th id="thSacPlannerDay9">Mo</th>
-                                        <th id="thSacPlannerDay10">Tu</th>
-                                        <th id="thSacPlannerDay11">We</th>
-                                        <th id="thSacPlannerDay12">Th</th>
-                                        <th id="thSacPlannerDay13">Fr</th>
-                                        <th id="thSacPlannerDay14">Sa</th>
-                                        <th id="thSacPlannerDay15">Su</th>
-                                        <th id="thSacPlannerDay16">Mo</th>
-                                        <th id="thSacPlannerDay17">Tu</th>
-                                        <th id="thSacPlannerDay18">We</th>
-                                        <th id="thSacPlannerDay19">Th</th>
-                                        <th id="thSacPlannerDay20">Fr</th>
-                                        <th id="thSacPlannerDay21">Sa</th>
-                                        <th id="thSacPlannerDay22">Su</th>
-                                        <th id="thSacPlannerDay23">Mo</th>
-                                        <th id="thSacPlannerDay24">Tu</th>
-                                        <th id="thSacPlannerDay25">We</th>
-                                        <th id="thSacPlannerDay26">Th</th>
-                                        <th id="thSacPlannerDay27">Fr</th>
-                                        <th id="thSacPlannerDay28">Sa</th>
-                                        <th id="thSacPlannerDay29">Su</th>
-                                        <th id="thSacPlannerDay30">Mo</th>
-                                        <th id="thSacPlannerDay31">Tu</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+    <div class="attendance-charts">
+        <div class="chart-card">
+            <h5 class="d-flex align-items-center"><i class="fas fa-user-clock text-primary mr-2"></i>Attendance Performance</h5>
+            <div id="chartSacAbsent" style="height: 280px;"></div>
+        </div>
+        <div class="chart-card">
+            <h5 class="d-flex align-items-center"><i class="fas fa-business-time text-warning mr-2"></i>Punctuality Performance</h5>
+            <div id="chartSacLateness" style="height: 280px;"></div>
+        </div>
+        <div class="chart-card">
+            <h5 class="d-flex align-items-center"><i class="fas fa-location-crosshairs text-success mr-2"></i>Geo-Validity Performance</h5>
+            <div id="chartSacValidity" style="height: 280px;"></div>
+        </div>
+    </div>
+    <div class="attendance-data-card">
+        <h6 class="d-flex align-items-center mb-3"><i class="fas fa-users-cog text-primary mr-2"></i>Attendance Group List</h6>
+        <div class="table-responsive">
+            <table id="dtSacGroup" class="table table-hover table-sm mb-0 display responsive">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Group Name</th>
+                    <th>Supervisor</th>
+                    <th>Category</th>
+                    <th>Required Hours</th>
+                    <th>Shift Mode</th>
+                    <th>Holiday</th>
+                    <th>Normal Hours</th>
+                    <th>AM Hours</th>
+                    <th>PM Hours</th>
+                    <th>Morning Hours</th>
+                    <th>Evening Hours</th>
+                    <th>Night Hours</th>
+                    <th>OT Approver</th>
+                    <th>Remark</th>
+                    <th>Total Employees</th>
+                    <th>Status</th>
+                    <th>&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="attendance-data-card">
+        <h6 class="d-flex align-items-center mb-3"><i class="fas fa-id-badge text-primary mr-2"></i>Monthly Employee Summary <span class="font-weight-normal font-italic ml-2" id="dtSacParticipantTitle"></span></h6>
+        <div class="table-responsive">
+            <table id="dtSacParticipant" class="table table-hover table-sm mb-0 display responsive">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Employee's Name</th>
+                    <th>Group Name</th>
+                    <th>GF ID</th>
+                    <th>Designation</th>
+                    <th>Contact Number</th>
+                    <th>Email</th>
+                    <th>Competency</th>
+                    <th>CIDB Expiry</th>
+                    <th>Category</th>
+                    <th>Required Hours</th>
+                    <th>Shift Mode</th>
+                    <th>Shift Initial</th>
+                    <th>Weekly Holiday</th>
+                    <th>Status</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>MC</th>
+                    <th>Annual Leave</th>
+                    <th>Off Day</th>
+                    <th>Rest Day</th>
+                    <th>Public Holiday</th>
+                    <th>Training</th>
+                    <th>In Late</th>
+                    <th>Out Early</th>
+                    <th>Outside Perimeter</th>
+                    <th>Total Hours</th>
+                    <th>&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="attendance-data-card">
+        <h6 class="d-flex align-items-center mb-3"><i class="fas fa-calendar-alt text-primary mr-2"></i>Monthly Attendance Sheet</h6>
+        <div class="attendance-planner-actions">
+            <button type="button" class="btn btn-outline-danger btn-sm px-3" id="btnSacRunPlanner">Reschedule Planner <i class="far fa-calendar-plus ml-2"></i></button>
+        </div>
+        <div class="table-responsive">
+            <table id="dtSacPlanner" class="table table-bordered table-sm table-grid-small-text mb-0 display responsive" style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                <thead>
+                <tr class="text-center">
+                    <th rowspan="2" style="width: 32px">No</th>
+                    <th rowspan="2" style="min-width: 142px">Name</th>
+                    <th class="table-grid-width">1</th>
+                    <th class="table-grid-width">2</th>
+                    <th class="table-grid-width">3</th>
+                    <th class="table-grid-width">4</th>
+                    <th class="table-grid-width">5</th>
+                    <th class="table-grid-width">6</th>
+                    <th class="table-grid-width">7</th>
+                    <th class="table-grid-width">8</th>
+                    <th class="table-grid-width">9</th>
+                    <th class="table-grid-width">10</th>
+                    <th class="table-grid-width">11</th>
+                    <th class="table-grid-width">12</th>
+                    <th class="table-grid-width">13</th>
+                    <th class="table-grid-width">14</th>
+                    <th class="table-grid-width">15</th>
+                    <th class="table-grid-width">16</th>
+                    <th class="table-grid-width">17</th>
+                    <th class="table-grid-width">18</th>
+                    <th class="table-grid-width">19</th>
+                    <th class="table-grid-width">20</th>
+                    <th class="table-grid-width">21</th>
+                    <th class="table-grid-width">22</th>
+                    <th class="table-grid-width">23</th>
+                    <th class="table-grid-width">24</th>
+                    <th class="table-grid-width">25</th>
+                    <th class="table-grid-width">26</th>
+                    <th class="table-grid-width">27</th>
+                    <th class="table-grid-width">28</th>
+                    <th class="table-grid-width">29</th>
+                    <th class="table-grid-width">30</th>
+                    <th class="table-grid-width">31</th>
+                </tr>
+                <tr>
+                    <th id="thSacPlannerDay1">Su</th>
+                    <th id="thSacPlannerDay2">Mo</th>
+                    <th id="thSacPlannerDay3">Tu</th>
+                    <th id="thSacPlannerDay4">We</th>
+                    <th id="thSacPlannerDay5">Th</th>
+                    <th id="thSacPlannerDay6">Fr</th>
+                    <th id="thSacPlannerDay7">Sa</th>
+                    <th id="thSacPlannerDay8">Su</th>
+                    <th id="thSacPlannerDay9">Mo</th>
+                    <th id="thSacPlannerDay10">Tu</th>
+                    <th id="thSacPlannerDay11">We</th>
+                    <th id="thSacPlannerDay12">Th</th>
+                    <th id="thSacPlannerDay13">Fr</th>
+                    <th id="thSacPlannerDay14">Sa</th>
+                    <th id="thSacPlannerDay15">Su</th>
+                    <th id="thSacPlannerDay16">Mo</th>
+                    <th id="thSacPlannerDay17">Tu</th>
+                    <th id="thSacPlannerDay18">We</th>
+                    <th id="thSacPlannerDay19">Th</th>
+                    <th id="thSacPlannerDay20">Fr</th>
+                    <th id="thSacPlannerDay21">Sa</th>
+                    <th id="thSacPlannerDay22">Su</th>
+                    <th id="thSacPlannerDay23">Mo</th>
+                    <th id="thSacPlannerDay24">Tu</th>
+                    <th id="thSacPlannerDay25">We</th>
+                    <th id="thSacPlannerDay26">Th</th>
+                    <th id="thSacPlannerDay27">Fr</th>
+                    <th id="thSacPlannerDay28">Sa</th>
+                    <th id="thSacPlannerDay29">Su</th>
+                    <th id="thSacPlannerDay30">Mo</th>
+                    <th id="thSacPlannerDay31">Tu</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
 </section>

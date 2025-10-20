@@ -25,6 +25,15 @@ function SectionAttendanceSite () {
     let currentYear = 0;
     let currentMonth = 0;
     let thisDate;
+    const groupColumnLabels = ['#', 'Group Name', 'Supervisor', 'Category', 'Required Hours', 'Shift Mode', 'Holiday', 'Normal Hours', 'AM Hours', 'PM Hours', 'Morning Hours', 'Evening Hours', 'Night Hours', 'OT Approver', 'Remark', 'Total Employees', 'Status', 'Actions'];
+    const participantColumnLabels = ['#', "Employee's Name", 'Group Name', 'GF ID', 'Designation', 'Contact Number', 'Email', 'Competency', 'CIDB Expiry', 'Category', 'Required Hours', 'Shift Mode', 'Shift Initial', 'Weekly Holiday', 'Status', 'Present', 'Absent', 'MC', 'Annual Leave', 'Off Day', 'Rest Day', 'Public Holiday', 'Training', 'In Late', 'Out Early', 'Outside Perimeter', 'Total Hours', 'Actions'];
+    const plannerColumnLabels = (function () {
+        const labels = ['No', 'Name'];
+        for (let d = 1; d <= 31; d++) {
+            labels.push('Day ' + d);
+        }
+        return labels;
+    })();
 
     this.init = function () {
         $('#btnSacBack').on('click', function () {
@@ -78,6 +87,11 @@ function SectionAttendanceSite () {
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                $('td', nRow).each(function (idx) {
+                    if (groupColumnLabels[idx]) {
+                        $(this).attr('data-label', groupColumnLabels[idx]);
+                    }
+                });
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -190,6 +204,11 @@ function SectionAttendanceSite () {
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                $('td', nRow).each(function (idx) {
+                    if (participantColumnLabels[idx]) {
+                        $(this).attr('data-label', participantColumnLabels[idx]);
+                    }
+                });
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -339,6 +358,11 @@ function SectionAttendanceSite () {
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                $('td', nRow).each(function (idx) {
+                    if (plannerColumnLabels[idx]) {
+                        $(this).attr('data-label', plannerColumnLabels[idx]);
+                    }
+                });
                 for (let i = 1; i <= parseInt(thisDate.endOf('month').format('D')); i++) {
                     const attTypeId = aData['data'][i]['attTypeId'];
                     $('td', nRow).eq(i+1).addClass(refAttType[attTypeId]['attTypeColor']);
