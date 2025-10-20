@@ -1,149 +1,384 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-        .nav-dropdown-a {
-            padding: 0.36rem 1.3rem 0 !important;
-            font-size: 0.64rem;
-        }
-        .dropdown-item {
-            padding: 0.36rem 0.5rem !important;
-            font-size: 0.64rem;
-        }
-    </style>
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>GEMS 2.0 - Waste Collection</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/gems2-ui.css" rel="stylesheet">
+  <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+  <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <style>
+    :root {
+      --waste-primary: #4338ca;
+      --waste-accent: #38bdf8;
+      --waste-bg: #f1f5f9;
+      --waste-text: #0f172a;
+      --waste-muted: #64748b;
+      --waste-card-radius: 24px;
+      --waste-shadow: 0 24px 50px -32px rgba(30, 41, 59, 0.55);
+      --waste-card-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.32);
+    }
+
+    body { background: var(--waste-bg); }
+    main { padding: 1.5rem 0 3rem; }
+
+    .waste-collection-section { margin-top: 1.5rem; }
+
+    .waste-page-header {
+      background: linear-gradient(135deg, rgba(67, 56, 202, 1) 0%, rgba(56, 189, 248, 0.95) 100%);
+      color: #fff;
+      padding: 36px 32px;
+      border-radius: 28px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--waste-shadow);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .waste-page-header::after {
+      content: '';
+      position: absolute;
+      right: -70px;
+      top: -70px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .waste-page-header .header-text { position: relative; z-index: 1; max-width: 720px; }
+    .waste-page-header h2 { font-size: 2.25rem; font-weight: 700; margin-bottom: 10px; }
+    .waste-page-header p { margin: 0; font-size: 1.05rem; opacity: 0.95; }
+
+    .waste-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px; }
+    .waste-page-header .header-actions .btn { border-radius: 999px; padding: 0.55rem 1.6rem; font-weight: 600; min-width: 150px; }
+    .waste-page-header .header-actions .btn-outline-light { border-color: rgba(255, 255, 255, 0.7); color: #fff; }
+    .waste-page-header .header-actions .btn-outline-light:hover { background: rgba(255, 255, 255, 0.15); }
+
+    .waste-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .metric-card {
+      background: #fff;
+      border-radius: var(--waste-card-radius);
+      padding: 20px 22px;
+      box-shadow: var(--waste-card-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      right: -40px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: rgba(67, 56, 202, 0.08);
+    }
+
+    .metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--waste-muted); margin-bottom: 6px; }
+    .metric-value { font-size: 2rem; font-weight: 700; color: var(--waste-text); }
+    .metric-subtext { font-size: 0.85rem; color: var(--waste-muted); margin-top: 6px; }
+
+    .waste-filter-card {
+      background: #fff;
+      border-radius: 26px;
+      padding: 24px 28px;
+      box-shadow: 0 25px 50px -32px rgba(15, 23, 42, 0.35);
+    }
+
+    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .filter-label { font-size: .78rem; text-transform: uppercase; font-weight: 600; letter-spacing: .08em; color: var(--waste-muted); margin-bottom: 6px; }
+
+    .waste-filter-card .form-control,
+    .waste-filter-card .custom-select {
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      padding: 10px 14px;
+      box-shadow: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .waste-filter-card .form-control:focus,
+    .waste-filter-card .custom-select:focus {
+      border-color: rgba(67, 56, 202, 0.75);
+      box-shadow: 0 0 0 0.15rem rgba(67, 56, 202, 0.12);
+    }
+
+    .results-summary {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 22px;
+      gap: 12px;
+      color: var(--waste-text);
+    }
+
+    .results-summary .summary-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--waste-muted);
+      background: rgba(148, 163, 184, 0.12);
+      border-radius: 999px;
+      padding: 6px 14px;
+    }
+
+    .results-summary .summary-pill i { color: var(--waste-accent); }
+
+    .waste-data-card {
+      margin-top: 32px;
+      background: #fff;
+      border-radius: 26px;
+      box-shadow: 0 28px 60px -40px rgba(15, 23, 42, 0.42);
+      padding: 20px 24px;
+    }
+
+    .waste-data-card h6 { font-weight: 700; color: var(--waste-text); margin-bottom: 18px; }
+
+    .waste-table-wrapper { border-radius: 18px; overflow: hidden; }
+    #dtWtm { width: 100% !important; border-collapse: collapse !important; }
+    #dtWtm thead th {
+      background: #eef2ff;
+      color: #3730a3;
+      font-weight: 700;
+      border: none;
+      padding: 0.85rem 0.75rem;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: .06em;
+    }
+    #dtWtm tbody tr { background: #fff; }
+    #dtWtm tbody td { border-bottom: 1px solid #f1f5f9; padding: 0.9rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--waste-text); }
+    #dtWtm tbody tr:last-child td { border-bottom: none; }
+
+    .badge-status {
+      border-radius: 999px;
+      font-weight: 600;
+      padding: 0.35rem 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-status i { font-size: 0.8rem; }
+    .badge-status.completed { background: rgba(34, 197, 94, 0.18); color: #166534; }
+    .badge-status.in-progress { background: rgba(250, 204, 21, 0.18); color: #854d0e; }
+    .badge-status.incomplete { background: rgba(248, 113, 113, 0.18); color: #991b1b; }
+
+    .dataTables_wrapper .dataTables_filter { display: none !important; }
+    .dataTables_wrapper .dataTables_info { padding-top: 1rem; color: var(--waste-muted); font-size: 0.85rem; }
+    .dataTables_wrapper .dataTables_paginate { padding-top: 0.75rem; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      border-radius: 12px !important;
+      border: none !important;
+      margin: 0 3px !important;
+      padding: 0.35rem 0.75rem !important;
+      background: #e2e8f0 !important;
+      color: #1e293b !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+      background: var(--waste-primary) !important;
+      color: #fff !important;
+    }
+
+    @media (max-width: 991.98px) {
+      .waste-page-header { padding: 28px 24px; }
+      .waste-page-header h2 { font-size: 1.9rem; }
+      .waste-page-header::after { width: 200px; height: 200px; right: -60px; top: -60px; }
+    }
+
+    @media (max-width: 767.98px) {
+      main { padding-top: 1rem; }
+      .waste-page-header { padding: 24px 20px; gap: 18px; }
+      .waste-page-header .header-actions .btn { min-width: 0; width: 100%; }
+      .waste-metrics { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+
+      #dtWtm { display: block; }
+      #dtWtm thead { display: none; }
+      #dtWtm tbody { display: block; width: 100%; }
+      #dtWtm tbody tr {
+        display: block;
+        margin-bottom: 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        box-shadow: 0 12px 28px -22px rgba(15, 23, 42, 0.35);
+      }
+      #dtWtm tbody tr td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0.95rem;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      #dtWtm tbody tr td:last-child { border-bottom: none; }
+      #dtWtm tbody tr td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--waste-muted);
+        margin-right: 12px;
+        text-align: left;
+      }
+      #dtWtm tbody tr td.text-center { justify-content: space-between; }
+      #dtWtm tbody tr td:nth-child(9) { justify-content: flex-end; }
+    }
+  </style>
 </head>
 <body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
 <header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
+  <div class="includeHtml" id="h-nav_left"></div>
+  <div class="includeHtml" id="h-nav_top"></div>
 </header>
-<!--Main layout-->
 <main>
-    <div class="container-fluid">
-        <section class="mb-4" id="sectionWtmMain">
-            <div class="row">
-                <div class="col-12 p-1 pb-2">
-                    <nav class="navbar mdb-color darken-1 z-depth-3 rounded mb-1">
-                        <h4 class="navbar-text white-text font-weight-bold ml-3 pb-0 mb-1">
-                            <i class="fas fa-dumpster mr-2"></i> Waste Collection
-                        </h4>
-                    </nav>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 p-1 pb-0">
-                    <nav class="navbar navbar-expand navbar-dark mdb-color lighten-1 z-depth-3 m-0 p-2">
-                        <div class="collapse navbar-collapse">
-                            <ul class="navbar-nav mr-auto">
-                                <li class="nav-item dropdown btn-outline-white px-2 mr-2" id="liWtmYear">
-                                    <a class="nav-link dropdown-toggle nav-dropdown-a" id="navWtmYear" data-toggle="dropdown"
-                                       aria-haspopup="true" aria-expanded="false">YEAR</a>
-                                    <div class="dropdown-menu dropdown-danger p-1" aria-labelledby="navWtmYear" id="divWtmYear">
-                                        <a class="dropdown-item lnkWtmYear" href="#" id="lnkWtmYear_2022">2022</a>
-                                        <a class="dropdown-item lnkWtmYear" href="#" id="lnkWtmYear_2023">2023</a>
-                                        <a class="dropdown-item lnkWtmYear" href="#" id="lnkWtmYear_2024">2024</a>
-                                        <a class="dropdown-item lnkWtmYear" href="#" id="lnkWtmYear_2025">2025</a>
-                                    </div>
-                                </li>
-                                <li class="nav-item dropdown btn-outline-white px-2 mr-2" id="liWtmMonth">
-                                    <a class="nav-link dropdown-toggle nav-dropdown-a" id="navWtmMonth" data-toggle="dropdown"
-                                       aria-haspopup="true" aria-expanded="false">MONTH</a>
-                                    <div class="dropdown-menu dropdown-danger p-1" aria-labelledby="navWtmMonth" id="divWtmMonth">
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_1">January</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_2">February</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_3">March</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_4">April</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_5">May</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_6">June</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_7">July</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_8">August</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_9">September</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_10">October</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_11">November</a>
-                                        <a class="dropdown-item lnkWtmMonth" href="#" id="lnkWtmMonth_12">December</a>
-                                    </div>
-                                </li>
-                                <a class="btn btn-sm btn-outline-white my-2 my-sm-0 ml-0 px-3" id="btnWtmAddWaste"><i class="fas fa-plus mr-1"></i>Schedule New Collection</a>
-                            </ul>
-                            <a class="navbar-brand font-weight-500 ml-2 py-0 float-right" href="#" id="lblWtmSelected">August 2023</a>
-                        </div>
-                    </nav>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 p-1">
-                    <div class="card z-depth-3">
-                        <div class="card-body pb-2">
-                            <div class="row">
-                                <div class="col-12 px-0">
-                                    <div class="table-responsive">
-                                        <table id="dtWtm" class="table table-hover display responsive">
-                                            <thead>
-                                            <tr class="th-strong">
-                                                <th>#</th>
-                                                <th>Date</th>
-                                                <th>Waste Type</th>
-                                                <th>Due Collection</th>
-                                                <th>Person In Charge</th>
-                                                <th>Weightage</th>
-                                                <th>Date Collected</th>
-                                                <th>Status</th>
-                                                <th>&nbsp;</th>
-                                            </tr>
-                                            </thead>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
+  <div class="container-fluid waste-collection-layout">
+    <section class="waste-collection-section">
+      <div class="waste-page-header">
+        <div class="header-text">
+          <h2><i class="fas fa-dumpster mr-3"></i>Waste Collection</h2>
+          <p>Plan, monitor, and close waste collections on time across every managed site.</p>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn btn-outline-light" id="btnWtmRefresh"><i class="fas fa-sync-alt mr-2"></i>Refresh</button>
+          <button type="button" class="btn btn-primary" id="btnWtmAddWaste"><i class="fas fa-plus mr-2"></i>Schedule Collection</button>
+        </div>
+      </div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_waste_add"></div>
+      <div class="waste-metrics">
+        <div class="metric-card">
+          <div class="metric-label">Total schedules</div>
+          <div class="metric-value" id="metricWtmTotal">-</div>
+          <div class="metric-subtext">Across selected period</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Completed</div>
+          <div class="metric-value text-success" id="metricWtmCompleted">-</div>
+          <div class="metric-subtext">Collections closed successfully</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">In progress</div>
+          <div class="metric-value text-warning" id="metricWtmInProgress">-</div>
+          <div class="metric-subtext">Actively being collected</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Overdue</div>
+          <div class="metric-value text-danger" id="metricWtmOverdue">-</div>
+          <div class="metric-subtext">Past due or not started</div>
+        </div>
+      </div>
+
+      <div class="waste-filter-card">
+        <div class="filter-grid">
+          <div>
+            <div class="filter-label">Search</div>
+            <input type="text" id="txtWtmSearch" class="form-control" placeholder="Search by waste type, PIC or status">
+          </div>
+          <div>
+            <div class="filter-label">Status</div>
+            <select id="optWtmStatus" class="custom-select">
+              <option value="all" selected>All statuses</option>
+              <option value="completed">Completed</option>
+              <option value="in-progress">In progress</option>
+              <option value="incomplete">Overdue</option>
+            </select>
+          </div>
+          <div>
+            <div class="filter-label">Year</div>
+            <select id="optWtmYear" class="custom-select">
+              <option value="all" selected>All years</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+            </select>
+          </div>
+          <div>
+            <div class="filter-label">Month</div>
+            <select id="optWtmMonth" class="custom-select">
+              <option value="all" selected>All months</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+        </div>
+        <div class="results-summary">
+          <div id="lblWtmSelected" class="summary-pill"><i class="far fa-calendar-alt"></i><span>All months · All years</span></div>
+          <div id="lblWtmCount">Loading schedules…</div>
+          <div id="lblWtmUpdated" class="summary-pill"><i class="far fa-clock"></i><span>Last refreshed: <strong>-</strong></span></div>
+        </div>
+      </div>
+
+      <div class="waste-data-card">
+        <h6 class="d-flex align-items-center mb-3"><i class="fas fa-clipboard-list-check text-primary mr-2"></i>Waste Collection Register</h6>
+        <div class="waste-table-wrapper">
+          <table id="dtWtm" class="table table-hover mb-0 display">
+            <thead>
+            <tr>
+              <th>#</th>
+              <th>Scheduled Date</th>
+              <th>Waste Type</th>
+              <th>Due Collection</th>
+              <th>PIC</th>
+              <th>Weightage</th>
+              <th>Date Collected</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="includeHtml" id="h-modal_change_password"></div>
+  <div class="includeHtml" id="h-modal_waste_add"></div>
 </main>
 
-<!-- SCRIPTS -->
 <script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
 
-<!-- Bootstrap tooltips -->
 <script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
 <script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
 <script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
@@ -153,46 +388,38 @@
 <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
 
-<!--Custom scripts-->
 <script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let modalWasteAddClass_;
-    let wasteMainClass_;
+  let versionLocal_;
+  let changePasswordClass_;
+  let modalWasteAddClass_;
+  let wasteMainClass_;
 
-    document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        modalWasteAddClass_ = new ModalWasteAdd();
+        wasteMainClass_ = new MainWasteMain();
 
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                modalWasteAddClass_ = new ModalWasteAdd();
-                wasteMainClass_ = new MainWasteMain();
+        modalWasteAddClass_.init();
+        wasteMainClass_.setModalWasteAdd(modalWasteAddClass_);
+        wasteMainClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 200);
+  });
 
-                modalWasteAddClass_.init();
-
-                wasteMainClass_.setModalWasteAdd(modalWasteAddClass_);
-                wasteMainClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_waste_add.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_waste_main.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_waste_add.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_waste_main.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 </script>
-
 </body>
 </html>
