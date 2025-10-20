@@ -5,24 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>GEMS 2.0</title>
+    <!-- Browser icon -->
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?5">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Google Maps -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css?1" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-    </style>
+    <!-- Custom styles -->
+    <link href="css/style.css?6" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <!--JQuery Migrate-->
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 
 <body class="fixed-sn light-blue-skin">
@@ -31,91 +30,156 @@
     <div class="includeHtml" id="h-nav_top"></div>
 </header>
 <main>
-    <div class="container-fluid pt-3" id="divPageWidth">
-        <section class="sectionMrfMain mb-4">
-            <div class="row">
-                <div class="col-12 p-2">
-                    <nav class="navbar gradient-card-header aqua-gradient darken-3 z-depth-3 rounded mb-2">
-                        <h4 class="navbar-text white-text font-weight-bold ml-3 pb-0">
-                            <i class="fas fa-file-pdf mr-2"></i> MRF List
-                        </h4>
-                    </nav>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12 p-2 pb-3">
-                    <div class="card z-depth-3">
-                        <div class="card-body pb-0">
-                            <form id="formMrf" autocomplete="off">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <h6 class="font-weight-500 mb-4">Filter by Site & Month :</h6>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 select-outline mb-2" id="optMrfClient_">
-                                        <select id="optMrfClient" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
-                                        <label for="optMrfClient" id="lblMrfClient">Client *</label>
-                                        <p class="font-small text-danger" id="optMrfClientErr"></p>
-                                    </div>
-                                    <div class="col-md-6 select-outline mb-2" id="optMrfSite_">
-                                        <select id="optMrfSite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0">
-                                            <option value="" disabled>(Select Client first)</option>
-                                        </select>
-                                        <label for="optMrfSite" id="lblMrfSite">Site *</label>
-                                        <p class="font-small text-danger" id="optMrfSiteErr"></p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-3 col-sm-6 select-outline mb-2" id="optMrfYear_">
-                                        <select id="optMrfYear" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
-                                        <label for="optMrfYear" id="lblMrfYear">Year *</label>
-                                        <p class="font-small text-danger" id="optMrfYearErr"></p>
-                                    </div>
-                                    <div class="col-md-4 col-sm-6 select-outline mb-2" id="optMrfMonth_">
-                                        <select id="optMrfMonth" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
-                                        <label for="optMrfMonth" id="lblMrfMonth">Month *</label>
-                                        <p class="font-small text-danger" id="optMrfMonthErr"></p>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="card-footer py-1">
-                            <button id="btnMrfSearch" class="btn btn-success waves-effect z-depth-2 pb-2">Search <i class="fas fa-search ml-1"></i></button>
-                        </div>
+    <div class="container-fluid">
+        <section class="mb-5 mt-lg-5 sectionMrfMain">
+            <div class="card card-cascade narrower gems-card-shell mrf-shell">
+                <section class="gems-page-header mrf-header">
+                    <div class="header-text">
+                        <h2>Material Request Forms</h2>
+                        <p>Review submitted MRFs, track PDF generation, and access source work orders.</p>
                     </div>
-                </div>
-                <div class="col-md-12 p-2" id="divMrfTable">
-                    <div class="card z-depth-3">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="section-header-style aqua-gradient lighten-1">&nbsp;</div>
-                            <h5 class="section-header-title">Material Request Form list</h5>
+                    <div class="header-actions">
+                        <button type="button" id="btnMrfRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                    </div>
+                </section>
+
+                <section class="mt-4">
+                    <div class="row">
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Requests</span>
+                                <span class="metric-value" id="metricMrfTotal">0</span>
+                                <span class="metric-subtext">Records returned by the search</span>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12 px-0 pt-2">
-                                    <div class="table-responsive">
-                                        <table id="dtMrfList" class="table table-hover table-sm mb-0 display responsive">
-                                            <thead>
-                                            <tr class="th-strong">
-                                                <th>#</th>
-                                                <th>Time Request</th>
-                                                <th>Request No</th>
-                                                <th>Word Order No</th>
-                                                <th>Requester</th>
-                                                <th>Remark</th>
-                                                <th>Status</th>
-                                                <th>MRF</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Unique Requesters</span>
+                                <span class="metric-value" id="metricMrfRequesters">0</span>
+                                <span class="metric-subtext">Distinct users submitting requests</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">PDF Ready</span>
+                                <span class="metric-value" id="metricMrfPdfReady">0</span>
+                                <span class="metric-subtext">Requests with generated PDFs</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Awaiting PDF</span>
+                                <span class="metric-value" id="metricMrfPdfPending">0</span>
+                                <span class="metric-subtext">Requests pending PDF generation</span>
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
+
+                <section class="mt-2">
+                    <div class="filter-card mrf-filter">
+                        <form id="formMrf" autocomplete="off">
+                            <div class="filter-grid">
+                                <div>
+                                    <label class="filter-label" for="optMrfClient">Client</label>
+                                    <div class="select-outline">
+                                        <select id="optMrfClient" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                                        <label for="optMrfClient" id="lblMrfClient">Client</label>
+                                        <p class="font-small text-danger" id="optMrfClientErr"></p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="filter-label" for="optMrfSite">Site</label>
+                                    <div class="select-outline">
+                                        <select id="optMrfSite" class="mdb-select md-form md-outline colorful-select mt-0">
+                                            <option value="" disabled>(Select Client first)</option>
+                                        </select>
+                                        <label for="optMrfSite" id="lblMrfSite">Site</label>
+                                        <p class="font-small text-danger" id="optMrfSiteErr"></p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="filter-label" for="optMrfYear">Year</label>
+                                    <div class="select-outline">
+                                        <select id="optMrfYear" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                                        <label for="optMrfYear" id="lblMrfYear">Year</label>
+                                        <p class="font-small text-danger" id="optMrfYearErr"></p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="filter-label" for="optMrfMonth">Month</label>
+                                    <div class="select-outline">
+                                        <select id="optMrfMonth" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                                        <label for="optMrfMonth" id="lblMrfMonth">Month</label>
+                                        <p class="font-small text-danger" id="optMrfMonthErr"></p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="filter-label" for="txtMrfSearch">Keyword Search</label>
+                                    <div class="md-form md-outline mt-0 mb-0">
+                                        <input type="text" id="txtMrfSearch" class="form-control">
+                                        <label for="txtMrfSearch" class="active">Keyword Search</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="filter-actions mt-4 d-flex justify-content-end">
+                                <button type="button" id="btnMrfSearch" class="btn btn-primary"><i class="fas fa-search mr-2"></i>Run Search</button>
+                            </div>
+                        </form>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblMrfFilterCount">Showing 0 of 0</span>
+                            <span id="lblMrfFilterUpdated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4 mt-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll" id="quickMrfStatus">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkMrfAll">All</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="mrfTableCard">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card mrf-table">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="MRF List" data-content="MRF submissions with PDF actions and linked work orders."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">MRF List</a>
+                            <div class="dt-btn-slot">
+                                <div id="btnDtMrfExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblMrfListCount">Showing 0 of 0</span>
+                                <span id="lblMrfListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="table-responsive">
+                                <table id="dtMrfList" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Time Request</th>
+                                        <th>Request No</th>
+                                        <th>Work Order No</th>
+                                        <th>Requester</th>
+                                        <th>Remark</th>
+                                        <th>Status</th>
+                                        <th>MRF</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </section>
     </div>
@@ -136,7 +200,7 @@
 <!-- Bootstrap core JavaScript -->
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
 <!-- Crypto JS -->
 <script type="text/javascript" src="js/addons/crypto.js"></script>
 <!-- DataTables.net -->

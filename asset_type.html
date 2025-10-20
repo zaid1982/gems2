@@ -8,19 +8,16 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?5">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <link href="css/style.css?6" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -37,91 +34,215 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid">
-        <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 pb-3 sectionAtyMain">
-            <div class="card card-cascade narrower">
-                <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                    <div>
-                        <button type="button" id="btnAtyAssetTypeAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset Type"><i class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Asset Type List"
-                           data-content="All Asset Type list available."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtAtyAssetTypeRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+    <div class="container-fluid" id="divWssPageWidth">
+        <section class="mb-5 mt-lg-5 sectionAtyMain">
+            <div class="card card-cascade narrower gems-card-shell asset-type-shell">
+                <section class="gems-page-header asset-type-header">
+                    <div class="header-text">
+                        <h2>Asset Type &amp; Model Management</h2>
+                        <p>Control hierarchical asset types and expose related models for assignments.</p>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Asset Type List</a>
-                    <div>
-                        <div id="btnDtAtyAssetTypeExport"></div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtAtyAssetTypeRefresh" class="btn btn-light btn-icon" aria-label="Refresh asset types" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnAtyAssetTypeAdd" class="btn btn-primary" aria-label="Add asset type"><i class="fas fa-plus mr-2"></i>Add Asset Type</button>
                     </div>
-                </div>
-                <div class="px-4 pb-4">
-                    <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtAtyAssetTypeSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtAtyAssetTypeSearch" class="ml-4">Search</label>
+                </section>
+
+                <section class="mt-4">
+                    <div class="row">
+                        <div class="col-lg-3 col-sm-6 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Types</span>
+                                <span class="metric-value" id="metricAtyTotal">0</span>
+                                <span class="metric-subtext">All configured asset types</span>
+                            </div>
                         </div>
-                    </form>
-                    <div class="table-responsive">
-                        <table id="dtAtyAssetType" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
-                            <thead>
-                            <tr class="th-strong">
-                                <th style="width: 4%">#</th>
-                                <th style="width: 14%">Asset Group</th>
-                                <th style="width: 14%">Asset Category</th>
-                                <th style="width: 18%">Asset Type</th>
-                                <th>Description</th>
-                                <th style="width: 8%">Total Model</th>
-                                <th style="width: 8%">Status</th>
-                                <th style="width: 84px"></th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                        <div class="col-lg-3 col-sm-6 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Active</span>
+                                <span class="metric-value" id="metricAtyActive">0</span>
+                                <span class="metric-subtext">Types available for mapping</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Inactive</span>
+                                <span class="metric-value" id="metricAtyInactive">0</span>
+                                <span class="metric-subtext">Temporarily hidden entries</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Models</span>
+                                <span class="metric-value" id="metricAtyModels">0</span>
+                                <span class="metric-subtext">Models linked to active types</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
+
+                <section class="mt-2">
+                    <div class="filter-card asset-type-filter">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="optAtyGroupId">Asset Group</label>
+                                <div class="select-outline">
+                                    <select id="optAtyGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Groups</option>
+                                    </select>
+                                    <label for="optAtyGroupId">Asset Group</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optAtyCategoryId">Asset Category</label>
+                                <div class="select-outline">
+                                    <select id="optAtyCategoryId" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Categories</option>
+                                    </select>
+                                    <label for="optAtyCategoryId">Asset Category</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optAtyStatus">Status</label>
+                                <div class="select-outline">
+                                    <select id="optAtyStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Status</option>
+                                        <option value="1">Active</option>
+                                        <option value="2">Inactive</option>
+                                        <option value="5">Archived</option>
+                                    </select>
+                                    <label for="optAtyStatus">Status</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="txtAtyAssetTypeSearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtAtyAssetTypeSearch" class="form-control">
+                                    <label for="txtAtyAssetTypeSearch" class="active">Keyword Search</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblAtyFilterCount">Showing 0 of 0</span>
+                            <span id="lblAtyFilterUpdated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkAtyAll">All</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAtyActive">Active</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAtyInactive">Inactive</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAtyArchived">Archived</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="card card-cascade narrower z-depth-0 module-data-card asset-type-table">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset Type List" data-content="Browse asset types, drill into models, and manage availability."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Asset Type List</a>
+                            <div class="dt-btn-slot">
+                                <div id="btnDtAtyAssetTypeExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblAtyListCount">Showing 0 of 0</span>
+                                <span id="lblAtyListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="table-responsive">
+                                <table id="dtAtyAssetType" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Asset Group</th>
+                                        <th>Asset Category</th>
+                                        <th>Asset Type</th>
+                                        <th>Description</th>
+                                        <th>Total Models</th>
+                                        <th>Status</th>
+                                        <th>&nbsp;</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </section>
 
-        <section class="mb-5 mt-lg-5" id="sectionAtyModel">
-            <div class="card card-cascade narrower">
-                <div class="view view-cascade gradient-card-header ripe-malinka-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                    <div>
-                        <button type="button" id="btnAtyAssetModelAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset Model"><i class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Asset Model List"
-                           data-content="All Asset Model list available for selected Asset Type."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtAtyAssetModelRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+        <section class="mb-5 mt-lg-4" id="sectionAtyModel">
+            <div class="card card-cascade narrower gems-card-shell asset-model-shell">
+                <section class="gems-page-header asset-model-header ripe-malinka-gradient">
+                    <div class="header-text">
+                        <h2>Asset Model List</h2>
+                        <p>Linked models for <span id="lblAtyAssetModelTitle" class="font-italic">—</span></p>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Asset Model List - <span id="lblAtyAssetModelTitle" class="font-italic"></span></a>
-                    <div>
-                        <div id="btnDtAtyAssetModelExport"></div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtAtyAssetModelRefresh" class="btn btn-light btn-icon" aria-label="Refresh asset models" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnAtyAssetModelAdd" class="btn btn-primary" aria-label="Add asset model"><i class="fas fa-plus mr-2"></i>Add Asset Model</button>
                     </div>
-                </div>
-                <div class="px-4 pb-4">
-                    <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtAtyAssetModelSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtAtyAssetModelSearch" class="ml-4">Search</label>
+                </section>
+
+                <section class="mt-2">
+                    <div class="filter-card asset-model-filter">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="txtAtyAssetModelSearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtAtyAssetModelSearch" class="form-control">
+                                    <label for="txtAtyAssetModelSearch" class="active">Keyword Search</label>
+                                </div>
+                            </div>
                         </div>
-                    </form>
-                    <div class="table-responsive">
-                        <table id="dtAtyAssetModel" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
-                            <thead>
-                            <tr class="th-strong">
-                                <th style="width: 4%">#</th>
-                                <th style="width: 22%">Asset Brand</th>
-                                <th style="width: 22%">Asset Model</th>
-                                <th>Description</th>
-                                <th style="width: 8%">Status</th>
-                                <th style="width: 60px"></th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblAtyModelCount">Showing 0 of 0</span>
+                            <span id="lblAtyModelUpdated">—</span>
+                        </div>
                     </div>
-                </div>
+                </section>
+
+                <section>
+                    <div class="card card-cascade narrower z-depth-0 module-data-card asset-model-table">
+                        <div class="view view-cascade gradient-card-header ripe-malinka-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset Model List" data-content="Models maintained under the selected asset type."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Asset Model List</a>
+                            <div class="dt-btn-slot">
+                                <div id="btnDtAtyAssetModelExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="table-responsive">
+                                <table id="dtAtyAssetModel" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Asset Brand</th>
+                                        <th>Asset Model</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>&nbsp;</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </section>
     </div>
@@ -146,7 +267,7 @@
 <!-- Bootstrap core JavaScript -->
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/mdb.js"></script>
 <!-- Crypto JS -->
 <script type="text/javascript" src="js/addons/crypto.js"></script>
 <!-- DataTables.net -->

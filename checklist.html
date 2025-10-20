@@ -8,7 +8,7 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
@@ -17,10 +17,8 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <!-- Shared Design System stylesheet -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -40,73 +38,111 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionPcmMain">
-            <div class="card card-cascade narrower">
-                <!--Section: Search Function-->
-                <section>
+            <div class="card card-cascade narrower gems-card-shell checklist-shell">
+                <section class="gems-page-header checklist-page-header">
+                    <div class="header-text">
+                        <h2>Checklist Management</h2>
+                        <p>Standardize preventive maintenance inspections and keep assets audit-ready.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtPcmChecklistGroupRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                    </div>
+                </section>
+
+                <section class="mt-4">
                     <div class="row">
-                        <!--Search Function-->
-                        <div class="col-xl-6 col-lg-12 mr-0">
-                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                                <h2 class="h2-responsive mb-0">Checklist Management</h2>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Checklist Types</span>
+                                <span class="metric-value" id="metricChecklistTypes">0</span>
+                                <span class="metric-subtext">Asset type records loaded</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="card-body card-body-cascade">
-                                <div class="px-3 pt-3">
-                                    <h6 class="pb-3">Search:</h6>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
-                                            <select id="optPcmGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
-                                                <option value="" disabled>All Asset Group</option>
-                                            </select>
-                                            <label for="optPcmGroupId">Asset Group</label>
-                                        </div>
-                                        <div class="col-md-12 select-outline">
-                                            <select id="optPcmCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                                <option value="" disabled>All Asset Category</option>
-                                            </select>
-                                            <label for="optPcmCategoryId">Asset Category</label>
-                                        </div>
-                                        <div class="col-md-12 select-outline">
-                                            <select id="optPcmTypeId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                                <option value="" disabled>All Asset Type</option>
-                                            </select>
-                                            <label for="optPcmTypeId">Asset Type</label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="md-form md-outline mt-0">
-                                                <input type="text" id="txtPcmChecklistGroupSearch" class="form-control">
-                                                <label for="txtPcmChecklistGroupSearch" class="active">Keyword Search</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Checklists</span>
+                                <span class="metric-value" id="metricChecklistTotal">0</span>
+                                <span class="metric-subtext">All active checklists</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Types With Gaps</span>
+                                <span class="metric-value" id="metricChecklistGaps">0</span>
+                                <span class="metric-subtext">Asset types missing a checklist</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Avg / Type</span>
+                                <span class="metric-value" id="metricChecklistAverage">0</span>
+                                <span class="metric-subtext">Average checklist coverage</span>
                             </div>
                         </div>
                     </div>
                 </section>
-                <!--Section: Table-->
-                <section>
-                    <div class="card card-cascade narrower z-depth-0">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+
+                <section class="mt-2">
+                    <div class="filter-card checklist-filter-card">
+                        <div class="filter-grid">
                             <div>
+                                <label class="filter-label" for="optPcmGroupId">Asset Group</label>
+                                <div class="select-outline">
+                                    <select id="optPcmGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" disabled>All Asset Group</option>
+                                    </select>
+                                    <label for="optPcmGroupId">Asset Group</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optPcmCategoryId">Asset Category</label>
+                                <div class="select-outline">
+                                    <select id="optPcmCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                        <option value="" disabled>All Asset Category</option>
+                                    </select>
+                                    <label for="optPcmCategoryId">Asset Category</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optPcmTypeId">Asset Type</label>
+                                <div class="select-outline">
+                                    <select id="optPcmTypeId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                        <option value="" disabled>All Asset Type</option>
+                                    </select>
+                                    <label for="optPcmTypeId">Asset Type</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="txtPcmChecklistGroupSearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtPcmChecklistGroupSearch" class="form-control">
+                                    <label for="txtPcmChecklistGroupSearch" class="active">Keyword Search</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblPcmChecklistGroupCount">Showing 0 of 0</span>
+                            <span id="lblPcmChecklistGroupUpdated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mt-4">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card checklist-group-card">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div class="d-flex align-items-center">
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Total Checklist by Asset Type"
                                    data-content="Total Checklist by Asset Type."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtPcmChecklistGroupRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Total Checklist by Asset Type</a>
-                            <div>
+                            <div class="dt-btn-slot">
                                 <div id="btnDtPcmChecklistGroupExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-5">
+                        <div class="px-4 pb-4 module-table-wrapper">
                             <div class="table-responsive">
-                                <table id="dtPcmChecklistGroup" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                                <table id="dtPcmChecklistGroup" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
                                         <th scope="row" style="width: 4%">#</th>
@@ -125,25 +161,31 @@
                         </div>
                     </div>
                 </section>
-                <!--Section: Table Checklist-->
-                <section id="divPcmChecklistSelected">
-                    <div class="card card-cascade narrower z-depth-0 pt-4">
+
+                <section id="divPcmChecklistSelected" class="mt-4">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card checklist-selected-card">
                         <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
+                            <div class="d-flex align-items-center">
                                 <button type="button" id="btnPcmChecklistAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Checklist"><i class="fas fa-plus mt-0"></i></button>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2 ml-2"
                                    data-toggle="popover" data-trigger="focus" title="Checklist List"
                                    data-content="Checklist list by selected Asset Type."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtPcmChecklistRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                                <button type="button" id="btnDtPcmChecklistRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2 ml-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Checklist List - <span id="lblPcmChecklistTitle" class="font-italic"></span></a>
-                            <div>
+                            <div class="dt-btn-slot">
                                 <div id="btnDtPcmChecklistExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4">
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblPcmChecklistCount">Showing 0 of 0</span>
+                                <span id="lblPcmChecklistUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
                             <div class="table-responsive">
-                                <table id="dtPcmChecklist" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                                <table id="dtPcmChecklist" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
                                         <th scope="row" style="width: 4%">#</th>

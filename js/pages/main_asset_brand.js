@@ -7,15 +7,183 @@ function MainAssetBrand() {
     let refStatus;
     let oTableAssetBrand;
     let modalAssetBrandClass;
+    let assetBrandDataCache = [];
+    let lastListUpdatedText = '—';
+    let statusFilterValue = '';
+
+    const statusChipMap = {
+        '': '#linkAbrAll',
+        '1': '#linkAbrActive',
+        '2': '#linkAbrInactive',
+        '5': '#linkAbrArchived'
+    };
+
+    const tableHeaders = ['#', 'Asset Brand', 'Description', 'Status', 'Actions'];
+
+    const initMaterialSelect = function (selector) {
+        const $element = $(selector);
+        if (!$element.length || typeof $element.materialSelect !== 'function') {
+            return;
+        }
+        try {
+            $element.materialSelect('destroy');
+        } catch (e) {
+            // ignore destroy errors
+        }
+        const $wrapper = $element.parent('.select-wrapper');
+        if ($wrapper.length) {
+            $wrapper.before($element);
+            $wrapper.remove();
+        }
+        $element.siblings('.select-dropdown').remove();
+        $element.materialSelect();
+    };
+
+    const applyTableDataLabels = function (tableSelector, headers) {
+        $(`${tableSelector} tbody tr`).each(function () {
+            $('td', this).each(function (index) {
+                if (headers[index]) {
+                    $(this).attr('data-label', headers[index]);
+                }
+            });
+        });
+    };
+
+    const getNowStamp = function () {
+        return (typeof moment !== 'undefined' && moment) ? moment().format('MMM D, YYYY h:mm A') : new Date().toLocaleString();
+    };
+
+    const refreshListSummary = function () {
+        if (!oTableAssetBrand) {
+            return;
+        }
+        const info = oTableAssetBrand.page.info();
+        const showing = info ? info.recordsDisplay : 0;
+        const total = info ? info.recordsTotal : 0;
+        const summaryText = `Showing ${mzFormatNumber(showing, 0)} of ${mzFormatNumber(total, 0)}`;
+        $('#lblAbrFilterCount').text(summaryText);
+        $('#lblAbrListCount').text(summaryText);
+        $('#lblAbrFilterUpdated').text(lastListUpdatedText);
+        $('#lblAbrListUpdated').text(lastListUpdatedText);
+    };
+
+    const updateStatusChips = function (counts) {
+        const labelMap = {
+            '': 'All',
+            '1': refStatus && refStatus[1] ? refStatus[1]['statusDesc'] : 'Active',
+            '2': refStatus && refStatus[2] ? refStatus[2]['statusDesc'] : 'Inactive',
+            '5': refStatus && refStatus[5] ? refStatus[5]['statusDesc'] : 'Archived'
+        };
+        $.each(statusChipMap, function (status, selector) {
+            const count = typeof counts[status] !== 'undefined' ? counts[status] : 0;
+            $(selector).html(`${labelMap[status]} <span class="chip-count">${mzFormatNumber(count, 0)}</span>`);
+        });
+    };
+
+    const updateAssetBrandMetrics = function (dataSet) {
+        let total = 0;
+        let active = 0;
+        let inactive = 0;
+        let archived = 0;
+
+        dataSet.forEach(function (item) {
+            total += 1;
+            switch (String(item['assetBrandStatus'])) {
+                case '1':
+                    active += 1;
+                    break;
+                case '2':
+                    inactive += 1;
+                    break;
+                case '5':
+                    archived += 1;
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        $('#metricAbrTotal').text(mzFormatNumber(total, 0));
+        $('#metricAbrActive').text(mzFormatNumber(active, 0));
+        $('#metricAbrInactive').text(mzFormatNumber(inactive, 0)).toggleClass('text-warning', inactive > 0);
+        $('#metricAbrArchived').text(mzFormatNumber(archived, 0)).toggleClass('text-danger', archived > 0);
+
+        updateStatusChips({
+            '': total,
+            '1': active,
+            '2': inactive,
+            '5': archived
+        });
+    };
+
+    const setActiveStatusChip = function (value) {
+        $.each(statusChipMap, function (status, selector) {
+            if (status === value) {
+                $(selector).addClass('active');
+            } else {
+                $(selector).removeClass('active');
+            }
+        });
+    };
+
+    const setStatusFilter = function (value, fromSelect) {
+        statusFilterValue = value || '';
+        if (oTableAssetBrand) {
+            oTableAssetBrand.draw();
+            refreshListSummary();
+        }
+        setActiveStatusChip(statusFilterValue);
+        if (!fromSelect) {
+            const $statusSelect = $('#optAbrStatus');
+            if ($statusSelect.length) {
+                try {
+                    $statusSelect.materialSelect('destroy');
+                } catch (e) {
+                    // ignore destroy errors
+                }
+                $statusSelect.val(statusFilterValue);
+                $statusSelect.materialSelect();
+                $statusSelect.off('change').on('change', handleStatusSelectChange);
+            }
+        }
+    };
+
+    const statusFilterFn = function (settings, data, dataIndex) {
+        if (!oTableAssetBrand || settings.nTable.id !== 'dtAbrAssetBrand') {
+            return true;
+        }
+        if (!statusFilterValue) {
+            return true;
+        }
+        const rowData = oTableAssetBrand.row(dataIndex).data();
+        if (!rowData) {
+            return true;
+    }
+        return String(rowData['assetBrandStatus']) === statusFilterValue;
+    };
+
+    const handleStatusSelectChange = function () {
+        setStatusFilter($(this).val() || '', true);
+    };
 
     this.init = function () {
-        oTableAssetBrand =  $('#dtAbrAssetBrand').DataTable({
+        $.fn.dataTable.ext.search.push(statusFilterFn);
+
+        initMaterialSelect('#optAbrStatus');
+
+        oTableAssetBrand = $('#dtAbrAssetBrand').DataTable({
             bLengthChange: false,
             bFilter: true,
-            "aaSorting": [1, 'asc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
+            aaSorting: [[1, 'asc']],
+            language: _DATATABLE_LANGUAGE,
+            dom: 't',
+            columnDefs: [
+                {targets: [0, 3, 4], orderable: false, className: 'text-center'},
+                {targets: [1], className: 'text-nowrap'}
+            ],
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 const info = oTableAssetBrand.page.info();
-                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -23,8 +191,8 @@ function MainAssetBrand() {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableAssetBrand.row(parseInt(rowId)).data();
+                        const rowId = linkId.substr(linkIndex + 1);
+                        const currentRow = oTableAssetBrand.row(parseInt(rowId, 10)).data();
                         modalAssetBrandClass.edit(currentRow['assetBrandId'], rowId);
                     }
                 });
@@ -32,8 +200,8 @@ function MainAssetBrand() {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableAssetBrand.row(parseInt(rowId)).data();
+                        const rowId = linkId.substr(linkIndex + 1);
+                        const currentRow = oTableAssetBrand.row(parseInt(rowId, 10)).data();
                         modalAssetBrandClass.deactivate(currentRow['assetBrandId'], rowId);
                     }
                 });
@@ -41,8 +209,8 @@ function MainAssetBrand() {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableAssetBrand.row(parseInt(rowId)).data();
+                        const rowId = linkId.substr(linkIndex + 1);
+                        const currentRow = oTableAssetBrand.row(parseInt(rowId, 10)).data();
                         modalAssetBrandClass.activate(currentRow['assetBrandId'], rowId);
                     }
                 });
@@ -50,58 +218,66 @@ function MainAssetBrand() {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
                     if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableAssetBrand.row(parseInt(rowId)).data();
+                        const rowId = linkId.substr(linkIndex + 1);
+                        const currentRow = oTableAssetBrand.row(parseInt(rowId, 10)).data();
                         modalConfirmDeleteClass.delete(currentRow['assetBrandId'], modalAssetBrandClass);
                     }
                 });
+                applyTableDataLabels('#dtAbrAssetBrand', tableHeaders);
+                refreshListSummary();
             },
-            language: _DATATABLE_LANGUAGE,
-            aoColumns:
-                [
-                    {mData: null, bSortable: false},
-                    {mData: 'assetBrandName'},
-                    {mData: 'assetBrandDesc'},
-                    {mData: null,
-                        mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['assetBrandStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assetBrandStatus']]['statusDesc']+'</span></h6>';
+            aoColumns: [
+                {mData: null},
+                {mData: 'assetBrandName'},
+                {mData: 'assetBrandDesc'},
+                {mData: null, mRender: function (data, type, row) {
+                        const status = row['assetBrandStatus'];
+                        if (!status || !refStatus[status]) {
+                            return '<span class="badge badge-pill badge-secondary">Unknown</span>';
                         }
-                    },
-                    {mData: null, bSortable: false, sClass: 'text-center',
-                        mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkAbrAssetBrandEdit" id="lnkAbrAssetBrandEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
-                            if (row['assetBrandStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkAbrAssetBrandDeactivate" id="lnkAbrAssetBrandDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
-                            } else {
-                                label += '<a><i class="fas fa-toggle-on lnkAbrAssetBrandActivate" id="lnkAbrAssetBrandActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
-                            }
-                            label += '<a><i class="fas fa-trash-alt lnkAbrAssetBrandDelete" id="lnkAbrAssetBrandDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
-                            return label;
+                        return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
+                    }},
+                {mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
+                        let label = `<a><i class="fas fa-edit lnkAbrAssetBrandEdit" id="lnkAbrAssetBrandEdit_${meta.row}" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;`;
+                        if (row['assetBrandStatus'] === '1') {
+                            label += `<a><i class="fas fa-toggle-off lnkAbrAssetBrandDeactivate" id="lnkAbrAssetBrandDeactivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;`;
+                        } else {
+                            label += `<a><i class="fas fa-toggle-on lnkAbrAssetBrandActivate" id="lnkAbrAssetBrandActivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;`;
                         }
-                    },
-                    {mData: 'assetBrandId', visible: false}
-                ]
+                        label += `<a><i class="fas fa-trash-alt lnkAbrAssetBrandDelete" id="lnkAbrAssetBrandDelete_${meta.row}" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>`;
+                        return label;
+                    }},
+                {mData: 'assetBrandId', visible: false}
+            ]
         });
-        $("#dtAbrAssetBrand_filter").hide();
+        $('#dtAbrAssetBrand_filter').hide();
+
         $('#txtAbrAssetBrandSearch').on('keyup change', function () {
             oTableAssetBrand.search($(this).val()).draw();
         });
 
-        let cntAssetBrand;
-        let btnAssetBrandOpt = {
+        $('#optAbrStatus').on('change', handleStatusSelectChange);
+
+        let exportCounter = 1;
+        const btnAssetBrandOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3],
+                columns: [0, 1, 2, 3],
                 format: {
-                    body: function ( data, row, column ) {
-                        if (row === 0 && column === 0) {
-                            cntAssetBrand = 1;
+                    body: function (data, row, column) {
+                        if (column === 0) {
+                            if (row === 0) {
+                                exportCounter = 1;
+                            }
+                            return exportCounter++;
                         }
                         if (column === 3) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
+                            const idx = data.indexOf('">');
+                            if (idx >= 0) {
+                                const content = data.substr(idx + 2);
+                                return content.replace('</span></h6>', '');
+                            }
                         }
-                        return column === 0 ? cntAssetBrand++ : data;
+                        return data;
                     }
                 }
             }
@@ -109,27 +285,9 @@ function MainAssetBrand() {
 
         new $.fn.dataTable.Buttons(oTableAssetBrand, {
             buttons: [
-                $.extend( true, {}, btnAssetBrandOpt, {
-                    extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - Asset Brand List',
-                    titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnAssetBrandOpt, {
-                    extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - Asset Brand List',
-                    titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnAssetBrandOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Asset Brand List',
-                    titleAttr: 'Pdf',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                })
+                $.extend(true, {}, btnAssetBrandOpt, { extend: 'print', text: '<i class="fas fa-print"></i>', title: 'GEMS 2.0 - Asset Brand List', titleAttr: 'Print', className: 'btn btn-outline-white btn-rounded btn-sm px-2' }),
+                $.extend(true, {}, btnAssetBrandOpt, { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i>', title: 'GEMS 2.0 - Asset Brand List', titleAttr: 'Excel', className: 'btn btn-outline-white btn-rounded btn-sm px-2' }),
+                $.extend(true, {}, btnAssetBrandOpt, { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i>', title: 'GEMS 2.0 - Asset Brand List', titleAttr: 'PDF', className: 'btn btn-outline-white btn-rounded btn-sm px-2' })
             ]
         }).container().appendTo($('#btnDtAbrAssetBrandExport'));
 
@@ -146,8 +304,17 @@ function MainAssetBrand() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 300);
+            }, 200);
         });
+
+        $.each(statusChipMap, function (status, selector) {
+            $(selector).off('click').on('click', function () {
+                setStatusFilter(status, false);
+            });
+        });
+
+        setStatusFilter('', true);
+
         self.genTableAbr(0);
     };
 
@@ -156,11 +323,20 @@ function MainAssetBrand() {
             versionLocal = mzGetDataVersion();
         }
         const refAssetBrand = mzGetLocalRaw('gems_assetBrand', versionLocal, [], 'asset_brand');
-        oTableAssetBrand.clear().rows.add(refAssetBrand).draw();
+        assetBrandDataCache = Array.isArray(refAssetBrand) ? refAssetBrand : [];
+        oTableAssetBrand.clear().rows.add(assetBrandDataCache).draw();
+        lastListUpdatedText = getNowStamp();
+        updateAssetBrandMetrics(assetBrandDataCache);
+        refreshListSummary();
+        setStatusFilter(statusFilterValue || '', true);
     };
 
     this.addTableAbr = function (_dataAdd) {
         oTableAssetBrand.row.add(_dataAdd).draw();
+        assetBrandDataCache = oTableAssetBrand.rows().data().toArray();
+        lastListUpdatedText = getNowStamp();
+        updateAssetBrandMetrics(assetBrandDataCache);
+        refreshListSummary();
     };
 
     this.updateTableAbr = function (_dataEdit, _rowEdit) {
@@ -175,6 +351,10 @@ function MainAssetBrand() {
             currentRow['assetBrandStatus'] = _dataEdit['assetBrandStatus'];
         }
         oTableAssetBrand.row(_rowEdit).data(currentRow).draw();
+        assetBrandDataCache = oTableAssetBrand.rows().data().toArray();
+        lastListUpdatedText = getNowStamp();
+        updateAssetBrandMetrics(assetBrandDataCache);
+        refreshListSummary();
     };
 
     this.getClassName = function () {

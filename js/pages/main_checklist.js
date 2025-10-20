@@ -14,6 +14,66 @@ function MainChecklist() {
     let sectionChecklistClass;
     let modalChecklistDuplicateClass;
     let labelTitle = '';
+    const checklistGroupHeaders = ['#', 'Checklist Type', 'Asset Group', 'Asset Category', 'Asset Type', 'Total Checklist', 'Actions'];
+    const checklistHeaders = ['#', 'Checklist Name', 'Document No', 'Issue No', 'Minimum Execution Time', 'Maximum Execution Time', 'Maximum Total Assistant', 'Registered Time', 'Status', 'Actions'];
+    let dataChecklistGroupCache = [];
+    let lastChecklistGroupUpdatedText = '—';
+    let lastChecklistUpdatedText = '—';
+
+    const applyTableDataLabels = function (tableSelector, headers) {
+        $(`${tableSelector} tbody tr`).each(function () {
+            $('td', this).each(function (index) {
+                if (headers[index]) {
+                    $(this).attr('data-label', headers[index]);
+                }
+            });
+        });
+    };
+
+    const refreshChecklistGroupSummary = function () {
+        if (!oTableChecklistGroup) {
+            return;
+        }
+        const info = oTableChecklistGroup.page.info();
+        const showing = info ? info.recordsDisplay : 0;
+        const total = info ? info.recordsTotal : 0;
+        $('#lblPcmChecklistGroupCount').text(`Showing ${mzFormatNumber(showing, 0)} of ${mzFormatNumber(total, 0)}`);
+        $('#lblPcmChecklistGroupUpdated').text(lastChecklistGroupUpdatedText);
+    };
+
+    const refreshChecklistSummary = function () {
+        if (!oTableChecklist) {
+            return;
+        }
+        const info = oTableChecklist.page.info();
+        const showing = info ? info.recordsDisplay : 0;
+        const total = info ? info.recordsTotal : 0;
+        $('#lblPcmChecklistCount').text(`Showing ${mzFormatNumber(showing, 0)} of ${mzFormatNumber(total, 0)}`);
+        $('#lblPcmChecklistUpdated').text(lastChecklistUpdatedText);
+    };
+
+    const updateChecklistMetrics = function (dataSet) {
+        const totalTypes = dataSet.length;
+        let totalChecklist = 0;
+        let zeroChecklistTypes = 0;
+        dataSet.forEach(function (item) {
+            const total = parseInt(item['totalChecklist'] || 0, 10);
+            totalChecklist += total;
+            if (total === 0) {
+                zeroChecklistTypes += 1;
+            }
+        });
+        const average = totalTypes ? totalChecklist / totalTypes : 0;
+        const averageFix = average % 1 === 0 ? 0 : 1;
+        $('#metricChecklistTypes').text(mzFormatNumber(totalTypes, 0));
+        $('#metricChecklistTotal').text(mzFormatNumber(totalChecklist, 0));
+        $('#metricChecklistGaps').text(mzFormatNumber(zeroChecklistTypes, 0)).toggleClass('text-danger', zeroChecklistTypes > 0);
+        $('#metricChecklistAverage').text(totalTypes ? mzFormatNumber(average, averageFix) : '0');
+    };
+
+    const getNowStamp = function () {
+        return (typeof moment !== 'undefined' && moment) ? moment().format('MMM D, YYYY h:mm A') : new Date().toLocaleString();
+    };
 
     this.init = function () {
         $('#divPcmChecklistSelected').hide();
@@ -48,6 +108,8 @@ function MainChecklist() {
                         }, 300);
                     }
                 });
+                applyTableDataLabels('#dtPcmChecklistGroup', checklistGroupHeaders);
+                refreshChecklistGroupSummary();
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -240,6 +302,8 @@ function MainChecklist() {
                         modalChecklistDuplicateClass.add(parseInt(currentRow['checklistId']));
                     }
                 });
+                applyTableDataLabels('#dtPcmChecklist', checklistHeaders);
+                refreshChecklistSummary();
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -345,8 +409,11 @@ function MainChecklist() {
     };
 
     this.genTablePcmChecklistGroup = function () {
-        const dataChecklistGroup = mzAjaxRequest('checklist.php?type=checklist_by_type', 'GET');
-        oTableChecklistGroup.clear().rows.add(dataChecklistGroup).draw();
+        dataChecklistGroupCache = mzAjaxRequest('checklist.php?type=checklist_by_type', 'GET');
+        oTableChecklistGroup.clear().rows.add(dataChecklistGroupCache).draw();
+        updateChecklistMetrics(dataChecklistGroupCache);
+        lastChecklistGroupUpdatedText = getNowStamp();
+        refreshChecklistGroupSummary();
     };
 
     this.genTablePcmChecklist = function (_assetTypeId, _rowId) {
@@ -354,7 +421,9 @@ function MainChecklist() {
         rowIdChecklistGroup = _rowId;
 
         const dataChecklist = mzAjaxRequest('checklist.php?assetTypeId='+_assetTypeId, 'GET');
+        lastChecklistUpdatedText = getNowStamp();
         oTableChecklist.clear().rows.add(dataChecklist).draw();
+        refreshChecklistSummary();
 
         const assetCategoryId = refAssetType[_assetTypeId]['assetCategoryId'];
         const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
@@ -367,11 +436,15 @@ function MainChecklist() {
 
     this.genTablePcmChecklistRefresh = function (_dataAdd) {
         const dataChecklist = mzAjaxRequest('checklist.php?assetTypeId='+assetTypeIdSelected, 'GET');
+        lastChecklistUpdatedText = getNowStamp();
         oTableChecklist.clear().rows.add(dataChecklist).draw();
+        refreshChecklistSummary();
     };
 
     this.addTablePcmChecklist = function (_dataAdd) {
+        lastChecklistUpdatedText = getNowStamp();
         oTableChecklist.row.add(_dataAdd).draw();
+        refreshChecklistSummary();
         self.genTablePcmChecklistGroup();
     };
 
@@ -389,7 +462,9 @@ function MainChecklist() {
         if (typeof _dataEdit['checklistStatus'] !== 'undefined') {
             currentRow['checklistStatus'] = _dataEdit['checklistStatus'];
         }
+        lastChecklistUpdatedText = getNowStamp();
         oTableChecklist.row(_rowEdit).data(currentRow).draw();
+        refreshChecklistSummary();
     };
 
     this.deleteTablePcmChecklist = function () {

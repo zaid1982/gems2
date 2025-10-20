@@ -8,19 +8,16 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?5">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <link href="css/style.css?6" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -37,47 +34,140 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid">
-        <!--Section: Main panel-->
+    <div class="container-fluid" id="divWssPageWidth">
         <section class="mb-5 mt-lg-5 sectionActMain">
-            <div class="card card-cascade narrower">
-                <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                    <div>
-                        <button type="button" id="btnActAssetCategoryAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset Category"><i class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Asset Category List"
-                           data-content="All Asset Category list available."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtActAssetCategoryRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+            <div class="card card-cascade narrower gems-card-shell asset-category-shell">
+                <section class="gems-page-header asset-category-header">
+                    <div class="header-text">
+                        <h2>Asset Category Management</h2>
+                        <p>Organise categories under each asset group and keep the catalogue in sync.</p>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Asset Category List</a>
-                    <div>
-                        <div id="btnDtActAssetCategoryExport"></div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtActAssetCategoryRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnActAssetCategoryAdd" class="btn btn-primary" aria-label="Add asset category"><i class="fas fa-plus mr-2"></i>Add Asset Category</button>
                     </div>
-                </div>
-                <div class="px-4 pb-4">
-                    <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtActAssetCategorySearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtActAssetCategorySearch" class="ml-4">Search</label>
+                </section>
+
+                <section class="mt-4">
+                    <div class="row">
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Categories</span>
+                                <span class="metric-value" id="metricActTotal">0</span>
+                                <span class="metric-subtext">All categories across every group</span>
+                            </div>
                         </div>
-                    </form>
-                    <div class="table-responsive">
-                        <table id="dtActAssetCategory" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
-                            <thead>
-                            <tr class="th-strong">
-                                <th style="width: 4%">#</th>
-                                <th style="width: 23%">Asset Group</th>
-                                <th style="width: 23%">Asset Category</th>
-                                <th>Description</th>
-                                <th style="width: 12%">Status</th>
-                                <th style="width: 80px"></th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Active</span>
+                                <span class="metric-value" id="metricActActive">0</span>
+                                <span class="metric-subtext">Available for asset assignments</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Inactive</span>
+                                <span class="metric-value" id="metricActInactive">0</span>
+                                <span class="metric-subtext">Temporarily hidden categories</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Archived</span>
+                                <span class="metric-value" id="metricActArchived">0</span>
+                                <span class="metric-subtext">Deprecated references kept for history</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
+
+                <section class="mt-2">
+                    <div class="filter-card asset-category-filter">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="optActGroupId">Asset Group</label>
+                                <div class="select-outline">
+                                    <select id="optActGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Groups</option>
+                                    </select>
+                                    <label for="optActGroupId">Asset Group</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optActStatus">Status</label>
+                                <div class="select-outline">
+                                    <select id="optActStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Status</option>
+                                        <option value="1">Active</option>
+                                        <option value="2">Inactive</option>
+                                        <option value="5">Archived</option>
+                                    </select>
+                                    <label for="optActStatus">Status</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="txtActAssetCategorySearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtActAssetCategorySearch" class="form-control">
+                                    <label for="txtActAssetCategorySearch" class="active">Keyword Search</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblActFilterCount">Showing 0 of 0</span>
+                            <span id="lblActFilterUpdated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkActAll">All</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkActActive">Active</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkActInactive">Inactive</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkActArchived">Archived</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="card card-cascade narrower z-depth-0 module-data-card asset-category-table">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset Category List" data-content="Maintain asset categories for each asset group."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Asset Category List</a>
+                            <div class="dt-btn-slot">
+                                <div id="btnDtActAssetCategoryExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblActListCount">Showing 0 of 0</span>
+                                <span id="lblActListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="table-responsive">
+                                <table id="dtActAssetCategory" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Asset Group</th>
+                                        <th>Asset Category</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>&nbsp;</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </section>
     </div>
@@ -101,7 +191,7 @@
 <!-- Bootstrap core JavaScript -->
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/mdb.js"></script>
 <!-- Crypto JS -->
 <script type="text/javascript" src="js/addons/crypto.js"></script>
 <!-- DataTables.net -->

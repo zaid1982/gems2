@@ -14,6 +14,92 @@ function MainPpmReschedule() {
     let currentRole = '';
     let oTablePpm;
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const rescheduleHeaders = ['#', 'Work Order No', 'Asset No', 'Asset Group', 'Asset Category', 'Asset Type', 'Scheduled Date', 'Final Date', 'Frequency', 'PPM Group', 'Reschedule Status', 'Status', 'Actions'];
+    const statusChipMap = {
+        '': '#linkPrsAll',
+        'Rescheduled': '#linkPrsRescheduled',
+        'Not Yet': '#linkPrsNotYet',
+        'Disallowed': '#linkPrsDisallowed'
+    };
+    let dataPpmCache = [];
+    let lastListUpdatedText = '—';
+
+    const applyTableDataLabels = function (tableSelector, headers) {
+        $(`${tableSelector} tbody tr`).each(function () {
+            $('td', this).each(function (index) {
+                if (headers[index]) {
+                    $(this).attr('data-label', headers[index]);
+                }
+            });
+        });
+    };
+
+    const getNowStamp = function () {
+        return (typeof moment !== 'undefined' && moment) ? moment().format('MMM D, YYYY h:mm A') : new Date().toLocaleString();
+    };
+
+    const refreshListSummary = function () {
+        if (!oTablePpm) {
+            return;
+        }
+        const info = oTablePpm.page.info();
+        const showing = info ? info.recordsDisplay : 0;
+        const total = info ? info.recordsTotal : 0;
+        const summaryText = `Showing ${mzFormatNumber(showing, 0)} of ${mzFormatNumber(total, 0)}`;
+        $('#lblPrsFilterCount').text(summaryText);
+        $('#lblPrsListCount').text(summaryText);
+        $('#lblPrsFilterUpdated').text(lastListUpdatedText);
+        $('#lblPrsListUpdated').text(lastListUpdatedText);
+    };
+
+    const updateRescheduleMetrics = function (dataSet) {
+        const total = dataSet.length;
+        let rescheduled = 0;
+        let disallowed = 0;
+        let pending = 0;
+        dataSet.forEach(function (item) {
+            const statusFlag = item['ppmTaskIsScheduled'];
+            const frequencyName = item['frequency'] || '';
+            if (statusFlag === '1') {
+                rescheduled += 1;
+            } else if (frequencyName === 'Daily' || frequencyName.indexOf(', ') !== -1) {
+                disallowed += 1;
+            } else {
+                pending += 1;
+            }
+        });
+        $('#metricPrsTotal').text(mzFormatNumber(total, 0));
+        $('#metricPrsRescheduled').text(mzFormatNumber(rescheduled, 0));
+        $('#metricPrsPending').text(mzFormatNumber(pending, 0));
+        $('#metricPrsDisallowed').text(mzFormatNumber(disallowed, 0));
+        $('#metricPrsPending').toggleClass('text-warning', pending > 0);
+        $('#metricPrsDisallowed').toggleClass('text-danger', disallowed > 0);
+    };
+
+    const setActiveStatusChip = function (value) {
+        $.each(statusChipMap, function (key, selector) {
+            if (key === value) {
+                $(selector).addClass('active');
+            } else {
+                $(selector).removeClass('active');
+            }
+        });
+    };
+
+    const setStatusFilter = function (value, fromSelect) {
+        oTablePpm.column(10).search(value, false, true, false).draw();
+        setActiveStatusChip(value);
+        if (!fromSelect) {
+            const $statusSelect = $('#optPrsRescheduleStatus');
+            try {
+                $statusSelect.materialSelect('destroy');
+                $statusSelect.val(value);
+                $statusSelect.materialSelect();
+            } catch (e) {
+                $statusSelect.val(value);
+            }
+        }
+    };
 
     this.init = function () {
         yearId = '2019';
@@ -114,6 +200,8 @@ function MainPpmReschedule() {
                         }, 200);
                     }
                 });
+                applyTableDataLabels('#dtPrsList', rescheduleHeaders);
+                refreshListSummary();
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -174,8 +262,16 @@ function MainPpmReschedule() {
         });
 
         $('#optPrsRescheduleStatus').on('change', function () {
-            oTablePpm.column(10).search($(this).val(), false, true, false).draw();
+            const value = $(this).val() || '';
+            setStatusFilter(value, true);
         });
+
+        $.each(statusChipMap, function (statusValue, selector) {
+            $(selector).off('click').on('click', function () {
+                setStatusFilter(statusValue, false);
+            });
+        });
+        setActiveStatusChip('');
 
         let cntPpm;
         let btnPpmOpt = {
@@ -244,8 +340,11 @@ function MainPpmReschedule() {
     };
 
     this.genTablePrsPpm = function () {
-        const dataPpm = mzAjaxRequest('ppm.php?type=dashboard_list&clientId=&siteId='+$('#optPrsSiteId').val()+'&year='+$('#optPrsYear').val()+'&month='+$('#optPrsMonth').val(), 'GET');
-        oTablePpm.clear().rows.add(dataPpm).draw();
+        dataPpmCache = mzAjaxRequest('ppm.php?type=dashboard_list&clientId=&siteId='+$('#optPrsSiteId').val()+'&year='+$('#optPrsYear').val()+'&month='+$('#optPrsMonth').val(), 'GET');
+        updateRescheduleMetrics(dataPpmCache);
+        lastListUpdatedText = getNowStamp();
+        oTablePpm.clear().rows.add(dataPpmCache).draw();
+        refreshListSummary();
     };
 
     this.getClassName = function () {

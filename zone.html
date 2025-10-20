@@ -8,20 +8,16 @@
     <!-- Browser icon -->
     <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?5">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css?4" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <!-- Custom styles -->
+    <link href="css/style.css?6" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <!--JQuery Migrate-->
@@ -37,19 +33,132 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid">
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionZneMain">
-            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
-                Zone Management
-            </h5>
-        </nav>
-        <section class="mt-4 mb-3">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5">
-                        <div class="card-body pt-4">
+    <div class="container-fluid" id="divZnePageWidth">
+        <section class="mb-5 mt-lg-5 sectionZneMain">
+            <div class="card card-cascade narrower gems-card-shell zone-shell">
+                <section class="gems-page-header zone-header">
+                    <div class="header-text">
+                        <h2>Zone Management</h2>
+                        <p>Manage facility zones, QR access points, and zone assignments.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtZneZoneRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnZneDownloadTemplate" class="btn btn-light"><i class="fas fa-download mr-2"></i>Template</button>
+                        <button type="button" id="btnZneImport" class="btn btn-light"><i class="fas fa-upload mr-2"></i>Import</button>
+                        <button type="button" id="btnZneAdd" class="btn btn-primary"><i class="fas fa-plus mr-2"></i>Add Zone</button>
+                    </div>
+                </section>
+
+            <section class="mt-4">
+                <div class="row">
+                    <div class="col-sm-6 col-xl-3 mb-4">
+                        <div class="metric-card">
+                            <span class="metric-label">Total Zones</span>
+                            <span class="metric-value" id="metricZneTotal">0</span>
+                            <span class="metric-subtext">Overall zone coverage</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3 mb-4">
+                        <div class="metric-card">
+                            <span class="metric-label">Active</span>
+                            <span class="metric-value" id="metricZneActive">0</span>
+                            <span class="metric-subtext">Currently enabled zones</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3 mb-4">
+                        <div class="metric-card">
+                            <span class="metric-label">Inactive</span>
+                            <span class="metric-value" id="metricZneInactive">0</span>
+                            <span class="metric-subtext">Temporarily offline zones</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3 mb-4">
+                        <div class="metric-card">
+                            <span class="metric-label">Zone Types</span>
+                            <span class="metric-value" id="metricZneTypes">0</span>
+                            <span class="metric-subtext">Distinct zone categories</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+                <section class="mt-2">
+                    <div class="filter-card zone-filter">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="optZneStatus">Status</label>
+                                <div class="select-outline">
+                                    <select id="optZneStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Status</option>
+                                    </select>
+                                    <label for="optZneStatus">Status</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optZneSiteId">Site</label>
+                                <div class="select-outline">
+                                    <select id="optZneSiteId" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Sites</option>
+                                    </select>
+                                    <label for="optZneSiteId">Site</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optZneType">Zone Type</label>
+                                <div class="select-outline">
+                                    <select id="optZneType" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Types</option>
+                                    </select>
+                                    <label for="optZneType">Zone Type</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="txtZneZoneSearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtZneZoneSearch" class="form-control">
+                                    <label for="txtZneZoneSearch" class="active">Keyword Search</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblZneFilterCount">Showing 0 of 0</span>
+                            <span id="lblZneFilterUpdated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4 mt-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkZneAll">All</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkZneActive">Active</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkZneInactive">Inactive</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkZneArchived">Archived</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="card card-cascade narrower z-depth-0 module-data-card zone-table">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Zone List" data-content="All zones with site mapping and QR access links."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Zone List</a>
+                            <div class="dt-btn-slot">
+                                <div id="btnDtZneZoneExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblZneListCount">Showing 0 of 0</span>
+                                <span id="lblZneListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
                             <div class="table-responsive">
-                                <table id="dtZneData" class="table table-hover table-sm mb-0 display responsive">
+                                <table id="dtZneData" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
                                         <th>#</th>
@@ -58,7 +167,7 @@
                                         <th>Zone Code</th>
                                         <th>Zone Name</th>
                                         <th>Public QR Link</th>
-                                        <th>Zone Status</th>
+                                        <th>Status</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -66,7 +175,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
         </section>
     </div>

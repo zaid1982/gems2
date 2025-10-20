@@ -8,19 +8,16 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?5">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <!-- Custom styles -->
+    <link href="css/style.css?6" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -40,47 +37,147 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionCcrMain">
-            <div class="card card-cascade narrower">
-                <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                    <div>
-                        <button type="button" id="btnCcrContractAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Contract"><i class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Contract List"
-                           data-content="All contract list available."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtCcrContractRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+            <div class="card card-cascade narrower gems-card-shell contract-shell">
+                <section class="gems-page-header contract-header">
+                    <div class="header-text">
+                        <h2>Contract Management</h2>
+                        <p>Monitor contract coverage, renewal windows, and assignments in one place.</p>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Contract List</a>
-                    <div>
-                        <div id="btnDtCcrContractExport"></div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtCcrContractRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnCcrContractAdd" class="btn btn-primary" aria-label="Add contract"><i class="fas fa-plus mr-2"></i>Add Contract</button>
                     </div>
-                </div>
-                <div class="px-4 pb-4">
-                    <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtCcrContractSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtCcrContractSearch" class="ml-4">Search</label>
+                </section>
+
+                <section class="mt-4">
+                    <div class="row">
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Contracts</span>
+                                <span class="metric-value" id="metricCcrTotal">0</span>
+                                <span class="metric-subtext">All active records in scope</span>
+                            </div>
                         </div>
-                    </form>
-                    <div class="table-responsive">
-                        <table id="dtCcrContract" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
-                            <thead>
-                            <tr class="th-strong">
-                                <th style="width: 4%">#</th>
-                                <th style="width: 12%">Client</th>
-                                <th style="width: 12%">Site</th>
-                                <th style="width: 15%">Contract</th>
-                                <th>Description</th>
-                                <th style="width: 10%">Start Date</th>
-                                <th style="width: 10%">End Date</th>
-                                <th style="width: 8%">Status</th>
-                                <th style="width: 85px"></th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Active</span>
+                                <span class="metric-value" id="metricCcrActive">0</span>
+                                <span class="metric-subtext">Contracts currently effective</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Expiring Soon</span>
+                                <span class="metric-value" id="metricCcrExpiring">0</span>
+                                <span class="metric-subtext">Ends within 30 days</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Ended</span>
+                                <span class="metric-value" id="metricCcrEnded">0</span>
+                                <span class="metric-subtext">Past end-date contracts</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
+
+                <section class="mt-2">
+                    <div class="filter-card contract-filter">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="optCcrStatus">Status</label>
+                                <div class="select-outline">
+                                    <select id="optCcrStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Status</option>
+                                    </select>
+                                    <label for="optCcrStatus">Status</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optCcrClientId">Client</label>
+                                <div class="select-outline">
+                                    <select id="optCcrClientId" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Clients</option>
+                                    </select>
+                                    <label for="optCcrClientId">Client</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optCcrSiteId">Site</label>
+                                <div class="select-outline">
+                                    <select id="optCcrSiteId" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Sites</option>
+                                    </select>
+                                    <label for="optCcrSiteId">Site</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="txtCcrContractSearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtCcrContractSearch" class="form-control">
+                                    <label for="txtCcrContractSearch" class="active">Keyword Search</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblCcrFilterCount">Showing 0 of 0</span>
+                            <span id="lblCcrFilterUpdated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4 mt-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkCcrAll">All</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkCcrActive">Active</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkCcrInactive">Inactive</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkCcrArchived">Archived</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="card card-cascade narrower z-depth-0 module-data-card contract-table">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Contract List" data-content="All contract master data and user assignments."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Contract List</a>
+                            <div class="dt-btn-slot">
+                                <div id="btnDtCcrContractExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblCcrListCount">Showing 0 of 0</span>
+                                <span id="lblCcrListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="table-responsive">
+                                <table id="dtCcrContract" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Client</th>
+                                        <th>Site</th>
+                                        <th>Contract</th>
+                                        <th>Description</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Status</th>
+                                        <th>&nbsp;</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </section>
         <div class="includeHtml" id="h-section_contract"></div>

@@ -8,7 +8,7 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
@@ -17,15 +17,20 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
+    <!-- Shared Design System stylesheet -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Stepper CSS - minified-->
     <link href="css/addons-pro/steppers.css" rel="stylesheet">
-    <style>
-
-    </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
 	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    
+    <style>
+        .select-outline label {
+            display: none;
+        }
+    </style>
 </head>
 
 <body class="fixed-sn light-blue-skin">
@@ -42,76 +47,135 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionPrsMain">
-            <div class="card card-cascade narrower">
-                <!--Section: Search Function & Chart-->
-                <section>
+            <div class="card card-cascade narrower gems-card-shell ppm-reschedule-shell">
+                <section class="gems-page-header ppm-reschedule-header">
+                    <div class="header-text">
+                        <h2>Reschedule PPM</h2>
+                        <p>Review monthly preventive maintenance plans and adjust scheduling with confidence.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtPrsListRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                    </div>
+                </section>
+
+                <section class="mt-4">
                     <div class="row">
-                        <!--Search Function-->
-                        <div class="col-xl-12 col-lg-12 mr-0">
-                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                                <h2 class="h2-responsive mb-0">Reschedule PPM</h2>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Scheduled Tasks</span>
+                                <span class="metric-value" id="metricPrsTotal">0</span>
+                                <span class="metric-subtext">PPM tasks loaded for the period</span>
                             </div>
-                            <div class="card-body card-body-cascade">
-                                <div class="card-body pt-3">
-                                    <h6 class="pb-3">Search:</h6>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
-                                            <select id="optPrsSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                            <label for="optPrsSiteId">Site</label>
-                                        </div>
-                                        <div class="col-md-2 select-outline">
-                                            <select id="optPrsYear" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                            <label for="optPrsYear">Year</label>
-                                        </div>
-                                        <div class="col-md-4 select-outline">
-                                            <select id="optPrsMonth" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                            <label for="optPrsMonth">Month</label>
-                                        </div>
-                                        <div class="col-md-6 select-outline">
-                                            <select id="optPrsRescheduleStatus" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
-                                                <option value="" selected>All Status</option>
-                                                <option value="Rescheduled">Rescheduled</option>
-                                                <option value="Not Yet">Not Yet</option>
-                                                <option value="Disallowed">Disallowed</option>
-                                            </select>
-                                            <label for="optPrsRescheduleStatus">Reschedule Status</label>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="md-form md-outline mt-0 mb-0">
-                                                <input type="text" id="txtPrsListSearch" class="form-control">
-                                                <label for="txtPrsListSearch" class="active">Keyword Search</label>
-                                            </div>
-                                        </div>
-                                    </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Rescheduled</span>
+                                <span class="metric-value" id="metricPrsRescheduled">0</span>
+                                <span class="metric-subtext">Tasks with updated execution date</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Awaiting Action</span>
+                                <span class="metric-value" id="metricPrsPending">0</span>
+                                <span class="metric-subtext">Eligible tasks pending reschedule</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Disallowed</span>
+                                <span class="metric-value" id="metricPrsDisallowed">0</span>
+                                <span class="metric-subtext">Frequencies that cannot be moved</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mt-2 mb-4">
+                    <div class="filter-card ppm-reschedule-filter">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="optPrsSiteId">Site</label>
+                                <div class="select-outline">
+                                    <select id="optPrsSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                    <label for="optPrsSiteId">Site</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optPrsYear">Year</label>
+                                <div class="select-outline">
+                                    <select id="optPrsYear" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                    <label for="optPrsYear">Year</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optPrsMonth">Month</label>
+                                <div class="select-outline">
+                                    <select id="optPrsMonth" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                    <label for="optPrsMonth">Month</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optPrsRescheduleStatus">Reschedule Status</label>
+                                <div class="select-outline">
+                                    <select id="optPrsRescheduleStatus" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
+                                        <option value="" selected>All Status</option>
+                                        <option value="Rescheduled">Rescheduled</option>
+                                        <option value="Not Yet">Not Yet</option>
+                                        <option value="Disallowed">Disallowed</option>
+                                    </select>
+                                    <label for="optPrsRescheduleStatus">Reschedule Status</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="txtPrsListSearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtPrsListSearch" class="form-control">
+                                    <label for="txtPrsListSearch" class="active">Keyword Search</label>
                                 </div>
                             </div>
                         </div>
-                        <!--Chart-->
-                        <!-- <<div class="col-xl-6 col-lg-12 mb-5">
-                           div class="view view-cascade z-depth-4">
-                                <div id="chartPrsLeaveByStatus" style="height: 440px; margin: 0"></div>
-                            </div>
-                        </div>-->
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblPrsFilterCount">Showing 0 of 0</span>
+                            <span id="lblPrsFilterUpdated">—</span>
+                        </div>
                     </div>
                 </section>
-                <!--Section: Table-->
+
+                <section class="mb-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkPrsAll">All</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPrsRescheduled">Rescheduled</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPrsNotYet">Not Yet</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPrsDisallowed">Disallowed</a>
+                        </div>
+                    </div>
+                </section>
+
                 <section>
-                    <div class="card card-cascade narrower z-depth-0">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card ppm-reschedule-table">
                         <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                             <div>
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Track and Monitoring"
                                    data-content="Track current checkpoint for all transactions."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtPrsListRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
-                            <a href="javascript:void(0);" class="text-white mx-3 pl-5">PPM List</a>
-                            <div>
+                            <a href="javascript:void(0);" class="text-white mx-3">PPM List</a>
+                            <div class="dt-btn-slot">
                                 <div id="btnDtPrsListExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4">
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblPrsListCount">Showing 0 of 0</span>
+                                <span id="lblPrsListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
                             <div class="table-responsive">
-                                <table id="dtPrsList" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                                <table id="dtPrsList" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
                                         <th scope="row" style="max-width: 30px">#</th>

@@ -558,6 +558,7 @@ body {
 .gems-status-chip:focus { border-color: rgba(0,77,255,0.35); color: var(--gems-primary); text-decoration: none; box-shadow: 0 16px 32px -24px rgba(0,77,255,0.35); }
 .gems-status-chip.active { border-color: var(--gems-primary); color: var(--gems-primary); background: rgba(0,77,255,0.08); box-shadow: 0 20px 40px -26px rgba(0,77,255,0.45); }
 .gems-status-chip .badge { margin-left: auto; }
+.gems-status-chip .chip-count { margin-left: 8px; font-weight: 600; color: var(--gems-muted); }
 .helpdesk-controls .form-control { min-height: 42px; }
 .helpdesk-controls .select-outline label { display: none; }
 .dt-btn-slot { display: flex; align-items: center; }

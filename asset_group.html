@@ -8,19 +8,16 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?5">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <link href="css/style.css?6" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -37,46 +34,130 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid">
-        <!--Section: Main panel-->
+    <div class="container-fluid" id="divWssPageWidth">
         <section class="mb-5 mt-lg-5 sectionAgrMain">
-            <div class="card card-cascade narrower">
-                <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                    <div>
-                        <button type="button" id="btnAgrAssetGroupAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset Group"><i class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Asset Group List"
-                           data-content="All Asset Group list available."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtAgrAssetGroupRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+            <div class="card card-cascade narrower gems-card-shell asset-group-shell">
+                <section class="gems-page-header asset-group-header">
+                    <div class="header-text">
+                        <h2>Asset Group Management</h2>
+                        <p>Control the master list of asset groupings and keep their descriptions up to date.</p>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Asset Group List</a>
-                    <div>
-                        <div id="btnDtAgrAssetGroupExport"></div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtAgrAssetGroupRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnAgrAssetGroupAdd" class="btn btn-primary" aria-label="Add asset group"><i class="fas fa-plus mr-2"></i>Add Asset Group</button>
                     </div>
-                </div>
-                <div class="px-4 pb-4">
-                    <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtAgrAssetGroupSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtAgrAssetGroupSearch" class="ml-4">Search</label>
+                </section>
+
+                <section class="mt-4">
+                    <div class="row">
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Groups</span>
+                                <span class="metric-value" id="metricAgrTotal">0</span>
+                                <span class="metric-subtext">All asset groups in the library</span>
+                            </div>
                         </div>
-                    </form>
-                    <div class="table-responsive">
-                        <table id="dtAgrAssetGroup" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
-                            <thead>
-                            <tr class="th-strong">
-                                <th style="width: 4%">#</th>
-                                <th style="width: 28%">Asset Group</th>
-                                <th>Description</th>
-                                <th style="width: 15%">Status</th>
-                                <th style="width: 80px"></th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Active</span>
+                                <span class="metric-value" id="metricAgrActive">0</span>
+                                <span class="metric-subtext">Groups available for assignment</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Inactive</span>
+                                <span class="metric-value" id="metricAgrInactive">0</span>
+                                <span class="metric-subtext">Temporarily disabled groups</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Archived</span>
+                                <span class="metric-value" id="metricAgrArchived">0</span>
+                                <span class="metric-subtext">Retired record references</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
+
+                <section class="mt-2">
+                    <div class="filter-card asset-group-filter">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="optAgrStatus">Status</label>
+                                <div class="select-outline">
+                                    <select id="optAgrStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Status</option>
+                                        <option value="1">Active</option>
+                                        <option value="2">Inactive</option>
+                                        <option value="5">Archived</option>
+                                    </select>
+                                    <label for="optAgrStatus">Status</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="txtAgrAssetGroupSearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtAgrAssetGroupSearch" class="form-control">
+                                    <label for="txtAgrAssetGroupSearch" class="active">Keyword Search</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblAgrFilterCount">Showing 0 of 0</span>
+                            <span id="lblAgrFilterUpdated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkAgrAll">All</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAgrActive">Active</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAgrInactive">Inactive</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAgrArchived">Archived</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="card card-cascade narrower z-depth-0 module-data-card asset-group-table">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset Group List" data-content="All asset groups defined in the system."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Asset Group List</a>
+                            <div class="dt-btn-slot">
+                                <div id="btnDtAgrAssetGroupExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblAgrListCount">Showing 0 of 0</span>
+                                <span id="lblAgrListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="table-responsive">
+                                <table id="dtAgrAssetGroup" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Asset Group</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>&nbsp;</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </section>
     </div>
@@ -100,7 +181,7 @@
 <!-- Bootstrap core JavaScript -->
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/mdb.js"></script>
 <!-- Crypto JS -->
 <script type="text/javascript" src="js/addons/crypto.js"></script>
 <!-- DataTables.net -->

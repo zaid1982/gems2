@@ -12,32 +12,13 @@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?5">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!--<link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>-->
     <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-        .title-box {
-            border: lightgray 1px solid;
-            border-radius: 5px;
-            font-size: 13px;
-        }
-        .title-box-title {
-            position: relative;
-            top: -0.7em;
-            margin-left: 1em;
-            display: inline;
-            background-color: white;
-        }
-        .title-box-content {
-            padding-top: 0.3rem;
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-    </style>
+    <link href="css/style.css?6" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -54,138 +35,191 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid">
-        <!--Section: Main panel-->
+    <div class="container-fluid" id="divWssPageWidth">
         <section class="mb-5 mt-lg-5 sectionAszMain">
-            <div class="card card-cascade narrower">
-                <!--Section: Search Function & Chart-->
-                <section>
+            <div class="card card-cascade narrower gems-card-shell asset-shell">
+                <section class="gems-page-header asset-header">
+                    <div class="header-text">
+                        <h2>Asset Management</h2>
+                        <p>Monitor asset coverage and manage detailed records across your contract portfolio.</p>
+                        <div class="summary-pill mt-3"><span>Current Contract</span><span id="lblAszContractName">—</span></div>
+                    </div>
+                    <div class="header-actions">
+                        <button type="button" id="btnDtAszAssetRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnAszAssetAdd" class="btn btn-primary" aria-label="Add asset"><i class="fas fa-plus mr-2"></i>Add Asset</button>
+                    </div>
+                </section>
+
+                <section class="mt-4">
                     <div class="row">
-                        <!--Search Function-->
-                        <div class="col-xl-5 col-lg-12 mr-0">
-                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                                <h2 class="h2-responsive mb-0">Asset Management</h2>
-                            </div>
-                            <div class="card-body card-body-cascade">
-                                <div class="px-3 pt-3">
-                                    <h6>Status:</h6>
-                                    <div class="mt-1 pb-2">
-                                        <ul class="striped list-unstyled pl-2">
-                                            <li><a href="javascript:void(0);" id="linkAszAll"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkAsz1"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkAsz2"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkAsz5"></a></li>
-                                        </ul>
-                                    </div>
-                                    <h6 class="pb-3">Search:</h6>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
-                                            <select id="optAszContractId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                                            <label for="optAszContractId">Contract *</label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
-                                            <select id="optAszGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
-                                                <option value="" disabled>All Asset Group</option>
-                                            </select>
-                                            <label for="optAszGroupId">Asset Group</label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
-                                            <select id="optAszCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                                <option value="" disabled>All Asset Category</option>
-                                            </select>
-                                            <label for="optAszCategoryId">Asset Category</label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
-                                            <select id="optAszTypeId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                                <option value="" disabled>All Asset Type</option>
-                                            </select>
-                                            <label for="optAszTypeId">Asset Type</label>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Assets</span>
+                                <span class="metric-value" id="metricAszTotal">0</span>
+                                <span class="metric-subtext">All assets under the selected contract</span>
                             </div>
                         </div>
-                        <!--Chart-->
-                        <div class="col-xl-7 col-lg-12">
-                            <div class="view view-cascade z-depth-3">
-                                <div id="chartAszAssetByType" style="height: 517px; margin: 0"></div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Active</span>
+                                <span class="metric-value" id="metricAszActive">0</span>
+                                <span class="metric-subtext">Assets currently operational</span>
                             </div>
-                            <div class="card-body">
-                                <div class="px-3 mt-4_5">
-                                    <div class="row">
-                                        <div class="col-md-7 select-outline">
-                                            <select id="optAszColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
-                                                <option value="" disabled>Choose Column Visibility</option>
-                                                <option value="1">Asset Name</option>
-                                                <option value="2" selected>Asset No</option>
-                                                <option value="3">Asset Serial No</option>
-                                                <option value="4" selected>Asset Group</option>
-                                                <option value="5" selected>Asset Category</option>
-                                                <option value="6" selected>Asset Type</option>
-                                                <option value="7">Brand</option>
-                                                <option value="8">Model</option>
-                                                <option value="9" selected>PPM Group</option>
-                                                <option value="10">Location Code</option>
-                                                <option value="11" selected>Status</option>
-                                            </select>
-                                            <label for="optAszColumns">Columns Visibility</label>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="md-form md-outline mt-0">
-                                                <input type="text" id="txtAszAssetSearch" class="form-control">
-                                                <label for="txtAszAssetSearch" class="active">Keyword Search</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Inactive</span>
+                                <span class="metric-value" id="metricAszInactive">0</span>
+                                <span class="metric-subtext">Assets in standby or maintenance</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Archived</span>
+                                <span class="metric-value" id="metricAszArchived">0</span>
+                                <span class="metric-subtext">Retired assets kept for reference</span>
                             </div>
                         </div>
                     </div>
                 </section>
-                <!--Section: Table-->
-                <section>
-                    <div class="card card-cascade narrower z-depth-0">
+
+                <section class="mt-2">
+                    <div class="filter-card asset-filter">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="optAszContractId">Contract</label>
+                                <div class="select-outline">
+                                    <select id="optAszContractId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                                    <label for="optAszContractId" id="lblAszContractId">Contract *</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optAszGroupId">Asset Group</label>
+                                <div class="select-outline">
+                                    <select id="optAszGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" disabled>All Asset Group</option>
+                                    </select>
+                                    <label for="optAszGroupId" id="lblAszGroupId">Asset Group</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optAszCategoryId">Asset Category</label>
+                                <div class="select-outline">
+                                    <select id="optAszCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                        <option value="" disabled>All Asset Category</option>
+                                    </select>
+                                    <label for="optAszCategoryId" id="lblAszCategoryId">Asset Category</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optAszTypeId">Asset Type</label>
+                                <div class="select-outline">
+                                    <select id="optAszTypeId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
+                                        <option value="" disabled>All Asset Type</option>
+                                    </select>
+                                    <label for="optAszTypeId" id="lblAszTypeId">Asset Type</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optAszColumns">Columns Visibility</label>
+                                <div class="select-outline">
+                                    <select id="optAszColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
+                                        <option value="" disabled>Choose Column Visibility</option>
+                                        <option value="1">Asset Name</option>
+                                        <option value="2" selected>Asset No</option>
+                                        <option value="3">Asset Serial No</option>
+                                        <option value="4" selected>Asset Group</option>
+                                        <option value="5" selected>Asset Category</option>
+                                        <option value="6" selected>Asset Type</option>
+                                        <option value="7">Brand</option>
+                                        <option value="8">Model</option>
+                                        <option value="9" selected>PPM Group</option>
+                                        <option value="10">Location Code</option>
+                                        <option value="11" selected>Status</option>
+                                    </select>
+                                    <label for="optAszColumns" id="lblAszColumns">Columns Visibility</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="txtAszAssetSearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtAszAssetSearch" class="form-control">
+                                    <label for="txtAszAssetSearch" class="active">Keyword Search</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblAszFilterCount">Showing 0 of 0</span>
+                            <span id="lblAszFilterUpdated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkAszAll">All</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAsz1">Active</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAsz2">Inactive</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAsz5">Archived</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card asset-chart-card">
                         <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
                             <div>
-                                <button type="button" id="btnAszAssetAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Asset"><i class="fas fa-plus mt-0"></i></button>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="Asset List"
-                                   data-content="Asset List for all users that use the system."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtAszAssetRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset Distribution" data-content="Visual breakdown of active assets by group, category, and type."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Asset Breakdown</a>
+                            <div class="d-none d-md-block"></div>
+                        </div>
+                        <div class="px-4 pb-4">
+                            <div id="chartAszAssetByType" class="asset-chart" style="min-height: 420px;"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="card card-cascade narrower z-depth-0 module-data-card asset-table">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset List" data-content="Comprehensive list of assets for the selected contract."><i class="fas fa-info mt-0 mx-1"></i></a>
                             </div>
                             <a href="javascript:void(0);" class="text-white mx-3">Asset List</a>
-                            <div>
+                            <div class="dt-btn-slot">
                                 <div id="btnDtAszAssetExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4">
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblAszListCount">Showing 0 of 0</span>
+                                <span id="lblAszListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
                             <div class="table-responsive">
-                                <table id="dtAszAsset" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                                <table id="dtAszAsset" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
-                                        <th scope="row" style="max-width: 30px">#</th>
-                                        <th style="min-width: 100px">Asset Name</th>
-                                        <th style="min-width: 80px">Asset No</th>
-                                        <th style="min-width: 100px">Asset Serial No</th>
-                                        <th style="min-width: 80px">Asset Group</th>
-                                        <th style="min-width: 120px">Asset Category</th>
-                                        <th style="min-width: 120px">Asset Type</th>
-                                        <th style="min-width: 80px">Brand</th>
-                                        <th style="min-width: 80px">Model</th>
-                                        <th style="min-width: 80px">PPM Group</th>
-                                        <th style="min-width: 80px">Location Code</th>
-                                        <th style="max-width: 55px">Status</th>
-                                        <th style="min-width: 42px"></th>
+                                        <th scope="row">#</th>
+                                        <th>Asset Name</th>
+                                        <th>Asset No</th>
+                                        <th>Asset Serial No</th>
+                                        <th>Asset Group</th>
+                                        <th>Asset Category</th>
+                                        <th>Asset Type</th>
+                                        <th>Brand</th>
+                                        <th>Model</th>
+                                        <th>PPM Group</th>
+                                        <th>Location Code</th>
+                                        <th>Status</th>
+                                        <th>&nbsp;</th>
                                     </tr>
                                     </thead>
-                                    <tbody>
-                                    </tbody>
+                                    <tbody></tbody>
                                 </table>
                             </div>
                         </div>
