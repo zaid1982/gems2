@@ -16,7 +16,7 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
@@ -24,12 +24,9 @@
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css?2" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <!-- Custom styles -->
+    <link href="css/style.css?6" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -50,93 +47,165 @@
     <div class="container-fluid">
         <div id="mdb-lightbox-ui"></div>
 
-        <section class="section mb-5 mt-lg-5 sectionInvMain">
-            <div class="row">
-                <div class="col-lg-10 col-xl-8">
-                    <div class="card card-cascade cascading-admin-card user-card mt-4">
-                        <div class="admin-up d-flex justify-content-start">
-                            <i class="fas fa-warehouse rgba-cyan-strong py-4 z-depth-3"></i>
-                            <div class="data">
-                                <h3 class="font-weight-bold dark-grey-text ml-3">Inventory Management</h3>
+        <section class="mb-5 mt-lg-5 sectionInvMain">
+            <div class="card card-cascade narrower gems-card-shell inventory-shell">
+                <section class="gems-page-header inventory-header">
+                    <div class="header-text">
+                        <h2>Inventory Management</h2>
+                        <p>Select a store to review stock balances, thresholds, and item activity.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button type="button" id="btnInvRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnInvAdd" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Add Item"><i class="fas fa-plus mr-2"></i>Add Item</button>
+                    </div>
+                </section>
+
+                <section class="mt-4">
+                    <div class="row">
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Items</span>
+                                <span class="metric-value" id="metricInvTotal">0</span>
+                                <span class="metric-subtext">Records returned by the search</span>
                             </div>
                         </div>
-                        <div class="card-body card-body-cascade pb-0">
-                            <form id="formInvSearch">
-                                <h6 class="pb-3 pt-2">Select Store:</h6>
-                                <div class="row">
-                                    <div class="col-md-12 select-outline mt-0 mb-2" id="optInvClient_">
-                                        <select id="optInvClient" class="mdb-select md-form md-outline colorful-select my-0"></select>
-                                        <label for="optInvClient" id="lblInvClient">Client *</label>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Available</span>
+                                <span class="metric-value" id="metricInvAvailable">0</span>
+                                <span class="metric-subtext">Total on hand minus locked</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Locked</span>
+                                <span class="metric-value" id="metricInvLocked">0</span>
+                                <span class="metric-subtext">Items reserved or pending</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Below Threshold</span>
+                                <span class="metric-value" id="metricInvThreshold">0</span>
+                                <span class="metric-subtext">Items flagged for replenishment</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mt-2">
+                    <div class="filter-card inventory-filter">
+                        <form id="formInvSearch" autocomplete="off">
+                            <div class="filter-grid">
+                                <div>
+                                    <label class="filter-label" for="optInvClient">Client</label>
+                                    <div class="select-outline">
+                                        <select id="optInvClient" class="mdb-select md-form md-outline colorful-select mt-0"></select>
+                                        <label for="optInvClient" id="lblInvClient">Client</label>
                                         <p class="font-small text-danger" id="optInvClientErr"></p>
                                     </div>
-                                    <div class="col-md-12 select-outline mt-0 mb-2" id="optInvSite_">
-                                        <select id="optInvSite" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
-                                        <label for="optInvSite" id="lblInvSite">Site *</label>
+                                </div>
+                                <div>
+                                    <label class="filter-label" for="optInvSite">Site</label>
+                                    <div class="select-outline">
+                                        <select id="optInvSite" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                                        <label for="optInvSite" id="lblInvSite">Site</label>
                                         <p class="font-small text-danger" id="optInvSiteErr"></p>
                                     </div>
-                                    <div class="col-md-12 select-outline mt-0 mb-2" id="optInvStore_">
-                                        <select id="optInvStore" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
-                                        <label for="optInvStore" id="lblInvStore">Store *</label>
+                                </div>
+                                <div>
+                                    <label class="filter-label" for="optInvStore">Store</label>
+                                    <div class="select-outline">
+                                        <select id="optInvStore" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
+                                        <label for="optInvStore" id="lblInvStore">Store</label>
                                         <p class="font-small text-danger" id="optInvStoreErr"></p>
                                     </div>
                                 </div>
-                            </form>
+                                <div>
+                                    <label class="filter-label" for="optInvStatus">Status</label>
+                                    <div class="select-outline">
+                                        <select id="optInvStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                                            <option value="" selected>All Status</option>
+                                        </select>
+                                        <label for="optInvStatus">Status</label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="filter-label" for="txtInvSearch">Keyword Search</label>
+                                    <div class="md-form md-outline mt-0 mb-0">
+                                        <input type="text" id="txtInvSearch" class="form-control">
+                                        <label for="txtInvSearch" class="active">Keyword Search</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="filter-actions mt-4 d-flex justify-content-end">
+                                <button type="button" id="btnInvSearch" class="btn btn-primary"><i class="fas fa-search mr-2"></i>Run Search</button>
+                            </div>
+                        </form>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblInvFilterCount">Showing 0 of 0</span>
+                            <span id="lblInvFilterUpdated">—</span>
                         </div>
-                        <div class="card-footer">
-                            <button type="button" id="btnInvSearch" class="btn btn-outline-success btn-rounded waves-effect float-right" data-toggle="tooltip" title="View Inventory">
-                                <i class="fas fa-search mr-1"></i> View
-                            </button>
+                    </div>
+                </section>
+
+                <section class="mb-4 mt-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkInvAll">All</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkInvActive">Active</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkInvInactive">Inactive</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkInvArchived">Archived</a>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-        <section class="section mb-5 mt-lg-5 sectionInvMain" id="sectionInvResult">
-            <div class="card card-cascade narrower">
-                <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                    <div>
-                        <button type="button" id="btnInvDataAdd"
-                                class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main"
-                                data-toggle="tooltip" data-placement="top" title="Add Item"><i
-                                class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Inventory Item List"
-                           data-content="All records of registered Parts in the Inventory."><i
-                                class="fas fa-info mt-0 mx-1"></i></a>
+                </section>
+
+                <section id="sectionInvResult">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card inventory-table">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Inventory List" data-content="All registered inventory items with current balances and thresholds."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Inventory Item List</a>
+                            <div class="dt-btn-slot">
+                                <div id="btnDtInvExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblInvListCount">Showing 0 of 0</span>
+                                <span id="lblInvListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="table-responsive">
+                                <table id="dtInvData" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Asset Group</th>
+                                        <th>Item Type</th>
+                                        <th>Item Description</th>
+                                        <th>Total in Store</th>
+                                        <th>Total Locked</th>
+                                        <th>Total Available</th>
+                                        <th>Threshold</th>
+                                        <th>Minimum Order</th>
+                                        <th>Maximum Order</th>
+                                        <th>Remark</th>
+                                        <th>Status</th>
+                                        <th>&nbsp;</th>
+                                        <th>&nbsp;</th>
+                                        <th>Image</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Inventory Item List</a>
-                    <div>
-                        <button type="button" id="btnDtInvDataRefresh"
-                                class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip"
-                                data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                    </div>
-                </div>
-                <div class="m-2 py-3">
-                    <div class="table-responsive">
-                        <table id="dtInvData" class="table table-hover table-sm mb-0 display responsive">
-                            <thead>
-                            <tr class="th-strong">
-                                <th>#</th>
-                                <th>Asset Group</th>
-                                <th>Item Type</th>
-                                <th>Item Description</th>
-                                <th>Total in Store</th>
-                                <th>Total Locked</th>
-                                <th>Total Available</th>
-                                <th>Threshold</th>
-                                <th>Minimum Order</th>
-                                <th>Maximum Order</th>
-                                <th>Remark</th>
-                                <th>Status</th>
-                                <th>&nbsp;</th>
-                                <th>&nbsp;</th>
-                                <th>Image</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
+                </section>
             </div>
         </section>
         <div class="includeHtml" id="h-section_part"></div>

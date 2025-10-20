@@ -8,20 +8,17 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?5">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <!-- Custom styles -->
+    <link href="css/style.css?6" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -41,42 +38,135 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionItmMain">
-            <div class="card card-cascade narrower">
-                <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                    <div>
-                        <button type="button" id="btnItmDataAdd"
-                                class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main"
-                                data-toggle="tooltip" data-placement="top" title="Add Item Type"><i
-                                class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Item Type List"
-                           data-content="All records of available Item Type to be used as Item / Material category."><i
-                                class="fas fa-info mt-0 mx-1"></i></a>
+            <div class="card card-cascade narrower gems-card-shell item-type-shell">
+                <section class="gems-page-header item-type-header">
+                    <div class="header-text">
+                        <h2>Item Type Management</h2>
+                        <p>Organize reusable item type definitions and align them with their asset groups.</p>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Item Type List</a>
-                    <div>
-                        <button type="button" id="btnDtItmDataRefresh"
-                                class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip"
-                                data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                    <div class="header-actions">
+                        <button type="button" id="btnItmRefresh" class="btn btn-light btn-icon" data-toggle="tooltip" data-placement="top" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnItmAdd" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Add Item Type"><i class="fas fa-plus mr-2"></i>Add Item Type</button>
                     </div>
-                </div>
-                <div class="m-2 py-3">
-                    <div class="table-responsive">
-                        <table id="dtItmData" class="table table-hover table-sm mb-0 display responsive">
-                            <thead>
-                            <tr class="th-strong">
-                                <th>#</th>
-                                <th>Asset Group</th>
-                                <th>Item Type</th>
-                                <th>Option Turn</th>
-                                <th>Status</th>
-                                <th>&nbsp;</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                </section>
+
+                <section class="mt-4">
+                    <div class="row">
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Types</span>
+                                <span class="metric-value" id="metricItmTotal">0</span>
+                                <span class="metric-subtext">All configured item types</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Active</span>
+                                <span class="metric-value" id="metricItmActive">0</span>
+                                <span class="metric-subtext">Available for item creation</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Inactive</span>
+                                <span class="metric-value" id="metricItmInactive">0</span>
+                                <span class="metric-subtext">Temporarily disabled types</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Asset Groups</span>
+                                <span class="metric-value" id="metricItmGroups">0</span>
+                                <span class="metric-subtext">Distinct groups represented</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
+
+                <section class="mt-2">
+                    <div class="filter-card item-type-filter">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="optItmAssetGroup">Asset Group</label>
+                                <div class="select-outline">
+                                    <select id="optItmAssetGroup" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Asset Groups</option>
+                                    </select>
+                                    <label for="optItmAssetGroup">Asset Group</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optItmStatus">Status</label>
+                                <div class="select-outline">
+                                    <select id="optItmStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Status</option>
+                                    </select>
+                                    <label for="optItmStatus">Status</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="txtItmSearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtItmSearch" class="form-control" placeholder="Search item type or option turn">
+                                    <label for="txtItmSearch" class="active">Keyword Search</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblItmFilterCount">Showing 0 of 0</span>
+                            <span id="lblItmFilterUpdated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4 mt-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkItmAll">All</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkItmActive">Active</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkItmInactive">Inactive</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkItmArchived">Archived</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="sectionItmResult">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card item-type-table">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Item Type List" data-content="All records of item types available for item and material classification."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Item Type List</a>
+                            <div class="dt-btn-slot">
+                                <div id="btnDtItmExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblItmListCount">Showing 0 of 0</span>
+                                <span id="lblItmListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="table-responsive">
+                                <table id="dtItmData" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Asset Group</th>
+                                        <th>Item Type</th>
+                                        <th>Option Turn</th>
+                                        <th>Status</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </section>
     </div>

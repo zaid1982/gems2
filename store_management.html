@@ -8,20 +8,17 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
+    <link rel="stylesheet" href="css/mdb.css?5">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
+    <!-- Custom styles -->
+    <link href="css/style.css?6" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -41,44 +38,137 @@
     <div class="container-fluid">
         <!--Section: Main panel-->
         <section class="mb-5 mt-lg-5 sectionStmMain">
-            <div class="card card-cascade narrower">
-                <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                    <div>
-                        <button type="button" id="btnStmDataAdd"
-                                class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main"
-                                data-toggle="tooltip" data-placement="top" title="Add Inventory Store"><i
-                                class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Inventory Store Management"
-                           data-content="List of Inventory Store in all sites"><i
-                                class="fas fa-info mt-0 mx-1"></i></a>
+            <div class="card card-cascade narrower gems-card-shell store-management-shell">
+                <section class="gems-page-header store-management-header">
+                    <div class="header-text">
+                        <h2>Inventory Store Management</h2>
+                        <p>Track all site stores, their stock coverage, and operational readiness in one view.</p>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Inventory Store Management</a>
-                    <div>
-                        <button type="button" id="btnDtStmDataRefresh"
-                                class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip"
-                                data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                    <div class="header-actions">
+                        <button type="button" id="btnStmRefresh" class="btn btn-light btn-icon" data-toggle="tooltip" data-placement="top" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync"></i></button>
+                        <button type="button" id="btnStmAdd" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Add Inventory Store"><i class="fas fa-plus mr-2"></i>Add Store</button>
                     </div>
-                </div>
-                <div class="m-2 py-3">
-                    <div class="table-responsive">
-                        <table id="dtStmData" class="table table-hover table-sm mb-0 display responsive">
-                            <thead>
-                            <tr class="th-strong">
-                                <th>#</th>
-                                <th>Client</th>
-                                <th>Store Name</th>
-                                <th>Store Description</th>
-                                <th>Total Item Descriptions</th>
-                                <th>Total Items</th>
-                                <th>Status</th>
-                                <th>&nbsp;</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                </section>
+
+                <section class="mt-4">
+                    <div class="row">
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Total Stores</span>
+                                <span class="metric-value" id="metricStmTotal">0</span>
+                                <span class="metric-subtext">All managed locations</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Active</span>
+                                <span class="metric-value" id="metricStmActive">0</span>
+                                <span class="metric-subtext">Stores open for inventory</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Inactive</span>
+                                <span class="metric-value" id="metricStmInactive">0</span>
+                                <span class="metric-subtext">Stores awaiting activation</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xl-3 mb-4">
+                            <div class="metric-card">
+                                <span class="metric-label">Inventory Items</span>
+                                <span class="metric-value" id="metricStmItems">0</span>
+                                <span class="metric-subtext">Total tracked stock count</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
+
+                <section class="mt-2">
+                    <div class="filter-card store-management-filter">
+                        <div class="filter-grid">
+                            <div>
+                                <label class="filter-label" for="optStmSite">Site</label>
+                                <div class="select-outline">
+                                    <select id="optStmSite" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Sites</option>
+                                    </select>
+                                    <label for="optStmSite">Site</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="optStmStatus">Status</label>
+                                <div class="select-outline">
+                                    <select id="optStmStatus" class="mdb-select md-form md-outline colorful-select mt-0">
+                                        <option value="" selected>All Status</option>
+                                    </select>
+                                    <label for="optStmStatus">Status</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="filter-label" for="txtStmSearch">Keyword Search</label>
+                                <div class="md-form md-outline mt-0 mb-0">
+                                    <input type="text" id="txtStmSearch" class="form-control" placeholder="Search store name or description">
+                                    <label for="txtStmSearch" class="active">Keyword Search</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
+                            <span id="lblStmFilterCount">Showing 0 of 0</span>
+                            <span id="lblStmFilterUpdated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4 mt-4">
+                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
+                        <label class="filter-label mb-2">Quick Status</label>
+                        <div class="gems-status-scroll">
+                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkStmAll">All</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkStmActive">Active</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkStmInactive">Inactive</a>
+                            <a href="javascript:void(0);" class="gems-status-chip" id="linkStmArchived">Archived</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="sectionStmResult">
+                    <div class="card card-cascade narrower z-depth-0 module-data-card store-management-table">
+                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Inventory Store List" data-content="List of stores across all sites along with inventory coverage."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">Inventory Store List</a>
+                            <div class="dt-btn-slot">
+                                <div id="btnDtStmExport"></div>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-3">
+                            <div class="summary-pill d-flex justify-content-between align-items-center">
+                                <span id="lblStmListCount">Showing 0 of 0</span>
+                                <span id="lblStmListUpdated">—</span>
+                            </div>
+                        </div>
+                        <div class="px-4 pb-4 module-table-wrapper">
+                            <div class="table-responsive">
+                                <table id="dtStmData" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+                                    <thead>
+                                    <tr class="th-strong">
+                                        <th>#</th>
+                                        <th>Site</th>
+                                        <th>Store Name</th>
+                                        <th>Description</th>
+                                        <th>Total Item Descriptions</th>
+                                        <th>Total Items</th>
+                                        <th>Status</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </section>
     </div>
