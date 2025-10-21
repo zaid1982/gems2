@@ -17,74 +17,386 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
+    <!-- Shared UI chrome -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
-        .import-step {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: #f9f9f9;
+        :root {
+            --ppm-primary: #0ea5e9;
+            --ppm-secondary: #6366f1;
+            --ppm-text: #0f172a;
+            --ppm-muted: #64748b;
+            --ppm-radius: 26px;
+            --ppm-shadow: 0 34px 66px -38px rgba(15, 23, 42, 0.45);
+            --ppm-card-shadow: 0 24px 52px -36px rgba(15, 23, 42, 0.32);
         }
-        .import-step.active {
-            border-color: #007bff;
-            background: #e7f3ff;
+
+        body {
+            background: linear-gradient(160deg, rgba(224, 242, 254, 0.8) 0%, rgba(237, 242, 247, 1) 55%, rgba(226, 232, 240, 1) 100%);
+            color: var(--ppm-text);
         }
-        .import-step.completed {
-            border-color: #28a745;
-            background: #d4edda;
+
+        main.ppm-import-main {
+            /* padding: 1.75rem 0 3.5rem; */
         }
-        .step-number {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
+
+        .ppm-page-header {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.95) 0%, rgba(99, 102, 241, 0.9) 100%);
+            border-radius: 32px;
+            padding: 40px 36px;
+            margin-bottom: 32px;
+            color: #fff;
+            box-shadow: var(--ppm-shadow);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ppm-page-header:after {
+            content: '';
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            right: -70px;
+            top: -70px;
             border-radius: 50%;
-            background: #6c757d;
-            color: white;
-            text-align: center;
-            line-height: 30px;
-            margin-right: 10px;
+            background: rgba(255, 255, 255, 0.08);
         }
+
+        .ppm-page-header .header-text {
+            max-width: 720px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ppm-page-header h1 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .ppm-page-header p {
+            margin-bottom: 0;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .ppm-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .ppm-page-header .header-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ppm-page-header .header-actions .btn {
+            border-radius: 999px;
+            padding: 0.75rem 1.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #fff;
+        }
+
+        .ppm-page-header .header-actions .btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .ppm-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 28px;
+        }
+
+        .ppm-flow-card,
+        .ppm-support-card {
+            background: #fff;
+            border-radius: var(--ppm-radius);
+            padding: 28px 32px;
+            box-shadow: var(--ppm-card-shadow);
+        }
+
+        .ppm-support-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ppm-support-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .ppm-support-card p {
+            margin-bottom: 0;
+            color: var(--ppm-muted);
+        }
+
+        .support-tip {
+            background: rgba(14, 165, 233, 0.12);
+            border-radius: 18px;
+            padding: 16px 18px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            color: var(--ppm-text);
+        }
+
+        .support-tip i {
+            color: var(--ppm-primary);
+            font-size: 1.3rem;
+        }
+
+        .import-step {
+            border-radius: 22px;
+            padding: 26px 24px;
+            background: #f8fafc;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            margin-bottom: 22px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .import-step.active {
+            border-color: rgba(14, 165, 233, 0.55);
+            background: rgba(14, 165, 233, 0.08);
+            box-shadow: 0 26px 48px -36px rgba(14, 165, 233, 0.35);
+        }
+
+        .import-step.completed {
+            border-color: rgba(34, 197, 94, 0.6);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .import-step h4 {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+            font-weight: 700;
+            color: var(--ppm-text);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(148, 163, 184, 0.3);
+            color: var(--ppm-text);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
         .step-number.active {
-            background: #007bff;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(99, 102, 241, 0.9));
+            color: #fff;
         }
+
         .step-number.completed {
-            background: #28a745;
+            background: rgba(34, 197, 94, 0.85);
+            color: #fff;
         }
+
+        .template-download {
+            background: rgba(14, 165, 233, 0.12);
+            border: 1px solid rgba(14, 165, 233, 0.25);
+            border-radius: 18px;
+            padding: 20px 22px;
+            margin-bottom: 22px;
+        }
+
+        .template-download h5 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--ppm-text);
+        }
+
+        .template-download .alert {
+            border-radius: 16px;
+            border: none;
+            padding: 18px;
+        }
+
         .file-drop-zone {
-            border: 2px dashed #ccc;
-            border-radius: 10px;
-            padding: 40px;
+            border: 2px dashed rgba(148, 163, 184, 0.45);
+            border-radius: 22px;
+            padding: 40px 28px;
             text-align: center;
             cursor: pointer;
-            transition: border-color 0.3s;
+            background: #fff;
+            transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
         }
-        .file-drop-zone:hover {
-            border-color: #007bff;
-        }
+
+        .file-drop-zone:hover,
         .file-drop-zone.dragover {
-            border-color: #007bff;
-            background: #e7f3ff;
+            border-color: rgba(14, 165, 233, 0.8);
+            background: rgba(14, 165, 233, 0.08);
+            box-shadow: 0 24px 46px -36px rgba(14, 165, 233, 0.35);
         }
+
+        .file-info .alert {
+            border-radius: 16px;
+            border: none;
+            margin-bottom: 0;
+        }
+
+        .upload-progress label {
+            font-weight: 600;
+            color: var(--ppm-muted);
+        }
+
+        .progress {
+            height: 12px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.25);
+        }
+
+        .progress-bar {
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(99, 102, 241, 0.9));
+        }
+
         .preview-table {
             max-height: 400px;
             overflow-y: auto;
+            border-radius: 18px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
+
+        .preview-table table {
+            margin-bottom: 0;
+        }
+
         .error-row {
-            background-color: #ffebee !important;
+            background: rgba(248, 113, 113, 0.16) !important;
         }
+
         .warning-row {
-            background-color: #fff3cd !important;
+            background: rgba(251, 191, 36, 0.18) !important;
         }
+
         .success-row {
-            background-color: #d4edda !important;
+            background: rgba(34, 197, 94, 0.16) !important;
         }
-        .template-download {
-            background: #e8f4fd;
-            border: 1px solid #bee5eb;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
+
+        .ppm-actions .btn,
+        .import-step .btn {
+            border-radius: 999px;
+            padding: 0.7rem 1.6rem;
+            font-weight: 600;
+        }
+
+        .ppm-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ppm-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(241, 245, 249, 0.9);
+        }
+
+        .ppm-legend-item span {
+            font-weight: 600;
+            color: var(--ppm-text);
+        }
+
+        .import-step .alert {
+            border-radius: 16px;
+        }
+
+        .modal-content {
+            border-radius: 24px;
+            box-shadow: var(--ppm-card-shadow);
+        }
+
+        .modal-header {
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(99, 102, 241, 0.18));
+            border-bottom: none;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            color: var(--ppm-text);
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        .modal-footer {
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+
+        @media (min-width: 992px) {
+            .ppm-layout {
+                grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            main.ppm-import-main {
+                padding: 1.25rem 0 3rem;
+            }
+
+            .ppm-page-header {
+                padding: 32px 28px;
+            }
+
+            .ppm-flow-card,
+            .ppm-support-card {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .ppm-page-header {
+                padding: 26px 22px;
+            }
+
+            .ppm-page-header .header-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .file-drop-zone {
+                padding: 32px 18px;
+            }
+
+            .template-download {
+                padding: 18px;
+            }
+
+            .ppm-flow-card,
+            .ppm-support-card {
+                padding: 20px;
+            }
         }
     </style>
     <!-- JQuery -->
@@ -104,144 +416,170 @@
     <div class="includeHtml" id="h-nav_top"></div>
 </header>
 <!--Main layout-->
-<main>
+<main class="ppm-import-main">
     <div class="container-fluid">
-        <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionPpmMain">
-            <div class="card card-cascade narrower">
-                <!--Section: Header-->
-                <section>
-                    <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                        <h2 class="h2-responsive mb-0"><i class="fa fa-upload mr-2"></i>PPM Import</h2>
-                        <p class="text-white-50 mb-0">Import PPM tasks from Excel file with comprehensive validation</p>
-                    </div>
-                </section>
+        <section class="ppm-page-header">
+            <div class="header-text">
+                <span class="ppm-chip"><i class="fas fa-cloud-upload-alt"></i> PPM Import</span>
+                <h1>PPM Import Workflow</h1>
+                <p>Upload validated preventive maintenance schedules, review automated checks, and commit tasks with confidence.</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline-light" type="button" onclick="document.getElementById('downloadTemplate').click()">
+                    <i class="fas fa-file-download mr-2"></i>Download Template
+                </button>
+                <button class="btn btn-outline-light" type="button" onclick="showImportHistory()">
+                    <i class="fas fa-history mr-2"></i>Import History
+                </button>
+            </div>
+        </section>
 
-                <!--Section: Import Steps-->
-                <section>
-                    <div class="card-body card-body-cascade">
-                        <div class="row">
-                            <div class="col-12">
-                                
-                                <!-- Step 1: Template & File Selection -->
-                                <div class="import-step active" id="step1">
-                                    <h4><span class="step-number active" id="step1-number">1</span> Template & File Selection</h4>
-                                    
-                                    <!-- Template Download -->
-                                    <div class="template-download">
-                                        <h5><i class="fa fa-download"></i> PPM Import Template</h5>
-                                        <p>Download the template and fill in your PPM task data:</p>
-                                        
-                        <div class="alert alert-info">
+        <div class="ppm-layout">
+            <section class="ppm-flow-card">
+                <div class="import-step active" id="step1">
+                    <h4><span class="step-number active" id="step1-number">1</span>Template & File Selection</h4>
+                    <div class="template-download">
+                        <h5><i class="fa fa-download mr-1"></i>PPM Import Template</h5>
+                        <p class="mb-3">Download the latest template, populate your PPM task data, and keep the structure intact for quicker validation.</p>
+                        <div class="alert alert-info mb-3">
                             <strong>PPM Import Requirements:</strong><br>
                             • Required: PPM Task No., Asset Code, Assigned Technician, Task Description, Next Due Date<br>
                             • <strong>Note:</strong> All imported tasks are automatically set as "Complete" status<br>
                             • Asset Code: Must match existing assets in the system<br>
                             • Assigned Technician: Must be valid username from system<br>
-                            • All dates in YYYY-MM-DD format<br>
-                            • Excel format provides better data validation and formatting<br>
-                        </div>                                        <button class="btn btn-success" id="downloadTemplate">
-                                            <i class="fa fa-file-excel"></i> Download PPM Excel Template
-                                        </button>
-                                        <button class="btn btn-info ml-2" id="viewSampleData">
-                                            <i class="fa fa-eye"></i> View Sample Data Format
-                                        </button>
-                                    </div>
+                            • All dates in YYYY-MM-DD format
+                        </div>
+                        <div class="d-flex flex-wrap align-items-center">
+                            <button class="btn btn-success mr-2 mb-2" id="downloadTemplate">
+                                <i class="fa fa-file-excel mr-1"></i>Download PPM Excel Template
+                            </button>
+                            <button class="btn btn-info mb-2" id="viewSampleData">
+                                <i class="fa fa-eye mr-1"></i>View Sample Data Format
+                            </button>
+                        </div>
+                    </div>
 
-                                    <!-- File Upload Area -->
-                                    <div class="file-drop-zone" id="fileDropZone">
-                                        <div class="upload-icon">
-                                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-                                        </div>
-                                        <h5>Drag & Drop PPM Excel File Here</h5>
-                                        <p class="text-muted">or click to browse files (.xlsx, .xls)</p>
-                                        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
-                                        <button class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">
-                                            <i class="fa fa-folder-open mr-1"></i> Browse Files
-                                        </button>
-                                        
-                                        <!-- File Info -->
-                                        <div class="file-info mt-3" id="fileInfo" style="display: none;">
-                                            <div class="alert alert-success mb-0">
-                                                <i class="fas fa-file-excel mr-2"></i>
-                                                <strong>File:</strong> <span id="fileName"></span><br>
-                                                <strong>Size:</strong> <span id="fileSize"></span><br>
-                                                <strong>Type:</strong> <span id="fileType"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-3">
-                                        <button class="btn btn-primary waves-effect" id="proceedToUpload" disabled>
-                                            <i class="fa fa-arrow-right mr-1"></i> Proceed to Validation
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Step 2: File Upload & Processing -->
-                                <div class="import-step" id="step2">
-                                    <h4><span class="step-number" id="step2-number">2</span> File Upload & Processing</h4>
-                                    
-                                    <div class="upload-progress mb-3">
-                                        <label>Upload Progress:</label>
-                                        <div class="progress">
-                                            <div class="progress-bar progress-bar-striped progress-bar-animated" id="uploadProgress" 
-                                                 role="progressbar" style="width: 0%"></div>
-                                        </div>
-                                        <small class="text-muted" id="uploadStatus">Ready to upload...</small>
-                                    </div>
-
-                                    <div class="mt-3">
-                                        <button class="btn btn-success waves-effect" id="validateFile" disabled>
-                                            <i class="fa fa-check mr-1"></i> Validate File
-                                        </button>
-                                        <button class="btn btn-secondary waves-effect ml-2" id="backToStep1">
-                                            <i class="fa fa-arrow-left mr-1"></i> Back
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Step 3: Preview & Validation -->
-                                <div class="import-step" id="step3">
-                                    <h4><span class="step-number" id="step3-number">3</span> Preview & Validation</h4>
-                                    
-                                    <div id="validationSummary"></div>
-                                    
-                                    <div id="previewData" class="mt-3"></div>
-
-                                    <div class="mt-3">
-                                        <button class="btn btn-primary waves-effect" id="executeImport" disabled>
-                                            <i class="fa fa-upload mr-1"></i> Execute Import
-                                        </button>
-                                        <button class="btn btn-secondary waves-effect ml-2" id="backToStep2">
-                                            <i class="fa fa-arrow-left mr-1"></i> Back
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Step 4: Import Results -->
-                                <div class="import-step" id="step4">
-                                    <h4><span class="step-number" id="step4-number">4</span> Import Results</h4>
-                                    
-                                    <div id="importResults"></div>
-                                    
-                                    <div class="mt-3">
-                                        <button class="btn btn-success waves-effect" id="startNewImport">
-                                            <i class="fa fa-plus mr-1"></i> Start New Import
-                                        </button>
-                                        <button class="btn btn-info waves-effect ml-2" id="viewImportHistory">
-                                            <i class="fa fa-history mr-1"></i> View Import History
-                                        </button>
-                                    </div>
-                                </div>
-
+                    <div class="file-drop-zone" id="fileDropZone">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                        </div>
+                        <h5 class="mb-1">Drag & Drop PPM Excel File Here</h5>
+                        <p class="text-muted">Or click below to browse `.xlsx` or `.xls` files</p>
+                        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                        <button class="btn btn-outline-primary" type="button" onclick="document.getElementById('fileInput').click()">
+                            <i class="fa fa-folder-open mr-1"></i>Browse Files
+                        </button>
+                        <div class="file-info mt-3" id="fileInfo" style="display: none;">
+                            <div class="alert alert-success mb-0">
+                                <i class="fas fa-file-excel mr-2"></i>
+                                <strong>File:</strong> <span id="fileName"></span><br>
+                                <strong>Size:</strong> <span id="fileSize"></span><br>
+                                <strong>Type:</strong> <span id="fileType"></span>
                             </div>
                         </div>
                     </div>
-                </section>
 
-            </div>
-        </section>
+                    <div class="ppm-actions mt-3">
+                        <button class="btn btn-primary waves-effect" id="proceedToUpload" disabled>
+                            <i class="fa fa-arrow-right mr-1"></i>Proceed to Validation
+                        </button>
+                    </div>
+                </div>
+
+                <div class="import-step" id="step2">
+                    <h4><span class="step-number" id="step2-number">2</span>File Upload & Processing</h4>
+                    <div class="upload-progress mb-3">
+                        <label class="mb-1">Upload Progress</label>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" id="uploadProgress" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <small class="text-muted" id="uploadStatus">Ready to upload...</small>
+                    </div>
+                    <div class="ppm-actions mt-3">
+                        <button class="btn btn-success waves-effect" id="validateFile" disabled>
+                            <i class="fa fa-check mr-1"></i>Validate File
+                        </button>
+                        <button class="btn btn-outline-secondary waves-effect ml-2" id="backToStep1">
+                            <i class="fa fa-arrow-left mr-1"></i>Back
+                        </button>
+                    </div>
+                </div>
+
+                <div class="import-step" id="step3">
+                    <h4><span class="step-number" id="step3-number">3</span>Preview & Validation</h4>
+                    <div id="validationSummary"></div>
+                    <div id="previewData" class="mt-3"></div>
+                    <div class="ppm-actions mt-3">
+                        <button class="btn btn-primary waves-effect" id="executeImport" disabled>
+                            <i class="fa fa-upload mr-1"></i>Execute Import
+                        </button>
+                        <button class="btn btn-outline-secondary waves-effect ml-2" id="backToStep2">
+                            <i class="fa fa-arrow-left mr-1"></i>Back
+                        </button>
+                    </div>
+                </div>
+
+                <div class="import-step" id="step4">
+                    <h4><span class="step-number" id="step4-number">4</span>Import Results</h4>
+                    <div id="importResults"></div>
+                    <div class="ppm-actions mt-3">
+                        <button class="btn btn-success waves-effect" id="startNewImport">
+                            <i class="fa fa-plus mr-1"></i>Start New Import
+                        </button>
+                        <button class="btn btn-outline-info waves-effect ml-2" id="viewImportHistory">
+                            <i class="fa fa-history mr-1"></i>View Import History
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="ppm-support-card">
+                <h3><i class="fas fa-clipboard-check mr-2 text-info"></i>Import Checklist</h3>
+                <div class="support-tip">
+                    <i class="fas fa-list-alt"></i>
+                    <div>
+                        <strong>Before you upload</strong>
+                        <p class="mb-0">Confirm the Excel headers match the template exactly and ensure mandatory columns are filled for every row.</p>
+                    </div>
+                </div>
+                <div class="support-tip">
+                    <i class="fas fa-sync"></i>
+                    <div>
+                        <strong>Batch validation</strong>
+                        <p class="mb-0">Validation runs server-side to cross-check assets, technicians, and scheduling windows prior to import.</p>
+                    </div>
+                </div>
+                <div class="ppm-legend">
+                    <div class="ppm-legend-item">
+                        <span class="badge badge-success">Valid</span>
+                        <small class="text-muted">Rows ready for import</small>
+                    </div>
+                    <div class="ppm-legend-item">
+                        <span class="badge badge-warning">Warning</span>
+                        <small class="text-muted">Review data but import still allowed</small>
+                    </div>
+                    <div class="ppm-legend-item">
+                        <span class="badge badge-danger">Error</span>
+                        <small class="text-muted">Must resolve before import</small>
+                    </div>
+                </div>
+                <div class="support-tip">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Need a refresher?</strong>
+                        <p class="mb-3">Open the sample dataset or review recent import outcomes without leaving this screen.</p>
+                        <div class="d-flex flex-wrap align-items-center">
+                            <button class="btn btn-outline-primary btn-sm mr-2 mb-2" type="button" onclick="showSampleData()">
+                                <i class="fas fa-eye mr-1"></i>Sample Data
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm mb-2" type="button" onclick="showImportHistory()">
+                                <i class="fas fa-history mr-1"></i>Latest Imports
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
     </div>
 
     <!-- Import History Modal -->
@@ -297,6 +635,8 @@
 <script type="text/javascript" src="js/mdb.js"></script>
 <!-- Crypto JS -->
 <script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
 
 <!-- SCRIPTS -->
 <script type="text/javascript">

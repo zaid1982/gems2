@@ -1,292 +1,748 @@
 <section class="section mb-5 sectionUserGame">
-    <div class="row mb-4 pb-0">
-        <div class="col-md-12">
-            <button class="btn btn-outline-info btn-rounded float-right text-white z-depth-3" id="btnSugBack" type="button">
+    <style>
+        .sectionUserGame {
+            background: linear-gradient(150deg, rgba(226, 232, 240, 0.4) 0%, rgba(241, 245, 249, 0.95) 70%, rgba(255, 255, 255, 1) 100%);
+            border-radius: 32px;
+            padding: 34px 30px 42px;
+            box-shadow: 0 34px 70px -42px rgba(15, 23, 42, 0.35);
+        }
+
+        .sectionUserGame .user-game-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.96) 0%, rgba(99, 102, 241, 0.92) 100%);
+            color: #fff;
+            border-radius: 28px;
+            padding: 34px 32px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sectionUserGame .user-game-header:after {
+            content: '';
+            position: absolute;
+            right: -60px;
+            top: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .sectionUserGame .user-game-header .header-text {
+            max-width: 620px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sectionUserGame .user-game-header h2 {
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+
+        .sectionUserGame .user-game-header p {
+            margin-bottom: 0;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .sectionUserGame .header-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .sectionUserGame .user-game-header .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sectionUserGame .user-game-header .header-actions .btn {
+            border-radius: 999px;
+            padding: 0.75rem 1.6rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #fff;
+        }
+
+        .sectionUserGame .user-game-header .header-actions .btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .sectionUserGame .user-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .sectionUserGame .user-profile-card {
+            background: #fff;
+            border-radius: 26px;
+            padding: 32px 28px 28px;
+            text-align: center;
+            box-shadow: 0 26px 52px -34px rgba(15, 23, 42, 0.32);
+        }
+
+        .sectionUserGame .user-profile-card figure {
+            margin: 0 0 18px;
+        }
+
+        .sectionUserGame .user-profile-card img {
+            width: 128px;
+            height: 128px;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 24px 36px -28px rgba(14, 165, 233, 0.6);
+        }
+
+        .sectionUserGame .user-profile-card h6 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .sectionUserGame .user-profile-card small {
+            color: #64748b;
+        }
+
+        .sectionUserGame .user-profile-card .profile-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .sectionUserGame .user-profile-card .profile-actions a {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(14, 165, 233, 0.12);
+            color: #0ea5e9;
+        }
+
+        .sectionUserGame .user-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+        }
+
+        .sectionUserGame .user-metric-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 20px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 24px 48px -34px rgba(15, 23, 42, 0.28);
+            min-height: 120px;
+        }
+
+        .sectionUserGame .user-metric-card .metric-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(99, 102, 241, 0.18));
+            color: #4338ca;
+        }
+
+        .sectionUserGame .user-metric-card .metric-content {
+            text-align: right;
+            margin-left: auto;
+        }
+
+        .sectionUserGame .user-metric-card .metric-label {
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .sectionUserGame .user-metric-card .metric-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .sectionUserGame .user-metric-card.trending-positive .metric-value {
+            color: #16a34a;
+        }
+
+        .sectionUserGame .user-main-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .sectionUserGame .user-summary-card,
+        .sectionUserGame .user-chart-card,
+        .sectionUserGame .user-history-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px -40px rgba(15, 23, 42, 0.32);
+            overflow: hidden;
+        }
+
+        .sectionUserGame .user-summary-card header,
+        .sectionUserGame .user-history-card header {
+            background: linear-gradient(90deg, rgba(14, 165, 233, 0.12), rgba(99, 102, 241, 0.12));
+            padding: 22px 28px;
+        }
+
+        .sectionUserGame .user-summary-card header h4,
+        .sectionUserGame .user-history-card header h4 {
+            margin: 0;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .sectionUserGame .user-summary-card .card-body {
+            padding: 28px;
+        }
+
+        .sectionUserGame .profile-field {
+            position: relative;
+            padding-left: 42px;
+            margin-bottom: 18px;
+        }
+
+        .sectionUserGame .profile-field i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .sectionUserGame .profile-field label {
+            font-size: 0.78rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .sectionUserGame .profile-field p {
+            margin: 0;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .sectionUserGame .profile-field + .profile-field {
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+            padding-top: 18px;
+        }
+
+        .sectionUserGame .user-chart-card {
+            padding: 26px 26px 22px;
+        }
+
+        .sectionUserGame .user-chart-card h6 {
+            text-align: center;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 20px;
+        }
+
+        .sectionUserGame .user-chart-card .chart-summary {
+            background: rgba(15, 23, 42, 0.04);
+            border-radius: 18px;
+            padding: 18px;
+            margin-top: 18px;
+        }
+
+        .sectionUserGame .user-chart-card .chart-summary h6 {
+            margin-bottom: 6px;
+            font-size: 0.82rem;
+            letter-spacing: 0.06em;
+            color: #64748b;
+        }
+
+        .sectionUserGame .user-chart-card .chart-summary h4 {
+            margin: 0;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .sectionUserGame .user-history-card .card-body {
+            padding: 26px 26px 30px;
+        }
+
+        .sectionUserGame .user-history-card .table-responsive {
+            border-radius: 18px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            overflow: hidden;
+        }
+
+        .sectionUserGame .user-history-card table {
+            margin-bottom: 0;
+        }
+
+        .sectionUserGame .user-history-card thead th {
+            background: rgba(15, 23, 42, 0.04);
+            border-bottom: none;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #475569;
+        }
+
+        .sectionUserGame .user-history-card tbody td {
+            vertical-align: middle;
+            color: #0f172a;
+        }
+
+        .user-game-modal .modal-header {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(99, 102, 241, 0.18));
+            border-bottom: none;
+        }
+
+        .user-game-modal .modal-title {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .user-game-modal .modal-body {
+            padding: 26px;
+        }
+
+        @media (max-width: 991.98px) {
+            .sectionUserGame {
+                padding: 28px 22px 36px;
+            }
+
+            .sectionUserGame .user-sidebar {
+                margin-bottom: 28px;
+            }
+
+            .sectionUserGame .user-metrics-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .sectionUserGame .user-game-header {
+                padding: 28px 24px;
+            }
+
+            .sectionUserGame .user-game-header .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+                margin-top: 18px;
+            }
+
+            .sectionUserGame .user-summary-card .card-body,
+            .sectionUserGame .user-chart-card,
+            .sectionUserGame .user-history-card .card-body {
+                padding: 20px;
+            }
+
+            .sectionUserGame .profile-field {
+                padding-left: 36px;
+            }
+
+            .sectionUserGame .user-metric-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .sectionUserGame .user-metric-card .metric-content {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .sectionUserGame {
+                padding: 24px 18px 32px;
+            }
+
+            .sectionUserGame .user-game-header {
+                gap: 18px;
+            }
+
+            .sectionUserGame .user-game-header .header-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .sectionUserGame .user-profile-card {
+                padding: 26px 20px 24px;
+            }
+
+            .sectionUserGame .user-profile-card img {
+                width: 110px;
+                height: 110px;
+            }
+        }
+    </style>
+
+    <div class="user-game-header">
+        <div class="header-text">
+            <span class="header-chip"><i class="fas fa-gamepad"></i> Gamification</span>
+            <h2>Leaderboard Profile Insight</h2>
+            <p>Review individual performance trends, scoring breakdowns, and task execution details to support coaching conversations.</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn" id="btnSugBack" type="button">
                 <i class="fas fa-arrow-left mr-2"></i> Back to Main Page
             </button>
         </div>
     </div>
+
     <div class="row">
-        <div class="col-md-4 col-lg-3 mb-4">
-            <div class="card z-depth-3 text-center px-3 py-4 mb-4" id="cardSugPicture">
-                <div class="w-80 mx-auto mb-4">
-                    <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(2).jpg" class="z-depth-1 rounded-circle img-fluid" id="imgSugProfile">
+        <div class="col-lg-4 col-xl-3 user-sidebar">
+            <article class="user-profile-card" id="cardSugPicture">
+                <figure>
+                    <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(2).jpg" class="img-fluid" id="imgSugProfile">
+                </figure>
+                <h6 id="h6SugFullName"></h6>
+                <small id="smallSugDesignation"></small>
+                <div class="profile-actions">
+                    <a href="javascript: void(0)"><i class="fas fa-user-edit"></i></a>
+                    <a href="mailto:xyz@something.com"><i class="far fa-envelope"></i></a>
                 </div>
-                <h6 class="font-weight-bold" id="h6SugFullName"></h6>
-                <small class="text-muted" id="smallSugDesignation"></small>
-                <ul class="list-unstyled d-flex justify-content-center mt-3 mb-0 red-text">
-                    <li><a href="javascript: void(0)"><i class="fas fa-user-edit mx-2"></i></a></li>
-                    <li><a href='mailto:xyz@something.com'><i class="far fa-envelope mx-2"></i></a></li>
-                </ul>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h2 class="float-left ml-2 mt-1"><i class="fas fa-user-plus light-blue-text"></i></h2>
-                    <h4 class="text-right font-weight-bold mt-2 mb-0" id="h3SugPointAddition"></h4>
-                    <p class="text-right font-small mb-0">Points Addition</p>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h1 class="float-left ml-2 mt-1"><i class="fas fa-user-minus light-blue-text"></i></h1>
-                    <h3 class="text-right font-weight-bold mb-0" id="h3SugPointDeduction"></h3>
-                    <p class="text-right font-small mb-0">Points Deduction</p>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h2 class="float-left ml-2 mt-1"><i class="fas fa-star light-blue-text"></i></h2>
-                    <h4 class="text-right font-weight-bold mt-2 mb-0" id="h3SugPointBonus"></h4>
-                    <p class="text-right font-small mb-0">Bonus Points</p>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h1 class="float-left ml-2"><i class="fas fa-scroll light-blue-text"></i></h1>
-                    <h3 class="text-right font-weight-bold mb-0" id="h3SugPointTotal"></h3>
-                    <p class="text-right font-small mb-0">Current Scoring Point</p>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h1 class="float-left ml-2"><i class="fas fa-chart-line light-blue-text"></i></h1>
-                    <h3 class="text-right font-weight-bold mb-0" id="h3SugPerformanceTrending">0 <i class="fas fa-angle-up text-success"></i></h3>
-                    <p class="text-right font-small mb-0">Performance Trading</p>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h1 class="float-left ml-2"><i class="fas fa-running light-blue-text"></i></h1>
-                    <h3 class="text-right font-weight-bold mb-0" id="h3SugProductivityLevel"></h3>
-                    <p class="text-right font-small mb-0">Productivity Level</p>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h1 class="float-left ml-2"><i class="fas fa-walking light-blue-text"></i></h1>
-                    <h3 class="text-right font-weight-bold mb-0" id="h3SugProductivityDeduction"></h3>
-                    <p class="text-right font-small mb-0">Productivity Deduction</p>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h1 class="float-left ml-2"><i class="fas fa-less-than light-blue-text"></i></h1>
-                    <h3 class="text-right font-weight-bold mb-0" id="h3SugLessProductivePoint"></h3>
-                    <p class="text-right font-small mb-0">Less Productive Point</p>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="p-3">
-                    <h1 class="float-left ml-2"><i class="fas fa-star-half-alt light-blue-text"></i></h1>
-                    <h3 class="text-right font-weight-bold mb-0" id="h3SugPointAfterMinus"></h3>
-                    <p class="text-right font-small mb-0">Points After Minus</p>
-                </div>
+            </article>
+
+            <div class="user-metrics-grid">
+                <article class="user-metric-card">
+                    <span class="metric-icon"><i class="fas fa-user-plus"></i></span>
+                    <div class="metric-content">
+                        <span class="metric-label">Points Addition</span>
+                        <span class="metric-value" id="h3SugPointAddition"></span>
+                    </div>
+                </article>
+                <article class="user-metric-card">
+                    <span class="metric-icon"><i class="fas fa-user-minus"></i></span>
+                    <div class="metric-content">
+                        <span class="metric-label">Points Deduction</span>
+                        <span class="metric-value" id="h3SugPointDeduction"></span>
+                    </div>
+                </article>
+                <article class="user-metric-card">
+                    <span class="metric-icon"><i class="fas fa-star"></i></span>
+                    <div class="metric-content">
+                        <span class="metric-label">Bonus Points</span>
+                        <span class="metric-value" id="h3SugPointBonus"></span>
+                    </div>
+                </article>
+                <article class="user-metric-card">
+                    <span class="metric-icon"><i class="fas fa-scroll"></i></span>
+                    <div class="metric-content">
+                        <span class="metric-label">Current Score</span>
+                        <span class="metric-value" id="h3SugPointTotal"></span>
+                    </div>
+                </article>
+                <article class="user-metric-card trending-positive">
+                    <span class="metric-icon"><i class="fas fa-chart-line"></i></span>
+                    <div class="metric-content">
+                        <span class="metric-label">Performance Trend</span>
+                        <span class="metric-value" id="h3SugPerformanceTrending">0 <i class="fas fa-angle-up text-success"></i></span>
+                    </div>
+                </article>
+                <article class="user-metric-card">
+                    <span class="metric-icon"><i class="fas fa-running"></i></span>
+                    <div class="metric-content">
+                        <span class="metric-label">Productivity Level</span>
+                        <span class="metric-value" id="h3SugProductivityLevel"></span>
+                    </div>
+                </article>
+                <article class="user-metric-card">
+                    <span class="metric-icon"><i class="fas fa-walking"></i></span>
+                    <div class="metric-content">
+                        <span class="metric-label">Productivity Deduction</span>
+                        <span class="metric-value" id="h3SugProductivityDeduction"></span>
+                    </div>
+                </article>
+                <article class="user-metric-card">
+                    <span class="metric-icon"><i class="fas fa-less-than"></i></span>
+                    <div class="metric-content">
+                        <span class="metric-label">Less Productive</span>
+                        <span class="metric-value" id="h3SugLessProductivePoint"></span>
+                    </div>
+                </article>
+                <article class="user-metric-card">
+                    <span class="metric-icon"><i class="fas fa-star-half-alt"></i></span>
+                    <div class="metric-content">
+                        <span class="metric-label">Points After Minus</span>
+                        <span class="metric-value" id="h3SugPointAfterMinus"></span>
+                    </div>
+                </article>
             </div>
         </div>
-        <div class="col-md-8 col-lg-9">
-            <div class="card z-depth-3 mb-4" id="cardSugProfile">
-                <div class="card-header white p-0">
-                    <div class="float-left light-blue" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5">Leaderboard Profile</h4>
-                </div>
+
+        <div class="col-lg-8 col-xl-9 user-main-column">
+            <article class="user-summary-card" id="cardSugProfile">
+                <header>
+                    <h4>Leaderboard Profile</h4>
+                </header>
                 <div class="card-body">
-                    <div class="row pt-2">
-                        <div class="md-form col-lg-5 mt-0 my-2">
-                            <i class="fas fa-user prefix grey-text"></i>
-                            <label class="active pl-3">Name</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugFullName"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                    <div class="row">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-user"></i>
+                                <label>Name</label>
+                                <p id="pSugFullName"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-4 mt-0 my-2">
-                            <i class="fas fa-user-tie prefix grey-text"></i>
-                            <label class="active pl-3">Designation</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugDesignation"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-user-tie"></i>
+                                <label>Designation</label>
+                                <p id="pSugDesignation"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-3 mt-0 my-2">
-                            <i class="fas fa-tag prefix grey-text"></i>
-                            <label class="active pl-3">Category</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugCategory"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-tag"></i>
+                                <label>Category</label>
+                                <p id="pSugCategory"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-5 mt-0 my-2">
-                            <i class="fas fa-users prefix grey-text"></i>
-                            <label class="active pl-3">Team</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugTeam"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-users"></i>
+                                <label>Team</label>
+                                <p id="pSugTeam"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-4 mt-0 my-2">
-                            <i class="fas fa-building prefix grey-text"></i>
-                            <label class="active pl-3">Site</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugSite"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-building"></i>
+                                <label>Site</label>
+                                <p id="pSugSite"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-3 mt-0 my-2">
-                            <i class="fas fa-id-card prefix grey-text"></i>
-                            <label class="active pl-3">GF ID</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugGfId"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-id-card"></i>
+                                <label>GF ID</label>
+                                <p id="pSugGfId"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-5 mt-0 my-2">
-                            <i class="fas fa-envelope prefix grey-text"></i>
-                            <label class="active pl-3">Email</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugEmail"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-envelope"></i>
+                                <label>Email</label>
+                                <p id="pSugEmail"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-4 mt-0 my-2">
-                            <i class="fas fa-certificate prefix grey-text"></i>
-                            <label class="active pl-3">Year of Service</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugYearService"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-certificate"></i>
+                                <label>Year of Service</label>
+                                <p id="pSugYearService"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-3 mt-0 my-2">
-                            <i class="fas fa-phone prefix grey-text"></i>
-                            <label class="active pl-3">Phone No</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugPhoneNo"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-phone"></i>
+                                <label>Phone No</label>
+                                <p id="pSugPhoneNo"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-5 mt-0 my-2">
-                            <i class="fas fa-user-check prefix grey-text"></i>
-                            <label class="active pl-3">Superior</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugSuperior"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-user-check"></i>
+                                <label>Superior</label>
+                                <p id="pSugSuperior"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-4 mt-0 my-2">
-                            <i class="fas fa-id-card-alt prefix grey-text"></i>
-                            <label class="active pl-3">Green Crad Expiry</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugGreenCardExpiry"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-id-card-alt"></i>
+                                <label>Green Card Expiry</label>
+                                <p id="pSugGreenCardExpiry"></p>
+                            </div>
                         </div>
-                        <div class="md-form col-lg-3 mt-0 my-2">
-                            <i class="fas fa-chart-line prefix grey-text"></i>
-                            <label class="active pl-3">Competency</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSugCompetency"></p>
-                            <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
+                        <div class="col-md-6 col-xl-4">
+                            <div class="profile-field">
+                                <i class="fas fa-chart-line"></i>
+                                <label>Competency</label>
+                                <p id="pSugCompetency"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </article>
+
             <div class="row">
                 <div class="col-lg-6">
-                    <div class="card z-depth-4 mb-4" id="divCardPpm">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-12">
-                                    <h6 class="mb-0 font-weight-bold text-center">PLANNED PREVENTIVE MAINTENANCE</h6>
+                    <article class="user-chart-card" id="divCardPpm">
+                        <h6>Planned Preventive Maintenance</h6>
+                        <div class="row align-items-center">
+                            <div class="col-sm-6 text-center">
+                                <div id="chartSugPpmPerformance" style="height: 120px; margin: 0"></div>
+                                <p class="mt-2 mb-0 text-muted">Overall Monthly Performance</p>
+                            </div>
+                            <div class="col-sm-6 mt-4 mt-sm-0">
+                                <div id="chartSugPpmType" style="height: 190px; margin: 0"></div>
+                            </div>
+                            <div class="col-sm-7 mt-4">
+                                <div class="chart-summary">
+                                    <h6>Total Done</h6>
+                                    <h4 id="h4SugPpmCompleted"></h4>
                                 </div>
-                                <div class="col-6">
-                                    <div class="text-center">
-                                        <div id="chartSugPpmPerformance" style="height: 120px; margin: 0"></div>
-                                        <h6 class="card-text mt-0 mb-3">Overall<br/>Monthly Performance</h6>
-                                    </div>
-                                </div>
-                                <div class="col-6 mt-3">
-                                    <div id="chartSugPpmType" style="height: 190px; margin: 0"></div>
-                                </div>
-                                <div class="col-7">
-                                    <div class="card blue-grey lighten-5 z-depth-1">
-                                        <h6 class="grey-text font-weight-bold ml-3 mt-2 mb-1">Total Done</h6>
-                                        <h4 class="teal-text font-weight-bold ml-3 mb-2" id="h4SugPpmCompleted"></h4>
-                                    </div>
-                                    <div class="card blue-grey lighten-5 z-depth-1 mt-3">
-                                        <h6 class="grey-text font-weight-bold ml-3 mt-2 mb-1">Tier-PPM</h6>
-                                        <h4 class="teal-text font-weight-bold ml-3 mb-2" id="h4SugPpmTierName">Under Rated</h4>
-                                    </div>
-                                </div>
-                                <div class="col-5 mt-2">
-                                    <div id="chartSugPpmLateness" style="height: 150px; margin: 0"></div>
+                                <div class="chart-summary mt-3">
+                                    <h6>Tier - PPM</h6>
+                                    <h4 id="h4SugPpmTierName">Under Rated</h4>
                                 </div>
                             </div>
+                            <div class="col-sm-5 mt-4">
+                                <div id="chartSugPpmLateness" style="height: 150px; margin: 0"></div>
+                            </div>
                         </div>
-                    </div>
+                    </article>
                 </div>
                 <div class="col-lg-6">
-                    <div class="card z-depth-4 mb-4" id="divCardWo">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-12">
-                                    <h6 class="mb-0 font-weight-bold text-center">WORK ORDER</h6>
+                    <article class="user-chart-card" id="divCardWo">
+                        <h6>Work Order</h6>
+                        <div class="row align-items-center">
+                            <div class="col-sm-6 text-center">
+                                <div id="chartSugWoPerformance" style="height: 120px; margin: 0"></div>
+                                <p class="mt-2 mb-0 text-muted">Overall Monthly Performance</p>
+                            </div>
+                            <div class="col-sm-6 mt-4 mt-sm-0">
+                                <div id="chartSugWoType" style="height: 190px; margin: 0"></div>
+                            </div>
+                            <div class="col-sm-7 mt-4">
+                                <div class="chart-summary">
+                                    <h6>Total Done</h6>
+                                    <h4 id="h4SugWoCompleted"></h4>
                                 </div>
-                                <div class="col-6">
-                                    <div class="text-center">
-                                        <div id="chartSugWoPerformance" style="height: 120px; margin: 0"></div>
-                                        <h6 class="card-text mt-0 mb-3">Overall<br/>Monthly Performance</h6>
-                                    </div>
-                                </div>
-                                <div class="col-6 mt-3">
-                                    <div id="chartSugWoType" style="height: 190px; margin: 0"></div>
-                                </div>
-                                <div class="col-7">
-                                    <div class="card blue-grey lighten-5 z-depth-1">
-                                        <h6 class="grey-text font-weight-bold ml-3 mt-2 mb-1">Total Done</h6>
-                                        <h4 class="teal-text font-weight-bold ml-3 mb-2" id="h4SugWoCompleted"></h4>
-                                    </div>
-                                    <div class="card blue-grey lighten-5 z-depth-1 mt-3 mb-0">
-                                        <h6 class="grey-text font-weight-bold ml-3 mt-2 mb-1">Tier-WO</h6>
-                                        <h4 class="teal-text font-weight-bold ml-3 mb-2" id="h4SugWoTierName">Under Rated</h4>
-                                    </div>
-                                </div>
-                                <div class="col-5 mt-2">
-                                    <div id="chartSugWoLateness" style="height: 150px; margin: 0"></div>
+                                <div class="chart-summary mt-3">
+                                    <h6>Tier - WO</h6>
+                                    <h4 id="h4SugWoTierName">Under Rated</h4>
                                 </div>
                             </div>
+                            <div class="col-sm-5 mt-4">
+                                <div id="chartSugWoLateness" style="height: 150px; margin: 0"></div>
+                            </div>
                         </div>
-                    </div>
+                    </article>
                 </div>
             </div>
-            <div class="card z-depth-3 mb-4">
-                <div class="card-header white p-0">
-                    <div class="float-left light-blue" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5">Performance History</h4>
-                </div>
+
+            <article class="user-history-card">
+                <header>
+                    <h4>Performance History</h4>
+                </header>
                 <div class="card-body">
                     <div class="table-responsive">
-                    <table id="dtSugHistory" class="table table-hover table-sm mb-0 display responsive">
-                        <thead>
-                        <tr class="th-strong">
-                            <th>Month</th>
-                            <th>Tier WO</th>
-                            <th>Tier PPM</th>
-                            <th>Tier Points WO</th>
-                            <th>Tier Points PPM</th>
-                            <th>PPM Total</th> <!--5-->
-                            <th>PPM Done</th>
-                            <th>PPM On-Time</th>
-                            <th>PPM Within</th>
-                            <th>PPM Late</th>
-                            <th>PPM Assist</th>
-                            <th>WO Total</th> <!--10-->
-                            <th>WO Done</th>
-                            <th>WO On-Time</th>
-                            <th>WO Late</th>
-                            <th>WO Assist</th>
-                            <th>WO Self-Finding</th> <!--15-->
-                            <th>Total Tasks</th>
-                            <th>Total Done</th>
-                            <th>Total On-Time</th>
-                            <th>Total Late</th>
-                            <th>Completed Points</th> <!--20-->
-                            <th>On-Time Points</th>
-                            <th>Deduction Points</th>
-                            <th>Bonus Points</th>
-                            <th>Total Points</th>
-                            <th>Productivity Level</th>  <!--25-->
-                            <th>Productivity Deduction</th>
-                            <th>Less Productivity Points</th>
-                            <th>Points After Minus</th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                        <table id="dtSugHistory" class="table table-hover table-sm mb-0 display responsive">
+                            <thead>
+                            <tr class="th-strong">
+                                <th>Month</th>
+                                <th>Tier WO</th>
+                                <th>Tier PPM</th>
+                                <th>Tier Points WO</th>
+                                <th>Tier Points PPM</th>
+                                <th>PPM Total</th>
+                                <th>PPM Done</th>
+                                <th>PPM On-Time</th>
+                                <th>PPM Within</th>
+                                <th>PPM Late</th>
+                                <th>PPM Assist</th>
+                                <th>WO Total</th>
+                                <th>WO Done</th>
+                                <th>WO On-Time</th>
+                                <th>WO Late</th>
+                                <th>WO Assist</th>
+                                <th>WO Self-Finding</th>
+                                <th>Total Tasks</th>
+                                <th>Total Done</th>
+                                <th>Total On-Time</th>
+                                <th>Total Late</th>
+                                <th>Completed Points</th>
+                                <th>On-Time Points</th>
+                                <th>Deduction Points</th>
+                                <th>Bonus Points</th>
+                                <th>Total Points</th>
+                                <th>Productivity Level</th>
+                                <th>Productivity Deduction</th>
+                                <th>Less Productivity Points</th>
+                                <th>Points After Minus</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
+            </article>
         </div>
     </div>
+
+<script>
+    (function () {
+        const metricIds = [
+            'h3SugPointAddition',
+            'h3SugPointDeduction',
+            'h3SugPointBonus',
+            'h3SugPointTotal',
+            'h3SugPerformanceTrending',
+            'h3SugProductivityLevel',
+            'h3SugProductivityDeduction',
+            'h3SugLessProductivePoint',
+            'h3SugPointAfterMinus'
+        ];
+
+        function normalizeMetric(element) {
+            if (!element) {
+                return;
+            }
+
+            const raw = element.textContent.trim().toLowerCase();
+            if (raw === '' || raw === 'nan' || raw.startsWith('nan')) {
+                if (element.id === 'h3SugPerformanceTrending') {
+                    element.innerHTML = '-';
+                } else {
+                    element.textContent = '-';
+                }
+            }
+        }
+
+        metricIds.forEach(function (id) {
+            const element = document.getElementById(id);
+            if (!element) {
+                return;
+            }
+
+            normalizeMetric(element);
+
+            const observer = new MutationObserver(function () {
+                normalizeMetric(element);
+            });
+
+            observer.observe(element, { childList: true, characterData: true, subtree: true });
+        });
+    })();
+</script>
 </section>
 
 <!-- Modal for Work Order Details -->
-<div class="modal fade" id="modalWoDetails" tabindex="-1" role="dialog" aria-labelledby="modalWoDetailsLabel" aria-hidden="true">
+<div class="modal fade user-game-modal" id="modalWoDetails" tabindex="-1" role="dialog" aria-labelledby="modalWoDetailsLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">

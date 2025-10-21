@@ -17,74 +17,433 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
+    <!-- Shared UI chrome -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
-        .import-step {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: #f9f9f9;
+        :root {
+            --wo-primary: #0ea5e9;
+            --wo-secondary: #6366f1;
+            --wo-text: #0f172a;
+            --wo-muted: #64748b;
+            --wo-radius: 26px;
+            --wo-shadow: 0 34px 66px -38px rgba(15, 23, 42, 0.45);
+            --wo-card-shadow: 0 24px 52px -36px rgba(15, 23, 42, 0.32);
         }
-        .import-step.active {
-            border-color: #007bff;
-            background: #e7f3ff;
+
+        body {
+            background: linear-gradient(160deg, rgba(224, 242, 254, 0.8) 0%, rgba(237, 242, 247, 1) 55%, rgba(226, 232, 240, 1) 100%);
+            color: var(--wo-text);
         }
-        .import-step.completed {
-            border-color: #28a745;
-            background: #d4edda;
+
+        main.wo-import-main {
+            /* padding: 1.75rem 0 3.5rem; */
         }
-        .step-number {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
+
+        .wo-page-header {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.95) 0%, rgba(99, 102, 241, 0.9) 100%);
+            border-radius: 32px;
+            padding: 40px 36px;
+            margin-bottom: 32px;
+            color: #fff;
+            box-shadow: var(--wo-shadow);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wo-page-header:after {
+            content: '';
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            right: -70px;
+            top: -70px;
             border-radius: 50%;
-            background: #6c757d;
-            color: white;
-            text-align: center;
-            line-height: 30px;
-            margin-right: 10px;
+            background: rgba(255, 255, 255, 0.08);
         }
+
+        .wo-page-header .header-text {
+            max-width: 760px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .wo-page-header h1 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .wo-page-header p {
+            margin-bottom: 0;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .wo-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .wo-page-header .header-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .wo-page-header .header-actions .btn {
+            border-radius: 999px;
+            padding: 0.75rem 1.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #fff;
+        }
+
+        .wo-page-header .header-actions .btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .wo-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 28px;
+        }
+
+        .wo-flow-card,
+        .wo-support-card {
+            background: #fff;
+            border-radius: var(--wo-radius);
+            padding: 28px 32px;
+            box-shadow: var(--wo-card-shadow);
+        }
+
+        .wo-support-card {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .wo-support-card .text-primary {
+            color: var(--wo-primary) !important;
+        }
+
+        .wo-support-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--wo-text);
+        }
+
+        .wo-support-card p {
+            margin-bottom: 0;
+            color: var(--wo-muted);
+        }
+
+        .wo-metric {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(14, 165, 233, 0.12);
+            border-radius: 18px;
+            padding: 16px 18px;
+        }
+
+        .wo-metric strong {
+            font-size: 1.25rem;
+            color: var(--wo-primary);
+        }
+
+        .support-tip {
+            background: rgba(14, 165, 233, 0.12);
+            border-radius: 18px;
+            padding: 18px 20px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            color: var(--wo-text);
+        }
+
+        .support-tip i {
+            color: var(--wo-secondary);
+            font-size: 1.3rem;
+            margin-top: 2px;
+        }
+
+        .wo-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .wo-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(241, 245, 249, 0.9);
+        }
+
+        .import-step {
+            border-radius: 22px;
+            padding: 26px 24px;
+            background: #f8fafc;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            margin-bottom: 22px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .import-step.active {
+            border-color: rgba(14, 165, 233, 0.55);
+            background: rgba(14, 165, 233, 0.08);
+            box-shadow: 0 26px 48px -36px rgba(14, 165, 233, 0.35);
+        }
+
+        .import-step.completed {
+            border-color: rgba(34, 197, 94, 0.6);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .import-step h4 {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+            font-weight: 700;
+            color: var(--wo-text);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(148, 163, 184, 0.3);
+            color: var(--wo-text);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
         .step-number.active {
-            background: #007bff;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(99, 102, 241, 0.9));
+            color: #fff;
         }
+
         .step-number.completed {
-            background: #28a745;
+            background: rgba(34, 197, 94, 0.85);
+            color: #fff;
         }
+
+        .template-download {
+            background: rgba(14, 165, 233, 0.12);
+            border: 1px solid rgba(14, 165, 233, 0.25);
+            border-radius: 18px;
+            padding: 20px 22px;
+            margin-bottom: 22px;
+        }
+
+        .template-download h5 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--wo-text);
+        }
+
+        .template-download .alert {
+            border-radius: 16px;
+            border: none;
+            padding: 18px;
+        }
+
+        .wo-site-card {
+            background: #fff;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 18px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+        }
+
+        .wo-site-card label {
+            color: var(--wo-muted);
+            font-weight: 600;
+        }
+
         .file-drop-zone {
-            border: 2px dashed #ccc;
-            border-radius: 10px;
-            padding: 40px;
+            border: 2px dashed rgba(148, 163, 184, 0.45);
+            border-radius: 22px;
+            padding: 40px 28px;
             text-align: center;
             cursor: pointer;
-            transition: border-color 0.3s;
+            background: #fff;
+            transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
         }
-        .file-drop-zone:hover {
-            border-color: #007bff;
-        }
+
+        .file-drop-zone:hover,
         .file-drop-zone.dragover {
-            border-color: #007bff;
-            background: #e7f3ff;
+            border-color: rgba(14, 165, 233, 0.8);
+            background: rgba(14, 165, 233, 0.08);
+            box-shadow: 0 24px 46px -36px rgba(14, 165, 233, 0.35);
         }
+
+        .file-info-card {
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: #fff;
+            padding: 18px 20px;
+            box-shadow: 0 20px 42px -35px rgba(15, 23, 42, 0.35);
+        }
+
+        .file-info-card h6 {
+            font-weight: 700;
+            color: var(--wo-text);
+        }
+
+        .file-info-card strong {
+            display: block;
+            color: var(--wo-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .upload-progress label {
+            font-weight: 600;
+            color: var(--wo-muted);
+        }
+
+        .progress {
+            height: 12px;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.25);
+        }
+
+        .progress-bar {
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.95), rgba(99, 102, 241, 0.9));
+        }
+
         .preview-table {
             max-height: 400px;
             overflow-y: auto;
+            border-radius: 18px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
+
+        .preview-table table {
+            margin-bottom: 0;
+        }
+
         .error-row {
-            background-color: #ffebee !important;
+            background: rgba(248, 113, 113, 0.16) !important;
         }
+
         .warning-row {
-            background-color: #fff3cd !important;
+            background: rgba(251, 191, 36, 0.18) !important;
         }
+
         .success-row {
-            background-color: #d4edda !important;
+            background: rgba(34, 197, 94, 0.16) !important;
         }
-        .template-download {
-            background: #e8f4fd;
-            border: 1px solid #bee5eb;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
+
+        .wo-actions .btn,
+        .import-step .btn {
+            border-radius: 999px;
+            padding: 0.7rem 1.6rem;
+            font-weight: 600;
+        }
+
+        .wo-actions .btn + .btn {
+            margin-left: 12px;
+        }
+
+        .import-step .alert {
+            border-radius: 16px;
+        }
+
+        .modal-content {
+            border-radius: 24px;
+            box-shadow: var(--wo-card-shadow);
+        }
+
+        .modal-header {
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(99, 102, 241, 0.18));
+            border-bottom: none;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            color: var(--wo-text);
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        .modal-footer {
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+
+        @media (min-width: 992px) {
+            .wo-layout {
+                grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            main.wo-import-main {
+                padding: 1.25rem 0 3rem;
+            }
+
+            .wo-page-header {
+                padding: 32px 28px;
+            }
+
+            .wo-flow-card,
+            .wo-support-card {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .wo-page-header {
+                padding: 26px 22px;
+            }
+
+            .wo-page-header .header-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .file-drop-zone {
+                padding: 32px 18px;
+            }
+
+            .template-download {
+                padding: 18px;
+            }
+
+            .wo-flow-card,
+            .wo-support-card {
+                padding: 20px;
+            }
         }
     </style>
     <!-- JQuery -->
@@ -104,153 +463,193 @@
     <div class="includeHtml" id="h-nav_top"></div>
 </header>
 <!--Main layout-->
-<main>
+<main class="wo-import-main">
     <div class="container-fluid">
-        <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionWoiMain">
-            <div class="card card-cascade narrower">
-                <!--Section: Header-->
-                <section>
-                    <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                        <h2 class="h2-responsive mb-0"><i class="fa fa-upload mr-2"></i>Work Order Import</h2>
-                        <p class="text-white-50 mb-0">Import completed work orders from external systems</p>
+        <section class="wo-page-header">
+            <div class="header-text">
+                <span class="wo-chip"><i class="fas fa-cloud-upload-alt"></i> Work Order Import</span>
+                <h1>Work Order Import</h1>
+                <p>Bring completed work orders from external sources into GEMS, validate lifecycle states, and sync audit history without losing context.</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline-light" type="button" onclick="document.getElementById('downloadTemplate').click()">
+                    <i class="fas fa-file-download mr-2"></i>Download Template
+                </button>
+                <button class="btn btn-outline-light" type="button" onclick="showImportHistory()">
+                    <i class="fas fa-history mr-2"></i>Import History
+                </button>
+            </div>
+        </section>
+
+        <div class="wo-layout">
+            <section class="wo-flow-card">
+                <div class="import-step active" id="step1">
+                    <h4><span class="step-number active" id="step1-number">1</span>Template & Site Selection</h4>
+                    <div class="template-download">
+                        <h5><i class="fa fa-download mr-1"></i>Excel Import Template & Format</h5>
+                        <p class="mb-3">Download the curated workbook, review the embedded guidance, and align column headers before uploading.</p>
+                        <div class="alert alert-info mb-3">
+                            <strong>Template highlights:</strong><br>
+                            • Two-sheet workbook with dropdown validation and detailed instructions<br>
+                            • Supports fields like “Request No.”, “Complaint Description”, and “PIC Name”<br>
+                            • Severity, type, and progress values auto-map to GEMS codes<br>
+                            • CSV uploads remain available for legacy tooling
+                        </div>
+                        <div class="d-flex flex-wrap align-items-center">
+                            <button class="btn btn-success mr-2 mb-2" id="downloadTemplate">
+                                <i class="fa fa-file-excel mr-1"></i>Download Excel Template
+                            </button>
+                            <button class="btn btn-info mb-2" id="viewSampleData">
+                                <i class="fa fa-eye mr-1"></i>View Sample Data Format
+                            </button>
+                        </div>
                     </div>
-                </section>
 
-                <!--Section: Import Steps-->
-                <section>
-                    <div class="card-body card-body-cascade">
+                    <div class="wo-site-card">
+                        <div class="md-form md-outline">
+                            <select class="mdb-select md-form md-outline colorful-select" id="siteSelect" required>
+                                <option value="" disabled selected>-- Select Site --</option>
+                            </select>
+                            <label for="siteSelect">Select Site *</label>
+                            <small class="form-text text-muted">All imported work orders are linked to this site and inherit its SLA.</small>
+                        </div>
+                    </div>
+
+                    <div class="wo-actions">
+                        <button class="btn btn-primary waves-effect" id="proceedToUpload" disabled>
+                            Proceed to File Upload <i class="fa fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="import-step" id="step2">
+                    <h4><span class="step-number" id="step2-number">2</span>File Upload</h4>
+                    <div class="file-drop-zone" id="fileDropZone">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                        </div>
+                        <h5 class="mb-1">Drag & Drop Your File</h5>
+                        <p class="text-muted mb-0">Or click below to browse `.xlsx`, `.xls`, or `.csv` files up to 10 MB</p>
+                        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                        <button class="btn btn-outline-primary mt-3" type="button" onclick="document.getElementById('fileInput').click()">
+                            <i class="fa fa-folder-open mr-1"></i>Browse Files
+                        </button>
+                    </div>
+
+                    <div id="fileInfo" class="file-info-card mt-3" style="display: none;">
+                        <h6><i class="fa fa-file mr-2"></i><span id="fileName"></span></h6>
                         <div class="row">
-                            <div class="col-12">
-                                
-                                <!-- Step 1: Template & Site Selection -->
-                                <div class="import-step active" id="step1">
-                                    <h4><span class="step-number active" id="step1-number">1</span> Template & Site Selection</h4>
-                                    
-                                    <!-- Template Download -->
-                                    <div class="template-download">
-                                        <h5><i class="fa fa-download"></i> Excel Import Template & Format</h5>
-                                        <p>Download our professional Excel template with data validation and instructions:</p>
-                                        
-                                        <div class="alert alert-info">
-                                            <strong>Excel Template Features:</strong><br>
-                                            • Professional two-sheet template (Data + Instructions)<br>
-                                            • Data validation dropdowns for consistent input<br>
-                                            • Your existing columns: "Date", "Request No.", "Work Order No.", "Complaint Description", "PIC Name", etc.<br>
-                                            • User names will be automatically matched to system users<br>
-                                            • "Complaint Description" will be used as the work order title<br>
-                                            • Text values like "Critical"/"Non-Critical" are supported<br>
-                                            • CSV format also supported for backward compatibility
-                                        </div>
-                                        
-                                        <button class="btn btn-success" id="downloadTemplate">
-                                            <i class="fa fa-file-excel"></i> Download Excel Template
-                                        </button>
-                                        <button class="btn btn-info ml-2" id="viewSampleData">
-                                            <i class="fa fa-eye"></i> View Sample Data Format
-                                        </button>
-                                    </div>
-
-                                    <!-- Site Selection -->
-                                    <div class="md-form md-outline">
-                                        <select class="mdb-select md-form md-outline colorful-select" id="siteSelect" required>
-                                            <option value="" disabled selected>-- Select Site --</option>
-                                        </select>
-                                        <label for="siteSelect">Select Site *</label>
-                                        <small class="form-text text-muted">All imported work orders will be associated with this site.</small>
-                                    </div>
-
-                                    <button class="btn btn-primary waves-effect" id="proceedToUpload" disabled>
-                                        Proceed to File Upload <i class="fa fa-arrow-right ml-1"></i>
-                                    </button>
-                                </div>
-
-                                <!-- Step 2: File Upload -->
-                                <div class="import-step" id="step2">
-                                    <h4><span class="step-number" id="step2-number">2</span> File Upload</h4>
-                                    
-                                    <div class="file-drop-zone" id="fileDropZone">
-                                        <i class="fa fa-cloud-upload fa-3x text-muted mb-3"></i>
-                                        <h5>Drag and drop your file here</h5>
-                                        <p class="text-muted">or click to browse and select a file</p>
-                                        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
-                                        <div class="mt-2">
-                                            <small class="text-muted">Supported formats: Excel (XLSX, XLS), CSV | Max size: 10MB</small>
-                                        </div>
-                                    </div>
-
-                                    <div id="fileInfo" class="mt-3" style="display: none;">
-                                        <div class="card blue lighten-5">
-                                            <div class="card-body">
-                                                <h6><i class="fa fa-file mr-2"></i><span id="fileName"></span></h6>
-                                                <div class="row">
-                                                    <div class="col-md-3">
-                                                        <strong>Size:</strong> <span id="fileSize"></span>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <strong>Type:</strong> <span id="fileType"></span>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <strong>Rows:</strong> <span id="fileRows"></span>
-                                                    </div>
-                                                    <div class="col-md-3">
-                                                        <strong>Columns:</strong> <span id="fileColumns"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-3">
-                                        <button class="btn btn-success waves-effect" id="validateFile" disabled>
-                                            <i class="fa fa-check mr-1"></i> Validate File
-                                        </button>
-                                        <button class="btn btn-secondary waves-effect ml-2" id="backToStep1">
-                                            <i class="fa fa-arrow-left mr-1"></i> Back
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Step 3: Preview & Validation -->
-                                <div class="import-step" id="step3">
-                                    <h4><span class="step-number" id="step3-number">3</span> Preview & Validation</h4>
-                                    
-                                    <div id="validationSummary"></div>
-                                    
-                                    <div id="previewData" class="mt-3"></div>
-
-                                    <div class="mt-3">
-                                        <button class="btn btn-primary waves-effect" id="executeImport" disabled>
-                                            <i class="fa fa-upload mr-1"></i> Execute Import
-                                        </button>
-                                        <button class="btn btn-secondary waves-effect ml-2" id="backToStep2">
-                                            <i class="fa fa-arrow-left mr-1"></i> Back
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Step 4: Import Results -->
-                                <div class="import-step" id="step4">
-                                    <h4><span class="step-number" id="step4-number">4</span> Import Results</h4>
-                                    
-                                    <div id="importResults"></div>
-                                    
-                                    <div class="mt-3">
-                                        <button class="btn btn-success waves-effect" id="startNewImport">
-                                            <i class="fa fa-plus mr-1"></i> Start New Import
-                                        </button>
-                                        <button class="btn btn-info waves-effect ml-2" id="viewImportHistory">
-                                            <i class="fa fa-history mr-1"></i> View Import History
-                                        </button>
-                                    </div>
-                                </div>
-
+                            <div class="col-sm-6 col-lg-3">
+                                <strong>Size</strong>
+                                <span id="fileSize"></span>
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <strong>Type</strong>
+                                <span id="fileType"></span>
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <strong>Rows</strong>
+                                <span id="fileRows"></span>
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <strong>Columns</strong>
+                                <span id="fileColumns"></span>
                             </div>
                         </div>
                     </div>
-                </section>
-            </div>
-        </section>
+
+                    <div class="wo-actions mt-3">
+                        <button class="btn btn-success waves-effect" id="validateFile" disabled>
+                            <i class="fa fa-check mr-1"></i>Validate File
+                        </button>
+                        <button class="btn btn-outline-secondary waves-effect" id="backToStep1">
+                            <i class="fa fa-arrow-left mr-1"></i>Back
+                        </button>
+                    </div>
+                </div>
+
+                <div class="import-step" id="step3">
+                    <h4><span class="step-number" id="step3-number">3</span>Preview & Validation</h4>
+                    <div id="validationSummary"></div>
+                    <div id="previewData" class="mt-3"></div>
+                    <div class="wo-actions mt-3">
+                        <button class="btn btn-primary waves-effect" id="executeImport" disabled>
+                            <i class="fa fa-upload mr-1"></i>Execute Import
+                        </button>
+                        <button class="btn btn-outline-secondary waves-effect" id="backToStep2">
+                            <i class="fa fa-arrow-left mr-1"></i>Back
+                        </button>
+                    </div>
+                </div>
+
+                <div class="import-step" id="step4">
+                    <h4><span class="step-number" id="step4-number">4</span>Import Results</h4>
+                    <div id="importResults"></div>
+                    <div class="wo-actions mt-3">
+                        <button class="btn btn-success waves-effect" id="startNewImport">
+                            <i class="fa fa-plus mr-1"></i>Start New Import
+                        </button>
+                        <button class="btn btn-outline-info waves-effect" id="viewImportHistory">
+                            <i class="fa fa-history mr-1"></i>View Import History
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="wo-support-card">
+                <h3><i class="fas fa-life-ring mr-2 text-primary"></i>Import Toolkit</h3>
+                <div class="wo-metric">
+                    <div>
+                        <small class="text-uppercase text-muted">Average import time</small>
+                        <strong>3 min</strong>
+                    </div>
+                    <i class="fas fa-stopwatch text-primary"></i>
+                </div>
+                <div class="support-tip">
+                    <i class="fas fa-list-check"></i>
+                    <div>
+                        <strong>Pre-flight checklist</strong>
+                        <p class="mb-0">Confirm Request/WO numbers stay unique in the batch and technician usernames exist for the chosen site.</p>
+                    </div>
+                </div>
+                <div class="support-tip">
+                    <i class="fas fa-arrows-rotate"></i>
+                    <div>
+                        <strong>Status alignment</strong>
+                        <p class="mb-0">Validation maps “Completed”, “In Progress”, and “Cancelled” to GEMS lifecycle states for you.</p>
+                    </div>
+                </div>
+                <div class="wo-legend">
+                    <div class="wo-legend-item">
+                        <span class="badge badge-success">Valid</span>
+                        <small class="text-muted">Ready for import</small>
+                    </div>
+                    <div class="wo-legend-item">
+                        <span class="badge badge-warning">Warning</span>
+                        <small class="text-muted">Imports allowed but review recommended</small>
+                    </div>
+                    <div class="wo-legend-item">
+                        <span class="badge badge-danger">Error</span>
+                        <small class="text-muted">Fix required before continuing</small>
+                    </div>
+                </div>
+                <div class="support-tip">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Need reference data?</strong>
+                        <p class="mb-3">Open the sample dataset or review recent imports without leaving this screen.</p>
+                        <div class="d-flex flex-wrap align-items-center">
+                            <button class="btn btn-outline-primary btn-sm mr-2 mb-2" type="button" onclick="showSampleData()">
+                                <i class="fas fa-eye mr-1"></i>Sample Data
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm mb-2" type="button" onclick="showImportHistory()">
+                                <i class="fas fa-history mr-1"></i>Latest Imports
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
     </div>
 
     <!-- Import History Modal -->
@@ -300,6 +699,8 @@
 <script type="text/javascript" src="js/mdb.js"></script>
 <!-- Crypto JS -->
 <script type="text/javascript" src="js/addons/crypto.js"></script>
+<!-- Moment JavaScript -->
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
 
 <!-- SCRIPTS -->
 <script type="text/javascript">

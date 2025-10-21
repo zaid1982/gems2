@@ -8,7 +8,7 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Material Design Bootstrap -->
@@ -17,91 +17,382 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
+    <!-- Shared UI chrome -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
     
     <style>
-        .config-section {
-            margin-bottom: 2rem;
+        :root {
+            --trade-primary: #0ea5e9;
+            --trade-secondary: #6366f1;
+            --trade-text: #0f172a;
+            --trade-muted: #64748b;
+            --trade-radius: 26px;
+            --trade-shadow: 0 34px 66px -38px rgba(15, 23, 42, 0.45);
+            --trade-card-shadow: 0 26px 52px -32px rgba(15, 23, 42, 0.3);
         }
-        .config-header {
-            background: linear-gradient(45deg, #4285f4, #34a853);
-            color: white;
-            padding: 15px;
-            border-radius: 8px 8px 0 0;
+
+        body {
+            background: linear-gradient(150deg, rgba(224, 242, 254, 0.75) 0%, rgba(237, 242, 247, 1) 55%, rgba(226, 232, 240, 1) 100%);
+        }
+
+        main.trade-config-main {
+            /* padding: 1.75rem 0 3.5rem; */
+        }
+
+        .config-page-header {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.95) 0%, rgba(99, 102, 241, 0.92) 100%);
+            color: #fff;
+            border-radius: 32px;
+            padding: 40px 36px;
+            margin-bottom: 32px;
+            box-shadow: var(--trade-shadow);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .config-page-header .header-text {
+            max-width: 720px;
+        }
+
+        .config-page-header h1 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .config-page-header p {
             margin-bottom: 0;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.85);
         }
-        .config-body {
-            background: #f8f9fa;
-            padding: 20px;
-            border: 1px solid #dee2e6;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-        }
-        .form-group label {
-            font-weight: 600;
-            color: #495057;
-        }
-        .form-control:focus {
-            border-color: #4285f4;
-            box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
-        }
-        .btn-save {
-            background: linear-gradient(45deg, #34a853, #4285f4);
-            border: none;
-        }
-        .btn-save:hover {
-            background: linear-gradient(45deg, #2e8b47, #3367d6);
-        }
-        .description {
+
+        .config-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
             font-size: 0.85rem;
-            color: #6c757d;
-            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
         }
-        .ratio-input-group {
-            margin-bottom: 15px;
-        }
-        .group-badge {
+
+        .config-chip i {
             font-size: 0.9rem;
-            padding: 5px 10px;
-            margin-right: 10px;
         }
-        .role-executor { background-color: #17a2b8; color: white; }
-        .role-reviewer { background-color: #ffc107; color: black; }
-        .role-verifier { background-color: #28a745; color: white; }
-        .role-other { background-color: #6c757d; color: white; }
-        
-        /* Site organization styles */
+
+        .config-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .config-actions .btn {
+            border-radius: 999px;
+            font-weight: 600;
+            padding: 11px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #fff;
+        }
+
+        .config-actions .btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .config-actions .btn i {
+            margin-right: 8px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 28px;
+        }
+
+        .config-card {
+            background: #fff;
+            border: 0;
+            border-radius: var(--trade-radius);
+            padding: 28px 30px;
+            box-shadow: var(--trade-card-shadow);
+            min-height: 100%;
+        }
+
+        .config-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .config-card-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 1) 0%, rgba(99, 102, 241, 1) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.5rem;
+            box-shadow: 0 24px 44px -26px rgba(14, 165, 233, 0.6);
+        }
+
+        .config-card-header h3 {
+            margin: 0 0 6px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--trade-text);
+            text-transform: capitalize;
+        }
+
+        .config-card-header p {
+            margin: 0;
+            color: var(--trade-muted);
+            font-size: 0.95rem;
+        }
+
+        .config-card-toolbar {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .config-card-toolbar .btn {
+            border-radius: 999px;
+            font-weight: 600;
+            padding: 0.45rem 1.1rem;
+        }
+
+        .config-card-body .form-group label {
+            font-weight: 600;
+            color: var(--trade-text);
+        }
+
+        .config-card-body .form-control {
+            border-radius: 14px;
+            padding: 0.75rem 1rem;
+            border-color: rgba(148, 163, 184, 0.4);
+        }
+
+        .config-card-body .form-control:focus {
+            border-color: rgba(14, 165, 233, 0.6);
+            box-shadow: 0 0 0 0.15rem rgba(14, 165, 233, 0.25);
+        }
+
+        .config-card-body .description {
+            font-size: 0.85rem;
+            color: var(--trade-muted);
+            margin-top: 6px;
+        }
+
+        #alertSuccess,
+        #alertError {
+            border-radius: 18px;
+            border: none;
+            box-shadow: 0 18px 42px -28px rgba(15, 23, 42, 0.28);
+            padding: 1rem 1.25rem;
+            margin-bottom: 20px;
+        }
+
+        .config-actions-footer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 14px;
+            margin-top: 36px;
+        }
+
+        .config-actions-footer .btn {
+            border-radius: 999px;
+            padding: 0.75rem 1.75rem;
+            font-weight: 600;
+        }
+
         .site-card {
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+            background: #f8fafc;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 24px 48px -36px rgba(15, 23, 42, 0.25);
+            overflow: hidden;
         }
+
         .site-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-bottom: 1px solid #dee2e6;
-            padding: 1rem;
+            background: linear-gradient(135deg, rgba(226, 232, 240, 0.6) 0%, rgba(241, 245, 249, 0.95) 100%);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            padding: 18px 24px;
         }
+
         .site-header .btn-link {
             text-decoration: none;
-            color: #495057;
-            font-weight: 500;
+            color: var(--trade-text);
+            font-weight: 600;
+            padding: 0;
         }
+
         .site-header .btn-link:hover {
-            color: #007bff;
-            text-decoration: none;
+            color: var(--trade-secondary);
         }
+
         .site-header .btn-link:focus {
             box-shadow: none;
         }
+
         .site-badge {
-            background-color: #6c757d;
-            color: white;
-            font-size: 0.8rem;
+            background-color: rgba(99, 102, 241, 0.12);
+            color: var(--trade-text) !important; 
+            font-size: 0.75rem;
+            border-radius: 999px;
+            padding: 0.25rem 0.75rem;
         }
+
+        .site-card .card-body {
+            padding: 22px 24px;
+        }
+
+        .ratio-input-group {
+            background: #fff;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 18px;
+            padding: 18px 20px;
+            box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.25);
+            height: 100%;
+        }
+
+        .ratio-input-group label {
+            font-weight: 600;
+            color: var(--trade-text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .ratio-input-group .form-control {
+            margin-bottom: 12px;
+            border-radius: 12px;
+        }
+
+        .group-badge {
+            font-size: 0.85rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .role-executor { background: rgba(14, 165, 233, 0.16); color: var(--trade-primary) !important; }
+        .role-reviewer { background: rgba(250, 204, 21, 0.22); color: #b45309 !important; }
+        .role-verifier { background: rgba(34, 197, 94, 0.18); color: #15803d !important; }
+        .role-other { background: rgba(148, 163, 184, 0.3); color: #1f2937 !important; }
+
+        .description {
+            font-size: 0.85rem;
+            color: var(--trade-muted);
+        }
+
+        #loadingGroups {
+            color: var(--trade-muted);
+            font-weight: 500;
+            padding: 24px 0;
+        }
+
+        .config-card-body .alert-info {
+            background: rgba(14, 165, 233, 0.12);
+            border: none;
+            color: var(--trade-text);
+            border-radius: 18px;
+            box-shadow: 0 18px 40px -32px rgba(14, 165, 233, 0.45);
+        }
+
+        .config-card-body .alert-info i {
+            color: var(--trade-primary);
+        }
+
         .collapse-icon {
             transition: transform 0.3s ease;
         }
+
         .collapsed .collapse-icon {
             transform: rotate(-90deg);
+        }
+
+        @media (max-width: 991.98px) {
+            .config-card {
+                padding: 24px 24px;
+            }
+
+            .config-page-header {
+                padding: 32px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            main.trade-config-main {
+                padding: 1.25rem 0 3rem;
+            }
+
+            .config-page-header {
+                padding: 28px 26px;
+            }
+
+            .config-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .config-card {
+                padding: 22px 22px;
+            }
+
+            .config-card-header {
+                flex-direction: column;
+            }
+
+            .config-card-toolbar {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .config-card-toolbar .btn {
+                width: auto;
+            }
+
+            .config-actions-footer {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .config-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .config-card {
+                padding: 20px 18px;
+            }
+
+            .config-card-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.35rem;
+            }
+
+            .site-card .row > [class*='col-'] {
+                margin-bottom: 14px;
+            }
+
+            .config-actions-footer .btn {
+                width: 100%;
+            }
         }
     </style>
     
@@ -122,106 +413,90 @@
 <!--Main Navigation-->
 
 <!--Main layout-->
-<main>
+<main class="trade-config-main">
     <div class="container-fluid">
-        <!-- Back Button -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <button class="btn btn-outline-secondary" onclick="window.location.href='gamification.html'">
-                    <i class="fas fa-arrow-left mr-2"></i> Back to Gamification
+        <section class="config-page-header">
+            <div class="header-text">
+                <span class="config-chip"><i class="fas fa-sliders-h"></i> Gamification</span>
+                <h1>Trade Ratio Configuration</h1>
+                <p>Calibrate default and group-specific multipliers to balance task effort across trades while keeping scoring transparent.</p>
+            </div>
+            <div class="config-actions">
+                <button class="btn btn-outline-light" onclick="window.location.href='gamification.html'">
+                    <i class="fas fa-arrow-left"></i> Back to Leaderboard
                 </button>
             </div>
+        </section>
+
+        <div id="alertSuccess" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="successMessage">Configuration saved successfully!</span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div id="alertError" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none;">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            <span id="errorMessage">An error occurred while saving configuration.</span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
 
-        <!-- Page Title -->
-        <div class="row mt-3">
-            <div class="col-12">
-                <h2 class="h2-responsive font-weight-bold">
-                    <i class="fas fa-balance-scale mr-3"></i>Trade Ratio Configuration
-                </h2>
-                <p class="text-muted">Configure multipliers for different PPM groups to adjust task completion scoring</p>
-            </div>
-        </div>
-
-        <!-- Success/Error Messages -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div id="alertSuccess" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    <span id="successMessage">Configuration saved successfully!</span>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div id="alertError" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none;">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                    <span id="errorMessage">An error occurred while saving configuration.</span>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Default Trade Ratio Section -->
-        <div class="row config-section">
-            <div class="col-12">
-                <div class="card">
-                    <div class="config-header">
-                        <h5 class="mb-0"><i class="fas fa-cog mr-2"></i>Default Trade Ratio</h5>
+        <section class="config-grid">
+            <article class="config-card">
+                <div class="config-card-header">
+                    <span class="config-card-icon"><i class="fas fa-scale-balanced"></i></span>
+                    <div>
+                        <h3>Default trade ratio</h3>
+                        <p>Set the baseline multiplier applied to PPM groups without dedicated overrides.</p>
                     </div>
-                    <div class="config-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="trade_ratio_default">Default Multiplier</label>
-                                    <input type="number" class="form-control" id="trade_ratio_default" min="0.1" max="5.0" step="0.1" value="1.0">
-                                    <div class="description">Default multiplier for PPM groups without specific configuration (Range: 0.1 - 5.0)</div>
-                                </div>
+                </div>
+                <div class="config-card-body">
+                    <div class="row">
+                        <div class="col-lg-6 col-xl-4">
+                            <div class="form-group mb-0">
+                                <label for="trade_ratio_default">Default Multiplier</label>
+                                <input type="number" class="form-control" id="trade_ratio_default" min="0.1" max="5.0" step="0.1" value="1.0">
+                                <div class="description">Applies when a PPM group has no specific ratio defined. Range: 0.1 – 5.0.</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </article>
 
-        <!-- PPM Group Trade Ratios Section -->
-        <div class="row config-section">
-            <div class="col-12">
-                <div class="card">
-                    <div class="config-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-users mr-2"></i>PPM Group Trade Ratios</h5>
-                        <div id="siteControls" style="display: none;">
-                            <button class="btn btn-sm btn-outline-primary mr-2" id="btnExpandAll">
-                                <i class="fas fa-expand-arrows-alt mr-1"></i> Expand All
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary" id="btnCollapseAll">
-                                <i class="fas fa-compress-arrows-alt mr-1"></i> Collapse All
-                            </button>
-                        </div>
+            <article class="config-card">
+                <div class="config-card-header">
+                    <span class="config-card-icon"><i class="fas fa-layer-group"></i></span>
+                    <div>
+                        <h3>PPM group multipliers</h3>
+                        <p>Fine-tune ratios per site and discipline to reflect the relative effort required.</p>
                     </div>
-                    <div class="config-body">
-                        <div id="loadingGroups" class="text-center">
-                            <i class="fas fa-spinner fa-spin"></i> Loading PPM groups...
-                        </div>
-                        <div id="groupsContainer" style="display: none;">
-                            <!-- Dynamic content will be loaded here -->
-                        </div>
+                    <div class="config-card-toolbar" id="siteControls" style="display: none;">
+                        <button class="btn btn-outline-primary btn-sm" id="btnExpandAll">
+                            <i class="fas fa-expand-arrows-alt mr-1"></i>Expand All
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="btnCollapseAll">
+                            <i class="fas fa-compress-arrows-alt mr-1"></i>Collapse All
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
+                <div class="config-card-body">
+                    <div id="loadingGroups" class="text-center">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>Loading PPM groups...
+                    </div>
+                    <div id="groupsContainer" style="display: none;"></div>
+                </div>
+            </article>
+        </section>
 
-        <!-- Action Buttons -->
-        <div class="row">
-            <div class="col-12 text-center">
-                <button class="btn btn-success btn-save text-white px-5 py-3" id="btnSaveConfig">
-                    <i class="fas fa-save mr-2"></i> Save Configuration
-                </button>
-                <button class="btn btn-outline-secondary px-5 py-3 ml-3" id="btnResetDefaults">
-                    <i class="fas fa-undo mr-2"></i> Reset All to Default (1.0)
-                </button>
-            </div>
+        <div class="config-actions-footer">
+            <button class="btn btn-success text-white" id="btnSaveConfig">
+                <i class="fas fa-save mr-2"></i>Save Configuration
+            </button>
+            <button class="btn btn-outline-secondary" id="btnResetDefaults">
+                <i class="fas fa-undo mr-2"></i>Reset All to Default (1.0)
+            </button>
         </div>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
@@ -229,11 +504,6 @@
 <!--Main layout-->
 
 <!-- SCRIPTS -->
-<!-- JQuery -->
-<script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-<!--JQuery Migrate-->
-<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-
 <script type="text/javascript">
     $('.includeHtml').each(function () {
         const divId = $(this).attr('id');
