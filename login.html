@@ -18,7 +18,7 @@
 	<!-- Browser icon -->
 	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- Material Design Bootstrap -->
@@ -26,24 +26,274 @@
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
     <style>
-        .intro-2 {
-            background: url("img/background/buildings.jpg")no-repeat center center fixed;
-            -webkit-background-size: cover;
-            -moz-background-size: cover;
-            -o-background-size: cover;
+        :root {
+            --login-bg-start: #111827;
+            --login-bg-mid: #4338ca;
+            --login-bg-end: #6366f1;
+            --login-surface: #ffffff;
+            --login-surface-alt: rgba(255, 255, 255, 0.08);
+            --login-text-dark: #0f172a;
+            --login-text-muted: #64748b;
+            --login-border: rgba(99, 102, 241, 0.2);
+            --login-radius: 28px;
+            --login-shadow: 0 30px 60px -35px rgba(15, 23, 42, 0.8);
+        }
+
+        body.login-body {
+            min-height: 100vh;
+            margin: 0;
+            background-image: url('./img/background/login-bg.jpg') !important;
             background-size: cover;
+            color: var(--login-text-dark);
+            font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3.5rem 1.5rem;
         }
-        .form-elegant .font-small {
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 1024px;
+        }
+
+        .login-card {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+            gap: 0;
+            border-radius: var(--login-radius);
+            background: var(--login-surface);
+            box-shadow: var(--login-shadow);
+            overflow: hidden;
+        }
+
+        .login-aside {
+            position: relative;
+            padding: 3rem;
+            background: linear-gradient(135deg, rgba(206,239,240,1) 0%, rgba(231,234,236,1) 100%);
+            color: var(--login-text-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 3rem;
+        }
+
+        .login-aside::after {
+            content: "";
+            position: absolute;
+            inset: 12% 10% auto auto;
+            width: 180px;
+            height: 180px;
+            border-radius: 48% 52% 61% 39%;
+            background: rgba(15, 23, 42, 0.12);
+            filter: blur(0.5px);
+            z-index: 0;
+        }
+
+        .login-aside-content,
+        .login-aside-footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-logo {
+            max-width: 260px;
+        }
+
+        .login-aside h2 {
+            font-size: 1.75rem;
+            margin: 2.25rem 0 1rem;
+            font-weight: 600;
+        }
+
+        .login-aside p {
+            margin: 0;
+            line-height: 1.6;
+            color: var(--login-text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .login-highlight {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.18);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-feature-list {
+            display: grid;
+            gap: 0.75rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .login-feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .login-feature-list i {
+            font-size: 1rem;
+        }
+
+        .login-panel {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2.5rem;
+        }
+
+        .login-panel-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--login-text-dark);
+        }
+
+        .login-panel-header p {
+            margin: 0.75rem 0 0;
+            color: var(--login-text-muted);
+            font-size: 0.98rem;
+        }
+
+        .login-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .login-field label {
+            font-weight: 500;
+            color: var(--login-text-dark);
+            font-size: 0.95rem;
+        }
+
+        .login-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .login-input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            color: var(--login-text-muted);
+            font-size: 1rem;
+        }
+
+        .login-input-wrapper input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.75rem;
+            border-radius: 14px;
+            border: 1px solid var(--login-border);
+            background: #f8fafc;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+
+        .login-input-wrapper input:focus {
+            outline: none;
+            border-color: rgba(99, 102, 241, 0.6);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18);
+        }
+
+        .login-error {
+            min-height: 1.25rem;
             font-size: 0.8rem;
+            color: #ef4444;
+            margin: 0;
         }
-        .form-elegant .z-depth-1a {
-            -webkit-box-shadow: 0 2px 5px 0 rgba(55, 161, 255, 0.26), 0 4px 12px 0 rgba(121, 155, 254, 0.25);
-            box-shadow: 0 5px 8px 0 rgba(55, 161, 255, 0.26), 0 4px 12px 0 rgba(121, 155, 254, 0.25);
+
+        .login-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
-        .form-elegant .z-depth-1-half,
-        .form-elegant .btn:hover {
-            -webkit-box-shadow: 0 5px 11px 0 rgba(85, 182, 255, 0.28), 0 4px 15px 0 rgba(36, 133, 255, 0.15);
-            box-shadow: 0 10px 19px 0 rgba(85, 182, 255, 0.28), 0 4px 15px 0 rgba(36, 133, 255, 0.15);
+
+        .login-button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.9rem 1rem;
+            border-radius: 18px;
+            border: none;
+            background: #00ada8;
+            color: #ffffff;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 30px -18px rgba(79, 70, 229, 0.9);
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .login-support {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            font-size: 0.9rem;
+        }
+
+        .login-support a {
+            color: #4338ca;
+            font-weight: 500;
+        }
+
+        .login-footer {
+            font-size: 0.85rem;
+            color: var(--login-text-muted);
+            text-align: center;
+        }
+
+        @media (max-width: 992px) {
+            body.login-body {
+                padding: 2.5rem 1.25rem;
+            }
+
+            .login-card {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .login-aside {
+                padding: 2.5rem 2.25rem;
+            }
+
+            .login-panel {
+                padding: 2.5rem 2.25rem 2.75rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body.login-body {
+                padding: 2rem 1rem;
+            }
+
+            .login-panel {
+                padding: 2.25rem 1.75rem 2.5rem;
+            }
+
+            .login-input-wrapper input {
+                padding-left: 2.5rem;
+            }
         }
     </style>
 	<!-- JQuery -->
@@ -53,46 +303,58 @@
 
 </head>
 
-<body class="intro-2">
-<!-- Start your project here-->
-<div class="mx-3 mt-sm-3 mt-lg-3 mb-3">
-    <div class="flex-center flex-column">
-        <h1 class="text-center wow fadeInDown mb-0 mt-lg-3" data-wow-delay="0.3s"><img src="img/icon/logo.png" width="330"></h1>
-        <section class="form-elegant">
-            <!--Form without header-->
-            <div class="card card-cascade narrower mx-3 mb-3 wow fadeInLeft" data-wow-delay="0.6s">
-                <div class="view view-cascade gradient-card-header light-blue">
-                    <h2 class="card-header-title">Sign In</h2>
-                </div>
-                <div class="card-body card-body-cascade mx-4">
-                    <form id="formLgnLogin">
-                        <div class="md-form md-outline">
-                            <i class="fas fa-user prefix text-black-50"></i>
-                            <input type="email" id="txtLgnUsername" name="txtLgnUsername" class="form-control" >
-                            <label for="txtLgnUsername" >Login ID</label>
-                            <p class="font-small text-danger pl-4_5" id="txtLgnUsernameErr"></p>
-                        </div>
-                        <div class="md-form md-outline">
-                            <i class="fas fa-lock prefix text-black-50"></i>
-                            <input type="password" id="txtLgnPassword" name="txtLgnPassword" class="form-control" autocomplete="new-password" >
-                            <label for="txtLgnPassword">Password</label>
-                            <p class="font-small text-danger pl-4_5" id="txtLgnPasswordErr"></p>
-                        </div>
-                        <div class="text-center pt-1">
-                            <button type="button" id="btnLgnSignIn" class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-1a">Log In</button>
-                        </div>
-                        <p class="font-small blue-text d-flex justify-content-end">
-                            <a href="#" class="info-text ml-1" data-toggle="modal" data-target="#modalForgotPassword">Forgot Password?</a>
-                        </p>
-                    </form>
-                </div>
-                <!--Footer-->
-                <div class="modal-footer mx-5 pt-2 mb-1">
-                    <p class="font-small grey-text d-flex justify-content-center" style="width: 250px">
-                        © 2019 Copyright: GEMS v2.0
-                    </p>
-                </div>
+<body class="login-body">
+<div class="login-wrapper">
+    <div class="login-card wow fadeInUp" data-wow-delay="0.3s">
+        <aside class="login-aside">
+            <div class="login-aside-content">
+                <img src="img/icon/logo.png" class="login-logo" alt="GEMS 2.0 logo">
+                <span class="login-highlight"><i class="fas fa-wand-magic-sparkles"></i> Facilities Excellence</span>
+                <h2>Experience the refreshed GEMS 2.0 portal.</h2>
+                <p>Securely manage work orders, assets, and permits from any device. Sign in to continue where you left off.</p>
+                <ul class="login-feature-list">
+                    <li><i class="fas fa-shield-check"></i>Enterprise-grade security</li>
+                    <li><i class="fas fa-chart-line"></i>Real-time operational visibility</li>
+                    <li><i class="fas fa-clock"></i>Fast access to the tools you use daily</li>
+                </ul>
             </div>
+            <div class="login-aside-footer">
+                <small>Need access? Contact your site administrator to get started.</small>
+            </div>
+        </aside>
+        <section class="login-panel">
+            <header class="login-panel-header">
+                <h1>Sign in</h1>
+                <p>Enter your credentials to access the GEMS 2.0 suite.</p>
+            </header>
+            <form id="formLgnLogin" class="login-form">
+                <div class="login-field">
+                    <label for="txtLgnUsername">Login ID</label>
+                    <div class="login-input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="email" id="txtLgnUsername" name="txtLgnUsername" class="form-control" autocomplete="username">
+                    </div>
+                    <p class="login-error" id="txtLgnUsernameErr"></p>
+                </div>
+                <div class="login-field">
+                    <label for="txtLgnPassword">Password</label>
+                    <div class="login-input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="txtLgnPassword" name="txtLgnPassword" class="form-control" autocomplete="current-password">
+                    </div>
+                    <p class="login-error" id="txtLgnPasswordErr"></p>
+                </div>
+                <div class="login-actions">
+                    <button type="button" id="btnLgnSignIn" class="login-button">Log In <i class="fas fa-arrow-right"></i></button>
+                    <div class="login-support">
+                        <span></span>
+                        <a href="#" data-toggle="modal" data-target="#modalForgotPassword">Forgot password?</a>
+                    </div>
+                </div>
+            </form>
+            <footer class="login-footer">
+                © 2019 - 2025 GEMS v2.0. All rights reserved.
+            </footer>
         </section>
     </div>
 </div>
