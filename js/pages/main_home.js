@@ -1252,7 +1252,8 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme3'); },
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme3', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
+                    const tradeCount = Array.isArray(resp.result) ? resp.result.length : 0;
+                    setChartColumnWidth('chartHme3', tradeCount, 1);
                     Highcharts.chart('chartHme3', {
                         chart: {
                             type: 'pie'
