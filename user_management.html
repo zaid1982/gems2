@@ -23,11 +23,401 @@
     <link rel="stylesheet" href="css/mdb.min.css">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <style>
+        :root {
+            --module-primary: #4338CA;
+            --module-background: #F1F5F9;
+            --module-text: #0F172A;
+            --module-muted: #64748B;
+            --module-radius: 26px;
+            --module-shadow: 0 22px 55px -28px rgba(15, 23, 42, 0.45);
+        }
 
+        body {
+            background: var(--module-background);
+            color: var(--module-text);
+        }
+
+        .module-master {
+            padding: 2.5rem 1.5rem 3rem;
+        }
+
+        .module-page-header {
+            background: linear-gradient(135deg, rgba(67, 56, 202, 0.95), rgba(129, 140, 248, 0.85));
+            color: #fff;
+            border-radius: var(--module-radius);
+            padding: 2.4rem 2.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: var(--module-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-page-header::after {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -70px;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .module-page-header .header-text {
+            position: relative;
+            z-index: 1;
+            max-width: 720px;
+        }
+
+        .module-page-header .header-subtitle {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            opacity: 0.82;
+            margin-bottom: 0.75rem;
+        }
+
+        .module-page-header .header-text h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.45rem;
+        }
+
+        .module-page-header .header-text p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .module-page-header .header-actions {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .module-page-header .header-actions .btn {
+            border-radius: 999px;
+            padding: 0.6rem 1.6rem;
+            font-weight: 600;
+        }
+
+        .metrics-row {
+            margin-top: 2.4rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .metric-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 1.5rem 1.65rem;
+            box-shadow: var(--module-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            bottom: -42px;
+            right: -45px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(67, 56, 202, 0.08);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--module-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2.05rem;
+            font-weight: 700;
+            color: var(--module-text);
+        }
+
+        .metric-subtext {
+            font-size: 0.85rem;
+            color: var(--module-muted);
+            margin-top: 0.35rem;
+        }
+
+        .module-insight-grid {
+            margin-top: 2.6rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .insight-card {
+            background: #fff;
+            border-radius: var(--module-radius);
+            box-shadow: var(--module-shadow);
+            padding: 2.2rem 2.4rem;
+            position: relative;
+        }
+
+        .insight-header h3 {
+            margin: 0 0 0.35rem;
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--module-text);
+        }
+
+        .insight-header p {
+            margin: 0;
+            color: var(--module-muted);
+            font-size: 0.93rem;
+        }
+
+        .chart-wrapper {
+            margin-top: 1.6rem;
+            height: 340px;
+        }
+
+        #chartUmnLeaveByStatus {
+            height: 100%;
+        }
+
+        .filter-card {
+            margin-top: 2.6rem;
+            background: #fff;
+            border-radius: var(--module-radius);
+            padding: 2.2rem 2.4rem;
+            box-shadow: var(--module-shadow);
+        }
+
+        .filter-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.6rem;
+        }
+
+        .filter-card-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--module-text);
+        }
+
+        .summary-pill {
+            background: rgba(67, 56, 202, 0.12);
+            color: var(--module-primary);
+            padding: 0.45rem 0.95rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .filter-card label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--module-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-grid {
+            display: grid;
+            gap: 1.4rem;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        }
+
+        .filter-grid input,
+        .filter-grid select {
+            border-radius: 16px;
+            border: 1px solid rgba(15, 23, 42, 0.15);
+            padding: 0.65rem 0.9rem;
+            font-size: 0.95rem;
+            color: var(--module-text);
+            background: #fff;
+        }
+
+        .module-data-card {
+            margin-top: 2.6rem;
+            background: #fff;
+            border-radius: var(--module-radius);
+            box-shadow: var(--module-shadow);
+            padding-bottom: 1.6rem;
+        }
+
+        .module-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.75rem 2.4rem 1.25rem;
+        }
+
+        .module-card-header h4 {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--module-text);
+        }
+
+        .module-card-header p {
+            margin: 0;
+            color: var(--module-muted);
+        }
+
+        .module-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .module-card-actions .btn {
+            padding: 0.45rem 1rem;
+            border-radius: 999px;
+        }
+
+        .module-card-actions .btn-outline-primary {
+            border-color: rgba(67, 56, 202, 0.35);
+            color: var(--module-primary);
+        }
+
+        .module-card-actions .btn-outline-primary:hover {
+            background: rgba(67, 56, 202, 0.12);
+            color: var(--module-primary);
+        }
+
+        .module-table-wrapper {
+            padding: 0 2.4rem;
+        }
+
+        .module-table-wrapper thead th {
+            background: #EEF2FF;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--module-text);
+        }
+
+        .module-table-wrapper tbody td {
+            border-color: #E2E8F0;
+        }
+
+        .results-summary {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.25rem 2.4rem 0;
+            color: var(--module-muted);
+            font-size: 0.92rem;
+        }
+
+        #dtUmnUser_wrapper .dt-buttons {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        #dtUmnUser_wrapper .dt-buttons .btn {
+            border-radius: 999px;
+            padding: 0.55rem 0.95rem;
+            background: rgba(67, 56, 202, 0.12);
+            border: none;
+            color: var(--module-primary);
+        }
+
+        #dtUmnUser_wrapper .dt-buttons .btn:hover {
+            background: rgba(67, 56, 202, 0.18) !important;
+            color: var(--module-primary);
+        }
+
+        #dtUmnUser_filter {
+            display: none !important;
+        }
+
+        @media (max-width: 992px) {
+            .module-master {
+                padding: 2.1rem 1.05rem 2.5rem;
+            }
+
+            .module-page-header {
+                padding: 2.1rem 2.1rem;
+            }
+
+            .module-card-header,
+            .module-table-wrapper,
+            .results-summary,
+            .filter-card,
+            .insight-card {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .module-page-header {
+                padding: 2rem 1.85rem;
+            }
+
+            .module-page-header .header-actions {
+                width: 100%;
+            }
+
+            .metrics-row {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-card {
+                padding: 1.9rem 1.5rem;
+            }
+
+            .module-table-wrapper thead {
+                display: none;
+            }
+
+            .module-table-wrapper tbody tr {
+                display: block;
+                margin-bottom: 1.2rem;
+                border: 1px solid rgba(15, 23, 42, 0.12);
+                border-radius: 18px;
+                box-shadow: 0 15px 35px -28px rgba(15, 23, 42, 0.55);
+                padding: 0.85rem 1rem;
+            }
+
+            .module-table-wrapper tbody td {
+                display: flex;
+                justify-content: space-between;
+                border: none;
+                padding: 0.45rem 0;
+                font-size: 0.95rem;
+            }
+
+            .module-table-wrapper tbody td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--module-muted);
+                margin-right: 1.25rem;
+                text-align: left;
+            }
+        }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -45,99 +435,109 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid">
-        <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionUmnMain">
-            <div class="card card-cascade narrower">
-                <!--Section: Search Function & Chart-->
-                <section>
-                    <div class="row">
-                        <!--Search Function-->
-                        <div class="col-xl-6 col-lg-12 mr-0">
-                            <div class="view view-cascade gradient-card-header rgba-cyan-strong z-depth-4">
-                                <h2 class="h2-responsive mb-0">User Management</h2>
-                            </div>
-                            <div class="card-body card-body-cascade">
-                                <div class="card-body pt-5">
-                                    <!--<div class="mt-1 pb-2">
-                                        <h6>User Roles:</h6>
-                                        <ul class="striped list-unstyled pl-2">
-                                            <li><a href="javascript:void(0);" id="linkUmn0"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn1"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn10"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn2"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn6"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn9"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn3"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn4"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn5"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn7"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn8"></a></li>
-                                            <li><a href="javascript:void(0);" id="linkUmn11"></a></li>
-                                        </ul>
-                                    </div>-->
-                                    <h6 class="pb-3">Search:</h6>
-                                    <div class="row">
-                                        <div class="col-md-12 select-outline">
-                                            <select id="optUmnGroupId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                            <label for="optUmnGroupId">Site</label>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="md-form md-outline mt-0">
-                                                <input type="text" id="txtUmnUserSearch" class="form-control">
-                                                <label for="txtUmnUserSearch" class="active">Keyword Search</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--Chart-->
-                        <div class="col-xl-6 col-lg-12">
-                            <div class="view view-cascade z-depth-4 mb-5">
-                                <div id="chartUmnLeaveByStatus" style="height: 340px; margin: 0"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <!--Section: Table-->
-                <section>
-                    <div class="card card-cascade narrower z-depth-0">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <button type="button" id="btnUmnUserAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add User"><i class="fas fa-plus mt-0"></i></button>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="User List"
-                                   data-content="User List for all users that use the system."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtUmnUserRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">User List</a>
-                            <div>
-                                <div id="btnDtUmnUserExport"></div>
-                            </div>
-                        </div>
-                        <div class="px-4 pb-4">
-                            <div class="table-responsive">
-                                <table id="dtUmnUser" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th scope="row" style="width: 4%">#</th>
-                                        <th>Name</th>
-                                        <th width="12%">Site</th>
-                                        <th width="10%">Type</th>
-                                        <th width="10%">Contact No.</th>
-                                        <th width="21%">Email</th>
-                                        <th width="14%">Roles</th>
-                                        <th width="8%">Status</th>
-                                        <th width="64px" style="min-width: 64px"></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+    <div class="container-fluid module-master module-umn">
+        <section class="module-page-header">
+            <div class="header-text">
+                <p class="header-subtitle">Administration</p>
+                <h2>User Management</h2>
+                <p>Manage user access, roles, and credentials across every site.</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" id="btnUmnUserAdd" class="btn btn-light"><i class="fas fa-plus mr-2"></i>New User</button>
+                <button type="button" id="btnDtUmnUserRefresh" class="btn btn-outline-light"><i class="fas fa-sync mr-2"></i>Refresh</button>
+                <button type="button" class="btn btn-outline-light" data-toggle="popover" data-trigger="focus" title="User Directory" data-content="Review, add, or deactivate user accounts and reset credentials."><i class="fas fa-info"></i></button>
+            </div>
+        </section>
+
+        <section class="metrics-row">
+            <div class="metric-card">
+                <div class="metric-label">Total Users</div>
+                <div class="metric-value" id="metricUmnTotal">0</div>
+                <div class="metric-subtext">Across all sites</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Active Users</div>
+                <div class="metric-value" id="metricUmnActive">0</div>
+                <div class="metric-subtext">Currently enabled accounts</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Inactive Users</div>
+                <div class="metric-value" id="metricUmnInactive">0</div>
+                <div class="metric-subtext">Awaiting reactivation</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Sites Covered</div>
+                <div class="metric-value" id="metricUmnSites">0</div>
+                <div class="metric-subtext">Unique sites with users</div>
+            </div>
+        </section>
+
+        <section class="module-insight-grid">
+            <div class="insight-card">
+                <div class="insight-header">
+                    <h3>Role Distribution</h3>
+                    <p>Understand how user roles are distributed throughout the system.</p>
+                </div>
+                <div class="chart-wrapper">
+                    <div id="chartUmnLeaveByStatus"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="filter-card">
+            <div class="filter-card-header">
+                <h3>Filter Users</h3>
+                <span class="summary-pill" id="lblUmnUserFilter">Site: All Sites</span>
+            </div>
+            <div class="filter-grid">
+                <div class="filter-field">
+                    <label for="optUmnGroupId">Site</label>
+                    <select id="optUmnGroupId" class="form-control"></select>
+                </div>
+                <div class="filter-field">
+                    <label for="txtUmnUserSearch">Keyword Search</label>
+                    <input type="text" id="txtUmnUserSearch" class="form-control" placeholder="Search by name, email, or role">
+                </div>
+            </div>
+        </section>
+
+        <section class="module-data-card">
+            <div class="module-card-header">
+                <div>
+                    <h4>User Directory</h4>
+                    <p>All registered users with their assigned roles and status.</p>
+                </div>
+                <div class="module-card-actions">
+                    <div id="btnDtUmnUserExport"></div>
+                </div>
+            </div>
+            <div class="module-table-wrapper">
+                <table id="dtUmnUser" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                    <thead>
+                    <tr>
+                        <th scope="row">#</th>
+                        <th>Name</th>
+                        <th>Site</th>
+                        <th>Type</th>
+                        <th>Contact No.</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th style="min-width: 72px">Actions</th>
+                        <th class="d-none"></th>
+                        <th class="d-none"></th>
+                        <th class="d-none"></th>
+                        <th class="d-none"></th>
+                        <th class="d-none"></th>
+                        <th class="d-none"></th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="results-summary">
+                <span id="lblUmnUserCount">Showing 0 of 0 records</span>
+                <span id="lblUmnUserUpdated">Updated —</span>
             </div>
         </section>
     </div>
@@ -176,7 +576,6 @@
 <script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/themes/dark-blue.js"></script>
 <!-- Moment JavaScript -->
 <script type="text/javascript" src="js/addons/moment.min.js"></script>
 

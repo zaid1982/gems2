@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>GEMS 2.0</title>
-    <!-- Browser icon -->
-    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+	<!-- Browser icon -->
+	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
     <!-- Bootstrap core CSS -->
@@ -74,375 +74,10 @@
         .module-page-header .header-subtitle {
             font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 0.12em;
+            letter-spacing: .12em;
             opacity: 0.82;
             margin-bottom: 0.8rem;
         }
-
-        .module-page-header h2 {
-            font-size: 2.25rem;
-            font-weight: 700;
-            margin-bottom: 0.4rem;
-        }
-
-        .module-page-header p {
-            margin: 0;
-            color: rgba(255, 255, 255, 0.82);
-        }
-
-        .module-page-header .header-actions {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            align-items: center;
-        }
-
-        .metrics-row {
-            margin-top: 2.5rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.4rem;
-        }
-
-        .metric-card {
-            background: #fff;
-            border-radius: 22px;
-            padding: 1.6rem 1.7rem;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--module-shadow);
-        }
-
-        .metric-card::after {
-            content: '';
-            position: absolute;
-            bottom: -45px;
-            right: -40px;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: rgba(67, 56, 202, 0.08);
-        }
-
-        .metric-label {
-            font-size: 0.78rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--module-muted);
-            margin-bottom: 0.45rem;
-        }
-
-        .metric-value {
-            font-size: 2.1rem;
-            font-weight: 700;
-            color: var(--module-text);
-        }
-
-        .metric-subtext {
-            font-size: 0.86rem;
-            color: var(--module-muted);
-            margin-top: 0.35rem;
-        }
-
-        .filter-card {
-            margin-top: 2.7rem;
-            background: #fff;
-            border-radius: var(--module-radius);
-            padding: 2.3rem 2.5rem;
-            box-shadow: var(--module-shadow);
-        }
-
-        .filter-card-header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.7rem;
-        }
-
-        .filter-card-header h3 {
-            margin: 0;
-            font-size: 1.28rem;
-            font-weight: 700;
-            color: var(--module-text);
-        }
-
-        .filter-card-header p {
-            margin: 0.3rem 0 0;
-            color: var(--module-muted);
-            font-size: 0.92rem;
-        }
-
-        .summary-pill {
-            background: rgba(67, 56, 202, 0.12);
-            color: var(--module-primary);
-            padding: 0.45rem 1rem;
-            border-radius: 999px;
-            font-weight: 600;
-            font-size: 0.92rem;
-        }
-
-        .filter-grid {
-            display: grid;
-            gap: 1.4rem 1.8rem;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            align-items: end;
-        }
-
-        .filter-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-        }
-
-        .filter-card .btn {
-            border-radius: 16px;
-            padding: 0.7rem 1.6rem;
-            font-weight: 600;
-        }
-
-        .module-content-row {
-            margin-top: 2.6rem;
-        }
-
-        .module-main-column .module-data-card:not(:last-child) {
-            margin-bottom: 2.25rem;
-        }
-
-        .module-data-card {
-            background: #fff;
-            border-radius: var(--module-radius);
-            box-shadow: var(--module-shadow);
-            padding-bottom: 1.6rem;
-        }
-
-        .module-card-header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            padding: 1.9rem 2.4rem 1.35rem;
-        }
-
-        .module-card-header h4 {
-            margin: 0;
-            font-size: 1.32rem;
-            font-weight: 700;
-            color: var(--module-text);
-        }
-
-        .module-card-header p {
-            margin: 0.35rem 0 0;
-            color: var(--module-muted);
-            font-size: 0.9rem;
-        }
-
-        .module-card-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .module-card-actions .btn {
-            border-radius: 999px;
-            padding: 0.55rem 1.05rem;
-            font-weight: 600;
-        }
-
-        .module-card-actions .btn-outline-primary {
-            border-color: rgba(67, 56, 202, 0.35);
-            color: var(--module-primary);
-        }
-
-        .module-card-actions .btn-outline-primary:hover {
-            background: rgba(67, 56, 202, 0.12);
-            color: var(--module-primary);
-        }
-
-        .module-table-wrapper {
-            padding: 0 2.4rem;
-        }
-
-        .module-table-wrapper thead th {
-            background: #EEF2FF;
-            border: none;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--module-text);
-        }
-
-        .module-table-wrapper tbody td {
-            border-color: #E2E8F0;
-        }
-
-        .results-summary {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1.25rem 2.4rem 0;
-            color: var(--module-muted);
-            font-size: 0.92rem;
-        }
-
-        #divPgrDetails {
-            transition: opacity 0.25s ease, transform 0.25s ease;
-        }
-
-        .module-details-card {
-            background: #fff;
-            border-radius: var(--module-radius);
-            box-shadow: var(--module-shadow);
-            padding: 2rem 2.4rem;
-            margin-bottom: 2rem;
-        }
-
-        .module-details-card h5 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 1.4rem;
-            color: var(--module-text);
-        }
-
-        .module-details-card .md-form {
-            margin-bottom: 1.4rem;
-        }
-
-        .module-details-card label {
-            color: var(--module-muted);
-        }
-
-        .module-details-card .form-check-label {
-            color: var(--module-text);
-            font-weight: 600;
-        }
-
-        .module-details-card .btn {
-            border-radius: 999px;
-            font-weight: 600;
-            padding: 0.55rem 1.2rem;
-        }
-
-        .module-user-card .module-card-header {
-            padding-bottom: 1rem;
-        }
-
-        .module-user-card .module-table-wrapper {
-            padding-bottom: 1.2rem;
-        }
-
-        #divPgrMain .dt-buttons {
-            display: flex;
-            gap: 0.6rem;
-            flex-wrap: wrap;
-        }
-
-        #divPgrMain .dt-buttons .btn {
-            border-radius: 999px;
-            background: rgba(67, 56, 202, 0.12);
-            border: none;
-            color: var(--module-primary);
-        }
-
-        @media (max-width: 992px) {
-            .module-master {
-                padding: 2.2rem 1.2rem 3rem;
-            }
-
-            .module-page-header {
-                padding: 2.3rem 2.2rem;
-            }
-
-            .module-card-header,
-            .module-table-wrapper,
-            .results-summary,
-            .filter-card,
-            .module-details-card {
-                padding-left: 1.6rem;
-                padding-right: 1.6rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .module-page-header {
-                padding: 2rem 1.85rem;
-            }
-
-            .module-page-header .header-actions {
-                width: 100%;
-                justify-content: flex-start;
-            }
-
-            .filter-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .module-card-header {
-                padding: 1.6rem 1.5rem 1.1rem;
-            }
-
-            .module-table-wrapper {
-                padding: 0 1.5rem;
-            }
-
-            .module-table-wrapper thead {
-                display: none;
-            }
-
-            .module-table-wrapper tbody tr {
-                display: block;
-                margin-bottom: 1.2rem;
-                border: 1px solid rgba(15, 23, 42, 0.12);
-                border-radius: 18px;
-                box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.65);
-                padding: 0.9rem 1.1rem;
-            }
-
-            .module-table-wrapper tbody td {
-                display: flex;
-                justify-content: space-between;
-                border: none;
-                padding: 0.48rem 0;
-                font-size: 0.95rem;
-            }
-
-            .module-table-wrapper tbody td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: var(--module-muted);
-                margin-right: 1.3rem;
-                text-align: left;
-            }
-
-            .module-details-card {
-                padding: 1.7rem 1.5rem;
-            }
-        }
-    </style>
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!--JQuery Migrate-->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-</head>
-
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-
 <main>
     <div class="container-fluid module-master module-pgr">
         <section class="module-page-header">
@@ -707,6 +342,384 @@
             </div>
         </div>
     </div>
+
+        .module-details-card {
+            background: #fff;
+            border-radius: var(--module-radius);
+            box-shadow: var(--module-shadow);
+            padding: 2rem 2.4rem;
+            margin-bottom: 2rem;
+        }
+
+        .module-details-card h5 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.4rem;
+            color: var(--module-text);
+        }
+
+        .module-details-card .md-form {
+            margin-bottom: 1.4rem;
+        }
+
+        .module-details-card label {
+            color: var(--module-muted);
+        }
+
+        .module-details-card .form-check-label {
+            color: var(--module-text);
+            font-weight: 600;
+        }
+
+        .module-details-card .btn {
+            border-radius: 999px;
+            font-weight: 600;
+            padding: 0.55rem 1.2rem;
+        }
+
+        .module-user-card .module-card-header {
+            padding-bottom: 1rem;
+        }
+
+        .module-user-card .module-table-wrapper {
+            padding-bottom: 1.2rem;
+        }
+
+        #divPgrMain .dt-buttons {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        #divPgrMain .dt-buttons .btn {
+            border-radius: 999px;
+            background: rgba(67, 56, 202, 0.12);
+            border: none;
+            color: var(--module-primary);
+        }
+
+        @media (max-width: 992px) {
+            .module-master {
+                padding: 2.2rem 1.2rem 3rem;
+            }
+
+            .module-page-header {
+                padding: 2.3rem 2.2rem;
+            }
+
+            .module-card-header,
+            .module-table-wrapper,
+            .results-summary,
+            .filter-card,
+            .module-details-card {
+                padding-left: 1.6rem;
+                padding-right: 1.6rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .module-page-header {
+                padding: 2rem 1.85rem;
+            }
+
+            .module-page-header .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .module-card-header {
+                padding: 1.6rem 1.5rem 1.1rem;
+            }
+
+            .module-card-actions {
+                width: 100%;
+            }
+
+            .module-card-actions .btn {
+                width: auto;
+            }
+
+            .module-table-wrapper {
+                padding: 0 1.5rem;
+            }
+
+            .module-table-wrapper thead {
+                display: none;
+            }
+
+            .module-table-wrapper tbody tr {
+                display: block;
+                margin-bottom: 1.2rem;
+                border: 1px solid rgba(15, 23, 42, 0.12);
+                border-radius: 18px;
+                box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.65);
+                padding: 0.9rem 1.1rem;
+            }
+
+            .module-table-wrapper tbody td {
+                display: flex;
+                justify-content: space-between;
+                border: none;
+                padding: 0.48rem 0;
+                font-size: 0.95rem;
+            }
+
+            .module-table-wrapper tbody td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--module-muted);
+                margin-right: 1.3rem;
+                text-align: left;
+            }
+
+            .module-details-card {
+                padding: 1.7rem 1.5rem;
+            }
+        }
+    </style>
+	<!-- JQuery -->
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+	<!--JQuery Migrate-->
+	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+
+<body class="fixed-sn light-blue-skin">
+<!--Main Navigation-->
+<header>
+    <!-- Sidebar navigation -->
+    <div class="includeHtml" id="h-nav_left"></div>
+    <!-- Navbar -->
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<!--Main layout-->
+
+<main>
+    <div class="container-fluid">
+        <section class="section mb-5 mt-lg-5 sectionPgrMain">
+            <div class="row">
+                <div class="col-md-7" id="divPgrMain">
+                    <div class="card card-cascade cascading-admin-card user-card mt-4">
+                        <div class="admin-up d-flex justify-content-start">
+                            <i class="fas fa-users rgba-cyan-strong py-4 z-depth-3"></i>
+                            <div class="data">
+                                <h3 class="font-weight-bold dark-grey-text ml-3">Group Management</h3>
+                            </div>
+                        </div>
+                        <div class="card-body card-body-cascade pb-0">
+                            <form id="formPgrSearch">
+                                <h6 class="pb-3 pt-3">Filter:</h6>
+                                <div class="row">
+                                    <div class="col-md-12 select-outline">
+                                        <select id="optPgrClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                        <label for="optPgrClientId">Client</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 select-outline">
+                                        <select id="optPgrSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                                        <label for="optPgrSiteId">Site</label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" id="btnPgrSearch" class="btn btn-outline-orange btn-rounded waves-effect btn-sm float-right" disabled>
+                                <i class="fas fa-search mr-1"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrTechnicianAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Technician Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">PPM Executor Group</a>
+                            <div>
+                                <button type="button" id="btnDtPgrTechnicianRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrTechnician" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Group Name</th>
+                                    <th style="width: 30%">Report To</th>
+                                    <th style="width: 15%">Total User</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrSupervisorAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Supervisor Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">PPM Reviewer Group</a>
+                            <div>
+                                <button type="button" id="btnDtPgrSupervisorRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrSupervisor" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Group Name</th>
+                                    <th style="width: 30%">Report To</th>
+                                    <th style="width: 15%">Total User</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrEngineerAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Engineer Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">PPM Verifier Group</a>
+                            <div>
+                                <button type="button" id="btnDtPgrEngineerRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrEngineer" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Group Name</th>
+                                    <th style="width: 15%">Total User</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header orange darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrWoTechnicianAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add WO Technician Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="text-white mx-3">WO Executor Group</a>
+                            <div>
+                                <button type="button" id="btnDtPgrWoTechnicianRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrWoTechnician" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Group Name</th>
+                                    <th style="width: 15%">Total User</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-5" id="divPgrDetails">
+                    <div class="card mt-4">
+                        <div class="card-header stylish-color">
+                            <h5 class="font-weight-bold white-text ml-3 mt-2">Group Information</h5>
+                        </div>
+                        <div class="card-body px-2">
+                            <form id="formPgrInfo">
+                                <div class="col-md-12">
+                                    <div class="md-form md-outline">
+                                        <input type="text" id="txtPgrInfoClientName" class="form-control" disabled>
+                                        <label for="txtPgrInfoClientName" id="lblPgrInfoClientName">Client</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="md-form md-outline">
+                                        <input type="text" id="txtPgrInfoSiteName" class="form-control" disabled>
+                                        <label for="txtPgrInfoSiteName" id="lblPgrInfoSiteName">Site</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="md-form md-outline">
+                                        <input type="text" id="txtPgrInfoRoleDesc" class="form-control" disabled>
+                                        <label for="txtPgrInfoRoleDesc" id="lblPgrInfoRoleDesc">Role</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="md-form md-outline">
+                                        <input type="text" id="txtPgrInfoGroupName" class="form-control">
+                                        <label for="txtPgrInfoGroupName" id="lblPgrInfoGroupName">Group Name *</label>
+                                        <p class="font-small text-danger" id="txtPgrInfoGroupNameErr"></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 select-outline" id="divPgrInfoReportTo">
+                                    <select id="optPgrInfoReportTo" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true"></select>
+                                    <label for="optPgrInfoReportTo">Report to *</label>
+                                </div>
+                                <div class="col-md-12">
+                                    <h6 class="font-small">Status:</h6>
+                                    <div class="form-check pl-0 ml-3">
+                                        <input type="checkbox" class="form-check-input" id="chkPgrInfoStatus" name="chkPgrInfoStatus" value="1">
+                                        <label class="form-check-label" for="chkPgrInfoStatus">Active</label>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" id="btnPgrInfoUpdate" class="btn btn-outline-dark-green btn-rounded waves-effect btn-sm float-right" disabled>
+                                <i class="fas fa-save mr-1"></i> Update
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card card-cascade narrower mb-5 mt-5">
+                        <div class="view view-cascade gradient-card-header stylish-color narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                            <div>
+                                <button type="button" id="btnPgrUserAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Engineer Group"><i class="fas fa-plus mt-0"></i></button>
+                            </div>
+                            <a href="javascript:void(0);" class="mx-3 white-text">User List</a>
+                            <div>
+                                <button type="button" id="btnDtPgrUserRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                            </div>
+                        </div>
+                        <div class="table-responsive pb-4">
+                            <table id="dtPgrUser" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 5%">#</th>
+                                    <th>Name</th>
+                                    <th style="width: 15%">Status</th>
+                                    <th style="width: 32px; min-width: 32px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_ppm_group"></div>
     <div class="includeHtml" id="h-modal_ppm_user"></div>
@@ -755,6 +768,7 @@
     let modalConfirmDelete_;
 
     document.addEventListener('DOMContentLoaded', function () {
+
         ShowLoader();
         setTimeout(function () {
             try {
@@ -807,6 +821,8 @@
     document.write('<scr' + 'ipt src="js/pages/modal_ppm_user.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_ppm_group.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
 </script>
+
 </body>
 </html>

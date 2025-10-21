@@ -17,10 +17,361 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Stepper CSS - minified-->
     <link href="css/addons-pro/steppers.css" rel="stylesheet">
     <style>
+        :root {
+            --module-primary: #4338CA;
+            --module-background: #F1F5F9;
+            --module-text: #0F172A;
+            --module-muted: #64748B;
+            --module-radius: 26px;
+            --module-shadow: 0 24px 60px -30px rgba(15, 23, 42, 0.45);
+        }
 
+        body {
+            background: var(--module-background);
+            color: var(--module-text);
+        }
+
+        .module-master {
+            padding: 2.5rem 1.5rem 3.5rem;
+        }
+
+        .module-page-header {
+            background: linear-gradient(135deg, rgba(67, 56, 202, 0.95), rgba(129, 140, 248, 0.82));
+            color: #fff;
+            border-radius: var(--module-radius);
+            padding: 2.4rem 2.9rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--module-shadow);
+        }
+
+        .module-page-header::after {
+            content: '';
+            position: absolute;
+            top: -90px;
+            right: -70px;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .module-page-header .header-text {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+        }
+
+        .module-page-header .header-subtitle {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            opacity: 0.82;
+            margin-bottom: 0.8rem;
+        }
+
+        .module-page-header h2 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .module-page-header p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .module-page-header .header-actions {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .summary-pill {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            padding: 0.45rem 1.2rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            letter-spacing: 0.02em;
+        }
+
+        .metrics-row {
+            margin-top: 2.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.4rem;
+        }
+
+        .metric-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 1.6rem 1.7rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--module-shadow);
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            bottom: -45px;
+            right: -40px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(67, 56, 202, 0.08);
+        }
+
+        .metric-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--module-muted);
+            margin-bottom: 0.45rem;
+        }
+
+        .metric-value {
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: var(--module-text);
+        }
+
+        .metric-subtext {
+            font-size: 0.86rem;
+            color: var(--module-muted);
+            margin-top: 0.35rem;
+        }
+
+        .filter-card {
+            margin-top: 2.7rem;
+            background: #fff;
+            border-radius: var(--module-radius);
+            padding: 2.3rem 2.5rem;
+            box-shadow: var(--module-shadow);
+        }
+
+        .filter-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.7rem;
+        }
+
+        .filter-card-header h3 {
+            margin: 0;
+            font-size: 1.28rem;
+            font-weight: 700;
+            color: var(--module-text);
+        }
+
+        .filter-card-header p {
+            margin: 0.3rem 0 0;
+            color: var(--module-muted);
+            font-size: 0.92rem;
+        }
+
+        .filter-grid {
+            display: grid;
+            gap: 1.4rem 1.8rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            align-items: end;
+        }
+
+        .filter-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .filter-card .btn {
+            border-radius: 16px;
+            padding: 0.7rem 1.6rem;
+            font-weight: 600;
+        }
+
+        .module-data-card {
+            margin-top: 2.6rem;
+            background: #fff;
+            border-radius: var(--module-radius);
+            box-shadow: var(--module-shadow);
+            padding-bottom: 1.6rem;
+        }
+
+        .module-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.9rem 2.4rem 1.35rem;
+        }
+
+        .module-card-header h4 {
+            margin: 0;
+            font-size: 1.32rem;
+            font-weight: 700;
+            color: var(--module-text);
+        }
+
+        .module-card-header p {
+            margin: 0.35rem 0 0;
+            color: var(--module-muted);
+            font-size: 0.9rem;
+        }
+
+        .module-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .module-card-actions .btn {
+            border-radius: 999px;
+            padding: 0.55rem 1.05rem;
+            font-weight: 600;
+        }
+
+        .module-card-actions .dt-buttons {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .module-card-actions .dt-buttons .btn {
+            border-radius: 999px;
+            padding: 0.55rem 1.05rem;
+        }
+
+        .module-card-actions .module-search {
+            position: relative;
+            min-width: 220px;
+        }
+
+        .module-card-actions .module-search i {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            color: var(--module-muted);
+        }
+
+        .module-card-actions .module-search input {
+            padding-left: 2.2rem;
+            border-radius: 14px;
+        }
+
+        .module-table-wrapper {
+            padding: 0 2.4rem;
+        }
+
+        .module-table-wrapper thead th {
+            background: #EEF2FF;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--module-text);
+        }
+
+        .module-table-wrapper tbody td {
+            border-color: #E2E8F0;
+        }
+
+        .results-summary {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.25rem 2.4rem 0;
+            color: var(--module-muted);
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 992px) {
+            .module-master {
+                padding: 2.2rem 1.2rem 3rem;
+            }
+
+            .module-page-header,
+            .filter-card,
+            .module-card-header,
+            .module-table-wrapper,
+            .results-summary {
+                padding-left: 1.6rem;
+                padding-right: 1.6rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .module-page-header {
+                padding: 2rem 1.85rem;
+            }
+
+            .module-page-header .header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .module-card-header {
+                padding: 1.6rem 1.5rem 1.1rem;
+            }
+
+            .module-table-wrapper {
+                padding: 0 1.5rem;
+            }
+
+            .module-table-wrapper thead {
+                display: none;
+            }
+
+            .module-table-wrapper tbody tr {
+                display: block;
+                margin-bottom: 1.2rem;
+                border: 1px solid rgba(15, 23, 42, 0.12);
+                border-radius: 18px;
+                box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.65);
+                padding: 0.9rem 1.1rem;
+            }
+
+            .module-table-wrapper tbody td {
+                display: flex;
+                justify-content: space-between;
+                border: none;
+                padding: 0.48rem 0;
+                font-size: 0.95rem;
+            }
+
+            .module-table-wrapper tbody td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--module-muted);
+                margin-right: 1.3rem;
+                text-align: left;
+            }
+        }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -39,99 +390,112 @@
 <!--Main layout-->
 
 <main>
-    <div class="container-fluid">
-        <section class="section mb-5 mt-lg-5">
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="card card-cascade cascading-admin-card user-card mt-4">
-                        <div class="admin-up d-flex justify-content-start">
-                            <i class="fas fa-eye rgba-cyan-strong py-4 z-depth-3"></i>
-                            <div class="data">
-                                <h3 class="font-weight-bold dark-grey-text ml-3">Audit Trail</h3>
-                            </div>
-                        </div>
-                        <div class="card-body card-body-cascade pb-0">
-                            <form id="formAdtSearch">
-                                <h6 class="pb-3">Filter:</h6>
-                                <div class="row">
-                                    <div class="col-md-3 select-outline">
-                                        <select id="optAdtYear" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optAdtYear">Year</label>
-                                    </div>
-                                    <div class="col-md-6 select-outline">
-                                        <select id="optAdtMonth" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optAdtMonth">Month</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 select-outline">
-                                        <select id="optAdtModule" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                        <label for="optAdtModule">Module</label>
-                                    </div>
-                                    <div class="col-md-6 select-outline">
-                                        <select id="optAdtAction" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true"></select>
-                                        <label for="optAdtAction">Action</label>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="card-footer">
-                            <button type="button" id="btnAdtSearch" class="btn btn-outline-orange btn-rounded waves-effect btn-sm float-right" disabled>
-                                <i class="fas fa-search mr-1"></i> View
-                            </button>
-                        </div>
-                    </div>
-                </div>
+    <div class="container-fluid module-master module-adt">
+        <section class="module-page-header">
+            <div class="header-text">
+                <span class="header-subtitle">System Oversight</span>
+                <h2>Audit Trail Intelligence</h2>
+                <p>Monitor every action recorded across modules to keep governance strong and investigations fast.</p>
+            </div>
+            <div class="header-actions">
+                <span class="summary-pill" id="lblAdtScope">Loading filters…</span>
             </div>
         </section>
 
-        <section class="section mb-5 mt-lg-5">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card card-cascade narrower">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="Track and Monitoring"
-                                   data-content="Track current checkpoint for all transactions."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                <button type="button" id="btnDtAdtListRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3 pl-5">Audit Trail</a>
-                            <div>
-                                <div id="btnDtAdtListExport"></div>
-                            </div>
-                        </div>
-                        <div class="px-4 pb-4">
-                            <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
-                                <div class="">
-                                    <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                                    <input type="text" id="txtAdtListSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                                    <label for="txtAdtListSearch" class="ml-4">Search</label>
-                                </div>
-                            </form>
-                            <div class="table-responsive">
-                                <table id="dtAdtList" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th scope="row" style="max-width: 30px">#</th>
-                                        <th style="width: 140px">Timestamp</th>
-                                        <th>User</th>
-                                        <th style="width: 130px">Module</th>
-                                        <th>Action</th>
-                                        <th style="width: 120px">IP Address</th>
-                                        <th style="width: 25%">Remarks</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+        <section class="metrics-row">
+            <div class="metric-card">
+                <div class="metric-label">Entries</div>
+                <div class="metric-value" id="metricAdtTotal">0</div>
+                <div class="metric-subtext">Audit records returned by your filter</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Unique Users</div>
+                <div class="metric-value" id="metricAdtUsers">0</div>
+                <div class="metric-subtext">Distinct users linked to the entries</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Modules Touched</div>
+                <div class="metric-value" id="metricAdtModules">0</div>
+                <div class="metric-subtext">Applications involved in the audit log</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Actions Logged</div>
+                <div class="metric-value" id="metricAdtActions">0</div>
+                <div class="metric-subtext">Distinct action types in the result set</div>
             </div>
         </section>
 
+        <section class="filter-card">
+            <div class="filter-card-header">
+                <div>
+                    <h3>Filter &amp; Replay</h3>
+                    <p>Select period, module, and action to replay the system timeline.</p>
+                </div>
+                <span class="summary-pill" id="lblAdtSummary">Awaiting filter selection</span>
+            </div>
+            <form id="formAdtSearch">
+                <div class="filter-grid">
+                    <div class="select-outline">
+                        <select id="optAdtYear" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        <label for="optAdtYear">Year</label>
+                    </div>
+                    <div class="select-outline">
+                        <select id="optAdtMonth" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        <label for="optAdtMonth">Month</label>
+                    </div>
+                    <div class="select-outline">
+                        <select id="optAdtModule" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
+                        <label for="optAdtModule">Module</label>
+                    </div>
+                    <div class="select-outline">
+                        <select id="optAdtAction" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true"></select>
+                        <label for="optAdtAction">Action</label>
+                    </div>
+                    <div class="filter-actions">
+                        <button type="button" id="btnAdtSearch" class="btn btn-primary btn-rounded waves-effect" disabled>
+                            <i class="fas fa-search mr-2"></i>Run Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section class="module-data-card">
+            <div class="module-card-header">
+                <div>
+                    <h4>Audit Log Entries</h4>
+                    <p>Chronological breakdown of user activity with module and action context.</p>
+                </div>
+                <div class="module-card-actions">
+                    <button type="button" id="btnAdtRefresh" class="btn btn-outline-primary btn-sm btn-rounded waves-effect" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mr-1"></i>Refresh</button>
+                    <div id="btnAdtExport"></div>
+                    <div class="module-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="txtAdtSearch" class="form-control form-control-sm" placeholder="Quick search" />
+                    </div>
+                </div>
+            </div>
+            <div class="module-table-wrapper">
+                <table id="dtAdtList" class="table table-hover mb-0 mt-2 display responsive" cellspacing="0" width="100%">
+                    <thead>
+                    <tr class="th-strong">
+                        <th style="width: 60px">#</th>
+                        <th style="width: 160px">Timestamp</th>
+                        <th style="width: 160px">User</th>
+                        <th style="width: 180px">Module</th>
+                        <th>Action</th>
+                        <th style="width: 140px">IP Address</th>
+                        <th style="width: 28%">Remarks</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="results-summary">
+                <span id="lblAdtCount">No entries loaded</span>
+                <span id="lblAdtUpdated">Updated --</span>
+            </div>
+        </section>
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
 </main>

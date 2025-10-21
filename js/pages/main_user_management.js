@@ -1,6 +1,7 @@
 function MainUserManagement() {
 
     const className = 'MainUserManagement';
+    const momentAvailable = (typeof moment === 'function');
     let self = this;
     let refStatus;
     let refRole;
@@ -11,9 +12,82 @@ function MainUserManagement() {
     let modalUserClass;
     let refUserType;
     let modalEditPasswordClass;
+    let lastUpdated = null;
+
+    function formatTimestamp(value) {
+        if (!value) {
+            return 'Updated —';
+        }
+        if (momentAvailable) {
+            return 'Updated ' + moment(value).format('DD MMM YYYY, hh:mm A');
+        }
+        return 'Updated ' + new Date(value).toLocaleString();
+    }
+
+    function updateMetrics() {
+        if (!oTableUser) {
+            return;
+        }
+        const data = oTableUser.rows({search: 'applied'}).data();
+        let total = 0;
+        let active = 0;
+        let inactive = 0;
+        const siteSet = new Set();
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            if (!row) {
+                continue;
+            }
+            total++;
+            if (row['userStatus'] === '1') {
+                active++;
+            } else {
+                inactive++;
+            }
+            if (row['siteId']) {
+                siteSet.add(row['siteId']);
+            }
+        }
+        $('#metricUmnTotal').text(total.toLocaleString());
+        $('#metricUmnActive').text(active.toLocaleString());
+        $('#metricUmnInactive').text(inactive.toLocaleString());
+        $('#metricUmnSites').text(siteSet.size.toLocaleString());
+    }
+
+    function updateSummary() {
+        if (!oTableUser) {
+            return;
+        }
+        const info = (oTableUser && typeof oTableUser.page === 'function' && typeof oTableUser.page.info === 'function')
+            ? oTableUser.page.info()
+            : null;
+        if (info) {
+            $('#lblUmnUserCount').text('Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal + ' records');
+        } else {
+            $('#lblUmnUserCount').text('Showing 0 of 0 records');
+        }
+        $('#lblUmnUserUpdated').text(formatTimestamp(lastUpdated));
+    }
+
+    function updateFilterSummary() {
+        const $select = $('#optUmnGroupId');
+        if (!$select.length) {
+            return;
+        }
+        const value = $select.val();
+        let label = 'Site: All Sites';
+        if (value) {
+            const text = ($select.find('option:selected').text() || '').trim();
+            if (text) {
+                label = 'Site: ' + text;
+            }
+        }
+        $('#lblUmnUserFilter').text(label);
+    }
 
     this.init = function () {
         mzOption('optUmnGroupId', refSite, 'All Sites', 'siteId', 'siteName', {siteStatus: '1'}, '', false);
+        updateFilterSummary();
 
         refUserType = ['', 'GFM Internal', 'Client', 'Public User'];
         oTableUser = $('#dtUmnUser').DataTable({
@@ -21,8 +95,19 @@ function MainUserManagement() {
             bFilter: true,
             aaSorting: [9, 'desc'],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
-                const info = oTableUser.page.info();
-                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+                const info = (oTableUser && oTableUser.page && typeof oTableUser.page.info === 'function')
+                    ? oTableUser.page.info()
+                    : null;
+                const rowNumber = info ? (info.page * info.length + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
+                $('td', nRow).eq(0).html(rowNumber).attr('data-label', '#');
+                $('td', nRow).eq(1).attr('data-label', 'Name');
+                $('td', nRow).eq(2).attr('data-label', 'Site');
+                $('td', nRow).eq(3).attr('data-label', 'Type');
+                $('td', nRow).eq(4).attr('data-label', 'Contact No.');
+                $('td', nRow).eq(5).attr('data-label', 'Email');
+                $('td', nRow).eq(6).attr('data-label', 'Roles');
+                $('td', nRow).eq(7).attr('data-label', 'Status');
+                $('td', nRow).eq(8).attr('data-label', 'Actions');
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -62,6 +147,8 @@ function MainUserManagement() {
                         modalUserClass.activate(currentRow['userId'], rowId);
                     }
                 });
+                updateMetrics();
+                updateSummary();
             },
             language: _DATATABLE_LANGUAGE,
             aoColumns:
@@ -129,7 +216,13 @@ function MainUserManagement() {
             oTableUser.search($(this).val()).draw();
         });
         $('#optUmnGroupId').on('change', function () {
-            oTableUser.column(14).search("^" + $(this).val() + "$", true, false, true).draw();
+            const value = $(this).val();
+            if (value) {
+                oTableUser.column(14).search('^' + value + '$', true, false, true).draw();
+            } else {
+                oTableUser.column(14).search('', true, false, true).draw();
+            }
+            updateFilterSummary();
         });
         /*$('#linkUmn0').on('click', function () {
             oTableUser.column(11).search('').draw();
@@ -182,14 +275,14 @@ function MainUserManagement() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - System User List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
                 }),
                 $.extend( true, {}, btnUserOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - System User List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
                 }),
                 $.extend( true, {}, btnUserOpt, {
                     extend:    'pdfHtml5',
@@ -197,7 +290,7 @@ function MainUserManagement() {
                     title:     'GEMS 2.0 - System User List',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
                 })
             ]
         }).container().appendTo($('#btnDtUmnUserExport'));
@@ -218,6 +311,8 @@ function MainUserManagement() {
             modalUserClass.add('umn');
         });
 
+        updateMetrics();
+        updateSummary();
         this.genTableUser();
     };
 
@@ -232,6 +327,7 @@ function MainUserManagement() {
         
         mzAjaxRequest('profile.php', 'GET', {Reportid: '1', 'Cache-Control': 'no-cache, no-transform'}, 'userManagementClass_.displayChart()');
         const dataUser = mzAjaxRequest('profile.php', 'GET');
+        lastUpdated = new Date();
         oTableUser.clear().rows.add(dataUser).draw();
     };
 
@@ -247,7 +343,7 @@ function MainUserManagement() {
         
         console.log('Processing chart data with refRole:', refRole);
 
-        let chartData = [];
+    let chartData = [];
         /*let total0 = 0;
         let total1 = 0;
         let total2 = 0;
@@ -295,46 +391,76 @@ function MainUserManagement() {
             total0 += parseInt(u['total']);*/
         });
 
-        /*$('#linkUmn0').html('<span class="bullet blue z-depth-2"></span> All Roles <span class="badge blue float-right">'+mzFormatNumber(total0)+'</span>');
-        $('#linkUmn1').html('<span class="bullet yellow z-depth-2"></span> '+refRole[1]['roleDesc']+' <span class="badge yellow float-right">'+mzFormatNumber(total1)+'</span>');
-        $('#linkUmn2').html('<span class="bullet light-green z-depth-2"></span> '+refRole[2]['roleDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total2)+'</span>');
-        $('#linkUmn3').html('<span class="bullet red accent-2 z-depth-2"></span> '+refRole[3]['roleDesc']+' <span class="badge red accent-2 float-right">'+mzFormatNumber(total3)+'</span>');
-        $('#linkUmn4').html('<span class="bullet mdb-color lighten-2 z-depth-2"></span> '+refRole[4]['roleDesc']+' <span class="badge mdb-color lighten-2 float-right">'+mzFormatNumber(total4)+'</span>');
-        $('#linkUmn5').html('<span class="bullet teal accent-2 z-depth-2"></span> '+refRole[5]['roleDesc']+' <span class="badge teal accent-2 float-right">'+mzFormatNumber(total5)+'</span>');
-        $('#linkUmn6').html('<span class="bullet pink z-depth-2"></span> '+refRole[6]['roleDesc']+' <span class="badge pink float-right">'+mzFormatNumber(total6)+'</span>');
-        $('#linkUmn7').html('<span class="bullet purple lighten-4 z-depth-2"></span> '+refRole[7]['roleDesc']+' <span class="badge purple lighten-4 float-right">'+mzFormatNumber(total7)+'</span>');
-        $('#linkUmn8').html('<span class="bullet light-green z-depth-2"></span> '+refRole[8]['roleDesc']+' <span class="badge light-green float-right">'+mzFormatNumber(total8)+'</span>');
-        $('#linkUmn9').html('<span class="bullet red accent-2 z-depth-2"></span> '+refRole[9]['roleDesc']+' <span class="badge red accent-2 float-right">'+mzFormatNumber(total9)+'</span>');
-        $('#linkUmn10').html('<span class="bullet purple z-depth-2"></span> '+refRole[10]['roleDesc']+' <span class="badge purple float-right">'+mzFormatNumber(total10)+'</span>');
-        $('#linkUmn11').html('<span class="bullet mdb-color lighten-2 z-depth-2"></span> '+refRole[11]['roleDesc']+' <span class="badge mdb-color lighten-2 float-right">'+mzFormatNumber(total11)+'</span>');*/
+        const categories = chartData.map(function (item) {
+            return item.name;
+        });
+        const seriesData = chartData.map(function (item) {
+            return item.y;
+        });
 
         Highcharts.chart('chartUmnLeaveByStatus', {
             chart: {
-                type: 'pie'
+                type: 'column',
+                backgroundColor: 'transparent'
             },
             title: {
-                text: 'Total Users by Role'
+                text: 'Role Distribution'
+            },
+            xAxis: {
+                categories: categories,
+                crosshair: true,
+                labels: {
+                    style: {
+                        color: '#0F172A',
+                        fontWeight: '600'
+                    }
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'No. of Users',
+                    style: {
+                        color: '#0F172A',
+                        fontWeight: '600'
+                    }
+                },
+                gridLineColor: 'rgba(15, 23, 42, 0.08)',
+                labels: {
+                    style: {
+                        color: '#64748B'
+                    }
+                }
+            },
+            legend: {
+                enabled: false
             },
             tooltip: {
-                pointFormat: '{series.name}: <b>{point.y} ({point.percentage:.1f}%)</b>'
+                headerFormat: '<span style="font-size: 12px">{point.key}</span><br/>',
+                pointFormat: '<span style="color:{point.color}">\u25CF</span> Users: <b>{point.y}</b>'
             },
-            credits:{
-                enabled:false
+            credits: {
+                enabled: false
             },
+            colors: ['#4338CA', '#6366F1', '#8B5CF6', '#312E81', '#C7D2FE', '#A5B4FC', '#60A5FA', '#7C3AED'],
             plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
+                column: {
+                    colorByPoint: true,
+                    borderRadius: 6,
+                    pointPadding: 0.18,
+                    groupPadding: 0.12,
                     dataLabels: {
                         enabled: true,
-                        format: '<b>{point.name}</b>: {point.y}',
-                        color: 'white'
+                        style: {
+                            color: '#0F172A',
+                            fontWeight: '600'
+                        }
                     }
                 }
             },
             series: [{
-                name: 'Status',
-                data: chartData
+                name: 'Users',
+                data: seriesData
             }]
         });
     };
@@ -344,6 +470,7 @@ function MainUserManagement() {
         if (typeof _dataEdit['userStatus'] !== 'undefined') {
             currentRow['userStatus'] = _dataEdit['userStatus'];
         }
+        lastUpdated = new Date();
         oTableUser.row(_rowEdit).data(currentRow).draw();
     };
 
@@ -370,6 +497,7 @@ function MainUserManagement() {
 
     this.setRefSite = function (_refSite) {
         refSite = _refSite;
+        updateFilterSummary();
     };
 
     this.setModalUserClass = function (_modalUserClass) {

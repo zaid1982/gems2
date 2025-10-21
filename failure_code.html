@@ -15,11 +15,362 @@
     <link rel="stylesheet" href="css/mdb.min.css">
     <!-- DataTables.net -->
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <style>
+        :root {
+            --module-primary: #4338CA;
+            --module-background: #F1F5F9;
+            --module-text: #0F172A;
+            --module-muted: #64748B;
+            --module-radius: 26px;
+            --module-shadow: 0 22px 55px -28px rgba(15, 23, 42, 0.45);
+        }
 
+        body {
+            background: var(--module-background);
+            color: var(--module-text);
+        }
+
+        .module-master {
+            padding: 2.5rem 1.5rem 3rem;
+        }
+
+        .module-master .module-page-header {
+            background: linear-gradient(135deg, rgba(67, 56, 202, 0.95), rgba(129, 140, 248, 0.85));
+            color: #fff;
+            border-radius: var(--module-radius);
+            padding: 2.4rem 2.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: var(--module-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-master .module-page-header::after {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -70px;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .module-master .module-page-header .header-text {
+            position: relative;
+            z-index: 1;
+            max-width: 720px;
+        }
+
+        .module-master .module-page-header .header-subtitle {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            opacity: 0.82;
+            margin-bottom: 0.75rem;
+        }
+
+        .module-master .module-page-header .header-text h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.45rem;
+        }
+
+        .module-master .module-page-header .header-text p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .module-master .module-page-header .header-actions {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .module-master .module-page-header .header-actions .btn {
+            border-radius: 999px;
+            padding: 0.6rem 1.6rem;
+            font-weight: 600;
+        }
+
+        .module-master .metrics-row {
+            margin-top: 2.4rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .module-master .metric-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 1.5rem 1.65rem;
+            box-shadow: var(--module-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-master .metric-card::after {
+            content: '';
+            position: absolute;
+            bottom: -42px;
+            right: -45px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(67, 56, 202, 0.08);
+        }
+
+        .module-master .metric-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--module-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .module-master .metric-value {
+            font-size: 2.05rem;
+            font-weight: 700;
+            color: var(--module-text);
+        }
+
+        .module-master .metric-subtext {
+            font-size: 0.85rem;
+            color: var(--module-muted);
+            margin-top: 0.35rem;
+        }
+
+        .module-master .filter-card {
+            margin-top: 2.6rem;
+            background: #fff;
+            border-radius: var(--module-radius);
+            padding: 2.2rem 2.4rem;
+            box-shadow: var(--module-shadow);
+        }
+
+        .module-master .filter-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.6rem;
+        }
+
+        .module-master .filter-card-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--module-text);
+        }
+
+        .module-master .summary-pill {
+            background: rgba(67, 56, 202, 0.12);
+            color: var(--module-primary);
+            padding: 0.45rem 0.95rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .module-master .filter-card label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--module-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .module-master .filter-grid {
+            display: grid;
+            gap: 1.4rem;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        }
+
+        .module-master .filter-grid input,
+        .module-master .filter-grid select {
+            border-radius: 16px;
+            border: 1px solid rgba(15, 23, 42, 0.15);
+            padding: 0.65rem 0.9rem;
+            font-size: 0.95rem;
+            color: var(--module-text);
+        }
+
+        .module-master .module-data-card {
+            margin-top: 2.6rem;
+            background: #fff;
+            border-radius: var(--module-radius);
+            box-shadow: var(--module-shadow);
+            padding-bottom: 1.6rem;
+        }
+
+        .module-master .module-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.75rem 2.4rem 1.25rem;
+        }
+
+        .module-master .module-card-header h4 {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--module-text);
+        }
+
+        .module-master .module-card-header p {
+            margin: 0;
+            color: var(--module-muted);
+        }
+
+        .module-master .module-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .module-master .module-card-actions .btn {
+            padding: 0.45rem 1rem;
+            border-radius: 999px;
+        }
+
+        .module-master .module-card-actions .btn-outline-primary {
+            border-color: rgba(67, 56, 202, 0.35);
+            color: var(--module-primary);
+        }
+
+        .module-master .module-card-actions .btn-outline-primary:hover {
+            background: rgba(67, 56, 202, 0.12);
+            color: var(--module-primary);
+        }
+
+        .module-master .module-table-wrapper {
+            padding: 0 2.4rem;
+        }
+
+        .module-master .module-table-wrapper thead th {
+            background: #EEF2FF;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--module-text);
+        }
+
+        .module-master .module-table-wrapper tbody td {
+            border-color: #E2E8F0;
+        }
+
+        .module-master .results-summary {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.25rem 2.4rem 0;
+            color: var(--module-muted);
+            font-size: 0.92rem;
+        }
+
+        #dtFlcFailureCode_wrapper .dt-buttons {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        #dtFlcFailureCode_wrapper .dt-buttons .btn {
+            border-radius: 999px;
+            padding: 0.55rem 0.95rem;
+            background: rgba(67, 56, 202, 0.12);
+            border: none;
+            color: var(--module-primary);
+        }
+
+        #dtFlcFailureCode_wrapper .dt-buttons .btn:hover {
+            background: rgba(67, 56, 202, 0.18) !important;
+            color: var(--module-primary);
+        }
+
+        #dtFlcFailureCode_filter {
+            display: none !important;
+        }
+
+        @media (max-width: 992px) {
+            .module-master {
+                padding: 2.1rem 1.05rem 2.5rem;
+            }
+
+            .module-master .module-page-header {
+                padding: 2.1rem 2.1rem;
+            }
+
+            .module-master .module-card-header,
+            .module-master .module-table-wrapper,
+            .module-master .results-summary,
+            .module-master .filter-card {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .module-master .module-page-header {
+                padding: 2rem 1.85rem;
+            }
+
+            .module-master .module-page-header .header-actions {
+                width: 100%;
+            }
+
+            .module-master .metrics-row {
+                grid-template-columns: 1fr;
+            }
+
+            .module-master .filter-card {
+                padding: 1.9rem 1.5rem;
+            }
+
+            .module-master .module-table-wrapper thead {
+                display: none;
+            }
+
+            .module-master .module-table-wrapper tbody tr {
+                display: block;
+                margin-bottom: 1.2rem;
+                border: 1px solid rgba(15, 23, 42, 0.12);
+                border-radius: 18px;
+                box-shadow: 0 15px 35px -28px rgba(15, 23, 42, 0.55);
+                padding: 0.85rem 1rem;
+            }
+
+            .module-master .module-table-wrapper tbody td {
+                display: flex;
+                justify-content: space-between;
+                border: none;
+                padding: 0.45rem 0;
+                font-size: 0.95rem;
+            }
+
+            .module-master .module-table-wrapper tbody td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--module-muted);
+                margin-right: 1.25rem;
+                text-align: left;
+            }
+        }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -37,45 +388,83 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid">
-        <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-5 sectionFlcMain">
-            <div class="card card-cascade narrower">
-                <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                    <div>
-                        <button type="button" id="btnFlcFailureCodeAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Failure Code"><i class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Failure Code List"
-                           data-content="All Failure Code list available."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtFlcFailureCodeRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                    </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Failure Code List</a>
-                    <div>
-                        <div id="btnDtFlcFailureCodeExport"></div>
-                    </div>
+    <div class="container-fluid module-master module-flc">
+        <section class="module-page-header">
+            <div class="header-text">
+                <p class="header-subtitle">Reference Data</p>
+                <h2>Failure Code Directory</h2>
+                <p>Configure the failure codes used during work order reporting and analysis.</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" id="btnFlcFailureCodeAdd" class="btn btn-light"><i class="fas fa-plus mr-2"></i>New Failure Code</button>
+                <button type="button" id="btnDtFlcFailureCodeRefresh" class="btn btn-outline-light"><i class="fas fa-sync mr-2"></i>Refresh</button>
+                <button type="button" class="btn btn-outline-light" data-toggle="popover" data-trigger="focus" title="Failure Code List" data-content="Maintain the failure code reference data used across WO lifecycles."><i class="fas fa-info"></i></button>
+            </div>
+        </section>
+
+        <section class="metrics-row">
+            <article class="metric-card">
+                <p class="metric-label">Total</p>
+                <p class="metric-value" id="metricFlcTotal">0</p>
+                <p class="metric-subtext">All configured failure codes</p>
+            </article>
+            <article class="metric-card">
+                <p class="metric-label">Active</p>
+                <p class="metric-value" id="metricFlcActive">0</p>
+                <p class="metric-subtext">Codes currently selectable</p>
+            </article>
+            <article class="metric-card">
+                <p class="metric-label">Inactive</p>
+                <p class="metric-value" id="metricFlcInactive">0</p>
+                <p class="metric-subtext">Hidden until re-enabled</p>
+            </article>
+        </section>
+
+        <section class="filter-card">
+            <div class="filter-card-header">
+                <h3>Quick Filters</h3>
+                <span class="summary-pill" id="lblFlcFailureCodeFilter">Status: All</span>
+            </div>
+            <div class="filter-grid">
+                <div class="filter-field">
+                    <label for="txtFlcFailureCodeSearch">Search</label>
+                    <input type="text" id="txtFlcFailureCodeSearch" placeholder="Search failure code" autocomplete="off">
                 </div>
-                <div class="px-4 pb-4">
-                    <form class="form-inline md-form form-sm mt-4 mb-0 pb-0 float-right">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtFlcFailureCodeSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtFlcFailureCodeSearch" class="ml-4">Search</label>
-                        </div>
-                    </form>
-                    <div class="table-responsive">
-                        <table id="dtFlcFailureCode" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
-                            <thead>
-                            <tr class="th-strong">
-                                <th style="width: 4%">#</th>
-                                <th>Failure Code</th>
-                                <th style="width: 15%">Status</th>
-                                <th style="width: 80px"></th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+                <div class="filter-field">
+                    <label for="optFlcFailureCodeStatus">Status</label>
+                    <select id="optFlcFailureCodeStatus" class="browser-default custom-select">
+                        <option value="all" selected>All statuses</option>
+                    </select>
                 </div>
+            </div>
+        </section>
+
+        <section class="module-data-card">
+            <div class="module-card-header">
+                <div>
+                    <h4>Failure Code List</h4>
+                    <p>Latest configuration synced to inspections and analytics.</p>
+                </div>
+                <div class="module-card-actions">
+                    <div id="btnDtFlcFailureCodeExport"></div>
+                </div>
+            </div>
+            <div class="module-table-wrapper">
+                <table id="dtFlcFailureCode" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                    <thead>
+                    <tr class="th-strong">
+                        <th style="width: 6%">#</th>
+                        <th>Failure Code</th>
+                        <th style="width: 15%">Status</th>
+                        <th style="width: 120px" class="text-center">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="results-summary">
+                <span id="lblFlcFailureCodeCount">Showing 0 of 0 records</span>
+                <span class="summary-pill" id="lblFlcFailureCodeUpdated">Updated —</span>
             </div>
         </section>
     </div>
