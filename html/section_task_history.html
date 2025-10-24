@@ -1,182 +1,301 @@
-<section class="section mb-5 sectionTaskHistory">
-    <div class="row mb-0 pb-0">
-        <div class="col-md-12">
-            <button type="button" class="btn morpheus-den-gradient btn-rounded float-right text-white" id="btnSthBack">
-                <i class="fas fa-arrow-left"></i> Back to Main Page
-            </button>
-        </div>
-    </div>
+<div class="modal fade task-history-modal" id="modalSectionTaskHistory" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content border-0 bg-transparent">
+            <div class="modal-body p-0">
+                <section class="task-history-section sectionTaskHistory mb-0">
+    <style>
+        :root {
+            --sth-primary: #4338ca;
+            --sth-accent: #38bdf8;
+            --sth-bg: #f1f5f9;
+            --sth-text: #0f172a;
+            --sth-muted: #64748b;
+            --sth-card-radius: 24px;
+            --sth-card-shadow: 0 26px 60px -40px rgba(15, 23, 42, 0.45);
+            --sth-pill-bg: rgba(67, 56, 202, 0.12);
+        }
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card card-cascade cascading-admin-card user-card mt-4">
-                <div class="admin-up d-flex justify-content-start">
-                    <i class="fas fa-clipboard-list rgba-cyan-strong py-4 z-depth-4"></i>
-                    <div class="data">
-                        <h3 class="font-weight-bold dark-grey-text ml-3">Task History</h3>
+        .task-history-modal .modal-dialog { max-width: 1200px; }
+        .task-history-modal .modal-content { background: transparent; box-shadow: none; }
+        .task-history-modal .modal-body { padding: 0; }
+
+        .task-history-section { color: var(--sth-text); }
+
+        .task-history-wrapper {
+            background: var(--sth-bg);
+            padding: 24px 18px 40px;
+            border-radius: 28px;
+        }
+
+        .task-history-header {
+            background: linear-gradient(135deg, rgba(67, 56, 202, 0.95) 0%, rgba(56, 189, 248, 0.9) 100%);
+            border-radius: 28px;
+            padding: 32px 30px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--sth-card-shadow);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+        }
+
+        .task-history-header::after {
+            content: '';
+            position: absolute;
+            right: -70px;
+            top: -70px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .task-history-header .header-text { position: relative; z-index: 1; max-width: 620px; }
+        .task-history-header .header-text .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; background: rgba(255, 255, 255, 0.18); padding: 6px 14px; border-radius: 999px; margin-bottom: 12px; }
+        .task-history-header .header-text h2 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+        .task-history-header .header-text p { margin: 0; font-size: 1rem; opacity: 0.95; }
+
+        .task-history-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+        .task-history-header .header-actions .summary-chip { background: rgba(255, 255, 255, 0.18); border-radius: 20px; padding: 10px 16px; display: flex; align-items: center; gap: 12px; color: #fff; min-width: 220px; }
+        .task-history-header .summary-chip .chip-icon { width: 42px; height: 42px; border-radius: 16px; background: rgba(15, 23, 42, 0.18); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .task-history-header .summary-chip .chip-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.75; }
+        .task-history-header .summary-chip .chip-value { font-size: 1.05rem; font-weight: 600; }
+        #btnSthBack { border-radius: 999px; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.75); color: #fff; padding: 0.55rem 1.55rem; }
+        #btnSthBack:hover { background: rgba(255, 255, 255, 0.18); }
+
+        .task-history-metrics { margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; }
+        .task-history-metrics .metric-card { background: #fff; border-radius: var(--sth-card-radius); padding: 20px 22px; box-shadow: var(--sth-card-shadow); position: relative; overflow: hidden; }
+        .task-history-metrics .metric-card::after { content: ''; position: absolute; bottom: -36px; right: -36px; width: 140px; height: 140px; border-radius: 50%; background: rgba(67, 56, 202, 0.08); }
+        .task-history-metrics .metric-label { font-size: 0.78rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.08em; color: var(--sth-muted); margin-bottom: 6px; }
+        .task-history-metrics .metric-value { font-size: 2rem; font-weight: 700; color: var(--sth-text); }
+        .task-history-metrics .metric-value.is-text { font-size: 1.15rem; }
+        .task-history-metrics .metric-subtext { font-size: 0.85rem; color: var(--sth-muted); margin-top: 6px; }
+
+        .status-chip { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 0.35rem 0.85rem; font-size: 0.85rem; font-weight: 600; background: rgba(148, 163, 184, 0.18); color: #475569; }
+        .status-chip[data-state="success"] { background: rgba(34, 197, 94, 0.18); color: #166534; }
+        .status-chip[data-state="warning"] { background: rgba(250, 204, 21, 0.18); color: #854d0e; }
+        .status-chip[data-state="danger"] { background: rgba(248, 113, 113, 0.22); color: #991b1b; }
+
+        .task-history-grid { margin-top: 34px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .task-info-card, .task-timeline-card { background: #fff; border-radius: var(--sth-card-radius); padding: 24px 26px; box-shadow: var(--sth-card-shadow); }
+
+        .task-info-card h5, .task-timeline-card h5 { font-weight: 700; font-size: 1.1rem; margin-bottom: 18px; color: var(--sth-text); display: flex; align-items: center; gap: 10px; }
+
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+        .detail-field { background: #f8fafc; border-radius: 18px; padding: 16px 18px; }
+        .detail-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--sth-muted); margin-bottom: 6px; display: block; }
+        .detail-value { font-size: 1.05rem; font-weight: 600; color: var(--sth-text); word-break: break-word; }
+
+        .timeline-wrapper { margin-top: 12px; }
+        .history-legend { display: flex; gap: 14px; font-size: 0.8rem; color: var(--sth-muted); flex-wrap: wrap; }
+        .history-legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 999px; }
+        .legend-dot.complete { background: #22c55e; }
+        .legend-dot.current { background: #4338ca; }
+        .legend-dot.upcoming { background: #cbd5f5; }
+
+        .history-stepper { list-style: none; padding: 0; margin: 24px 0 0; position: relative; }
+        .history-step { display: flex; align-items: center; gap: 18px; padding: 16px 18px; border-radius: 18px; background: #f8fafc; position: relative; margin-bottom: 14px; box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.8); }
+        .history-step:last-child { margin-bottom: 0; }
+        .history-step::before { content: ''; position: absolute; left: 28px; top: -14px; width: 2px; height: 14px; background: rgba(148, 163, 184, 0.35); }
+        .history-step:first-child::before { display: none; }
+        .history-step.complete { box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.25); }
+        .history-step.current { box-shadow: inset 0 0 0 2px rgba(67, 56, 202, 0.55); background: rgba(99, 102, 241, 0.08); }
+        .history-step.upcoming { opacity: 0.75; }
+        .history-step .step-icon { width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(67, 56, 202, 0.1); color: var(--sth-primary); font-size: 1.1rem; }
+        .history-step.complete .step-icon { background: rgba(34, 197, 94, 0.14); color: #15803d; }
+        .history-step.current .step-icon { background: rgba(76, 29, 149, 0.16); color: #4c1d95; }
+        .history-step .step-content { display: flex; flex-direction: column; gap: 4px; }
+        .history-step .step-title { font-weight: 600; color: var(--sth-text); }
+        .history-step .step-meta { font-size: 0.85rem; color: var(--sth-muted); }
+
+        .history-table-card { margin-top: 32px; background: #fff; border-radius: var(--sth-card-radius); padding: 24px 26px 30px; box-shadow: var(--sth-card-shadow); }
+        .history-table-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+        .history-table-header h5 { margin: 0; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .history-table-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+        #btnDtSthListRefresh { border-radius: 999px; font-weight: 600; padding: 0.45rem 1.4rem; }
+        #btnDtSthListExport .btn { border-radius: 999px !important; margin-left: 6px; }
+
+        .history-table-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; color: var(--sth-muted); font-size: 0.9rem; }
+        .history-table-summary .summary-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: var(--sth-pill-bg); border-radius: 999px; color: var(--sth-text); }
+
+        .history-table-wrapper { border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; }
+        #dtSthList { width: 100% !important; border-collapse: collapse !important; }
+        #dtSthList thead th { background: #eef2ff; color: #3730a3; font-weight: 700; border: none; padding: 0.85rem 0.75rem; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.06em; }
+        #dtSthList tbody tr { background: #fff; }
+        #dtSthList tbody td { border-bottom: 1px solid #f1f5f9; padding: 0.78rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--sth-text); }
+        #dtSthList tbody tr:last-child td { border-bottom: none; }
+
+        @media (max-width: 991.98px) {
+            .task-history-header { padding: 26px 24px; }
+            .task-history-header .header-text h2 { font-size: 1.8rem; }
+        }
+
+        @media (max-width: 767.98px) {
+            .task-history-wrapper { padding: 20px 12px 32px; }
+            .task-history-header { padding: 24px 20px; gap: 18px; }
+            .task-history-header .header-actions { width: 100%; }
+            .task-history-header .header-actions .summary-chip { width: 100%; justify-content: flex-start; }
+            #btnSthBack { width: 100%; text-align: center; }
+            .task-history-metrics { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            .detail-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+            #dtSthList { display: block; }
+            #dtSthList thead { display: none; }
+            #dtSthList tbody { display: block; }
+            #dtSthList tbody tr { display: block; margin-bottom: 14px; border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 16px 36px -32px rgba(15, 23, 42, 0.32); overflow: hidden; }
+            #dtSthList tbody td { display: flex; align-items: flex-start; justify-content: space-between; padding: 0.75rem 0.9rem; border-bottom: 1px solid #f1f5f9; }
+            #dtSthList tbody td:last-child { border-bottom: none; }
+            #dtSthList tbody td::before { content: attr(data-label); font-weight: 600; color: var(--sth-muted); margin-right: 12px; }
+            #dtSthList tbody td.text-center { justify-content: space-between; }
+        }
+    </style>
+
+    <div class="task-history-wrapper">
+        <div class="task-history-header">
+            <div class="header-text">
+                <div class="eyebrow"><i class="fas fa-clipboard-list"></i><span>Task drilldown</span></div>
+                <h2>Task History</h2>
+                <p>Review the checkpoints, owners, and timestamps recorded for this transaction.</p>
+            </div>
+            <div class="header-actions">
+                <div class="summary-chip">
+                    <div class="chip-icon"><i class="fas fa-hashtag"></i></div>
+                    <div>
+                        <div class="chip-label">Task Number</div>
+                        <div class="chip-value" id="summarySthTaskNo">-</div>
                     </div>
                 </div>
-                <div class="card-body card-body-cascade px-4">
-                    <form id="formSth">
-                        <h5 class="mt-3 font-weight-500">Task Information :</h5>
-                        <div class="row pl-2 mt-4">
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthFlowName" class="form-control" disabled>
-                                    <label for="txtSthFlowName" id="lblSthFlowName" class="active">Flow Name</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row pl-2">
-                            <div class="col-md-4">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthTransactionNo" class="form-control" disabled>
-                                    <label for="txtSthTransactionNo" id="lblSthTransactionNo" class="active">Task No</label>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthCheckpointDesc" class="form-control" disabled>
-                                    <label for="txtSthCheckpointDesc" id="lblSthCheckpointDesc" class="active">Current Checkpoint</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row pl-2">
-                            <div class="col-md-5">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthTransUser" class="form-control" disabled>
-                                    <label for="txtSthTransUser" id="lblSthTransUser" class="active">Initiated By</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthTransGroup" class="form-control" disabled>
-                                    <label for="txtSthTransGroup" id="lblSthTransGroup" class="active">Initiated By Group</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthTransactionTimeCreated" class="form-control" disabled>
-                                    <label for="txtSthTransactionTimeCreated" id="lblSthTransactionTimeCreated" class="active">Initiated Time</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row pl-2">
-                            <div class="col-md-3">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthTaskStatus" class="form-control" disabled>
-                                    <label for="txtSthTaskStatus" id="lblSthTaskStatus" class="active">Task Status</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthUserFullName" class="form-control" disabled>
-                                    <label for="txtSthUserFullName" id=lblSthUserFullName" class="active">Current User</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthTaskTimeCreated" class="form-control" disabled>
-                                    <label for="txtSthTaskTimeCreated" id="lblSthTaskTimeCreated" class="active">Received Time</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row pl-2">
-                            <div class="col-md-3">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthTransactionStatus" class="form-control" disabled>
-                                    <label for="txtSthTransactionStatus" id="lblSthTransactionStatus" class="active">Flow Status</label>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSthTransactionDateDue" class="form-control" disabled>
-                                    <label for="txtSthTransactionDateDue" id="lblSthTransactionDateDue" class="active">Flow Due Date</label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                <div class="summary-chip">
+                    <div class="chip-icon"><i class="fas fa-diagram-project"></i></div>
+                    <div>
+                        <div class="chip-label">Flow</div>
+                        <div class="chip-value" id="summarySthFlow">-</div>
+                    </div>
+                </div>
+                <button type="button" class="btn" id="btnSthBack"><i class="fas fa-times mr-2"></i>Close</button>
+            </div>
+        </div>
+
+        <div class="task-history-metrics">
+            <div class="metric-card">
+                <div class="metric-label">Total transitions</div>
+                <div class="metric-value" id="metricSthTotal">-</div>
+                <div class="metric-subtext">Records returned for this transaction</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Steps completed</div>
+                <div class="metric-value" id="metricSthCompleted">-</div>
+                <div class="metric-subtext">Checkpoint updates marked submitted</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Current checkpoint</div>
+                <div class="metric-value is-text" id="metricSthCheckpoint">-</div>
+                <div class="metric-subtext">Latest recorded stage for this task</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Flow status</div>
+                <div class="metric-value is-text"><span class="status-chip" id="metricSthStatus" data-state="neutral">-</span></div>
+                <div class="metric-subtext">Overall status within the workflow</div>
+            </div>
+        </div>
+
+        <div class="task-history-grid">
+            <div class="task-info-card">
+                <h5><i class="fas fa-circle-info text-primary"></i>Task snapshot</h5>
+                <div class="detail-grid">
+                    <div class="detail-field">
+                        <span class="detail-label">Flow name</span>
+                        <div class="detail-value" id="detailSthFlow">-</div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Task number</span>
+                        <div class="detail-value" id="detailSthTaskNo">-</div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Current checkpoint</span>
+                        <div class="detail-value" id="detailSthCheckpoint">-</div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Initiated by</span>
+                        <div class="detail-value" id="detailSthInitiatedBy">-</div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Initiated time</span>
+                        <div class="detail-value" id="detailSthInitiatedTime">-</div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Current owner</span>
+                        <div class="detail-value" id="detailSthOwner">-</div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Received time</span>
+                        <div class="detail-value" id="detailSthReceivedTime">-</div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Task status</span>
+                        <div class="detail-value"><span class="status-chip" id="detailSthTaskStatus" data-state="neutral">-</span></div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Flow status</span>
+                        <div class="detail-value"><span class="status-chip" id="detailSthFlowStatus" data-state="neutral">-</span></div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">Flow due date</span>
+                        <div class="detail-value" id="detailSthDueDate">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="task-timeline-card">
+                <h5><i class="fas fa-route text-primary"></i>Checkpoint timeline</h5>
+                <div class="history-legend">
+                    <span><span class="legend-dot complete"></span>Completed</span>
+                    <span><span class="legend-dot current"></span>Current</span>
+                    <span><span class="legend-dot upcoming"></span>Upcoming</span>
+                </div>
+                <div class="timeline-wrapper">
+                    <ul class="history-stepper" id="ulSthStep"></ul>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card mt-4_5">
-                <div class="card-body mt-3">
-                    <h5 class="font-weight-500">Transaction History :</h5>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <ul class="stepper stepper-horizontal pt-0 mt-0" id="ulSthStep">
-                                <li class="">
-                                    <a href="#!">
-                                        <span class="circle green"><i class="fas fa-tasks"></i></span>
-                                        <span class="label">Execute PPM</span>
-                                    </a>
-                                </li>
-                                <li class="active">
-                                    <a href="#!">
-                                        <span class="circle"><i class="fas fa-check"></i></span>
-                                        <span class="label">Check PPM</span>
-                                    </a>
-                                </li>
-                                <li class="">
-                                    <a href="#!">
-                                        <span class="circle"><i class="fas fa-check-double"></i></span>
-                                        <span class="label">Verify PPM</span>
-                                    </a>
-                                </li>
-                                <li class="">
-                                    <a href="#!">
-                                        <span class="circle"><i class="fas fa-thumbs-up"></i></span>
-                                        <span class="label">Complete</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <section>
-                        <div class="card card-cascade narrower z-depth-0">
-                            <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-2 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                                <div>
-                                    <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                       data-toggle="popover" data-trigger="focus" title="Track and Monitoring"
-                                       data-content="Track current checkpoint for all transactions."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                    <button type="button" id="btnDtSthListRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                                </div>
-                                <a href="javascript:void(0);" class="text-white mx-3 pl-5">Transaction History</a>
-                                <div>
-                                    <div id="btnDtSthListExport"></div>
-                                </div>
-                            </div>
-                            <div class="px-2 pb-4">
-                                <div class="table-responsive">
-                                    <table id="dtSthList" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
-                                        <thead>
-                                        <tr class="th-strong">
-                                            <th scope="row" style="width: 4%">#</th>
-                                            <th>Checkpoint</th>
-                                            <th width="15%">User</th>
-                                            <th width="12%">Role</th>
-                                            <!-- <th width="12%">Group</th> // Closed for temporarily -->
-                                            <th width="10%">Due Date</th>
-                                            <th width="13%">Time Created</th>
-                                            <th width="13%">Time Submitted</th>
-                                            <th width="10%">Status</th>
-                                            <th width="24px"></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+        <div class="history-table-card">
+            <div class="history-table-header">
+                <h5><i class="fas fa-list-check text-primary"></i>Transaction history</h5>
+                <div class="history-table-controls">
+                    <button type="button" class="btn btn-outline-primary" id="btnDtSthListRefresh"><i class="fas fa-arrows-rotate mr-2"></i>Refresh</button>
+                    <div id="btnDtSthListExport" class="d-flex align-items-center"></div>
                 </div>
+            </div>
+            <div class="history-table-summary">
+                <div id="lblSthHistoryCount">No records loaded yet</div>
+                <div class="summary-pill" id="lblSthHistoryUpdated"><i class="far fa-clock"></i>Last refreshed: <span class="font-weight-bold">-</span></div>
+            </div>
+            <div class="history-table-wrapper">
+                <table id="dtSthList" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
+                    <thead>
+                    <tr class="th-strong">
+                        <th scope="row" style="width: 4%">#</th>
+                        <th>Checkpoint</th>
+                        <th width="15%">User</th>
+                        <th width="12%">Role</th>
+                        <th width="10%">Due Date</th>
+                        <th width="13%">Time Created</th>
+                        <th width="13%">Time Submitted</th>
+                        <th width="12%">Status</th>
+                        <th width="24px"></th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
     </div>
-</section>
-                    
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

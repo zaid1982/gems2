@@ -12,6 +12,9 @@ function MainHome() {
     let refAssetCategory;
     let refAssetType;
     let refStatus;
+    let refRole;
+    let refFlow;
+    let refCheckpoint;
     let userClient;
     let clientId = '18';
     let siteId = '19';
@@ -28,6 +31,7 @@ function MainHome() {
     let dateTo;
     let modalWoReassignClass;
     let modalWoEditClass;
+    let sectionTaskHistoryClass;
     let woSearchTimer;
     let woSearchKeyword = '';
     const isAdmin = mzIsRoleExist('1,19');
@@ -55,6 +59,8 @@ function MainHome() {
         return acc;
     }, {});
 
+    const infoTitle = (typeof _ALERT_TITLE_INFO !== 'undefined') ? _ALERT_TITLE_INFO : 'Info';
+
     let orderTimer;
     function updateChartOrder() {
         try {
@@ -72,6 +78,48 @@ function MainHome() {
     function scheduleUpdateChartOrder() {
         clearTimeout(orderTimer);
         orderTimer = setTimeout(updateChartOrder, 0);
+    }
+
+    function openTransactionHistory(transactionId, fallbackDetails) {
+        if (!sectionTaskHistoryClass || typeof sectionTaskHistoryClass.view !== 'function') {
+            toastr['error']('Task history component is unavailable.', _ALERT_TITLE_ERROR);
+            return;
+        }
+        if (!transactionId) {
+            toastr['info']('Workflow history is not available for this record yet.', infoTitle);
+            return;
+        }
+
+        let summary;
+        try {
+            summary = mzAjaxRequest('track_monitoring.php?type=transaction_summary&transactionId=' + transactionId, 'GET');
+        } catch (e) {
+            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            return;
+        }
+
+        if (!summary || typeof summary !== 'object' || Object.keys(summary).length === 0) {
+            toastr['info']('Workflow history is not available for this record yet.', infoTitle);
+            return;
+        }
+
+        if (fallbackDetails && typeof fallbackDetails === 'object') {
+            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackDetails['transactionNo']) {
+                summary['transactionNo'] = fallbackDetails['transactionNo'];
+            }
+            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackDetails['woTaskNo'] && fallbackDetails['woTaskNo'] !== '-') {
+                summary['transactionNo'] = fallbackDetails['woTaskNo'];
+            }
+            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackDetails['woTaskRequestNo']) {
+                summary['transactionNo'] = fallbackDetails['woTaskRequestNo'];
+            }
+            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackDetails['ppmTaskNo']) {
+                summary['transactionNo'] = fallbackDetails['ppmTaskNo'];
+            }
+        }
+
+        sectionTaskHistoryClass.setTaskDetails(summary);
+        sectionTaskHistoryClass.view(transactionId);
     }
 
     function setChartColumnWidth(chartId, categoriesCount, seriesCount) {
@@ -358,7 +406,7 @@ function MainHome() {
                             return '<h6><span class="badge badge-pill '+refStatus[row['woTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['woTaskStatus']]['statusDesc']+'</span></h6>';
                         }
                     },
-                    {mData: null, bSortable: false, sClass: 'text-center',
+                    {mData: null, bSortable: false, sClass: 'text-center action-cell',
                         mRender: function (data, type, row, meta) {
                             let label = '';
                             if (row['woTaskIsWr'] === '1') {
@@ -496,6 +544,21 @@ function MainHome() {
             self.genTableHmeDataWo();
         });
 
+        $('#dtHmeDataWo tbody').off('click', 'tr').on('click', 'tr', function (event) {
+            if ($(this).hasClass('child')) {
+                return;
+            }
+            const $cell = $(event.target).closest('td');
+            if ($cell.length && ($cell.hasClass('action-cell') || $cell.hasClass('dataTables_empty'))) {
+                return;
+            }
+            const rowData = oTableWo.row(this).data();
+            if (!rowData) {
+                return;
+            }
+            openTransactionHistory(rowData['transactionId'], rowData);
+        });
+
         oTablePpm =  $('#dtHmeDataPpm').DataTable({
             bLengthChange: false,
             bFilter: true,
@@ -613,7 +676,7 @@ function MainHome() {
                             return '<h6><span class="badge badge-pill '+refStatus[row['ppmTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmTaskStatus']]['statusDesc']+'</span></h6>';
                         }
                     },
-                    {mData: null, bSortable: false, sClass: 'text-center',
+                    {mData: null, bSortable: false, sClass: 'text-center action-cell',
                         mRender: function (data, type, row, meta) {
                             let uploadIds = row['uploadIds'];
                             if (uploadIds.length > 0 && uploadIds[0] !== '') {
@@ -640,6 +703,21 @@ function MainHome() {
                     {mData: 'pdfId', visible: false},
                     {mData: 'ppmTaskServicedBy', visible: false}
                 ]
+        });
+
+        $('#dtHmeDataPpm tbody').off('click', 'tr').on('click', 'tr', function (event) {
+            if ($(this).hasClass('child')) {
+                return;
+            }
+            const $cell = $(event.target).closest('td');
+            if ($cell.length && ($cell.hasClass('action-cell') || $cell.hasClass('dataTables_empty'))) {
+                return;
+            }
+            const rowData = oTablePpm.row(this).data();
+            if (!rowData) {
+                return;
+            }
+            openTransactionHistory(rowData['transactionId'], rowData);
         });
         $("#dtHmeDataPpm_filter").hide();
         $('#txtHmeDataPpmSearch').on('keyup change', function () {
@@ -2210,6 +2288,22 @@ function MainHome() {
         refStatus = _refStatus;
     };
 
+    this.setRefRole = function (_refRole) {
+        refRole = _refRole;
+    };
+
+    this.setRefFlow = function (_refFlow) {
+        refFlow = _refFlow;
+    };
+
+    this.setRefCheckpoint = function (_refCheckpoint) {
+        refCheckpoint = _refCheckpoint;
+    };
+
+    this.setSectionTaskHistoryClass = function (_sectionTaskHistoryClass) {
+        sectionTaskHistoryClass = _sectionTaskHistoryClass;
+    };
+
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
         modalConfirmDeleteClass = _modalConfirmDeleteClass;
     };
@@ -2221,4 +2315,6 @@ function MainHome() {
     this.setModalWoEditClass = function (_modalWoEditClass) {
         modalWoEditClass = _modalWoEditClass;
     };
+
+    this.openTransactionHistory = openTransactionHistory;
 }

@@ -2193,7 +2193,12 @@ class Class_wo {
                 $row_result['woTaskTimeVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_verified']);
                 $row_result['durationResponded'] = $this->fn_general->timeDiff($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
                 $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
+                $transactionId = isset($dataLocal['transaction_id']) ? $this->fn_general->clear_null($dataLocal['transaction_id']) : '';
+                if ($transactionId === '' || $transactionId === null) {
+                    $transactionId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$dataLocal['wo_task_id']), 'transaction_id', null, 1);
+                }
                 $row_result['kpiResponseResult'] = '';
+                $row_result['transactionId'] = $transactionId;
                 $durationResponded = $this->fn_general->timeDiffMinute($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
                 if ($durationResponded !== '') {
                     if ($dataLocal['wo_task_severity'] === '5') {
@@ -2308,6 +2313,11 @@ class Class_wo {
                 $row_result['woTaskTimeVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_verified']);
                 $row_result['durationResponded'] = $this->fn_general->timeDiff($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
                 $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
+                $transactionId = isset($dataLocal['transaction_id']) ? $this->fn_general->clear_null($dataLocal['transaction_id']) : '';
+                if ($transactionId === '' || $transactionId === null) {
+                    $transactionId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$dataLocal['wo_task_id']), 'transaction_id', null, 1);
+                }
+                $row_result['transactionId'] = $transactionId;
                 $row_result['kpiResponseResult'] = '';
                 $durationResponded = $this->fn_general->timeDiffMinute($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
                 if ($durationResponded !== '') {
@@ -2543,6 +2553,11 @@ class Class_wo {
                 $row_result['woTaskTimeVerified'] = str_replace('-', '/', $dataLocal['wo_task_time_verified']);
                 $row_result['durationResponded'] = $this->fn_general->timeDiff($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
                 $row_result['woTaskStatus'] = $dataLocal['wo_task_status'];
+                $transactionId = isset($dataLocal['transaction_id']) ? $this->fn_general->clear_null($dataLocal['transaction_id']) : '';
+                if ($transactionId === '' || $transactionId === null) {
+                    $transactionId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$dataLocal['wo_task_id']), 'transaction_id', null, 1);
+                }
+                $row_result['transactionId'] = $transactionId;
                 $row_result['kpiResponseResult'] = '';
                 $durationResponded = $this->fn_general->timeDiffMinute($row_result['woTaskTimeCreated'], ($row_result['woTaskIsWr'] === '1' ? $row_result['woTaskTimeWrChecked'] : $row_result['woTaskTimeAssigned']));
                 if ($durationResponded !== '') {

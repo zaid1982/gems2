@@ -611,6 +611,55 @@ class Class_task {
     }
 
     /**
+     * @param string $transactionId
+     * @return array
+     * @throws Exception
+     */
+    public function get_transaction_summary ($transactionId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            if (empty($transactionId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter transactionId empty');
+            }
+
+            $transaction = Class_db::getInstance()->db_select_single('wfl_transaction', array('transaction_id'=>$transactionId), null, 1);
+            if (empty($transaction)) {
+                return array();
+            }
+
+            $task = Class_db::getInstance()->db_select_single('wfl_task', array('transaction_id'=>$transactionId, 'task_current'=>'1'), null, 0);
+            if (empty($task)) {
+                return array();
+            }
+
+            $result = array();
+            $result['transactionId'] = $transaction['transaction_id'];
+            $result['transactionNo'] = $this->fn_general->clear_null($transaction['transaction_no']);
+            $result['transGroup'] = $transaction['group_id'];
+            $result['transUser'] = $transaction['user_id'];
+            $result['transactionTimeCreated'] = str_replace('-', '/', $transaction['transaction_time_created']);
+            $result['transactionTimeComplete'] = str_replace('-', '/', $transaction['transaction_time_complete']);
+            $result['transactionDateDue'] = str_replace('-', '/', $transaction['transaction_date_due']);
+            $result['taskId'] = $task['task_id'];
+            $result['flowId'] = $transaction['flow_id'];
+            $result['roleId'] = $this->fn_general->clear_null($task['role_id']);
+            $result['checkpointId'] = $task['checkpoint_id'];
+            $result['userId'] = $this->fn_general->clear_null($task['task_claimed_user']);
+            $result['taskTimeCreated'] = str_replace('-', '/', $task['task_time_created']);
+            $result['taskTimeSubmit'] = str_replace('-', '/', $task['task_time_submit']);
+            $result['taskDateDue'] = str_replace('-', '/', $task['task_date_due']);
+            $result['taskStatus'] = $task['task_status'];
+            $result['transactionStatus'] = $transaction['transaction_status'];
+
+            return $result;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $taskId
      * @param $transactionId
      * @return array

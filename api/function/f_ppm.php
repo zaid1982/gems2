@@ -3134,6 +3134,7 @@ class Class_ppm {
                 $row_result['withinStatus'] = $dataLocal['within_status'];
                 $row_result['pdfId'] = $this->fn_general->clear_null($dataLocal['pdf_id']);
                 $row_result['ppmTaskStatus'] = $dataLocal['ppm_task_status'];
+                $row_result['transactionId'] = $dataLocal['transaction_id'];
                 array_push($result, $row_result);
             }
 

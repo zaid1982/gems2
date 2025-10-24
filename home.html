@@ -111,6 +111,13 @@
             .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #4338ca !important; color: #fff !important; }
             .dataTables_wrapper .dataTables_paginate .paginate_button.disabled { background: #e2e8f0 !important; color: #94a3b8 !important; }
 
+            #dtHmeDataWo tbody tr,
+            #dtHmeDataPpm tbody tr { cursor: pointer; transition: background-color 0.2s ease; }
+            #dtHmeDataWo tbody tr:hover,
+            #dtHmeDataPpm tbody tr:hover { background: #f8fafc; }
+            #dtHmeDataWo tbody td.action-cell,
+            #dtHmeDataPpm tbody td.action-cell { cursor: default; }
+
             @media (max-width: 767.98px) {
                 .home-page-header { padding: 22px 18px; }
                 .home-page-header h2 { font-size: 1.6rem; }
@@ -492,6 +499,7 @@
         </section>
     </div>
 
+    <div class="includeHtml" id="h-section_task_history"></div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
     <div class="includeHtml" id="h-modal_pdf"></div>
@@ -574,6 +582,7 @@
     let modalConfirmDelete_;
     let modalWoReassignClass_;
     let modalWoEditClass_;
+    let sectionTaskHistoryClass_;
     let homeClass_;
 
     $('.divHmeTopStats_ppm').hide();
@@ -593,6 +602,7 @@
                 modalWoReassignClass_ = new ModalWoReassign();
                 modalWoEditClass_ = new ModalWoEdit();
                 homeClass_ = new MainHome();
+                sectionTaskHistoryClass_ = new SectionTaskHistory();
 
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
@@ -603,6 +613,9 @@
                 const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
                 const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
+                const refFlow_ = mzGetLocalArray('gems_flow', versionLocal_, 'flowId');
+                const refCheckpoint_ = mzGetLocalArray('gems_checkpoint', versionLocal_, 'checkpointId');
 
                 modalWoReassignClass_.setRefUser(refUser_);
                 modalWoReassignClass_.setRefPpmGroup(refPpmGroup_);
@@ -615,6 +628,14 @@
                 modalWoEditClass_.setClassFrom(homeClass_);
                 modalWoEditClass_.init();
 
+                sectionTaskHistoryClass_.setRefStatus(refStatus_);
+                sectionTaskHistoryClass_.setRefRole(refRole_);
+                sectionTaskHistoryClass_.setRefUser(refUser_);
+                sectionTaskHistoryClass_.setRefFlow(refFlow_);
+                sectionTaskHistoryClass_.setRefCheckpoint(refCheckpoint_);
+                sectionTaskHistoryClass_.setClassFrom(homeClass_);
+                sectionTaskHistoryClass_.init();
+
                 homeClass_.setRefClient(refClient_);
                 homeClass_.setRefSite(refSite_);
                 homeClass_.setRefContract(refContract_);
@@ -624,9 +645,13 @@
                 homeClass_.setRefAssetCategory(refAssetCategory_);
                 homeClass_.setRefAssetType(refAssetType_);
                 homeClass_.setRefStatus(refStatus_);
+                homeClass_.setRefRole(refRole_);
+                homeClass_.setRefFlow(refFlow_);
+                homeClass_.setRefCheckpoint(refCheckpoint_);
                 homeClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
                 homeClass_.setModalWoReassignClass(modalWoReassignClass_);
                 homeClass_.setModalWoEditClass(modalWoEditClass_);
+                homeClass_.setSectionTaskHistoryClass(sectionTaskHistoryClass_);
                 homeClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -640,6 +665,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_wo_reassign.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_wo_edit.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_task_history.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_home.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>
