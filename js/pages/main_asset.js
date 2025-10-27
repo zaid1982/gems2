@@ -27,25 +27,6 @@ function MainAsset() {
         '5': '#linkAsz5'
     };
 
-    const initMaterialSelect = function (selector) {
-        const $element = $(selector);
-        if (!$element.length || typeof $element.materialSelect !== 'function') {
-            return;
-        }
-        try {
-            $element.materialSelect('destroy');
-        } catch (e) {
-            // Ignore destroy errors for first-run initialisation.
-        }
-        const $wrapper = $element.parent('.select-wrapper');
-        if ($wrapper.length) {
-            $wrapper.before($element);
-            $wrapper.remove();
-        }
-        $element.siblings('.select-dropdown').remove();
-        $element.materialSelect();
-    };
-
     const applyTableDataLabels = function (tableSelector, headers) {
         $(`${tableSelector} tbody tr`).each(function () {
             $('td', this).each(function (index) {
@@ -181,12 +162,6 @@ function MainAsset() {
         mzOptionStopClear('optAszCategoryId', 'All Asset Category');
         mzOptionStopClear('optAszTypeId', 'All Asset Type');
 
-        initMaterialSelect('#optAszContractId');
-        initMaterialSelect('#optAszGroupId');
-        initMaterialSelect('#optAszCategoryId');
-        initMaterialSelect('#optAszTypeId');
-        initMaterialSelect('#optAszColumns');
-
         if (!contractId) {
             $.each(refContract, function (index, contract) {
                 if (typeof contract === 'undefined' || contract === null) {
@@ -201,9 +176,6 @@ function MainAsset() {
             });
         }
 
-        if (contractId) {
-            initMaterialSelect('#optAszContractId');
-        }
         updateContractBadge();
 
         oTableAsset = $('#dtAszAsset').DataTable({
@@ -310,8 +282,6 @@ function MainAsset() {
         $('#optAszGroupId').on('change', function () {
             mzOptionStop('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
             mzOptionStopClear('optAszTypeId', 'All Asset Type');
-            initMaterialSelect('#optAszCategoryId');
-            initMaterialSelect('#optAszTypeId');
             oTableAsset.column(14).search(`^${$(this).val()}$`, true, false, true).draw();
             oTableAsset.column(15).search('', false, true, false).draw();
             oTableAsset.column(16).search('', false, true, false).draw();
@@ -319,7 +289,6 @@ function MainAsset() {
 
         $('#optAszCategoryId').on('change', function () {
             mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
-            initMaterialSelect('#optAszTypeId');
             oTableAsset.column(15).search(`^${$(this).val()}$`, true, false, true).draw();
             oTableAsset.column(16).search('', false, true, false).draw();
         });
@@ -377,11 +346,8 @@ function MainAsset() {
             setTimeout(function () {
                 try {
                     $('#optAszGroupId').val(null);
-                    initMaterialSelect('#optAszGroupId');
                     mzOptionStopClear('optAszCategoryId', 'All Asset Category');
                     mzOptionStopClear('optAszTypeId', 'All Asset Type');
-                    initMaterialSelect('#optAszCategoryId');
-                    initMaterialSelect('#optAszTypeId');
                     oTableAsset.column(14).search('', false, true, false).draw();
                     oTableAsset.column(15).search('', false, true, false).draw();
                     oTableAsset.column(16).search('', false, true, false).draw();
@@ -503,16 +469,41 @@ function MainAsset() {
         });
 
         Highcharts.chart('chartAszAssetByType', {
-            chart: { type: 'pie' },
-            title: { text: 'Total Asset by Category' },
-            tooltip: { pointFormat: '{series.name}: <b>{point.y} ({point.percentage:.1f}%)</b>' },
+            chart: {
+                type: 'pie',
+                backgroundColor: 'transparent',
+                style: { fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif', color: '#0F172A' }
+            },
+            title: {
+                text: 'Total Asset by Category',
+                style: { color: '#0F172A', fontWeight: '600', fontSize: '18px' }
+            },
+                colors: ['#4338CA', '#38BDF8', '#0EA5E9', '#22C55E', '#F59E0B', '#F97316', '#EF4444', '#8B5CF6', '#14B8A6', '#6366F1'],
+            tooltip: {
+                useHTML: true,
+                backgroundColor: '#FFFFFF',
+                borderColor: '#E2E8F0',
+                style: { color: '#0F172A', fontSize: '12px' },
+                    pointFormat: '<span style="color:{point.color}">&#9679;</span> <b>{point.name}</b><br/>Total: <b>{point.y}</b><br/>Share: <b>{point.percentage:.1f}%</b>'
+            },
             credits: { enabled: false },
             plotOptions: {
                 pie: {
                     allowPointSelect: true,
                     cursor: 'pointer',
-                    dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.y}', color: 'white' }
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        format: '<span style="font-weight:600;color:#0F172A">{point.name}</span><br/><span style="color:#64748B">{point.y} assets</span>',
+                        useHTML: true,
+                        style: { textOutline: 'none', fontSize: '11px' },
+                        connectorColor: '#CBD5F5'
+                    }
                 }
+            },
+            legend: {
+                itemStyle: { color: '#0F172A', fontWeight: '500' },
+                itemHoverStyle: { color: '#4338CA' }
             },
             series: [{ name: 'Asset Group', data: chartData }],
             drilldown: { series: chartDrilldown }

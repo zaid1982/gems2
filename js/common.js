@@ -1426,7 +1426,7 @@ function mzOptionStopClear(name, defaultText, type) {
 }
 
 function mzOptionStop(name, data, defaultText, keyIndex, valIndex, filters, type, isSort, sortIndex) {
-    $('#'+name).materialSelect({'destroy': true});
+    try { $('#'+name).materialSelect('destroy'); } catch (e) { /* ignore */ }
     mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort, sortIndex);
     $('#'+name).materialSelect();
 }
@@ -1527,7 +1527,7 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
 }
 
 function mzOptionStopV2(name, data, defaultText, valIndex, filters, type, isSort, sortIndex) {
-    $('#'+name).materialSelect({'destroy': true});
+    try { $('#'+name).materialSelect('destroy'); } catch (e) { /* ignore */ }
     mzOptionV2(name, data, defaultText, valIndex, filters, type, isSort, sortIndex);
     $('#'+name).materialSelect();
     $('#'+name).removeClass('invalid');
