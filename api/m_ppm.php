@@ -252,13 +252,14 @@ try {
             // group execution flag
             $ppmGroupExecution = filter_input(INPUT_POST, 'ppmGroupExecution'); // Capture the parameter from POST
             $ppmTaskId = filter_input(INPUT_POST, 'ppmTaskId');
+            $startTime = filter_input(INPUT_POST, 'startTime'); // Accept custom timestamp for offline sync
 
             // check_current_task is still here as it's a critical initial validation for the initiating task.
             $fn_ppm->check_current_task($ppmTaskId, '1');
 
             // Pass the new ppmGroupExecution parameter to the f_ppm method
-            $fn_ppm->save_ppm_scan_start_time_m($ppmTaskId, $jwt_data->userId, $ppmGroupExecution);
-            $fn_general->save_audit('91', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Group Execution = ' . $ppmGroupExecution);
+            $fn_ppm->save_ppm_scan_start_time_m($ppmTaskId, $jwt_data->userId, $ppmGroupExecution, $startTime);
+            $fn_general->save_audit('91', $jwt_data->userId, 'PPM Task Id = ' . $ppmTaskId . ', Group Execution = ' . $ppmGroupExecution . ', Start Time = ' . ($startTime ?: 'NOW()'));
             $form_data['errmsg'] = $constant::SUC_SCAN_START_TIME;
         }
         else if ($action === 'save_image_desc') {

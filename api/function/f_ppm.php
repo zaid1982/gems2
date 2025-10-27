@@ -3684,9 +3684,10 @@ class Class_ppm {
      * @param $ppmTaskId
      * @param $userId
      * @param string $ppmGroupExecution  // Added new parameter for group execution flag
+     * @param string|null $startTime  // Optional custom timestamp for offline sync
      * @throws Exception
      */
-    public function save_ppm_scan_start_time_m ($ppmTaskId, $userId, $ppmGroupExecution = '0') { // Default to '0' for single execution
+    public function save_ppm_scan_start_time_m ($ppmTaskId, $userId, $ppmGroupExecution = '0', $startTime = null) { // Default to '0' for single execution
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -3703,8 +3704,27 @@ class Class_ppm {
                 throw new Exception('[' . __LINE__ . '] - Parameter ppmGroupExecution invalid');
             }
 
+            // Validate and prepare the start time
+            $taskStartTime = 'Now()';
+            if (!empty($startTime)) {
+                $dt = DateTime::createFromFormat('Y-m-d H:i:s', $startTime);
+                if ($dt === false) {
+                    $dt = DateTime::createFromFormat('Y-m-d\TH:i:s.u', $startTime);
+                }
+                if ($dt === false) {
+                    $dt = DateTime::createFromFormat('Y-m-d\TH:i:s', $startTime);
+                }
+
+                if ($dt !== false) {
+                    $taskStartTime = $dt->format('Y-m-d H:i:s');
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Using custom start time: ' . $taskStartTime . ' (original: ' . $startTime . ')');
+                } else {
+                    $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Invalid startTime format provided: ' . $startTime . ', falling back to NOW()');
+                }
+            }
+
             // Centralized logic to apply scan start for a single task
-            $applyScanStartToTask = function($targetPpmTaskId, $targetUserId, $isGroupExecutedFlag) {
+            $applyScanStartToTask = function($targetPpmTaskId, $targetUserId, $isGroupExecutedFlag) use ($taskStartTime) {
                 // Check if the current task is eligible for this operation (checkpoint 1, not claimed, etc.)
                 // Pass '' for userId for check_current_task, as it's checking the task's state, not who is claiming it *now*
                 // The actual claiming happens by updating task_claimed_user.
@@ -3713,7 +3733,7 @@ class Class_ppm {
                 Class_db::getInstance()->db_update('ppm_task', array(
                     'ppm_task_assigned_to' => $targetUserId,
                     'ppm_task_status' => '13', // In Progress
-                    'ppm_task_time_start' => 'Now()',
+                    'ppm_task_time_start' => $taskStartTime,
                     'ppm_task_is_group_executed' => $isGroupExecutedFlag // Set the new flag
                 ), array('ppm_task_id' => $targetPpmTaskId));
 
