@@ -170,19 +170,31 @@ class Class_reference {
      * @return array
      * @throws Exception
      */
-    public function get_role () {
+    public function get_role ($roleId = null) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
             $result = array();
-            $arr_dataLocal = Class_db::getInstance()->db_select('ref_role');
-            foreach ($arr_dataLocal as $dataLocal) {
-                $row_result['roleId'] = $dataLocal['role_id'];
-                $row_result['roleDesc'] = $dataLocal['role_desc'];
-                $row_result['roleType'] = $this->fn_general->clear_null($dataLocal['role_type']);
-                $row_result['roleStatus'] = $dataLocal['role_status'];
-                array_push($result, $row_result);
+            if (is_null($roleId)) {
+                $arr_dataLocal = Class_db::getInstance()->db_select('ref_role');
+                foreach ($arr_dataLocal as $dataLocal) {
+                    $row_result = array();
+                    $row_result['roleId'] = $dataLocal['role_id'];
+                    $row_result['roleDesc'] = $dataLocal['role_desc'];
+                    $row_result['roleName'] = $dataLocal['role_desc'];
+                    $row_result['roleType'] = $this->fn_general->clear_null($dataLocal['role_type']);
+                    $row_result['roleStatus'] = $dataLocal['role_status'];
+                    array_push($result, $row_result);
+                }
+                return $result;
             }
+
+            $dataLocal = Class_db::getInstance()->db_select_single('ref_role', array('role_id'=>$roleId), null, 1);
+            $result['roleId'] = $dataLocal['role_id'];
+            $result['roleDesc'] = $dataLocal['role_desc'];
+            $result['roleName'] = $dataLocal['role_desc'];
+            $result['roleType'] = $this->fn_general->clear_null($dataLocal['role_type']);
+            $result['roleStatus'] = $dataLocal['role_status'];
 
             return $result;
         }

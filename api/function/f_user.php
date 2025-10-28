@@ -342,6 +342,71 @@ class Class_user {
 
     /**
      * @param $userId
+     * @param $put_vars
+     * @return array
+     * @throws Exception
+     */
+    public function update_profile_basic ($userId, $put_vars) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $constant = $this->constant;
+
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+            if (!isset($put_vars['userEmail']) || empty($put_vars['userEmail'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userEmail empty');
+            }
+            if (!isset($put_vars['userFirstName']) || empty($put_vars['userFirstName'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userFirstName empty');
+            }
+            if (!isset($put_vars['userLastName']) || empty($put_vars['userLastName'])) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userLastName empty');
+            }
+
+            $userEmail = $put_vars['userEmail'];
+            $userFirstName = $put_vars['userFirstName'];
+            $userLastName = $put_vars['userLastName'];
+            $userMykadNo = isset($put_vars['userMykadNo']) ? $put_vars['userMykadNo'] : '';
+            $profileContactNo = isset($put_vars['profileContactNo']) ? $put_vars['profileContactNo'] : '';
+
+            Class_db::getInstance()->db_update('sys_user', array('user_first_name' => $userFirstName, 'user_last_name' => $userLastName, 'user_mykad_no' => $userMykadNo), array('user_id' => $userId));
+            Class_db::getInstance()->db_update('sys_user_profile', array('user_email' => $userEmail, 'user_contact_no' => $profileContactNo), array('user_id' => $userId, 'user_profile_status' => '1'));
+
+            $imgUrl = '';
+            if (isset($put_vars['profileAvatarUpload']) && is_array($put_vars['profileAvatarUpload'])) {
+                $uploadData = $put_vars['profileAvatarUpload'];
+                if (!empty($uploadData['filename']) && !empty($uploadData['data'])) {
+                    $uploadId = $this->fn_general->uploadDocument($uploadData, 8, $userId);
+                    $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_id' => $userId), null, 1);
+                    if (!empty($sys_user['upload_id'])) {
+                        Class_db::getInstance()->db_update('sys_upload', array('upload_status' => '6'), array('upload_id' => $sys_user['upload_id']));
+                    }
+                    Class_db::getInstance()->db_update('sys_user', array('upload_id' => $uploadId), array('user_id' => $userId));
+                    $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id' => $uploadId), null, 1);
+                    $imgUrl = $constant::URL . $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'];
+                }
+            }
+
+            if ($imgUrl === '') {
+                $currentUploadId = Class_db::getInstance()->db_select_col('sys_user', array('user_id' => $userId), 'upload_id');
+                if (!empty($currentUploadId)) {
+                    $upload = Class_db::getInstance()->db_select_single('vw_sys_upload', array('upload_id' => $currentUploadId), null, 1);
+                    if (!empty($upload)) {
+                        $imgUrl = $constant::URL . $upload['upload_folder'] . '/' . $upload['upload_filename'] . '.' . $upload['upload_extension'];
+                    }
+                }
+            }
+
+            return array('imgUrl' => $imgUrl);
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
      * @param $name
      * @param $phoneNo
      * @param $uploadId

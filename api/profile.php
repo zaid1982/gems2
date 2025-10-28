@@ -111,8 +111,9 @@ try {
         $is_transaction = true;
         
         if ($action === 'profile') {
-            $fn_user->update_profile($userId, $put_vars);  
+            $result = $fn_user->update_profile_basic($userId, $put_vars);
             $fn_general->save_audit('5', $jwt_data->userId);
+            $form_data['errmsg'] = $constant::SUC_UPDATE_PROFILE;
         } 
         else if ($action === 'password') {
             $fn_user->change_password($userId, $put_vars);  

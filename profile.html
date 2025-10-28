@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0 - My Profile</title>
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/mdb.min.css">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
+    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    <style>
+        :root {
+            --profile-primary: #4338ca;
+            --profile-accent: #38bdf8;
+            --profile-bg: #f1f5f9;
+            --profile-text: #0f172a;
+            --profile-muted: #64748b;
+            --profile-card-radius: 26px;
+            --profile-shadow: 0 28px 60px -38px rgba(15, 23, 42, 0.55);
+        }
+
+        body { background: var(--profile-bg); }
+        main { padding: 1.75rem 0 3rem; }
+
+        .profile-section { margin-top: 1.5rem; }
+
+        .profile-page-header {
+            background: linear-gradient(135deg, rgba(67, 56, 202, 0.98) 0%, rgba(56, 189, 248, 0.92) 100%);
+            color: #fff;
+            padding: 38px 34px;
+            border-radius: 30px;
+            box-shadow: var(--profile-shadow);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-page-header::after {
+            content: '';
+            position: absolute;
+            inset: -120px -80px auto auto;
+            width: 340px;
+            height: 340px;
+            border-radius: 55% 45% 60% 40%;
+            background: rgba(255, 255, 255, 0.14);
+            filter: blur(0.6px);
+        }
+
+        .profile-page-header .header-text { position: relative; z-index: 1; max-width: 620px; }
+        .profile-page-header .header-text h2 { font-weight: 700; font-size: 2.1rem; margin: 12px 0 8px; }
+        .profile-page-header .header-text p { margin: 0; font-size: 1rem; opacity: 0.96; }
+        .profile-chip { display: inline-flex; align-items: center; gap: 10px; padding: 0.55rem 1.2rem; border-radius: 999px; background: rgba(15, 23, 42, 0.18); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; }
+        .profile-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px; }
+        .profile-page-header .header-actions .btn { border-radius: 999px; padding: 0.65rem 1.6rem; font-weight: 600; min-width: 150px; }
+
+        .profile-metrics { margin-top: 1.8rem; }
+        .profile-metrics .metric-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 22px 24px;
+            box-shadow: 0 20px 46px -32px rgba(15, 23, 42, 0.4);
+            height: 100%;
+        }
+        .profile-metrics .metric-card.primary { background: linear-gradient(135deg, rgba(67, 56, 202, 0.12), rgba(56, 189, 248, 0.16)); }
+        .profile-metrics .metric-card.success { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.12)); }
+        .profile-metrics .metric-card.muted { background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(233, 213, 255, 0.18)); }
+        .profile-metrics .metric-label { display: block; color: var(--profile-muted); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+        .profile-metrics .metric-value { display: block; color: var(--profile-text); font-weight: 700; font-size: 1.9rem; margin-top: 0.45rem; }
+        .profile-metrics .metric-subtext { display: block; margin-top: 0.35rem; color: var(--profile-muted); font-weight: 600; }
+
+        .profile-content { margin-top: 1.5rem; }
+        .profile-summary-card { background: #fff; border-radius: var(--profile-card-radius); box-shadow: var(--profile-shadow); padding: 26px 28px; height: 100%; display: flex; flex-direction: column; gap: 22px; }
+    .profile-summary-head { display: flex; align-items: center; gap: 18px; }
+    .profile-avatar-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+    .profile-avatar { width: 72px; height: 72px; border-radius: 20px; background: linear-gradient(135deg, rgba(67, 56, 202, 0.96), rgba(56, 189, 248, 0.92)); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 2.2rem; font-weight: 700; box-shadow: 0 18px 42px -30px rgba(67, 56, 202, 0.8); overflow: hidden; position: relative; cursor: pointer; transition: transform 0.2s ease; }
+    .profile-avatar:hover { transform: scale(1.02); }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .profile-avatar::after { content: '\f030'; font-family: "Font Awesome 5 Pro"; font-weight: 400; position: absolute; right: 8px; bottom: 6px; font-size: 0.9rem; color: rgba(255,255,255,0.92); text-shadow: 0 2px 6px rgba(15,23,42,0.45); pointer-events: none; }
+    .profile-avatar-stack .btn-profile-avatar { font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 999px; font-weight: 600; background: rgba(67, 56, 202, 0.1); color: var(--profile-text); border: none; transition: background 0.2s ease; }
+    .profile-avatar-stack .btn-profile-avatar:hover { background: rgba(67, 56, 202, 0.18); }
+    .profile-avatar-note { color: var(--profile-muted); font-size: 0.75rem; }
+        .profile-summary-head h3 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--profile-text); }
+        .profile-summary-head p { margin: 4px 0 0; color: var(--profile-muted); font-size: 0.95rem; }
+        .profile-summary-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+        .profile-summary-item { display: grid; grid-template-columns: 120px 1fr; gap: 12px; font-size: 0.95rem; color: var(--profile-text); }
+        .profile-summary-item .label { color: var(--profile-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.08em; }
+        .profile-role-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .profile-role-chip { display: inline-flex; align-items: center; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(67, 56, 202, 0.12); color: var(--profile-text); font-size: 0.78rem; font-weight: 600; }
+
+        .profile-form-card { background: #fff; border-radius: var(--profile-card-radius); box-shadow: var(--profile-shadow); padding: 28px 30px; }
+        .profile-form-card .card-title { font-weight: 700; font-size: 1.35rem; color: var(--profile-text); margin-bottom: 18px; }
+        .profile-form-card .md-form input[type="text"] { color: var(--profile-text); }
+        .profile-form-card .md-form label { color: var(--profile-muted); }
+        .profile-form-card .md-form .prefix { color: var(--profile-muted); }
+        .profile-form-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 18px; }
+        .profile-form-footer .btn { min-width: 150px; font-weight: 600; border-radius: 999px; }
+
+        .profile-status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 0.4rem 1rem; border-radius: 999px; font-weight: 600; font-size: 0.85rem; }
+        .profile-status-pill.active { background: rgba(34, 197, 94, 0.18); color: #166534; }
+        .profile-status-pill.inactive { background: rgba(239, 68, 68, 0.18); color: #991b1b; }
+        .profile-status-pill.pending { background: rgba(234, 179, 8, 0.18); color: #92400e; }
+
+        .profile-updated-label { color: var(--profile-muted); font-size: 0.85rem; }
+
+        @media (max-width: 991.98px) {
+            .profile-page-header { flex-direction: column; align-items: flex-start; }
+            .profile-summary-item { grid-template-columns: 1fr; }
+            .profile-form-footer { flex-direction: column; align-items: stretch; }
+            .profile-form-footer .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+<main>
+    <div class="container-fluid">
+        <section class="profile-section">
+            <div class="profile-page-header gems-page-header">
+                <div class="header-text">
+                    <span class="profile-chip"><i class="fas fa-id-card-alt mr-2"></i>Account Overview</span>
+                    <h2 id="profileHeaderName">Hello, there</h2>
+                    <p id="profileHeaderDescription">Manage your contact details, identification, and account preferences in one place.</p>
+                </div>
+                <div class="header-actions">
+                    <button type="button" class="btn btn-outline-light" id="btnProfileRefresh"><i class="fas fa-sync mr-2"></i>Refresh</button>
+                    <button type="button" class="btn btn-light" id="btnProfileSaveTop" disabled><i class="fas fa-save mr-2"></i>Save Changes</button>
+                </div>
+            </div>
+
+            <div class="row profile-metrics">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="metric-card primary">
+                        <span class="metric-label">Roles Assigned</span>
+                        <span class="metric-value" id="metricProfileRoles">0</span>
+                        <span class="metric-subtext" id="metricProfileRolesDetail">No roles detected</span>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="metric-card success">
+                        <span class="metric-label">Account Status</span>
+                        <span class="metric-value" id="metricProfileStatus">—</span>
+                        <span class="metric-subtext" id="metricProfileStatusDetail">Status code —</span>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="metric-card muted">
+                        <span class="metric-label">Primary Site</span>
+                        <span class="metric-value" id="metricProfileSite">—</span>
+                        <span class="metric-subtext" id="metricProfileSiteDetail">Site ID —</span>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="metric-card">
+                        <span class="metric-label">Client</span>
+                        <span class="metric-value" id="metricProfileClient">—</span>
+                        <span class="metric-subtext" id="metricProfileClientDetail">Client ID —</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row profile-content">
+                <div class="col-xl-4 mb-4">
+                    <div class="profile-summary-card">
+                        <div class="profile-summary-head">
+                            <div class="profile-avatar-stack">
+                                <div class="profile-avatar" id="profileAvatar" title="Change profile photo">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <button type="button" class="btn btn-light btn-profile-avatar" id="btnProfileAvatarChange"><i class="fas fa-camera mr-1"></i>Change Photo</button>
+                                <small class="profile-avatar-note" id="lblProfileAvatarNote">PNG or JPG up to 2&nbsp;MB</small>
+                                <input type="file" id="fileProfileAvatar" accept="image/png,image/jpeg" class="d-none">
+                            </div>
+                            <div>
+                                <h3 id="lblProfileFullName">—</h3>
+                                <p id="lblProfileUsername">Username —</p>
+                            </div>
+                        </div>
+                        <div>
+                            <span id="lblProfileStatus" class="profile-status-pill pending"><i class="fas fa-hourglass-half"></i> Pending</span>
+                        </div>
+                        <ul class="profile-summary-list">
+                            <li class="profile-summary-item"><span class="label">Designation</span><span id="lblProfileDesignation">—</span></li>
+                            <li class="profile-summary-item"><span class="label">Group</span><span id="lblProfileGroup">—</span></li>
+                            <li class="profile-summary-item"><span class="label">Site</span><span id="lblProfileSite">—</span></li>
+                            <li class="profile-summary-item"><span class="label">Client</span><span id="lblProfileClient">—</span></li>
+                            <li class="profile-summary-item"><span class="label">Email</span><span id="lblProfileEmail">—</span></li>
+                            <li class="profile-summary-item"><span class="label">Contact</span><span id="lblProfileContact">—</span></li>
+                            <li class="profile-summary-item"><span class="label">MyKad</span><span id="lblProfileMykad">—</span></li>
+                        </ul>
+                        <div>
+                            <h6 class="text-uppercase text-muted small font-weight-bold mb-2">Role Assignments</h6>
+                            <div class="profile-role-chips" id="profileRoleChips">
+                                <span class="text-muted small">No roles assigned</span>
+                            </div>
+                        </div>
+                        <div class="profile-updated-label" id="lblProfileUpdated">Last updated —</div>
+                    </div>
+                </div>
+                <div class="col-xl-8 mb-4">
+                    <div class="profile-form-card">
+                        <div class="card-title">Edit Profile Details</div>
+                        <form id="formPfl" autocomplete="off">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="md-form">
+                                        <input type="text" id="txtPflUsername" class="form-control" disabled>
+                                        <label for="txtPflUsername" id="lblPflUsername" class="active">Username</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="md-form">
+                                        <input type="text" id="txtPflEmail" class="form-control">
+                                        <label for="txtPflEmail" id="lblPflEmail">Email *</label>
+                                        <p class="font-small text-danger" id="txtPflEmailErr"></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="md-form">
+                                        <input type="text" id="txtPflFirstName" class="form-control">
+                                        <label for="txtPflFirstName" id="lblPflFirstName">First Name *</label>
+                                        <p class="font-small text-danger" id="txtPflFirstNameErr"></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="md-form">
+                                        <input type="text" id="txtPflLastName" class="form-control">
+                                        <label for="txtPflLastName" id="lblPflLastName">Last Name *</label>
+                                        <p class="font-small text-danger" id="txtPflLastNameErr"></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="md-form">
+                                        <input type="text" id="txtPflIdno" class="form-control">
+                                        <label for="txtPflIdno" id="lblPflIdno">MyKad No.</label>
+                                        <p class="font-small text-danger" id="txtPflIdnoErr"></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="md-form">
+                                        <input type="text" id="txtPflPhone" class="form-control">
+                                        <label for="txtPflPhone" id="lblPflPhone">Contact No.</label>
+                                        <p class="font-small text-danger" id="txtPflPhoneErr"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="profile-form-footer">
+                            <button type="button" class="btn btn-outline-secondary" id="btnProfileReset"><i class="fas fa-undo-alt mr-2"></i>Reset</button>
+                            <button type="button" class="btn btn-primary" id="btnProfileSave" disabled><i class="fas fa-save mr-2"></i>Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="includeHtml" id="h-modal_change_password"></div>
+    <div class="includeHtml" id="h-modal_profile"></div>
+</main>
+
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<script type="text/javascript" src="js/popper.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<script type="text/javascript" src="js/addons/crypto.js"></script>
+<script type="text/javascript" src="js/addons/moment.min.js"></script>
+
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+    let changePasswordClass_;
+    let profilePageClass_;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                initiatePages();
+                changePasswordClass_ = new ModalChangePassword();
+                profilePageClass_ = new MainProfile();
+                profilePageClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 200);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_profile.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+
+</body>
+</html>

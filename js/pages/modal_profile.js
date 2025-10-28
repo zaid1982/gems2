@@ -144,3 +144,7 @@ function loadModalProfile(callFrom, userId) {
         .modal({backdrop: 'static', keyboard: false})
         .scrollTop(0);
 }
+
+$(function () {
+    initiateModalProfile();
+});

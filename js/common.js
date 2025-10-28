@@ -946,10 +946,7 @@ function mzNotificationDelete (notiWebId) {
 }
 
 function mzProfile() {
-    let userInfo = sessionStorage.getItem('userInfo');
-    const objEncrypted = CryptoJS.AES.decrypt(userInfo, 'GEMS').toString(CryptoJS.enc.Utf8);
-    userInfo = JSON.parse(objEncrypted);
-    loadModalProfile('Top', userInfo['userId']);
+    window.location.href = 'profile.html';
 }
 
 function mzGetUserId() {
