@@ -955,3 +955,8 @@ body {
   }
 }
 
+/* issue with workding */
+
+.select-outline label {
+  display: none;
+}
