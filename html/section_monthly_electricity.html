@@ -1,49 +1,81 @@
-<section class="section mb-5 sectionMonthlyElectricity">
-    <div class="row mb-4 pb-0">
-        <div class="col-md-12">
-            <button type="button" class="btn peach-gradient btn-rounded float-right text-white z-depth-3"
-                    id="btnSmeBack">
-                <i class="fas fa-arrow-left"></i> Back to Main Page
+<section class="section sectionMonthlyElectricity monthly-electricity-shell mb-5">
+    <style>
+        .monthly-electricity-shell .monthly-electricity-header h2 { margin-bottom: 0.35rem; }
+        .monthly-electricity-shell .monthly-electricity-header p { margin-bottom: 0; }
+        .monthly-electricity-shell .metric-card { background: #fff; border-radius: 20px; padding: 20px 22px; box-shadow: 0 22px 50px -38px rgba(15, 23, 42, 0.45); }
+        .monthly-electricity-shell .metric-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; color: #64748b; }
+        .monthly-electricity-shell .metric-value { display: block; font-weight: 700; font-size: 1.8rem; margin-top: 0.4rem; color: #0f172a; }
+        .monthly-electricity-shell .metric-subtext { font-size: 0.85rem; color: #475569; margin-top: 0.35rem; }
+        .monthly-electricity-shell .metric-card.primary { background: linear-gradient(135deg, rgba(244, 63, 94, 0.12), rgba(248, 113, 113, 0.18)); }
+        .monthly-electricity-shell .metric-card.primary .metric-label, .monthly-electricity-shell .metric-card.primary .metric-value { color: #991b1b; }
+        .monthly-electricity-shell .metric-card.primary .metric-subtext { color: #b91c1c; font-weight: 600; }
+        .monthly-electricity-shell .monthly-electricity-chart { height: 360px; }
+        .monthly-electricity-shell .monthly-electricity-table table { width: 100%; }
+    </style>
+    <div class="gems-page-header monthly-electricity-header">
+        <div class="header-text">
+            <h2><span id="lblSmeMonthName">-</span> Electricity Report</h2>
+            <p>Track demand, tariff components, and daily usage trends for the selected billing month.</p>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="btn btn-outline-light" id="btnSmeBack">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Main Page
             </button>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-5">
-            <div class="card z-depth-3 mb-3">
-                <div class="">
-                    <div class="float-left danger-color" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5"><span id="lblSmeMonthName"></span> Electricity Report</h4>
+    <div class="row mt-4">
+        <div class="col-sm-6 col-xl-4 mb-4">
+            <div class="metric-card primary">
+                <span class="metric-label">Monthly Charges</span>
+                <span class="metric-value">RM <span id="lblSmeTotalMonthlyCharges">0</span></span>
+                <span class="metric-subtext">Change vs last month <span id="lblSmeChangePerc">—</span></span>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-4 mb-4">
+            <div class="metric-card">
+                <span class="metric-label">Total Consumption</span>
+                <span class="metric-value"><span id="lblSmeTotalMonthlyConsumption">0</span> kWh</span>
+                <span class="metric-subtext">Sum of daily usage entries</span>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-4 mb-4">
+            <div class="metric-card">
+                <span class="metric-label">Billing Site</span>
+                <span class="metric-value" id="lblSmeSiteName">—</span>
+                <span class="metric-subtext">Active location tied to this invoice</span>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-xl-5 mb-4">
+            <div class="card module-data-card monthly-electricity-overview h-100">
+                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2">
+                    <h5 class="font-weight-bold mb-0">How the bill is composed</h5>
+                </div>
+                <div class="card-body pt-0 px-4 pb-4">
+                    <p class="text-muted mb-3">The monthly electricity invoice combines contracted usage, connection load charges, and observed maximum demand. Review the breakdown to spot tariff spikes.</p>
+                    <ul class="list-unstyled text-muted mb-0">
+                        <li class="mb-2"><i class="fas fa-bolt text-danger mr-2"></i>Maximum demand is calculated using the peak recorder for the month.</li>
+                        <li class="mb-2"><i class="fas fa-file-invoice-dollar text-danger mr-2"></i>KWTBB is applied on the electricity subtotal at the configured percentage.</li>
+                        <li><i class="fas fa-chart-line text-danger mr-2"></i>Use the daily trend to identify anomalies before invoices are finalised.</li>
+                    </ul>
                 </div>
             </div>
-            <div class="card z-depth-4 mb-3">
-                <div class="p-3 danger-color text-white">
-                    <h4>Total Monthly Charges</h4>
-                    <h1 class="mt-3">RM <span id="lblSmeTotalMonthlyCharges"></span> &nbsp;&nbsp;<span id="lblSmeChangePerc" class="h3"></span></h1>
-                    <p class="mt-2 mb-0 font-small">Final calculation for <span id="lblSmeSiteName" class="font-weight-bold"></span> monthly electricity charges</p>
+        </div>
+        <div class="col-xl-7 mb-4">
+            <div class="card module-data-card monthly-electricity-table h-100">
+                <div class="card-header gradient-card-header red-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
+                    <h5 class="font-weight-bold text-white mb-0">Monthly Charges Breakdown</h5>
                 </div>
-            </div>
-            <div class="card z-depth-4 mb-4">
-                <div class="p-3 danger-color text-white">
-                    <h5>Total Consumption</h5>
-                    <h2 class="mt-2 mb-0"><span id="lblSmeTotalMonthlyConsumption"></span> kWh</h2>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="">
-                    <div class="float-left danger-color" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5">Monthly Charges Calculation</h4>
-                </div>
-            </div>
-            <div class="card z-depth-4 mb-4">
-                <div class="p-3">
+                <div class="card-body px-4 pb-3">
                     <div class="table-responsive">
-                        <table class="table table-hover table-sm mb-0 display responsive" style="width: 100%">
+                        <table class="table table-hover table-sm mb-0 display responsive">
                             <thead>
                             <tr class="th-strong">
-                                <th>&nbsp;</th>
-                                <th>Unit</th>
-                                <th>Rates</th>
-                                <th>Amount (RM)</th>
+                                <th>Component</th>
+                                <th class="text-right">Unit</th>
+                                <th class="text-right">Rates</th>
+                                <th class="text-right">Amount (RM)</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -86,46 +118,39 @@
                     </div>
                 </div>
             </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="">
-                    <div class="float-left danger-color" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5">Daily Reading Chart</h4>
-                </div>
-            </div>
-            <div class="card z-depth-4 mb-4">
-                <div class="" id="chartSmeKwh" style="margin: 0;"></div>
-            </div>
         </div>
-        <div class="col-md-7">
-            <div class="card z-depth-3 mb-3">
-                <div class="">
-                    <div class="float-left danger-color" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5">Daily Reading Record</h4>
-                </div>
-            </div>
-            <div class="card z-depth-4 mb-3">
-                <div class="p-3">
-                    <div class="table-responsive">
-                        <table id="dtSmeData" class="table table-hover table-sm mb-0 display responsive" style="width: 100%">
-                            <thead>
-                            <tr class="th-strong">
-                                <th>Date</th>
-                                <th>Maximum<br>Demand (kW)</th>
-                                <th>Opening<br>Reading (kWh)</th>
-                                <th>Closing<br>Reading (kWh)</th>
-                                <th>Daily<br>Usage (kWh)</th>
-                                <th>Recorded By</th>
-                                <th>Recorded Time</th>
-                                <th>Trend</th>
-                                <th>Trend</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
+    </div>
+    <div class="card module-data-card monthly-electricity-chart mt-2 mb-4">
+        <div class="card-header gradient-card-header red-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
+            <h5 class="font-weight-bold text-white mb-0">Daily Reading Chart</h5>
+        </div>
+        <div class="card-body px-4 pb-1">
+            <div id="chartSmeKwh" class="monthly-electricity-chart"></div>
+        </div>
+    </div>
+    <div class="card module-data-card monthly-electricity-table">
+        <div class="card-header gradient-card-header red-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
+            <h5 class="font-weight-bold text-white mb-0">Daily Reading Record</h5>
+        </div>
+        <div class="card-body px-4 pb-3">
+            <div class="table-responsive">
+                <table id="dtSmeData" class="table table-hover table-sm mb-0 display responsive">
+                    <thead>
+                    <tr class="th-strong">
+                        <th>Date</th>
+                        <th>Maximum<br>Demand (kW)</th>
+                        <th>Opening<br>Reading (kWh)</th>
+                        <th>Closing<br>Reading (kWh)</th>
+                        <th>Daily<br>Usage (kWh)</th>
+                        <th>Recorded By</th>
+                        <th>Recorded Time</th>
+                        <th>Trend</th>
+                        <th>Trend</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
     </div>
-
 </section>

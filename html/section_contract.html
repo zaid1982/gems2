@@ -1,25 +1,29 @@
-<section class="section mb-5 sectionContract">
-    <div class="row mb-0 pb-0">
-        <div class="col-md-12">
-            <button type="button" class="btn morpheus-den-gradient btn-rounded float-right text-white" id="btnSctBack">
-                <i class="fas fa-arrow-left"></i> Back to Main Page
-            </button>
+<section class="section sectionContract contract-shell mb-5">
+    <div class="gems-page-header contract-header">
+        <div class="header-text">
+            <h2>Contract Details</h2>
+            <p>Review client assignments, associated sites, and supporting location assets.</p>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="btn btn-outline-light" id="btnSctBack"><i class="fas fa-arrow-left mr-2"></i>Back to Main Page</button>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card card-cascade cascading-admin-card user-card mt-4">
-                <div class="admin-up d-flex justify-content-start">
-                    <i class="fas fa-file-contract rgba-cyan-strong py-4 z-depth-3"></i>
-                    <div class="data">
-                        <h3 class="font-weight-bold dark-grey-text ml-3">Contract Information</h3>
+
+    <div class="row mt-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card module-data-card contract-info-card h-100">
+                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2 d-flex align-items-center">
+                    <span class="badge badge-soft-primary mr-3"><i class="fas fa-file-contract"></i></span>
+                    <div>
+                        <h5 class="font-weight-bold mb-1">Contract Information</h5>
+                        <p class="text-muted mb-0">Key attributes for the active maintenance contract.</p>
                     </div>
                 </div>
-                <div class="card-body card-body-cascade px-3 pb-0">
+                <div class="card-body pt-0 px-4 pb-4">
                     <form id="formSct">
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="md-form md-outline mt-4">
+                                <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSctClientName" class="form-control" disabled>
                                     <label for="txtSctClientName" id="lblSctClientName">Client Name</label>
                                 </div>
@@ -57,7 +61,7 @@
                             <div class="col-md-12">
                                 <div class="md-form md-outline mt-0">
                                     <input type="text" id="txtSctContractStatus" class="form-control" disabled>
-                                    <label for="txtSctContractStatus" id="lblSctContractStatus" class="text-muted">Status</label>
+                                    <label for="txtSctContractStatus" id="lblSctContractStatus">Status</label>
                                 </div>
                             </div>
                         </div>
@@ -65,83 +69,74 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card card-cascade narrower mb-5 mt-5">
-                <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+        <div class="col-lg-6 mb-4">
+            <div class="card module-data-card">
+                <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
                     <div>
-                        <button type="button" id="btnSctLocationCodeAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Location Code"><i class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Location Code List"
-                           data-content="All location code available in this contract."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtSctLocationCodeRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                        <button type="button" id="btnSctLocationCodeAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Location Code"><i class="fas fa-plus"></i></button>
+                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Location Code List" data-content="All location codes available in this contract."><i class="fas fa-info mx-1"></i></a>
+                        <button type="button" id="btnDtSctLocationCodeRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Location Code</a>
-                    <div>
-                        <div id="btnDtSctLocationCodeExport"></div>
-                    </div>
+                    <span class="text-white font-weight-bold">Location Code</span>
+                    <div id="btnDtSctLocationCodeExport"></div>
                 </div>
-                <div class="px-4">
-                    <form class="form-inline md-form form-sm mt-2 mb-0 pb-0 float-right">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtSctLocationCodeSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtSctLocationCodeSearch" class="ml-4">Search</label>
+                <div class="card-body px-4 pb-3">
+                    <div class="d-flex justify-content-end mb-3">
+                        <div class="md-form md-outline my-0" style="width: 280px;">
+                            <i class="fas fa-search prefix"></i>
+                            <input type="text" id="txtSctLocationCodeSearch" class="form-control form-control-sm">
+                            <label for="txtSctLocationCodeSearch">Search</label>
                         </div>
-                    </form>
-                </div>
-                <div class="table-responsive pb-4">
-                    <table id="dtSctLocationCode" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
-                        <thead>
-                        <tr class="th-strong">
-                            <th style="width: 5%">#</th>
-                            <th>Location Code</th>
-                            <!--<th>Total Technician</th>-->
-                            <th style="width: 20%">Status</th>
-                            <th style="width: 64px; min-width: 64px"></th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="dtSctLocationCode" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                            <thead>
+                            <tr class="th-strong">
+                                <th style="width: 5%">#</th>
+                                <th>Location Code</th>
+                                <th style="width: 20%">Status</th>
+                                <th style="width: 64px; min-width: 64px"></th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 toHide">
-            <div class="card card-cascade narrower mb-5 mt-5">
-                <div class="view view-cascade gradient-card-header cyan darken-1 narrower py-1 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+        <div class="col-lg-6 toHide mb-4">
+            <div class="card module-data-card">
+                <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
                     <div>
-                        <button type="button" id="btnSctLocationUserAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Technician Assigned"><i class="fas fa-plus mt-0"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Technician Assigned List"
-                           data-content="All technician assigned in this location with the asset group."><i class="fas fa-info mt-0 mx-1"></i></a>
-                        <button type="button" id="btnDtSctLocationUserRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                        <button type="button" id="btnSctLocationUserAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Technician Assigned"><i class="fas fa-plus"></i></button>
+                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Technician Assigned List" data-content="All technicians assigned in this location with the asset group."><i class="fas fa-info mx-1"></i></a>
+                        <button type="button" id="btnDtSctLocationUserRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
                     </div>
-                    <a href="javascript:void(0);" class="text-white mx-3">Technician Assigned</a>
-                    <div>
-                        <div id="btnDtSctLocationUserExport"></div>
-                    </div>
+                    <span class="text-white font-weight-bold">Technician Assigned</span>
+                    <div id="btnDtSctLocationUserExport"></div>
                 </div>
-                <div class="px-4">
-                    <form class="form-inline md-form form-sm mt-2 mb-0 pb-0 float-right">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtSctLocationUserSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                            <label for="txtSctLocationUserSearch" class="ml-4">Search</label>
+                <div class="card-body px-4 pb-3">
+                    <div class="d-flex justify-content-end mb-3">
+                        <div class="md-form md-outline my-0" style="width: 280px;">
+                            <i class="fas fa-search prefix"></i>
+                            <input type="text" id="txtSctLocationUserSearch" class="form-control form-control-sm">
+                            <label for="txtSctLocationUserSearch">Search</label>
                         </div>
-                    </form>
-                </div>
-                <div class="table-responsive pb-4">
-                    <table id="dtSctLocationUser" class="table table-hover table-sm mb-0 mt-2 display responsive" cellspacing="0" width="100%">
-                        <thead>
-                        <tr class="th-strong">
-                            <th style="width: 5%">#</th>
-                            <th style="width: 20%">Location Code</th>
-                            <th>Technician Name</th>
-                            <th style="width: 20%">Asset Group</th>
-                            <th style="width: 24px; min-width: 24px"></th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="dtSctLocationUser" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                            <thead>
+                            <tr class="th-strong">
+                                <th style="width: 5%">#</th>
+                                <th style="width: 20%">Location Code</th>
+                                <th>Technician Name</th>
+                                <th style="width: 20%">Asset Group</th>
+                                <th style="width: 24px; min-width: 24px"></th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

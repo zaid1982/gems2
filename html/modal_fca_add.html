@@ -1,16 +1,16 @@
-<div class="modal fade" id="modal_fca_add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+<div class="modal fade gems-modal" id="modal_fca_add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg mt-3 pt-3 mb-5" role="document">
         <!--Content-->
-        <div class="modal-content">
+        <div class="modal-content gems-modal-card">
             <!--Header-->
-            <div class="modal-header d-flex justify-content-center pb-2">
+            <div class="modal-header pb-2 gems-modal-header">
                 <h4 class="text-white mt-2 ml-2"><i class="fas fa-eye text-white"></i> &nbsp;<span id="spanMfaTitle">Create New FCA Audit</span></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <!--Body-->
-            <div class="modal-body pb-2">
+            <div class="modal-body pb-2 gems-modal-body">
                 <form id="formMfa">
                     <div class="card z-depth-1 mb-4_5" id="divMfaValidationInfo">
                         <div class="card-body blue-grey lighten-5 pt-4 pb-0">
@@ -121,7 +121,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer p-2">
+            <div class="modal-footer p-2 gems-modal-footer">
                 <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
                 <button id="btnMfaSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
             </div>

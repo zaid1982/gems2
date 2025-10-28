@@ -1,21 +1,37 @@
-<section class="section mb-5 sectionAssetDetails">
-    <div class="row mb-0 pb-0">
-        <div class="col-md-12">
-            <button type="button" class="btn morpheus-den-gradient btn-rounded float-right text-white" id="btnSszBack">
-                <i class="fas fa-arrow-left"></i> Back to Main Page
+<section class="section sectionAssetDetails asset-detail-shell wo-detail-shell mb-5">
+    <div class="gems-page-header asset-details-header">
+        <div class="header-text">
+            <h2>Asset Details</h2>
+            <p>Maintain the asset master record, lifecycle checkpoints, and task history.</p>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="btn btn-outline-light" id="btnSszBack">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Main Page
+            </button>
+            <button type="button" class="btn btn-light text-primary" id="btnSszSave">
+                <i class="fas fa-save mr-2"></i>Save Draft
+            </button>
+            <button type="button" class="btn btn-light text-primary" id="btnSszUpdate" disabled>
+                <i class="fas fa-edit mr-2"></i>Update Details
+            </button>
+            <button type="button" class="btn btn-primary" id="btnSszSubmit" disabled>
+                <i class="fas fa-paper-plane mr-2"></i>Submit Asset
             </button>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card card-cascade cascading-admin-card user-card mt-4">
-                <div class="admin-up d-flex justify-content-start">
-                    <i class="fa fas fa-qrcode rgba-cyan-strong py-4 z-depth-3"></i>
-                    <div class="data">
-                        <h3 class="font-weight-bold dark-grey-text ml-3">Asset Details</h3>
+    <div class="row mt-4">
+        <div class="col-xl-8 mb-4">
+            <div class="card module-data-card asset-profile-card mb-4">
+                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-0 d-flex align-items-center">
+                    <span class="badge badge-soft-primary mr-3">
+                        <i class="fas fa-qrcode"></i>
+                    </span>
+                    <div>
+                        <h5 class="mb-1 font-weight-bold text-dark">Asset Profile</h5>
+                        <p class="mb-0 text-muted small">Core identification, classification, and location attributes.</p>
                     </div>
                 </div>
-                <div class="card-body card-body-cascade pb-0">
+                <div class="card-body px-4 pt-3 pb-4">
                     <form id="formSsz">
                         <div class="row mt-4">
                             <div class="col-md-4 px-2">
@@ -60,6 +76,9 @@
                                     <p class="font-small text-danger" id="txtSszAssetDescErr"></p>
                                 </div>
                             </div>
+                            <div class="col-12 px-2 mt-3">
+                                <h6 class="text-uppercase text-muted small font-weight-bold mb-2">Classification</h6>
+                            </div>
                             <div class="col-md-6 px-2 select-outline">
                                 <select id="optSszAssetGroupId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
                                 <label for="optSszAssetGroupId" id="lblAssetGroupId">Asset Group *</label>
@@ -91,6 +110,9 @@
                                     <label for="txtSszAssetCapacity" id="lblSszAssetCapacity">Capacity</label>
                                     <p class="font-small text-danger" id="txtSszAssetCapacityErr"></p>
                                 </div>
+                            </div>
+                            <div class="col-12 px-2 mt-3">
+                                <h6 class="text-uppercase text-muted small font-weight-bold mb-2">Location</h6>
                             </div>
                             <div class="col-lg-3 col-md-6 px-2 select-outline">
                                 <select id="optSszZoneId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
@@ -124,6 +146,9 @@
                                     <label for="txtSszAssetLocationDesc" id="lblSszAssetLocationDesc">Location Description</label>
                                     <p class="font-small text-danger" id="txtSszAssetLocationDescErr"></p>
                                 </div>
+                            </div>
+                            <div class="col-12 px-2 mt-3">
+                                <h6 class="text-uppercase text-muted small font-weight-bold mb-2">Ownership &amp; Responsibility</h6>
                             </div>
                             <div class="col-md-6 px-2">
                                 <div class="md-form md-outline mt-0">
@@ -192,6 +217,9 @@
                                     <label for="txtSszAssetContractor" id="lblSszAssetContractor">Contractor</label>
                                     <p class="font-small text-danger" id="txtSszAssetContractorErr"></p>
                                 </div>
+                            </div>
+                            <div class="col-12 px-2 mt-3">
+                                <h6 class="text-uppercase text-muted small font-weight-bold mb-2">Warranty &amp; Notes</h6>
                             </div>
                             <div class="col-md-6 px-2">
                                 <div class="md-form md-outline mt-0">
@@ -291,96 +319,71 @@
                         </div>
                     </form>
                 </div>
-                <div class="card-footer p-1">
-                    <button type="button" id="btnSszSubmit" class="btn btn-outline-dark-green waves-effect btn-sm float-right" disabled>
-                        <i class="fas fa-paper-plane mr-1"></i> Submit Asset
-                    </button>
-                    <button type="button" id="btnSszUpdate" class="btn btn-outline-deep-orange waves-effect btn-sm float-right" disabled>
-                        <i class="fas fa-edit mr-1"></i> Update Asset Details
-                    </button>
-                    <button type="button" id="btnSszSave" class="btn btn-outline-deep-orange waves-effect btn-sm float-right">
-                        <i class="fas fa-save mr-1"></i> Save Draft
-                    </button>
-                    <!--<button type="button" id="btnSszQr" class="btn btn-outline-light-blue btn-rounded waves-effect btn-sm float-right">
-                        <i class="fas fa-qrcode mr-1"></i> Print QR Code
-                    </button>
-                    <button type="button" id="btnSszPrint" class="btn btn-outline-red btn-rounded waves-effect btn-sm float-right">
-                        <i class="fas fa-file-pdf mr-1"></i> Print Asset Information
-                    </button>-->
-                </div>
             </div>
-            <div class="card profile-card mt-4">
-                <div class="card-header py-1 teal lighten-4">
-                    <h5 class="font-weight-bold text-center mt-2">Work Order Information</h5>
+            <div class="card module-data-card asset-workorder-card mt-4 mb-4">
+                <div class="card-header gradient-card-header aqua-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
+                    <h5 class="font-weight-bold text-white mb-0">Work Order Information</h5>
                 </div>
-                <div class="card-body mt-0 px-2">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="table-responsive">
-                                <table id="dtSszWo" class="table table-custom-badge table-hover mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>WO/WR No</th>
-                                        <th>Type</th>
-                                        <th>Severity</th>
-                                        <th>PIC Name</th>
-                                        <th>Received Time</th>
-                                        <th>Status</th>
-                                        <th style="width: 40px; min-width: 40px">&nbsp;</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
+                <div class="card-body px-4 pb-3">
+                    <div class="table-responsive">
+                        <table id="dtSszWo" class="table table-custom-badge table-hover mb-0 display responsive">
+                            <thead>
+                            <tr class="th-strong">
+                                <th>#</th>
+                                <th>WO/WR No</th>
+                                <th>Type</th>
+                                <th>Severity</th>
+                                <th>PIC Name</th>
+                                <th>Received Time</th>
+                                <th>Status</th>
+                                <th style="width: 40px; min-width: 40px">&nbsp;</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            <div class="card profile-card mt-4">
-                <div class="card-header py-1 teal lighten-4">
-                    <h5 class="font-weight-bold text-center mt-2">PPM Task Information</h5>
+            <div class="card module-data-card asset-ppm-card mt-4 mb-4">
+                <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
+                    <h5 class="font-weight-bold text-white mb-0">PPM Task Information</h5>
                 </div>
-                <div class="card-body mt-0 px-2">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="table-responsive">
-                                <table id="dtSszPpm" class="table table-custom-badge table-hover mb-0 display responsive">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th style="width: 50px">PPM Task No.</th>
-                                        <th>Schedule Date</th>
-                                        <th>Executor</th>
-                                        <th>Time Execute</th>
-                                        <th>Status</th>
-                                        <th style="width: 24px; min-width: 24px">&nbsp;</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
+                <div class="card-body px-4 pb-3">
+                    <div class="table-responsive">
+                        <table id="dtSszPpm" class="table table-custom-badge table-hover mb-0 display responsive">
+                            <thead>
+                            <tr class="th-strong">
+                                <th>#</th>
+                                <th style="width: 50px">PPM Task No.</th>
+                                <th>Schedule Date</th>
+                                <th>Executor</th>
+                                <th>Time Execute</th>
+                                <th>Status</th>
+                                <th style="width: 24px; min-width: 24px">&nbsp;</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card profile-card mt-4" id="divSszQrCode">
-                <div class="card-header py-1 teal lighten-4">
-                    <h5 class="font-weight-bold text-center mt-2"> Asset QR Code</h5>
+    <div class="col-xl-4 mb-4">
+            <div class="card module-data-card mb-4" id="divSszQrCode">
+                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2">
+                    <h5 class="font-weight-bold text-center mb-0">Asset QR Code</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-0 px-4 pb-3">
                     <div class="flex-center flex-column">
-                        <div id="divSszQrCodeImg" style="margin:10px;"></div>
+                        <div id="divSszQrCodeImg" class="my-3"></div>
                     </div>
                 </div>
             </div>
-            <div class="card profile-card mt-4">
-                <div class="card-header py-1 teal lighten-4">
-                    <h5 class="font-weight-bold text-center mt-2">Contract Information</h5>
+            <div class="card module-data-card mb-4">
+                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2">
+                    <h5 class="font-weight-bold mb-0">Contract Information</h5>
                 </div>
-                <div class="card-body mt-2 pb-0 px-3">
+                <div class="card-body pt-0 px-4 pb-4">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="md-form md-outline mt-0">
@@ -421,11 +424,11 @@
                     </div>
                 </div>
             </div>
-            <div class="card profile-card mt-4">
-                <div class="card-header py-1 teal lighten-4">
-                    <h5 class="font-weight-bold text-center mt-2">Asset Value Information</h5>
+            <div class="card module-data-card mb-4">
+                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2">
+                    <h5 class="font-weight-bold mb-0">Asset Value Information</h5>
                 </div>
-                <div class="card-body mt-2 p-2">
+                <div class="card-body pt-0 px-4 pb-2">
                     <div class="title-box mb-3">
                         <div class="title-box-title">&nbsp;Asset Lifespan<span class="text-danger ml-3" id="spanSszLifespanAlert"><i class="far fa-exclamation-triangle"></i> Lifespan Alert!</span>&nbsp;</div>
                         <div class="title-box-content">
@@ -626,8 +629,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-footer p-1">
-                    <button type="button" id="btnSszUpdateCosting" class="btn btn-outline-deep-orange waves-effect btn-sm float-right">
+                <div class="card-footer bg-transparent border-0 px-4 pb-4 pt-0">
+                    <button type="button" id="btnSszUpdateCosting" class="btn btn-primary btn-sm float-right">
                         <i class="fas fa-edit mr-1"></i> Update Asset Value
                     </button>
                 </div>

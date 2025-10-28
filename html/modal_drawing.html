@@ -1,16 +1,16 @@
-<div class="modal fade" id="modal_drawing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-notify modal-info modal-lg mt-3 pt-5 mb-5" role="document">
+<div class="modal fade gems-modal" id="modal_drawing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg mt-3 pt-5 mb-5" role="document">
         <!--Content-->
-        <div class="modal-content">
+        <div class="modal-content gems-modal-card">
             <!--Header-->
-            <div class="modal-header d-flex justify-content-center">
+            <div class="modal-header gems-modal-header">
                 <h4 class="text-white mt-2 ml-2" id="lblMdwModalTitle"><i class="fas fa-upload text-white"></i> Upload Drawing File</h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <!--Body-->
-            <div class="modal-body mb-0">
+            <div class="modal-body mb-0 gems-modal-body">
                 <form id="formMdw" class="mt-2" autocomplete="off">
 					<div class="row">
 						<div class="col-md-12">
@@ -137,7 +137,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer p-2">
+            <div class="modal-footer p-2 gems-modal-footer">
                 <button class="btn btn-outline-info waves-effect btnMdwClose" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
                 <button id="btnMdwSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
                 <button id="btnMdwSave" class="btn btn-info waves-effect"><i class="far fa-save ml-1"></i> Save</button>

@@ -1,18 +1,18 @@
-<div class="modal fade" id="modal_upload_picture" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+<div class="modal fade gems-modal" id="modal_upload_picture" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
-    <div class="modal-dialog modal-notify modal-info mt-3 pt-5 mb-5" role="document">
+    <div class="modal-dialog modal-dialog-centered mt-3 pt-5 mb-5" role="document">
         <!--Content-->
-        <div class="modal-content">
+        <div class="modal-content gems-modal-card">
             <!--Header-->
-            <div class="modal-header d-flex justify-content-center">
+            <div class="modal-header gems-modal-header">
                 <h4 class="text-white mt-2 ml-2"><i class="fas fa-camera text-white"></i> Upload Image</h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal"
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal"
                         aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <!--Body-->
-            <div class="modal-body mb-0">
+            <div class="modal-body mb-0 gems-modal-body">
                 <form id="formMup" class="mt-2" autocomplete="off">
                     <div class="md-form md-outline mt-3">
                         <input type="text" id="txtMupTitle" class="form-control">
@@ -37,7 +37,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer p-2">
+            <div class="modal-footer p-2 gems-modal-footer">
                 <button class="btn btn-outline-info waves-effect btnMupClose" data-dismiss="modal" data-toggle="tooltip" title="Close"><i class="fas fa-undo-alt ml-1"></i> Close</button>
                 <button id="btnMupSubmit" class="btn btn-info waves-effect" data-toggle="tooltip" title="Submit Image Upload"><i class="far fa-paper-plane ml-1"></i> Submit</button>
             </div>

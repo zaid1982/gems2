@@ -1,13 +1,13 @@
-<div class="modal fade" id="modal_ppm_set_select_asset" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-        <div class="modal-content">
-            <div class="modal-header blue-grey darken-3 text-white">
+<div class="modal fade gems-modal" id="modal_ppm_set_select_asset" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content gems-modal-card">
+            <div class="modal-header gems-modal-header">
                 <h4 class="modal-title w-100" id="h4MpssaTitle"><i class="fas fa-cubes mr-2"></i>Select Assets for PPM Set</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close gems-modal-close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true" class="text-white">&times;</span>
                 </button>
             </div>
-            <div class="modal-body mx-3">
+            <div class="modal-body mx-3 gems-modal-body">
                 <input type="hidden" id="lblMpssaPpmSetId">
                 <input type="hidden" id="lblMpssaContractId">
                 <input type="hidden" id="lblMpssaAssetTypeId">
@@ -39,7 +39,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer d-flex justify-content-center">
+            <div class="modal-footer gems-modal-footer">
                 <button class="btn btn-blue-grey" data-dismiss="modal">Close</button>
                 <button class="btn btn-indigo" id="btnMpssaAddSelected">Add Selected Assets</button>
                 <button class="btn btn-warning" id="btnMpssaAddAllAssetSelected">Add All Assets</button>

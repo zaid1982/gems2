@@ -75,7 +75,7 @@ function MainWasteType () {
 
     const updateSummary = function () {
         if (!dtWtt) { return; }
-        const info = dtWtt.page().info();
+    const info = dtWtt.page.info();
         if (!info) { return; }
         const showing = info.recordsDisplay;
         const total = info.recordsTotal;

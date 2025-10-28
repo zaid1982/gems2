@@ -1,16 +1,16 @@
-<div class="modal fade" id="modal_asset_brand" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-notify modal-info mt-3 pt-3 mb-5" role="document">
+<div class="modal fade gems-modal" id="modal_asset_brand" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
         <!--Content-->
-        <div class="modal-content">
+        <div class="modal-content gems-modal-card">
             <!--Header-->
-            <div class="modal-header d-flex justify-content-center">
+            <div class="modal-header gems-modal-header">
                 <h4 class="text-white mt-2 ml-2" id="lblMzbTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <!--Body-->
-            <div class="modal-body">
+            <div class="modal-body gems-modal-body">
                 <form id="formMzb">
                     <div class="md-form md-outline mt-4">
                         <input type="text" id="txtMzbName" class="form-control">
@@ -29,7 +29,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer p-2">
+            <div class="modal-footer p-2 gems-modal-footer">
                 <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
                 <button id="btnMzbSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
             </div>

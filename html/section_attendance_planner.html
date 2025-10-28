@@ -1,95 +1,98 @@
-<section class="section mb-5 sectionAttendancePlanner">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card z-depth-3 mb-4_5">
-                <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left light-blue" style="width: 24px; height: 48px">&nbsp;</div>
-                    <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Monthly Attendance Sheet</h4>
-                </div>
-                <div class="card-body pt-2">
-                    <div class="row">
-                        <div class="col-md-12 mt-3">
-                            <a class="btn btn-outline-danger btn-sm px-2" id="btnStxRunPlanner">Reschedule Planner <i class="far fa-calendar-plus ml-2"></i></a>
-                        </div>
-                        <div class="col-md-12 px-1">
-                            <div class="table-responsive">
-                                <table id="dtStxData" class="table table-bordered table-sm table-grid-small-text mb-0 display responsive" style="width: 100%; border-collapse: collapse; border-spacing: 0;">
-                                    <thead>
-                                    <tr class="th-strong text-center">
-                                        <th rowspan="2" style="width: 32px">No</th>
-                                        <th rowspan="2" style="min-width: 142px">Name</th>
-                                        <th class="table-grid-width">1</th>
-                                        <th class="table-grid-width">2</th>
-                                        <th class="table-grid-width">3</th>
-                                        <th class="table-grid-width">4</th>
-                                        <th class="table-grid-width">5</th>
-                                        <th class="table-grid-width">6</th>
-                                        <th class="table-grid-width">7</th>
-                                        <th class="table-grid-width">8</th>
-                                        <th class="table-grid-width">9</th>
-                                        <th class="table-grid-width">10</th>
-                                        <th class="table-grid-width">11</th>
-                                        <th class="table-grid-width">12</th>
-                                        <th class="table-grid-width">13</th>
-                                        <th class="table-grid-width">14</th>
-                                        <th class="table-grid-width">15</th>
-                                        <th class="table-grid-width">16</th>
-                                        <th class="table-grid-width">17</th>
-                                        <th class="table-grid-width">18</th>
-                                        <th class="table-grid-width">19</th>
-                                        <th class="table-grid-width">20</th>
-                                        <th class="table-grid-width">21</th>
-                                        <th class="table-grid-width">22</th>
-                                        <th class="table-grid-width">23</th>
-                                        <th class="table-grid-width">24</th>
-                                        <th class="table-grid-width">25</th>
-                                        <th class="table-grid-width">26</th>
-                                        <th class="table-grid-width">27</th>
-                                        <th class="table-grid-width">28</th>
-                                        <th class="table-grid-width">29</th>
-                                        <th class="table-grid-width">30</th>
-                                        <th class="table-grid-width">31</th>
-                                    </tr>
-                                    <tr class="th-strong">
-                                        <th id="thStxDay1">Su</th>
-                                        <th id="thStxDay2">Mo</th>
-                                        <th id="thStxDay3">Tu</th>
-                                        <th id="thStxDay4">We</th>
-                                        <th id="thStxDay5">Th</th>
-                                        <th id="thStxDay6">Fr</th>
-                                        <th id="thStxDay7">Sa</th>
-                                        <th id="thStxDay8">Su</th>
-                                        <th id="thStxDay9">Mo</th>
-                                        <th id="thStxDay10">Tu</th>
-                                        <th id="thStxDay11">We</th>
-                                        <th id="thStxDay12">Th</th>
-                                        <th id="thStxDay13">Fr</th>
-                                        <th id="thStxDay14">Sa</th>
-                                        <th id="thStxDay15">Su</th>
-                                        <th id="thStxDay16">Mo</th>
-                                        <th id="thStxDay17">Tu</th>
-                                        <th id="thStxDay18">We</th>
-                                        <th id="thStxDay19">Th</th>
-                                        <th id="thStxDay20">Fr</th>
-                                        <th id="thStxDay21">Sa</th>
-                                        <th id="thStxDay22">Su</th>
-                                        <th id="thStxDay23">Mo</th>
-                                        <th id="thStxDay24">Tu</th>
-                                        <th id="thStxDay25">We</th>
-                                        <th id="thStxDay26">Th</th>
-                                        <th id="thStxDay27">Fr</th>
-                                        <th id="thStxDay28">Sa</th>
-                                        <th id="thStxDay29">Su</th>
-                                        <th id="thStxDay30">Mo</th>
-                                        <th id="thStxDay31">Tu</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<section class="section sectionAttendancePlanner attendance-planner-shell mb-5">
+    <style>
+        .attendance-planner-shell .planner-header h2 { margin-bottom: 0.35rem; }
+        .attendance-planner-shell .planner-header p { margin-bottom: 0; }
+        .attendance-planner-shell .table-grid-small-text { font-size: 12px; }
+    </style>
+    <div class="gems-page-header planner-header">
+        <div class="header-text">
+            <h2>Monthly Attendance Planner</h2>
+            <p>Review and reschedule the workforce roster across the current month.</p>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="btn btn-outline-light" id="btnStxRunPlanner">Reschedule Planner <i class="far fa-calendar-plus ml-2"></i></button>
+        </div>
+    </div>
+
+    <div class="card module-data-card attendance-planner-card mt-4">
+        <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
+            <h5 class="font-weight-bold text-white mb-0">Attendance Sheet by Day</h5>
+        </div>
+        <div class="card-body px-4 pb-3">
+            <div class="table-responsive">
+                <table id="dtStxData" class="table table-bordered table-sm table-grid-small-text mb-0 display responsive" style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+                    <thead>
+                    <tr class="text-center">
+                        <th rowspan="2" style="width: 32px">No</th>
+                        <th rowspan="2" style="min-width: 142px">Name</th>
+                        <th class="table-grid-width">1</th>
+                        <th class="table-grid-width">2</th>
+                        <th class="table-grid-width">3</th>
+                        <th class="table-grid-width">4</th>
+                        <th class="table-grid-width">5</th>
+                        <th class="table-grid-width">6</th>
+                        <th class="table-grid-width">7</th>
+                        <th class="table-grid-width">8</th>
+                        <th class="table-grid-width">9</th>
+                        <th class="table-grid-width">10</th>
+                        <th class="table-grid-width">11</th>
+                        <th class="table-grid-width">12</th>
+                        <th class="table-grid-width">13</th>
+                        <th class="table-grid-width">14</th>
+                        <th class="table-grid-width">15</th>
+                        <th class="table-grid-width">16</th>
+                        <th class="table-grid-width">17</th>
+                        <th class="table-grid-width">18</th>
+                        <th class="table-grid-width">19</th>
+                        <th class="table-grid-width">20</th>
+                        <th class="table-grid-width">21</th>
+                        <th class="table-grid-width">22</th>
+                        <th class="table-grid-width">23</th>
+                        <th class="table-grid-width">24</th>
+                        <th class="table-grid-width">25</th>
+                        <th class="table-grid-width">26</th>
+                        <th class="table-grid-width">27</th>
+                        <th class="table-grid-width">28</th>
+                        <th class="table-grid-width">29</th>
+                        <th class="table-grid-width">30</th>
+                        <th class="table-grid-width">31</th>
+                    </tr>
+                    <tr>
+                        <th id="thStxDay1">Su</th>
+                        <th id="thStxDay2">Mo</th>
+                        <th id="thStxDay3">Tu</th>
+                        <th id="thStxDay4">We</th>
+                        <th id="thStxDay5">Th</th>
+                        <th id="thStxDay6">Fr</th>
+                        <th id="thStxDay7">Sa</th>
+                        <th id="thStxDay8">Su</th>
+                        <th id="thStxDay9">Mo</th>
+                        <th id="thStxDay10">Tu</th>
+                        <th id="thStxDay11">We</th>
+                        <th id="thStxDay12">Th</th>
+                        <th id="thStxDay13">Fr</th>
+                        <th id="thStxDay14">Sa</th>
+                        <th id="thStxDay15">Su</th>
+                        <th id="thStxDay16">Mo</th>
+                        <th id="thStxDay17">Tu</th>
+                        <th id="thStxDay18">We</th>
+                        <th id="thStxDay19">Th</th>
+                        <th id="thStxDay20">Fr</th>
+                        <th id="thStxDay21">Sa</th>
+                        <th id="thStxDay22">Su</th>
+                        <th id="thStxDay23">Mo</th>
+                        <th id="thStxDay24">Tu</th>
+                        <th id="thStxDay25">We</th>
+                        <th id="thStxDay26">Th</th>
+                        <th id="thStxDay27">Fr</th>
+                        <th id="thStxDay28">Sa</th>
+                        <th id="thStxDay29">Su</th>
+                        <th id="thStxDay30">Mo</th>
+                        <th id="thStxDay31">Tu</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
     </div>

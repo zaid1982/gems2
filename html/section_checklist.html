@@ -1,236 +1,218 @@
-<section class="section mb-5 sectionChecklist">
-    <div class="row mb-0 pb-0">
-        <div class="col-md-12">
-            <button type="button" class="btn morpheus-den-gradient btn-rounded float-right text-white" id="btnSckBack">
-                <i class="fas fa-arrow-left"></i> Back to Main Page
-            </button>
+<section class="section sectionChecklist checklist-shell mb-5">
+    <div class="gems-page-header checklist-header">
+        <div class="header-text">
+            <h2>PPM Checklist</h2>
+            <p>Capture the standard work instructions, precautions, and evaluation items for preventive maintenance.</p>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="btn btn-outline-light" id="btnSckBack"><i class="fas fa-arrow-left mr-2"></i>Back to Main Page</button>
+            <div class="btn-group ml-2" id="divSckFooter">
+                <button type="button" id="btnSckPdf" class="btn btn-light text-primary"><i class="far fa-file-pdf mr-1"></i>Preview</button>
+                <button type="button" id="btnSckSave" class="btn btn-light text-primary"><i class="fas fa-save mr-1"></i>Save Draft</button>
+                <button type="button" id="btnSckUpdate" class="btn btn-light text-primary" disabled><i class="fas fa-edit mr-1"></i>Update</button>
+                <button type="button" id="btnSckSubmit" class="btn btn-primary" disabled><i class="fas fa-paper-plane mr-1"></i>Register</button>
+            </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card card-cascade cascading-admin-card user-card mt-4">
-                <div class="admin-up d-flex justify-content-start">
-                    <i class="fas fa-clipboard-list rgba-cyan-strong py-4 z-depth-4"></i>
-                    <div class="data">
-                        <h3 class="font-weight-bold dark-grey-text ml-3">PPM Checklist</h3>
+
+    <div class="card module-data-card checklist-form-card mt-4">
+        <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2 d-flex align-items-center">
+            <span class="badge badge-soft-primary mr-3"><i class="fas fa-clipboard-list"></i></span>
+            <div>
+                <h5 class="font-weight-bold mb-1">Checklist Details</h5>
+                <p class="text-muted mb-0">Complete the core identification fields and associate them with the proper asset grouping.</p>
+            </div>
+        </div>
+        <div class="card-body px-4 pb-4">
+            <form id="formSck">
+                <h6 class="text-uppercase text-muted small font-weight-bold mb-3">Main Information</h6>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistName" class="form-control">
+                            <label for="txtSckChecklistName" id="lblSckChecklistName">Checklist Name *</label>
+                            <p class="font-small text-danger" id="txtSckChecklistNameErr"></p>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body card-body-cascade px-4">
-                    <form id="formSck">
-                        <h5 class="mt-3 font-weight-500">Main Information :</h5>
-                        <div class="row px-3">
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-3">
-                                    <input type="text" id="txtSckChecklistName" class="form-control">
-                                    <label for="txtSckChecklistName" id="lblSckChecklistName">Checklist Name *</label>
-                                    <p class="font-small text-danger" id="txtSckChecklistNameErr"></p>
-                                </div>
-                            </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistDocumentNo" class="form-control">
+                            <label for="txtSckChecklistDocumentNo" id="lblSckChecklistDocumentNo">Document No *</label>
+                            <p class="font-small text-danger" id="txtSckChecklistDocumentNoErr"></p>
                         </div>
-                        <div class="row px-3">
-                            <div class="col-md-8">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckChecklistDocumentNo" class="form-control">
-                                    <label for="txtSckChecklistDocumentNo" id="lblSckChecklistDocumentNo">Document No *</label>
-                                    <p class="font-small text-danger" id="txtSckChecklistDocumentNoErr"></p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckChecklistIssueNo" class="form-control">
-                                    <label for="txtSckChecklistIssueNo" id="lblSckChecklistIssueNo">Issue No *</label>
-                                    <p class="font-small text-danger" id="txtSckChecklistIssueNoErr"></p>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistIssueNo" class="form-control">
+                            <label for="txtSckChecklistIssueNo" id="lblSckChecklistIssueNo">Issue No *</label>
+                            <p class="font-small text-danger" id="txtSckChecklistIssueNoErr"></p>
                         </div>
-                        <div class="row px-3">
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <textarea id="txaSckChecklistDesc" class="md-textarea form-control" rows="3"></textarea>
-                                    <label for="txaSckChecklistDesc" id="lblSckChecklistDesc" class="text-muted">Description</label>
-                                    <p class="font-small text-danger" id="txaSckChecklistDescErr"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row px-3">
-                            <div class="col-md-6">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckChecklistMinExecTimeHour" class="form-control">
-                                    <label for="txtSckChecklistMinExecTimeHour" id="lblSckChecklistMinExecTimeHour">Minimum Execution Time (Hour) *</label>
-                                    <p class="font-small text-danger" id="txtSckChecklistMinExecTimeHourErr"></p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckChecklistMinExecTimeMinute" class="form-control">
-                                    <label for="txtSckChecklistMinExecTimeMinute" id="lblSckChecklistMinExecTimeMinute">Minimum Execution Time (Minute) *</label>
-                                    <p class="font-small text-danger" id="txtSckChecklistMinExecTimeMinuteErr"></p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckChecklistMaxExecTimeHour" class="form-control">
-                                    <label for="txtSckChecklistMaxExecTimeHour" id="lblSckChecklistMaxExecTimeHour">Maximum Execution Time (Hour) *</label>
-                                    <p class="font-small text-danger" id="txtSckChecklistMaxExecTimeHourErr"></p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckChecklistMaxExecTimeMinute" class="form-control">
-                                    <label for="txtSckChecklistMaxExecTimeMinute" id="lblSckChecklistMaxExecTimeMinute">Maximum Execution Time (Minute) *</label>
-                                    <p class="font-small text-danger" id="txtSckChecklistMaxExecTimeMinuteErr"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row px-3">
-                            <div class="col-md-8" id="divSckChecklistRegisteredBy">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckChecklistRegisteredBy" class="form-control" disabled>
-                                    <label for="txtSckChecklistRegisteredBy" id="lblSckChecklistRegisteredBy">Registered By</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4" id="divSckChecklistTimeRegistered">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckChecklistTimeRegistered" class="form-control" disabled>
-                                    <label for="txtSckChecklistTimeRegistered" id="lblSckChecklistTimeRegistered">Time Registered</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row px-3">
-                            <div class="col-md-8">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckChecklistMaxAssistant" class="form-control">
-                                    <label for="txtSckChecklistMaxAssistant" id="lblSckChecklistMaxAssistant">Maximum Total Assistant *</label>
-                                    <p class="font-small text-danger" id="txtSckChecklistMaxAssistantErr"></p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckChecklistStatus" class="form-control" disabled>
-                                    <label for="txtSckChecklistStatus" id="lblSckChecklistStatus">Status</label>
-                                </div>
-                            </div>
-                        </div>
-                        <h5 class="mt-3 font-weight-500">A. Asset Details :</h5>
-                        <div class="row px-3">
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-3">
-                                    <input type="text" id="txtSckAssetGroupName" class="form-control" disabled>
-                                    <label for="txtSckAssetGroupName" id="lblSckAssetGroupName">Asset Group</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row px-3">
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckAssetCategoryName" class="form-control" disabled>
-                                    <label for="txtSckAssetCategoryName" id="lblSckAssetCategoryName">Asset Category</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row px-3">
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSckAssetTypeName" class="form-control" disabled>
-                                    <label for="txtSckAssetTypeName" id="lblSckAssetTypeName">Asset Type</label>
-                                </div>
-                            </div>
-                        </div>
-                        <h5 class="mt-3 font-weight-500">B. Safety Precaution / General Guidelines prior to maintenance activity :</h5>
-                        <div class="row px-3 mt-4 pb-3">
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <textarea id="txaSckChecklistGuideline" class="md-textarea form-control" rows="6"></textarea>
-                                    <label for="txaSckChecklistGuideline" id="lblSckChecklistGuideline" class="text-muted">Safety Precaution / General Guidelines</label>
-                                    <p class="font-small text-danger" id="txaSckChecklistGuidelineErr"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <h5 class="mt-3 font-weight-500">C. Qualitative Task :</h5>
-                        <div class="card card-cascade narrower z-depth-0 mt-5">
-                            <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                                <div>
-                                    <button type="button" id="btnSckChecklistQualAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Qualitative Item"><i class="fas fa-plus mt-0"></i></button>
-                                    <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                       data-toggle="popover" data-trigger="focus" title="Qualitative Task List"
-                                       data-content="Checklist Item list for Qualitative Task."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                    <button type="button" id="btnDtSckChecklistQualRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                                </div>
-                                <a href="javascript:void(0);" class="text-white mx-3">Qualitative Task List</a>
-                                <div>
-                                    <div id="btnDtSckChecklistQualExport"></div>
-                                </div>
-                            </div>
-                            <div class="px-3 pb-3">
-                                <div class="table-responsive">
-                                    <table id="dtSckChecklistQual" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
-                                        <thead>
-                                        <tr class="th-strong">
-                                            <th style="width: 10%">Numbering</th>
-                                            <th>Description</th>
-                                            <th style="width: 20%">Frequency</th>
-                                            <th style="width: 12%">Status</th>
-                                            <th style="width: 64px; min-width: 64px"></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <h5 class="mt-3 font-weight-500">D. Quantitative Task :</h5>
-                        <div class="card card-cascade narrower z-depth-0 mt-5">
-                            <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-3 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                                <div>
-                                    <button type="button" id="btnSckChecklistQuanAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Quantitative Item"><i class="fas fa-plus mt-0"></i></button>
-                                    <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                       data-toggle="popover" data-trigger="focus" title="Quantitative Task List"
-                                       data-content="Checklist Item list for Quantitative Task."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                    <button type="button" id="btnDtSckChecklistQuanRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                                </div>
-                                <a href="javascript:void(0);" class="text-white mx-3">Quantitative Task List</a>
-                                <div>
-                                    <div id="btnDtSckChecklistQuanExport"></div>
-                                </div>
-                            </div>
-                            <div class="px-3 pb-3">
-                                <div class="table-responsive">
-                                    <table id="dtSckChecklistQuan" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
-                                        <thead>
-                                        <tr class="th-strong">
-                                            <th style="width: 10%">Numbering</th>
-                                            <th>Description</th>
-                                            <th style="width: 12%">Unit</th>
-                                            <th style="width: 12%">Set Values</th>
-                                            <th style="width: 12%">Frequency</th>
-											<th style="width: 8%">Status</th>
-                                            <th style="width: 64px; min-width: 64px"></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-                <div class="card-footer" id="divSckFooter">
-                    <button type="button" id="btnSckSubmit" class="btn btn-outline-dark-green btn-rounded waves-effect btn-sm float-right" disabled>
-                        <i class="fas fa-paper-plane mr-1"></i> Register Checklist
-                    </button>
-                    <button type="button" id="btnSckUpdate" class="btn btn-outline-deep-orange btn-rounded waves-effect btn-sm float-right" disabled>
-                        <i class="fas fa-edit mr-1"></i> Update Checklist
-                    </button>
-                    <button type="button" id="btnSckSave" class="btn btn-outline-deep-orange btn-rounded waves-effect btn-sm float-right">
-                        <i class="fas fa-save mr-1"></i> Save Draft
-                    </button>
-                    <button type="button" id="btnSckPdf" class="btn btn-outline-danger btn-rounded waves-effect btn-sm float-right">
-                        <i class="far fa-file-pdf mr-1"></i> Preview
-                    </button>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="md-form md-outline mt-0">
+                            <textarea id="txaSckChecklistDesc" class="md-textarea form-control" rows="3"></textarea>
+                            <label for="txaSckChecklistDesc" id="lblSckChecklistDesc" class="text-muted">Description</label>
+                            <p class="font-small text-danger" id="txaSckChecklistDescErr"></p>
+                        </div>
+                    </div>
                 </div>
-            </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistMinExecTimeHour" class="form-control">
+                            <label for="txtSckChecklistMinExecTimeHour" id="lblSckChecklistMinExecTimeHour">Minimum Execution Time (Hour) *</label>
+                            <p class="font-small text-danger" id="txtSckChecklistMinExecTimeHourErr"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistMinExecTimeMinute" class="form-control">
+                            <label for="txtSckChecklistMinExecTimeMinute" id="lblSckChecklistMinExecTimeMinute">Minimum Execution Time (Minute) *</label>
+                            <p class="font-small text-danger" id="txtSckChecklistMinExecTimeMinuteErr"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistMaxExecTimeHour" class="form-control">
+                            <label for="txtSckChecklistMaxExecTimeHour" id="lblSckChecklistMaxExecTimeHour">Maximum Execution Time (Hour) *</label>
+                            <p class="font-small text-danger" id="txtSckChecklistMaxExecTimeHourErr"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistMaxExecTimeMinute" class="form-control">
+                            <label for="txtSckChecklistMaxExecTimeMinute" id="lblSckChecklistMaxExecTimeMinute">Maximum Execution Time (Minute) *</label>
+                            <p class="font-small text-danger" id="txtSckChecklistMaxExecTimeMinuteErr"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8" id="divSckChecklistRegisteredBy">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistRegisteredBy" class="form-control" disabled>
+                            <label for="txtSckChecklistRegisteredBy" id="lblSckChecklistRegisteredBy">Registered By</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4" id="divSckChecklistTimeRegistered">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistTimeRegistered" class="form-control" disabled>
+                            <label for="txtSckChecklistTimeRegistered" id="lblSckChecklistTimeRegistered">Time Registered</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistMaxAssistant" class="form-control">
+                            <label for="txtSckChecklistMaxAssistant" id="lblSckChecklistMaxAssistant">Maximum Total Assistant *</label>
+                            <p class="font-small text-danger" id="txtSckChecklistMaxAssistantErr"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckChecklistStatus" class="form-control" disabled>
+                            <label for="txtSckChecklistStatus" id="lblSckChecklistStatus">Status</label>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="text-uppercase text-muted small font-weight-bold mb-3 mt-4">A. Asset Details</h6>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckAssetGroupName" class="form-control" disabled>
+                            <label for="txtSckAssetGroupName" id="lblSckAssetGroupName">Asset Group</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckAssetCategoryName" class="form-control" disabled>
+                            <label for="txtSckAssetCategoryName" id="lblSckAssetCategoryName">Asset Category</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="md-form md-outline mt-0">
+                            <input type="text" id="txtSckAssetTypeName" class="form-control" disabled>
+                            <label for="txtSckAssetTypeName" id="lblSckAssetTypeName">Asset Type</label>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="text-uppercase text-muted small font-weight-bold mb-3 mt-4">B. Safety Precaution / General Guidelines</h6>
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        <div class="md-form md-outline mt-0">
+                            <textarea id="txaSckChecklistGuideline" class="md-textarea form-control" rows="6"></textarea>
+                            <label for="txaSckChecklistGuideline" id="lblSckChecklistGuideline" class="text-muted">Safety Precaution / General Guidelines</label>
+                            <p class="font-small text-danger" id="txaSckChecklistGuidelineErr"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="text-uppercase text-muted small font-weight-bold mb-3 mt-4">C. Qualitative Task</h6>
+                <div class="card module-data-card mt-3">
+                    <div class="card-header gradient-card-header aqua-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
+                        <div>
+                            <button type="button" id="btnSckChecklistQualAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Qualitative Item"><i class="fas fa-plus mt-0"></i></button>
+                            <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Qualitative Task List" data-content="Checklist Item list for Qualitative Task."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            <button type="button" id="btnDtSckChecklistQualRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                        </div>
+                        <span class="text-white font-weight-bold">Qualitative Task List</span>
+                        <div id="btnDtSckChecklistQualExport"></div>
+                    </div>
+                    <div class="card-body px-4 pb-3">
+                        <div class="table-responsive">
+                            <table id="dtSckChecklistQual" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 10%">Numbering</th>
+                                    <th>Description</th>
+                                    <th style="width: 20%">Frequency</th>
+                                    <th style="width: 12%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="text-uppercase text-muted small font-weight-bold mb-3 mt-4">D. Quantitative Task</h6>
+                <div class="card module-data-card mt-3">
+                    <div class="card-header gradient-card-header aqua-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
+                        <div>
+                            <button type="button" id="btnSckChecklistQuanAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Quantitative Item"><i class="fas fa-plus mt-0"></i></button>
+                            <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Quantitative Task List" data-content="Checklist Item list for Quantitative Task."><i class="fas fa-info mt-0 mx-1"></i></a>
+                            <button type="button" id="btnDtSckChecklistQuanRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+                        </div>
+                        <span class="text-white font-weight-bold">Quantitative Task List</span>
+                        <div id="btnDtSckChecklistQuanExport"></div>
+                    </div>
+                    <div class="card-body px-4 pb-3">
+                        <div class="table-responsive">
+                            <table id="dtSckChecklistQuan" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                                <thead>
+                                <tr class="th-strong">
+                                    <th style="width: 10%">Numbering</th>
+                                    <th>Description</th>
+                                    <th style="width: 12%">Unit</th>
+                                    <th style="width: 12%">Set Values</th>
+                                    <th style="width: 12%">Frequency</th>
+                                    <th style="width: 8%">Status</th>
+                                    <th style="width: 64px; min-width: 64px"></th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </section>

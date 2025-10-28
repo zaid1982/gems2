@@ -11,6 +11,19 @@ function MainUtility () {
     this.init = function () {
         let exportOptUtmMonthly = Object.assign({}, mzExportOpt);
         exportOptUtmMonthly['columns'] = [0, 1, 2, 3, 4, 5, 7];
+
+        $('#btnUtmRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
+                try {
+                    self.generateElectricityMonthly();
+                    self.generateWaterMonthly();
+                } catch (e) {
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                }
+                HideLoader();
+            }, 100);
+        });
         oTableUtmMonthly = $('#dtUtmMonthlyData').DataTable({
             bLengthChange: false,
             bFilter: false,
@@ -171,6 +184,7 @@ function MainUtility () {
         self.generateChartKhw('chartUtmKwh', dataMonthlyElectrics);
         self.generateChartMd('chartUtmMd', dataMonthlyElectrics);
         self.generateChartRm('chartUtmRm', dataMonthlyElectrics);
+        self.updateElectricityMetrics(dataMonthlyElectrics);
     };
 
     this.generateWaterMonthly = function () {
@@ -178,6 +192,7 @@ function MainUtility () {
         oTableUtmMonthlyWater.clear().rows.add(dataMonthlyWater).draw();
         self.generateChartWaterM3('chartUtmWaterM3', dataMonthlyWater);
         self.generateChartWaterRm('chartUtmWaterRm', dataMonthlyWater);
+        self.updateWaterMetrics(dataMonthlyWater);
     };
 
     this.generateChartKhw = function (chartId, dataSet) {
@@ -763,5 +778,114 @@ function MainUtility () {
 
     this.setSectionMonthlyWaterClass = function (_sectionMonthlyWaterClass) {
         sectionMonthlyWaterClass = _sectionMonthlyWaterClass;
+    };
+
+    this.updateElectricityMetrics = function (dataSet) {
+        if (!Array.isArray(dataSet) || dataSet.length === 0) {
+            $('#metricUtmElectricUsage').text('0');
+            $('#metricUtmElectricCharges').text('RM 0');
+            $('#metricUtmElectricPeriod').text('Latest: —');
+            $('#metricUtmElectricDemand').text('Peak MD: —');
+            return;
+        }
+
+        let totalKwh = 0;
+        let totalCharges = 0;
+        let peakDemand = 0;
+        let peakDemandRecord = null;
+        let latestRecord = null;
+        let latestKey = -Infinity;
+
+        dataSet.forEach(function (row) {
+            const kwh = parseFloat(row['utilityTotalKwh'] || 0);
+            const charges = parseFloat(row['electricityBillRm'] || 0);
+            const demand = parseFloat(row['utilityActualMaxDemand'] || 0);
+            const year = parseInt(row['utilityYear'] || 0, 10);
+            const month = parseInt(row['utilityMonth'] || 0, 10);
+            const compositeKey = (year * 100) + month;
+
+            totalKwh += isNaN(kwh) ? 0 : kwh;
+            totalCharges += isNaN(charges) ? 0 : charges;
+
+            if (!isNaN(demand) && demand >= peakDemand) {
+                peakDemand = demand;
+                peakDemandRecord = row;
+            }
+
+            if (compositeKey >= latestKey) {
+                latestKey = compositeKey;
+                latestRecord = row;
+            }
+        });
+
+        $('#metricUtmElectricUsage').text(mzFormatNumber(totalKwh));
+        $('#metricUtmElectricCharges').text('RM ' + mzFormatNumber(totalCharges, 2));
+
+        if (latestRecord) {
+            $('#metricUtmElectricPeriod').text('Latest: ' + latestRecord['utilityMonthName'] + ' ' + latestRecord['utilityYear']);
+        } else {
+            $('#metricUtmElectricPeriod').text('Latest: —');
+        }
+
+        if (peakDemandRecord) {
+            const peakMonth = peakDemandRecord['utilityMonthName'] + ' ' + peakDemandRecord['utilityYear'];
+            $('#metricUtmElectricDemand').text('Peak MD: ' + mzFormatNumber(peakDemand) + ' kW (' + peakMonth + ')');
+        } else {
+            $('#metricUtmElectricDemand').text('Peak MD: —');
+        }
+    };
+
+    this.updateWaterMetrics = function (dataSet) {
+        if (!Array.isArray(dataSet) || dataSet.length === 0) {
+            $('#metricUtmWaterUsage').text('0');
+            $('#metricUtmWaterCharges').text('RM 0');
+            $('#metricUtmWaterPeriod').text('Latest: —');
+            $('#metricUtmWaterPeak').text('Peak Bill: —');
+            return;
+        }
+
+        let totalUsage = 0;
+        let totalCharges = 0;
+        let latestRecord = null;
+        let latestKey = -Infinity;
+        let peakBill = 0;
+        let peakBillRecord = null;
+
+        dataSet.forEach(function (row) {
+            const usage = parseFloat(row['utilityTotalUsage'] || 0);
+            const charges = parseFloat(row['utilityTotalUsageRm'] || 0);
+            const year = parseInt(row['utilityYear'] || 0, 10);
+            const month = parseInt(row['utilityMonth'] || 0, 10);
+            const compositeKey = (year * 100) + month;
+
+            totalUsage += isNaN(usage) ? 0 : usage;
+            totalCharges += isNaN(charges) ? 0 : charges;
+
+            if (!isNaN(charges) && charges >= peakBill) {
+                peakBill = charges;
+                peakBillRecord = row;
+            }
+
+            if (compositeKey >= latestKey) {
+                latestKey = compositeKey;
+                latestRecord = row;
+            }
+        });
+
+        $('#metricUtmWaterUsage').text(mzFormatNumber(totalUsage));
+        $('#metricUtmWaterCharges').text('RM ' + mzFormatNumber(totalCharges, 2));
+
+        if (latestRecord) {
+            $('#metricUtmWaterPeriod').text('Latest: ' + latestRecord['utilityMonthName'] + ' ' + latestRecord['utilityYear']);
+        } else {
+            $('#metricUtmWaterPeriod').text('Latest: —');
+        }
+
+        if (peakBillRecord) {
+            const peakMonth = peakBillRecord['utilityMonthName'] + ' ' + peakBillRecord['utilityYear'];
+            $('#metricUtmWaterPeak').text('Peak Bill: RM ' + mzFormatNumber(peakBill, 2) + ' (' + peakMonth + ')');
+        } else {
+            $('#metricUtmWaterPeak').text('Peak Bill: —');
+        }
     };
 }

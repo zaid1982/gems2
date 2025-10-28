@@ -1,16 +1,16 @@
-<div class="modal fade" id="modal_profile" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog cascading-modal mt-5 pt-5 mb-5" role="document">
+<div class="modal fade gems-modal" id="modal_profile" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered cascading-modal mt-5 pt-5 mb-5" role="document">
         <!--Content-->
-        <div class="modal-content">
+        <div class="modal-content gems-modal-card">
             <!--Header-->
-            <div class="modal-header info-color white-text">
+            <div class="modal-header gems-modal-header">
                 <h4 class="mb-0"><i class="fas fa-user-edit"></i> Edit Profile</h4>
-                <button type="button" class="close waves-effect waves-light mr-0" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close waves-effect waves-light mr-0 gems-modal-close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <!--Body-->
-            <div class="modal-body mb-0">
+            <div class="modal-body mb-0 gems-modal-body">
                 <form id="formMpf">  
                     <div class="md-form">
                         <input type="text" id="txtMpfEmail" class="form-control">
@@ -39,7 +39,7 @@
                     </div>  
                 </form>                
             </div>            
-            <div class="modal-footer p-2">
+            <div class="modal-footer p-2 gems-modal-footer">
                 <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Keluar</button>
                 <button id="btnMpfSubmit" class="btn btn-info waves-effect" disabled><i class="fas fa-paper-plane ml-1"></i> Submit</button>
             </div>

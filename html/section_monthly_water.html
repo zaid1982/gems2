@@ -1,54 +1,93 @@
-<section class="section mb-5 sectionMonthlyWater">
-    <div class="row mb-4 pb-0">
-        <div class="col-md-12">
-            <button type="button" class="btn peach-gradient btn-rounded float-right text-white z-depth-3"
-                    id="btnSmwBack">
-                <i class="fas fa-arrow-left"></i> Back to Main Page
+<section class="section sectionMonthlyWater monthly-water-shell mb-5">
+    <style>
+        .monthly-water-shell .monthly-water-header h2 { margin-bottom: 0.35rem; }
+        .monthly-water-shell .monthly-water-header p { margin-bottom: 0; }
+        .monthly-water-shell .stat-tile {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+        }
+        .monthly-water-shell .stat-tile.primary { background: linear-gradient(135deg, rgba(67, 56, 202, 0.12), rgba(56, 189, 248, 0.15)); }
+        .monthly-water-shell .stat-label {
+            display: block;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .monthly-water-shell .stat-value {
+            display: block;
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: #0f172a;
+            margin-top: 0.35rem;
+        }
+        .monthly-water-shell .stat-subtext {
+            display: block;
+            color: #4338ca;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+        .monthly-water-shell .monthly-water-chart { height: 360px; }
+        .monthly-water-shell .monthly-water-table table { width: 100%; }
+    </style>
+    <div class="gems-page-header monthly-water-header">
+        <div class="header-text">
+            <h2><span id="lblSmwMonthName">-</span> Water Report</h2>
+            <p>Monitoring usage and charges for <span id="lblSmwSiteName">—</span>.</p>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="btn btn-outline-light" id="btnSmwBack">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Main Page
             </button>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card z-depth-3 mb-3">
-                <div class="">
-                    <div class="float-left info-color" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5"><span id="lblSmwMonthName"></span> Water Report</h4>
+    <div class="row mt-4">
+        <div class="col-xl-4 mb-4">
+            <div class="card module-data-card monthly-water-summary mb-4">
+                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2">
+                    <h5 class="font-weight-bold mb-0">Monthly Snapshot</h5>
+                </div>
+                <div class="card-body pt-0 px-4 pb-4">
+                    <div class="stat-tile primary">
+                        <span class="stat-label">Total Monthly Charges</span>
+                        <span class="stat-value">RM <span id="lblSmwTotalMonthlyCharges">0</span></span>
+                        <span class="stat-subtext" id="lblSmwChangePerc">—</span>
+                    </div>
+                    <div class="stat-tile">
+                        <span class="stat-label">Total Consumption</span>
+                        <span class="stat-value"><span id="lblSmwTotalMonthlyConsumption">0</span> m<sup>3</sup></span>
+                    </div>
                 </div>
             </div>
-            <div class="card z-depth-4 mb-3">
-                <div class="p-3 info-color text-white">
-                    <h4>Total Monthly Charges</h4>
-                    <h1 class="mt-3">RM <span id="lblSmwTotalMonthlyCharges"></span> &nbsp;&nbsp;<span id="lblSmwChangePerc" class="h3"></span></h1>
-                    <p class="mt-2 mb-0 font-small">Final calculation for <span id="lblSmwSiteName" class="font-weight-bold"></span> monthly water charges</p>
+            <div class="card module-data-card monthly-water-context">
+                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2">
+                    <h5 class="font-weight-bold mb-0">Notes</h5>
                 </div>
-            </div>
-            <div class="card z-depth-4 mb-4">
-                <div class="p-3 info-color text-white">
-                    <h5>Total Consumption</h5>
-                    <h2 class="mt-2 mb-0"><span id="lblSmwTotalMonthlyConsumption"></span> m<sup>3</sup></h2>
+                <div class="card-body pt-0 px-4 pb-4">
+                    <p class="text-muted mb-2">Charges are computed from the consolidated shift readings and translated using the configured tariff table.</p>
+                    <p class="text-muted mb-0">Monitor spike indicators in the daily table to determine abnormal usage patterns.</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
-            <div class="card z-depth-3 mb-3">
-                <div class="">
-                    <div class="float-left info-color" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5">Daily Reading Chart</h4>
+        <div class="col-xl-8 mb-4">
+            <div class="card module-data-card mb-4">
+                <div class="card-header gradient-card-header aqua-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
+                    <h5 class="font-weight-bold text-white mb-0">Daily Reading Chart</h5>
+                </div>
+                <div class="card-body px-4 pb-1">
+                    <div id="chartSmwM3" class="monthly-water-chart"></div>
                 </div>
             </div>
-            <div class="card z-depth-4 mb-4">
-                <div class="" id="chartSmwM3" style="margin: 0;"></div>
-            </div>
-            <div class="card z-depth-3 mb-3">
-                <div class="">
-                    <div class="float-left info-color" style="width: 24px; height: 45px">&nbsp;</div>
-                    <h4 class="font-weight-bold pt-2 pl-4_5">Daily Reading Record</h4>
+            <div class="card module-data-card monthly-water-table">
+                <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
+                    <h5 class="font-weight-bold text-white mb-0">Daily Reading Record</h5>
                 </div>
-            </div>
-            <div class="card z-depth-4 mb-3">
-                <div class="p-3">
+                <div class="card-body px-4 pb-3">
                     <div class="table-responsive">
-                        <table id="dtSmwData" class="table table-hover table-sm mb-0 display responsive" style="width: 100%">
+                        <table id="dtSmwData" class="table table-hover table-sm mb-0 display responsive">
                             <thead>
                             <tr class="th-strong">
                                 <th>Date</th>
@@ -70,5 +109,4 @@
             </div>
         </div>
     </div>
-
 </section>
