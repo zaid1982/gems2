@@ -75,25 +75,6 @@ function MainPpmSet () {
         $('#metricPsmAssets').text(mzFormatNumber(assets, 0));
     };
 
-    const initMaterialSelect = function (selector) {
-        const $element = $(selector);
-        if (!$element.length || typeof $element.materialSelect !== 'function') {
-            return;
-        }
-        try {
-            $element.materialSelect('destroy');
-        } catch (e) {
-            // ignore destroy errors when not yet initialised
-        }
-        const $parentWrapper = $element.parent('.select-wrapper');
-        if ($parentWrapper.length) {
-            $parentWrapper.before($element);
-            $parentWrapper.remove();
-        }
-        $element.siblings('.select-dropdown').remove();
-        $element.materialSelect();
-    };
-
     const findContractById = function (id) {
         const contractIdInt = parseInt(id, 10);
         for (let i = 0; i < contractList.length; i++) {
@@ -133,13 +114,7 @@ function MainPpmSet () {
         if (!fromSelect) {
             const $statusSelect = $('#optPsmStatus');
             if ($statusSelect.length) {
-                try {
-                    $statusSelect.materialSelect('destroy');
-                    $statusSelect.val(statusFilterValue);
-                    $statusSelect.materialSelect();
-                } catch (e) {
-                    $statusSelect.val(statusFilterValue);
-                }
+                $statusSelect.val(statusFilterValue);
             }
         }
         if (dtPsm) {
@@ -154,11 +129,6 @@ function MainPpmSet () {
             return;
         }
         const disabled = !isAdmin && contractList.length <= 1;
-        try {
-            $select.materialSelect('destroy');
-        } catch (e) {
-            // ignore
-        }
         $select.prop('disabled', disabled);
         let optionsHtml = '';
         contractList.forEach(function (contract) {
@@ -169,7 +139,7 @@ function MainPpmSet () {
             optionsHtml = '<option value="" selected>No contract available</option>';
         }
         $select.html(optionsHtml);
-        initMaterialSelect('#optPsmContract');
+        $select.val(contractId);
     };
 
     const statusFilterFn = function (settings, data, dataIndex) {
@@ -257,8 +227,6 @@ function MainPpmSet () {
         $('#optPsmStatus').off('change').on('change', function () {
             setStatusFilter($(this).val() || '', true);
         });
-
-        initMaterialSelect('#optPsmStatus');
 
         $.each(statusChipMap, function (statusValue, selector) {
             $(selector).off('click').on('click', function () {

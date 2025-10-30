@@ -1404,8 +1404,17 @@ function mzCmp(a, b) {
     return a[1].localeCompare(b[1]);
 }
 
+function mzIsPlainSelect(name) {
+    const $select = $('#'+name);
+    return $select.length && $select.hasClass('gems-plain-select');
+}
+
 function mzOptionStopClear(name, defaultText, type) {
-    $('#'+name).materialSelect('destroy');
+    const $select = $('#'+name);
+    const isPlain = mzIsPlainSelect(name);
+    if (!isPlain && typeof $select.materialSelect === 'function') {
+        try { $select.materialSelect('destroy'); } catch (e) { /* ignore */ }
+    }
     if (name === '' || typeof name === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
@@ -1414,18 +1423,32 @@ function mzOptionStopClear(name, defaultText, type) {
     if (typeof type !== 'undefined' && type === 'required') {
         document.getElementById(name).options[0].disabled = true;
     }
-    $('#'+name).val(null);
-    $('#'+name).materialSelect();
-    $('#'+name).removeClass('invalid');
+    if (isPlain) {
+        $select.val('');
+    } else {
+        $select.val(null);
+        if (typeof $select.materialSelect === 'function') {
+            $select.materialSelect();
+        }
+    }
+    $select.removeClass('invalid');
     $('#'+name+'Err').html('');
     $('#lbl' + name.substr(3)).removeClass('active');
     $('#lbl' + name.substr(3)).addClass('active');
 }
 
 function mzOptionStop(name, data, defaultText, keyIndex, valIndex, filters, type, isSort, sortIndex) {
-    try { $('#'+name).materialSelect('destroy'); } catch (e) { /* ignore */ }
+    const $select = $('#'+name);
+    const isPlain = mzIsPlainSelect(name);
+    if (!isPlain && typeof $select.materialSelect === 'function') {
+        try { $select.materialSelect('destroy'); } catch (e) { /* ignore */ }
+    }
     mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort, sortIndex);
-    $('#'+name).materialSelect();
+    if (!isPlain && typeof $select.materialSelect === 'function') {
+        $select.materialSelect();
+    }
+    $select.removeClass('invalid');
+    $('#'+name+'Err').html('');
 }
 
 function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, isSort, sortIndex) {
@@ -1516,7 +1539,12 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
     //$('#' + name).prop('disabled', true);
     //document.getElementById(name).innerHTML = htmlStr.join('');
     //$('#' + name).html(htmlStr.join(''));
-    $('#' + name).val(null);
+    const $select = $('#' + name);
+    if (mzIsPlainSelect(name)) {
+        $select.val('');
+    } else {
+        $select.val(null);
+    }
     $('#lbl' + name.substr(3)).removeClass('active');
     $('#lbl' + name.substr(3)).addClass('active');
     //document.getElementById(name).setAttribute('data-stop-refresh', 'true');
@@ -1524,10 +1552,16 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
 }
 
 function mzOptionStopV2(name, data, defaultText, valIndex, filters, type, isSort, sortIndex) {
-    try { $('#'+name).materialSelect('destroy'); } catch (e) { /* ignore */ }
+    const $select = $('#'+name);
+    const isPlain = mzIsPlainSelect(name);
+    if (!isPlain && typeof $select.materialSelect === 'function') {
+        try { $select.materialSelect('destroy'); } catch (e) { /* ignore */ }
+    }
     mzOptionV2(name, data, defaultText, valIndex, filters, type, isSort, sortIndex);
-    $('#'+name).materialSelect();
-    $('#'+name).removeClass('invalid');
+    if (!isPlain && typeof $select.materialSelect === 'function') {
+        $select.materialSelect();
+    }
+    $select.removeClass('invalid');
     $('#'+name+'Err').html('');
 }
 
@@ -1614,7 +1648,12 @@ function mzOptionV2(name, data, defaultText, valIndex, filters, type, isSort, so
         }
     });
 
-    $('#' + name).val(null);
+    const $select = $('#' + name);
+    if (mzIsPlainSelect(name)) {
+        $select.val('');
+    } else {
+        $select.val(null);
+    }
     $('#lbl' + name.substr(3)).removeClass('active');
     $('#lbl' + name.substr(3)).addClass('active');
 }
