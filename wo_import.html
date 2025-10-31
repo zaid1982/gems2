@@ -107,10 +107,16 @@
 
         .wo-page-header .header-actions .btn {
             border-radius: 999px;
-            padding: 0.75rem 1.8rem;
-            font-weight: 600;
             border: 1px solid rgba(255, 255, 255, 0.4);
             color: #fff;
+        }
+
+        .wo-page-header .header-actions .btn-icon {
+            padding: 0;
+        }
+
+        .wo-page-header .header-actions .btn-icon i {
+            margin: 0;
         }
 
         .wo-page-header .header-actions .btn:hover {
@@ -427,9 +433,8 @@
                 padding: 26px 22px;
             }
 
-            .wo-page-header .header-actions .btn {
-                width: 100%;
-                justify-content: center;
+            .wo-page-header .header-actions {
+                align-items: flex-start;
             }
 
             .file-drop-zone {
@@ -472,11 +477,11 @@
                 <p>Bring completed work orders from external sources into GEMS, validate lifecycle states, and sync audit history without losing context.</p>
             </div>
             <div class="header-actions">
-                <button class="btn btn-outline-light" type="button" onclick="document.getElementById('downloadTemplate').click()">
-                    <i class="fas fa-file-download mr-2"></i>Download Template
+                <button class="btn btn-outline-light btn-icon" type="button" onclick="document.getElementById('downloadTemplate').click()" data-toggle="tooltip" data-placement="top" title="Download template" aria-label="Download template">
+                    <i class="fas fa-file-download"></i>
                 </button>
-                <button class="btn btn-outline-light" type="button" onclick="showImportHistory()">
-                    <i class="fas fa-history mr-2"></i>Import History
+                <button class="btn btn-outline-light btn-icon" type="button" onclick="showImportHistory()" data-toggle="tooltip" data-placement="top" title="Import history" aria-label="Import history">
+                    <i class="fas fa-history"></i>
                 </button>
             </div>
         </section>

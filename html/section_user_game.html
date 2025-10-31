@@ -71,16 +71,8 @@
             z-index: 1;
         }
 
-        .sectionUserGame .user-game-header .header-actions .btn {
-            border-radius: 999px;
-            padding: 0.75rem 1.6rem;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: #fff;
-        }
-
-        .sectionUserGame .user-game-header .header-actions .btn:hover {
-            background: rgba(255, 255, 255, 0.12);
+        .sectionUserGame .user-game-header .header-actions .btn-icon {
+            color: #0f172a;
         }
 
         .sectionUserGame .user-sidebar {
@@ -383,11 +375,6 @@
                 gap: 18px;
             }
 
-            .sectionUserGame .user-game-header .header-actions .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
             .sectionUserGame .user-profile-card {
                 padding: 26px 20px 24px;
             }
@@ -406,8 +393,8 @@
             <p>Review individual performance trends, scoring breakdowns, and task execution details to support coaching conversations.</p>
         </div>
         <div class="header-actions">
-            <button class="btn" id="btnSugBack" type="button">
-                <i class="fas fa-arrow-left mr-2"></i> Back to Main Page
+            <button class="btn btn-light btn-icon" id="btnSugBack" type="button" data-toggle="tooltip" data-placement="top" title="Back to Main Page" aria-label="Back to Main Page">
+                <i class="fas fa-arrow-left"></i>
             </button>
         </div>
     </div>
