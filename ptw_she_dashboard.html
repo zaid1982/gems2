@@ -52,43 +52,21 @@
         }
 
         /* Page Header */
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            color: white;
-            padding: 32px;
-            border-radius: var(--border-radius-lg);
+        .ptw-she-header {
             margin-bottom: 32px;
-            box-shadow: var(--card-shadow-lg);
-            position: relative;
-            overflow: hidden;
+            padding: 32px;
         }
 
-        .page-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transform: translate(50%, -50%);
-        }
-
-        .page-header h2 {
+        .ptw-she-header .header-text h2 {
             font-size: 2.25rem;
             font-weight: 700;
             margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
         }
 
-        .page-header p {
+        .ptw-she-header .header-text p {
             font-size: 1.125rem;
             opacity: 0.9;
             margin-bottom: 0;
-            position: relative;
-            z-index: 1;
         }
 
         /* User Info Card */
@@ -447,11 +425,11 @@
                 padding: 16px;
             }
 
-            .page-header {
+            .ptw-she-header {
                 padding: 24px;
             }
 
-            .page-header h2 {
+            .ptw-she-header .header-text h2 {
                 font-size: 1.75rem;
             }
 
@@ -533,20 +511,23 @@
 <main>
     <div class="container-fluid">
         <!-- Page Header -->
-        <div class="page-header">
-            <h2><i class="fas fa-hard-hat mr-3"></i>PTW SHE Dashboard</h2>
-            <p>Review and approve Permit to Work applications for safety compliance</p>
-            <div id="signature-required-panel" class="alert alert-danger mt-4" style="display:none;">
-                <div class="d-flex align-items-start">
-                    <div class="mr-3" style="font-size:32px; line-height:1;">
-                        <i class="fas fa-user-edit"></i>
-                    </div>
-                    <div>
-                        <h5 class="mb-2">Signature Setup Required</h5>
-                        <p class="mb-3">You must create your personal approval signature before accessing SHE PTW processing features.</p>
-                        <a href="signature.html" class="btn btn-sm btn-primary"><i class="fas fa-pen-nib mr-1"></i> Go to Signature Setup</a>
-                        <button type="button" id="btnRetrySignatureCheck" class="btn btn-sm btn-outline-secondary ml-2"><i class="fas fa-sync"></i> Retry</button>
-                    </div>
+        <div class="gems-page-header ptw-she-header">
+            <div class="header-text">
+                <h2><i class="fas fa-hard-hat mr-3"></i>PTW SHE Dashboard</h2>
+                <p>Review and approve Permit to Work applications for safety compliance</p>
+            </div>
+        </div>
+
+        <div id="signature-required-panel" class="alert alert-danger mt-4" style="display:none;">
+            <div class="d-flex align-items-start">
+                <div class="mr-3" style="font-size:32px; line-height:1;">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <div>
+                    <h5 class="mb-2">Signature Setup Required</h5>
+                    <p class="mb-3">You must create your personal approval signature before accessing SHE PTW processing features.</p>
+                    <a href="signature.html" class="btn btn-sm btn-primary"><i class="fas fa-pen-nib mr-1"></i> Go to Signature Setup</a>
+                    <button type="button" id="btnRetrySignatureCheck" class="btn btn-sm btn-outline-secondary ml-2"><i class="fas fa-sync"></i> Retry</button>
                 </div>
             </div>
         </div>

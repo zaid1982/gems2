@@ -42,7 +42,6 @@
         }
 
         .module-ppm .module-page-header {
-            background: linear-gradient(135deg, rgba(0,77,255,1) 0%, rgba(13,255,153,0.9) 100%);
             color: #fff;
             border-radius: var(--ppm-radius);
             padding: 2.4rem 2.9rem;
@@ -71,12 +70,8 @@
         .module-ppm .module-page-header .header-text h2 { font-size: 2.4rem; font-weight: 700; margin-bottom: 0.5rem; }
         .module-ppm .module-page-header .header-text p { margin: 0; color: rgba(255, 255, 255, 0.82); }
         .module-ppm .module-page-header .header-text .header-subtitle { font-size: 0.88rem; text-transform: uppercase; letter-spacing: .12em; opacity: 0.78; margin-bottom: 0.8rem; }
-        .module-ppm .module-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 0.8rem; }
-        .module-ppm .module-page-header .header-actions .btn { border-radius: 999px; padding: 0.6rem 1.6rem; font-weight: 600; }
-        .module-ppm .module-page-header .header-actions .btn-outline-light { border-color: rgba(255, 255, 255, 0.7); color: #fff; }
-        .module-ppm .module-page-header .header-actions .btn-outline-light:hover { background: rgba(255, 255, 255, 0.22); }
-        .module-ppm .module-page-header .header-actions .btn-white { background: rgba(255, 255, 255, 0.18); color: #fff; border: none; }
-        .module-ppm .module-page-header .header-actions .btn-white:hover { background: rgba(255, 255, 255, 0.28); }
+    .module-ppm .module-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 0.8rem; }
+    .module-ppm .module-page-header .header-actions .btn-light.btn-icon { color: #0f172a; }
 
         .module-ppm .metrics-row {
             margin-top: 2.4rem;
@@ -195,15 +190,15 @@
 
 <main>
     <div class="container-fluid module-page module-ppm">
-        <section class="module-page-header">
+    <section class="gems-page-header module-page-header">
             <div class="header-text">
                 <div class="header-subtitle">Planned Preventive Maintenance</div>
                 <h2>PPM Summary Report</h2>
                 <p>Review scheduled versus completed maintenance tasks across your selected portfolio.</p>
             </div>
             <div class="header-actions">
-                <button type="button" id="btnDtRpsPpmSummaryRefresh" class="btn btn-outline-light" data-toggle="tooltip" data-placement="top" title="Refresh data">
-                    <i class="fas fa-sync mr-2"></i>Refresh
+                <button type="button" id="btnDtRpsPpmSummaryRefresh" class="btn btn-light btn-icon" data-toggle="tooltip" data-placement="top" title="Refresh data" aria-label="Refresh data">
+                    <i class="fas fa-sync"></i>
                 </button>
                 <div id="btnDtRpsPpmSummaryExport"></div>
             </div>

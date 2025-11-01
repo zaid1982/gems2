@@ -37,7 +37,6 @@
         }
 
         .module-master .module-page-header {
-            background: linear-gradient(135deg, rgba(67, 56, 202, 0.95), rgba(129, 140, 248, 0.85));
             color: #fff;
             border-radius: var(--module-radius);
             padding: 2.4rem 2.85rem;
@@ -95,10 +94,8 @@
             gap: 0.8rem;
         }
 
-        .module-master .module-page-header .header-actions .btn {
-            border-radius: 999px;
-            padding: 0.6rem 1.6rem;
-            font-weight: 600;
+        .module-master .module-page-header .header-actions .btn-light.btn-icon {
+            color: #0f172a;
         }
 
         .module-master .metrics-row {
@@ -389,16 +386,16 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid module-master module-flc">
-        <section class="module-page-header">
+    <section class="gems-page-header module-page-header">
             <div class="header-text">
                 <p class="header-subtitle">Reference Data</p>
                 <h2>Failure Code Directory</h2>
                 <p>Configure the failure codes used during work order reporting and analysis.</p>
             </div>
             <div class="header-actions">
-                <button type="button" id="btnFlcFailureCodeAdd" class="btn btn-light"><i class="fas fa-plus mr-2"></i>New Failure Code</button>
-                <button type="button" id="btnDtFlcFailureCodeRefresh" class="btn btn-outline-light"><i class="fas fa-sync mr-2"></i>Refresh</button>
-                <button type="button" class="btn btn-outline-light" data-toggle="popover" data-trigger="focus" title="Failure Code List" data-content="Maintain the failure code reference data used across WO lifecycles."><i class="fas fa-info"></i></button>
+                <button type="button" id="btnFlcFailureCodeAdd" class="btn btn-primary btn-icon" data-toggle="tooltip" data-placement="top" title="Add failure code" aria-label="Add failure code"><i class="fas fa-plus"></i></button>
+                <button type="button" id="btnDtFlcFailureCodeRefresh" class="btn btn-light btn-icon" data-toggle="tooltip" data-placement="top" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync"></i></button>
+                <button type="button" class="btn btn-light btn-icon" data-toggle="popover" data-trigger="focus" title="Failure Code List" data-content="Maintain the failure code reference data used across WO lifecycles." aria-label="Failure code help"><i class="fas fa-info"></i></button>
             </div>
         </section>
 

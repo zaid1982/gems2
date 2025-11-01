@@ -45,7 +45,6 @@
         }
 
         .module-page-header {
-            background: linear-gradient(135deg, rgba(67, 56, 202, 0.95), rgba(129, 140, 248, 0.85));
             color: #fff;
             border-radius: var(--module-radius);
             padding: 2.4rem 2.85rem;
@@ -103,10 +102,8 @@
             gap: 0.8rem;
         }
 
-        .module-page-header .header-actions .btn {
-            border-radius: 999px;
-            padding: 0.6rem 1.6rem;
-            font-weight: 600;
+        .module-page-header .header-actions .btn-light.btn-icon {
+            color: #0f172a;
         }
 
         .metrics-row {
@@ -436,16 +433,16 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid module-master module-umn">
-        <section class="module-page-header">
+    <section class="gems-page-header module-page-header">
             <div class="header-text">
                 <p class="header-subtitle">Administration</p>
                 <h2>User Management</h2>
                 <p>Manage user access, roles, and credentials across every site.</p>
             </div>
             <div class="header-actions">
-                <button type="button" id="btnUmnUserAdd" class="btn btn-light"><i class="fas fa-plus mr-2"></i>New User</button>
-                <button type="button" id="btnDtUmnUserRefresh" class="btn btn-outline-light"><i class="fas fa-sync mr-2"></i>Refresh</button>
-                <button type="button" class="btn btn-outline-light" data-toggle="popover" data-trigger="focus" title="User Directory" data-content="Review, add, or deactivate user accounts and reset credentials."><i class="fas fa-info"></i></button>
+                <button type="button" id="btnUmnUserAdd" class="btn btn-primary btn-icon" data-toggle="tooltip" data-placement="top" title="Add user" aria-label="Add user"><i class="fas fa-plus"></i></button>
+                <button type="button" id="btnDtUmnUserRefresh" class="btn btn-light btn-icon" data-toggle="tooltip" data-placement="top" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync"></i></button>
+                <button type="button" class="btn btn-light btn-icon" data-toggle="popover" data-trigger="focus" title="User Directory" data-content="Review, add, or deactivate user accounts and reset credentials." aria-label="User directory help"><i class="fas fa-info"></i></button>
             </div>
         </section>
 

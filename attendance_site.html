@@ -36,35 +36,14 @@
         .attendance-site-section { margin-top: 1.5rem; }
 
         .attendance-page-header {
-            background: linear-gradient(135deg, rgba(67, 56, 202, 1) 0%, rgba(56, 189, 248, 0.95) 100%);
-            color: #fff;
             padding: 36px 32px;
             border-radius: 28px;
             margin-bottom: 28px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--attendance-shadow);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 20px;
         }
 
-        .attendance-page-header::after {
-            content: '';
-            position: absolute;
-            right: -70px;
-            top: -70px;
-            width: 240px;
-            height: 240px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .attendance-page-header .header-text { position: relative; z-index: 1; max-width: 720px; }
-        .attendance-page-header h2 { font-size: 2.15rem; font-weight: 700; margin-bottom: 0.6rem; }
-        .attendance-page-header p { margin: 0; font-size: 1.02rem; opacity: 0.96; }
+        .attendance-page-header .header-text { max-width: 720px; }
+        .attendance-page-header .header-text h2 { font-size: 2.15rem; font-weight: 700; margin-bottom: 0.6rem; }
+        .attendance-page-header .header-text p { margin: 0; font-size: 1.02rem; opacity: 0.96; }
 
         .attendance-header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px; }
         .attendance-header-actions .btn {
@@ -283,13 +262,12 @@
 
         @media (max-width: 991.98px) {
             .attendance-page-header { padding: 28px 24px; }
-            .attendance-page-header h2 { font-size: 1.85rem; }
-            .attendance-page-header::after { width: 200px; height: 200px; right: -60px; top: -60px; }
+            .attendance-page-header .header-text h2 { font-size: 1.85rem; }
         }
 
         @media (max-width: 767.98px) {
             main { padding-top: 1rem; }
-            .attendance-page-header { padding: 24px 20px; gap: 18px; }
+            .attendance-page-header { padding: 24px 20px; }
             .attendance-header-actions { width: 100%; }
             .attendance-header-actions .btn { width: 100%; min-width: 0; }
             .attendance-data-card { padding: 18px 18px; }

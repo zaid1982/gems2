@@ -20,18 +20,12 @@
       --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
       --border-radius-lg: 16px;
     }
-    .page-header {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-      color: white;
-      padding: 32px;
-      border-radius: var(--border-radius-lg);
+    .space-calendar-header {
       margin: 24px 0 16px 0;
-      box-shadow: var(--card-shadow-lg);
-      position: relative;
-      overflow: hidden;
+      padding: 32px;
     }
-    .page-header h2 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; }
-    .page-header p { font-size: 1rem; opacity: 0.95; margin: 0; position: relative; z-index: 1; }
+    .space-calendar-header .header-text h2 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+    .space-calendar-header .header-text p { font-size: 1rem; opacity: 0.95; margin: 0; }
     .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
     .main-content-card .card-header { background: linear-gradient(60deg,#26c6da,#00acc1); color:#fff; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
     .main-content-card .card-body { padding: 1rem 1.25rem; }
@@ -52,9 +46,11 @@
 <main>
   <div class="container-fluid">
     <section class="mb-5 mt-lg-4">
-      <div class="page-header">
-        <h2><i class="fas fa-calendar-alt mr-3"></i><span id="lblSpcCalTitle">Space Calendar</span></h2>
-        <p id="lblSpcCalSubtitle">View and manage reservations</p>
+    <div class="gems-page-header space-calendar-header">
+          <div class="header-text">
+            <h2><i class="fas fa-calendar-alt mr-3"></i><span id="lblSpcCalTitle">Space Calendar</span></h2>
+            <p id="lblSpcCalSubtitle">View and manage reservations</p>
+          </div>
       </div>
 
       <div class="main-content-card mb-4">

@@ -18,9 +18,26 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css?1" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
+        .fca-zone-header {
+            padding: 32px;
+            border-radius: 24px;
+            margin-bottom: 32px;
+        }
 
+        .fca-zone-header .header-text h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .fca-zone-header .header-text p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -38,11 +55,12 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid">
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 pb-1 sectionFczMain">
-            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
-                Facility Condition Appraisal (FCA) Zone Management
-            </h5>
-        </nav>
+        <div class="gems-page-header fca-zone-header sectionFczMain">
+            <div class="header-text">
+                <h2><i class="fas fa-map-marked-alt mr-3"></i>FCA Zone Management</h2>
+                <p>Organize and manage zones for facility condition appraisals</p>
+            </div>
+        </div>
         <section class="mt-4 mb-3">
             <div class="row">
                 <div class="col-md-12">

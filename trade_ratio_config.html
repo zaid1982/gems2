@@ -114,12 +114,12 @@
             gap: 28px;
         }
 
-        .config-card {
-            background: #fff;
-            border: 0;
-            border-radius: var(--trade-radius);
-            padding: 28px 30px;
-            box-shadow: var(--trade-card-shadow);
+        .config-actions .btn-light.btn-icon {
+            color: #0f172a;
+        }
+
+        .config-actions .btn-icon i {
+            margin-right: 0;
             min-height: 100%;
         }
 
@@ -371,10 +371,6 @@
         }
 
         @media (max-width: 576px) {
-            .config-actions .btn {
-                width: 100%;
-                justify-content: center;
-            }
 
             .config-card {
                 padding: 20px 18px;
@@ -422,8 +418,8 @@
                 <p>Calibrate default and group-specific multipliers to balance task effort across trades while keeping scoring transparent.</p>
             </div>
             <div class="config-actions">
-                <button class="btn btn-outline-light" onclick="window.location.href='gamification.html'">
-                    <i class="fas fa-arrow-left"></i> Back to Leaderboard
+                <button class="btn btn-light btn-icon" onclick="window.location.href='gamification.html'" data-toggle="tooltip" data-placement="top" title="Back to leaderboard" aria-label="Back to leaderboard">
+                    <i class="fas fa-arrow-left"></i>
                 </button>
             </div>
         </section>

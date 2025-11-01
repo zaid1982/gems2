@@ -48,43 +48,20 @@
         .status-filter { min-width: 140px; }
         /* Helpers */
         .d-none { display: none !important; }
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            color: white;
-            padding: 32px;
-            border-radius: var(--border-radius-lg);
+        .space-page-header {
             margin-bottom: 32px;
-            box-shadow: var(--card-shadow-lg);
-            position: relative;
-            overflow: hidden;
         }
 
-        .page-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transform: translate(50%, -50%);
-        }
-
-        .page-header h2 {
+        .space-page-header .header-text h2 {
             font-size: 2.25rem;
             font-weight: 700;
             margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
         }
 
-        .page-header p {
+        .space-page-header .header-text p {
             font-size: 1.125rem;
             opacity: 0.9;
             margin-bottom: 0;
-            position: relative;
-            z-index: 1;
         }
 
         /* Badge Styling */
@@ -194,12 +171,12 @@
 <main>
     <div class="container-fluid">
 
-        <div class="page-header d-flex align-items-center justify-content-between">
-            <div>
+        <div class="gems-page-header space-page-header">
+            <div class="header-text">
                 <h2 class="mb-0"><i class="fas fa-door-open mr-3"></i>Space Management</h2>
                 <p class="mb-0">Review and manage spaces within the organization</p>
             </div>
-            <div class="d-flex align-items-center">
+            <div class="header-actions align-items-center">
                 <button type="button" id="btnSpcAdd" class="icon-btn" data-toggle="tooltip" title="Add Space"><i class="fas fa-plus"></i></button>
                 <a tabindex="0" role="button" class="icon-btn ml-2" data-toggle="popover" data-trigger="focus" title="Space List" data-content="Space directory with booking."><i class="fas fa-info"></i></a>
                 <button type="button" id="btnDtSpcRefresh" class="icon-btn ml-2" data-toggle="tooltip" title="Refresh"><i class="fas fa-sync"></i></button>

@@ -33,7 +33,6 @@
     .waste-collection-section { margin-top: 1.5rem; }
 
     .waste-page-header {
-      background: linear-gradient(135deg, rgba(67, 56, 202, 1) 0%, rgba(56, 189, 248, 0.95) 100%);
       color: #fff;
       padding: 36px 32px;
       border-radius: 28px;
@@ -63,10 +62,8 @@
     .waste-page-header h2 { font-size: 2.25rem; font-weight: 700; margin-bottom: 10px; }
     .waste-page-header p { margin: 0; font-size: 1.05rem; opacity: 0.95; }
 
-    .waste-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px; }
-    .waste-page-header .header-actions .btn { border-radius: 999px; padding: 0.55rem 1.6rem; font-weight: 600; min-width: 150px; }
-    .waste-page-header .header-actions .btn-outline-light { border-color: rgba(255, 255, 255, 0.7); color: #fff; }
-    .waste-page-header .header-actions .btn-outline-light:hover { background: rgba(255, 255, 255, 0.15); }
+  .waste-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px; }
+  .waste-page-header .header-actions .btn-light.btn-icon { color: #0f172a; }
 
     .waste-metrics {
       display: grid;
@@ -214,7 +211,6 @@
     @media (max-width: 767.98px) {
       main { padding-top: 1rem; }
       .waste-page-header { padding: 24px 20px; gap: 18px; }
-      .waste-page-header .header-actions .btn { min-width: 0; width: 100%; }
       .waste-metrics { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 
       #dtWtm { display: block; }
@@ -255,14 +251,14 @@
 <main>
   <div class="container-fluid waste-collection-layout">
     <section class="waste-collection-section">
-      <div class="waste-page-header">
+  <div class="gems-page-header waste-page-header">
         <div class="header-text">
           <h2><i class="fas fa-dumpster mr-3"></i>Waste Collection</h2>
           <p>Plan, monitor, and close waste collections on time across every managed site.</p>
         </div>
         <div class="header-actions">
-          <button type="button" class="btn btn-outline-light" id="btnWtmRefresh"><i class="fas fa-sync-alt mr-2"></i>Refresh</button>
-          <button type="button" class="btn btn-primary" id="btnWtmAddWaste"><i class="fas fa-plus mr-2"></i>Schedule Collection</button>
+          <button type="button" class="btn btn-light btn-icon" id="btnWtmRefresh" data-toggle="tooltip" data-placement="top" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync-alt"></i></button>
+          <button type="button" class="btn btn-primary btn-icon" id="btnWtmAddWaste" data-toggle="tooltip" data-placement="top" title="Schedule collection" aria-label="Schedule collection"><i class="fas fa-plus"></i></button>
         </div>
       </div>
 

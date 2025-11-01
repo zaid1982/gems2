@@ -33,7 +33,6 @@
         .tnm-section { margin-top: 1.5rem; }
 
         .tnm-page-header {
-            background: linear-gradient(135deg, rgba(67, 56, 202, 0.95) 0%, rgba(56, 189, 248, 0.95) 100%);
             border-radius: 28px;
             padding: 40px 36px;
             color: #fff;
@@ -71,16 +70,7 @@
             gap: 14px;
         }
 
-        .tnm-page-header .header-actions .btn {
-            border-radius: 999px;
-            font-weight: 600;
-            padding: 0.6rem 1.75rem;
-            min-width: 150px;
-            transition: background 0.2s ease;
-        }
-
-        .tnm-page-header .header-actions .btn-outline-light { border-color: rgba(255, 255, 255, 0.7); color: #fff; }
-        .tnm-page-header .header-actions .btn-outline-light:hover { background: rgba(255, 255, 255, 0.18); }
+        .tnm-page-header .header-actions .btn-light.btn-icon { color: #0f172a; }
 
         .tnm-metrics {
             display: grid;
@@ -231,7 +221,6 @@
         @media (max-width: 767.98px) {
             .tnm-page-header { padding: 26px 22px; }
             .tnm-page-header .header-actions { width: 100%; }
-            .tnm-page-header .header-actions .btn { width: 100%; min-width: 0; justify-content: center; }
             .tnm-metrics { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
             .tnm-data-card { padding: 18px 18px 24px; }
         }
@@ -258,15 +247,19 @@
 <main>
     <div class="container-fluid">
         <section class="tnm-section sectionTnmMain">
-            <div class="tnm-page-header">
+            <div class="gems-page-header tnm-page-header">
                 <div class="header-text">
                     <div class="eyebrow"><i class="fas fa-compass"></i><span>Workflow insight</span></div>
                     <h2>Track &amp; Monitoring</h2>
                     <p>Review the latest task transitions, checkpoints, and ownership across your permitted flows.</p>
                 </div>
                 <div class="header-actions">
-                    <button type="button" class="btn btn-outline-light" onclick="$('#btnDtTnmListRefresh').trigger('click');"><i class="fas fa-rotate"></i><span class="ml-2">Refresh data</span></button>
-                    <a class="btn btn-outline-light" href="#tnmTable"><i class="fas fa-table-list"></i><span class="ml-2">Jump to list</span></a>
+                    <button type="button" class="btn btn-light btn-icon" onclick="$('#btnDtTnmListRefresh').trigger('click');" data-toggle="tooltip" data-placement="top" title="Refresh data" aria-label="Refresh data">
+                        <i class="fas fa-rotate"></i>
+                    </button>
+                    <a class="btn btn-primary btn-icon" href="#tnmTable" data-toggle="tooltip" data-placement="top" title="Jump to list" aria-label="Jump to list">
+                        <i class="fas fa-table-list"></i>
+                    </a>
                 </div>
             </div>
 
