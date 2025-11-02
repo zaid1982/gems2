@@ -504,7 +504,7 @@ body {
 .metric-progress .bar { height: 100%; background: var(--gems-primary); }
 
 /* Filter card */
-.filter-card { background:#fff; border-radius: var(--gems-radius-lg); padding: 18px 20px; box-shadow: var(--gems-card-shadow); }
+.filter-card { background:#fff; border-radius: var(--gems-radius-lg); padding: 18px 20px; box-shadow: var(--gems-card-shadow);  }
 .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 14px; }
 .filter-label { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gems-muted); margin-bottom: 6px; }
 .filter-card .form-control, .filter-card .btn, .filter-card .dropdown-toggle { border-radius: 12px; }
@@ -979,4 +979,287 @@ body {
 
 .select-outline label {
   display: none;
+}
+
+/* ==========================================
+   MODERN TABLE DESIGN PATTERN
+   For use with DataTables across the app
+   Provides clean, professional table cards
+   with modern action buttons and responsive
+   mobile stacking patterns
+   ========================================== */
+
+/* Modern Table Card Structure */
+.home-table-card,
+.modern-table-card {
+  background: #fff !important;
+  border-radius: var(--gems-radius-lg);
+  box-shadow: var(--gems-card-shadow);
+  overflow: hidden;
+  margin-top: 28px;
+}
+
+.home-table-card .table-header,
+.modern-table-card .table-header {
+  background: linear-gradient(135deg, rgba(0,77,255,1) 0%, rgba(13,255,153,0.9) 100%) !important;
+  padding: 20px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.home-table-card .table-header h5, 
+.modern-table-card .table-header h5,
+.table-header div {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.home-table-card .table-header-actions,
+.modern-table-card .table-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.home-table-card .table-header .btn-header,
+.modern-table-card .table-header .btn-header {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.home-table-card .table-header .btn-header:hover,
+.modern-table-card .table-header .btn-header:hover {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.5);
+}
+
+.home-table-card .table-header .btn-header i,
+.modern-table-card .table-header .btn-header i {
+  font-size: 0.9rem;
+}
+
+.home-table-card .table-controls,
+.modern-table-card .table-controls {
+  padding: 20px 28px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.home-table-card .table-body,
+.modern-table-card .table-body {
+  padding: 0 28px 28px;
+}
+
+/* Modern Table Styling */
+.home-table-card table.dataTable,
+.modern-table-card table.dataTable {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.home-table-card table.dataTable thead th,
+.modern-table-card table.dataTable thead th {
+  background: #f8fafc !important;
+  color: #475569;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 12px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.home-table-card table.dataTable tbody td,
+.modern-table-card table.dataTable tbody td {
+  padding: 14px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.home-table-card table.dataTable tbody tr,
+.modern-table-card table.dataTable tbody tr {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.home-table-card table.dataTable tbody tr:hover,
+.modern-table-card table.dataTable tbody tr:hover {
+  background: #f8fafc !important;
+}
+
+.home-table-card table.dataTable tbody tr:last-child td,
+.modern-table-card table.dataTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Modern Action Buttons */
+.action-btn-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.btn-action {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.btn-action.btn-pdf,
+.btn-action.btn-view {
+  background: rgba(59, 130, 246, 0.1) !important;
+  color: #3b82f6 !important;
+}
+
+.btn-action.btn-view:hover {
+  background: rgba(59, 130, 246, 0.2) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-action.btn-edit {
+  background: rgba(245, 158, 11, 0.1) !important;
+  color: #f59e0b !important;
+}
+
+.btn-action.btn-edit:hover {
+  background: rgba(245, 158, 11, 0.2) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-action.btn-delete {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444 !important;
+}
+
+.btn-action.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-action:active {
+  transform: translateY(0);
+}
+
+/* Dropdown toggle for action buttons */
+.btn-action.dropdown-toggle::after {
+  display: none;
+}
+
+.action-btn-group .dropdown-menu {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 180px;
+}
+
+.action-btn-group .dropdown-item {
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  color: #334155;
+  transition: all 0.15s ease;
+  margin-bottom: 2px;
+}
+
+.action-btn-group .dropdown-item:hover {
+  background: rgba(67, 56, 202, 0.1);
+  color: #4338ca;
+}
+
+.action-btn-group .dropdown-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Modern Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.status-badge.completed {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #16a34a !important;
+}
+
+.status-badge.pending {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #d97706 !important;
+}
+
+.status-badge.in-progress {
+  background: rgba(59, 130, 246, 0.15) !important;
+  color: #2563eb !important;
+}
+
+.status-badge.cancelled {
+  background: rgba(148, 163, 184, 0.15) !important;
+  color: #64748b !important;
+}
+
+/* Column Visibility Select */
+.select-outline {
+  max-width: 400px;
+}
+
+/* Search Box */
+.table-search-box {
+  max-width: 300px;
+}
+
+.table-search-box input {
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.table-search-box input:focus {
+  border-color: var(--gems-accent);
+  box-shadow: 0 0 0 0.2rem rgba(56, 189, 248, 0.25);
+  outline: none;
+}
+
+/* Action cell no pointer cursor */
+#dtHmeDataWo tbody td.action-cell,
+#dtHmeDataPpm tbody td.action-cell,
+.modern-table-card tbody td.action-cell {
+  cursor: default;
 }

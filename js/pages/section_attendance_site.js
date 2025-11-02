@@ -163,11 +163,12 @@ function SectionAttendanceSite () {
                         return refStatus[data]['statusDesc'];
                     }},
                 {mData: null, mRender: function(data, type, row, meta) {
-                        let label = '';
+                        let label = '<div class="action-btn-group">';
                         if (isSiteAdmin || (!isSiteAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
-                            label = '<a><i class="fas fa-edit mr-1 lnkSacGroupEdit" id="lnkSacGroupEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['attGroupName'] + ' configuration"></i></a>';
+                            label += '<button type="button" class="btn-action btn-edit lnkSacGroupEdit" id="lnkSacGroupEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['attGroupName'] + ' configuration"><i class="fas fa-edit"></i></button>';
                         }
-                        label += '<a><i class="fas fa-users lnkSacGroupDetail" id="lnkSacGroupDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to see ' + row['attGroupName'] + ' informations"></i></a>';
+                        label += '<button type="button" class="btn-action btn-view lnkSacGroupDetail" id="lnkSacGroupDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to see ' + row['attGroupName'] + ' informations"><i class="fas fa-users"></i></button>';
+                        label += '</div>';
                         return label;
                     }}
             ]
@@ -336,11 +337,12 @@ function SectionAttendanceSite () {
                         return str;
                     }},
                 {mData: null, mRender: function(data, type, row, meta) {
-                        let label = '';
+                        let label = '<div class="action-btn-group">';
                         if (isSiteAdmin || (!isSiteAdmin && isSupervisor && userId === row['attGroupSupervisor'])) {
-                            label = '<a><i class="fas fa-edit mr-1 lnkSacParticipantEdit" id="lnkSacParticipantEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['userFirstName'] + ' configuration"></i></a>';
+                            label += '<button type="button" class="btn-action btn-edit lnkSacParticipantEdit" id="lnkSacParticipantEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to edit ' + row['userFirstName'] + ' configuration"><i class="fas fa-edit"></i></button>';
                         }
-                        label += '<a><i class="fas fa-user lnkSacParticipantDetail" id="lnkSacParticipantDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to see ' + row['userFirstName'] + ' informations"></i></a>';
+                        label += '<button type="button" class="btn-action btn-view lnkSacParticipantDetail" id="lnkSacParticipantDetail_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to see ' + row['userFirstName'] + ' informations"><i class="fas fa-user"></i></button>';
+                        label += '</div>';
                         return label;
                     }}
             ]

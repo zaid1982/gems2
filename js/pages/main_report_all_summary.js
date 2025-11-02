@@ -199,7 +199,7 @@ function MainReportWoTotal() {
                             if (data === 'TOTAL' || data === 'PENDING') {
                                 return '<strong>'+data+'</strong>';
                             } else {
-                                return data + '&nbsp;&nbsp;<a><i class="fas fa-folder-open lnkRwtDailyView" id="lnkRwtDailyView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Daily Summary"></i></a>';
+                                return data + ' <button type="button" class="btn-action btn-view lnkRwtDailyView" id="lnkRwtDailyView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Daily Summary"><i class="fas fa-folder-open"></i></button>';
                             }
                         }},
                     {mData: 'open0', sClass: 'text-right',
@@ -399,7 +399,7 @@ function MainReportWoTotal() {
                             if (data === 'TOTAL' || data === 'PENDING') {
                                 return '<strong>'+data+'</strong>';
                             } else if (isManual) {
-                                return data + '&nbsp;&nbsp;<a><i class="fas fa-edit lnkRwtManualEdit" id="lnkRwtManualEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>';
+                                return data + ' <button type="button" class="btn-action btn-edit lnkRwtManualEdit" id="lnkRwtManualEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
                             }
                             return data;
                         }},

@@ -487,15 +487,17 @@ function MainAssetType() {
                         }
                         return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
                     }},
-                {mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
-                        let label = `<a><i class="fas fa-edit lnkAtyAssetTypeEdit" id="lnkAtyAssetTypeEdit_${meta.row}" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;`;
-                        label += `<a><i class="fas fa-list-ul lnkAtyAssetTypeModel" id="lnkAtyAssetTypeModel_${meta.row}" data-toggle="tooltip" data-placement="top" title="Model list"></i></a>&nbsp;&nbsp;`;
+                {mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
+                        let label = '<div class="action-btn-group">';
+                        label += `<button type="button" class="btn-action btn-edit lnkAtyAssetTypeEdit" id="lnkAtyAssetTypeEdit_${meta.row}" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>`;
+                        label += `<button type="button" class="btn-action btn-view lnkAtyAssetTypeModel" id="lnkAtyAssetTypeModel_${meta.row}" data-toggle="tooltip" title="Model list"><i class="fas fa-list-ul"></i></button>`;
                         if (row['assetTypeStatus'] === '1') {
-                            label += `<a><i class="fas fa-toggle-off lnkAtyAssetTypeDeactivate" id="lnkAtyAssetTypeDeactivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;`;
+                            label += `<button type="button" class="btn-action btn-delete lnkAtyAssetTypeDeactivate" id="lnkAtyAssetTypeDeactivate_${meta.row}" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>`;
                         } else {
-                            label += `<a><i class="fas fa-toggle-on lnkAtyAssetTypeActivate" id="lnkAtyAssetTypeActivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;`;
+                            label += `<button type="button" class="btn-action btn-edit lnkAtyAssetTypeActivate" id="lnkAtyAssetTypeActivate_${meta.row}" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>`;
                         }
-                        label += `<a><i class="fas fa-trash-alt lnkAtyAssetTypeDelete" id="lnkAtyAssetTypeDelete_${meta.row}" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>`;
+                        label += `<button type="button" class="btn-action btn-delete lnkAtyAssetTypeDelete" id="lnkAtyAssetTypeDelete_${meta.row}" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>`;
+                        label += '</div>';
                         return label;
                     }},
                 {mData: 'assetGroupId', visible: false},
@@ -609,14 +611,16 @@ function MainAssetType() {
                         }
                         return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
                     }},
-                {mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
-                        let label = `<a><i class="fas fa-edit lnkAtyAssetModelEdit" id="lnkAtyAssetModelEdit_${meta.row}" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;`;
+                {mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
+                        let label = '<div class="action-btn-group">';
+                        label += `<button type="button" class="btn-action btn-edit lnkAtyAssetModelEdit" id="lnkAtyAssetModelEdit_${meta.row}" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>`;
                         if (row['assetModelStatus'] === '1') {
-                            label += `<a><i class="fas fa-toggle-off lnkAtyAssetModelDeactivate" id="lnkAtyAssetModelDeactivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;`;
+                            label += `<button type="button" class="btn-action btn-delete lnkAtyAssetModelDeactivate" id="lnkAtyAssetModelDeactivate_${meta.row}" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>`;
                         } else {
-                            label += `<a><i class="fas fa-toggle-on lnkAtyAssetModelActivate" id="lnkAtyAssetModelActivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;`;
+                            label += `<button type="button" class="btn-action btn-edit lnkAtyAssetModelActivate" id="lnkAtyAssetModelActivate_${meta.row}" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>`;
                         }
-                        label += `<a><i class="fas fa-trash-alt lnkAtyAssetModelDelete" id="lnkAtyAssetModelDelete_${meta.row}" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>`;
+                        label += `<button type="button" class="btn-action btn-delete lnkAtyAssetModelDelete" id="lnkAtyAssetModelDelete_${meta.row}" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>`;
+                        label += '</div>';
                         return label;
                     }},
                 {mData: 'assetModelId', visible: false}

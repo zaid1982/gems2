@@ -50,6 +50,19 @@ function MainFcaReport () {
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                // Add data-label for mobile card layout
+                $('td', nRow).eq(0).attr('data-label', '#');
+                $('td', nRow).eq(1).attr('data-label', 'Site');
+                $('td', nRow).eq(2).attr('data-label', 'Report Name');
+                $('td', nRow).eq(3).attr('data-label', 'Date From');
+                $('td', nRow).eq(4).attr('data-label', 'Date To');
+                $('td', nRow).eq(5).attr('data-label', 'Asset Group');
+                $('td', nRow).eq(6).attr('data-label', 'Exclude List');
+                $('td', nRow).eq(7).attr('data-label', 'Sort By');
+                $('td', nRow).eq(8).attr('data-label', 'Total FCA');
+                $('td', nRow).eq(9).attr('data-label', 'Created By');
+                $('td', nRow).eq(10).attr('data-label', 'Time Created');
+                $('td', nRow).eq(11).attr('data-label', 'Actions');
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -116,8 +129,11 @@ function MainFcaReport () {
                     }},
                 {mData: 'fcaReportTimeCreated'},    // 10
                 {mData: null, mRender: function(data, type, row, meta) {
-                        return '<a><i class="fas fa-file-pdf mr-1 lnkFcrPdf" id="lnkFcrPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to view ' + row['fcaReportName'] + ' PDF"></i></a>'
-                            + '<a><i class="fas fa-trash-alt lnkFcrDelete" id="lnkFcrDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to delete ' + row['fcaReportName'] + '"></i></a>';
+                        let label = '<div class="action-btn-group">';
+                        label += '<button type="button" class="btn-action btn-pdf lnkFcrPdf" id="lnkFcrPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to view ' + row['fcaReportName'] + ' PDF"><i class="fas fa-file-pdf"></i></button>';
+                        label += '<button type="button" class="btn-action btn-delete lnkFcrDelete" id="lnkFcrDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to delete ' + row['fcaReportName'] + '"><i class="fas fa-trash-alt"></i></button>';
+                        label += '</div>';
+                        return label;
                     }}
             ]
         });

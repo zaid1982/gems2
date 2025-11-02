@@ -155,13 +155,15 @@ function MainFailureCode() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkFlcFailureCodeEdit" id="lnkFlcFailureCodeEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            let label = '<div class="action-btn-group">';
+                            label += '<button type="button" class="btn-action btn-edit lnkFlcFailureCodeEdit" id="lnkFlcFailureCodeEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
                             if (row['failureCodeStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkFlcFailureCodeDeactivate" id="lnkFlcFailureCodeDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
+                                label += '<button type="button" class="btn-action btn-deactivate lnkFlcFailureCodeDeactivate" id="lnkFlcFailureCodeDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
                             } else {
-                                label += '<a><i class="fas fa-toggle-on lnkFlcFailureCodeActivate" id="lnkFlcFailureCodeActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
+                                label += '<button type="button" class="btn-action btn-activate lnkFlcFailureCodeActivate" id="lnkFlcFailureCodeActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
                             }
-                            label += '<a><i class="fas fa-trash-alt lnkFlcFailureCodeDelete" id="lnkFlcFailureCodeDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                            label += '<button type="button" class="btn-action btn-delete lnkFlcFailureCodeDelete" id="lnkFlcFailureCodeDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                            label += '</div>';
                             return label;
                         }
                     },

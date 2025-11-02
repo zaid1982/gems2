@@ -187,15 +187,16 @@ function MainPpmManagement() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '';
+                            let label = '<div class="action-btn-group">';
                             if (row['assignedStatus'] === '10') {
-                                label = '<a><i class="fas fa-list-ul lnkPmgPpmListExpand" id="lnkPmgPpmListExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Scheduled PPM List"></i></a>&nbsp;&nbsp;';
-                                // label = '<a><i class="fas fa-toggle-off lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
-                            } //else if (row['assignedStatus'] === '11') {
-                            if (userIsAdmin) {
-                                label += '<a><i class="fas fa-calendar-plus lnkPmgAssetPpmAssign" id="lnkPmgAssetPpmAssign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign PPM"></i></a>&nbsp;&nbsp;';
+                                label += '<button type="button" class="btn-action btn-view lnkPmgPpmListExpand" id="lnkPmgPpmListExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Scheduled PPM List"><i class="fas fa-list-ul"></i></button>';
+                                // label += '<button type="button" class="btn-action btn-deactivate lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
                             }
-                            label += '<a><i class="fas fa-qrcode lnkPmgAssetView" id="lnkPmgAssetView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Asset Information"></i></a>';
+                            if (userIsAdmin) {
+                                label += '<button type="button" class="btn-action btn-edit lnkPmgAssetPpmAssign" id="lnkPmgAssetPpmAssign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign PPM"><i class="fas fa-calendar-plus"></i></button>';
+                            }
+                            label += '<button type="button" class="btn-action btn-view lnkPmgAssetView" id="lnkPmgAssetView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Asset Information"><i class="fas fa-qrcode"></i></button>';
+                            label += '</div>';
                             return label;
                         }
                     },
@@ -428,9 +429,10 @@ function MainPpmManagement() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            //let label = '<a><i class="fas fa-info-circle lnkPmgScheduledInfo" id="lnkPmgScheduledInfo_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Info"></i></a>';
-                            return '<a><i class="far fa-file-pdf lnkPmgScheduledPdf" id="lnkPmgScheduledPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Preventive Maintenance PDF"></i></a>';
-                            //return label;
+                            let label = '<div class="action-btn-group">';
+                            label += '<button type="button" class="btn-action btn-view lnkPmgScheduledPdf" id="lnkPmgScheduledPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Preventive Maintenance PDF"><i class="far fa-file-pdf"></i></button>';
+                            label += '</div>';
+                            return label;
                         }
                     }
                 ]

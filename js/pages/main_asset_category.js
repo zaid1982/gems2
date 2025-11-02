@@ -303,14 +303,16 @@ function MainAssetCategory() {
                         }
                         return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
                     }},
-                {mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
-                        let label = `<a><i class="fas fa-edit lnkActAssetCategoryEdit" id="lnkActAssetCategoryEdit_${meta.row}" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;`;
+                {mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
+                        let label = '<div class="action-btn-group">';
+                        label += `<button type="button" class="btn-action btn-edit lnkActAssetCategoryEdit" id="lnkActAssetCategoryEdit_${meta.row}" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>`;
                         if (row['assetCategoryStatus'] === '1') {
-                            label += `<a><i class="fas fa-toggle-off lnkActAssetCategoryDeactivate" id="lnkActAssetCategoryDeactivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;`;
+                            label += `<button type="button" class="btn-action btn-delete lnkActAssetCategoryDeactivate" id="lnkActAssetCategoryDeactivate_${meta.row}" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>`;
                         } else {
-                            label += `<a><i class="fas fa-toggle-on lnkActAssetCategoryActivate" id="lnkActAssetCategoryActivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;`;
+                            label += `<button type="button" class="btn-action btn-edit lnkActAssetCategoryActivate" id="lnkActAssetCategoryActivate_${meta.row}" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>`;
                         }
-                        label += `<a><i class="fas fa-trash-alt lnkActAssetCategoryDelete" id="lnkActAssetCategoryDelete_${meta.row}" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>`;
+                        label += `<button type="button" class="btn-action btn-delete lnkActAssetCategoryDelete" id="lnkActAssetCategoryDelete_${meta.row}" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>`;
+                        label += '</div>';
                         return label;
                     }},
                 {mData: 'assetGroupId', visible: false},

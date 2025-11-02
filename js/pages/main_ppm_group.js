@@ -374,8 +374,10 @@ function MainPpmGroup() {
                     bSortable: false,
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
-                        let label = '<a><i class="fas fa-edit lnkPgrTechnicianEdit" id="lnkPgrTechnicianEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
-                        label += '<a><i class="fas fa-trash-alt lnkPgrTechnicianDelete" id="lnkPgrTechnicianDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        let label = '<div class="action-btn-group">';
+                        label += '<button type="button" class="btn-action btn-edit lnkPgrTechnicianEdit" id="lnkPgrTechnicianEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
+                        label += '<button type="button" class="btn-action btn-delete lnkPgrTechnicianDelete" id="lnkPgrTechnicianDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                        label += '</div>';
                         return label;
                     }
                 }
@@ -443,8 +445,10 @@ function MainPpmGroup() {
                     bSortable: false,
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
-                        let label = '<a><i class="fas fa-edit lnkPgrSupervisorEdit" id="lnkPgrSupervisorEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
-                        label += '<a><i class="fas fa-trash-alt lnkPgrSupervisorDelete" id="lnkPgrSupervisorDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        let label = '<div class="action-btn-group">';
+                        label += '<button type="button" class="btn-action btn-edit lnkPgrSupervisorEdit" id="lnkPgrSupervisorEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
+                        label += '<button type="button" class="btn-action btn-delete lnkPgrSupervisorDelete" id="lnkPgrSupervisorDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                        label += '</div>';
                         return label;
                     }
                 }
@@ -511,8 +515,10 @@ function MainPpmGroup() {
                     bSortable: false,
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
-                        let label = '<a><i class="fas fa-edit lnkPgrEngineerEdit" id="lnkPgrEngineerEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
-                        label += '<a><i class="fas fa-trash-alt lnkPgrEngineerDelete" id="lnkPgrEngineerDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        let label = '<div class="action-btn-group">';
+                        label += '<button type="button" class="btn-action btn-edit lnkPgrEngineerEdit" id="lnkPgrEngineerEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
+                        label += '<button type="button" class="btn-action btn-delete lnkPgrEngineerDelete" id="lnkPgrEngineerDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                        label += '</div>';
                         return label;
                     }
                 }
@@ -579,8 +585,10 @@ function MainPpmGroup() {
                     bSortable: false,
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
-                        let label = '<a><i class="fas fa-edit lnkPgrWoTechnicianEdit" id="lnkPgrWoTechnicianEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
-                        label += '<a><i class="fas fa-trash-alt lnkPgrWoTechnicianDelete" id="lnkPgrWoTechnicianDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        let label = '<div class="action-btn-group">';
+                        label += '<button type="button" class="btn-action btn-edit lnkPgrWoTechnicianEdit" id="lnkPgrWoTechnicianEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
+                        label += '<button type="button" class="btn-action btn-delete lnkPgrWoTechnicianDelete" id="lnkPgrWoTechnicianDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                        label += '</div>';
                         return label;
                     }
                 }

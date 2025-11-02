@@ -156,7 +156,10 @@ function MainTrackMonitoring() {
                     bSortable: false,
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
-                        return '<a><i class="fas fa-info-circle lnkTnmListView" id="lnkTnmListView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Details"></i></a>';
+                        let label = '<div class="action-btn-group">';
+                        label += '<button type="button" class="btn-action btn-view lnkTnmListView" id="lnkTnmListView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Details"><i class="fas fa-info-circle"></i></button>';
+                        label += '</div>';
+                        return label;
                     }
                 },
                 { mData: 'flowId', visible: false },

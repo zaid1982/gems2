@@ -114,22 +114,48 @@ function MainHelpdesk() {
                     {mData: 'woTaskRate'},
                     {mData: null,
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['woTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['woTaskStatus']]['statusDesc']+'</span></h6>';
+                            if (type !== 'display') {
+                                return refStatus[row['woTaskStatus']]['statusDesc'];
+                            }
+                            const statusMap = {
+                                '1': 'pending',
+                                '2': 'pending',
+                                '3': 'in-progress',
+                                '4': 'in-progress',
+                                '5': 'completed',
+                                '6': 'cancelled'
+                            };
+                            const statusId = row['woTaskStatus'];
+                            const statusClass = statusMap[statusId] || 'pending';
+                            const statusText = refStatus[statusId]['statusDesc'];
+                            return `<span class="status-badge ${statusClass}">${statusText}</span>`;
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '';
+                            if (type !== 'display') {
+                                return '';
+                            }
+                            let buttons = '<div class="action-btn-group">';
                             if (mzIsRoleExist('1')) {
-                                label += '&nbsp;<a><i class="fas fa-trash-alt lnkHdkWoDelete" id="lnkHdkWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>&nbsp;';
+                                buttons += `<button type="button" class="btn-action btn-delete lnkHdkWoDelete" id="lnkHdkWoDelete_${meta.row}" title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>`;
                             }
                             //if (row['woTaskIsWr'] === '1') {
-                            //    label += '&nbsp;<a><i class="fas fa-file-signature lnkHdkWoPdfWr" id="lnkHdkWoPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
+                            //    buttons += `<button type="button" class="btn-action btn-view lnkHdkWoPdfWr" id="lnkHdkWoPdfWr_${meta.row}" title="Work Request PDF">
+                            //        <i class="fas fa-file-signature"></i>
+                            //        <span>WR PDF</span>
+                            //    </button>`;
                             //}
                             //if (row['woTaskIsWr'] !== '1' || row['woTaskTimeWrVerified'] !== '') {
-                            //    label += '&nbsp;<a><i class="far fa-file-pdf lnkHdkWoPdf" id="lnkHdkWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>&nbsp;';
+                            //    buttons += `<button type="button" class="btn-action btn-view lnkHdkWoPdf" id="lnkHdkWoPdf_${meta.row}" title="Work Order PDF">
+                            //        <i class="far fa-file-pdf"></i>
+                            //        <span>WO PDF</span>
+                            //    </button>`;
                             //}
-                            return label;
+                            buttons += '</div>';
+                            return buttons;
                         }
                     },
                     {mData: 'siteId', visible: false},

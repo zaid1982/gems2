@@ -82,14 +82,16 @@ function MainDrawingRecords () {
                         if (row['drawingDwg'] !== '') {
                             label += '<a onclick="mzOpenUpload('+row['drawingDwg']+')"><i class="fas fa-download" data-toggle="tooltip" data-placement="top" title="Download DWG File"></i></a>&nbsp;';
                         }
+                        label += '<div class="action-btn-group">';
                         if (row['drawingPdf'] !== '') {
-                            label += '<a onclick="mzOpenPdfUpload('+row['drawingPdf']+')"><i class="fas fa-file-pdf" data-toggle="tooltip" data-placement="top" title="View PDF"></i></a>&nbsp;';
+                            label += '<button type="button" class="btn-action btn-pdf" onclick="mzOpenPdfUpload('+row['drawingPdf']+')" data-toggle="tooltip" data-placement="top" title="View PDF"><i class="fas fa-file-pdf"></i></button>';
                         }
-                        //label += '<a><i class="fas fa-share-alt lnkDwrShare" id="lnkDwrShare_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Get Shared Link"></i></a>&nbsp;';
+                        //label += '<button type="button" class="btn-action btn-view lnkDwrShare" id="lnkDwrShare_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Get Shared Link"><i class="fas fa-share-alt"></i></button>';
                         if (userIsEdit) {
-                            label += '<a><i class="fas fa-edit lnkDwrEdit" id="lnkDwrEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;';
+                            label += '<button type="button" class="btn-action btn-edit lnkDwrEdit" id="lnkDwrEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
                         }
-                        //label += '<a><i class="fas fa-trash-alt lnkDwrDelete" id="lnkDwrDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        //label += '<button type="button" class="btn-action btn-delete lnkDwrDelete" id="lnkDwrDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                        label += '</div>';
                         return label;
                     }}
 			]				

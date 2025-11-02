@@ -380,13 +380,26 @@ function MainMrf () {
                         if (type !== 'display') {
                             return getStatusDesc(data);
                         }
-                        return `<h6 class="mb-0">${getStatusBadge(data)}</h6>`;
+                        const statusMap = {
+                            '1': 'pending',
+                            '2': 'in-progress', 
+                            '3': 'completed',
+                            '4': 'cancelled'
+                        };
+                        const statusClass = statusMap[data] || 'pending';
+                        const statusText = getStatusDesc(data);
+                        return `<span class="status-badge ${statusClass}">${statusText}</span>`;
                     } },
                 { mData: null, mRender: function (data, type, row, meta) {
                         if (type !== 'display') {
                             return 'View PDF';
                         }
-                        return `<button type="button" class="btn btn-outline-primary btn-rounded btn-sm px-3 lnkMrfListPdf" data-row-index="${meta.row}"><i class="fas fa-file-pdf mr-1"></i>View PDF</button>`;
+                        return `<div class="action-btn-group">
+                            <button type="button" class="btn-action btn-view lnkMrfListPdf" data-row-index="${meta.row}" title="View PDF">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>View PDF</span>
+                            </button>
+                        </div>`;
                     } }
             ]
         });

@@ -114,17 +114,28 @@ function MainWoAssign () {
                     }},
                 { mData: 'taskTimeCreated'},
                 { mData: 'woTaskStatus', mRender: function (data) {
-                        return '<h6><span class="badge badge-pill z-depth-2 '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                        const statusMap = {
+                            'badge-primary': 'pending',
+                            'badge-info': 'in-progress',
+                            'badge-success': 'completed',
+                            'badge-danger': 'cancelled'
+                        };
+                        const statusClass = statusMap[refStatus[data]['statusColor']] || 'pending';
+                        return '<span class="status-badge ' + statusClass + '">' + refStatus[data]['statusDesc'] + '</span>';
                     }},
-                { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
-                        let label = '';
+                { mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
+                        let label = '<div class="action-btn-group">';
                         if (row['woTaskIsWr'] === 1) {
-                            label += '<a><i class="far fa-file-alt lnkWssPendingPdfWr" id="lnkWssPendingPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
+                            label += '<button type="button" class="btn-action btn-view lnkWssPendingPdfWr" id="lnkWssPendingPdfWr_' + meta.row + '" data-toggle="tooltip" title="Work Request PDF">' +
+                                     '<i class="far fa-file-alt"></i></button>';
                         }
                         if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
-                            label += '<a><i class="far fa-file-pdf lnkWssPendingPdf" id="lnkWssPendingPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
+                            label += '<button type="button" class="btn-action btn-view lnkWssPendingPdf" id="lnkWssPendingPdf_' + meta.row + '" data-toggle="tooltip" title="Work Order PDF">' +
+                                     '<i class="far fa-file-pdf"></i></button>';
                         }
-                        label += '&nbsp;<a><i class="far fa-edit lnkWssPendingEdit" id="lnkWssPendingEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign"></i></a>';
+                        label += '<button type="button" class="btn-action btn-edit lnkWssPendingEdit" id="lnkWssPendingEdit_' + meta.row + '" data-toggle="tooltip" title="Assign">' +
+                                 '<i class="fas fa-user-check"></i></button>';
+                        label += '</div>';
                         return label;
                     }}
             ]
@@ -234,17 +245,28 @@ function MainWoAssign () {
                         return mzDurationStr(type, row['taskTimeCreated'], row['taskTimeSubmit']);
                     }},
                 { mData: 'woTaskStatus', mRender: function (data) {
-                        return '<h6><span class="badge badge-pill z-depth-2 '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                        const statusMap = {
+                            'badge-primary': 'pending',
+                            'badge-info': 'in-progress',
+                            'badge-success': 'completed',
+                            'badge-danger': 'cancelled'
+                        };
+                        const statusClass = statusMap[refStatus[data]['statusColor']] || 'pending';
+                        return '<span class="status-badge ' + statusClass + '">' + refStatus[data]['statusDesc'] + '</span>';
                     }},
-                { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
-                        let label = '';
+                { mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
+                        let label = '<div class="action-btn-group">';
                         if (row['woTaskIsWr'] === 1) {
-                            label += '<a><i class="far fa-file-alt lnkWssSubmittedPdfWr" id="lnkWssSubmittedPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
+                            label += '<button type="button" class="btn-action btn-view lnkWssSubmittedPdfWr" id="lnkWssSubmittedPdfWr_' + meta.row + '" data-toggle="tooltip" title="Work Request PDF">' +
+                                     '<i class="far fa-file-alt"></i></button>';
                         }
                         if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
-                            label += '<a><i class="far fa-file-pdf lnkWssSubmittedPdf" id="lnkWssSubmittedPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
+                            label += '<button type="button" class="btn-action btn-view lnkWssSubmittedPdf" id="lnkWssSubmittedPdf_' + meta.row + '" data-toggle="tooltip" title="Work Order PDF">' +
+                                     '<i class="far fa-file-pdf"></i></button>';
                         }
-                        label += '&nbsp;<a><i class="far fa-square-info lnkWssSubmittedInfo" id="lnkWssSubmittedInfo_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Info"></i></a>';
+                        label += '<button type="button" class="btn-action btn-view lnkWssSubmittedInfo" id="lnkWssSubmittedInfo_' + meta.row + '" data-toggle="tooltip" title="View Details">' +
+                                 '<i class="fas fa-info-circle"></i></button>';
+                        label += '</div>';
                         return label;
                     }}
             ]

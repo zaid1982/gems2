@@ -370,16 +370,18 @@ function MainSite() {
                             }
                             return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
                         } },
-                    { mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
-                            let label = `<a><i class="fas fa-qrcode lnkSteSiteVisitorPublic" id="lnkSteSiteVisitorPublic_${meta.row}" data-toggle="tooltip" data-placement="top" title="Visitor Public Link / QR"></i></a>&nbsp;&nbsp;`;
-                            label += `<a><i class="fas fa-qrcode lnkSteSitePtwPublic" id="lnkSteSitePtwPublic_${meta.row}" data-toggle="tooltip" data-placement="top" title="PTW Public Link / QR"></i></a>&nbsp;&nbsp;`;
-                            label += `<a><i class="fas fa-edit lnkSteSiteEdit" id="lnkSteSiteEdit_${meta.row}" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;`;
+                    { mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
+                            let label = '<div class="action-btn-group">';
+                            label += `<button type="button" class="btn-action btn-view lnkSteSiteVisitorPublic" id="lnkSteSiteVisitorPublic_${meta.row}" data-toggle="tooltip" title="Visitor Public Link / QR"><i class="fas fa-qrcode"></i></button>`;
+                            label += `<button type="button" class="btn-action btn-view lnkSteSitePtwPublic" id="lnkSteSitePtwPublic_${meta.row}" data-toggle="tooltip" title="PTW Public Link / QR"><i class="fas fa-qrcode"></i></button>`;
+                            label += `<button type="button" class="btn-action btn-edit lnkSteSiteEdit" id="lnkSteSiteEdit_${meta.row}" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>`;
                             if (row['siteStatus'] === '1') {
-                                label += `<a><i class="fas fa-toggle-off lnkSteSiteDeactivate" id="lnkSteSiteDeactivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;`;
+                                label += `<button type="button" class="btn-action btn-delete lnkSteSiteDeactivate" id="lnkSteSiteDeactivate_${meta.row}" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>`;
                             } else {
-                                label += `<a><i class="fas fa-toggle-on lnkSteSiteActivate" id="lnkSteSiteActivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;`;
+                                label += `<button type="button" class="btn-action btn-edit lnkSteSiteActivate" id="lnkSteSiteActivate_${meta.row}" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>`;
                             }
-                            label += `<a><i class="fas fa-trash-alt lnkSteSiteDelete" id="lnkSteSiteDelete_${meta.row}" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>`;
+                            label += `<button type="button" class="btn-action btn-delete lnkSteSiteDelete" id="lnkSteSiteDelete_${meta.row}" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>`;
+                            label += '</div>';
                             return label;
                         } },
                     { mData: 'clientId', visible: false },

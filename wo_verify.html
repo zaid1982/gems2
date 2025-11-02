@@ -94,24 +94,24 @@
                 </section>
 
                 <section class="mt-4 sectionWvrMain sectionWvrTask sectionWvrPending">
-                    <div class="card card-cascade narrower z-depth-0 module-data-card">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div class="d-flex align-items-center">
-                                <span class="badge badge-soft badge-soft-primary mr-3"><i class="fas fa-tasks"></i></span>
-                                <h4 class="mb-0 text-white">Pending Task List</h4>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-3" data-toggle="popover" data-trigger="focus" title="Pending Task List" data-content="Tasks awaiting verification or closure action.">
-                                    <i class="fas fa-info"></i>
-                                </a>
-                                <div id="btnWvrPendingExport" class="dt-btn-slot"></div>
+                    <div class="modern-table-card">
+                        <div class="table-header">
+                            <h5>
+                                <i class="fas fa-tasks"></i>
+                                Pending Task List
+                            </h5>
+                            <div class="table-header-actions">
+                                <button type="button" class="btn-header" data-toggle="tooltip" title="Tasks awaiting verification or closure action">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                                <div id="btnWvrPendingExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4 module-table-wrapper">
+                        <div class="table-body">
                             <div class="table-responsive">
-                                <table id="dtWvrPending" class="table table-custom-badge table-hover mb-0 display responsive">
+                                <table id="dtWvrPending" class="table table-hover mb-0">
                                     <thead>
-                                    <tr class="th-strong">
+                                    <tr>
                                         <th>#</th>
                                         <th>WO No</th>
                                         <th>Location</th>
@@ -120,12 +120,12 @@
                                         <th>Severity</th>
                                         <th>Technician</th>
                                         <th>Received Time</th>
-                                        <th style="width: 30px; min-width: 30px">SLA Respond</th>
+                                        <th>SLA Respond</th>
                                         <th>Respond Duration</th>
-                                        <th style="width: 30px; min-width: 30px">SLA Execution</th>
+                                        <th>SLA Execution</th>
                                         <th>Execution Duration</th>
                                         <th>Status</th>
-                                        <th style="width: 40px; min-width: 40px">&nbsp;</th>
+                                        <th>Actions</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -136,24 +136,24 @@
                 </section>
 
                 <section class="mt-4 sectionWvrMain sectionWvrTask sectionWvrSubmitted">
-                    <div class="card card-cascade narrower z-depth-0 module-data-card">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div class="d-flex align-items-center">
-                                <span class="badge badge-soft badge-soft-success mr-3"><i class="fas fa-check"></i></span>
-                                <h4 class="mb-0 text-white">Submitted Task List</h4>
-                            </div>
-                            <div class="d-flex align-items-center gap-3">
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-3" data-toggle="popover" data-trigger="focus" title="Submitted Task List" data-content="Recently verified tasks for audit trail.">
-                                    <i class="fas fa-info"></i>
-                                </a>
-                                <div id="btnWvrSubmittedExport" class="dt-btn-slot"></div>
+                    <div class="modern-table-card">
+                        <div class="table-header">
+                            <h5>
+                                <i class="fas fa-check"></i>
+                                Submitted Task List
+                            </h5>
+                            <div class="table-header-actions">
+                                <button type="button" class="btn-header" data-toggle="tooltip" title="Recently verified tasks for audit trail">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                                <div id="btnWvrSubmittedExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4 module-table-wrapper">
+                        <div class="table-body">
                             <div class="table-responsive">
-                                <table id="dtWvrSubmitted" class="table table-custom-badge table-hover mb-0 display responsive">
+                                <table id="dtWvrSubmitted" class="table table-hover mb-0">
                                     <thead>
-                                    <tr class="th-strong">
+                                    <tr>
                                         <th>#</th>
                                         <th>WO No</th>
                                         <th>Location</th>
@@ -163,12 +163,12 @@
                                         <th>Technician</th>
                                         <th>Received Time</th>
                                         <th>Submitted Time</th>
-                                        <th style="width: 30px; min-width: 30px">SLA Respond</th>
+                                        <th>SLA Respond</th>
                                         <th>Respond Duration</th>
-                                        <th style="width: 30px; min-width: 30px">SLA Execution</th>
+                                        <th>SLA Execution</th>
                                         <th>Execution Duration</th>
                                         <th>Status</th>
-                                        <th style="width: 40px; min-width: 40px">&nbsp;</th>
+                                        <th>Actions</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>

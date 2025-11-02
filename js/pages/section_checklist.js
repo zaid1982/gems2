@@ -226,13 +226,15 @@ function SectionChecklist() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkSckChecklistQualEdit" id="lnkSckChecklistQualEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            let label = '<div class="action-btn-group">';
+                            label += '<button type="button" class="btn-action btn-edit lnkSckChecklistQualEdit" id="lnkSckChecklistQualEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
                             if (row['checklistQualStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkSckChecklistQualDeactivate" id="lnkSckChecklistQualDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
+                                label += '<button type="button" class="btn-action btn-deactivate lnkSckChecklistQualDeactivate" id="lnkSckChecklistQualDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
                             } else {
-                                label += '<a><i class="fas fa-toggle-on lnkSckChecklistQualActivate" id="lnkSckChecklistQualActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
+                                label += '<button type="button" class="btn-action btn-activate lnkSckChecklistQualActivate" id="lnkSckChecklistQualActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
                             }
-                            label += '<a><i class="fas fa-trash-alt lnkSckChecklistQualDelete" id="lnkSckChecklistQualDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                            label += '<button type="button" class="btn-action btn-delete lnkSckChecklistQualDelete" id="lnkSckChecklistQualDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                            label += '</div>';
                             return label;
                         }
                     }
@@ -361,13 +363,15 @@ function SectionChecklist() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkSckChecklistQuanEdit" id="lnkSckChecklistQuanEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            let label = '<div class="action-btn-group">';
+                            label += '<button type="button" class="btn-action btn-edit lnkSckChecklistQuanEdit" id="lnkSckChecklistQuanEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
                             if (row['checklistQuanStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkSckChecklistQuanDeactivate" id="lnkSckChecklistQuanDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
+                                label += '<button type="button" class="btn-action btn-deactivate lnkSckChecklistQuanDeactivate" id="lnkSckChecklistQuanDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
                             } else {
-                                label += '<a><i class="fas fa-toggle-on lnkSckChecklistQuanActivate" id="lnkSckChecklistQuanActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
+                                label += '<button type="button" class="btn-action btn-activate lnkSckChecklistQuanActivate" id="lnkSckChecklistQuanActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
                             }
-                            label += '<a><i class="fas fa-trash-alt lnkSckChecklistQuanDelete" id="lnkSckChecklistQuanDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                            label += '<button type="button" class="btn-action btn-delete lnkSckChecklistQuanDelete" id="lnkSckChecklistQuanDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                            label += '</div>';
                             return label;
                         }
                     }

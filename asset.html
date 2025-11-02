@@ -170,23 +170,24 @@
                 </section>
 
                 <section>
-                    <div class="card card-cascade narrower z-depth-0 module-data-card asset-table">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset List" data-content="Comprehensive list of assets for the selected contract."><i class="fas fa-info mt-0 mx-1"></i></a>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Asset List</a>
-                            <div class="dt-btn-slot">
-                                <div id="btnDtAszAssetExport"></div>
-                            </div>
-                        </div>
-                        <div class="px-4 pb-3">
-                            <div class="summary-pill d-flex justify-content-between align-items-center">
-                                <span id="lblAszListCount">Showing 0 of 0</span>
-                                <span id="lblAszListUpdated">—</span>
+                    <div class="modern-table-card">
+                        <div class="table-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h4 class="mb-1 font-weight-600">Asset List</h4>
+                                    <p class="mb-0">Comprehensive list of assets for the selected contract</p>
+                                </div>
+                                <div class="dt-btn-slot">
+                                    <div id="btnDtAszAssetExport"></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4 module-table-wrapper">
+                        <div class="table-body">
+                            <div class="results-info mb-3">
+                                <span class="results-count" id="lblAszListCount">Showing 0 of 0 results</span>
+                                <span class="separator mx-2">•</span>
+                                <span class="last-updated" id="lblAszListUpdated">Last updated: —</span>
+                            </div>
                             <div class="table-responsive">
                                 <table id="dtAszAsset" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
                                     <thead>

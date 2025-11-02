@@ -143,17 +143,28 @@ function MainWoVerify () {
                         return mzDurationStr(type, row[row['woTaskIsWr'] === 1 ? 'woTaskTimeWrVerified' : 'woTaskTimeAssigned'], row['woTaskTimeExecuted']);
                     }},
                 { mData: 'woTaskStatus', mRender: function (data) {
-                        return '<h6><span class="badge badge-pill z-depth-2 '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                        const statusMap = {
+                            'badge-primary': 'pending',
+                            'badge-info': 'in-progress',
+                            'badge-success': 'completed',
+                            'badge-danger': 'cancelled'
+                        };
+                        const statusClass = statusMap[refStatus[data]['statusColor']] || 'pending';
+                        return '<span class="status-badge ' + statusClass + '">' + refStatus[data]['statusDesc'] + '</span>';
                     }},
-                { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
-                        let label = '';
+                { mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
+                        let label = '<div class="action-btn-group">';
                         if (row['woTaskIsWr'] === 1) {
-                            label += '<a><i class="far fa-file-alt lnkWvrPendingPdfWr" id="lnkWvrPendingPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
+                            label += '<button type="button" class="btn-action btn-view lnkWvrPendingPdfWr" id="lnkWvrPendingPdfWr_' + meta.row + '" data-toggle="tooltip" title="Work Request PDF">' +
+                                     '<i class="far fa-file-alt"></i></button>';
                         }
                         if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
-                            label += '<a><i class="far fa-file-pdf lnkWvrPendingPdf" id="lnkWvrPendingPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
+                            label += '<button type="button" class="btn-action btn-view lnkWvrPendingPdf" id="lnkWvrPendingPdf_' + meta.row + '" data-toggle="tooltip" title="Work Order PDF">' +
+                                     '<i class="far fa-file-pdf"></i></button>';
                         }
-                        label += '&nbsp;<a><i class="far fa-edit lnkWvrPendingEdit" id="lnkWvrPendingEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Verify"></i></a>';
+                        label += '<button type="button" class="btn-action btn-edit lnkWvrPendingEdit" id="lnkWvrPendingEdit_' + meta.row + '" data-toggle="tooltip" title="Verify">' +
+                                 '<i class="fas fa-clipboard-check"></i></button>';
+                        label += '</div>';
                         return label;
                     }}
             ]
@@ -277,17 +288,28 @@ function MainWoVerify () {
                         return mzDurationStr(type, row[row['woTaskIsWr'] === 1 ? 'woTaskTimeWrVerified' : 'woTaskTimeAssigned'], row['woTaskTimeExecuted']);
                     }},
                 { mData: 'woTaskStatus', mRender: function (data) {
-                        return '<h6><span class="badge badge-pill z-depth-2 '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                        const statusMap = {
+                            'badge-primary': 'pending',
+                            'badge-info': 'in-progress',
+                            'badge-success': 'completed',
+                            'badge-danger': 'cancelled'
+                        };
+                        const statusClass = statusMap[refStatus[data]['statusColor']] || 'pending';
+                        return '<span class="status-badge ' + statusClass + '">' + refStatus[data]['statusDesc'] + '</span>';
                     }},
-                { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
-                        let label = '';
+                { mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
+                        let label = '<div class="action-btn-group">';
                         if (row['woTaskIsWr'] === 1) {
-                            label += '<a><i class="far fa-file-alt lnkWvrSubmittedPdfWr" id="lnkWvrSubmittedPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
+                            label += '<button type="button" class="btn-action btn-view lnkWvrSubmittedPdfWr" id="lnkWvrSubmittedPdfWr_' + meta.row + '" data-toggle="tooltip" title="Work Request PDF">' +
+                                     '<i class="far fa-file-alt"></i></button>';
                         }
                         if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
-                            label += '<a><i class="far fa-file-pdf lnkWvrSubmittedPdf" id="lnkWvrSubmittedPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
+                            label += '<button type="button" class="btn-action btn-view lnkWvrSubmittedPdf" id="lnkWvrSubmittedPdf_' + meta.row + '" data-toggle="tooltip" title="Work Order PDF">' +
+                                     '<i class="far fa-file-pdf"></i></button>';
                         }
-                        label += '&nbsp;<a><i class="far fa-square-info lnkWvrSubmittedInfo" id="lnkWvrSubmittedInfo_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Info"></i></a>';
+                        label += '<button type="button" class="btn-action btn-view lnkWvrSubmittedInfo" id="lnkWvrSubmittedInfo_' + meta.row + '" data-toggle="tooltip" title="View Details">' +
+                                 '<i class="fas fa-info-circle"></i></button>';
+                        label += '</div>';
                         return label;
                     }}
             ]

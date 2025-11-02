@@ -13,8 +13,17 @@
         { data:'spaceLocationName', defaultContent:'' },
         { data:'spaceLocationDesc', defaultContent:'' },
         { data:'spaceLocationStatus', render:function(d){ return statusBadge(parseInt(d||0)); } },
-        { data:null, render:function(row){ var actBtn = parseInt(row.spaceLocationStatus)?'<button class="btn btn-outline-warning btn-sm btnLocDeactivate" title="Deactivate"><i class="fas fa-ban"></i></button>':'<button class="btn btn-outline-success btn-sm btnLocActivate" title="Activate"><i class="fas fa-check"></i></button>'; return '<div class="btn-group btn-group-sm" role="group">'+
-            '<button type="button" class="btn btn-outline-secondary btnLocEdit" title="Edit"><i class="fas fa-pen"></i></button>'+ actBtn +'</div>'; } }
+        { data:null, render:function(row){ 
+            let label = '<div class="action-btn-group">';
+            label += '<button type="button" class="btn-action btn-edit btnLocEdit" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>';
+            if(parseInt(row.spaceLocationStatus)){ 
+                label += '<button type="button" class="btn-action btn-deactivate btnLocDeactivate" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>'; 
+            } else { 
+                label += '<button type="button" class="btn-action btn-activate btnLocActivate" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>'; 
+            }
+            label += '</div>';
+            return label;
+        } }
       ]
     });
     dt.on('order.dt search.dt', function () { dt.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) { cell.innerHTML = i + 1; }); }).draw();

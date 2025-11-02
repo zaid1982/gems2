@@ -155,8 +155,11 @@ function MainLicense(){
   { mData:null, mRender:function(row){ return badge(row); } },
         { mData:null, mRender:function(row){ return fileLink(row); } },
         { mData:null, mRender:function(row, type, full, meta){
-            return '<a><i class="fas fa-edit lnkLcnEdit" id="lnkLcnEdit_'+meta.row+'" data-toggle="tooltip" title="Edit"></i></a>&nbsp;'
-                 + '<a><i class="fas fa-trash-alt lnkLcnDelete" id="lnkLcnDelete_'+meta.row+'" data-toggle="tooltip" title="Delete"></i></a>';
+            let label = '<div class="action-btn-group">';
+            label += '<button type="button" class="btn-action btn-edit lnkLcnEdit" id="lnkLcnEdit_'+meta.row+'" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>';
+            label += '<button type="button" class="btn-action btn-delete lnkLcnDelete" id="lnkLcnDelete_'+meta.row+'" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+            label += '</div>';
+            return label;
         }}
       ]
     });

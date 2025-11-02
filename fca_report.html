@@ -38,6 +38,74 @@
             opacity: 0.9;
             margin: 0;
         }
+
+        /* Modern table styling to match design system */
+        #dtFcrData { margin-bottom: 0; border-collapse: separate; border-spacing: 0; }
+        #dtFcrData thead th { 
+            background: #F8FAFC; 
+            color: #64748B; 
+            font-weight: 700; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+            padding: 14px 16px; 
+            border: none; 
+            border-bottom: 2px solid #E2E8F0;
+            white-space: nowrap;
+        }
+        #dtFcrData tbody tr { 
+            background: #fff; 
+            transition: all 0.15s ease; 
+            border-bottom: 1px solid #F1F5F9;
+        }
+        #dtFcrData tbody tr:hover { 
+            background: #FAFBFC; 
+            box-shadow: 0 2px 8px rgba(2,6,23,.04); 
+            position: relative; 
+            z-index: 1;
+        }
+        #dtFcrData tbody td { 
+            padding: 16px; 
+            vertical-align: middle; 
+            color: #0F172A; 
+            border: none;
+            font-size: 14px;
+        }
+        #dtFcrData tbody td:first-child { font-weight: 600; color: #64748B; }
+        #dtFcrData tbody td:nth-child(3) { font-weight: 600; color: #4338CA; }
+
+        /* Card styling */
+        #divFcrCard { 
+            background: #fff; 
+            border-radius: 20px; 
+            border: none; 
+            box-shadow: 0 6px 16px rgba(2,6,23,.06);
+        }
+        #divFcrCard .card-body { padding: 12px; }
+
+        /* DataTable buttons styling */
+        .dt-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .dt-buttons .btn { border-radius: 8px !important; font-weight: 600; }
+        div.dataTables_wrapper div.dataTables_filter { margin-bottom: 8px; }
+        div.dataTables_wrapper div.dataTables_filter input { 
+            border-radius: 8px !important; 
+            padding: 8px 12px; 
+            border: 1px solid #E2E8F0;
+        }
+        div.dataTables_wrapper div.dataTables_filter input:focus {
+            border-color: #4338CA;
+            box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+        }
+
+        /* Mobile table stack at ≤768px */
+        @media (max-width: 768px) {
+            #dtFcrData thead { display: none; }
+            #dtFcrData, #dtFcrData tbody, #dtFcrData tr, #dtFcrData td { display: block; width: 100%; }
+            #dtFcrData tr { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; box-shadow: 0 4px 10px rgba(2,6,23,.04); }
+            #dtFcrData td { border: 0; border-bottom: 1px dashed #e5e7eb; padding: 8px 0; }
+            #dtFcrData td:last-child { border-bottom: 0; }
+            #dtFcrData td::before { content: attr(data-label); display: block; color: #64748B; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+        }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -55,21 +123,24 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid">
-        <div class="gems-page-header fca-report-header sectionFcrMain">
+        <section class="gems-page-header fca-report-header sectionFcrMain" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
             <div class="header-text">
                 <h2><i class="fas fa-file-pdf mr-3"></i>FCA PDF Report</h2>
                 <p>Generate and manage Facility Condition Appraisal PDF documents</p>
             </div>
-        </div>
+            <div class="header-actions" style="display: flex; gap: 12px;">
+                <!-- Actions will be added by DataTable buttons -->
+            </div>
+        </section>
         <section class="mt-4 mb-3">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="card z-depth-3 mb-4_5" id="divFcrCard">
-                        <div class="card-body pt-4">
+                    <div class="card" id="divFcrCard">
+                        <div class="card-body">
                             <div class="table-responsive">
-                                <table id="dtFcrData" class="table table-hover table-sm mb-0 display responsive">
+                                <table id="dtFcrData" class="table display responsive">
                                     <thead>
-                                    <tr class="th-strong">
+                                    <tr>
                                         <th>#</th>
                                         <th>Site</th>
                                         <th>Report Name</th>
@@ -81,7 +152,7 @@
                                         <th>Total FCA</th>
                                         <th>Created By</th>
                                         <th>Time Created</th>   <!--10-->
-                                        <th style="width: 34px; min-width: 34px;">&nbsp;</th>
+                                        <th style="width: 34px; min-width: 34px;">Actions</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>

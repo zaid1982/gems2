@@ -170,8 +170,8 @@
                 </section>
 
                 <section>
-                    <div class="card card-cascade narrower z-depth-0 module-data-card">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div class="modern-table-card">
+                        <div class="table-header">
                             <div>
                                 <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
                                    data-toggle="popover" data-trigger="focus" title="Asset List"
@@ -182,9 +182,8 @@
                                 <div id="btnDtPmgAssetExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4 module-table-wrapper">
-                            <div class="table-responsive">
-                                <table id="dtPmgAsset" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                        <div class="table-body">
+                            <table id="dtPmgAsset" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
                                         <th scope="row" style="max-width: 30px">#</th>
@@ -215,12 +214,11 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
                 </section>
 
                 <section id="divPmgScheduled" class="mt-5">
-                    <div class="card card-cascade narrower z-depth-0 module-data-card">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
+                    <div class="modern-table-card">
+                        <div class="table-header">
                             <div>
                                 <button type="button" id="btnDtPmgScheduledRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
                             </div>
@@ -229,7 +227,7 @@
                                 <div id="btnDtPmgScheduledExport"></div>
                             </div>
                         </div>
-                        <div class="px-4 pb-4 module-table-wrapper">
+                        <div class="table-body">
                             <div class="filter-card mb-3">
                                 <label class="filter-label" for="txtPmgScheduledSearch">Search</label>
                                 <div class="md-form md-outline mt-0 mb-0">
@@ -237,8 +235,7 @@
                                     <label for="txtPmgScheduledSearch" class="active">Search scheduled list</label>
                                 </div>
                             </div>
-                            <div class="table-responsive">
-                                <table id="dtPmgScheduled" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
+                            <table id="dtPmgScheduled" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
                                     <thead>
                                     <tr class="th-strong">
                                         <th scope="row" style="max-width: 30px">#</th>
@@ -255,7 +252,6 @@
                                 </table>
                             </div>
                         </div>
-                    </div>
                 </section>
             </div>
         </section>

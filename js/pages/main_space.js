@@ -18,12 +18,12 @@
     function initDataTable() {
         isAdmin = !!mzIsRoleExist('1,10');
     dt = $('#dtSpc').DataTable({ language: _DATATABLE_LANGUAGE, searching: true, ordering: true, responsive: true, paging: true, dom:'Bfrtip', buttons:[{extend:'csv', title:'spaces'},{extend:'excel', title:'spaces'},{extend:'print', title:'spaces'}], columnDefs: [{ targets: 0, orderable: false, searchable: false }, { targets: -1, orderable: false, searchable: false }], order: [[1, 'asc']], data: [], columns: [ { data: null, render: function() { return ''; } }, { data: 'spaceName' }, { data: 'locationName', defaultContent: '' }, { data: 'categoryName', defaultContent: '' }, { data: 'typeName', defaultContent: '' }, { data: 'spaceArea', defaultContent: '' }, { data: 'spaceCapacity', defaultContent: '' }, { data: 'spaceStatus', render: function(d){ return statusBadge(d); } }, { data: null, render: function(row){ 
-            let html = '<div class="btn-group btn-group-sm" role="group">';
+            let html = '<div class="action-btn-group">';
             if (isAdmin) {
-                html += '<button type="button" class="btn btn-outline-secondary btnSpcManage" title="Manage"><i class="fas fa-tools"></i></button>';
-                html += '<button type="button" class="btn btn-outline-danger btnSpcDelete" title="Delete"><i class="fas fa-trash"></i></button>';
+                html += '<button type="button" class="btn-action btn-edit btnSpcManage" data-toggle="tooltip" title="Manage"><i class="fas fa-tools"></i></button>';
+                html += '<button type="button" class="btn-action btn-delete btnSpcDelete" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>';
             }
-            html += '<button type="button" class="btn btn-outline-primary btnSpcView" title="View"><i class="fa fa-eye"></i></button>';
+            html += '<button type="button" class="btn-action btn-view btnSpcView" data-toggle="tooltip" title="View"><i class="fas fa-eye"></i></button>';
             html += '</div>'; return html; 
         } } ] });
     dt.on('order.dt search.dt', function () { dt.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) { cell.innerHTML = i + 1; }); }).draw();

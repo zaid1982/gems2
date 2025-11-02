@@ -133,7 +133,10 @@ function MainChecklist() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            return '<a><i class="fas fa-list-ul lnkPcmChecklistGroupExpand" id="lnkPcmChecklistGroupExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist list"></i></a>&nbsp;&nbsp;';
+                            let label = '<div class="action-btn-group">';
+                            label += '<button type="button" class="btn-action btn-view lnkPcmChecklistGroupExpand" id="lnkPcmChecklistGroupExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist list"><i class="fas fa-list-ul"></i></button>';
+                            label += '</div>';
+                            return label;
                         }
                     },
                     {mData: 'assetGroupId', visible: false},
@@ -323,18 +326,20 @@ function MainChecklist() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkPcmChecklistEdit" id="lnkPcmChecklistEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>';
+                            let label = '<div class="action-btn-group">';
+                            label += '<button type="button" class="btn-action btn-edit lnkPcmChecklistEdit" id="lnkPcmChecklistEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
                             if (row['checklistStatus'] === '1') {
-                                label += '&nbsp;&nbsp;<a><i class="fas fa-toggle-off lnkPcmChecklistDeactivate" id="lnkPcmChecklistDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>';
+                                label += '<button type="button" class="btn-action btn-deactivate lnkPcmChecklistDeactivate" id="lnkPcmChecklistDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
                             } else if (row['checklistStatus'] === '2') {
-                                label += '&nbsp;&nbsp;<a><i class="fas fa-toggle-on lnkPcmChecklistActivate" id="lnkPcmChecklistActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>';
+                                label += '<button type="button" class="btn-action btn-activate lnkPcmChecklistActivate" id="lnkPcmChecklistActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
                             } else if (row['checklistStatus'] === '5') {
-                                label += '&nbsp;&nbsp;<a><i class="fas fa-trash-alt lnkPcmChecklistDelete" id="lnkPcmChecklistDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                                label += '<button type="button" class="btn-action btn-delete lnkPcmChecklistDelete" id="lnkPcmChecklistDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
                             }
                             if (row['pdfId'] != '') {
-                                label += '&nbsp;&nbsp;<a><i class="far fa-file-pdf lnkPcmChecklistPdf" id="lnkPcmChecklistPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist PDF"></i></a>';
+                                label += '<button type="button" class="btn-action btn-pdf lnkPcmChecklistPdf" id="lnkPcmChecklistPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist PDF"><i class="far fa-file-pdf"></i></button>';
                             }
-                            label += '&nbsp;&nbsp;<a><i class="far fa-copy lnkPcmChecklistDuplicate" id="lnkPcmChecklistDuplicate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Duplicate Checklist"></i></a>';
+                            label += '<button type="button" class="btn-action btn-view lnkPcmChecklistDuplicate" id="lnkPcmChecklistDuplicate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Duplicate Checklist"><i class="far fa-copy"></i></button>';
+                            label += '</div>';
                             return label;
                         }
                     }

@@ -247,13 +247,15 @@ function MainAssetGroup() {
                         return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
                     }},
                 {mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
-                        let label = `<a><i class="fas fa-edit lnkAgrAssetGroupEdit" id="lnkAgrAssetGroupEdit_${meta.row}" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;`;
+                        let label = `<div class="action-btn-group">`;
+                        label += `<button type="button" class="btn-action btn-edit lnkAgrAssetGroupEdit" id="lnkAgrAssetGroupEdit_${meta.row}" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>`;
                         if (row['assetGroupStatus'] === '1') {
-                            label += `<a><i class="fas fa-toggle-off lnkAgrAssetGroupDeactivate" id="lnkAgrAssetGroupDeactivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;`;
+                            label += `<button type="button" class="btn-action btn-deactivate lnkAgrAssetGroupDeactivate" id="lnkAgrAssetGroupDeactivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>`;
                         } else {
-                            label += `<a><i class="fas fa-toggle-on lnkAgrAssetGroupActivate" id="lnkAgrAssetGroupActivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;`;
+                            label += `<button type="button" class="btn-action btn-activate lnkAgrAssetGroupActivate" id="lnkAgrAssetGroupActivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>`;
                         }
-                        label += `<a><i class="fas fa-trash-alt lnkAgrAssetGroupDelete" id="lnkAgrAssetGroupDelete_${meta.row}" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>`;
+                        label += `<button type="button" class="btn-action btn-delete lnkAgrAssetGroupDelete" id="lnkAgrAssetGroupDelete_${meta.row}" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>`;
+                        label += `</div>`;
                         return label;
                     }},
                 {mData: 'assetGroupId', visible: false}

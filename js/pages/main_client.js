@@ -191,7 +191,7 @@ function MainClient() {
             const hourValue = hourSplit[j] || '0';
             const respondValue = respondSplit[j] || '0';
             const linkId = `lnkClnClientHourEdit_${metaRow}_${severityId}__${hourValue}___${respondValue}`;
-            listItems.push(`<li>${severityName} - ${respondValue}-minute/${hourValue}-hour <a><i class="fas fa-pen-alt lnkClnClientHourEdit" id="${linkId}" data-severity-id="${severityId}" data-severity-hour="${hourValue}" data-severity-respond="${respondValue}" data-toggle="tooltip" data-placement="top" title="Edit KPI hours"></i></a></li>`);
+            listItems.push(`<li>${severityName} - ${respondValue}-minute/${hourValue}-hour <button type="button" class="btn-action btn-edit lnkClnClientHourEdit" id="${linkId}" data-severity-id="${severityId}" data-severity-hour="${hourValue}" data-severity-respond="${respondValue}" data-toggle="tooltip" data-placement="top" title="Edit KPI hours"><i class="fas fa-pen-alt"></i></button></li>`);
         }
         return `<ul class="list-unstyled mb-0">${listItems.join('')}</ul>`;
     };
@@ -352,14 +352,16 @@ function MainClient() {
                         }
                         return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
                     }},
-                {mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row) {
-                        let label = '<a><i class="fas fa-edit lnkClnClientEdit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                {mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
+                        let label = '<div class="action-btn-group">';
+                        label += '<button type="button" class="btn-action btn-edit lnkClnClientEdit" id="lnkClnClientEdit_' + meta.row + '" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>';
                         if (row['clientStatus'] === '1') {
-                            label += '<a><i class="fas fa-toggle-off lnkClnClientDeactivate" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
+                            label += '<button type="button" class="btn-action btn-delete lnkClnClientDeactivate" id="lnkClnClientDeactivate_' + meta.row + '" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
                         } else {
-                            label += '<a><i class="fas fa-toggle-on lnkClnClientActivate" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
+                            label += '<button type="button" class="btn-action btn-edit lnkClnClientActivate" id="lnkClnClientActivate_' + meta.row + '" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>';
                         }
-                        label += '<a><i class="fas fa-trash-alt lnkClnClientDelete" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        label += '<button type="button" class="btn-action btn-delete lnkClnClientDelete" id="lnkClnClientDelete_' + meta.row + '" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                        label += '</div>';
                         return label;
                     }},
                 {mData: 'clientStatus', visible: false},

@@ -155,13 +155,15 @@ function MainSeverity() {
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<a><i class="fas fa-edit lnkSvrSeverityEdit" id="lnkSvrSeverityEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
+                            let label = '<div class="action-btn-group">';
+                            label += '<button type="button" class="btn-action btn-edit lnkSvrSeverityEdit" id="lnkSvrSeverityEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
                             if (row['severityStatus'] === '1') {
-                                label += '<a><i class="fas fa-toggle-off lnkSvrSeverityDeactivate" id="lnkSvrSeverityDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
+                                label += '<button type="button" class="btn-action btn-deactivate lnkSvrSeverityDeactivate" id="lnkSvrSeverityDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
                             } else {
-                                label += '<a><i class="fas fa-toggle-on lnkSvrSeverityActivate" id="lnkSvrSeverityActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
+                                label += '<button type="button" class="btn-action btn-activate lnkSvrSeverityActivate" id="lnkSvrSeverityActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
                             }
-                            label += '<a><i class="fas fa-trash-alt lnkSvrSeverityDelete" id="lnkSvrSeverityDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                            label += '<button type="button" class="btn-action btn-delete lnkSvrSeverityDelete" id="lnkSvrSeverityDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                            label += '</div>';
                             return label;
                         }
                     },

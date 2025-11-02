@@ -247,4 +247,229 @@ $(function () {
 
 - License page: license.html + js/pages/main_license.js
 - Zone page (template download pattern): zone.html + js/pages/main_zone.js
+- Home dashboard with modern tables: home.html + js/pages/main_home.js
+
+---
+
+## Modern Table Design Pattern
+
+### Overview
+All DataTables across the application should follow this modern, clean design pattern with upgraded action buttons and consistent styling.
+
+### Table Card Structure
+
+```html
+<div class="home-table-card">
+    <div class="table-header">
+        <h5>
+            <i class="fas fa-clipboard-list"></i>
+            Table Title
+        </h5>
+        <div class="table-header-actions">
+            <button type="button" class="btn-header" data-toggle="tooltip" title="Information">
+                <i class="fas fa-info-circle"></i>
+            </button>
+            <button type="button" class="btn-header" data-toggle="tooltip" title="Refresh">
+                <i class="fas fa-sync"></i>
+            </button>
+            <div id="exportButtons"></div>
+        </div>
+    </div>
+    <div class="table-controls">
+        <div class="select-outline">
+            <select class="mdb-select" multiple>
+                <!-- Column visibility options -->
+            </select>
+            <label>Columns Visibility</label>
+        </div>
+        <div class="table-search-box">
+            <form class="form-inline">
+                <i class="fas fa-search"></i>
+                <input type="text" class="form-control" placeholder="Search">
+            </form>
+        </div>
+    </div>
+    <div class="table-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <!-- Table content -->
+            </table>
+        </div>
+    </div>
+</div>
+```
+
+### Action Buttons Pattern
+
+**CRITICAL RULE: All action buttons MUST be icon-only with tooltips. Never include text labels inside buttons.**
+
+**Why:** Modern design principles favor clean, icon-only action buttons with tooltips for hover context. This:
+- Reduces visual clutter in tables
+- Makes columns narrower and more scannable
+- Provides consistent UX across all tables
+- Works better on mobile (icons scale better than text)
+
+**JavaScript columnDefs for action buttons:**
+
+```javascript
+{
+    mData: null,
+    bSortable: false,
+    sClass: 'text-center action-cell',
+    mRender: function (data, type, row, meta) {
+        let label = '<div class="action-btn-group">';
+        
+        // View button (blue) - ICON ONLY with tooltip
+        label += '<button type="button" class="btn-action btn-view lnkView" ' +
+                 'id="lnkView_' + meta.row + '" ' +
+                 'data-toggle="tooltip" title="View">' +
+                 '<i class="fas fa-eye"></i></button>';
+        
+        // Edit button (orange) - ICON ONLY with tooltip
+        if (hasEditPermission) {
+            label += '<button type="button" class="btn-action btn-edit lnkEdit" ' +
+                     'id="lnkEdit_' + meta.row + '" ' +
+                     'data-toggle="tooltip" title="Edit">' +
+                     '<i class="fas fa-edit"></i></button>';
+        }
+        
+        // Delete button (red) - ICON ONLY with tooltip
+        if (hasDeletePermission) {
+            label += '<button type="button" class="btn-action btn-delete lnkDelete" ' +
+                     'id="lnkDelete_' + meta.row + '" ' +
+                     'data-toggle="tooltip" title="Delete">' +
+                     '<i class="fas fa-trash-alt"></i></button>';
+        }
+        
+        label += '</div>';
+        return label;
+    }
+}
+```
+
+**For dropdown action buttons (e.g., with attachments):**
+
+```javascript
+{
+    mData: null,
+    bSortable: false,
+    sClass: 'text-center action-cell',
+    mRender: function (data, type, row, meta) {
+        if (row.hasAttachments) {
+            let html = '<div class="action-btn-group"><div class="btn-group">' +
+                       '<button type="button" class="btn-action btn-view dropdown-toggle" ' +
+                       'data-toggle="dropdown">' +
+                       '<i class="fas fa-download"></i></button>' +
+                       '<div class="dropdown-menu">' +
+                       '<a class="dropdown-item" href="#">Main Document</a>';
+            
+            // Add attachment links
+            row.attachments.forEach((att, i) => {
+                html += '<a class="dropdown-item" href="' + att.url + '">Attachment ' + (i+1) + '</a>';
+            });
+            
+            html += '</div></div></div>';
+            return html;
+        } else {
+            return '<div class="action-btn-group">' +
+                   '<button type="button" class="btn-action btn-view lnkView" ' +
+                   'id="lnkView_' + meta.row + '" data-toggle="tooltip" title="View">' +
+                   '<i class="fas fa-file-pdf"></i></button></div>';
+        }
+    }
+}
+```
+
+### Status Badge Pattern
+
+```javascript
+{
+    mData: null,
+    mRender: function (data, type, row) {
+        let badgeClass = 'completed'; // or 'pending', 'in-progress', 'cancelled'
+        let statusText = row.statusDesc;
+        return '<span class="status-badge ' + badgeClass + '">' + statusText + '</span>';
+    }
+}
+```
+
+### CSS Classes Reference
+
+**Table Structure:**
+- `.home-table-card` - Main table container with white background
+- `.table-header` - Gradient header bar (indigo to purple)
+- `.table-header-actions` - Button container in header
+- `.btn-header` - Semi-transparent white buttons on gradient
+- `.table-controls` - Controls row for column visibility and search
+- `.table-body` - Main table content area
+- `.select-outline` - Column visibility selector wrapper
+- `.table-search-box` - Search input wrapper
+
+**Action Buttons:**
+- `.action-btn-group` - Wrapper for action button row
+- `.btn-action` - Base action button (34x34px, rounded 10px)
+- `.btn-action.btn-view` - Blue view/info button
+- `.btn-action.btn-edit` - Orange edit button
+- `.btn-action.btn-delete` - Red delete button
+
+**Status Badges:**
+- `.status-badge` - Base badge style (pill-shaped)
+- `.status-badge.completed` - Green for completed
+- `.status-badge.pending` - Orange for pending
+- `.status-badge.in-progress` - Blue for in-progress
+- `.status-badge.cancelled` - Gray for cancelled
+
+**Table Styling:**
+- Tables use light gray header background (`#f8fafc`)
+- Uppercase column headers with letter-spacing
+- Subtle row hover effect (`#f8fafc`)
+- Clean borders (`#e2e8f0`)
+- Rounded table corners (16px)
+
+### Design Tokens
+
+```css
+--home-primary: #4338ca;      /* Indigo */
+--home-accent: #38bdf8;       /* Sky blue */
+--home-bg: #f1f5f9;           /* Light gray background */
+--home-text: #0f172a;         /* Dark text */
+--home-muted: #64748b;        /* Muted text */
+--home-radius: 24px;          /* Card border radius */
+--home-shadow: 0 24px 50px -32px rgba(30, 41, 59, 0.35);
+--home-card-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.25);
+```
+
+### Action Button States
+
+**Hover Effects:**
+- Lift animation: `translateY(-2px)`
+- Color-matched shadow appears
+- Background opacity increases slightly
+
+**Color Coding:**
+- 🔵 Blue (View/Info): #3b82f6
+- 🟠 Orange (Edit/Modify): #f59e0b
+- 🔴 Red (Delete/Remove): #ef4444
+
+### Accessibility Notes
+
+- All action buttons use proper `<button>` elements (not just icons)
+- Tooltips provide text alternatives
+- Color is not the only indicator (icons + position provide context)
+- Minimum 34px tap target size
+- Focus states visible on all interactive elements
+- Action cell prevents row click-through with `.action-cell` class
+
+### Implementation Checklist
+
+- [ ] Replace old gradient card headers with `.home-table-card` structure
+- [ ] Update action buttons from `<a><i>` to `<button class="btn-action">`
+- [ ] Add `.action-btn-group` wrapper around buttons
+- [ ] Apply color classes: `.btn-view`, `.btn-edit`, `.btn-delete`
+- [ ] Update status rendering to use `.status-badge` classes
+- [ ] Ensure `.action-cell` class on action column
+- [ ] Add proper tooltips to all action buttons
+- [ ] Test dropdown menus if using attachments
+- [ ] Verify mobile responsive behavior
+- [ ] Check all CSS is in `gems2-ui.css` (not inline)
 

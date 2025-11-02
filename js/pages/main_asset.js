@@ -249,22 +249,50 @@ function MainAsset() {
                 {mData: null, mRender: function (data, type, row) { return row['ppmGroupId'] !== '' ? refPpmGroup[row['ppmGroupId']]['ppmGroupName'] : ''; }},
                 {mData: 'assetLocationCode'},
                 {mData: null, mRender: function (data, type, row) {
+                        if (type !== 'display') {
+                            const status = row['assetStatus'];
+                            return status && refStatus[status] ? refStatus[status]['statusDesc'] : 'Unknown';
+                        }
                         const status = row['assetStatus'];
                         if (!status || typeof refStatus[status] === 'undefined') {
-                            return '<span class="badge badge-pill badge-secondary">Unknown</span>';
+                            return '<span class="status-badge pending">Unknown</span>';
                         }
-                        return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
+                        const statusMap = {
+                            '1': 'completed',    // Active
+                            '2': 'cancelled',    // Inactive
+                            '5': 'cancelled'     // Archived
+                        };
+                        const statusClass = statusMap[status] || 'pending';
+                        const statusText = refStatus[status]['statusDesc'];
+                        return `<span class="status-badge ${statusClass}">${statusText}</span>`;
                     }},
                 {mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
-                        let label = `<a><i class="fas fa-edit lnkAszAssetEdit" id="lnkAszAssetEdit_${meta.row}" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;`;
-                        if (row['assetStatus'] === '1') {
-                            label += `<a><i class="fas fa-toggle-off lnkAszAssetDeactivate" id="lnkAszAssetDeactivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>`;
-                        } else if (row['assetStatus'] === '2') {
-                            label += `<a><i class="fas fa-toggle-on lnkAszAssetActivate" id="lnkAszAssetActivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>`;
-                        } else if (row['assetStatus'] === '5') {
-                            label += `<a><i class="fas fa-trash-alt lnkAszAssetDelete" id="lnkAszAssetDelete_${meta.row}" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>`;
+                        if (type !== 'display') {
+                            return '';
                         }
-                        return label;
+                        let buttons = '<div class="action-btn-group">';
+                        buttons += `<button type="button" class="btn-action btn-edit lnkAszAssetEdit" id="lnkAszAssetEdit_${meta.row}" title="Edit">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit</span>
+                        </button>`;
+                        if (row['assetStatus'] === '1') {
+                            buttons += `<button type="button" class="btn-action btn-delete lnkAszAssetDeactivate" id="lnkAszAssetDeactivate_${meta.row}" title="Deactivate">
+                                <i class="fas fa-toggle-off"></i>
+                                <span>Deactivate</span>
+                            </button>`;
+                        } else if (row['assetStatus'] === '2') {
+                            buttons += `<button type="button" class="btn-action btn-view lnkAszAssetActivate" id="lnkAszAssetActivate_${meta.row}" title="Activate">
+                                <i class="fas fa-toggle-on"></i>
+                                <span>Activate</span>
+                            </button>`;
+                        } else if (row['assetStatus'] === '5') {
+                            buttons += `<button type="button" class="btn-action btn-delete lnkAszAssetDelete" id="lnkAszAssetDelete_${meta.row}" title="Delete">
+                                <i class="fas fa-trash-alt"></i>
+                                <span>Delete</span>
+                            </button>`;
+                        }
+                        buttons += '</div>';
+                        return buttons;
                     }},
                 {mData: 'assetId', visible: false},
                 {mData: 'assetGroupId', visible: false},

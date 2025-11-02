@@ -500,15 +500,17 @@ function MainContract() {
                         }
                         return `<h6 class="mb-0">${getStatusBadge(data)}</h6>`;
                     } },
-                { mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row) {
-                        let label = '<a><i class="fas fa-edit lnkCcrContractEdit" data-toggle="tooltip" data-placement="top" title="Edit"></i></a>&nbsp;&nbsp;';
-                        label += '<a><i class="fas fa-search-plus lnkCcrContractDetails" data-toggle="tooltip" data-placement="top" title="Details"></i></a>&nbsp;&nbsp;';
+                { mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
+                        let label = '<div class="action-btn-group">';
+                        label += '<button type="button" class="btn-action btn-edit lnkCcrContractEdit" id="lnkCcrContractEdit_' + meta.row + '" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>';
+                        label += '<button type="button" class="btn-action btn-view lnkCcrContractDetails" id="lnkCcrContractDetails_' + meta.row + '" data-toggle="tooltip" title="Details"><i class="fas fa-search-plus"></i></button>';
                         if (row['contractStatus'] === '1') {
-                            label += '<a><i class="fas fa-toggle-off lnkCcrContractDeactivate" data-toggle="tooltip" data-placement="top" title="Deactivate"></i></a>&nbsp;&nbsp;';
+                            label += '<button type="button" class="btn-action btn-delete lnkCcrContractDeactivate" id="lnkCcrContractDeactivate_' + meta.row + '" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
                         } else {
-                            label += '<a><i class="fas fa-toggle-on lnkCcrContractActivate" data-toggle="tooltip" data-placement="top" title="Activate"></i></a>&nbsp;&nbsp;';
+                            label += '<button type="button" class="btn-action btn-edit lnkCcrContractActivate" id="lnkCcrContractActivate_' + meta.row + '" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>';
                         }
-                        label += '<a><i class="fas fa-trash-alt lnkCcrContractDelete" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        label += '<button type="button" class="btn-action btn-delete lnkCcrContractDelete" id="lnkCcrContractDelete_' + meta.row + '" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                        label += '</div>';
                         return label;
                     } }
             ]
