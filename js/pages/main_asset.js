@@ -273,22 +273,18 @@ function MainAsset() {
                         let buttons = '<div class="action-btn-group">';
                         buttons += `<button type="button" class="btn-action btn-edit lnkAszAssetEdit" id="lnkAszAssetEdit_${meta.row}" title="Edit">
                             <i class="fas fa-edit"></i>
-                            <span>Edit</span>
                         </button>`;
                         if (row['assetStatus'] === '1') {
                             buttons += `<button type="button" class="btn-action btn-delete lnkAszAssetDeactivate" id="lnkAszAssetDeactivate_${meta.row}" title="Deactivate">
                                 <i class="fas fa-toggle-off"></i>
-                                <span>Deactivate</span>
                             </button>`;
                         } else if (row['assetStatus'] === '2') {
                             buttons += `<button type="button" class="btn-action btn-view lnkAszAssetActivate" id="lnkAszAssetActivate_${meta.row}" title="Activate">
                                 <i class="fas fa-toggle-on"></i>
-                                <span>Activate</span>
                             </button>`;
                         } else if (row['assetStatus'] === '5') {
                             buttons += `<button type="button" class="btn-action btn-delete lnkAszAssetDelete" id="lnkAszAssetDelete_${meta.row}" title="Delete">
                                 <i class="fas fa-trash-alt"></i>
-                                <span>Delete</span>
                             </button>`;
                         }
                         buttons += '</div>';

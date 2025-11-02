@@ -289,13 +289,13 @@ function MainPpmSet () {
                         const safeName = (row.ppmSetName || '')
                             .replace(/\\/g, "\\\\")
                             .replace(/'/g, "\\'");
-                        let html = '<div class="btn-group" role="group" aria-label="Action buttons">';
-                        html += '<a class="btn btn-sm btn-primary waves-effect waves-light p-2 lnkPsmEdit" id="lnkPsmEdit_' + meta.row + '" href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Edit">';
+                        let html = '<div class="action-btn-group">';
+                        html += '<button type="button" class="btn-action btn-edit lnkPsmEdit" id="lnkPsmEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit ' + (row.ppmSetName || 'PPM Set') + '">';
                         html += '<i class="fas fa-edit"></i>';
-                        html += '</a>';
-                        html += `<a class="btn btn-sm btn-danger waves-effect waves-light p-2" href="javascript:void(0);" onclick="mainPpmSetClass_.deletePpmSetTrigger(${row.ppmSetId}, '${safeName}')" data-toggle="tooltip" data-placement="top" title="Delete">`;
+                        html += '</button>';
+                        html += `<button type="button" class="btn-action btn-delete" onclick="mainPpmSetClass_.deletePpmSetTrigger(${row.ppmSetId}, '${safeName}')" data-toggle="tooltip" data-placement="top" title="Delete ${row.ppmSetName || 'PPM Set'}">`;
                         html += '<i class="fas fa-trash-alt"></i>';
-                        html += '</a>';
+                        html += '</button>';
                         html += '</div>';
                         return html;
                     }}
@@ -305,11 +305,11 @@ function MainPpmSet () {
 
         new $.fn.dataTable.Buttons(dtPsm, {
             buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', text: '<i class="fas fa-columns"></i>', className: 'btn btn-outline-white btn-rounded btn-sm px-2', titleAttr: 'Column Visibility' },
-                { extend: 'print', text: '<i class="fas fa-print"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'Print', className: 'btn btn-outline-white btn-rounded btn-sm px-2', exportOptions: mzExportOpt },
-                { extend: 'copy', text: '<i class="fas fa-copy"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'Copy', className: 'btn btn-outline-white btn-rounded btn-sm px-2', exportOptions: mzExportOpt },
-                { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'Excel', className: 'btn btn-outline-white btn-rounded btn-sm px-2', exportOptions: mzExportExcelOpt },
-                { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'PDF', orientation: 'landscape', className: 'btn btn-outline-white btn-rounded btn-sm px-2', exportOptions: mzExportOpt }
+                { extend: 'colvis', columns: ':not(.noVis)', text: '<i class="fas fa-columns"></i>', className: 'btn btn-light btn-icon', titleAttr: 'Column Visibility' },
+                { extend: 'print', text: '<i class="fas fa-print"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'Print', className: 'btn btn-light btn-icon', exportOptions: mzExportOpt },
+                { extend: 'copy', text: '<i class="fas fa-copy"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'Copy', className: 'btn btn-light btn-icon', exportOptions: mzExportOpt },
+                { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'Excel', className: 'btn btn-light btn-icon', exportOptions: mzExportExcelOpt },
+                { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'PDF', orientation: 'landscape', className: 'btn btn-light btn-icon', exportOptions: mzExportOpt }
             ]
         }).container().appendTo($('#btnDtPsmExport'));
 

@@ -47,6 +47,50 @@
     .results-summary { display:flex; align-items:center; justify-content: space-between; gap:12px; color:#0F172A; margin-top: 8px; }
     .summary-pill { color:#64748B; font-size: .9rem; }
 
+    /* Table card wrapper */
+    .hosts-table-card { 
+      background: #fff; 
+      border-radius: 20px; 
+      padding: 0; 
+      box-shadow: 0 6px 16px rgba(2,6,23,.06); 
+      border: none; 
+      overflow: hidden;
+    }
+    .hosts-table-card .table-wrapper { padding: 12px; }
+
+    /* DataTable controls styling */
+    .hosts-table-card .dataTables_wrapper .dataTables_length,
+    .hosts-table-card .dataTables_wrapper .dataTables_info {
+      color: #64748B;
+      font-size: 13px;
+      padding: 8px 4px;
+    }
+    .hosts-table-card .dataTables_wrapper .dataTables_length select {
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 4px 8px;
+      margin: 0 4px;
+    }
+    .hosts-table-card .dataTables_wrapper .dataTables_paginate {
+      padding: 8px 4px;
+    }
+    .hosts-table-card .dataTables_wrapper .dataTables_paginate .paginate_button {
+      border-radius: 8px;
+      padding: 4px 10px;
+      margin: 0 2px;
+      border: 1px solid #E2E8F0;
+      background: #fff;
+    }
+    .hosts-table-card .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background: #4338CA !important;
+      color: #fff !important;
+      border-color: #4338CA;
+    }
+    .hosts-table-card .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) {
+      background: #F1F5F9;
+      border-color: #CBD5E1;
+    }
+
   /* Icon-only action buttons */
   .btn-icon { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-width: 2px; border-radius: 50% !important; }
   .btn-icon i { font-size: .95rem; line-height: 1; }
@@ -172,9 +216,9 @@
         <span>Please select a site from the dropdown above to view and manage hosts.</span>
       </div>
 
-      <div id="resultsCard" class="card" style="display:none; background: #fff; border-radius: 20px; padding: 0; box-shadow: 0 6px 16px rgba(2,6,23,.06); border: none;">
-        <div style="padding: 12px;">
-          <table id="tbl" class="table" style="width:100%">
+      <div id="resultsCard" class="card hosts-table-card" style="display:none;">
+        <div class="table-wrapper">
+          <table id="tbl" class="table display" style="width:100%">
             <thead>
               <tr>
                 <th>Name</th>

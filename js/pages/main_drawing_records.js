@@ -29,6 +29,21 @@ function MainDrawingRecords () {
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                // Add data-label for mobile card layout
+                $('td', nRow).eq(0).attr('data-label', '#');
+                $('td', nRow).eq(1).attr('data-label', 'Drawing ID No.');
+                $('td', nRow).eq(2).attr('data-label', 'Drawing Title');
+                $('td', nRow).eq(3).attr('data-label', 'Drawing Version');
+                $('td', nRow).eq(4).attr('data-label', 'Published By');
+                $('td', nRow).eq(5).attr('data-label', 'Published Date');
+                $('td', nRow).eq(6).attr('data-label', 'Permission Level');
+                $('td', nRow).eq(7).attr('data-label', 'Block');
+                $('td', nRow).eq(8).attr('data-label', 'Level');
+                $('td', nRow).eq(9).attr('data-label', 'Group');
+                $('td', nRow).eq(10).attr('data-label', 'Remarks');
+                $('td', nRow).eq(11).attr('data-label', 'Uploaded By');
+                $('td', nRow).eq(12).attr('data-label', 'Uploaded Time');
+                $('td', nRow).eq(13).attr('data-label', 'Actions');
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -52,11 +67,11 @@ function MainDrawingRecords () {
                 { className: 'noVis', targets: [0, 13] }
             ],
 			buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Print', exportOptions: exportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Copy', exportOptions: exportExcel},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Excel', exportOptions: exportExcel},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Drawing Records List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOpt}
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-light btn-icon', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-light btn-icon', text:'<i class="fas fa-print"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Print', exportOptions: exportOpt},
+                { extend: 'copy', className: 'btn btn-light btn-icon', text:'<i class="fas fa-copy"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Copy', exportOptions: exportExcel},
+                { extend: 'excelHtml5', className: 'btn btn-light btn-icon', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Drawing Records List', titleAttr: 'Excel', exportOptions: exportExcel},
+                { extend: 'pdfHtml5', className: 'btn btn-light btn-icon', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Drawing Records List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: exportOpt}
             ],
 			aoColumns: [
                 {mData: null, bSortable: false},

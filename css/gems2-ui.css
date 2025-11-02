@@ -1162,9 +1162,21 @@ body {
 }
 
 .btn-action.btn-delete:hover {
-  background: rgba(239, 68, 68, 0.2) !important;
+  background: rgba(239, 68, 68, 0.442) !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-action.btn-deactivate {
+  background: rgba(107, 114, 128, 0.1) !important;
+  color: #6b7280 !important;
+}
+
+.btn-action.btn-deactivate:hover {
+  background: rgba(107, 114, 128, 0.2) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+  color: #fff !important;
 }
 
 .btn-action:active {
