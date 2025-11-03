@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="css/mdb.min.css">
   <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
   <link href="css/style.css" rel="stylesheet">
+  <!-- Shared navigation + chrome -->
+  <link href="css/gems2-ui.css" rel="stylesheet">
   <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
   <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
@@ -20,43 +22,144 @@
   <div class="includeHtml" id="h-nav_left"></div>
   <div class="includeHtml" id="h-nav_top"></div>
   <style>
-    /* PTW Supervisor/space.html card styling */
-    :root {
-            --primary-color: #4f46e5;
-            --primary-dark: #3730a3;
-            --secondary-color: #64748b;
-            --success-color: #10b981;
-            --success-dark: #047857;
-            --success-light: #6ee7b7;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --danger-dark: #991b1b;
-            --danger-light: #fecaca;
-            --info-color: #3b82f6;
-            --light-bg: #f8fafc;
-            --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --border-radius: 12px;
-            --border-radius-lg: 16px;
-        }
-        .title-box { border: lightgray 1px solid; border-radius: 5px; font-size: 13px; }
-        .title-box-title { position: relative; top: -0.7em; margin-left: 1em; display: inline; background-color: white; }
-        .title-box-content { padding-top: 0.3rem; padding-left: 1rem; padding-right: 1rem; }
-        /* PTW Supervisor-inspired card styling */
-        .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: visible; }
-        .main-content-card .card-header { background: linear-gradient(60deg,#26c6da,#00acc1); color:#fff; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
-        .main-content-card .card-body { padding: 1rem 1.25rem; }
-        .header-actions .btn { margin-left:.25rem; }
-        .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
-        /* Ensure ancestor containers do not hide overflowed dropdowns */
-        .main-content-card .dropdown, .dataTables_wrapper .dropdown { position: relative; }
-        /* Wider dropdown for action items */
-        .action-split .dropdown-menu { min-width: 240px; z-index: 3000; }
-        /* Compact status select to avoid truncation */
-        .status-filter { min-width: 140px; }
-    .spm-media-card { position: relative; transition: box-shadow .2s ease; }
-    .spm-media-card.spm-media-cover { border: 2px solid var(--primary-color); box-shadow: 0 0 0 2px rgba(79,70,229,0.15); }
-    .spm-cover-badge { position: absolute; top: 10px; left: 16px; z-index: 5; }
+    /* Space Management - Using GEMS2 Standard Colors */
+    main { padding: 1.5rem 0 3rem; }
+
+    /* Modern Page Header */
+    .space-page-header {
+      background: linear-gradient(135deg, var(--gems-primary) 0%, var(--gems-secondary) 100%);
+      color: #fff;
+      padding: 36px 32px;
+      border-radius: var(--gems-radius-lg);
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--gems-shadow-lg);
+    }
+
+    .space-page-header::after {
+      content: '';
+      position: absolute;
+      right: -70px;
+      top: -70px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .space-page-header .header-text { position: relative; z-index: 1; }
+    .space-page-header h2 { font-size: 2.25rem; font-weight: 700; margin-bottom: 10px; }
+    .space-page-header p { margin: 0; font-size: 1.05rem; opacity: 0.95; }
+
+    /* Modern Content Cards */
+    .space-content-card {
+      background: #fff;
+      border-radius: var(--gems-radius-lg);
+      box-shadow: var(--gems-card-shadow);
+      margin-bottom: 28px;
+      overflow: visible;
+    }
+
+    .space-card-header {
+      padding: 22px 28px;
+      border-bottom: 1px solid var(--gems-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .space-card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--gems-text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .space-card-title i {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(0,85,184,0.12), rgba(0,173,168,0.15));
+      color: var(--gems-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .space-card-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .space-card-actions .btn {
+      border-radius: 12px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all .2s ease;
+    }
+
+    .space-card-actions .btn-light {
+      background: rgba(0,85,184,0.08);
+      color: var(--gems-primary);
+      border: 1px solid rgba(0,85,184,0.15);
+    }
+
+    .space-card-actions .btn-light:hover {
+      background: rgba(0,85,184,0.15);
+      border-color: rgba(0,85,184,0.25);
+      transform: translateY(-1px);
+    }
+
+    .space-card-body {
+      padding: 28px;
+    }
+    /* Form Styling */
+    .space-card-body .md-form.md-outline input.form-control,
+    .space-card-body .md-form.md-outline textarea.md-textarea {
+      border-radius: 14px;
+      border: 1px solid var(--gems-border);
+    }
+
+    .space-card-body .md-form.md-outline input.form-control:focus,
+    .space-card-body .md-form.md-outline textarea.md-textarea:focus {
+      border-color: rgba(0,85,184,0.75);
+      box-shadow: 0 0 0 0.15rem rgba(0, 85, 184, 0.1);
+    }
+
+    /* Media Cards */
+    .spm-media-card {
+      position: relative;
+      transition: all .2s ease;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px -12px rgba(15,23,42,.25);
+    }
+
+    .spm-media-card:hover {
+      box-shadow: 0 12px 28px -16px rgba(15,23,42,.35);
+      transform: translateY(-2px);
+    }
+
+    .spm-media-card.spm-media-cover {
+      border: 2px solid var(--gems-primary);
+      box-shadow: 0 0 0 2px rgba(0,85,184,0.15);
+    }
+
+    .spm-cover-badge {
+      position: absolute;
+      top: 10px;
+      left: 16px;
+      z-index: 5;
+    }
+
     .spm-media-card .chkSpmMedia {
       opacity: 1 !important;
       position: static !important;
@@ -67,113 +170,77 @@
       height: 18px;
       margin: 0;
       cursor: pointer;
-      accent-color: #26c6da;
+      accent-color: var(--gems-primary);
       pointer-events: auto !important;
       z-index: 3;
     }
-  .spm-card-actions { margin-top: 0.5rem; display:flex; justify-content: flex-end; gap:0.35rem; }
-  .spm-card-actions .btn { padding: 0.35rem 0.9rem; font-size: 0.75rem; letter-spacing: .02em; }
-        /* Helpers */
-        .d-none { display: none !important; }
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            color: white;
-            padding: 32px;
-            border-radius: var(--border-radius-lg);
-            margin-bottom: 32px;
-            box-shadow: var(--card-shadow-lg);
-            position: relative;
-            overflow: hidden;
-        }
 
-        .page-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transform: translate(50%, -50%);
-        }
+    .spm-card-actions {
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.35rem;
+    }
 
-        .page-header h2 {
-            font-size: 2.25rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
-        }
+    .spm-card-actions .btn {
+      padding: 0.35rem 0.9rem;
+      font-size: 0.75rem;
+      letter-spacing: .02em;
+      border-radius: 10px;
+    }
 
-        .page-header p {
-            font-size: 1.125rem;
-            opacity: 0.9;
-            margin-bottom: 0;
-            position: relative;
-            z-index: 1;
-        }
+    /* Badge Styling */
+    .badge-modern {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
 
-        /* Badge Styling */
-        .badge-modern {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+    .badge-success {
+      background: rgba(34, 197, 94, 0.15);
+      color: #166534;
+    }
 
-        .badge-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
+    .badge-warning {
+      background: rgba(250, 204, 21, 0.15);
+      color: #854d0e;
+    }
 
-        .badge-success-dark {
-            background: rgba(16, 185, 129, 1);
-            color: var(--success-dark);
-        }
+    .badge-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #dc2626;
+    }
 
-        .badge-success-light {
-            background: rgba(16, 185, 129, 0.3);
-            color: var(--success-light);
-        }
+    .badge-info {
+      background: rgba(59, 130, 246, 0.15);
+      color: #1e40af;
+    }
 
-        .badge-warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning-color);
-        }
+    .badge-dark {
+      background: rgba(31, 41, 55, 0.15);
+      color: #1f2937;
+    }
 
-        .badge-danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
-        }
+    /* Helper text styling */
+    .space-card-body .text-muted {
+      color: var(--gems-muted) !important;
+      font-size: 0.9rem;
+    }
 
-        .badge-danger-dark {
-            background: rgb(184, 51, 51);
-            color: var(--danger-dark);
-        }
+    .space-card-body .form-text {
+      color: var(--gems-muted);
+      font-size: 0.85rem;
+    }
 
-        .badge-danger-light {
-            background: rgba(239, 68, 68, 0.3);
-            color: var(--danger-light);
-        }
-
-        .badge-info {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--info-color);
-        }
-
-        .badge-dark {
-            background: rgba(31, 41, 55, 0.1);
-            color: #1f2937;
-        }
-
-        /* Dark green for Closed status */
-        .badge-closed {
-            background: rgba(6, 95, 70, 0.15); /* #065f46 with transparency */
-            color: #065f46;
-        }
+    /* Table wrapper styling */
+    .space-card-body .table-responsive {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px -8px rgba(15,23,42,.15);
+    }
 
     /* Ensure native checkboxes in the asset picker are visible (MDB hides them by default) */
     #dtSpmPickAsset .chkSpmPick,
@@ -187,33 +254,273 @@
       height: 16px;
       margin: 0;
       cursor: pointer;
-      accent-color: #26c6da; /* modern browsers */
+      accent-color: var(--gems-primary); /* modern browsers */
     }
     #dtSpmPickAsset th:first-child, #dtSpmPickAsset td:first-child {
       text-align: center;
       vertical-align: middle;
+    }
+
+    /* Modern Table Styling for Space Management */
+    #dtSpmAssets.dataTable thead th,
+    #dtSpmResv.dataTable thead th,
+    #dtSpmPickAsset.dataTable thead th {
+      background: #f8fafc !important;
+      color: #475569;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 14px 12px;
+      border-bottom: 2px solid #e2e8f0;
+      border-top: none;
+    }
+
+    #dtSpmAssets.dataTable tbody td,
+    #dtSpmResv.dataTable tbody td,
+    #dtSpmPickAsset.dataTable tbody td {
+      padding: 14px 12px;
+      vertical-align: middle;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+      font-size: 0.9rem;
+    }
+
+    #dtSpmAssets.dataTable tbody tr,
+    #dtSpmResv.dataTable tbody tr,
+    #dtSpmPickAsset.dataTable tbody tr {
+      transition: background-color 0.15s ease;
+    }
+
+    #dtSpmAssets.dataTable tbody tr:hover,
+    #dtSpmResv.dataTable tbody tr:hover,
+    #dtSpmPickAsset.dataTable tbody tr:hover {
+      background: #f8fafc !important;
+    }
+
+    #dtSpmAssets.dataTable tbody tr:last-child td,
+    #dtSpmResv.dataTable tbody tr:last-child td,
+    #dtSpmPickAsset.dataTable tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Modern Action Buttons for Space Management */
+    .spm-action-btn-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .btn-spm-action {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.9rem;
+    }
+
+    .btn-spm-action.btn-unlink {
+      background: rgba(239, 68, 68, 0.1) !important;
+      color: #ef4444 !important;
+    }
+
+    .btn-spm-action.btn-unlink:hover {
+      background: rgba(239, 68, 68, 0.2) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-spm-action.btn-view {
+      background: rgba(59, 130, 246, 0.1) !important;
+      color: #3b82f6 !important;
+    }
+
+    .btn-spm-action.btn-view:hover {
+      background: rgba(59, 130, 246, 0.2) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-spm-action.btn-cancel {
+      background: rgba(245, 158, 11, 0.1) !important;
+      color: #f59e0b !important;
+    }
+
+    .btn-spm-action.btn-cancel:hover {
+      background: rgba(245, 158, 11, 0.2) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-spm-action:active {
+      transform: translateY(0);
+    }
+
+    /* Status badges for reservations */
+    .spm-status-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .spm-status-badge.approved {
+      background: rgba(34, 197, 94, 0.15) !important;
+      color: #16a34a !important;
+    }
+
+    .spm-status-badge.pending {
+      background: rgba(245, 158, 11, 0.15) !important;
+      color: #d97706 !important;
+    }
+
+    .spm-status-badge.cancelled {
+      background: rgba(148, 163, 184, 0.15) !important;
+      color: #64748b !important;
+    }
+
+    .spm-status-badge.rejected {
+      background: rgba(239, 68, 68, 0.15) !important;
+      color: #dc2626 !important;
+    }
+
+    /* Action cell no pointer cursor */
+    #dtSpmAssets tbody td.action-cell,
+    #dtSpmResv tbody td.action-cell {
+      cursor: default;
+    }
+
+    /* Mobile responsive table stacking */
+    @media (max-width: 768px) {
+      #dtSpmAssets thead,
+      #dtSpmResv thead,
+      #dtSpmPickAsset thead {
+        display: none;
+      }
+
+      #dtSpmAssets tbody tr,
+      #dtSpmResv tbody tr,
+      #dtSpmPickAsset tbody tr {
+        display: block;
+        margin-bottom: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 6px 16px -12px rgba(15,23,42,.25);
+        overflow: hidden;
+      }
+
+      #dtSpmAssets tbody td,
+      #dtSpmResv tbody td,
+      #dtSpmPickAsset tbody td {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        border-bottom: 1px dashed #e5e7eb;
+      }
+
+      #dtSpmAssets tbody td:last-child,
+      #dtSpmResv tbody td:last-child,
+      #dtSpmPickAsset tbody td:last-child {
+        border-bottom: none;
+      }
+
+      #dtSpmAssets tbody td::before,
+      #dtSpmResv tbody td::before,
+      #dtSpmPickAsset tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #475569;
+        margin-right: 8px;
+      }
+
+      .space-page-header h2 {
+        font-size: 1.75rem;
+      }
+
+      .space-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .space-card-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .space-card-body {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .space-page-header {
+        padding: 24px 20px;
+      }
+
+      .space-page-header h2 {
+        font-size: 1.5rem;
+      }
+
+      .space-card-header {
+        padding: 18px 20px;
+      }
+
+      .space-card-title {
+        font-size: 1rem;
+      }
+
+      .space-card-title i {
+        width: 36px;
+        height: 36px;
+        font-size: 0.95rem;
+      }
+
+      .space-card-actions .btn {
+        padding: 0.45rem 0.85rem;
+        font-size: 0.85rem;
+      }
     }
   </style>
 </header>
 <main>
   <div class="container-fluid">
     <section class="mb-5 mt-lg-5">
-      <!-- Page Header (matches space.html structure) -->
-    <div class="page-header">
-        <h2><i class="fas fa-door-open mr-3"></i><span id="lblSpcMngTitle">Space Management</span></h2>
-        <p><span id="lblSpcMngSubtitle">Review and manage spaces within the organization</span></p>
-    </div>
+      <!-- Modern Page Header -->
+      <div class="gems-page-header">
+        <div class="header-text">
+          <h2><i class="fas fa-door-open mr-3"></i><span id="lblSpcMngTitle">Space Management</span></h2>
+          <p><span id="lblSpcMngSubtitle">Review and manage spaces within the organization</span></p>
+        </div>
+      </div>
 
       <!-- Space Info Section -->
-      <div class="main-content-card mb-4">
-        <div class="card-header">
-          <div class="header-title">Space Info</div>
-          <div class="d-flex align-items-center header-actions">
-            <button id="btnSpmOpenCalendar" class="btn btn-outline-white btn-rounded btn-sm px-2 mr-2" title="Open Calendar"><i class="fas fa-calendar-alt mr-1"></i>Calendar</button>
-            <button id="btnSpmSaveInfo" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Save Changes"><i class="fas fa-save mr-1"></i>Save</button>
+      <div class="space-content-card">
+        <div class="space-card-header">
+          <div class="space-card-title">
+            <i class="fas fa-info-circle"></i>
+            <span>Space Info</span>
+          </div>
+          <div class="space-card-actions">
+            <button id="btnSpmOpenCalendar" class="btn btn-light" title="Open Calendar">
+              <i class="fas fa-calendar-alt mr-1"></i>Calendar
+            </button>
+            <button id="btnSpmSaveInfo" class="btn btn-light" title="Save Changes">
+              <i class="fas fa-save mr-1"></i>Save
+            </button>
           </div>
         </div>
-        <div class="card-body">
+        <div class="space-card-body">
                 <form id="frmSpcInfo">
                   <div class="row">
                     <div class="col-lg-6">
@@ -267,17 +574,22 @@
       </div>
 
       <!-- Linked Assets Section -->
-      <div class="main-content-card mb-4">
-        <div class="card-header">
-          <div class="header-title">Linked Assets</div>
-          <div class="d-flex align-items-center header-actions">
-            <button id="btnSpmAttachAsset" class="btn btn-outline-white btn-rounded btn-sm px-2"><i class="fas fa-link"></i></button>
+      <div class="space-content-card">
+        <div class="space-card-header">
+          <div class="space-card-title">
+            <i class="fas fa-boxes"></i>
+            <span>Linked Assets</span>
+          </div>
+          <div class="space-card-actions">
+            <button id="btnSpmAttachAsset" class="btn btn-light" title="Attach Assets">
+              <i class="fas fa-link mr-1"></i>Attach
+            </button>
           </div>
         </div>
-        <div class="card-body">
+        <div class="space-card-body">
           <div class="table-responsive">
-            <table id="dtSpmAssets" class="table table-hover mb-0 display responsive" width="100%">
-              <thead><tr class="th-strong"><th style="width:4%">#</th><th style="width:18%">Asset No</th><th>Name</th><th style="width:22%">Serial No</th><th style="width:22%">Linked At</th><th style="width:80px"></th></tr></thead>
+            <table id="dtSpmAssets" class="table mb-0 display responsive" width="100%">
+              <thead><tr><th style="width:4%">#</th><th style="width:18%">Asset No</th><th>Name</th><th style="width:22%">Serial No</th><th style="width:22%">Linked At</th><th style="width:80px">Actions</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
@@ -285,24 +597,29 @@
       </div>
 
       <!-- Reservations Section -->
-      <div class="main-content-card mb-4">
-        <div class="card-header">
-          <div class="header-title">Reservations</div>
-          <div class="d-flex align-items-center header-actions">
-            <button id="btnSpmRefreshResv" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Refresh"><i class="fas fa-sync"></i></button>
+      <div class="space-content-card">
+        <div class="space-card-header">
+          <div class="space-card-title">
+            <i class="fas fa-calendar-check"></i>
+            <span>Reservations</span>
+          </div>
+          <div class="space-card-actions">
+            <button id="btnSpmRefreshResv" class="btn btn-light" title="Refresh">
+              <i class="fas fa-sync mr-1"></i>Refresh
+            </button>
           </div>
         </div>
-        <div class="card-body">
+        <div class="space-card-body">
           <div class="table-responsive">
-            <table id="dtSpmResv" class="table table-hover mb-0 display responsive" width="100%">
+            <table id="dtSpmResv" class="table mb-0 display responsive" width="100%">
               <thead>
-                <tr class="th-strong">
+                <tr>
                   <th style="width:4%">#</th>
                   <th style="width:24%">Start</th>
                   <th style="width:24%">End</th>
                   <th style="width:28%">Requester</th>
                   <th style="width:12%">Status</th>
-                  <th style="width:120px"></th>
+                  <th style="width:120px">Actions</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -312,16 +629,25 @@
       </div>
 
       <!-- Media Section -->
-      <div class="main-content-card mb-4">
-        <div class="card-header">
-          <div class="header-title">Media</div>
-          <div class="d-flex align-items-center header-actions">
-            <button id="btnSpmUploadPhotos" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Upload Photos"><i class="fas fa-camera"></i></button>
-            <button id="btnSpmUploadFloor" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Upload Floorplan"><i class="fas fa-file-image"></i></button>
-            <button id="btnSpmDeleteMedia" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Delete Selected"><i class="fas fa-trash"></i></button>
+      <div class="space-content-card">
+        <div class="space-card-header">
+          <div class="space-card-title">
+            <i class="fas fa-images"></i>
+            <span>Media</span>
+          </div>
+          <div class="space-card-actions">
+            <button id="btnSpmUploadPhotos" class="btn btn-light" title="Upload Photos">
+              <i class="fas fa-camera mr-1"></i>Photos
+            </button>
+            <button id="btnSpmUploadFloor" class="btn btn-light" title="Upload Floorplan">
+              <i class="fas fa-file-image mr-1"></i>Floorplan
+            </button>
+            <button id="btnSpmDeleteMedia" class="btn btn-light" title="Delete Selected">
+              <i class="fas fa-trash mr-1"></i>Delete
+            </button>
           </div>
         </div>
-        <div class="card-body">
+        <div class="space-card-body">
           <!-- Hidden inputs for file selection -->
           <input type="file" id="inpSpmPhotos" accept="image/*" multiple class="d-none" />
           <input type="file" id="inpSpmFloor" accept="image/*" class="d-none" />
@@ -335,12 +661,17 @@
     <!-- Attach Assets Modal (site-scoped picker) -->
     <div class="modal fade" id="modalSpmPickAsset" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header primary-color white-text">
-            <h5 class="modal-title"><i class="fas fa-link"></i> Attach Assets</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button>
+        <div class="modal-content gems-modal-card">
+          <div class="modal-header gems-modal-header">
+            <div class="gems-modal-title">
+              <span class="gems-modal-icon"><i class="fas fa-link"></i></span>
+              <span class="gems-modal-heading">Attach Assets</span>
+            </div>
+            <button type="button" class="gems-modal-close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body gems-modal-body">
             <div class="row">
               <div class="col-md-6 select-outline">
                 <select id="optSpmPickContract" class="mdb-select md-form md-outline colorful-select mt-0"></select>
@@ -354,9 +685,9 @@
               </div>
             </div>
             <div class="table-responsive">
-              <table id="dtSpmPickAsset" class="table table-hover mb-0 display responsive" width="100%">
+              <table id="dtSpmPickAsset" class="table mb-0 display responsive" width="100%">
                 <thead>
-                  <tr class="th-strong">
+                  <tr>
                     <th style="width:36px"><input type="checkbox" id="chkSpmPickAll"></th>
                     <th>Asset No</th>
                     <th>Name</th>
@@ -370,10 +701,10 @@
               </table>
             </div>
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer gems-modal-footer">
             <div class="mr-auto text-muted small"><span id="lblSpmPickCount">0 selected</span></div>
-            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-            <button type="button" id="btnSpmPickAttach" class="btn btn-primary btn-sm"><i class="fas fa-paperclip mr-1"></i>Attach Selected</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" id="btnSpmPickAttach" class="btn btn-primary"><i class="fas fa-paperclip mr-1"></i>Attach Selected</button>
           </div>
         </div>
       </div>
@@ -382,13 +713,27 @@
     <!-- Cancel Reservation Modal -->
     <div class="modal fade" id="modalCancelResv" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header warning-color white-text"><h5 class="modal-title"><i class="fas fa-ban"></i> Cancel Reservation</h5><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button></div>
-          <div class="modal-body">
-            <p>Provide an optional reason for cancellation:</p>
-            <div class="md-form md-outline mt-0"><textarea id="txaSpmCancelReason" class="md-textarea form-control" rows="3"></textarea><label id="lblSpmCancelReason" for="txaSpmCancelReason" class="active">Reason</label></div>
+        <div class="modal-content gems-modal-card">
+          <div class="modal-header gems-modal-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <div class="gems-modal-title">
+              <span class="gems-modal-icon"><i class="fas fa-ban"></i></span>
+              <span class="gems-modal-heading">Cancel Reservation</span>
+            </div>
+            <button type="button" class="gems-modal-close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button><button type="button" id="btnSpmCancelConfirm" class="btn btn-warning btn-sm">Cancel Reservation</button></div>
+          <div class="modal-body gems-modal-body">
+            <p>Provide an optional reason for cancellation:</p>
+            <div class="md-form md-outline mt-0">
+              <textarea id="txaSpmCancelReason" class="md-textarea form-control" rows="3"></textarea>
+              <label id="lblSpmCancelReason" for="txaSpmCancelReason" class="active">Reason</label>
+            </div>
+          </div>
+          <div class="modal-footer gems-modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" id="btnSpmCancelConfirm" class="btn btn-warning">Cancel Reservation</button>
+          </div>
         </div>
       </div>
     </div>
