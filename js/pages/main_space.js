@@ -28,6 +28,8 @@
         } } ] });
     dt.on('order.dt search.dt', function () { dt.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) { cell.innerHTML = i + 1; }); }).draw();
     dt.on('draw', function(){ if (currentView === 'card') { renderCardView(getFilteredSpaces()); } });
+    // Hide DataTables built-in filter
+    $("#dtSpc_filter").hide();
     const $btns=$(dt.buttons().container()); $('#dtSpcButtons').append($btns).addClass('d-none');
     $('#spcExportToggle .segmented-btn').on('click', function(){ const type=$(this).data('export'); if(type==='csv'){ dt.button(0).trigger(); } else if(type==='excel'){ dt.button(1).trigger(); } else if(type==='print'){ dt.button(2).trigger(); } });
     }
@@ -371,7 +373,7 @@
     }
 
     function initButtons() {
-        $('#btnDtSpcRefresh').on('click', loadSpaces);
+        $('#btnDtSpcRefresh, #btnSpcRefreshTable').on('click', loadSpaces);
         $('#btnSpcAdd').on('click', openCreateModal);
         $('#btnSpcSave').on('click', saveSpace);
 

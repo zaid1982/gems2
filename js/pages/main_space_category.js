@@ -13,7 +13,7 @@ function MainSpaceCategory() {
     $('#spcCatExportToggle .segmented-btn').on('click', function(){ const type=$(this).data('export'); if(type==='csv'){ oTable.button(0).trigger(); } else if(type==='excel'){ oTable.button(1).trigger(); } else if(type==='print'){ oTable.button(2).trigger(); } });
     $('#txtSpcCatSearch').on('keyup change', function(){ oTable.search($(this).val()).draw(); });
     $('#btnSpcCatAdd').on('click', function(){ modalSpaceCategoryClass.add(); });
-    $('#btnSpcCatRefresh').on('click', function(){ ShowLoader(); setTimeout(function(){ try{ self.genTable(1); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); },200); });
+    $('#btnSpcCatRefreshTable').on('click', function(){ ShowLoader(); setTimeout(function(){ try{ self.genTable(1); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); },200); });
     self.genTable(0);
   };
 

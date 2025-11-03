@@ -11,7 +11,7 @@ function MainSpaceType(){
     $('#spcTypExportToggle .segmented-btn').on('click', function(){ const type=$(this).data('export'); if(type==='csv'){ oTable.button(0).trigger(); } else if(type==='excel'){ oTable.button(1).trigger(); } else if(type==='print'){ oTable.button(2).trigger(); } });
     $('#txtSpcTypSearch').on('keyup change', function(){ oTable.search($(this).val()).draw(); });
     $('#btnSpcTypAdd').on('click', function(){ modalSpaceTypeClass.add(); });
-    $('#btnSpcTypRefresh').on('click', function(){ ShowLoader(); setTimeout(function(){ try{ self.genTable(1);} catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 200); });
+    $('#btnSpcTypRefreshTable').on('click', function(){ ShowLoader(); setTimeout(function(){ try{ self.genTable(1);} catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 200); });
     // Preload category list for lookup mapping
     self.loadCategories().then(function(){ self.genTable(0); }).catch(function(){ self.genTable(0); });
   };

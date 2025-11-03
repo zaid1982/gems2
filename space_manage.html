@@ -261,47 +261,47 @@
       vertical-align: middle;
     }
 
-    /* Modern Table Styling for Space Management */
-    #dtSpmAssets.dataTable thead th,
-    #dtSpmResv.dataTable thead th,
-    #dtSpmPickAsset.dataTable thead th {
-      background: #f8fafc !important;
-      color: #475569;
-      font-weight: 700;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 14px 12px;
-      border-bottom: 2px solid #e2e8f0;
-      border-top: none;
+    /* Modern table styling - high specificity to override DataTables */
+    .table.dataTable { 
+      margin-bottom: 0 !important; 
+      border-collapse: separate !important; 
+      border-spacing: 0 !important; 
     }
-
-    #dtSpmAssets.dataTable tbody td,
-    #dtSpmResv.dataTable tbody td,
-    #dtSpmPickAsset.dataTable tbody td {
-      padding: 14px 12px;
-      vertical-align: middle;
-      border-bottom: 1px solid #f1f5f9;
-      color: #334155;
-      font-size: 0.9rem;
+    .table.dataTable thead th,
+    table.dataTable thead th { 
+      background: #F8FAFC !important; 
+      color: #64748B !important; 
+      font-weight: 700 !important; 
+      font-size: 11px !important; 
+      text-transform: uppercase !important; 
+      letter-spacing: 0.08em !important; 
+      padding: 14px 16px !important; 
+      border: none !important; 
+      border-bottom: 2px solid #E2E8F0 !important;
+      border-top: none !important;
+      white-space: nowrap !important;
     }
-
-    #dtSpmAssets.dataTable tbody tr,
-    #dtSpmResv.dataTable tbody tr,
-    #dtSpmPickAsset.dataTable tbody tr {
-      transition: background-color 0.15s ease;
+    .table.dataTable tbody tr,
+    table.dataTable tbody tr { 
+      background: #fff !important; 
+      transition: all 0.15s ease !important; 
+      border-bottom: 1px solid #F1F5F9 !important;
     }
-
-    #dtSpmAssets.dataTable tbody tr:hover,
-    #dtSpmResv.dataTable tbody tr:hover,
-    #dtSpmPickAsset.dataTable tbody tr:hover {
-      background: #f8fafc !important;
+    .table.dataTable tbody tr:hover,
+    table.dataTable tbody tr:hover { 
+      background: #FAFBFC !important; 
+      box-shadow: 0 2px 8px rgba(2,6,23,.04) !important; 
+      position: relative !important; 
+      z-index: 1 !important;
     }
-
-    #dtSpmAssets.dataTable tbody tr:last-child td,
-    #dtSpmResv.dataTable tbody tr:last-child td,
-    #dtSpmPickAsset.dataTable tbody tr:last-child td {
-      border-bottom: none;
+    .table.dataTable tbody td,
+    table.dataTable tbody td { 
+      padding: 16px !important; 
+      vertical-align: middle !important; 
+      color: #0F172A !important; 
+      border: none !important;
+      border-top: none !important;
+      font-size: 14px !important;
     }
 
     /* Modern Action Buttons for Space Management */

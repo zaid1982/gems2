@@ -38,6 +38,49 @@
         .badge-success-dark { background: rgba(16, 185, 129, 1); color: #fff; }
         .badge-warning { background: rgba(245, 158, 11, 0.9); color: #fff; }
         .badge-danger-dark { background: rgb(184, 51, 51); color: #fff; }
+        
+        /* Modern table styling - high specificity to override DataTables */
+        .table.dataTable { 
+          margin-bottom: 0 !important; 
+          border-collapse: separate !important; 
+          border-spacing: 0 !important; 
+        }
+        .table.dataTable thead th,
+        table.dataTable thead th { 
+          background: #F8FAFC !important; 
+          color: #64748B !important; 
+          font-weight: 700 !important; 
+          font-size: 11px !important; 
+          text-transform: uppercase !important; 
+          letter-spacing: 0.08em !important; 
+          padding: 14px 16px !important; 
+          border: none !important; 
+          border-bottom: 2px solid #E2E8F0 !important;
+          border-top: none !important;
+          white-space: nowrap !important;
+        }
+        .table.dataTable tbody tr,
+        table.dataTable tbody tr { 
+          background: #fff !important; 
+          transition: all 0.15s ease !important; 
+          border-bottom: 1px solid #F1F5F9 !important;
+        }
+        .table.dataTable tbody tr:hover,
+        table.dataTable tbody tr:hover { 
+          background: #FAFBFC !important; 
+          box-shadow: 0 2px 8px rgba(2,6,23,.04) !important; 
+          position: relative !important; 
+          z-index: 1 !important;
+        }
+        .table.dataTable tbody td,
+        table.dataTable tbody td { 
+          padding: 16px !important; 
+          vertical-align: middle !important; 
+          color: #0F172A !important; 
+          border: none !important;
+          border-top: none !important;
+          font-size: 14px !important;
+        }
     </style>
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
@@ -61,36 +104,34 @@
                         </div>
                 </div>
         <section class="mb-5 mt-lg-5 sectionSpaceLocation">
-            <div class="main-content-card mb-4">
-                <div class="card-header">
-                    <div class="header-title">Filters</div>
-                    <div class="d-flex align-items-center header-actions">
-                        <div id="dtLocButtons" class="d-none"></div>
-                        <div class="segmented-group ml-2" id="locExportToggle" role="group" aria-label="Export">
-                          <button class="segmented-btn" data-export="csv" aria-label="Export CSV">CSV</button>
-                          <button class="segmented-btn" data-export="excel" aria-label="Export Excel">EXCEL</button>
-                          <button class="segmented-btn" data-export="print" aria-label="Export Print">PRINT</button>
-                        </div>
+            <div class="home-table-card">
+                <div class="table-header">
+                    <h5>
+                        <i class="fas fa-map-marker-alt"></i>
+                        Locations
+                    </h5>
+                    <div class="table-header-actions">
+                        <button type="button" class="btn-header" data-toggle="tooltip" data-placement="top" title="All locations">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                        <button type="button" id="btnLocRefreshTable" class="btn-header" data-toggle="tooltip" data-placement="top" title="Refresh data">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                        <div id="dtLocButtons"></div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtLocSearch" class="form-control">
-                                <label for="txtLocSearch" class="active">Search</label>
+                <div class="table-controls">
+                    <div class="table-search-box">
+                        <form class="form-inline md-form form-sm mt-0 mb-0 pb-0">
+                            <div class="">
+                                <i class="fas fa-search mt-2" aria-hidden="true"></i>
+                                <input type="text" id="txtLocSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                                <label for="txtLocSearch" class="ml-4">Search</label>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
-            </div>
-
-            <div class="main-content-card">
-                <div class="card-header">
-                    <div class="header-title">Locations</div>
-                </div>
-                <div class="card-body">
+                <div class="table-body">
                     <div class="table-responsive">
                         <table id="dtLoc" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
                             <thead>

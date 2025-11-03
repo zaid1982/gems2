@@ -39,6 +39,49 @@
         .badge-success-dark { background: rgba(16, 185, 129, 1); color: #fff; }
         .badge-warning { background: rgba(245, 158, 11, 0.9); color: #fff; }
         .badge-danger-dark { background: rgb(184, 51, 51); color: #fff; }
+        
+        /* Modern table styling - high specificity to override DataTables */
+        .table.dataTable { 
+          margin-bottom: 0 !important; 
+          border-collapse: separate !important; 
+          border-spacing: 0 !important; 
+        }
+        .table.dataTable thead th,
+        table.dataTable thead th { 
+          background: #F8FAFC !important; 
+          color: #64748B !important; 
+          font-weight: 700 !important; 
+          font-size: 11px !important; 
+          text-transform: uppercase !important; 
+          letter-spacing: 0.08em !important; 
+          padding: 14px 16px !important; 
+          border: none !important; 
+          border-bottom: 2px solid #E2E8F0 !important;
+          border-top: none !important;
+          white-space: nowrap !important;
+        }
+        .table.dataTable tbody tr,
+        table.dataTable tbody tr { 
+          background: #fff !important; 
+          transition: all 0.15s ease !important; 
+          border-bottom: 1px solid #F1F5F9 !important;
+        }
+        .table.dataTable tbody tr:hover,
+        table.dataTable tbody tr:hover { 
+          background: #FAFBFC !important; 
+          box-shadow: 0 2px 8px rgba(2,6,23,.04) !important; 
+          position: relative !important; 
+          z-index: 1 !important;
+        }
+        .table.dataTable tbody td,
+        table.dataTable tbody td { 
+          padding: 16px !important; 
+          vertical-align: middle !important; 
+          color: #0F172A !important; 
+          border: none !important;
+          border-top: none !important;
+          font-size: 14px !important;
+        }
     </style>
     </head>
 <body class="fixed-sn light-blue-skin">
@@ -85,13 +128,36 @@
         </div>
       </div>
 
-      <div class="main-content-card">
-        <div class="card-header">
-          <div class="header-title">Categories</div>
+      <div class="home-table-card">
+        <div class="table-header">
+          <h5>
+            <i class="fas fa-cubes"></i>
+            Categories
+          </h5>
+          <div class="table-header-actions">
+            <button type="button" class="btn-header" data-toggle="tooltip" data-placement="top" title="All space categories">
+              <i class="fas fa-info-circle"></i>
+            </button>
+            <button type="button" id="btnSpcCatRefreshTable" class="btn-header" data-toggle="tooltip" data-placement="top" title="Refresh data">
+              <i class="fas fa-sync"></i>
+            </button>
+            <div id="dtSpcCatButtons"></div>
+          </div>
         </div>
-        <div class="card-body">
+        <div class="table-controls">
+          <div class="table-search-box">
+            <form class="form-inline md-form form-sm mt-0 mb-0 pb-0">
+              <div class="">
+                <i class="fas fa-search mt-2" aria-hidden="true"></i>
+                <input type="text" id="txtSpcCatSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                <label for="txtSpcCatSearch" class="ml-4">Search</label>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="table-body">
           <div class="table-responsive">
-            <table id="dtSpcCat" class="table table-hover mb-0 display responsive" width="100%">
+            <table id="dtSpcCat" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
               <thead>
                 <tr class="th-strong">
                   <th style="width: 4%">#</th>
