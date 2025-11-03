@@ -179,25 +179,49 @@
         </div>
       </div>
 
-      <div class="main-content-card">
-        <div class="card-header">
-          <div class="header-title">Reservations</div>
-          <div class="d-flex align-items-center header-actions">
-            <div id="dtMyResvButtons" class="d-none"></div>
-            <div class="segmented-group ml-2" id="myResvExportToggle" role="group" aria-label="Export">
-              <button class="segmented-btn" data-export="csv" aria-label="Export CSV">CSV</button>
-              <button class="segmented-btn" data-export="excel" aria-label="Export Excel">EXCEL</button>
-              <button class="segmented-btn" data-export="print" aria-label="Export Print">PRINT</button>
-            </div>
-            <div class="ml-2 segmented-group" id="myResvViewToggle" role="group" aria-label="View toggle">
+      <div class="home-table-card">
+        <div class="table-header">
+          <h5>
+            <i class="fas fa-calendar-check"></i>
+            Reservations
+          </h5>
+          <div class="table-header-actions">
+            <div class="segmented-group mr-2" id="myResvViewToggle" role="group" aria-label="View toggle">
               <button class="segmented-btn" data-view="table" aria-label="Table view">TABLE</button>
               <button class="segmented-btn" data-view="calendar" aria-label="Calendar view">CALENDAR</button>
               <button class="segmented-btn" data-view="timeline" aria-label="Timeline view">TIMELINE</button>
               <button class="segmented-btn" data-view="week" aria-label="Week view">WEEK</button>
             </div>
+            <!-- <button type="button" class="btn-action" data-toggle="tooltip" data-placement="top" title="All reservations">
+              <i class="fas fa-info-circle"></i>
+            </button> -->
+            <button type="button" id="btnMyResvRefreshTable" class="btn-action" data-toggle="tooltip" data-placement="top" title="Refresh data">
+              <i class="fas fa-sync"></i>
+            </button>
+            <button type="button" class="btn-action" id="btnMyResvExportCsv" data-toggle="tooltip" data-placement="top" title="Export CSV">
+              <i class="fas fa-file-csv"></i>
+            </button>
+            <button type="button" class="btn-action" id="btnMyResvExportExcel" data-toggle="tooltip" data-placement="top" title="Export Excel">
+              <i class="fas fa-file-excel"></i>
+            </button>
+            <button type="button" class="btn-action" id="btnMyResvExportPrint" data-toggle="tooltip" data-placement="top" title="Print">
+              <i class="fas fa-print"></i>
+            </button>
+            <div id="dtMyResvButtons" class="d-none"></div>
           </div>
         </div>
-        <div class="card-body">
+        <div class="table-controls">
+          <div class="table-search-box">
+            <form class="form-inline md-form form-sm mt-0 mb-0 pb-0">
+              <div class="">
+                <i class="fas fa-search mt-2" aria-hidden="true"></i>
+                <input type="text" id="txtMyResvSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
+                <label for="txtMyResvSearch" class="ml-4">Search</label>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="table-body">
           <div id="myResvLoading" class="skeleton-overlay d-none" aria-hidden="true">
             <div class="skeleton-line"></div>
             <div class="skeleton-line"></div>
@@ -207,7 +231,7 @@
             <div class="skeleton-line"></div>
           </div>
           <div class="table-responsive">
-            <table id="dtMyResv" class="table table-hover table-sm mb-0 display responsive" width="100%">
+            <table id="dtMyResv" class="table table-hover table-sm mb-0 display responsive" cellspacing="0" width="100%">
               <thead>
                 <tr class="th-strong">
                   <th style="width:4%">#</th>

@@ -46,18 +46,20 @@
         { mData:function(row){ return row.reservationStart||row.reservation_start||null; }, mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; } },
         { mData:function(row){ return row.reservationEnd||row.reservation_end||null; }, mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; } },
         { mData:function(row){ return row.reservationStatus||row.reservation_status||''; }, mRender:function(d,type){ const status=(d||'').toUpperCase(); if(type==='export' || type==='print'){ return status; } const cls=(status==='RESERVED'?'badge-success-dark':(status==='CANCELED'?'badge-danger-dark':'badge-warning')); return '<span class="badge-modern '+cls+'" title="'+status+'">'+status+'</span>'; } },
-        { mData:null, bSortable:false, sClass:'text-center', mRender:function(d,type,row){ if(type==='export' || type==='print'){ return ''; } const status=(row.reservationStatus||row.reservation_status||''); const disabled=status==='CANCELED'; const rid=(row.reservationId??row.reservation_id); const addCalBtn='<button class="icon-btn btnMyResvAddCal" data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Add to calendar"><i class="fas fa-calendar-plus"></i></button>'; const detailsBtn='<button class="icon-btn btnMyResvDetails" data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Details"><i class="fas fa-eye"></i></button>'; const reschBtn='<button class="icon-btn btnMyResvReschedule" '+(disabled?'disabled':'')+' data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Reschedule"><i class="fas fa-clock-rotate-left"></i></button>'; const cancelBtn='<button class="icon-btn btnMyResvCancel" '+(disabled?'disabled':'')+' data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Cancel"><i class="fas fa-ban"></i></button>'; return addCalBtn+' '+detailsBtn+' '+reschBtn+' '+cancelBtn; } }
+        { mData:null, bSortable:false, sClass:'text-center', mRender:function(d,type,row){ if(type==='export' || type==='print'){ return ''; } const status=(row.reservationStatus||row.reservation_status||''); const disabled=status==='CANCELED'; const rid=(row.reservationId??row.reservation_id); const addCalBtn='<button class="btn-action btn-view btnMyResvAddCal" data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Add to calendar"><i class="fas fa-calendar-plus"></i></button>'; const detailsBtn='<button class="btn-action btn-view btnMyResvDetails" data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Details"><i class="fas fa-eye"></i></button>'; const reschBtn='<button class="btn-action btn-edit btnMyResvReschedule" '+(disabled?'disabled':'')+' data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Reschedule"><i class="fas fa-clock-rotate-left"></i></button>'; const cancelBtn='<button class="btn-action btn-delete btnMyResvCancel" '+(disabled?'disabled':'')+' data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Cancel"><i class="fas fa-ban"></i></button>'; return addCalBtn+' '+detailsBtn+' '+reschBtn+' '+cancelBtn; } }
       ]
     });
+    // Hide DataTables built-in filter
+    $("#dtMyResv_filter").hide();
     // Place export buttons in header actions
-  // Keep default buttons hidden; wire segmented controls
+  // Keep default buttons hidden; wire icon buttons
   dt.buttons().container().appendTo('#dtMyResvButtons');
-  $('#myResvExportToggle .segmented-btn').off('click').on('click', function(){
-    const type = $(this).data('export');
-    if(type==='csv'){ dt.button(0).trigger(); }
-    else if(type==='excel'){ dt.button(1).trigger(); }
-    else if(type==='print'){ dt.button(2).trigger(); }
-  });
+  $('#dtMyResvButtons').addClass('d-none');
+  $('#btnMyResvExportCsv').off('click').on('click', function(){ dt.button(0).trigger(); });
+  $('#btnMyResvExportExcel').off('click').on('click', function(){ dt.button(1).trigger(); });
+  $('#btnMyResvExportPrint').off('click').on('click', function(){ dt.button(2).trigger(); });
+  // Wire custom search box
+  $('#txtMyResvSearch').on('keyup change', function(){ dt.search($(this).val()).draw(); });
   dt.on('draw.dt', function(){ $('[data-toggle="tooltip"]').tooltip(); });
   // View toggle
   $('#myResvViewToggle .segmented-btn').on('click', function(){ const v=$(this).data('view'); toggleView(v); });
@@ -105,7 +107,7 @@
     let pending=$('.includeHtml').length;
     function boot(){ try{ if (typeof initiatePages === 'function') { initiatePages(); } initFilters(); initTable(); loadData(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} }
     if(pending===0){ boot(); } else { $('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf(), function(){ pending--; if(pending===0){ boot(); } }); }); }
-    $('#btnMyResvRefresh').on('click', loadData);
+    $('#btnMyResvRefresh, #btnMyResvRefreshTable').on('click', loadData);
   });
 
   function showDetails(data){
