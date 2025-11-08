@@ -456,7 +456,10 @@ function MainAssetType() {
             bFilter: true,
             aaSorting: [[1, 'asc'], [2, 'asc'], [3, 'asc']],
             language: _DATATABLE_LANGUAGE,
-            dom: 't',
+            pageLength: 25,
+            dom: "<'row d-none'<'col-sm-12'f>>" +
+                 "<'row'<'col-sm-12'tr>>" +
+                 "<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
             columnDefs: [
                 {targets: [0, 5, 6, 7], orderable: false, className: 'text-center'},
                 {targets: [1, 2, 3], className: 'text-nowrap'}
@@ -591,7 +594,10 @@ function MainAssetType() {
             autoWidth: false,
             aaSorting: [[1, 'asc'], [2, 'asc']],
             language: _DATATABLE_LANGUAGE,
-            dom: 't',
+            pageLength: 25,
+            dom: "<'row d-none'<'col-sm-12'f>>" +
+                 "<'row'<'col-sm-12'tr>>" +
+                 "<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
             columnDefs: [
                 {targets: [0, 4, 5], orderable: false, className: 'text-center'},
                 {targets: [1, 2], className: 'text-nowrap'}

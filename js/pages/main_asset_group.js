@@ -197,7 +197,10 @@ function MainAssetGroup() {
             bFilter: true,
             aaSorting: [[1, 'asc']],
             language: _DATATABLE_LANGUAGE,
-            dom: 't',
+            pageLength: 25,
+            dom: "<'row d-none'<'col-sm-12'f>>" +
+                 "<'row'<'col-sm-12'tr>>" +
+                 "<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
             columnDefs: [
                 {targets: [0, 4], orderable: false, className: 'text-center'},
                 {targets: [3], className: 'text-center'},

@@ -184,7 +184,10 @@ function MainAsset() {
             aaSorting: [[2, 'asc']],
             language: _DATATABLE_LANGUAGE,
             autoWidth: false,
-            dom: 't',
+            pageLength: 25,
+            dom: "<'row d-none'<'col-sm-12'f>>" +
+                 "<'row'<'col-sm-12'tr>>" +
+                 "<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
             columnDefs: [
                 {targets: [0], orderable: false, className: 'text-center'},
                 {targets: [11], className: 'text-center'},
