@@ -37,18 +37,31 @@ function MainAssetType() {
         if (!$element.length || typeof $element.materialSelect !== 'function') {
             return;
         }
-        try {
-            $element.materialSelect('destroy');
-        } catch (e) {
-            // ignore destroy errors for first-run initialisation
+        
+        // Only initialize if not yet wrapped (prevents double initialization like in initiatePages())
+        if (!$element.parent().hasClass('select-wrapper')) {
+            try {
+                $element.materialSelect();
+            } catch (e) {
+                // ignore initialization errors
+            }
         }
-        const $wrapper = $element.parent('.select-wrapper');
-        if ($wrapper.length) {
-            $wrapper.before($element);
-            $wrapper.remove();
-        }
-        $element.siblings('.select-dropdown').remove();
-        $element.materialSelect();
+        
+        // BRUTE FORCE FIX: If we have nested wrappers, unwrap the outer one
+        setTimeout(function() {
+            const $outline = $element.closest('.select-outline');
+            if ($outline.length) {
+                const $outerWrapper = $outline.children('.select-wrapper');
+                if ($outerWrapper.length) {
+                    const $innerWrapper = $outerWrapper.children('.select-wrapper.initialized');
+                    if ($innerWrapper.length) {
+                        // Move inner wrapper directly under select-outline and remove outer wrapper
+                        $innerWrapper.appendTo($outline);
+                        $outerWrapper.remove();
+                    }
+                }
+            }
+        }, 50);
     };
 
     const applyTableDataLabels = function (tableSelector, headers) {
@@ -165,14 +178,14 @@ function MainAssetType() {
         if (!fromSelect) {
             const $statusSelect = $('#optAtyStatus');
             if ($statusSelect.length) {
-                try {
-                    $statusSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy issues
-                }
+                // Just update the value - don't reinitialize materialSelect!
                 $statusSelect.val(statusFilterValue);
-                $statusSelect.materialSelect();
-                $statusSelect.off('change').on('change', handleStatusSelectChange);
+                // Update the display text manually
+                const $dropdown = $statusSelect.siblings('input.select-dropdown');
+                if ($dropdown.length) {
+                    const selectedOption = $statusSelect.find('option:selected');
+                    $dropdown.val(selectedOption.text());
+                }
             }
         }
     };
@@ -191,14 +204,14 @@ function MainAssetType() {
         if (!skipSelect) {
             const $groupSelect = $('#optAtyGroupId');
             if ($groupSelect.length) {
-                try {
-                    $groupSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore
-                }
+                // Just update the value - don't reinitialize materialSelect!
                 $groupSelect.val(groupFilterValue);
-                $groupSelect.materialSelect();
-                $groupSelect.off('change').on('change', handleGroupSelectChange);
+                // Update the display text manually
+                const $dropdown = $groupSelect.siblings('input.select-dropdown');
+                if ($dropdown.length) {
+                    const selectedOption = $groupSelect.find('option:selected');
+                    $dropdown.val(selectedOption.text());
+                }
             }
         }
         populateCategoryFilter(groupFilterValue, categoryFilterValue);
@@ -218,14 +231,14 @@ function MainAssetType() {
         if (!skipSelect) {
             const $categorySelect = $('#optAtyCategoryId');
             if ($categorySelect.length) {
-                try {
-                    $categorySelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore
-                }
+                // Just update the value - don't reinitialize materialSelect!
                 $categorySelect.val(categoryFilterValue);
-                $categorySelect.materialSelect();
-                $categorySelect.off('change').on('change', handleCategorySelectChange);
+                // Update the display text manually
+                const $dropdown = $categorySelect.siblings('input.select-dropdown');
+                if ($dropdown.length) {
+                    const selectedOption = $categorySelect.find('option:selected');
+                    $dropdown.val(selectedOption.text());
+                }
             }
         }
     };

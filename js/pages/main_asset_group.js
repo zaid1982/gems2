@@ -114,18 +114,31 @@ function MainAssetGroup() {
         if (!$element.length || typeof $element.materialSelect !== 'function') {
             return;
         }
-        try {
-            $element.materialSelect('destroy');
-        } catch (e) {
-            // ignore destroy errors for first run
+        
+        // Only initialize if not yet wrapped (prevents double initialization like in initiatePages())
+        if (!$element.parent().hasClass('select-wrapper')) {
+            try {
+                $element.materialSelect();
+            } catch (e) {
+                // ignore initialization errors
+            }
         }
-        const $wrapper = $element.parent('.select-wrapper');
-        if ($wrapper.length) {
-            $wrapper.before($element);
-            $wrapper.remove();
-        }
-        $element.siblings('.select-dropdown').remove();
-        $element.materialSelect();
+        
+        // BRUTE FORCE FIX: If we have nested wrappers, unwrap the outer one
+        setTimeout(function() {
+            const $outline = $element.closest('.select-outline');
+            if ($outline.length) {
+                const $outerWrapper = $outline.children('.select-wrapper');
+                if ($outerWrapper.length) {
+                    const $innerWrapper = $outerWrapper.children('.select-wrapper.initialized');
+                    if ($innerWrapper.length) {
+                        // Move inner wrapper directly under select-outline and remove outer wrapper
+                        $innerWrapper.appendTo($outline);
+                        $outerWrapper.remove();
+                    }
+                }
+            }
+        }, 50);
     };
 
     const setStatusFilter = function (value, fromSelect) {
@@ -138,14 +151,14 @@ function MainAssetGroup() {
         if (!fromSelect) {
             const $statusSelect = $('#optAgrStatus');
             if ($statusSelect.length) {
-                try {
-                    $statusSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy errors when not yet initialised
-                }
+                // Just update the value - don't reinitialize materialSelect!
                 $statusSelect.val(statusFilterValue);
-                $statusSelect.materialSelect();
-                $statusSelect.off('change').on('change', handleStatusSelectChange);
+                // Update the display text manually
+                const $dropdown = $statusSelect.siblings('input.select-dropdown');
+                if ($dropdown.length) {
+                    const selectedOption = $statusSelect.find('option:selected');
+                    $dropdown.val(selectedOption.text());
+                }
             }
         }
     };

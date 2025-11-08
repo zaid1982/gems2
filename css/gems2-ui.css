@@ -1275,3 +1275,17 @@ body {
 .modern-table-card tbody td.action-cell {
   cursor: default;
 }
+
+/* BRUTE FORCE FIX: Handle nested select-wrapper elements (MDB double initialization bug) 
+   Keep the inner initialized wrapper but hide duplicate visual elements from outer wrapper */
+.select-outline > .select-wrapper > .select-dropdown,
+.select-outline > .select-wrapper > span.caret,
+.select-outline > .select-wrapper > ul.dropdown-content {
+  display: none !important;
+}
+
+/* Ensure inner select-wrapper (initialized) is visible and positioned correctly */
+.select-outline > .select-wrapper > .select-wrapper.initialized {
+  display: block !important;
+  position: relative !important;
+}
