@@ -564,12 +564,37 @@ function mzAjaxRequest(url, type, data, functionStr, apiBeautify) {
             if (resp.success) {
                 returnVal = resp.result;
                 if (typeof functionStr !== 'undefined' && functionStr !== '') {
-                    if (functionStr.slice(-2) === '()') {
-                        eval(functionStr.slice(0, -1) + '\'' + JSON.stringify(returnVal) + '\');');
-                    } else {
-                        console.log(functionStr.slice(0, -1));
-                        eval(functionStr.slice(0, -1) + ',\'' + JSON.stringify(returnVal) + '\');');
-                    }                    
+                    try {
+                        if (functionStr.slice(-2) === '()') {
+                            // Function with no params - pass data as parameter
+                            const funcName = functionStr.slice(0, -2);
+                            const func = eval(funcName);
+                            if (typeof func === 'function') {
+                                func(returnVal);
+                            } else {
+                                console.error('Not a function:', funcName);
+                            }
+                        } else {
+                            // Function call with existing params - pass data as additional param
+                            const parts = functionStr.match(/^(.+?)\((.*)\)$/);
+                            if (parts) {
+                                const funcName = parts[1];
+                                const existingParams = parts[2];
+                                const func = eval(funcName);
+                                if (typeof func === 'function') {
+                                    // Parse existing params and add returnVal
+                                    const params = existingParams ? [existingParams, returnVal] : [returnVal];
+                                    func.apply(null, params);
+                                } else {
+                                    console.error('Not a function:', funcName);
+                                }
+                            } else {
+                                console.error('Invalid function string format:', functionStr);
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error executing callback function:', functionStr, e);
+                    }
                 }
                 if (resp['errmsg'] !== '') {
                     toastr['success'](resp['errmsg'], _ALERT_TITLE_SUCCESS);
