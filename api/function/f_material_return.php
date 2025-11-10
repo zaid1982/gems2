@@ -96,7 +96,8 @@ class Class_material_return {
             $this->fn_general->checkEmptyParams(array($userId));
 
             // Use the view from sql.php (on-demand view)
-            $items = Class_db::getInstance()->db_select('vw_return_eligible_items', array('technician_id'=>$userId), 'collected_date DESC');
+            // Note: Column names in WHERE must match the view's column aliases (camelCase)
+            $items = Class_db::getInstance()->db_select('vw_return_eligible_items', array('technicianId'=>$userId), 'collectedDate DESC');
             
             // Add pending return info for each item
             foreach ($items as &$item) {
