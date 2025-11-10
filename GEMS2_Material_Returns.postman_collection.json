@@ -1,0 +1,513 @@
+{
+  "info": {
+    "name": "GEMS2 Material Returns API",
+    "description": "API endpoints for material return workflow (Technician → Storekeeper)\n\nImplemented: 9 November 2025\n\nFeatures:\n- Technicians return collected parts (full or partial)\n- Storekeepers confirm receipt\n- Inventory auto-updates\n- Transaction-safe operations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost/gems2/api/m_inventory.php",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token_technician",
+      "value": "YOUR_TECHNICIAN_JWT_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token_storekeeper",
+      "value": "YOUR_STOREKEEPER_JWT_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "device_id",
+      "value": "test_device_12345",
+      "type": "string"
+    },
+    {
+      "key": "user_id_technician",
+      "value": "123",
+      "type": "string"
+    },
+    {
+      "key": "return_id",
+      "value": "789",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Technician Endpoints",
+      "item": [
+        {
+          "name": "1. Get Return-Eligible Items",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_technician}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/return_eligible_items/{{user_id_technician}}",
+              "host": ["{{base_url}}"],
+              "path": ["return_eligible_items", "{{user_id_technician}}"]
+            },
+            "description": "Retrieves list of items that can be returned by the technician.\n\nFilters:\n- Only status 36 (Parts Collected)\n- Excludes fully returned items\n- Shows pending return status"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Submit Return Request (Full)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_technician}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"woTaskPartsId\": \"12345\",\n  \"quantityReturned\": 10,\n  \"returnReason\": \"unused_excess\",\n  \"returnRemarks\": \"Job completed earlier than expected. Parts not needed.\",\n  \"returnDeadlineDate\": \"2025-11-15 17:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/request_return",
+              "host": ["{{base_url}}"],
+              "path": ["request_return"]
+            },
+            "description": "Submit a full return request for collected parts.\n\nRequired:\n- woTaskPartsId\n- quantityReturned\n- returnReason (unused_excess, wrong_part, damaged, other)\n\nOptional:\n- returnRemarks\n- returnDeadlineDate"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Submit Return Request (Partial)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_technician}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"woTaskPartsId\": \"12345\",\n  \"quantityReturned\": 5,\n  \"returnReason\": \"damaged\",\n  \"returnRemarks\": \"Found 5 units with defects during inspection\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/request_return",
+              "host": ["{{base_url}}"],
+              "path": ["request_return"]
+            },
+            "description": "Submit a partial return (e.g., return 5 out of 10 collected items).\n\nSupports multiple partial returns until all items returned."
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get My Return History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_technician}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/return_history?userId={{user_id_technician}}&status=all&dateFrom=2025-11-01&dateTo=2025-11-30",
+              "host": ["{{base_url}}"],
+              "path": ["return_history"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{user_id_technician}}"
+                },
+                {
+                  "key": "status",
+                  "value": "all",
+                  "description": "pending | completed | all"
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2025-11-01"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2025-11-30"
+                }
+              ]
+            },
+            "description": "View technician's return history with filters.\n\nQuery params (all optional):\n- userId\n- status (pending|completed|all)\n- dateFrom (YYYY-MM-DD)\n- dateTo (YYYY-MM-DD)"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Get My Return Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_technician}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/return_statistics?userId={{user_id_technician}}",
+              "host": ["{{base_url}}"],
+              "path": ["return_statistics"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{user_id_technician}}"
+                }
+              ]
+            },
+            "description": "Get return statistics for a technician.\n\nReturns:\n- totalReturns\n- pendingReturns\n- completedReturns\n- totalQuantityReturned"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints used by technicians to manage material returns"
+    },
+    {
+      "name": "Storekeeper Endpoints",
+      "item": [
+        {
+          "name": "1. Get Pending Returns",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_storekeeper}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/storekeeper_pending_returns",
+              "host": ["{{base_url}}"],
+              "path": ["storekeeper_pending_returns"]
+            },
+            "description": "Retrieves all pending return requests waiting for storekeeper confirmation.\n\nIncludes:\n- Technician details\n- Item information\n- Quantity to return\n- Return reason\n- Current inventory stock"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get Return Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_storekeeper}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/return_detail/{{return_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["return_detail", "{{return_id}}"]
+            },
+            "description": "Get detailed information about a specific return request.\n\nUseful for reviewing before confirmation."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Confirm Return Receipt",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_storekeeper}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}/confirm_return/{{return_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["confirm_return", "{{return_id}}"]
+            },
+            "description": "⚠️ CRITICAL ENDPOINT ⚠️\n\nConfirms receipt of returned items and updates inventory.\n\nDatabase changes:\n1. material_returns status → 'completed'\n2. ast_part_sub status → '47' (Returned)\n3. ast_part.part_locked decreased\n4. inventory_logs entry created\n\n🔒 Transaction-safe:\n- Rolls back on error\n- Row-level locking\n- Validates inventory state"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get All Return History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_storekeeper}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/return_history?status=completed&dateFrom=2025-11-01",
+              "host": ["{{base_url}}"],
+              "path": ["return_history"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "completed"
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2025-11-01"
+                }
+              ]
+            },
+            "description": "View all return history (not filtered by user).\n\nStorekeeper can view returns from all technicians."
+          },
+          "response": []
+        },
+        {
+          "name": "5. Get Overall Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_storekeeper}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/return_statistics",
+              "host": ["{{base_url}}"],
+              "path": ["return_statistics"]
+            },
+            "description": "Get overall return statistics (all users).\n\nOmit userId parameter to get global stats."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints used by storekeepers to manage and confirm returns"
+    },
+    {
+      "name": "Error Test Cases",
+      "item": [
+        {
+          "name": "ERR: Missing Authorization",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/return_eligible_items/123",
+              "host": ["{{base_url}}"],
+              "path": ["return_eligible_items", "123"]
+            },
+            "description": "Expected: 400 - Parameter Authorization empty"
+          },
+          "response": []
+        },
+        {
+          "name": "ERR: Invalid Return Reason",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_technician}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"woTaskPartsId\": \"12345\",\n  \"quantityReturned\": 5,\n  \"returnReason\": \"invalid_reason\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/request_return",
+              "host": ["{{base_url}}"],
+              "path": ["request_return"]
+            },
+            "description": "Expected: 400 - Invalid return reason"
+          },
+          "response": []
+        },
+        {
+          "name": "ERR: Zero Quantity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_technician}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"woTaskPartsId\": \"12345\",\n  \"quantityReturned\": 0,\n  \"returnReason\": \"unused_excess\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/request_return",
+              "host": ["{{base_url}}"],
+              "path": ["request_return"]
+            },
+            "description": "Expected: 400 - Quantity returned must be greater than 0"
+          },
+          "response": []
+        },
+        {
+          "name": "ERR: Return More Than Collected",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_technician}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"woTaskPartsId\": \"12345\",\n  \"quantityReturned\": 999,\n  \"returnReason\": \"unused_excess\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/request_return",
+              "host": ["{{base_url}}"],
+              "path": ["request_return"]
+            },
+            "description": "Expected: 400 - Cannot return more than collected"
+          },
+          "response": []
+        },
+        {
+          "name": "ERR: Confirm Already Completed",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token_storekeeper}}",
+                "type": "text"
+              },
+              {
+                "key": "deviceid",
+                "value": "{{device_id}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/confirm_return/788",
+              "host": ["{{base_url}}"],
+              "path": ["confirm_return", "788"]
+            },
+            "description": "Expected: 400 - Return request already completed"
+          },
+          "response": []
+        }
+      ],
+      "description": "Test cases for error handling and validation"
+    }
+  ]
+}

@@ -1814,6 +1814,60 @@ class Class_sql
                         FROM wo_import_batch wib
                         LEFT JOIN cli_site s ON wib.site_id = s.site_id
                         LEFT JOIN sys_user u ON wib.imported_by = u.user_id";
+            } else if ($title === 'vw_return_eligible_items') {
+                $sql = "SELECT 
+                            wtp.wo_task_parts_id AS woTaskPartsId,
+                            wtp.part_id AS partId,
+                            p.part_name AS partName,
+                            p.part_code AS partCode,
+                            wtp.wo_task_parts_quantity AS quantityCollected,
+                            wtr.wo_task_request_order_by AS technicianId,
+                            wtr.wo_task_request_date AS collectedDate,
+                            wt.wo_task_no AS workOrderNo,
+                            COUNT(ps.part_sub_id) AS partsInPossession,
+                            COALESCE(SUM(CASE WHEN mr.return_status = 'completed' THEN mr.quantity_returned ELSE 0 END), 0) AS quantityAlreadyReturned,
+                            wtp.wo_task_parts_quantity - COALESCE(SUM(CASE WHEN mr.return_status = 'completed' THEN mr.quantity_returned ELSE 0 END), 0) AS quantityAvailableToReturn
+                        FROM wo_task_parts wtp
+                        INNER JOIN wo_task_request wtr ON wtp.wo_task_request_id = wtr.wo_task_request_id
+                        INNER JOIN wo_task wt ON wtr.wo_task_id = wt.wo_task_id
+                        INNER JOIN ast_part p ON wtp.part_id = p.part_id
+                        LEFT JOIN ast_part_sub ps ON wtp.wo_task_parts_id = ps.wo_task_parts_id 
+                            AND ps.part_sub_status = '36' 
+                            AND ps.part_sub_return_id IS NULL
+                        LEFT JOIN material_returns mr ON wtp.wo_task_parts_id = mr.wo_task_parts_id
+                        WHERE wtp.wo_task_parts_status = '36'
+                        GROUP BY wtp.wo_task_parts_id, wtp.part_id, p.part_name, p.part_code, 
+                                 wtp.wo_task_parts_quantity, wtr.wo_task_request_order_by, 
+                                 wtr.wo_task_request_date, wt.wo_task_no
+                        HAVING partsInPossession > 0 AND quantityAvailableToReturn > 0";
+            } else if ($title === 'vw_storekeeper_pending_returns') {
+                $sql = "SELECT 
+                            mr.return_id AS returnId,
+                            mr.wo_task_parts_id AS woTaskPartsId,
+                            mr.part_id AS partId,
+                            mr.technician_user_id AS technicianUserId,
+                            mr.quantity_returned AS quantityReturned,
+                            mr.return_status AS returnStatus,
+                            mr.return_reason AS returnReason,
+                            mr.return_remarks AS returnRemarks,
+                            mr.return_request_date AS returnRequestDate,
+                            mr.return_deadline_date AS returnDeadlineDate,
+                            mr.return_confirmed_date AS returnConfirmedDate,
+                            mr.storekeeper_user_id AS storekeeperUserId,
+                            p.part_name AS partName,
+                            p.part_code AS partCode,
+                            p.part_unit AS partUnit,
+                            CONCAT(u.user_first_name, ' ', u.user_last_name) AS technicianName,
+                            wt.wo_task_no AS workOrderNo,
+                            s.site_name AS siteName
+                        FROM material_returns mr
+                        INNER JOIN ast_part p ON mr.part_id = p.part_id
+                        INNER JOIN sys_user u ON mr.technician_user_id = u.user_id
+                        INNER JOIN wo_task_parts wtp ON mr.wo_task_parts_id = wtp.wo_task_parts_id
+                        INNER JOIN wo_task_request wtr ON wtp.wo_task_request_id = wtr.wo_task_request_id
+                        INNER JOIN wo_task wt ON wtr.wo_task_id = wt.wo_task_id
+                        INNER JOIN cli_site s ON wt.site_id = s.site_id
+                        WHERE mr.return_status = 'pending'";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

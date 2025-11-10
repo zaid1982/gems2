@@ -8,6 +8,7 @@ require_once 'function/f_asset_group.php';
 require_once 'function/f_item_type.php';
 require_once 'function/f_part.php';
 require_once 'function/f_wo_parts.php';
+require_once 'function/f_material_return.php';
 require_once 'pdf/tcpdf_include.php';
 
 $api_name = 'api_m_wo';
@@ -24,6 +25,7 @@ $fn_assetGroup = new Class_assetGroup();
 $fn_itemType = new Class_item_type();
 $fn_part = new Class_part();
 $fn_woParts = new Class_wo_parts();
+$fn_materialReturn = new Class_material_return();
 
 try {
     $fn_general->__set('constant', $constant);
@@ -34,6 +36,8 @@ try {
     $fn_itemType->__set('fn_general', $fn_general);
     $fn_part->__set('fn_general', $fn_general);
     $fn_woParts->__set('fn_general', $fn_general);
+    $fn_materialReturn->__set('fn_general', $fn_general);
+    $fn_materialReturn->__set('constant', $constant);
 
     Class_db::getInstance()->db_connect();
     $request_method = $_SERVER['REQUEST_METHOD'];
@@ -78,12 +82,102 @@ try {
             $result = $fn_part->getPartListMobile($woTaskId, $itemTypeId);
         } else if ($urlArr[1] === 'wo_parts_list') {
             $result = $fn_woParts->getWoPartsMobileList($urlArr[2]);
+        } 
+        // ========== Material Returns Endpoints ==========
+        else if ($urlArr[1] === 'return_eligible_items') {
+            // Get technician's return-eligible items
+            $technicianUserId = isset($urlArr[2]) ? $urlArr[2] : $userId;
+            $result = $fn_materialReturn->getReturnEligibleItems($technicianUserId);
+        } else if ($urlArr[1] === 'storekeeper_pending_returns') {
+            // Get all pending returns for storekeeper
+            $result = $fn_materialReturn->getStorekeeperPendingReturns();
+        } else if ($urlArr[1] === 'return_detail') {
+            // Get specific return details
+            if (!isset($urlArr[2])) {
+                throw new Exception('[' . __LINE__ . '] - Return ID required');
+            }
+            $returnId = $urlArr[2];
+            $result = $fn_materialReturn->getReturnDetail($returnId);
+        } else if ($urlArr[1] === 'return_history') {
+            // Get return history with optional filters
+            $filters = array();
+            if (isset($_GET['userId'])) $filters['userId'] = $_GET['userId'];
+            if (isset($_GET['status'])) $filters['status'] = $_GET['status'];
+            if (isset($_GET['dateFrom'])) $filters['dateFrom'] = $_GET['dateFrom'];
+            if (isset($_GET['dateTo'])) $filters['dateTo'] = $_GET['dateTo'];
+            $result = $fn_materialReturn->getReturnHistory($filters);
+        } else if ($urlArr[1] === 'return_statistics') {
+            // Get return statistics
+            $technicianUserId = isset($_GET['userId']) ? $_GET['userId'] : null;
+            $result = $fn_materialReturn->getReturnStatistics($technicianUserId);
         } else {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
         $form_data['result'] = $result;
         $form_data['success'] = true;
-    } else {
+    } 
+    else if ('POST' === $request_method) {
+        $postData = file_get_contents("php://input");
+        $params = json_decode($postData, true);
+        
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+        
+        if ($urlArr[1] === 'request_return') {
+            // Submit return request from technician
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            
+            $returnId = $fn_materialReturn->submitReturnRequest($userId, $params);
+            
+            // Get return details for audit
+            $returnDetail = $fn_materialReturn->getReturnDetail($returnId);
+            $fn_general->save_audit('190', $userId, 'Return request submitted - Return ID: '.$returnId.', Item: '.$returnDetail['itemDescription'].', Quantity: '.$params['quantityReturned']);
+            
+            Class_db::getInstance()->db_commit();
+            $form_data['result'] = array('returnId' => $returnId);
+            $form_data['errmsg'] = 'Return request submitted successfully. Waiting for storekeeper confirmation.';
+            $form_data['success'] = true;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+    }
+    else if ('PUT' === $request_method) {
+        $putData = file_get_contents("php://input");
+        $params = array();
+        parse_str($putData, $params);
+        
+        if (!isset ($urlArr[1])) {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+        
+        if ($urlArr[1] === 'confirm_return') {
+            // Confirm return receipt by storekeeper
+            if (!isset($urlArr[2])) {
+                throw new Exception('[' . __LINE__ . '] - Return ID required');
+            }
+            
+            $returnId = $urlArr[2];
+            
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            
+            $updateResult = $fn_materialReturn->confirmReturnReceipt($returnId, $userId);
+            
+            // Get return details for audit
+            $returnDetail = $fn_materialReturn->getReturnDetail($returnId);
+            $fn_general->save_audit('191', $userId, 'Return confirmed - Return ID: '.$returnId.', Item: '.$returnDetail['itemDescription'].', Quantity: '.$updateResult['returnedQuantity'].', New Available: '.$updateResult['newAvailable']);
+            
+            Class_db::getInstance()->db_commit();
+            $form_data['result'] = $updateResult;
+            $form_data['errmsg'] = 'Return confirmed successfully. Inventory updated with '.$updateResult['returnedQuantity'].' items. New available stock: '.$updateResult['newAvailable'];
+            $form_data['success'] = true;
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
+        }
+    }
+    else {
         throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
     }
     Class_db::getInstance()->db_close();
