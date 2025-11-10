@@ -1822,7 +1822,7 @@ class Class_sql
                             MAX(CONCAT('ITEM-', wtp.part_id)) AS partCode,
                             wtp.wo_task_parts_quantity AS quantityCollected,
                             wtr.wo_task_request_order_by AS technicianId,
-                            MAX(wtr.wo_task_request_date) AS collectedDate,
+                            MAX(wtr.wo_task_request_time_collected) AS collectedDate,
                             MAX(wt.wo_task_no) AS workOrderNo,
                             COUNT(ps.part_sub_id) AS partsInPossession,
                             COALESCE(SUM(CASE WHEN mr.return_status = 'completed' THEN mr.quantity_returned ELSE 0 END), 0) AS quantityAlreadyReturned,
@@ -1854,14 +1854,15 @@ class Class_sql
                             mr.return_deadline_date AS returnDeadlineDate,
                             mr.return_confirmed_date AS returnConfirmedDate,
                             mr.storekeeper_user_id AS storekeeperUserId,
-                            p.part_name AS partName,
-                            p.part_code AS partCode,
-                            p.part_unit AS partUnit,
+                            i.item_description AS partName,
+                            CONCAT('ITEM-', mr.part_id) AS partCode,
+                            '' AS partUnit,
                             CONCAT(u.user_first_name, ' ', u.user_last_name) AS technicianName,
                             wt.wo_task_no AS workOrderNo,
                             s.site_name AS siteName
                         FROM material_returns mr
                         INNER JOIN ast_part p ON mr.part_id = p.part_id
+                        LEFT JOIN ref_item i ON p.item_id = i.item_id
                         INNER JOIN sys_user u ON mr.technician_user_id = u.user_id
                         INNER JOIN wo_task_parts wtp ON mr.wo_task_parts_id = wtp.wo_task_parts_id
                         INNER JOIN wo_task_request wtr ON wtp.wo_task_request_id = wtr.wo_task_request_id
