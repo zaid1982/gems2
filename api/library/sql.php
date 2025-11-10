@@ -1836,6 +1836,7 @@ class Class_sql
                             AND ps.part_sub_return_id IS NULL
                         LEFT JOIN material_returns mr ON wtp.wo_task_parts_id = mr.wo_task_parts_id
                         WHERE wtp.wo_task_parts_status = '36'
+                            AND wtr.wo_task_request_order_by = [user_id]
                         GROUP BY wtp.wo_task_parts_id, wtp.part_id, p.part_name, p.part_code, 
                                  wtp.wo_task_parts_quantity, wtr.wo_task_request_order_by, 
                                  wtr.wo_task_request_date, wt.wo_task_no
