@@ -1818,12 +1818,12 @@ class Class_sql
                 $sql = "SELECT 
                             wtp.wo_task_parts_id AS woTaskPartsId,
                             wtp.part_id AS partId,
-                            p.part_name AS partName,
-                            p.part_code AS partCode,
+                            MAX(p.part_name) AS partName,
+                            MAX(p.part_code) AS partCode,
                             wtp.wo_task_parts_quantity AS quantityCollected,
                             wtr.wo_task_request_order_by AS technicianId,
-                            wtr.wo_task_request_date AS collectedDate,
-                            wt.wo_task_no AS workOrderNo,
+                            MAX(wtr.wo_task_request_date) AS collectedDate,
+                            MAX(wt.wo_task_no) AS workOrderNo,
                             COUNT(ps.part_sub_id) AS partsInPossession,
                             COALESCE(SUM(CASE WHEN mr.return_status = 'completed' THEN mr.quantity_returned ELSE 0 END), 0) AS quantityAlreadyReturned,
                             wtp.wo_task_parts_quantity - COALESCE(SUM(CASE WHEN mr.return_status = 'completed' THEN mr.quantity_returned ELSE 0 END), 0) AS quantityAvailableToReturn
@@ -1837,9 +1837,7 @@ class Class_sql
                         LEFT JOIN material_returns mr ON wtp.wo_task_parts_id = mr.wo_task_parts_id
                         WHERE wtp.wo_task_parts_status = '36'
                             AND wtr.wo_task_request_order_by = [user_id]
-                        GROUP BY wtp.wo_task_parts_id, wtp.part_id, p.part_name, p.part_code, 
-                                 wtp.wo_task_parts_quantity, wtr.wo_task_request_order_by, 
-                                 wtr.wo_task_request_date, wt.wo_task_no
+                        GROUP BY wtp.wo_task_parts_id, wtp.part_id, wtp.wo_task_parts_quantity, wtr.wo_task_request_order_by
                         HAVING partsInPossession > 0 AND quantityAvailableToReturn > 0";
             } else if ($title === 'vw_storekeeper_pending_returns') {
                 $sql = "SELECT 
