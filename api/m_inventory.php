@@ -51,21 +51,26 @@ try {
         array_shift($urlArr);
     }
 
+    $headers = apache_request_headers();
+    
     if (isset($urlArr[1]) && $urlArr[1] === 'external') {
         array_shift($urlArr);
     } else {
-        $headers = apache_request_headers();
-        if (!isset($headers['authorization'])) {
-            throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
+        // Check for Authorization header (case-insensitive)
+        if (isset($headers['Authorization'])) {
+            $jwt_data = $fn_login->check_jwt($headers['Authorization']);
+        } else if (isset($headers['authorization'])) {
+            $jwt_data = $fn_login->check_jwt($headers['authorization']);
+        } else {
+            throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty - '.json_encode($headers));
         }
-        $jwt_data = $fn_login->check_jwt($headers['authorization']);
         $userId = $jwt_data->userId;
     }
 
-    if (!isset($headers['deviceid'])) {
-        throw new Exception('[' . __LINE__ . '] - Parameter Deviceid empty');
+    if (isset($headers['deviceid']) || isset($headers['deviceId'])) {
+        $deviceId = isset($headers['deviceid']) ? $headers['deviceid'] : $headers['deviceId'];
+        $fn_login->check_device_id($userId, $deviceId);
     }
-    $fn_login->check_device_id($userId, $headers['deviceid']);
     
     if ('GET' === $request_method) {
         if (!isset ($urlArr[1])) {
