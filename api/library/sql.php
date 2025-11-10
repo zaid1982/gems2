@@ -1818,8 +1818,8 @@ class Class_sql
                 $sql = "SELECT 
                             wtp.wo_task_parts_id AS woTaskPartsId,
                             wtp.part_id AS partId,
-                            MAX(p.part_name) AS partName,
-                            MAX(p.part_code) AS partCode,
+                            MAX(i.item_description) AS partName,
+                            MAX(CONCAT('ITEM-', wtp.part_id)) AS partCode,
                             wtp.wo_task_parts_quantity AS quantityCollected,
                             wtr.wo_task_request_order_by AS technicianId,
                             MAX(wtr.wo_task_request_date) AS collectedDate,
@@ -1831,6 +1831,7 @@ class Class_sql
                         INNER JOIN wo_task_request wtr ON wtp.wo_task_request_id = wtr.wo_task_request_id
                         INNER JOIN wo_task wt ON wtr.wo_task_id = wt.wo_task_id
                         INNER JOIN ast_part p ON wtp.part_id = p.part_id
+                        LEFT JOIN ref_item i ON p.item_id = i.item_id
                         LEFT JOIN ast_part_sub ps ON wtp.wo_task_parts_id = ps.wo_task_parts_id 
                             AND ps.part_sub_status = '36' 
                             AND ps.part_sub_return_id IS NULL
