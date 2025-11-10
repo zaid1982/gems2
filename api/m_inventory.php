@@ -43,12 +43,21 @@ try {
     $request_method = $_SERVER['REQUEST_METHOD'];
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
+    // Support both path-based routing (/return_eligible_items/1) and query params (?action=return_eligible_items&id=1)
     $urlArr = explode('/', $_SERVER['REQUEST_URI']);
     foreach ($urlArr as $i=>$param) {
-        if ($param === 'm_inventory') {
+        if ($param === 'm_inventory' || strpos($param, 'm_inventory.php') !== false) {
             break;
         }
         array_shift($urlArr);
+    }
+    
+    // Remove query string from last element if present
+    if (!empty($urlArr)) {
+        $lastIndex = count($urlArr) - 1;
+        if (strpos($urlArr[$lastIndex], '?') !== false) {
+            $urlArr[$lastIndex] = substr($urlArr[$lastIndex], 0, strpos($urlArr[$lastIndex], '?'));
+        }
     }
 
     $headers = apache_request_headers();
@@ -73,37 +82,42 @@ try {
     }
     
     if ('GET' === $request_method) {
-        if (!isset ($urlArr[1])) {
+        // Support both URL path format and query parameter format
+        $action = isset($urlArr[1]) && !empty($urlArr[1]) ? $urlArr[1] : (isset($_GET['action']) ? $_GET['action'] : '');
+        
+        if (empty($action)) {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
-        if ($urlArr[1] === 'asset_group_list') {
+        
+        if ($action === 'asset_group_list') {
             $result = $fn_assetGroup->get_assetGroup_list();
-        } else if ($urlArr[1] === 'item_type_list') {
-            $assetGroupId = isset ($urlArr[2]) ? $urlArr[2] : '';
+        } else if ($action === 'item_type_list') {
+            $assetGroupId = isset ($urlArr[2]) ? $urlArr[2] : (isset($_GET['id']) ? $_GET['id'] : '');
             $result = $fn_itemType->getItemTypeList($assetGroupId);
-        } else if ($urlArr[1] === 'part_list') {
-            $woTaskId = isset ($urlArr[2]) ? $urlArr[2] : '';
-            $itemTypeId = isset ($urlArr[3]) ? $urlArr[3] : '';
+        } else if ($action === 'part_list') {
+            $woTaskId = isset ($urlArr[2]) ? $urlArr[2] : (isset($_GET['woTaskId']) ? $_GET['woTaskId'] : '');
+            $itemTypeId = isset ($urlArr[3]) ? $urlArr[3] : (isset($_GET['itemTypeId']) ? $_GET['itemTypeId'] : '');
             $result = $fn_part->getPartListMobile($woTaskId, $itemTypeId);
-        } else if ($urlArr[1] === 'wo_parts_list') {
-            $result = $fn_woParts->getWoPartsMobileList($urlArr[2]);
+        } else if ($action === 'wo_parts_list') {
+            $woTaskId = isset($urlArr[2]) ? $urlArr[2] : (isset($_GET['woTaskId']) ? $_GET['woTaskId'] : '');
+            $result = $fn_woParts->getWoPartsMobileList($woTaskId);
         } 
         // ========== Material Returns Endpoints ==========
-        else if ($urlArr[1] === 'return_eligible_items') {
+        else if ($action === 'return_eligible_items') {
             // Get technician's return-eligible items
-            $technicianUserId = isset($urlArr[2]) ? $urlArr[2] : $userId;
+            $technicianUserId = isset($urlArr[2]) ? $urlArr[2] : (isset($_GET['id']) ? $_GET['id'] : $userId);
             $result = $fn_materialReturn->getReturnEligibleItems($technicianUserId);
-        } else if ($urlArr[1] === 'storekeeper_pending_returns') {
+        } else if ($action === 'storekeeper_pending_returns') {
             // Get all pending returns for storekeeper
             $result = $fn_materialReturn->getStorekeeperPendingReturns();
-        } else if ($urlArr[1] === 'return_detail') {
+        } else if ($action === 'return_detail') {
             // Get specific return details
-            if (!isset($urlArr[2])) {
+            $returnId = isset($urlArr[2]) ? $urlArr[2] : (isset($_GET['id']) ? $_GET['id'] : '');
+            if (empty($returnId)) {
                 throw new Exception('[' . __LINE__ . '] - Return ID required');
             }
-            $returnId = $urlArr[2];
             $result = $fn_materialReturn->getReturnDetail($returnId);
-        } else if ($urlArr[1] === 'return_history') {
+        } else if ($action === 'return_history') {
             // Get return history with optional filters
             $filters = array();
             if (isset($_GET['userId'])) $filters['userId'] = $_GET['userId'];
@@ -111,7 +125,7 @@ try {
             if (isset($_GET['dateFrom'])) $filters['dateFrom'] = $_GET['dateFrom'];
             if (isset($_GET['dateTo'])) $filters['dateTo'] = $_GET['dateTo'];
             $result = $fn_materialReturn->getReturnHistory($filters);
-        } else if ($urlArr[1] === 'return_statistics') {
+        } else if ($action === 'return_statistics') {
             // Get return statistics
             $technicianUserId = isset($_GET['userId']) ? $_GET['userId'] : null;
             $result = $fn_materialReturn->getReturnStatistics($technicianUserId);
