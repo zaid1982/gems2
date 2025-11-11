@@ -10,6 +10,7 @@ require_once 'function/f_user.php';
 require_once 'function/f_email.php';
 require_once 'pdf/tcpdf_include.php';
 require_once 'pdf/ppm.php';
+require_once 'class/PpmBatchSync.php';
 
 $api_name = 'api_m_ppm';
 $is_transaction = false;
@@ -152,6 +153,34 @@ try {
         if ($action === 'save_token') {
             $token = filter_input(INPUT_POST, 'token');
             $fn_user->save_token($jwt_data->userId, $token);
+        }
+        else if ($action === 'batch_sync_offline_actions') {
+            // Special handling for batch sync - expects JSON body, not form-data
+            // Roll back the transaction started above since batch sync handles its own per-section transactions
+            if ($is_transaction) {
+                Class_db::getInstance()->db_rollback();
+                $is_transaction = false;
+            }
+            
+            // Get raw JSON input
+            $rawInput = file_get_contents('php://input');
+            $requestData = json_decode($rawInput, true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exception('Invalid JSON in request body: ' . json_last_error_msg());
+            }
+            
+            $fn_general->log_debug('API', $api_name, __LINE__, 'Batch sync request received');
+            
+            // Instantiate PpmBatchSync and process
+            $batchSync = new PpmBatchSync();
+            $syncResult = $batchSync->processBatch($requestData, $jwt_data->userId);
+            
+            // For batch sync, we return the custom response structure directly
+            // Don't use the standard form_data envelope
+            header('Content-Type: application/json');
+            echo json_encode($syncResult);
+            exit();
         }
         else if ($action === 'change_password') {
             $oldPassword = filter_input(INPUT_POST, 'oldPassword');
