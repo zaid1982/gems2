@@ -26,22 +26,22 @@ function MainContract() {
     const tableHeaders = ['#', 'Client', 'Site', 'Contract', 'Description', 'Start Date', 'End Date', 'Status', 'Actions'];
 
     const initMaterialSelect = function (selector) {
-        const $element = $(selector);
-        if (!$element.length || typeof $element.materialSelect !== 'function') {
-            return;
-        }
-        try {
-            $element.materialSelect('destroy');
-        } catch (e) {
-            // ignore destroy errors when reinitialising
-        }
-        const $wrapper = $element.parent('.select-wrapper');
-        if ($wrapper.length) {
-            $wrapper.before($element);
-            $wrapper.remove();
-        }
-        $element.siblings('.select-dropdown').remove();
-        $element.materialSelect();
+        // const $element = $(selector);
+        // if (!$element.length || typeof $element.materialSelect !== 'function') {
+        //     return;
+        // }
+        // try {
+        //     $element.materialSelect('destroy');
+        // } catch (e) {
+        //     // ignore destroy errors when reinitialising
+        // }
+        // const $wrapper = $element.parent('.select-wrapper');
+        // if ($wrapper.length) {
+        //     $wrapper.before($element);
+        //     $wrapper.remove();
+        // }
+        // $element.siblings('.select-dropdown').remove();
+        // $element.materialSelect();
     };
 
     const applyTableDataLabels = function (tableSelector, headers) {
