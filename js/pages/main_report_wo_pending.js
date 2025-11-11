@@ -19,16 +19,17 @@ function MainReportWoPending() {
     const momentAvailable = (typeof moment === 'function');
 
     function refreshMaterialSelect(selector) {
-        const el = $(selector);
-        if (!el.length) {
-            return;
-        }
-        try {
-            el.materialSelect('destroy');
-        } catch (err) {
-            // ignore when component not initialised yet
-        }
-        el.materialSelect();
+        // Disabled to prevent double rendering - using plain select instead
+        // const el = $(selector);
+        // if (!el.length) {
+        //     return;
+        // }
+        // try {
+        //     el.materialSelect('destroy');
+        // } catch (err) {
+        //     // ignore when component not initialised yet
+        // }
+        // el.materialSelect();
     }
 
     function getUserName(userId) {

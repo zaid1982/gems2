@@ -24,22 +24,23 @@ function MainStoreManagement () {
     const tableHeaders = ['#', 'Site', 'Store Name', 'Description', 'Total Item Descriptions', 'Total Items', 'Status', 'Actions'];
 
     const initMaterialSelect = function (selector) {
-        const $element = $(selector);
-        if (!$element.length || typeof $element.materialSelect !== 'function') {
-            return;
-        }
-        try {
-            $element.materialSelect('destroy');
-        } catch (e) {
-            // ignore destroy warnings
-        }
-        const $wrapper = $element.parent('.select-wrapper');
-        if ($wrapper.length) {
-            $wrapper.before($element);
-            $wrapper.remove();
-        }
-        $element.siblings('.select-dropdown').remove();
-        $element.materialSelect();
+        // Disabled to prevent double rendering - using plain select instead
+        // const $element = $(selector);
+        // if (!$element.length || typeof $element.materialSelect !== 'function') {
+        //     return;
+        // }
+        // try {
+        //     $element.materialSelect('destroy');
+        // } catch (e) {
+        //     // ignore destroy warnings
+        // }
+        // const $wrapper = $element.parent('.select-wrapper');
+        // if ($wrapper.length) {
+        //     $wrapper.before($element);
+        //     $wrapper.remove();
+        // }
+        // $element.siblings('.select-dropdown').remove();
+        // $element.materialSelect();
     };
 
     const applyTableDataLabels = function () {

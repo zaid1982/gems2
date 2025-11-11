@@ -45,16 +45,17 @@ function MainPpmGroup() {
     };
 
     const refreshMaterialSelect = function (selector) {
-        const $element = $(selector);
-        if (!$element.length || typeof $element.materialSelect !== 'function') {
-            return;
-        }
-        try {
-            $element.materialSelect('destroy');
-        } catch (err) {
-            // ignore destroy errors when component not initialised
-        }
-        $element.materialSelect();
+        // Disabled to prevent double rendering - using plain select instead
+        // const $element = $(selector);
+        // if (!$element.length || typeof $element.materialSelect !== 'function') {
+        //     return;
+        // }
+        // try {
+        //     $element.materialSelect('destroy');
+        // } catch (err) {
+        //     // ignore destroy errors when component not initialised
+        // }
+        // $element.materialSelect();
     };
 
     const findFirstActiveClientId = function () {

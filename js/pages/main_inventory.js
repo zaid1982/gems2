@@ -31,22 +31,23 @@ function MainInventory () {
     const tableHeaders = ['#', 'Asset Group', 'Item Type', 'Item Description', 'Total in Store', 'Total Locked', 'Total Available', 'Threshold', 'Minimum Order', 'Maximum Order', 'Remark', 'Status', '', '', 'Image'];
 
     const initMaterialSelect = function (selector) {
-        const $element = $(selector);
-        if (!$element.length || typeof $element.materialSelect !== 'function') {
-            return;
-        }
-        try {
-            $element.materialSelect('destroy');
-        } catch (e) {
-            // ignore destroy errors
-        }
-        const $wrapper = $element.parent('.select-wrapper');
-        if ($wrapper.length) {
-            $wrapper.before($element);
-            $wrapper.remove();
-        }
-        $element.siblings('.select-dropdown').remove();
-        $element.materialSelect();
+        // Disabled to prevent double rendering - using plain select instead
+        // const $element = $(selector);
+        // if (!$element.length || typeof $element.materialSelect !== 'function') {
+        //     return;
+        // }
+        // try {
+        //     $element.materialSelect('destroy');
+        // } catch (e) {
+        //     // ignore destroy errors
+        // }
+        // const $wrapper = $element.parent('.select-wrapper');
+        // if ($wrapper.length) {
+        //     $wrapper.before($element);
+        //     $wrapper.remove();
+        // }
+        // $element.siblings('.select-dropdown').remove();
+        // $element.materialSelect();
     };
 
     const applyTableDataLabels = function (tableSelector, headers) {
