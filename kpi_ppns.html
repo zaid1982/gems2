@@ -18,9 +18,88 @@
     <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <style>
+        :root {
+            --kpi-primary: #7C3AED;
+            --kpi-secondary: #A78BFA;
+            --kpi-background: #F1F5F9;
+            --kpi-text: #0F172A;
+            --kpi-muted: #64748B;
+            --kpi-radius: 26px;
+            --kpi-shadow: 0 22px 55px -28px rgba(15, 23, 42, 0.45);
+        }
 
+        body {
+            background: var(--kpi-background);
+        }
+
+        .kpi-page-wrapper {
+            padding: 2.5rem 1.5rem 3rem;
+        }
+
+        .kpi-page-header {
+            background: linear-gradient(135deg, var(--kpi-primary) 0%, var(--kpi-secondary) 100%);
+            color: #fff;
+            border-radius: var(--kpi-radius);
+            padding: 2.4rem 2.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: var(--kpi-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-page-header::after {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -70px;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .kpi-page-header .header-text { position: relative; z-index: 1; max-width: 720px; }
+        .kpi-page-header .header-subtitle { font-size: 0.85rem; text-transform: uppercase; letter-spacing: .1em; opacity: 0.82; margin-bottom: 0.75rem; }
+        .kpi-page-header h2 { font-size: 2.35rem; font-weight: 700; margin-bottom: 0.45rem; }
+        .kpi-page-header p { margin: 0; color: rgba(255, 255, 255, 0.82); }
+
+        .kpi-data-card {
+            margin-top: 2.6rem;
+            background: #fff;
+            border-radius: var(--kpi-radius);
+            box-shadow: var(--kpi-shadow);
+            overflow: hidden;
+        }
+
+        .kpi-data-card .card-body { padding: 2.4rem; }
+
+        .kpi-data-card .table-responsive table { width: 100% !important; }
+        .kpi-data-card thead th { 
+            background: #F3F4F6; 
+            border: none; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: .06em; 
+            color: var(--kpi-text);
+            font-size: 0.75rem;
+        }
+        .kpi-data-card tbody td { border-color: #E2E8F0; }
+
+        @media (max-width: 992px) {
+            .kpi-page-wrapper { padding: 2.1rem 1.05rem 2.5rem; }
+            .kpi-page-header { padding: 2.1rem 2.1rem; }
+        }
+
+        @media (max-width: 768px) {
+            .kpi-page-header { padding: 2rem 1.85rem; }
+            .kpi-page-header h2 { font-size: 1.85rem; }
+        }
     </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
@@ -37,60 +116,49 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="container-fluid">
-        <nav class="navbar navbar-dark blue-grey darken-3 z-depth-4 rounded mt-2 sectionKppMain">
-            <h5 class="navbar-text white-text font-weight-bold ml-4 mt-1">
-                KPI / APD
-            </h5>
-        </nav>
+    <div class="kpi-page-wrapper">
+        <div class="container-fluid px-0">
+            <section class="kpi-page-header sectionKppMain">
+                <div class="header-text">
+                    <span class="header-subtitle">Performance Monitoring</span>
+                    <h2>KPI / APD</h2>
+                    <p>Track service performance indicators and automated penalty deductions.</p>
+                </div>
+            </section>
 
-        <section class="mb-4 sectionKppMain">
-            <div class="row mt-4">
-                <div class="col-md-12">
-                    <div class="card z-depth-4">
-                        <div class="card-body pb-1 px-1">
-                            <!--<div class="row">
-                                <div class="col-md-5">
-                                    <div class="mb-4" id="chartKppDepartment" style="height: 266px; margin: 0;"></div>
-                                    <div class="mb-4" id="chartKppStatus" style="height: 160px; margin: 0;"></div>
-                                </div>
-                                <div class="col-md-7">
-                                    <div class="mb-4" id="chartKppRole" style="height: 450px; margin: 0;"></div>
-                                </div>
-                            </div>-->
-                            <div class="table-responsive">
-                                <table id="dtKppData" class="table table-hover table-sm mb-0 display responsive" style="width: 100%">
-                                    <thead class="bg-light">
-                                    <tr class="th-strong">
-                                        <th rowspan="2" class="px-0">Year</th>
-                                        <th rowspan="2" class="px-0">Month</th>
-                                        <th colspan="13" class="px-0">Service Description</th>
-                                        <th rowspan="2" class="px-0">Total Deduction</th>
-                                    </tr>
-                                    <tr class="th-strong">
-                                        <th class="px-0">Report Availability</th>
-                                        <th class="px-0">User General Complaint</th>
-                                        <th class="px-0">Turnaround Time</th>
-                                        <th class="px-0">Recurring Complaint</th>
-                                        <th class="px-0">Response Time</th>
-                                        <th class="px-0">Service Uptime</th>
-                                        <th class="px-0">Comfort Availability</th>
-                                        <th class="px-0">PPM Execution</th>
-                                        <th class="px-0">CM Execution</th>
-                                        <th class="px-0">Service Quality</th>
-                                        <th class="px-0">Statutory Requirement</th>
-                                        <th class="px-0">Security Patrols</th>
-                                        <th class="px-0">Security Personnel</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
+            <section class="kpi-data-card sectionKppMain">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="dtKppData" class="table table-hover table-sm mb-0 display responsive" style="width: 100%">
+                            <thead>
+                            <tr class="th-strong">
+                                <th rowspan="2" class="px-0">Year</th>
+                                <th rowspan="2" class="px-0">Month</th>
+                                <th colspan="13" class="px-0">Service Description</th>
+                                <th rowspan="2" class="px-0">Total Deduction</th>
+                            </tr>
+                            <tr class="th-strong">
+                                <th class="px-0">Report Availability</th>
+                                <th class="px-0">User General Complaint</th>
+                                <th class="px-0">Turnaround Time</th>
+                                <th class="px-0">Recurring Complaint</th>
+                                <th class="px-0">Response Time</th>
+                                <th class="px-0">Service Uptime</th>
+                                <th class="px-0">Comfort Availability</th>
+                                <th class="px-0">PPM Execution</th>
+                                <th class="px-0">CM Execution</th>
+                                <th class="px-0">Service Quality</th>
+                                <th class="px-0">Statutory Requirement</th>
+                                <th class="px-0">Security Patrols</th>
+                                <th class="px-0">Security Personnel</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
         <div class="includeHtml" id="h-section_kpi_ppns"></div>
     </div>
 
