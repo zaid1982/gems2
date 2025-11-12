@@ -139,6 +139,25 @@ class Class_pdf_wr {
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             $userProfile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$woTask['wo_task_created_by'], 'user_profile_status'=>'1'), null, 1);
             $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['site_id']), 'client_id', null, 1);
+            
+            // Fetch zone information if zone_id exists
+            $zoneInfo = '';
+            if (!empty($woTask['zone_id'])) {
+                $zone = Class_db::getInstance()->db_select_single('cli_zone', array('zone_id'=>$woTask['zone_id']), null, 0);
+                if (!empty($zone)) {
+                    $zoneInfo = $this->fn_general->clear_null($zone['zone_code']) . ' | ' . $this->fn_general->clear_null($zone['zone_name']);
+                }
+            }
+            
+            // Combine zone info with location description
+            $locationDisplay = '';
+            if (!empty($zoneInfo) && !empty($woTask['wo_task_location'])) {
+                $locationDisplay = $zoneInfo . "\n" . $this->fn_general->clear_null($woTask['wo_task_location']);
+            } else if (!empty($zoneInfo)) {
+                $locationDisplay = $zoneInfo;
+            } else {
+                $locationDisplay = $this->fn_general->clear_null($woTask['wo_task_location']);
+            }
 
             //$arrSla = array('');
             //$arrDue = array('');
@@ -193,7 +212,7 @@ class Class_pdf_wr {
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
             $cellcount = $pdf->MultiCell(35,4,'Location : ',0,'R',0,0);
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
-            $cellcount = $pdf->MultiCell(55,4, $this->fn_general->clear_null($woTask['wo_task_location']),0,'L',0,0);
+            $cellcount = $pdf->MultiCell(55,4, $locationDisplay,0,'L',0,0);
             if ($cellcount > $maxnocells ) {$maxnocells = $cellcount;}
             $pdf->SetXY($startX,$startY);
             $pdf->MultiCell(30, $maxnocells*4, '', 1, 'L', 0, 0);
