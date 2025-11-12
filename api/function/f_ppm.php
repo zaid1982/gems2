@@ -1987,7 +1987,7 @@ class Class_ppm {
      * @return mixed  // Will now return an array containing submitParam and groupNotificationData if applicable
      * @throws Exception
      */
-    public function process_ppm ($ppmTaskId, $checkpoint, $result, $uploadId, $userId, $remark='', $nextUser='') {
+    public function process_ppm ($ppmTaskId, $checkpoint, $result, $uploadId, $userId, $remark='', $nextUser='', $endTime=null) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
@@ -2008,7 +2008,7 @@ class Class_ppm {
             // 1. Apply process to the initiating task
             // The check_current_task for the initiating task is already done in m_ppm.php for submit_ppm.
             // So we directly call the helper.
-            $submitParam = $this->_apply_ppm_process($ppmTaskId, $checkpoint, $result, $uploadId, $userId, $remark, $nextUser);
+            $submitParam = $this->_apply_ppm_process($ppmTaskId, $checkpoint, $result, $uploadId, $userId, $remark, $nextUser, $endTime);
 
             // 2. Perform workflow submission for the initiating task
             // This part handles the wfl_task updates and next checkpoint creation.
@@ -2062,7 +2062,8 @@ class Class_ppm {
                         try {
                             // Recursively call _apply_ppm_process for peer tasks
                             // Pass empty uploadId, as signature images are unique per asset.
-                            $peerSubmitParam = $this->_apply_ppm_process($targetPpmTaskId, $checkpoint, $result, '', $userId, $remark, $nextUser);
+                            // Pass endTime to ensure consistent timestamp across group tasks
+                            $peerSubmitParam = $this->_apply_ppm_process($targetPpmTaskId, $checkpoint, $result, '', $userId, $remark, $nextUser, $endTime);
 
                             // Also apply workflow submission for peer tasks
                             $peerTaskId = $peerSubmitParam['taskId'];
@@ -4232,7 +4233,7 @@ class Class_ppm {
      * @return array Parameters for notification (taskId, emailTo, taskStatus, ppmTaskNo, comment)
      * @throws Exception
      */
-    private function _apply_ppm_process($targetPpmTaskId, $checkpoint, $result, $uploadId, $userId, $remark = '', $nextUser = '') {
+    private function _apply_ppm_process($targetPpmTaskId, $checkpoint, $result, $uploadId, $userId, $remark = '', $nextUser = '', $endTime = null) {
         $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
         $constant = $this->constant;
 
@@ -4269,12 +4270,16 @@ class Class_ppm {
         if ($checkpoint === '1') {
             $statusUpdate = '14'; // Pending Check
             $taskName = 'pending check';
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by' => $userId, 'ppm_task_time_serviced' => 'Now()'), array('ppm_task_id' => $targetPpmTaskId));
+            // Use provided endTime if available (for offline sync), otherwise use server NOW()
+            $timeServiced = !empty($endTime) ? $endTime : 'Now()';
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_serviced_by' => $userId, 'ppm_task_time_serviced' => $timeServiced), array('ppm_task_id' => $targetPpmTaskId));
             $emailTo = $nextUser; // Next user is the checker/supervisor
         } else if ($checkpoint === '2' && $result === '1') {
             $statusUpdate = '15'; // Pending Verification
             $taskName = 'pending verification';
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_checked_by' => $userId, 'ppm_task_time_checked' => 'Now()'), array('ppm_task_id' => $targetPpmTaskId));
+            // Use provided endTime if available (for offline sync), otherwise use server NOW()
+            $timeChecked = !empty($endTime) ? $endTime : 'Now()';
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_checked_by' => $userId, 'ppm_task_time_checked' => $timeChecked), array('ppm_task_id' => $targetPpmTaskId));
             $emailTo = $nextUser; // Next user is the verifier/engineer
         } else if ($checkpoint === '2' && $result === '2') {
             $statusUpdate = '21'; // Re-open
@@ -4285,7 +4290,9 @@ class Class_ppm {
         } else if ($checkpoint === '3' && $result === '1') {
             $statusUpdate = '16'; // Completed
             $taskName = 'completed';
-            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_verified_by' => $userId, 'ppm_task_time_verified' => 'Now()'), array('ppm_task_id' => $targetPpmTaskId));
+            // Use provided endTime if available (for offline sync), otherwise use server NOW()
+            $timeVerified = !empty($endTime) ? $endTime : 'Now()';
+            Class_db::getInstance()->db_update('ppm_task', array('ppm_task_verified_by' => $userId, 'ppm_task_time_verified' => $timeVerified), array('ppm_task_id' => $targetPpmTaskId));
             $emailTo = Class_db::getInstance()->db_select_col('ppm_task', array('ppm_task_id' => $targetPpmTaskId), 'ppm_task_assigned_to', null, 1); // Notify the original assigned technician
         } else if ($checkpoint === '3' && $result === '2') {
             $statusUpdate = '21'; // Re-open

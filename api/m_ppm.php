@@ -320,6 +320,7 @@ try {
             $checkpoint = filter_input(INPUT_POST, 'checkpoint');
             $result = filter_input(INPUT_POST, 'result');
             $remark = filter_input(INPUT_POST, 'remark');
+            $endTime = filter_input(INPUT_POST, 'endTime'); // NEW: Accept optional endTime for offline sync
             //$fn_ppm->check_current_task($ppmTaskId, $checkpoint, $jwt_data->userId); // This check is now within _apply_ppm_process
 
             // Handle uploadId for the initiating task only
@@ -338,7 +339,7 @@ try {
             }
 
             // Call process_ppm, which now returns an array with submitParam and groupNotificationData
-            $processResult = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId, $remark, $nextUser);
+            $processResult = $fn_ppm->process_ppm($ppmTaskId, $checkpoint, $result, $uploadId, $jwt_data->userId, $remark, $nextUser, $endTime);
 
             // Extract submitParam and groupNotificationData from the result
             $submitParam = $processResult['submitParam'];
