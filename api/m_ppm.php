@@ -145,7 +145,26 @@ try {
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
-        $action = filter_input(INPUT_POST, 'action');
+        // Detect Content-Type and read action accordingly
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        $action = '';
+        $jsonData = null;
+        
+        if (strpos($contentType, 'application/json') !== false) {
+            // Read JSON POST data from input stream
+            $rawInput = file_get_contents('php://input');
+            $jsonData = json_decode($rawInput, true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exception('Invalid JSON in request body: ' . json_last_error_msg());
+            }
+            
+            $action = $jsonData['action'] ?? '';
+            $fn_general->log_debug('API', $api_name, __LINE__, 'JSON request detected, action: ' . $action);
+        } else {
+            // Fall back to form-encoded data (existing behavior)
+            $action = filter_input(INPUT_POST, 'action');
+        }
 
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
@@ -162,19 +181,16 @@ try {
                 $is_transaction = false;
             }
             
-            // Get raw JSON input
-            $rawInput = file_get_contents('php://input');
-            $requestData = json_decode($rawInput, true);
-            
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new Exception('Invalid JSON in request body: ' . json_last_error_msg());
+            // Use the already-parsed JSON data
+            if ($jsonData === null) {
+                throw new Exception('Batch sync requires JSON request body');
             }
             
-            $fn_general->log_debug('API', $api_name, __LINE__, 'Batch sync request received');
+            $fn_general->log_debug('API', $api_name, __LINE__, 'Batch sync request received for task: ' . ($jsonData['metadata']['ppmTaskId'] ?? 'unknown'));
             
             // Instantiate PpmBatchSync and process
             $batchSync = new PpmBatchSync();
-            $syncResult = $batchSync->processBatch($requestData, $jwt_data->userId);
+            $syncResult = $batchSync->processBatch($jsonData, $jwt_data->userId);
             
             // For batch sync, we return the custom response structure directly
             // Don't use the standard form_data envelope
