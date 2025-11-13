@@ -151,9 +151,7 @@ class Class_pdf_wr {
             
             // Combine zone info with location description
             $locationDisplay = '';
-            if (!empty($zoneInfo) && !empty($woTask['wo_task_location'])) {
-                $locationDisplay = $zoneInfo . "\n" . $this->fn_general->clear_null($woTask['wo_task_location']);
-            } else if (!empty($zoneInfo)) {
+            if (!empty($zoneInfo)) {
                 $locationDisplay = $zoneInfo;
             } else {
                 $locationDisplay = $this->fn_general->clear_null($woTask['wo_task_location']);
