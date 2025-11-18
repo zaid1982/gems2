@@ -875,6 +875,82 @@ curl -X POST https://gems.metadatasystem.my/gems2/api/m_ppm.php \
 
 ---
 
+## Frontend Integration Guide
+
+This quick-start reference explains how the mobile or JavaScript client should call the supporting endpoints around the batch sync flow.
+
+### 1. Start Task (Section A)
+
+- **Endpoint:** `POST /api/m_ppm.php`
+- **Action:** `save_scan_start_time`
+- **Body fields:**
+  - `action`: `"save_scan_start_time"`
+  - `ppmTaskId`: PPM task identifier
+  - `ppmGroupExecution`: `'0'` (single) or `'1'` (group execution)
+  - `startTime`: ISO‑8601 (`2025-11-13T15:30:00.000`) or `YYYY-MM-DD HH:MM:SS`
+- **Example:**
+
+```json
+{
+  "action": "save_scan_start_time",
+  "ppmTaskId": "2118797",
+  "ppmGroupExecution": "0",
+  "startTime": "2025-11-13T15:30:00.000"
+}
+```
+
+> ⚠️ Field name must be `startTime`. Older keys such as `scan_start_timer` are ignored by the API.
+
+### 2. Manage Assistant List (Section I)
+
+1. **Add assistants** (repeat per assistant)
+   - `POST /api/ppm_task_assist.php`
+   - Body: `{ "ppmTaskId": "2118797", "assistant": "1234" }`
+2. **Mark assistant list as complete**
+   - `POST /api/ppm_v2.php/save_assistant_list/{ppmTaskId}`
+   - Body: empty (endpoint reads the task ID from the URL)
+
+### 3. Push Offline Sections via Batch
+
+- Use the batch endpoint (described above) for qualitative tasks, quantitative measurements, remarks, materials, images, etc.
+- Ensure `metadata.deviceId` and `metadata.syncTimestamp` stay constant when retrying a failed sync to trigger idempotency.
+
+### 4. Submit Task to Workflow
+
+- **Endpoint:** `POST /api/m_ppm.php`
+- **Action:** `submit_ppm`
+- **Body fields:**
+  - `action`: `"submit_ppm"`
+  - `ppmTaskId`
+  - `checkpoint`: `'1'`, `'2'`, or `'3'`
+  - `result`: `'1'` (submit) or `'2'` (re-open)
+  - `remark`: empty string when no remark
+  - `endTime` *(optional but recommended)*: offline completion timestamp in ISO‑8601 or `YYYY-MM-DD HH:MM:SS`
+- **Example:**
+
+```json
+{
+  "action": "submit_ppm",
+  "ppmTaskId": "2145486",
+  "checkpoint": "1",
+  "result": "1",
+  "remark": "",
+  "endTime": "2025-11-13 16:52:17"
+}
+```
+
+> ✅ When provided, `endTime` populates `ppm_task_time_serviced`, `ppm_task_time_checked`, or `ppm_task_time_verified` based on the checkpoint.
+
+### 5. Auto-Submit Decision
+
+- After each batch call, inspect `submissionReady` in the response:
+  - `canSubmit`: whether all required sections are satisfied
+  - `submitParams`: ready-to-use payload for the final `submit_ppm`
+  - `missingRequirements`: array describing which sections/actions are still pending
+- Use this metadata to enable or disable the “Submit” button in the UI.
+
+---
+
 ## Rate Limits & Constraints
 
 - **Max Actions Per Batch:** No hard limit, recommended < 100 for performance

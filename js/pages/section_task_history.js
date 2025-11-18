@@ -67,8 +67,37 @@ function SectionTaskHistory() {
         $('#' + id).text(safeText(value));
     };
 
+    const normalizeIdentifier = function (value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        const str = String(value).trim();
+        if (str === '' || str === '-' || str === '—') {
+            return '';
+        }
+        return str;
+    };
+
+    const updateTaskNumberDisplays = function () {
+        let wrNo = normalizeIdentifier(taskDetails ? taskDetails['woTaskRequestNo'] : '');
+        const woNoRaw = normalizeIdentifier(taskDetails ? taskDetails['woTaskNo'] : '');
+        const transactionNo = normalizeIdentifier(taskDetails ? taskDetails['transactionNo'] : '');
+        if (!wrNo && transactionNo && /^RQ/i.test(transactionNo)) {
+            wrNo = transactionNo;
+        }
+        let woNo = woNoRaw;
+        if (!woNo && transactionNo && /^WO/i.test(transactionNo)) {
+            woNo = transactionNo;
+        }
+
+        $('#summarySthWrNo').text(safeText(wrNo));
+        $('#summarySthWoNo').text(safeText(woNo));
+
+        setDetailValue('detailSthWrNo', wrNo);
+        setDetailValue('detailSthWoNo', woNo);
+    };
+
     const updateHeaderSummary = function (flowDesc) {
-        $('#summarySthTaskNo').text(safeText(taskDetails ? taskDetails['transactionNo'] : ''));
         $('#summarySthFlow').text(safeText(flowDesc));
     };
 
@@ -227,7 +256,6 @@ function SectionTaskHistory() {
                 const taskStatusMeta = getStatusMeta(taskDetails ? taskDetails['taskStatus'] : '');
 
                 setDetailValue('detailSthFlow', flowDesc);
-                setDetailValue('detailSthTaskNo', taskDetails ? taskDetails['transactionNo'] : '');
                 setDetailValue('detailSthCheckpoint', checkpointDesc);
                 setDetailValue('detailSthInitiatedBy', initiatedBy);
                 setDetailValue('detailSthInitiatedTime', taskDetails ? taskDetails['transactionTimeCreated'] : '');
@@ -241,6 +269,7 @@ function SectionTaskHistory() {
 
                 $('#metricSthCheckpoint').text(safeText(checkpointDesc));
 
+                updateTaskNumberDisplays();
                 updateHeaderSummary(flowDesc);
 
                 self.genTableSthList();
@@ -276,6 +305,16 @@ function SectionTaskHistory() {
                 trainStationFlag = woTask['woTaskIsWr'] === '1' ? '3' : '1';
             } else {
                 trainStationFlag = '2';
+            }
+
+            if (woTask && typeof woTask === 'object') {
+                if (normalizeIdentifier(woTask['woTaskNo'])) {
+                    taskDetails['woTaskNo'] = normalizeIdentifier(woTask['woTaskNo']);
+                }
+                if (normalizeIdentifier(woTask['woTaskRequestNo'])) {
+                    taskDetails['woTaskRequestNo'] = normalizeIdentifier(woTask['woTaskRequestNo']);
+                }
+                updateTaskNumberDisplays();
             }
         }
 
@@ -365,6 +404,6 @@ function SectionTaskHistory() {
     };
 
     this.setTaskDetails = function (_taskDetails) {
-        taskDetails = _taskDetails;
+        taskDetails = (_taskDetails && typeof _taskDetails === 'object') ? _taskDetails : {};
     };
 }

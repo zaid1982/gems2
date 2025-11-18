@@ -103,20 +103,46 @@ function MainHome() {
             return;
         }
 
+        const normalizeIdentifier = function (value) {
+            if (value === null || value === undefined) {
+                return '';
+            }
+            const str = String(value).trim();
+            if (str === '' || str === '-' || str === '—') {
+                return '';
+            }
+            return str;
+        };
+
         if (fallbackDetails && typeof fallbackDetails === 'object') {
-            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackDetails['transactionNo']) {
-                summary['transactionNo'] = fallbackDetails['transactionNo'];
+            const fallbackTransaction = normalizeIdentifier(fallbackDetails['transactionNo']);
+            const fallbackWoNo = normalizeIdentifier(fallbackDetails['woTaskNo']);
+            const fallbackWrNo = normalizeIdentifier(fallbackDetails['woTaskRequestNo']);
+            const fallbackPpmNo = normalizeIdentifier(fallbackDetails['ppmTaskNo']);
+
+            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackTransaction) {
+                summary['transactionNo'] = fallbackTransaction;
             }
-            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackDetails['woTaskNo'] && fallbackDetails['woTaskNo'] !== '-') {
-                summary['transactionNo'] = fallbackDetails['woTaskNo'];
+            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackWoNo) {
+                summary['transactionNo'] = fallbackWoNo;
             }
-            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackDetails['woTaskRequestNo']) {
-                summary['transactionNo'] = fallbackDetails['woTaskRequestNo'];
+            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackWrNo) {
+                summary['transactionNo'] = fallbackWrNo;
             }
-            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackDetails['ppmTaskNo']) {
-                summary['transactionNo'] = fallbackDetails['ppmTaskNo'];
+            if ((!summary['transactionNo'] || summary['transactionNo'] === '') && fallbackPpmNo) {
+                summary['transactionNo'] = fallbackPpmNo;
+            }
+
+            if (fallbackWoNo) {
+                summary['woTaskNo'] = fallbackWoNo;
+            }
+            if (fallbackWrNo) {
+                summary['woTaskRequestNo'] = fallbackWrNo;
             }
         }
+
+        summary['woTaskNo'] = normalizeIdentifier(summary['woTaskNo']);
+        summary['woTaskRequestNo'] = normalizeIdentifier(summary['woTaskRequestNo']);
 
         sectionTaskHistoryClass.setTaskDetails(summary);
         sectionTaskHistoryClass.view(transactionId);

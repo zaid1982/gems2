@@ -43,6 +43,150 @@
     overflow-y: auto;*/
 }
 
+/* Forgot password modal - lightweight GEMS styling */
+.gems-modal-card {
+    border-radius: 24px;
+    border: 0;
+    box-shadow: 0 30px 60px -32px rgba(15, 23, 42, 0.35);
+    overflow: hidden;
+}
+
+.gems-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.4rem 1.75rem;
+    background: #ffffff;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.gems-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.gems-modal-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: rgba(99, 102, 241, 0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #4338ca;
+    font-size: 1.15rem;
+}
+
+.gems-modal-heading {
+    font-size: 1.18rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.gems-modal-close {
+    border: none;
+    background: transparent;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #1e293b;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.gems-modal-close:hover,
+.gems-modal-close:focus {
+    background: rgba(99, 102, 241, 0.16);
+    color: #4338ca;
+    outline: none;
+}
+
+.gems-modal-body {
+    background: #ffffff;
+    padding: 1.7rem 1.85rem 1.9rem;
+}
+
+.gems-modal-section + .gems-modal-section {
+    margin-top: 1.75rem;
+}
+
+.gems-section-grid {
+    display: grid;
+    gap: 1.1rem;
+}
+
+.gems-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.gems-field-label {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.gems-field-input {
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    padding: 0.75rem 1rem;
+    background: #f8fafc;
+    font-weight: 500;
+    color: #0f172a;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gems-field-input:focus {
+    background: #ffffff;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+    outline: none;
+}
+
+.gems-field-error {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #dc2626;
+}
+
+.gems-modal-footer {
+    padding: 1.1rem 1.85rem 1.6rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.85rem;
+    background: #f8fafc;
+    border-top: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.gems-modal-footer .btn {
+    border-radius: 999px;
+    padding: 0.65rem 1.6rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+@media (max-width: 576px) {
+    .gems-modal-body {
+        padding: 1.4rem 1.25rem 1.7rem;
+    }
+
+    .gems-modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .gems-modal-footer .btn {
+        justify-content: center;
+        width: 100%;
+    }
+}
+
 .cascading-admin-card {
     margin-top: 1.25rem; }
 .cascading-admin-card .admin-up {

@@ -3,12 +3,13 @@ function ModalForgotPassword() {
     this.init = function () {
         const vDataMfp = [
             {
-                field_id: 'txtMfpUserId',
+                field_id: 'txtMfpEmail',
                 type: 'text',
-                name: 'User ID',
+                name: 'Email',
                 validator: {
                     notEmpty: true,
-                    maxLength: 100
+                    maxLength: 100,
+                    email: true
                 }
             }
         ];
@@ -33,9 +34,11 @@ function ModalForgotPassword() {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
+                        const email = $('#txtMfpEmail').val().trim();
                         const data = {
                             action: 'forgot_password',
-                            username: $('#txtMfpUserId').val()
+                            email: email,
+                            username: email
                         };
                         mzAjaxRequest('login.php', 'POST', data);
                         $('#modalForgotPassword').modal('hide');
