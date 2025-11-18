@@ -3594,7 +3594,69 @@ class Class_ppm {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($ppmTaskId));
-            Class_db::getInstance()->db_update('ppm_task_section', array('ppm_task_section_status'=>'19'), array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'I'));
+
+            $ppmTask = $this->getPpmTask($ppmTaskId, 1);
+            if (empty($ppmTask)) {
+                throw new Exception('[' . __LINE__ . '] - PPM Task not found (ID: ' . $ppmTaskId . ')', 31);
+            }
+
+            $section = Class_db::getInstance()->db_select_single(
+                'ppm_task_section',
+                array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'I'),
+                null, 1
+            );
+
+            if (empty($section)) {
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Section I does not exist for task ' . $ppmTaskId . ', creating it');
+
+                $checklistId = Class_db::getInstance()->db_select_col(
+                    'ppm',
+                    array('ppm_id'=>$ppmTask['ppmId']),
+                    'checklist_id', '', 1
+                );
+                $checklist = Class_db::getInstance()->db_select_single2(
+                    'ppm_checklist',
+                    array('checklist_id' => $checklistId), '', 1
+                );
+
+                $assistantStatus = (empty($checklist['checklistMaxAssistant']) ||
+                                   $checklist['checklistMaxAssistant'] === '0') ? '19' : '18';
+
+                Class_db::getInstance()->db_insert('ppm_task_section', array(
+                    'ppm_task_section_name' => 'I',
+                    'ppm_task_id' => $ppmTaskId,
+                    'ppm_task_section_status' => $assistantStatus
+                ));
+
+                if ($assistantStatus === '18') {
+                    Class_db::getInstance()->db_update(
+                        'ppm_task_section',
+                        array('ppm_task_section_status'=>'19'),
+                        array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'I')
+                    );
+                }
+
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Section I created and marked complete for task ' . $ppmTaskId);
+            } else {
+                if ($section['ppm_task_section_status'] === '19') {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Section I already complete for task ' . $ppmTaskId);
+                    return;
+                }
+
+                $rowsAffected = Class_db::getInstance()->db_update(
+                    'ppm_task_section',
+                    array('ppm_task_section_status'=>'19'),
+                    array('ppm_task_id'=>$ppmTaskId, 'ppm_task_section_name'=>'I')
+                );
+
+                if ($rowsAffected === 0) {
+                    $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Failed to update section I status for task ' . $ppmTaskId);
+                    throw new Exception('[' . __LINE__ . '] - Failed to update section status', 31);
+                }
+
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Section I marked complete for task ' . $ppmTaskId);
+            }
+
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
