@@ -229,7 +229,7 @@ class Class_material_return {
     public function getStorekeeperPendingReturns() {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            return Class_db::getInstance()->db_select('vw_storekeeper_pending_returns', array(), 'return_request_date DESC');
+            return Class_db::getInstance()->db_select('vw_storekeeper_pending_returns', array(), 'return_request_date DESC', '', 0, array('site_filter'=>'1=1'));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -251,7 +251,7 @@ class Class_material_return {
 
             // Try getting from view first (pending returns only)
             $return = Class_db::getInstance()->db_select('vw_storekeeper_pending_returns', 
-                array('return_id'=>$returnId));
+                array('return_id'=>$returnId), '', '', 0, array('site_filter'=>'1=1'));
             
             if (empty($return)) {
                 // Try getting from main table if not in view (completed or other status)

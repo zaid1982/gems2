@@ -1359,6 +1359,27 @@ class Class_sql
                         FROM wo_task_parts
                         GROUP BY wo_task_request_id
                 ) p ON p.wo_task_request_id = r.wo_task_request_id";
+            } else if ($title === 'vw_return_mobile_list') {
+                $sql = "SELECT
+                    w.wo_task_no,
+                    r.wo_task_request_no,
+                    r.wo_task_request_id,
+                    wp.wo_task_parts_id,
+                    wp.part_id,
+                    i.item_description,
+                    ps.part_sub_id,
+                    ps.part_sub_no,
+                    ps.part_sub_time_check_out AS check_out_time,
+                    ps.part_sub_status
+                FROM ast_part_sub ps
+                LEFT JOIN wo_task_parts wp ON wp.wo_task_parts_id = ps.wo_task_parts_id
+                LEFT JOIN wo_task_request r ON r.wo_task_request_id = wp.wo_task_request_id
+                LEFT JOIN wo_task w ON w.wo_task_id = r.wo_task_id
+                LEFT JOIN ast_part p ON p.part_id = wp.part_id
+                LEFT JOIN ref_item i ON i.item_id = p.item_id
+                WHERE ps.part_sub_collected_by = [userId]
+                    AND ps.part_sub_status = 36
+                    AND w.site_id = [siteId]";
             } else if ($title === 'vw_parts_value') {
                 $sql = "SELECT
                     SUM(s.part_sub_cost) AS total_value
@@ -1859,7 +1880,9 @@ class Class_sql
                             '' AS partUnit,
                             CONCAT(u.user_first_name, ' ', u.user_last_name) AS technicianName,
                             wt.wo_task_no AS workOrderNo,
-                            s.site_name AS siteName
+                            wtr.wo_task_request_no AS woTaskRequestNo,
+                            s.site_name AS siteName,
+                            wt.site_id AS siteId
                         FROM material_returns mr
                         INNER JOIN ast_part p ON mr.part_id = p.part_id
                         LEFT JOIN ref_item i ON p.item_id = i.item_id
@@ -1868,7 +1891,8 @@ class Class_sql
                         INNER JOIN wo_task_request wtr ON wtp.wo_task_request_id = wtr.wo_task_request_id
                         INNER JOIN wo_task wt ON wtr.wo_task_id = wt.wo_task_id
                         INNER JOIN cli_site s ON wt.site_id = s.site_id
-                        WHERE mr.return_status = 'pending'";
+                        WHERE mr.return_status = 'pending'
+                            AND [site_filter]";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

@@ -41,10 +41,19 @@ try {
 
     $urlArr = explode('/', $_SERVER['REQUEST_URI']);
     foreach ($urlArr as $i=>$param) {
-        if ($param === 'wo_request') {
+        if ($param === 'wo_request' || $param === 'wo_request.php') {
+            if ($param === 'wo_request.php') {
+                $urlArr[$i] = 'wo_request';
+            }
             break;
         }
         array_shift($urlArr);
+    }
+
+    foreach ($urlArr as $index => $segment) {
+        if (strpos($segment, '?') !== false) {
+            $urlArr[$index] = explode('?', $segment, 2)[0];
+        }
     }
 
     if (isset($urlArr[1]) && $urlArr[1] === 'external') {
@@ -74,6 +83,18 @@ try {
                 $result = $fn_wo_request->getWoRequestDetails($urlArr[2]);
             } else if ($urlArr[1] === 'list_mobile_check_out') {
                 $result = $fn_wo_request->getCheckOutMobileList($userId);
+            } else if ($urlArr[1] === 'list_mobile_return') {
+                $result = $fn_wo_request->getReturnMobileList($userId);
+            } else if ($urlArr[1] === 'list_return_verification') {
+                $siteId = '';
+                if (isset($urlArr[2]) && $urlArr[2] === 'site') {
+                    if (!isset($urlArr[3])) {
+                        throw new Exception('[' . __LINE__ . '] - Parameter siteId empty');
+                    }
+                    $siteId = $urlArr[3];
+                }
+                $includeDetail = isset($_GET['detail']) && $_GET['detail'] === '1';
+                $result = $fn_wo_request->listReturnVerification($userId, $siteId, $includeDetail);
             } else {
                 $result = $fn_wo_request->getWoRequest($urlArr[1]);
             }
@@ -84,12 +105,48 @@ try {
         $form_data['success'] = true;
     }
     else if ('POST' === $request_method) {
+        $rawBody = file_get_contents("php://input");
         $param = $_POST;
         if (!isset ($urlArr[1])) {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
 
-        if ($urlArr[1] === 'reset') {
+        if ($urlArr[1] === 'return_parts') {
+            $payload = !empty($param) ? $param : json_decode($rawBody, true);
+            if (!is_array($payload) || !isset($payload['items'])) {
+                throw new Exception('[' . __LINE__ . '] - Invalid return payload');
+            }
+
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $result = $fn_wo_request->returnCollectedParts($userId, $payload['items']);
+            Class_db::getInstance()->db_commit();
+
+            $fn_general->save_audit('190', $userId, 'Parts returned to store (total '.$result['totalReturned'].')');
+            $form_data['result'] = $result;
+            $form_data['errmsg'] = 'Items successfully returned to store';
+        }
+        else if ($urlArr[1] === 'verify_return') {
+            $payload = !empty($param) ? $param : json_decode($rawBody, true);
+            if (!is_array($payload)) {
+                throw new Exception('[' . __LINE__ . '] - Invalid verification payload');
+            }
+
+            $returnId = isset($payload['returnTicketId']) ? $payload['returnTicketId'] : '';
+            $action = isset($payload['action']) ? $payload['action'] : '';
+            $partSubIds = isset($payload['partSubIds']) ? $payload['partSubIds'] : array();
+            $remark = isset($payload['remark']) ? $payload['remark'] : '';
+
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $result = $fn_wo_request->verifyReturnTicket($userId, $returnId, $action, $partSubIds, $remark);
+            Class_db::getInstance()->db_commit();
+
+            $fn_general->save_audit('191', $userId, 'Return ticket '.$result['returnTicketId'].' '.$result['action']);
+            $form_data['result'] = $result;
+            $form_data['errmsg'] = 'Return verification updated';
+        }
+        else if ($urlArr[1] === 'reset') {
             $fn_wo_request->resetRequest($urlArr[2], $userId);
 
             // ********** audit trail ********** \\

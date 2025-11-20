@@ -7,6 +7,18 @@ class Class_wo_request {
     function __construct() {
     }
 
+    private function hasAnyRole($userId, array $roleIds) {
+        if (empty($roleIds)) {
+            return false;
+        }
+        $roleList = '(' . implode(',', array_map('intval', $roleIds)) . ')';
+        return Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>$roleList)) > 0;
+    }
+
+    private function getUserSiteId($userId) {
+        return Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+    }
+
     private function get_exception($codes, $function, $line, $msg) {
         if ($msg != '') {
             $pos = strpos($msg,'-');
@@ -442,6 +454,441 @@ class Class_wo_request {
 
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
             return Class_db::getInstance()->db_select2('vw_check_out_mobile_list', array('r.wo_task_request_status'=>'36', 'w.site_id'=>$siteId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @return array
+     * @throws Exception
+     */
+    public function getReturnMobileList ($userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId));
+
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+            return Class_db::getInstance()->db_select2('vw_return_mobile_list', array(), 'check_out_time DESC', '', 0,
+                array('userId'=>$userId, 'siteId'=>$siteId));
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param string $siteId
+     * @param bool $includeDetail
+     * @return array
+     * @throws Exception
+     */
+    public function listReturnVerification ($userId, $siteId='', $includeDetail=false) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId));
+
+            $isAdmin = $this->hasAnyRole($userId, array(1, 10));
+            $siteScope = '';
+
+            if ($isAdmin) {
+                if ($siteId !== '') {
+                    if (Class_db::getInstance()->db_count('cli_site', array('site_id'=>$siteId)) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid siteId provided', 31);
+                    }
+                    $siteScope = strval(intval($siteId));
+                }
+            } else {
+                $siteScope = strval($this->getUserSiteId($userId));
+                if ($siteId !== '' && $siteId !== $siteScope) {
+                    throw new Exception('[' . __LINE__ . '] - You are not allowed to access the requested site', 31);
+                }
+            }
+
+            $siteFilter = $siteScope !== '' ? 's.site_id = '.$siteScope : '1=1';
+            $tickets = Class_db::getInstance()->db_select2('vw_storekeeper_pending_returns', array(), 'returnRequestDate DESC', '', 0,
+                array('site_filter'=>$siteFilter));
+
+            foreach ($tickets as &$ticket) {
+                $pendingItems = Class_db::getInstance()->db_select2('ast_part_sub', array(
+                    'part_sub_return_id'=>$ticket['returnId'],
+                    'part_sub_status'=>'37'
+                ), 'part_sub_id ASC');
+
+                $ticket['itemCount'] = count($pendingItems);
+                $ticket['pendingCount'] = $ticket['itemCount'];
+                $ticket['partSubIds'] = array_map(function($row) {
+                    return $row['partSubId'];
+                }, $pendingItems);
+
+                if ($includeDetail) {
+                    $ticket['items'] = $pendingItems;
+                }
+            }
+
+            return $tickets;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $items
+     * @return array
+     * @throws Exception
+     */
+    public function returnCollectedParts ($userId, $items) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId));
+
+            if (empty($items) || !is_array($items)) {
+                throw new Exception('[' . __LINE__ . '] - Return payload empty', 31);
+            }
+
+            $allowedReasons = array('unused_excess', 'wrong_part', 'damaged', 'other');
+            $totalReturned = 0;
+            $summary = array();
+            $processedSubIds = array();
+
+            foreach ($items as $index => $item) {
+                if (!is_array($item)) {
+                    throw new Exception('[' . __LINE__ . '] - Invalid item structure at index '. $index, 31);
+                }
+
+                $partSubIds = array();
+                if (isset($item['partSubIds'])) {
+                    if (!is_array($item['partSubIds'])) {
+                        throw new Exception('[' . __LINE__ . '] - partSubIds must be an array at index '.$index, 31);
+                    }
+                    $partSubIds = array_map('intval', $item['partSubIds']);
+                    $partSubIds = array_filter($partSubIds, function($val) { return $val > 0; });
+                }
+
+                $requestedQuantity = isset($item['quantity']) ? intval($item['quantity']) : 0;
+                $woTaskPartsId = isset($item['woTaskPartsId']) ? $item['woTaskPartsId'] : '';
+                $returnReason = isset($item['returnReason']) ? strtolower(trim($item['returnReason'])) : 'unused_excess';
+                $returnRemarks = isset($item['returnRemarks']) ? $item['returnRemarks'] : (isset($item['remark']) ? $item['remark'] : null);
+
+                if (!in_array($returnReason, $allowedReasons)) {
+                    throw new Exception('[' . __LINE__ . '] - Invalid return reason supplied (item '.($index+1).')', 31);
+                }
+
+                if (empty($partSubIds) && empty($woTaskPartsId)) {
+                    throw new Exception('[' . __LINE__ . '] - woTaskPartsId required when partSubIds not provided (item '.($index+1).')', 31);
+                }
+
+                if (!empty($partSubIds) && $requestedQuantity > 0 && $requestedQuantity !== count($partSubIds)) {
+                    throw new Exception('[' . __LINE__ . '] - Quantity mismatch for partSubIds at item '.($index+1), 31);
+                }
+
+                $targetQuantity = $requestedQuantity;
+                if (empty($partSubIds)) {
+                    if ($targetQuantity <= 0) {
+                        throw new Exception('[' . __LINE__ . '] - Quantity must be greater than zero when partSubIds not provided (item '.($index+1).')', 31);
+                    }
+                } else {
+                    $targetQuantity = count($partSubIds);
+                }
+
+                if ($targetQuantity <= 0) {
+                    throw new Exception('[' . __LINE__ . '] - Invalid return quantity at item '.($index+1), 31);
+                }
+
+                $partSubs = array();
+                if (!empty($partSubIds)) {
+                    $duplicates = array_intersect(array_keys($processedSubIds), $partSubIds);
+                    if (!empty($duplicates)) {
+                        throw new Exception('[' . __LINE__ . '] - Duplicate partSubId detected: '.implode(',', $duplicates), 31);
+                    }
+
+                    $idStr = '('.implode(',', $partSubIds).')';
+                    $partSubs = Class_db::getInstance()->db_select2('ast_part_sub', array(
+                        'part_sub_id'=>$idStr,
+                        'part_sub_collected_by'=>$userId,
+                        'part_sub_status'=>'36'
+                    ));
+
+                    if (count($partSubs) !== count($partSubIds)) {
+                        throw new Exception('[' . __LINE__ . '] - One or more selected items are no longer returnable', 31);
+                    }
+                } else {
+                    $partSubs = Class_db::getInstance()->db_select2('ast_part_sub', array(
+                        'wo_task_parts_id'=>$woTaskPartsId,
+                        'part_sub_collected_by'=>$userId,
+                        'part_sub_status'=>'36'
+                    ), 'part_sub_id ASC', $targetQuantity);
+
+                    if (count($partSubs) < $targetQuantity) {
+                        throw new Exception('[' . __LINE__ . '] - Not enough items available to return for woTaskPartsId '.$woTaskPartsId, 31);
+                    }
+
+                    $partSubs = array_slice($partSubs, 0, $targetQuantity);
+                }
+
+                if (empty($partSubs)) {
+                    throw new Exception('[' . __LINE__ . '] - No items resolved for return (item '.($index+1).')', 31);
+                }
+
+                $woTaskPartsIdResolved = $partSubs[0]['woTaskPartsId'];
+                $woTaskPart = Class_db::getInstance()->db_select_single2('wo_task_parts', array('wo_task_parts_id'=>$woTaskPartsIdResolved), '', 1);
+
+                if (!empty($woTaskPartsId) && $woTaskPartsId !== $woTaskPartsIdResolved) {
+                    throw new Exception('[' . __LINE__ . '] - Mismatched woTaskPartsId detected', 31);
+                }
+
+                $returnQty = count($partSubs);
+                $partId = $woTaskPart['partId'];
+
+                $returnId = Class_db::getInstance()->db_insert('material_returns', array(
+                    'wo_task_parts_id'=>$woTaskPartsIdResolved,
+                    'part_id'=>$partId,
+                    'technician_user_id'=>$userId,
+                    'quantity_returned'=>$returnQty,
+                    'return_status'=>'pending',
+                    'return_reason'=>$returnReason,
+                    'return_remarks'=>$returnRemarks,
+                    'return_request_date'=>'Now()'
+                ));
+
+                foreach ($partSubs as $partSub) {
+                    if ($partSub['woTaskPartsId'] !== $woTaskPartsIdResolved) {
+                        throw new Exception('[' . __LINE__ . '] - Mixed woTaskPartsId detected in return payload', 31);
+                    }
+                    $processedSubIds[$partSub['partSubId']] = true;
+
+                    Class_db::getInstance()->db_update('ast_part_sub', array(
+                        'part_sub_status'=>'37',
+                        'part_sub_return_id'=>$returnId,
+                        'part_sub_returned_by'=>'NULL',
+                        'part_sub_returned_date'=>'NULL'
+                    ), array('part_sub_id'=>$partSub['partSubId']));
+                }
+
+                $summary[] = array(
+                    'returnTicketId'=>$returnId,
+                    'returnStatus'=>'pending',
+                    'returnReason'=>$returnReason,
+                    'returnRemarks'=>$returnRemarks,
+                    'woTaskRequestId'=>$woTaskPart['woTaskRequestId'],
+                    'woTaskPartsId'=>$woTaskPartsIdResolved,
+                    'partId'=>$partId,
+                    'quantityReturned'=>$returnQty,
+                    'partSubIds'=>array_map(function($row) { return $row['partSubId']; }, $partSubs),
+                    'woTaskNo'=>$partSubs[0]['woTaskNo'],
+                    'woTaskRequestNo'=>$partSubs[0]['woTaskRequestNo']
+                );
+
+                $totalReturned += $returnQty;
+            }
+
+            if (empty($summary)) {
+                throw new Exception('[' . __LINE__ . '] - No items resolved for return', 31);
+            }
+
+            $ticketIds = array_values(array_unique(array_map(function($row) {
+                return $row['returnTicketId'];
+            }, $summary)));
+            $resultPayload = array(
+                'totalReturned'=>$totalReturned,
+                'items'=>$summary,
+                'returnTicketIds'=>$ticketIds
+            );
+            if (count($ticketIds) === 1) {
+                $resultPayload['returnTicketId'] = $ticketIds[0];
+            }
+
+            return $resultPayload;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $returnId
+     * @param $action
+     * @param array $partSubIds
+     * @param string $remark
+     * @return array
+     * @throws Exception
+     */
+    public function verifyReturnTicket ($userId, $returnId, $action, $partSubIds=array(), $remark='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            $this->fn_general->checkEmptyParams(array($userId, $returnId, $action));
+
+            $action = strtolower($action);
+            if (!in_array($action, array('approve', 'reject'), true)) {
+                throw new Exception('[' . __LINE__ . '] - Invalid action supplied', 31);
+            }
+
+            if ($action === 'reject' && empty($remark)) {
+                throw new Exception('[' . __LINE__ . '] - Remark required when rejecting returned items', 31);
+            }
+
+            $return = Class_db::getInstance()->db_select_single2('material_returns', array('return_id'=>$returnId), '', 1);
+            if ($return['returnStatus'] !== 'pending') {
+                throw new Exception('[' . __LINE__ . '] - Return ticket already processed', 31);
+            }
+
+            $isAdmin = $this->hasAnyRole($userId, array(1, 10));
+            $isStorekeeper = $this->hasAnyRole($userId, array(16));
+            if (!$isAdmin && !$isStorekeeper) {
+                throw new Exception('[' . __LINE__ . '] - You are not allowed to verify returns', 31);
+            }
+
+            $woTaskPartsId = $return['woTaskPartsId'];
+            $woTaskRequestId = Class_db::getInstance()->db_select_col('wo_task_parts', array('wo_task_parts_id'=>$woTaskPartsId), 'wo_task_request_id', '', 1);
+            $woTaskId = Class_db::getInstance()->db_select_col('wo_task_request', array('wo_task_request_id'=>$woTaskRequestId), 'wo_task_id', '', 1);
+            $siteId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$woTaskId), 'site_id', '', 1);
+
+            if (!$isAdmin) {
+                $userSiteId = $this->getUserSiteId($userId);
+                if ($userSiteId !== $siteId) {
+                    throw new Exception('[' . __LINE__ . '] - You are not allowed to verify returns for this site', 31);
+                }
+            }
+
+            $pendingItems = Class_db::getInstance()->db_select2('ast_part_sub', array(
+                'part_sub_return_id'=>$returnId,
+                'part_sub_status'=>'37'
+            ), 'part_sub_id ASC');
+
+            if (empty($pendingItems)) {
+                throw new Exception('[' . __LINE__ . '] - No items left to verify for this ticket', 31);
+            }
+
+            $pendingMap = array();
+            foreach ($pendingItems as $pending) {
+                $pendingMap[$pending['partSubId']] = $pending;
+            }
+
+            $targets = array();
+            if (!empty($partSubIds)) {
+                if (!is_array($partSubIds)) {
+                    throw new Exception('[' . __LINE__ . '] - partSubIds must be an array', 31);
+                }
+                $partSubIds = array_unique(array_map('intval', $partSubIds));
+                foreach ($partSubIds as $partSubId) {
+                    if (!isset($pendingMap[$partSubId])) {
+                        throw new Exception('[' . __LINE__ . '] - partSubId '.$partSubId.' is not pending for this ticket', 31);
+                    }
+                    $targets[] = $pendingMap[$partSubId];
+                }
+            } else {
+                $targets = $pendingItems;
+            }
+
+            if (empty($targets)) {
+                throw new Exception('[' . __LINE__ . '] - No valid items selected for verification', 31);
+            }
+
+            $part = Class_db::getInstance()->db_select_single2('ast_part', array('part_id'=>$return['partId']), '', 1);
+            $currentCount = intval($part['partCount']);
+            $approvedCount = 0;
+            $rejectedCount = 0;
+            $itemsResult = array();
+
+            foreach ($targets as $target) {
+                if ($action === 'approve') {
+                    Class_db::getInstance()->db_update('ast_part_sub', array(
+                        'wo_task_parts_id'=>'NULL',
+                        'wo_task_no'=>'',
+                        'wo_task_request_no'=>'',
+                        'part_sub_collected_by'=>'NULL',
+                        'part_sub_time_check_out'=>'',
+                        'part_sub_status'=>'46',
+                        'part_sub_returned_by'=>$userId,
+                        'part_sub_returned_date'=>'Now()'
+                    ), array('part_sub_id'=>$target['partSubId']));
+                    $approvedCount++;
+                    $itemsResult[] = array(
+                        'partSubId'=>$target['partSubId'],
+                        'status'=>'approved'
+                    );
+                } else {
+                    Class_db::getInstance()->db_update('ast_part_sub', array(
+                        'part_sub_status'=>'38',
+                        'part_sub_returned_by'=>$userId,
+                        'part_sub_returned_date'=>'Now()'
+                    ), array('part_sub_id'=>$target['partSubId']));
+                    $rejectedCount++;
+                    $itemsResult[] = array(
+                        'partSubId'=>$target['partSubId'],
+                        'status'=>'rejected',
+                        'remark'=>$remark
+                    );
+                }
+            }
+
+            if ($approvedCount > 0) {
+                $newCount = $currentCount + $approvedCount;
+                Class_db::getInstance()->db_update('ast_part', array('part_count'=>strval($newCount)), array('part_id'=>$return['partId']));
+
+                try {
+                    Class_db::getInstance()->db_insert('inventory_logs', array(
+                        'part_id'=>$return['partId'],
+                        'change_type'=>'return',
+                        'quantity_change'=>$approvedCount,
+                        'quantity_before'=>$currentCount,
+                        'quantity_after'=>$newCount,
+                        'user_id'=>$userId,
+                        'reference_id'=>$returnId,
+                        'reference_type'=>'material_return',
+                        'change_reason'=>'Store verification approve'
+                    ));
+                } catch (Exception $logEx) {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Inventory log skipped: '.$logEx->getMessage());
+                }
+
+                $currentCount = $newCount;
+            }
+
+            $pendingCount = intval(Class_db::getInstance()->db_count('ast_part_sub', array('part_sub_return_id'=>$returnId, 'part_sub_status'=>'37')));
+            $materialUpdate = array(
+                'storekeeper_user_id'=>$userId,
+                'updated_at'=>'Now()'
+            );
+
+            if ($pendingCount == 0) {
+                $materialUpdate['return_status'] = 'completed';
+                $materialUpdate['return_confirmed_date'] = 'Now()';
+            }
+
+            if ($action === 'reject' && !empty($remark)) {
+                $existingRemark = isset($return['returnRemarks']) ? $return['returnRemarks'] : '';
+                $suffix = (empty($existingRemark) ? '' : "\n").'Storekeeper: '.$remark;
+                $materialUpdate['return_remarks'] = $existingRemark.$suffix;
+            }
+
+            Class_db::getInstance()->db_update('material_returns', $materialUpdate, array('return_id'=>$returnId));
+
+            $statusLabel = 'pending';
+            if ($approvedCount > 0 && $rejectedCount === 0 && $pendingCount === 0) {
+                $statusLabel = 'approved';
+            } else if ($approvedCount > 0 && ($rejectedCount > 0 || $pendingCount > 0)) {
+                $statusLabel = 'partially_approved';
+            } else if ($approvedCount === 0 && $rejectedCount > 0 && $pendingCount === 0) {
+                $statusLabel = 'rejected';
+            } else if ($pendingCount > 0) {
+                $statusLabel = 'pending';
+            }
+
+            return array(
+                'returnTicketId'=>$returnId,
+                'action'=>$statusLabel,
+                'approvedCount'=>$approvedCount,
+                'rejectedCount'=>$rejectedCount,
+                'pendingCount'=>$pendingCount,
+                'items'=>$itemsResult
+            );
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
