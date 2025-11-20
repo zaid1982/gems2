@@ -121,9 +121,33 @@ curl -s -X POST \
 - `No items resolved for return` – IDs were already returned or not owned by the caller.
 - Standard envelope errors such as `Parameter Authorization empty` when JWT is missing.
 
+## 1b. GET `/api/wo_request.php/list_mobile_return_summary`
+
+Provides a grouped view per material-request line so UIs can prompt for "return quantity" without enumerating every serial number. The server resolves the specific `part_sub_id` rows when the technician submits the quantity.
+
+### Response Fields (`result` array)
+| Field | Description |
+| --- | --- |
+| `woTaskPartsId` | Request line primary key (use in `return_parts`). |
+| `partId` / `partName` / `partCode` | Inventory metadata for display. |
+| `workOrderNo` / `woTaskRequestNo` | References for the job/material request. |
+| `quantityCollected` | Total quantity originally collected for the line. |
+| `partsInPossession` | Number of instances still with the technician (status `36`). |
+| `quantityAvailableToReturn` | `partsInPossession` minus anything already completed in previous return tickets. |
+| `quantityAlreadyReturned` | Historical quantity that has been accepted back into stock. |
+
+### Example
+```bash
+curl -s \
+  -H "Authorization: Bearer <token>" \
+  http://localhost/gems2/api/wo_request.php/list_mobile_return_summary
+```
+
+Frontends can pair this response with a numeric input (max `quantityAvailableToReturn`) and submit `{"woTaskPartsId":"1589","quantity":2,...}` to `return_parts`. The backend auto-selects the earliest eligible `part_sub_id` rows, so storekeepers still see concrete instances when they verify the ticket.
+
 ## Integration Notes
 - Always refresh the list by calling `list_mobile_return` after a return to reflect the updated inventory.
-- The API enforces uniqueness per `part_sub_id` within the request; frontends should prevent users from selecting the same item twice before submission.
+- The API enforces uniqueness per `part_sub_id` within the request; frontends should prevent users from selecting the same item twice before submission. Quantity-based rows are resolved automatically, so no duplicates occur there either.
 - Because inventory math runs inside one transaction, do not split multi-item returns unless the UX specifically requires per-item confirmation.
 - After a technician submits a return ticket, the UI should show the ticket status (Pending Verification, Issue Found, Completed) so the tech knows whether the store has accepted it.
 

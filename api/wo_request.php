@@ -83,6 +83,8 @@ try {
                 $result = $fn_wo_request->getWoRequestDetails($urlArr[2]);
             } else if ($urlArr[1] === 'list_mobile_check_out') {
                 $result = $fn_wo_request->getCheckOutMobileList($userId);
+            } else if ($urlArr[1] === 'list_mobile_return_summary') {
+                $result = $fn_wo_request->getReturnMobileSummary($userId);
             } else if ($urlArr[1] === 'list_mobile_return') {
                 $result = $fn_wo_request->getReturnMobileList($userId);
             } else if ($urlArr[1] === 'list_return_verification') {
