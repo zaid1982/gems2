@@ -188,12 +188,13 @@ Storekeepers (role `16`) and admins (`1` / `10`) call this to see every open tic
 | `returnTicketId` | Ticket primary key. |
 | `woTaskNo` | Work order/request reference. |
 | `woTaskRequestNo` | Material request reference. |
+| `itemDescription` | Human readable part/consumable name (mirrors `partName`). |
 | `technicianName` | Technician full name who initiated the return. |
 | `siteId` / `siteName` | Location metadata for dashboards. |
 | `submittedAt` | Timestamp when the ticket was created. |
 | `itemCount` | Number of part instances pending verification. |
 | `partSubIds` | Flat list of pending `part_sub_id` values (helps quick-select). |
-| `items` | Optional nested array (same structure as the mobile list) when `?detail=1` is provided. |
+| `items` | Optional nested array when `?detail=1` is provided. Each row now includes the base `ast_part_sub` fields plus `partName`, `itemDescription`, `technicianName`, `workOrderNo`, and `woTaskRequestNo` for quick display. |
 
 ### Example
 ```bash

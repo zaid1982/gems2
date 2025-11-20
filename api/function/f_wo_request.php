@@ -541,9 +541,17 @@ class Class_wo_request {
                 $ticket['partSubIds'] = array_map(function($row) {
                     return $row['partSubId'];
                 }, $pendingItems);
+                $ticket['itemDescription'] = $ticket['partName'];
 
                 if ($includeDetail) {
-                    $ticket['items'] = $pendingItems;
+                    $ticket['items'] = array_map(function($row) use ($ticket) {
+                        $row['partName'] = $ticket['partName'];
+                        $row['itemDescription'] = $ticket['partName'];
+                        $row['technicianName'] = $ticket['technicianName'];
+                        $row['workOrderNo'] = $ticket['workOrderNo'];
+                        $row['woTaskRequestNo'] = $ticket['woTaskRequestNo'];
+                        return $row;
+                    }, $pendingItems);
                 }
             }
 
