@@ -644,17 +644,21 @@ class Class_wo_request {
                         throw new Exception('[' . __LINE__ . '] - One or more selected items are no longer returnable', 31);
                     }
                 } else {
+                    $availableCount = Class_db::getInstance()->db_count('ast_part_sub', array(
+                        'wo_task_parts_id'=>$woTaskPartsId,
+                        'part_sub_collected_by'=>$userId,
+                        'part_sub_status'=>'36'
+                    ));
+
+                    if ($availableCount < $targetQuantity) {
+                        throw new Exception('[' . __LINE__ . '] - Not enough items available to return for woTaskPartsId '.$woTaskPartsId.' (available '.$availableCount.', requested '.$targetQuantity.')', 31);
+                    }
+
                     $partSubs = Class_db::getInstance()->db_select2('ast_part_sub', array(
                         'wo_task_parts_id'=>$woTaskPartsId,
                         'part_sub_collected_by'=>$userId,
                         'part_sub_status'=>'36'
                     ), 'part_sub_id ASC', $targetQuantity);
-
-                    if (count($partSubs) < $targetQuantity) {
-                        throw new Exception('[' . __LINE__ . '] - Not enough items available to return for woTaskPartsId '.$woTaskPartsId, 31);
-                    }
-
-                    $partSubs = array_slice($partSubs, 0, $targetQuantity);
                 }
 
                 if (empty($partSubs)) {
