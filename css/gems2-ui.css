@@ -780,7 +780,7 @@ body {
   border-radius: 26px !important;
   border: 0 !important;
   box-shadow: 0 34px 72px -36px rgba(36,55,70,0.45) !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   background: #fff !important;
 }
 .gems-modal-header {

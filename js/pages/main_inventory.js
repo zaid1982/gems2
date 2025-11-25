@@ -405,6 +405,9 @@ function MainInventory () {
 
         $('#btnInvAdd').off('click').on('click', function () {
             try {
+                if (!storeId) {
+                    throw new Error('Select a store and run the search before adding new inventory.');
+                }
                 mzCheckFuncParam([storeId]);
                 const siteId = refStore[storeId] ? refStore[storeId]['siteId'] : null;
                 if (!siteId) {
