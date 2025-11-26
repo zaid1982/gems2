@@ -29,7 +29,7 @@ class WoMrfPdf extends General {
      */
     public function createPdf (int $woTaskRequestId): int {
         try {
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__.' woTaskRequestId='.$woTaskRequestId);
 
             $woTaskRequest = DbMysql::select('wo_task_request', array('woTaskRequestId'=>$woTaskRequestId), 1);
             $woTask = DbMysql::select('wo_task', array('woTaskId'=>$woTaskRequest['woTaskId']), 1);
@@ -100,7 +100,7 @@ class WoMrfPdf extends General {
             $this->pdfLineBoldSize = 1;
 
             $pdf->AddPage();
-            $pdf->Image('pdf/images/logo_gfm.png', 25, 20, 60, '', 'PNG', '', '', true);
+            $this->renderImage($pdf, 'pdf/images/logo_gfm.png', 25, 20, 60);
             parent::pdfWriteColumnV2($pdf, array('', 'GLOBAL FACILITIES MANAGEMENT SDN BHD'), array(80, 100), array('C', 'C'), array('LT', 'LRT'), array('', ''), array('', 11), '', 0, 10, 'B');
             parent::pdfWriteColumnV2($pdf, array('', 'MATERIAL REQUISITION FORM'), array(80, 100), array('C', 'C'), array('L', 'LR'), array('', 'B'), array('', 10), '', 0, 7, 'B');
             parent::pdfWriteColumnV2($pdf, array('', 'BPM 12.1.3/F/002/07:1'), array(80, 100), array('C', 'C'), array('LB', 'LRB'), array('', ''), array('', 8), '', 0, 9, 'T');
@@ -130,7 +130,7 @@ class WoMrfPdf extends General {
                 LEFT JOIN ref_item i ON i.item_id = p.item_id",
                 array('tp.woTaskRequestId'=>$woTaskRequestId)
             );
-            $no = 1;
+            $no = 1;    
             foreach ($woTaskParts as $woTaskPart) {
                 parent::pdfWriteColumnV2($pdf, array($no++, $woTaskPart['itemDescription'], $woTaskPart['woTaskPartsQuantity'], $woTask['woTaskNo'], $woTaskPart['woTaskPartsRemark']), array(10, 60, 15, 45, 50), array('C', 'L', 'C', 'C', 'L'));
             }
@@ -157,7 +157,8 @@ class WoMrfPdf extends General {
             parent::pdfWriteColumnV2($pdf, array('', '* Approved /          Not Approved', $approvalFinal['approvalBy'], '', $approvalFinal['approvalDate'], $approvalFinal['approvalRemark']), array(2, 38, 50, 30, 25, 35), array('', 'L', 'C', 'C', 'C', 'L'), array('L', '', 'L', 'L', 'L', 'LR'), array('', 'B', '', '', '', ''), array(), '', 0, 0, 'T');
             parent::pdfWriteColumnV2($pdf, array('', '', '', '', ''), array(40, 50, 30, 25, 35), array('', '', '', '', ''), array('LB', 'LB', 'LB', 'LB', 'LRB'), array(), array(5, 5, 5, 5, 5));
             if (!empty($approvalFinal['approvalSign'])) {
-                $pdf->Image($approvalFinal['approvalSign'], 110, $tempY, 20, 0, 'PNG', '', 'C', false, 300);
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Rendering approval signature path='.$approvalFinal['approvalSign']);
+                $this->renderSignature($pdf, $approvalFinal['approvalSign'], 110, $tempY);
             }
             parent::pdfWriteColumnV2($pdf, array('* Strike off whichever not applicable'), array($this->pdfPageWidth), array('L'), array(''), array(''), array(9), '', 0, 5, 'B');
             parent::pdfWriteColumnV2($pdf, array(''), array($this->pdfPageWidth), array('C'), array(''), array(), array(8), 'B', 0, 4);
@@ -173,7 +174,8 @@ class WoMrfPdf extends General {
             $tempY = $pdf->GetY();
             parent::pdfWriteColumnV2($pdf, array('', $issuedFinal['issuedBy'], $issuedFinal['issuedDate'], ''), array(3, 107, 30, 40), array('', 'L', 'C', 'C'), array('LB', 'B', 'LB', 'LRB'), array(), array(), '', 0, 12);
             if (!empty($issuedFinal['issuedSign'])) {
-                  $pdf->Image($issuedFinal['issuedSign'], 165, $tempY - 1, 20, 0, 'PNG', '', 'C', false, 300);
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Rendering issued signature path='.$issuedFinal['issuedSign']);
+                $this->renderSignature($pdf, $issuedFinal['issuedSign'], 165, $tempY - 1);
             }
 
             if ($pdf->GetY() > 271) {
@@ -186,7 +188,8 @@ class WoMrfPdf extends General {
             $tempY = $pdf->GetY();
             parent::pdfWriteColumnV2($pdf, array('', $receivedFinal['receivedBy'], $receivedFinal['receivedDate'], ''), array(3, 107, 30, 40), array('', 'L', 'C', 'C'), array('LB', 'B', 'LB', 'LRB'), array(), array(), '', 0, 12);
             if (!empty($receivedFinal['receivedSign'])) {
-                $pdf->Image($receivedFinal['receivedSign'], 165, $tempY - 1, 20, 0, 'PNG', '', 'C', false, 300);
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Rendering received signature path='.$receivedFinal['receivedSign']);
+                $this->renderSignature($pdf, $receivedFinal['receivedSign'], 165, $tempY - 1);
             }
 
             if ($pdf->GetY() > 258) {
@@ -231,4 +234,86 @@ class WoMrfPdf extends General {
         }
     }
 
+    /**
+     * Render any image with graceful fallback and detailed logging.
+     */
+    private function renderImage(TCPDF $pdf, string $imagePath, float $x, float $y, float $width = 20, string $fallbackRelative = 'img/background/no-image.png'): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Requested image='.$imagePath.', fallback='.$fallbackRelative);
+
+            $resolvedPath = $this->resolvePath($imagePath);
+            $fallbackPath = $this->resolvePath($fallbackRelative);
+
+            if (empty($resolvedPath)) {
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Primary image not readable, will use fallback if available.');
+            }
+
+            if (empty($resolvedPath) && empty($fallbackPath)) {
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Both primary and fallback images are unavailable. Skip rendering.');
+                return;
+            }
+
+            $pathToUse = !empty($resolvedPath) ? $resolvedPath : $fallbackPath;
+
+            if (!$this->isValidImage($pathToUse)) {
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Primary path is not a valid image: '.$pathToUse);
+                if (!empty($fallbackPath) && $fallbackPath !== $pathToUse && $this->isValidImage($fallbackPath)) {
+                    $pathToUse = $fallbackPath;
+                    parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Switching to fallback image: '.$fallbackPath);
+                } else {
+                    parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'No valid image available after fallback check. Skip rendering.');
+                    return;
+                }
+            }
+
+            $imageType = $this->detectImageType($pathToUse);
+            if (empty($imageType)) {
+                $imageType = strtoupper(pathinfo($pathToUse, PATHINFO_EXTENSION));
+            }
+
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Final image path='.$pathToUse.', type='.$imageType);
+            $pdf->Image($pathToUse, $x, $y, $width, 0, $imageType, '', 'C', false, 300);
+        } catch (Exception $e) {
+            parent::logError(__CLASS__, __FUNCTION__, __LINE__, 'Failed to render image: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Render signature image via generic image renderer.
+     */
+    private function renderSignature(TCPDF $pdf, string $imagePath, float $x, float $y, float $width = 20): void {
+        $this->renderImage($pdf, $imagePath, $x, $y, $width);
+    }
+
+    private function detectImageType(string $path): string {
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        if ($ext === 'jpg' || $ext === 'jpeg') {
+            return 'JPEG';
+        }
+        if ($ext === 'png') {
+            return 'PNG';
+        }
+        if ($ext === 'gif') {
+            return 'GIF';
+        }
+        return '';
+    }
+
+    private function resolvePath(string $path): string {
+        if (empty($path)) {
+            return '';
+        }
+        if (is_readable($path)) {
+            return $path;
+        }
+        $rootPath = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.$path;
+        if (is_readable($rootPath)) {
+            return $rootPath;
+        }
+        return '';
+    }
+
+    private function isValidImage(string $path): bool {
+        return @getimagesize($path) !== false;
+    }
 }
