@@ -106,7 +106,8 @@ class Constant {
         'submit' => 'Request __ successfully submitted!',
         'errAlreadySubmitted' => 'Request __ already submitted!',
         'errNotAllowed' => 'You are not allowed to perform this action!',
-        'errAlreadyRemoved' => 'Request already removed!'
+        'errAlreadyRemoved' => 'Request already removed!',
+        'errNotFound' => 'Material Request Form not found for this Work Order.'
     );
 
     public static $woTaskParts = array(

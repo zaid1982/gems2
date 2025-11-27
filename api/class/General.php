@@ -588,11 +588,32 @@ class General {
             $this->logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $this->checkEmptyInteger($pdfId, 'pdfId');
             $upload = DbMysql::select('sys_pdf', array('pdfId'=>$pdfId), true);
-            $file = $upload['pdfFolder'].'/'.$upload['pdfFilename'];
-            if (!file_exists($file)) {
-                throw new Exception('PDF File '.$file.' not exist');
+            $folder = isset($upload['pdfFolder']) ? trim($upload['pdfFolder']) : '';
+            $filename = isset($upload['pdfFilename']) ? trim($upload['pdfFilename']) : '';
+            $projectRoot = dirname(dirname(__DIR__));
+            $relativePath = rtrim($folder, '/');
+            if ($relativePath !== '') {
+                $relativePath .= '/';
             }
-            return Constant::$url.$file.'?t='.time();
+            $relativePath .= $filename;
+            $absolutePath = $relativePath;
+            if ($relativePath !== '' && $relativePath[0] !== '/' && strpos($relativePath, '://') === false) {
+                $absolutePath = rtrim($projectRoot, '/').'/'.ltrim($relativePath, '/');
+            }
+            if (!file_exists($absolutePath)) {
+                throw new Exception('PDF File '.$absolutePath.' not exist');
+            }
+
+            $publicFolder = $folder;
+            if ($publicFolder !== '' && strpos($publicFolder, $projectRoot) === 0) {
+                $publicFolder = substr($publicFolder, strlen($projectRoot));
+            }
+            $publicFolder = ltrim($publicFolder, '/');
+            if (strpos($publicFolder, 'api/') === 0) {
+                $publicFolder = substr($publicFolder, 4);
+            }
+            $publicPath = ltrim(($publicFolder === '' ? '' : $publicFolder.'/') . $filename, '/');
+            return Constant::$url.$publicPath.'?t='.time();
         } catch(Exception $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
         }

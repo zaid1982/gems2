@@ -144,6 +144,38 @@ class WoTaskRequest extends General {
     }
 
     /**
+     * @param int $woTaskId
+     * @return array
+     * @throws Exception
+     */
+    public function getLatestByWoTaskId (int $woTaskId): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($woTaskId, 'woTaskId');
+            $records = DbMysql::selectSqlAll(
+                /** @lang text */
+                "SELECT wr.* FROM wo_task_request wr",
+                array('wr.woTaskId'=>$woTaskId),
+                0,
+                false,
+                'wr.woTaskRequestId',
+                'DESC',
+                '1'
+            );
+            if (empty($records)) {
+                throw new Exception(Constant::$woTaskRequest['errNotFound'], 31);
+            }
+            $latest = $records[0];
+            if (empty($latest['woTaskNo'])) {
+                $latest['woTaskNo'] = DbMysql::selectColumn('wo_task', array('woTaskId'=>$woTaskId), 'woTaskNo');
+            }
+            return $latest;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @return string
      * @throws Exception
      */

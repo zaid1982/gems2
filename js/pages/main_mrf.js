@@ -398,7 +398,6 @@ function MainMrf () {
                         return `<div class="action-btn-group">
                             <button type="button" class="btn-action btn-view lnkMrfListPdf" data-row-index="${meta.row}" title="View PDF">
                                 <i class="fas fa-file-pdf"></i>
-                                <span>View PDF</span>
                             </button>
                         </div>`;
                     } }

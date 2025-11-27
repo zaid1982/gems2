@@ -148,6 +148,55 @@ function MainHome() {
         sectionTaskHistoryClass.view(transactionId);
     }
 
+    function getWoDisplayNumber(rowData) {
+        if (!rowData || typeof rowData !== 'object') {
+            return 'MRF';
+        }
+        if (rowData['woTaskNo'] && rowData['woTaskNo'] !== '-') {
+            return rowData['woTaskNo'];
+        }
+        if (rowData['woTaskRequestNo']) {
+            return rowData['woTaskRequestNo'];
+        }
+        if (rowData['transactionNo']) {
+            return rowData['transactionNo'];
+        }
+        return 'MRF';
+    }
+
+    function openMrfPdfModal(requestDetails, woDisplayNo) {
+        if (!requestDetails || !requestDetails['woTaskRequestId']) {
+            throw new Error('Material Request Form reference is missing.');
+        }
+        const pdfId = requestDetails['woTaskRequestMrfPdf'];
+        let pdfSrc;
+        if (pdfId !== null && pdfId !== '' && requestDetails['woTaskRequestMrfGenerate'] === 0) {
+            pdfSrc = mzAjaxRequest2(`wo_task_request/get_mrf_pdf_link/${pdfId}`, 'GET');
+        } else {
+            pdfSrc = mzAjaxRequest2(`wo_task_request/preview_mrf_pdf/${requestDetails['woTaskRequestId']}`, 'GET');
+        }
+        const headerNo = woDisplayNo || requestDetails['woTaskNo'] || requestDetails['woTaskRequestNo'] || 'MRF';
+        $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Material Request Form (MRF): ' + headerNo);
+        $('#mpdf_iframe').attr('src', pdfSrc);
+        $('#modal_pdf').modal('show');
+    }
+
+    function openMrfFromHomeRow(rowIndex) {
+        if (!oTableWo) {
+            throw new Error('Work Order table is not ready yet.');
+        }
+        const numericIndex = parseInt(rowIndex, 10);
+        const currentRow = oTableWo.row(numericIndex).data();
+        if (!currentRow) {
+            throw new Error('Unable to locate the selected record.');
+        }
+        if (!currentRow['woTaskId']) {
+            throw new Error('Work Order reference is missing.');
+        }
+        const requestDetails = mzAjaxRequest2(`wo_task_request/latest_by_wo_task/${currentRow['woTaskId']}`, 'GET');
+        openMrfPdfModal(requestDetails, getWoDisplayNumber(currentRow));
+    }
+
     function setChartColumnWidth(chartId, categoriesCount, seriesCount) {
         try {
             const sel = chartColIds[chartId];
@@ -391,6 +440,22 @@ function MainHome() {
                         }, 200);
                     }
                 });
+                $('.lnkHmeDataWoMrf').off('click').on('click', function () {
+                    const linkId = $(this).attr('id');
+                    const linkIndex = linkId.indexOf('_');
+                    if (linkIndex > 0) {
+                        ShowLoader();
+                        setTimeout(function () {
+                            try {
+                                const rowId = linkId.substr(linkIndex+1);
+                                openMrfFromHomeRow(rowId);
+                            } catch (e) {
+                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            }
+                            HideLoader();
+                        }, 200);
+                    }
+                });
                 $('.lnkHmeDataWoReassign').off('click').on('click', function () {
                     modalWoReassignClass.load(mzGetLinkRow($(this), oTableWo));
                 });
@@ -441,6 +506,7 @@ function MainHome() {
                             if (row['woTaskIsWr'] !== '1' || row['woTaskTimeWrVerified'] !== '') {
                                 label += '<button type="button" class="btn-action btn-view lnkHmeDataWoPdf" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"><i class="far fa-file-pdf"></i></button>';
                             }
+                            label += '<button type="button" class="btn-action btn-view lnkHmeDataWoMrf" id="lnkHmeDataWoMrf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="View MRF Form"><i class="fas fa-box-open"></i></button>';
                             if (isAdmin && row['woTaskAssignedTo'] !== '' && row['woTaskStatus'] === '13') {
                                 label += '<button type="button" class="btn-action btn-edit lnkHmeDataWoReassign" id="lnkHmeDataWoReassign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reassign"><i class="fa-regular fa-user-pen"></i></button>';
                             }

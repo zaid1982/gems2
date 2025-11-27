@@ -41,9 +41,13 @@ try {
                 $pdfMrfId = $fnWoMrfPdf->createPdf($woTaskRequestId);
             }
             $result = $fnMain->getPdfLink($pdfMrfId);
+            $fnMain->logDebug('API', $apiName, __LINE__, 'preview_mrf_pdf result = '.json_encode($result));
         } else if ($urlArr[1] === 'get_mrf_pdf_link' && isset($urlArr[2])) {
             $pdfMrfId = intval($urlArr[2]);
             $result = $fnMain->getPdfLink($pdfMrfId);
+        } else if ($urlArr[1] === 'latest_by_wo_task' && isset($urlArr[2])) {
+            $woTaskId = intval($urlArr[2]);
+            $result = $fnMain->getLatestByWoTaskId($woTaskId);
         } else if ($urlArr[1] === 'ref_severity' && isset($urlArr[2]) && $urlArr[2] === 'm') {
             $result = $fnMain->getRefSeverity(true);
         } else if ($urlArr[1] === 'list_mrf' && isset($urlArr[2]) && isset($urlArr[3]) && isset($urlArr[4])) {
