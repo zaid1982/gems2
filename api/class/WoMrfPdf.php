@@ -100,7 +100,7 @@ class WoMrfPdf extends General {
             $this->pdfLineBoldSize = 1;
 
             $pdf->AddPage();
-            $this->renderImage($pdf, 'pdf/images/logo_gfm.png', 25, 20, 60);
+            $this->renderImage($pdf, 'api/pdf/images/logo_gfm.png', 25, 20, 60);
             parent::pdfWriteColumnV2($pdf, array('', 'GLOBAL FACILITIES MANAGEMENT SDN BHD'), array(80, 100), array('C', 'C'), array('LT', 'LRT'), array('', ''), array('', 11), '', 0, 10, 'B');
             parent::pdfWriteColumnV2($pdf, array('', 'MATERIAL REQUISITION FORM'), array(80, 100), array('C', 'C'), array('L', 'LR'), array('', 'B'), array('', 10), '', 0, 7, 'B');
             parent::pdfWriteColumnV2($pdf, array('', 'BPM 12.1.3/F/002/07:1'), array(80, 100), array('C', 'C'), array('LB', 'LRB'), array('', ''), array('', 8), '', 0, 9, 'T');
@@ -204,14 +204,23 @@ class WoMrfPdf extends General {
 
             $woTimeCreated = new DateTime($woTaskRequest['woTaskRequestTimeCreated']);
             $folderName = $woTimeCreated->format('Ym');
-            $folder = 'pdf/mrf/'.$folderName;
-            if (!parent::folderExist($folder)) {
-                mkdir ($folder,0777, true);
+
+            // Web-relative folder used in sys_pdf table and links
+            $folder = 'api/pdf/mrf/'.$folderName;
+
+            // Filesystem folder for actually writing the PDF (base is project root)
+            $basePath = dirname(__DIR__, 1); // /Applications/XAMPP/xamppfiles/htdocs/gems2/api -> go up to /gems2
+            $folderFs = dirname($basePath).DIRECTORY_SEPARATOR.$folder;
+
+            if (!is_dir($folderFs)) {
+                mkdir($folderFs, 0777, true);
             }
+
             $filename = !empty($woTaskRequest['woTaskRequestNo']) ? 'mrf_'.$woTaskRequest['woTaskRequestNo'].'.pdf' : 'mrf_draft_'.$woTaskRequest['woTaskRequestId'].'.pdf';
-            $filenameSrc = trim(dirname(__FILE__), 'class').'pdf\mrf\\'.$folderName.'\\'.$filename;
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'dirname = '.$filenameSrc);
-            $pdf->Output($filenameSrc, 'F');
+            $filenameFs = $folderFs.DIRECTORY_SEPARATOR.$filename;
+
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Saving PDF to '.$filenameFs);
+            $pdf->Output($filenameFs, 'F');
 
             if (!empty($woTaskRequest['woTaskRequestMrfPdf'])) {
                 $pdfIdMrf = $woTaskRequest['woTaskRequestMrfPdf'];
