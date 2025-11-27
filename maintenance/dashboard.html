@@ -356,6 +356,14 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
         }
+
+        .action-btn.danger {
+            background: linear-gradient(135deg, var(--danger-color), #ff7675);
+        }
+
+        .action-btn.danger:hover {
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.45);
+        }
         
         .footer {
             text-align: center;
@@ -502,6 +510,9 @@
                 </button>
                 <button class="action-btn" onclick="showHelp()">
                     ❓ Help & Guide
+                </button>
+                <button class="action-btn danger" onclick="purgeMrfPdfs()">
+                    🧨 Purge MRF PDFs
                 </button>
             </div>
         </div>
@@ -889,7 +900,7 @@
         
         // Test database connection
         async function testConnection() {
-            showLoading();
+            showLoading('Testing connection...');
             
             try {
                 const response = await fetch('test_connection.php');
@@ -949,6 +960,37 @@ ${JSON.stringify(data, null, 2)}
                         ${error.message}
                     </div>
                 `;
+            }
+        }
+
+        async function purgeMrfPdfs() {
+            const confirmation = confirm('This will delete every generated MRF PDF and force regeneration on the next preview. Continue?');
+            if (!confirmation) {
+                return;
+            }
+            showLoading('Purging MRF PDFs...');
+            try {
+                const token = sessionStorage.getItem('token');
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) {
+                    headers['Authorization'] = 'Bearer ' + token;
+                }
+                const response = await fetch('../wo_task_request/purge_mrf', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.errmsg || data.error || 'Failed to purge MRF PDFs.');
+                }
+                const summary = data.result || {};
+                const message = `Removed ${summary.fileRemoved || 0} file(s), reset ${summary.requestUpdated || 0} request(s).`;
+                showNotification('✅ ' + message, 'success', 6000);
+            } catch (error) {
+                showNotification('❌ ' + error.message, 'error', 6000);
+            } finally {
+                hideLoading();
             }
         }
         
@@ -1190,7 +1232,7 @@ ${JSON.stringify(data, null, 2)}
             showNotification('❌ ' + message, 'error');
         }
         
-        function showLoading() {
+        function showLoading(message = 'Processing...') {
             const loading = document.createElement('div');
             loading.id = 'dashboard-loading';
             loading.innerHTML = `
@@ -1199,7 +1241,7 @@ ${JSON.stringify(data, null, 2)}
                            align-items: center; justify-content: center;">
                     <div style="background: white; padding: 30px; border-radius: 10px; text-align: center;">
                         <div class="spinner"></div>
-                        <div>Testing connection...</div>
+                        <div>${message}</div>
                     </div>
                 </div>
             `;

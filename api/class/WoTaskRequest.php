@@ -340,4 +340,65 @@ class WoTaskRequest extends General {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
         }
     }
+
+    /**
+     * Force delete all stored MRF PDFs so they can be regenerated on demand.
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function purgeAllMrfPdfs (): array {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            if (!$this->isAdministrator()) {
+                throw new Exception('Only administrators can purge MRF files.', 31);
+            }
+
+            $pdfList = DbMysql::selectAll('sys_pdf', array('pdfType'=>'mrf'));
+            $stats = array('totalPdf'=>count($pdfList), 'fileRemoved'=>0, 'fileMissing'=>0, 'requestUpdated'=>0);
+            if (empty($pdfList)) {
+                return $stats;
+            }
+
+            $projectRoot = dirname(__DIR__, 2);
+            $pdfIds = array();
+
+            foreach ($pdfList as $pdfRow) {
+                $pdfIds[] = $pdfRow['pdfId'];
+                $folder = isset($pdfRow['pdfFolder']) ? trim($pdfRow['pdfFolder']) : '';
+                $filename = isset($pdfRow['pdfFilename']) ? trim($pdfRow['pdfFilename']) : '';
+                $relativePath = rtrim($folder, '/');
+                if ($relativePath !== '') {
+                    $relativePath .= '/';
+                }
+                $relativePath .= $filename;
+                $absolutePath = $relativePath;
+                if ($relativePath !== '' && $relativePath[0] !== '/' && strpos($relativePath, '://') === false) {
+                    $absolutePath = rtrim($projectRoot, '/').'/'.ltrim($relativePath, '/');
+                } else if ($relativePath !== '' && strpos($relativePath, $projectRoot) !== 0 && strpos($relativePath, '://') === false) {
+                    $absolutePath = rtrim($projectRoot, '/').'/'.ltrim($relativePath, '/');
+                }
+
+                if (!empty($absolutePath) && file_exists($absolutePath)) {
+                    if (@unlink($absolutePath)) {
+                        $stats['fileRemoved']++;
+                    } else {
+                        $stats['fileMissing']++;
+                    }
+                } else {
+                    $stats['fileMissing']++;
+                }
+            }
+
+            foreach ($pdfIds as $pdfId) {
+                $stats['requestUpdated'] += DbMysql::update('wo_task_request', array('woTaskRequestMrfPdf'=>null, 'woTaskRequestMrfGenerate'=>1), array('woTaskRequestMrfPdf'=>$pdfId));
+                DbMysql::delete('sys_pdf', array('pdfId'=>$pdfId));
+            }
+
+            return $stats;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
 }

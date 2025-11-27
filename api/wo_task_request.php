@@ -40,7 +40,13 @@ try {
             if (empty($pdfMrfId) || $woTaskRequest['woTaskRequestMrfGenerate'] === 1) {
                 $pdfMrfId = $fnWoMrfPdf->createPdf($woTaskRequestId);
             }
-            $result = $fnMain->getPdfLink($pdfMrfId);
+            try {
+                $result = $fnMain->getPdfLink($pdfMrfId);
+            } catch (Exception $ex) {
+                $fnMain->logError('API', $apiName, __LINE__, 'preview_mrf_pdf missing file, regenerating: '.$ex->getMessage());
+                $pdfMrfId = $fnWoMrfPdf->createPdf($woTaskRequestId);
+                $result = $fnMain->getPdfLink($pdfMrfId);
+            }
             $fnMain->logDebug('API', $apiName, __LINE__, 'preview_mrf_pdf result = '.json_encode($result));
         } else if ($urlArr[1] === 'get_mrf_pdf_link' && isset($urlArr[2])) {
             $pdfMrfId = intval($urlArr[2]);
@@ -77,6 +83,12 @@ try {
             DbMysql::commit();
             $result = $draftNo;
             $formData['errmsg'] = Constant::$woTaskRequest['draft'];
+        } else if ($urlArr[1] === 'purge_mrf') {
+            DbMysql::beginTransaction();
+            $isTransaction = true;
+            $result = $fnMain->purgeAllMrfPdfs();
+            DbMysql::commit();
+            $formData['errmsg'] = 'All generated MRF PDFs have been removed. Reopen any request to recreate the PDF.';
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong POST Request');
         }
