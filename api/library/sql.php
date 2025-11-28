@@ -1349,6 +1349,7 @@ class Class_sql
                     r.wo_task_request_no,
                     r.wo_task_request_time_collected AS check_out_time,
                     u.user_first_name AS check_out_by,
+                    w.wo_task_id,
                     w.wo_task_no,
                     p.total
                 FROM wo_task_request r
