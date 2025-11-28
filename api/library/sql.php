@@ -1270,6 +1270,7 @@ class Class_sql
                 $sql = "SELECT
                     r.wo_task_request_id,
                     r.wo_task_request_no,
+                    w.wo_task_id AS woTaskId,
                     w.wo_task_no,
                     l.site_name,
                     u2.user_first_name AS request_by,
