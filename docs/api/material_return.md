@@ -145,6 +145,66 @@ curl -s \
 
 Frontends can pair this response with a numeric input (max `quantityAvailableToReturn`) and submit `{"woTaskPartsId":"1589","quantity":2,...}` to `return_parts`. The backend auto-selects the earliest eligible `part_sub_id` rows, so storekeepers still see concrete instances when they verify the ticket.
 
+## 1c. GET `/api/wo_request.php/list_mobile_check_out`
+
+Returns every material request that the logged-in technician has already collected (status `36`). Use this to show "Checked Out" history or to deep-link into returns from a specific request.
+
+### Notes
+- Requires the standard `Authorization: Bearer <jwt>` header and (on mobile) the matching `deviceid` header.
+- The API auto-scopes to the JWT’s `userId` and site, so no query params are needed.
+- Response order is by `wo_task_request_time_collected DESC`.
+
+### Response Fields (`result` array)
+| Field | Description |
+| --- | --- |
+| `woTaskRequestId` | Primary key of the material request. |
+| `woTaskRequestNo` | Human-readable request number (e.g., `RQPPNS23010301043`). |
+| `checkOutTime` | Timestamp when the storekeeper handed over the items. |
+| `checkOutBy` | Store personnel who processed the checkout. |
+| `woTaskId` | **New** – Work order/task ID backing the request (needed for routing). |
+| `woTaskNo` | Work order / request number (may be `WO…` or `WR…`). |
+| `total` | Total quantity of items taken for that request. |
+
+### Example
+```bash
+curl -s \
+  -H "Authorization: Bearer <jwt>" \
+  http://localhost/gems2/api/wo_request.php/list_mobile_check_out
+```
+
+**Sample JSON (truncated):**
+```json
+{
+  "success": true,
+  "result": [
+    {
+      "woTaskRequestId": "1306",
+      "woTaskRequestNo": "RQDEMO25052200134",
+      "checkOutTime": "2025-11-20 16:01:09",
+      "checkOutBy": "GEMS Demo",
+      "woTaskId": "74026",
+      "woTaskNo": "WODEMO25052200151",
+      "total": "1"
+    },
+    {
+      "woTaskRequestId": "1303",
+      "woTaskRequestNo": "RQDEMO25051600133",
+      "checkOutTime": "2025-11-21 04:24:40",
+      "checkOutBy": "attendance2",
+      "woTaskId": "73989",
+      "woTaskNo": "WODEMO25050900133",
+      "total": "4"
+    }
+  ],
+  "error": "",
+  "errmsg": ""
+}
+```
+
+Front-end usage tips:
+- Use `woTaskId` to navigate back to Work Order details or to prefill return forms.
+- Pair with `wo_task_parts` data when you need per-line insight; this call intentionally keeps the payload light for quick dashboards.
+
 ## Integration Notes
 - Always refresh the list by calling `list_mobile_return` after a return to reflect the updated inventory.
 - The API enforces uniqueness per `part_sub_id` within the request; frontends should prevent users from selecting the same item twice before submission. Quantity-based rows are resolved automatically, so no duplicates occur there either.

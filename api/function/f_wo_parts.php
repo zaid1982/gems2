@@ -72,6 +72,40 @@ class Class_wo_parts {
     }
 
     /**
+     * Resolve whether the incoming identifier is already a wo_task_request_id or a wo_task_id
+     * and always return the latest request id for that work order.
+     *
+     * @param string $identifier
+     * @return string
+     * @throws Exception
+     */
+    private function resolveWoTaskRequestId ($identifier) {
+        try {
+            $this->fn_general->checkEmptyParams(array($identifier));
+
+            $db = Class_db::getInstance();
+            if ($db->db_count('wo_task_request', array('wo_task_request_id'=>$identifier)) > 0) {
+                return $identifier;
+            }
+
+            if ($db->db_count('wo_task', array('wo_task_id'=>$identifier)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - Invalid work order / request reference', 31);
+            }
+
+            $latestRequestId = $db->db_select_col('wo_task_request', array('wo_task_id'=>$identifier), 'wo_task_request_id', 'wo_task_request_id DESC', 1);
+            if (empty($latestRequestId)) {
+                throw new Exception('[' . __LINE__ . '] - This work order does not have any material requests yet', 31);
+            }
+
+            return $latestRequestId;
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $partId
      * @return mixed
      * @throws Exception
@@ -147,11 +181,13 @@ class Class_wo_parts {
      * @return array
      * @throws Exception
      */
-    public function getWoPartsMobileList2 ($woTaskRequestId) {
+    public function getWoPartsMobileList2 ($woTaskRequestRef) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             $constant = $this->constant;
-            $this->fn_general->checkEmptyParams(array($woTaskRequestId));
+            $this->fn_general->checkEmptyParams(array($woTaskRequestRef));
+
+            $woTaskRequestId = $this->resolveWoTaskRequestId($woTaskRequestRef);
 
             $result = array();
             $woTaskParts = Class_db::getInstance()->db_select2('vw_wo_task_parts_mobile', array('a.wo_task_request_id'=>$woTaskRequestId));
