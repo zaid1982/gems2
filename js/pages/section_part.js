@@ -18,11 +18,78 @@ function SectionPart () {
     let oTableSptPending;
     let oTableSptCheckIn;
     let oTableSptCheckOut;
+    let oTableSptReturnHistory;
     let checkOutTableWidth;
+    const updatePartListSummary = function () {
+        if (!oTableSptPartList) {
+            $('#lblSptCount').text('Showing 0 of 0');
+            $('#lblSptUpdated').text('—');
+            return;
+        }
+        const info = oTableSptPartList.page.info();
+        if (!info) {
+            return;
+        }
+        $('#lblSptCount').text('Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal);
+        $('#lblSptUpdated').text(new Date().toLocaleString());
+    };
+    const updateStatusPill = function (statusDesc) {
+        const text = statusDesc && statusDesc !== '' ? statusDesc : '—';
+        $('#lblSptStatusName').text(text);
+        const $pill = $('#sptStatusPill');
+        if (!$pill.length) {
+            return;
+        }
+        const normalized = text.toLowerCase();
+        if (normalized.indexOf('disable') >= 0) {
+            $pill.attr('data-state', 'disabled');
+        } else {
+            $pill.attr('data-state', 'active');
+        }
+    };
 
     this.init = function () {
         checkOutTableWidth = $('#divSptCheckOutTable').width();
         $('.sectionPart').hide();
+
+        $.fn.dataTable.ext.search.push(function (settings, data) {
+            if (!settings.nTable || settings.nTable.id !== 'dtSptPartList') {
+                return true;
+            }
+            const selectedStatus = $('#optSptStatus').val();
+            if (!selectedStatus) {
+                return true;
+            }
+            const statusCell = (data[11] || '').toString().toLowerCase();
+            return statusCell.indexOf(selectedStatus.toLowerCase()) !== -1;
+        });
+
+        $('#btnSptRefreshPartList').on('click', function () {
+            self.genTablePartList();
+        });
+        $('#btnSptRefreshPending').on('click', function () {
+            self.genTablePending();
+        });
+        $('#btnSptRefreshCheckIn').on('click', function () {
+            self.genTableCheckIn();
+        });
+        $('#btnSptRefreshCheckOut').on('click', function () {
+            self.genTableCheckOut();
+        });
+        $('#btnSptRefreshReturn').on('click', function () {
+            self.genTableReturnHistory();
+        });
+
+        $('#txtSptSearch').on('keyup change', function () {
+            if (oTableSptPartList) {
+                oTableSptPartList.search(this.value).draw();
+            }
+        });
+        $('#optSptStatus').on('change', function () {
+            if (oTableSptPartList) {
+                oTableSptPartList.draw();
+            }
+        });
 
         $('#btnSptBack').on('click', function () {
             $('.sectionPart').hide();
@@ -155,10 +222,12 @@ function SectionPart () {
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                const labels = ['#', 'Part No.', 'Location', 'Warranty', 'Expiration Date', 'Price per unit', 'DO No.', 'Registered By', 'Check In Time', 'Work Order No.', 'Technician', 'Status'];
+                for (let i = 0; i < labels.length; i++) {
+                    $('td', nRow).eq(i).attr('data-label', labels[i]);
+                }
             },
-            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: "Brt<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [0, 1, 2, 3, 4, 5, 7, 9, 11] },
@@ -194,6 +263,10 @@ function SectionPart () {
                         return data !== '' ? refStatus[data]['statusDesc'] : '';
                     }}
             ]
+        });
+        oTableSptPartList.buttons().container().appendTo('#sptPartListActions');
+        oTableSptPartList.on('draw', function () {
+            updatePartListSummary();
         });
 
         oTableSptPending = $('#dtSptPending').DataTable({
@@ -246,9 +319,7 @@ function SectionPart () {
                     }
                 });
             },
-            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: "Brt<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             columnDefs: [
                 { className: 'text-center', targets: [0, 1, 2, 3, 7, 8] },
                 { className: 'text-right', targets: [5] },
@@ -281,6 +352,7 @@ function SectionPart () {
                 }
             ]
         });
+        oTableSptPending.buttons().container().appendTo('#sptPendingActions');
 
         oTableSptCheckIn = $('#dtSptCheckIn').DataTable({
             bLengthChange: false,
@@ -294,9 +366,7 @@ function SectionPart () {
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
-            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: "Brt<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             columnDefs: [
                 { className: 'text-center', targets: [0, 1, 2, 3, 4] },
                 { className: 'text-right', targets: [5, 6] },
@@ -322,6 +392,7 @@ function SectionPart () {
                 {mData: 'doItemTotal'}
             ]
         });
+        oTableSptCheckIn.buttons().container().appendTo('#sptCheckInActions');
 
         oTableSptCheckOut = $('#dtSptCheckOut').DataTable({
             bLengthChange: false,
@@ -370,9 +441,7 @@ function SectionPart () {
                     }
                 });
             },
-            dom: "<'row'<'col-5 px-0'B><'col-7 pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: "Brt<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             columnDefs: [
                 { className: 'text-center', targets: [0, 1, 2, 3, 7] },
                 { className: 'text-right', targets: [6] },
@@ -402,6 +471,74 @@ function SectionPart () {
                 }
             ]
         });
+        oTableSptCheckOut.buttons().container().appendTo('#sptCheckOutActions');
+
+        oTableSptReturnHistory = $('#dtSptReturnHistory').DataTable({
+            bLengthChange: false,
+            bFilter: true,
+            aaSorting: [[1, 'desc']],
+            language: _DATATABLE_LANGUAGE,
+            ordering: false,
+            pageLength: 10,
+            autoWidth: false,
+            fnRowCallback : function(nRow, aData, iDisplayIndex){
+                const info = $(this).DataTable().page.info();
+                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+            },
+            dom: "Brt<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            columnDefs: [
+                { className: 'text-center', targets: [0, 2, 5, 7] },
+                { className: 'text-right', targets: [3] },
+                { className: 'noVis', targets: [0] }
+            ],
+            buttons: [
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-sm px-2 ml-0 mb-1', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-print"></i>', title:'GEMS - Part Return History', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-copy"></i>', title:'GEMS - Part Return History', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 mb-1', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Part Return History', titleAttr: 'Excel', exportOptions: mzExportOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-0 mb-1', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Part Return History', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
+            ],
+            aoColumns: [
+                {mData: null, bSortable: false},
+                {mData: 'returnRequestDate'},
+                {mData: 'technicianUserId', mRender: function (data){
+                        return data && refUser[data] ? refUser[data]['userFirstName'] : '-';
+                    }},
+                {mData: 'quantityReturned'},
+                {mData: 'returnReason', mRender: function (data){
+                        if (!data) {
+                            return '';
+                        }
+                        const formatted = data.replace(/_/g, ' ');
+                        return formatted.replace(/\b\w/g, function (str) { return str.toUpperCase(); });
+                    }},
+                {mData: 'returnStatus', mRender: function (data){
+                        if (!data) {
+                            return '';
+                        }
+                        let badge = 'badge-secondary';
+                        if (data === 'pending') {
+                            badge = 'badge-warning';
+                        } else if (data === 'completed') {
+                            badge = 'badge-success';
+                        } else if (data === 'rejected') {
+                            badge = 'badge-danger';
+                        }
+                        const label = data.charAt(0).toUpperCase() + data.slice(1);
+                        return '<span class="badge ' + badge + '">' + label + '</span>';
+                    }},
+                {mData: 'returnConfirmedDate', mRender: function (data){
+                        return data && data !== '0000-00-00 00:00:00' ? data : '—';
+                    }},
+                {mData: 'storekeeperUserId', mRender: function (data){
+                        return data && refUser[data] ? refUser[data]['userFirstName'] : '-';
+                    }},
+                {mData: 'returnRemarks', mRender: function (data){
+                        return data ? $('<div>').text(data).html() : '';
+                    }}
+            ]
+        });
+        oTableSptReturnHistory.buttons().container().appendTo('#sptReturnActions');
     };
 
     this.load = function (_isEdit, _partId) {
@@ -418,14 +555,25 @@ function SectionPart () {
                 $('#lblTopTotalAvailable').text(parseInt(part['partCount'])-parseInt(part['partLocked']));
                 $('#txtSptDescription').text(refItem[part['itemId']]['itemDescription']);
                 $('#txtSptItemType').text(refItemType[part['itemTypeId']]['itemTypeDesc']);
-                mzSetFieldValue('SptAssetGroup', refAssetGroup[part['assetGroupId']]['assetGroupName'], 'text');
-                mzSetFieldValue('SptSite', refSite[part['siteId']]['siteName'], 'text');
-                mzSetFieldValue('SptStore', refStore[part['storeId']]['storeName'], 'text');
+
+                const site = refSite[part['siteId']] || {};
+                const store = refStore[part['storeId']] || {};
+                const assetGroup = refAssetGroup[part['assetGroupId']] || {};
+                const statusDesc = refStatus[part['partStatus']] ? refStatus[part['partStatus']]['statusDesc'] : '';
+
+                $('#lblSptSiteName').text(site['siteName'] || '—');
+                $('#lblSptStoreName').text(store['storeName'] || '—');
+                $('#lblSptAssetGroupName').text(assetGroup['assetGroupName'] || '—');
+                updateStatusPill(statusDesc);
+
+                mzSetFieldValue('SptAssetGroup', assetGroup['assetGroupName'], 'text');
+                mzSetFieldValue('SptSite', site['siteName'], 'text');
+                mzSetFieldValue('SptStore', store['storeName'], 'text');
                 mzSetFieldValue('SptThreshold', part['partThreshold'], 'text');
                 mzSetFieldValue('SptMinOrder', part['partMinOrder'], 'text');
                 mzSetFieldValue('SptMaxOrder', part['partMaxOrder'], 'text');
                 mzSetFieldValue('SptRemark', part['partRemark'], 'textarea');
-                mzSetFieldValue('SptStatus', refStatus[part['partStatus']]['statusDesc'], 'text');
+                mzSetFieldValue('SptStatus', statusDesc, 'text');
                 self.setEditable(part['partStatus']);
 
                 const picture = mzAjaxRequest2('item_image/'+part['itemId'], 'GET');
@@ -449,6 +597,7 @@ function SectionPart () {
                 self.genTablePartList();
                 self.genTableCheckIn();
                 self.genTableCheckOut();
+                self.genTableReturnHistory();
 
                 $('.sectionPart').show();
                 classFrom.hideMain();
@@ -484,6 +633,7 @@ function SectionPart () {
     this.genTablePartList = function () {
         const dataDb = mzAjaxRequest2('part_sub/list_available/'+partId, 'GET');
         oTableSptPartList.clear().rows.add(dataDb).draw();
+        updatePartListSummary();
     };
 
     this.genTablePending = function () {
@@ -499,6 +649,14 @@ function SectionPart () {
     this.genTableCheckOut = function () {
         const dataDb = mzAjaxRequest2('wo_parts/list_check_out/'+partId, 'GET');
         oTableSptCheckOut.clear().rows.add(dataDb).draw();
+    };
+
+    this.genTableReturnHistory = function () {
+        const dataDb = mzAjaxRequest2('m_inventory/return_history', 'GET');
+        const filtered = dataDb.filter(function (row) {
+            return row && String(row['partId']) === String(partId);
+        });
+        oTableSptReturnHistory.clear().rows.add(filtered).draw();
     };
 
     this.getClassName = function () {
