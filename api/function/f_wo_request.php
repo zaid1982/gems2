@@ -383,9 +383,23 @@ class Class_wo_request {
                 return array();
             }
 
-            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
-            return Class_db::getInstance()->db_select2('vw_wo_request_task_m', array(), 'task_received_time DESC', '100', 0,
-                array('taskCurrent'=>'task_current = 1', 'siteId'=>$siteId, 'checkpoints'=>implode(',', $checkpoints), 'search_text'=>$searchText));
+            // Be defensive: a missing sys_user row or empty site should not hard-fail the mobile list.
+            $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 0);
+            if (empty($siteId)) {
+                return array();
+            }
+
+            try {
+                $rows = Class_db::getInstance()->db_select2('vw_wo_request_task_m', array(), 'task_received_time DESC', '100', 0,
+                    array('taskCurrent'=>'task_current = 1', 'siteId'=>$siteId, 'checkpoints'=>implode(',', $checkpoints), 'search_text'=>$searchText));
+                return empty($rows) ? array() : $rows;
+            } catch (Exception $inner) {
+                // Legacy DB layer may throw on empty results in some environments.
+                if (strpos($inner->getMessage(), 'Select query result empty') !== false || $inner->getCode() === 30) {
+                    return array();
+                }
+                throw $inner;
+            }
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

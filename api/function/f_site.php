@@ -112,7 +112,45 @@ class Class_site {
 
             $result = Class_db::getInstance()->db_select2('cli_site', $conditions);
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Query returned ' . count($result) . ' sites');
-            
+
+            // Normalize keys to match frontend expectations (camelCase)
+            // Keep existing snake_case keys for backward compatibility.
+            foreach ($result as $index => $row) {
+                if (!is_array($row)) {
+                    continue;
+                }
+                if (isset($row['site_id'])) {
+                    $result[$index]['siteId'] = $row['site_id'];
+                }
+                if (isset($row['site_name'])) {
+                    $result[$index]['siteName'] = $row['site_name'];
+                }
+                if (isset($row['site_code'])) {
+                    $result[$index]['siteCode'] = $row['site_code'];
+                }
+                if (array_key_exists('site_desc', $row)) {
+                    $result[$index]['siteDesc'] = $this->fn_general->clear_null($row['site_desc']);
+                }
+                if (isset($row['client_id'])) {
+                    $result[$index]['clientId'] = $row['client_id'];
+                }
+                if (isset($row['group_id'])) {
+                    $result[$index]['groupId'] = $row['group_id'];
+                }
+                if (isset($row['site_is_wr'])) {
+                    $result[$index]['siteIsWr'] = $row['site_is_wr'];
+                }
+                if (isset($row['site_is_public'])) {
+                    $result[$index]['siteIsPublic'] = $row['site_is_public'];
+                }
+                if (isset($row['site_time_created'])) {
+                    $result[$index]['siteTimeCreated'] = str_replace('-', '/', $row['site_time_created']);
+                }
+                if (isset($row['site_status'])) {
+                    $result[$index]['siteStatus'] = $row['site_status'];
+                }
+            }
+
             return $result;
         }
         catch(Exception $ex) {

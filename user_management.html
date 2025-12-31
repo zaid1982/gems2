@@ -249,6 +249,15 @@
             background: #fff;
         }
 
+        /* Keep native select visible (MDB can hide/re-skin selects) */
+        #optUmnGroupId {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            -webkit-appearance: menulist !important;
+            appearance: menulist !important;
+        }
+
         .module-data-card {
             margin-top: 2.6rem;
             background: #fff;
@@ -489,7 +498,7 @@
             <div class="filter-grid">
                 <div class="filter-field">
                     <label for="optUmnGroupId">Site</label>
-                    <select id="optUmnGroupId" class="form-control"></select>
+                    <select id="optUmnGroupId" class="form-control gems-plain-select"></select>
                 </div>
                 <div class="filter-field">
                     <label for="txtUmnUserSearch">Keyword Search</label>

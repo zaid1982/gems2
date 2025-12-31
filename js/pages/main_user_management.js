@@ -334,7 +334,19 @@ function MainUserManagement() {
     };
 
     this.displayChart = function (result) {
-        result = JSON.parse(result);
+        if (typeof result === 'string') {
+            try {
+                result = JSON.parse(result);
+            } catch (e) {
+                console.error('User Management chart: invalid JSON string result', e, result);
+                return;
+            }
+        }
+
+        if (!Array.isArray(result)) {
+            console.warn('User Management chart: unexpected result type', result);
+            return;
+        }
 
         // Ensure refRole is loaded before proceeding
         if (!refRole || Object.keys(refRole).length === 0) {
@@ -345,7 +357,7 @@ function MainUserManagement() {
         
         console.log('Processing chart data with refRole:', refRole);
 
-    let chartData = [];
+        let chartData = [];
         /*let total0 = 0;
         let total1 = 0;
         let total2 = 0;
@@ -399,6 +411,11 @@ function MainUserManagement() {
         const seriesData = chartData.map(function (item) {
             return item.y;
         });
+
+        if (typeof Highcharts === 'undefined' || typeof Highcharts.chart !== 'function') {
+            console.error('Highcharts is not available; cannot render user role chart');
+            return;
+        }
 
         Highcharts.chart('chartUmnLeaveByStatus', {
             chart: {
