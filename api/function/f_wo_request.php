@@ -4,7 +4,39 @@ class Class_wo_request {
 
     private $fn_general;
 
+    private $mrReviewerRoleDesc = 'MR Reviewer';
+    private $mrReviewerCheckpointDesc = 'MR Reviewer';
+    private $mrFlowId = '4';
+
     function __construct() {
+    }
+
+    private function getMrReviewerRoleIdOrNull() {
+        $roleId = Class_db::getInstance()->db_select_col('ref_role', array('role_desc'=>$this->mrReviewerRoleDesc), 'role_id', '', 1);
+        return empty($roleId) ? '' : $roleId;
+    }
+
+    private function getMrReviewerCheckpointIdOrNull($reviewerRoleId) {
+        if (empty($reviewerRoleId)) {
+            return '';
+        }
+        $checkpointId = Class_db::getInstance()->db_select_col(
+            'wfl_checkpoint',
+            array('flow_id'=>$this->mrFlowId, 'checkpoint_desc'=>$this->mrReviewerCheckpointDesc, 'role_id'=>$reviewerRoleId),
+            'checkpoint_id',
+            '',
+            1
+        );
+        return empty($checkpointId) ? '' : $checkpointId;
+    }
+
+    private function requireMrReviewerCheckpoint() {
+        $roleId = $this->getMrReviewerRoleIdOrNull();
+        $checkpointId = $this->getMrReviewerCheckpointIdOrNull($roleId);
+        if (empty($roleId) || empty($checkpointId)) {
+            throw new Exception('[' . __LINE__ . '] - MR Reviewer workflow not configured. Please add role/checkpoint (role_desc="'.$this->mrReviewerRoleDesc.'", checkpoint_desc="'.$this->mrReviewerCheckpointDesc.'")', 31);
+        }
+        return array('roleId'=>$roleId, 'checkpointId'=>$checkpointId);
     }
 
     private function hasAnyRole($userId, array $roleIds) {
@@ -213,6 +245,32 @@ class Class_wo_request {
                     if (Class_db::getInstance()->db_sum('wo_task_parts', 'wo_task_parts_quantity', array('wo_task_request_id'=>$woTaskRequestId)) == 0) {
                         throw new Exception('[' . __LINE__ . '] - Total Requested Material empty', 31);
                     }
+                } else if ($submitType === 'recommend_request' || $submitType === 'not_recommend_request') {
+                    if ($submitType === 'not_recommend_request' && empty($comment)) {
+                        throw new Exception('[' . __LINE__ . '] - Comment is empty', 31);
+                    }
+
+                    $reviewer = $this->requireMrReviewerCheckpoint();
+                    $reviewerCheckpointId = $reviewer['checkpointId'];
+
+                    if (Class_db::getInstance()->db_count('wfl_transaction', array('transaction_id'=>$transactionId, 'transaction_status'=>'33')) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid transaction status');
+                    }
+                    if (Class_db::getInstance()->db_count('wfl_task', array('task_id'=>$taskId, 'task_current'=>'1', 'checkpoint_id'=>$reviewerCheckpointId)) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid task request');
+                    }
+                    if (Class_db::getInstance()->db_count('wo_task_request', array('wo_task_request_id'=>$woTaskRequestId, 'wo_task_request_status'=>'33')) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid request status');
+                    }
+                    if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id'=>$woTaskRequestId, 'wo_task_parts_status'=>'33')) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Request part empty');
+                    }
+                    if (Class_db::getInstance()->db_count('wo_task_parts', array('wo_task_request_id'=>$woTaskRequestId, 'wo_task_parts_status'=>'<>33')) > 0) {
+                        throw new Exception('[' . __LINE__ . '] - Invalid request part status');
+                    }
+                    if (Class_db::getInstance()->db_sum('wo_task_parts', 'wo_task_parts_quantity', array('wo_task_request_id'=>$woTaskRequestId)) == 0) {
+                        throw new Exception('[' . __LINE__ . '] - Total Requested Material empty', 31);
+                    }
                 } else if ($submitType === 'reserve_request') {
                     if (Class_db::getInstance()->db_count('wfl_transaction', array('transaction_id'=>$transactionId, 'transaction_status'=>'34')) == 0) {
                         throw new Exception('[' . __LINE__ . '] - Invalid transaction status');
@@ -308,6 +366,13 @@ class Class_wo_request {
             $this->fn_general->checkEmptyParams(array($userId));
 
             $checkpoints = array();
+            $reviewerRoleId = $this->getMrReviewerRoleIdOrNull();
+            $reviewerCheckpointId = $this->getMrReviewerCheckpointIdOrNull($reviewerRoleId);
+            if (!empty($reviewerCheckpointId) && !empty($reviewerRoleId)) {
+                if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$reviewerCheckpointId, 'role_id'=>$reviewerRoleId, 'group_id'=>'1')) > 0) {
+                    array_push($checkpoints, $reviewerCheckpointId);
+                }
+            }
             if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>'42', 'role_id'=>'17', 'group_id'=>'1')) > 0) {
                 array_push($checkpoints, '42');
             }

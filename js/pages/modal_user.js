@@ -42,6 +42,13 @@ function ModalUser() {
         if (rSup) $('#chkMusRolePTWSUP').val(rSup).attr('data-role-id', rSup); else $('#divMusRolePTWSUP').hide();
         if (rShe) $('#chkMusRolePTWSHE').val(rShe).attr('data-role-id', rShe); else $('#divMusRolePTWSHE').hide();
         if (rFm)  $('#chkMusRolePTWFM').val(rFm).attr('data-role-id', rFm); else $('#divMusRolePTWFM').hide();
+
+        const rMrReviewer = getRoleIdByDesc('MR Reviewer');
+        if (rMrReviewer) {
+            $('#chkMusRoleMRReviewer').val(rMrReviewer).attr('data-role-id', rMrReviewer);
+        } else {
+            $('#divMusRoleMRReviewer').hide();
+        }
     }
 
     this.init = function () {
@@ -160,11 +167,11 @@ function ModalUser() {
             formValidate.validateForm();
             if ($(this).val() === '1') {
                 $('.divMusRoles').show();
-                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole4, #divMusRole20, #divMusRole21, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').show();
+                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole4, #divMusRole20, #divMusRole21, #divMusRoleMRReviewer, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').show();
                 $('#divMusRole6').hide();
             } else if ($(this).val() === '2') {
                 $('.divMusRoles').show();
-                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole20, #divMusRole21, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
+                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole20, #divMusRole21, #divMusRoleMRReviewer, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
                 $('#divMusRole6, #divMusRole4').show();
                 $('#divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
             }
@@ -256,8 +263,10 @@ function ModalUser() {
         $('#chkMusUserType1, #chkMusUserType2').prop('disabled', false);
         // Ensure PTW roles are hidden until user type selection
         $('#divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
+        $('#divMusRoleMRReviewer').hide();
         // Clear PTW checkbox values until refRole is set
         $('#chkMusRolePTWSUP, #chkMusRolePTWSHE, #chkMusRolePTWFM').val('');
+        $('#chkMusRoleMRReviewer').val('');
     };
 
     this.add = function () {
@@ -323,12 +332,12 @@ function ModalUser() {
 
                 if (userType === '1') {
                     $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole4, #divMusRole20, #divMusRole21, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').show();
+                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole4, #divMusRole20, #divMusRole21, #divMusRoleMRReviewer, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').show();
                     $('#divMusRole6').hide();
                 }
                 else if (userType === '2') {
                     $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole11, #divMusRole20, #divMusRole21, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
+                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole11, #divMusRole20, #divMusRole21, #divMusRoleMRReviewer, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
                     $('#divMusRole6, #divMusRole4').show();
                 }
                 formValidate.validateForm();

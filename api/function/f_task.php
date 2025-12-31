@@ -543,13 +543,14 @@ class Class_task {
                 throw new Exception('[' . __LINE__ . '] - Parameter checkpointId empty');
             }
 
-            if ($checkpointId === '12' || $checkpointId === '42' || $checkpointId === '43') {
-                if (empty($woTaskId)) {
-                    throw new Exception('[' . __LINE__ . '] - Parameter woTaskId empty');
-                }
+            // For WO-related workflows, restrict checkpoint users by the WO site.
+            // This prevents cross-site notifications/approvals and allows new checkpoints
+            // (e.g. additional review gates) without adding more hard-coded checkpoint IDs.
+            if (!empty($woTaskId)) {
                 $siteId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$woTaskId), 'site_id', null, 1);
                 return Class_db::getInstance()->db_select_colm('mw_checkpoint_user_with_site', array('role_id'=>$roleId, 'checkpoint_id'=>$checkpointId, 'site_id'=>$siteId), 'user_id');
             }
+
             return Class_db::getInstance()->db_select_colm('wfl_checkpoint_user', array('role_id'=>$roleId, 'checkpoint_id'=>$checkpointId), 'user_id');
         }
         catch(Exception $ex) {

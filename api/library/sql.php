@@ -1237,6 +1237,9 @@ class Class_sql
                 ) docs ON docs.item_id = i.item_id";
             } else if ($title === 'vw_wo_request_task_m') {
                 $sql = "SELECT
+                    t.task_id,
+                    t.checkpoint_id,
+                    cp.checkpoint_desc,
                     r.wo_task_request_id,
                     r.wo_task_request_no,
                     w.wo_task_no,
@@ -1257,6 +1260,7 @@ class Class_sql
                     s.status_id,
                     s.status_desc
                 FROM wfl_task t
+                LEFT JOIN wfl_checkpoint cp ON cp.checkpoint_id = t.checkpoint_id
                 LEFT JOIN wo_task_request r ON r.transaction_id = t.transaction_id
                 LEFT JOIN wo_task w ON w.wo_task_id = r.wo_task_id
                 LEFT JOIN sys_user u ON u.user_id = t.task_created_user
@@ -1268,6 +1272,9 @@ class Class_sql
                 HAVING (wo_task_request_no LIKE '%[search_text]%' OR wo_task_no LIKE '%[search_text]%' OR task_from LIKE '%[search_text]%' OR wo_type_desc LIKE '%[search_text]%' OR wo_severity_desc LIKE '%[search_text]%' OR status_desc LIKE '%[search_text]%')";
             } else if ($title === 'vw_wo_request_task_detail_m') {
                 $sql = "SELECT
+                    t.task_id,
+                    t.checkpoint_id,
+                    cp.checkpoint_desc,
                     r.wo_task_request_id,
                     r.wo_task_request_no,
                     w.wo_task_id AS woTaskId,
@@ -1288,6 +1295,8 @@ class Class_sql
                     s.status_id,
                     s.status_desc
                 FROM wo_task_request r 
+                LEFT JOIN wfl_task t ON t.transaction_id = r.transaction_id AND t.task_current = 1
+                LEFT JOIN wfl_checkpoint cp ON cp.checkpoint_id = t.checkpoint_id
                 LEFT JOIN wo_task w ON w.wo_task_id = r.wo_task_id
                 LEFT JOIN sys_user u2 ON u2.user_id = r.wo_task_request_order_by
                 LEFT JOIN ref_status s ON s.status_id = r.wo_task_request_status

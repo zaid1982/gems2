@@ -176,7 +176,17 @@ try {
                 // ********** email & notification ********** \\
                 $fn_wo->__set('woTaskId', $woTaskId);
                 $wo = $fn_wo->get_wo_task();
-                $nextUsers = $fn_task->get_checkpoints_users('17', '42', $woTaskId);
+                // New gate: route to MR Reviewer first (if configured), then only proceed to manager approval after recommendation.
+                $reviewerRoleId = Class_db::getInstance()->db_select_col('ref_role', array('role_desc'=>'MR Reviewer'), 'role_id', '', 1);
+                $reviewerCheckpointId = '';
+                if (!empty($reviewerRoleId)) {
+                    $reviewerCheckpointId = Class_db::getInstance()->db_select_col('wfl_checkpoint', array('flow_id'=>'4', 'checkpoint_desc'=>'MR Reviewer', 'role_id'=>$reviewerRoleId), 'checkpoint_id', '', 1);
+                }
+                if (empty($reviewerRoleId) || empty($reviewerCheckpointId)) {
+                    throw new Exception('[' . __LINE__ . '] - MR Reviewer workflow not configured. Please run the SQL migration to add role/checkpoint.', 31);
+                }
+
+                $nextUsers = $fn_task->get_checkpoints_users($reviewerRoleId, $reviewerCheckpointId, $woTaskId);
                 Class_db::getInstance()->db_beginTransaction();
                 foreach ($nextUsers as $nextUser) {
                     $fn_email->setup_email($nextUser, 16, array('request_no'=>$woTaskRequestNo, 'wo_no'=>$wo['woTaskNo']));
@@ -208,13 +218,50 @@ try {
         $currentTask = $fn_wo_request->getCurrentTask($woTaskRequestId);
         $transactionId = $currentTask['transactionId'];
         $taskId = $currentTask['taskId'];
-        $fn_wo_request->checkRequestTask($urlArr[1], $userId, $woTaskRequestId, $transactionId, $taskId, '', ($urlArr[1] === 'reject_request' ? $params['comment'] : ''));
+        $comment = ($urlArr[1] === 'reject_request' || $urlArr[1] === 'not_recommend_request') ? $params['comment'] : '';
+        $fn_wo_request->checkRequestTask($urlArr[1], $userId, $woTaskRequestId, $transactionId, $taskId, '', $comment);
         $woTaskRequest = $fn_wo_request->getWoRequest($woTaskRequestId);
         $woTaskId = $woTaskRequest['woTaskId'];
         $fn_wo->__set('woTaskId', $woTaskId);
         $wo = $fn_wo->get_wo_task();
 
-        if ($urlArr[1] === 'approve_request') {
+        if ($urlArr[1] === 'recommend_request') {
+            // ********** reviewer recommend ********** \\
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $fn_task->submit_task($taskId, $userId, '9');
+            Class_db::getInstance()->db_commit();
+
+            // ********** email & notification (to current manager approval) ********** \\
+            $nextUsers = $fn_task->get_checkpoints_users('17', '42', $woTaskId);
+            Class_db::getInstance()->db_beginTransaction();
+            foreach ($nextUsers as $nextUser) {
+                $fn_email->setup_email($nextUser, 16, array('request_no'=>$woTaskRequest['woTaskRequestNo'], 'wo_no'=>$wo['woTaskNo']));
+                $fn_email->setup_mobile_notification($nextUser, 17, array('task_no'=>$woTaskRequest['woTaskRequestNo']));
+            }
+            Class_db::getInstance()->db_commit();
+
+            // ********** audit trail ********** \\
+            $fn_general->save_audit('172', $userId, 'Work Order No. = '.$wo['woTaskNo'].', Part Request No. = '.$woTaskRequest['woTaskRequestNo']);
+            $form_data['errmsg'] = 'Request Parts recommended and forwarded for approval';
+        } else if ($urlArr[1] === 'not_recommend_request') {
+            // ********** reviewer not recommend (reject) ********** \\
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $fn_task->submit_task($taskId, $userId, '50', $params['comment'], '1');
+            $fn_wo_request->submitReject($woTaskRequestId, $transactionId, $params['comment']);
+            Class_db::getInstance()->db_commit();
+
+            // ********** email & notification (to technician) ********** \\
+            Class_db::getInstance()->db_beginTransaction();
+            $fn_email->setup_email($woTaskRequest['woTaskRequestOrderBy'], 20, array('request_no'=>$woTaskRequest['woTaskRequestNo'], 'wo_no'=>$wo['woTaskNo'], 'comment'=>$params['comment']));
+            $fn_email->setup_mobile_notification($woTaskRequest['woTaskRequestOrderBy'], 21, array('task_no'=>$woTaskRequest['woTaskRequestNo'], 'comment'=>$params['comment']));
+            Class_db::getInstance()->db_commit();
+
+            // ********** audit trail ********** \\
+            $fn_general->save_audit('173', $userId, 'Work Order No. = '.$wo['woTaskNo'].', Part Request No. = '.$woTaskRequest['woTaskRequestNo']);
+            $form_data['errmsg'] = 'Request Parts not recommended and rejected';
+        } else if ($urlArr[1] === 'approve_request') {
             // ********** approve request ********** \\
             Class_db::getInstance()->db_beginTransaction();
             $is_transaction = true;
