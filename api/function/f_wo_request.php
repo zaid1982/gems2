@@ -369,14 +369,15 @@ class Class_wo_request {
             $reviewerRoleId = $this->getMrReviewerRoleIdOrNull();
             $reviewerCheckpointId = $this->getMrReviewerCheckpointIdOrNull($reviewerRoleId);
             if (!empty($reviewerCheckpointId) && !empty($reviewerRoleId)) {
-                if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$reviewerCheckpointId, 'role_id'=>$reviewerRoleId, 'group_id'=>'1')) > 0) {
+                // Do not hardcode group_id here; users may belong to a site-specific group.
+                if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$reviewerCheckpointId, 'role_id'=>$reviewerRoleId)) > 0) {
                     array_push($checkpoints, $reviewerCheckpointId);
                 }
             }
-            if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>'42', 'role_id'=>'17', 'group_id'=>'1')) > 0) {
+            if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>'42', 'role_id'=>'17')) > 0) {
                 array_push($checkpoints, '42');
             }
-            if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>'43', 'role_id'=>'16', 'group_id'=>'1')) > 0) {
+            if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>'43', 'role_id'=>'16')) > 0) {
                 array_push($checkpoints, '43');
             }
             if (empty($checkpoints)) {

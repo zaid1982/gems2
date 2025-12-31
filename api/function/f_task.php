@@ -115,8 +115,18 @@ class Class_task {
             if (!empty($checkpointGroup) && $groupId !== '' && $checkpointGroup != $groupId) {
                 throw new Exception('[' . __LINE__ . '] - Group ID (' . $groupId . ') is not allowed to perform this checkpoint (' . $checkpointId . ')');
             }
-            if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('checkpoint_id' => $checkpointId, 'user_id' => $userId, 'group_id' => $groupId)) == 0) {
-                throw new Exception('[' . __LINE__ . '] - User ID (' . $userId . ') is not allowed to perform this checkpoint (' . $checkpointId . ')');
+
+            // If checkpoint does not lock to a specific group (group_id IS NULL),
+            // allow any mapped checkpoint-user record regardless of group.
+            // This is important for global reviewers (e.g. admin) acting on site tasks.
+            if (empty($checkpointGroup)) {
+                if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('checkpoint_id' => $checkpointId, 'user_id' => $userId, 'role_id' => $checkpointRole)) == 0) {
+                    throw new Exception('[' . __LINE__ . '] - User ID (' . $userId . ') is not allowed to perform this checkpoint (' . $checkpointId . ')');
+                }
+            } else {
+                if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('checkpoint_id' => $checkpointId, 'user_id' => $userId, 'group_id' => $groupId)) == 0) {
+                    throw new Exception('[' . __LINE__ . '] - User ID (' . $userId . ') is not allowed to perform this checkpoint (' . $checkpointId . ')');
+                }
             }
         }
         catch(Exception $ex) {
@@ -380,7 +390,9 @@ class Class_task {
                 } else if (!empty($taskAssign) && !empty($taskAssign['group_id'])) {
                     $arrInsertTask['group_id'] = $taskAssign['group_id'];
                 } else {
-                    $arrInsertTask['group_id'] = $nextGroupId;
+                    // If the next checkpoint does not specify a group_id, inherit the current task group.
+                    // This enables group-agnostic checkpoints (group_id NULL) while keeping workflows site-scoped.
+                    $arrInsertTask['group_id'] = !empty($nextGroupId) ? $nextGroupId : $groupId;
                 }
             }
 
@@ -548,7 +560,17 @@ class Class_task {
             // (e.g. additional review gates) without adding more hard-coded checkpoint IDs.
             if (!empty($woTaskId)) {
                 $siteId = Class_db::getInstance()->db_select_col('wo_task', array('wo_task_id'=>$woTaskId), 'site_id', null, 1);
-                return Class_db::getInstance()->db_select_colm('mw_checkpoint_user_with_site', array('role_id'=>$roleId, 'checkpoint_id'=>$checkpointId, 'site_id'=>$siteId), 'user_id');
+
+                $users = Class_db::getInstance()->db_select_colm('mw_checkpoint_user_with_site', array('role_id'=>$roleId, 'checkpoint_id'=>$checkpointId, 'site_id'=>$siteId), 'user_id');
+
+                // Fallback: if no site-scoped reviewer exists, allow any checkpoint user.
+                // This supports global admins assigned to a role, and prevents tasks from
+                // becoming "stuck" with zero recipients.
+                if (empty($users)) {
+                    $users = Class_db::getInstance()->db_select_colm('wfl_checkpoint_user', array('role_id'=>$roleId, 'checkpoint_id'=>$checkpointId), 'user_id');
+                }
+
+                return array_values(array_unique($users));
             }
 
             return Class_db::getInstance()->db_select_colm('wfl_checkpoint_user', array('role_id'=>$roleId, 'checkpoint_id'=>$checkpointId), 'user_id');

@@ -43,12 +43,14 @@ function ModalUser() {
         if (rShe) $('#chkMusRolePTWSHE').val(rShe).attr('data-role-id', rShe); else $('#divMusRolePTWSHE').hide();
         if (rFm)  $('#chkMusRolePTWFM').val(rFm).attr('data-role-id', rFm); else $('#divMusRolePTWFM').hide();
 
-        const rMrReviewer = getRoleIdByDesc('MR Reviewer');
-        if (rMrReviewer) {
-            $('#chkMusRoleMRReviewer').val(rMrReviewer).attr('data-role-id', rMrReviewer);
-        } else {
-            $('#divMusRoleMRReviewer').hide();
+        // MR Reviewer is a workflow role that may not exist in older local caches.
+        // Always ensure the checkbox has a usable roleId so it gets included in payload.
+        let rMrReviewer = getRoleIdByDesc('MR Reviewer');
+        if (!rMrReviewer) {
+            const existing = String($('#chkMusRoleMRReviewer').attr('data-role-id') || $('#chkMusRoleMRReviewer').val() || '').trim();
+            rMrReviewer = existing ? existing : '27';
         }
+        $('#chkMusRoleMRReviewer').val(rMrReviewer).attr('data-role-id', rMrReviewer);
     }
 
     this.init = function () {

@@ -387,7 +387,6 @@ function MzValidate(name) {
                 result = false;
             }
         });
-        console.log('Form validation result for WoTotal:', result);
         return result;
     };
     

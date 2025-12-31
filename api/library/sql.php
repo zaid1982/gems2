@@ -1268,7 +1268,7 @@ class Class_sql
                 LEFT JOIN ref_status s ON s.status_id = r.wo_task_request_status
                 LEFT JOIN cli_site l ON l.site_id = w.site_id
                 LEFT JOIN ref_severity sv ON sv.severity_id = r.wo_task_request_severity
-                WHERE checkpoint_id IN ([checkpoints]) AND w.site_id = [siteId] AND [taskCurrent] 
+                WHERE t.checkpoint_id IN ([checkpoints]) AND w.site_id = [siteId] AND [taskCurrent] 
                 HAVING (wo_task_request_no LIKE '%[search_text]%' OR wo_task_no LIKE '%[search_text]%' OR task_from LIKE '%[search_text]%' OR wo_type_desc LIKE '%[search_text]%' OR wo_severity_desc LIKE '%[search_text]%' OR status_desc LIKE '%[search_text]%')";
             } else if ($title === 'vw_wo_request_task_detail_m') {
                 $sql = "SELECT

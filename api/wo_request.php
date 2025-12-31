@@ -167,7 +167,19 @@ try {
                 Class_db::getInstance()->db_beginTransaction();
                 $is_transaction = true;
                 $woTaskRequestNo = $fn_wo_request->createRequestNo($userId);
-                $taskId = $fn_task->create_new_task('4', $userId, '8', '1', $woTaskRequestNo);
+                // Use the requester's actual group_id for role 8 (Technician) instead of hardcoding group 1.
+                // Hardcoding group 1 prevents site users from reaching downstream checkpoints.
+                $requesterGroupId = $fn_task->get_group_id_from_user($userId, '8');
+                if (empty($requesterGroupId)) {
+                    // Fallback: infer group_id from site mapping.
+                    $requesterSiteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
+                    $requesterGroupId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$requesterSiteId), 'group_id', '', 1);
+                }
+                if (empty($requesterGroupId)) {
+                    throw new Exception('[' . __LINE__ . '] - Unable to resolve requester group_id for MR submission', 31);
+                }
+
+                $taskId = $fn_task->create_new_task('4', $userId, '8', $requesterGroupId, $woTaskRequestNo);
                 $fn_task->submit_task($taskId, $userId);
                 $transactionId = $fn_task->getTransactionId($taskId);
                 $fn_wo_request->submitRequest($woTaskId, $transactionId, $woTaskRequestNo);
