@@ -173,12 +173,18 @@ function MainUserManagement() {
                                 label = '<ul style="padding-left: 0px; margin-bottom: 0px !important;">';
                                 const dataSplit = rowData.split(',');
                                 for (let j=0; j<dataSplit.length; j++) {
+                                    const roleId = (dataSplit[j] || '').toString().trim();
                                     // Add null checks to prevent errors when refRole is not loaded yet
-                                    if (refRole && refRole[dataSplit[j]] && refRole[dataSplit[j]]['roleDesc']) {
-                                        label += '<li>' + refRole[dataSplit[j]]['roleDesc'] + '</li>';
+                                    if (refRole && refRole[roleId] && (refRole[roleId]['roleName'] || refRole[roleId]['roleDesc'])) {
+                                        label += '<li>' + (refRole[roleId]['roleName'] || refRole[roleId]['roleDesc']) + '</li>';
                                     } else {
-                                        // Fallback to roleId if roleDesc is not available
-                                        label += '<li>Role ' + dataSplit[j] + '</li>';
+                                        // Fallback label when local role reference is stale/missing.
+                                        // Keep this minimal and only patch known roles that must display cleanly.
+                                        if (roleId === '27') {
+                                            label += '<li>MR Reviewer</li>';
+                                        } else {
+                                            label += '<li>Role ' + roleId + '</li>';
+                                        }
                                     }
                                 }
                                 label += '</ul>';

@@ -134,7 +134,13 @@ function MainProfile() {
     const resolveRoleName = function (roleId) {
         const label = resolveLabel(refRole, roleId, 'roleId', 'roleName')
             || resolveLabel(refRole, roleId, 'roleId', 'roleDesc');
-        return label || ('Role ' + roleId);
+        if (label) {
+            return label;
+        }
+        if ((roleId || '').toString() === '27') {
+            return 'MR Reviewer';
+        }
+        return 'Role ' + roleId;
     };
 
     const collectFormValues = function () {

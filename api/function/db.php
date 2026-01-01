@@ -92,10 +92,18 @@ class Class_db{
                 continue;
             }
             if (!is_string($value)) {
-                // Log the type and content of $value
-                error_log("DEBUG: get_whereAnd_str received non-string value for item '{$item}': Type = " . gettype($value) . ", Value = " . print_r($value, true));
-                // You might even throw a custom exception here to get a clearer stack trace without the fatal error
-                throw new Exception("Non-string value passed to get_whereAnd_str for item '{$item}'");
+                if (is_null($value)) {
+                    $where_str .= "$item is NULL AND ";
+                    continue;
+                }
+                if (is_bool($value)) {
+                    $value = $value ? '1' : '0';
+                } elseif (is_int($value) || is_float($value)) {
+                    $value = (string) $value;
+                } else {
+                    error_log("DEBUG: get_whereAnd_str received non-string value for item '{$item}': Type = " . gettype($value) . ", Value = " . print_r($value, true));
+                    throw new Exception("Invalid value type passed to get_whereAnd_str for item '{$item}'");
+                }
             }
             $l1 = substr($value, 0, 1);
             $l1 = substr($value, 0, 1);

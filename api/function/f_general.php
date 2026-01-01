@@ -10,6 +10,28 @@ class Class_general {
         $config = parse_ini_file('library/config.ini');
         $this->log_dir = $config['log_dir'];
     }
+
+    private function safe_file_log($message, $relativePath) {
+        $baseDir = rtrim((string) $this->log_dir, '/');
+        if ($baseDir === '') {
+            error_log($message);
+            return;
+        }
+
+        $path = $baseDir . '/' . ltrim($relativePath, '/');
+        $dir = dirname($path);
+
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+
+        if (is_dir($dir) && is_writable($dir)) {
+            @error_log($message, 3, $path);
+            return;
+        }
+
+        error_log($message);
+    }
     
     private function get_exception($codes, $function, $line, $msg) {
         if ($msg != '') {            
@@ -82,7 +104,7 @@ class Class_general {
      */
     public function log_debug ($class, $function, $line, $msg) {
         $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - ".$msg."\r\n";
-        error_log($debugMsg, 3, $this->log_dir.'/debug/debug_'.date("Ymd").'.log');
+        $this->safe_file_log($debugMsg, 'debug/debug_'.date("Ymd").'.log');
         //error_log($debugMsg, 3, 'C:\Users\User\logs\gems\debug\debug_'.date("Ymd").'.log');
     }
 
@@ -94,10 +116,10 @@ class Class_general {
      */
     public function log_error ($class, $function, $line, $msg) {
         $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - (ERROR) ".$msg."\r\n";
-        error_log($debugMsg, 3, $this->log_dir.'/debug/debug_'.date("Ymd").'.log');
+        $this->safe_file_log($debugMsg, 'debug/debug_'.date("Ymd").'.log');
         //error_log($debugMsg, 3, 'C:\Users\User\logs\gems\debug\debug_'.date("Ymd").'.log');
         $debugMsg = date("Y/m/d h:i:sa")." [".$class.":".$function.":".$line."] - ".$msg."\r\n";
-        error_log($debugMsg, 3, $this->log_dir.'/error/error_'.date("Ymd").'.log');
+        $this->safe_file_log($debugMsg, 'error/error_'.date("Ymd").'.log');
         //error_log($debugMsg, 3, 'C:\Users\User\logs\gems\error\error_'.date("Ymd").'.log');
     }
 

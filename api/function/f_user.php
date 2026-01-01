@@ -328,6 +328,21 @@ class Class_user {
                         Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$role, 'group_id'=>$groupId));
                     }
                 }
+
+                // Always sync checkpoint-user mappings for current roles.
+                // This covers cases where new checkpoints are added later (e.g., MR Reviewer checkpoint)
+                // but the user already had the role assigned previously.
+                $currentRoles = Class_db::getInstance()->db_select('sys_user_role', array('user_id'=>$userId, 'group_id'=>$groupId));
+                foreach ($currentRoles as $currentRoleRow) {
+                    $currentRoleId = $currentRoleRow['role_id'];
+                    $roleCheckpoints = Class_db::getInstance()->db_select('wfl_checkpoint', array('checkpoint_type'=>'<>3', 'role_id'=>$currentRoleId));
+                    foreach ($roleCheckpoints as $roleCheckpoint) {
+                        $checkpointId = $roleCheckpoint['checkpoint_id'];
+                        if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId)) == 0) {
+                            Class_db::getInstance()->db_insert('wfl_checkpoint_user', array('user_id'=>$userId, 'checkpoint_id'=>$checkpointId, 'role_id'=>$currentRoleId, 'group_id'=>$groupId));
+                        }
+                    }
+                }
             }
 
             Class_db::getInstance()->db_update('sys_user', array('user_first_name'=>$userFirstName, 'site_id'=>$siteId), array('user_id'=>$userId));
