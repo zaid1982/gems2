@@ -683,6 +683,21 @@
                                 📋 Export JSON
                             </button>
                         </div>
+
+                        <div class="query-history" style="margin-top: 15px;">
+                            <div class="history-header">
+                                📤 Execute SQL File (localhost only)
+                            </div>
+                            <div style="padding: 12px; font-size: 12px; color: #7f8c8d;">
+                                This runs a multi-statement <code>.sql</code> file via <code>db_query_tool.php</code> action <code>execute_file</code>.
+                                For safety it requires <code>maintenance/.allow_sql_upload</code> to exist and the request must come from localhost.
+                            </div>
+                            <div style="display: flex; gap: 10px; padding: 12px; align-items: center; flex-wrap: wrap;">
+                                <label for="sqlFile" style="font-size: 12px;">SQL file:</label>
+                                <input type="file" id="sqlFile" accept=".sql" aria-label="SQL file" title="Choose a .sql file" />
+                                <button class="btn-success" onclick="executeSqlFile()">▶️ Execute SQL File</button>
+                            </div>
+                        </div>
                         
                         <div class="query-history">
                             <div class="history-header">
@@ -728,9 +743,45 @@
         let currentResults = [];
         let currentQuery = '';
         let sqlEditor;
-        let queryHistory = JSON.parse(localStorage.getItem('queryHistory')) || [];
-        let savedQueries = JSON.parse(localStorage.getItem('savedQueries')) || [];
-        let currentTheme = localStorage.getItem('editorTheme') || 'default';
+
+        function mzSafeStorageGet(key) {
+            try {
+                const v = localStorage.getItem(key);
+                if (v !== null) { return v; }
+            } catch (e) { /* ignore */ }
+            try {
+                const v = sessionStorage.getItem(key);
+                if (v !== null) { return v; }
+            } catch (e) { /* ignore */ }
+            return null;
+        }
+
+        function mzSafeStorageSet(key, value) {
+            try {
+                localStorage.setItem(key, value);
+                return;
+            } catch (e) { /* ignore */ }
+            try {
+                sessionStorage.setItem(key, value);
+            } catch (e) { /* ignore */ }
+        }
+
+        function mzSafeStorageRemove(key) {
+            try { localStorage.removeItem(key); } catch (e) { /* ignore */ }
+            try { sessionStorage.removeItem(key); } catch (e) { /* ignore */ }
+        }
+
+        function mzSafeJsonParse(raw, fallback) {
+            try {
+                return JSON.parse(raw);
+            } catch (e) {
+                return fallback;
+            }
+        }
+
+        let queryHistory = mzSafeJsonParse(mzSafeStorageGet('queryHistory') || '[]', []);
+        let savedQueries = mzSafeJsonParse(mzSafeStorageGet('savedQueries') || '[]', []);
+        let currentTheme = mzSafeStorageGet('editorTheme') || 'default';
         let tableNames = [];
         let columnNames = {};
         
@@ -803,6 +854,37 @@
                 textarea.value = 'SELECT * FROM sys_user LIMIT 10;';
                 showStatus('Editor loaded in fallback mode', 'info');
             }
+        }
+
+        function executeSqlFile() {
+            const fileInput = document.getElementById('sqlFile');
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                showStatus('Please choose a .sql file first', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'execute_file');
+            formData.append('sqlFile', fileInput.files[0]);
+
+            showStatus('Uploading and executing SQL file...', 'info');
+
+            fetch('db_query_tool.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const info = data.data || data;
+                    showStatus(`Executed ${info.statement_count || 0} statements in ${info.execution_time || 0}s`, 'success');
+                } else {
+                    showStatus(data.error || 'SQL file execution failed', 'error');
+                }
+            })
+            .catch(err => {
+                showStatus('Request failed: ' + err.message, 'error');
+            });
         }
         
         function getTableHints() {
@@ -947,7 +1029,7 @@
         function toggleTheme() {
             currentTheme = currentTheme === 'default' ? 'material-darker' : 'default';
             sqlEditor.setOption('theme', currentTheme);
-            localStorage.setItem('editorTheme', currentTheme);
+            mzSafeStorageSet('editorTheme', currentTheme);
         }
         
         function toggleFullscreen() {
@@ -1075,7 +1157,7 @@
             // Keep only last 10
             queryHistory = queryHistory.slice(0, 10);
             
-            localStorage.setItem('queryHistory', JSON.stringify(queryHistory));
+            mzSafeStorageSet('queryHistory', JSON.stringify(queryHistory));
             loadQueryHistory();
         }
         
@@ -1106,7 +1188,7 @@
         function clearHistory() {
             if (confirm('Clear all query history?')) {
                 queryHistory = [];
-                localStorage.removeItem('queryHistory');
+                mzSafeStorageRemove('queryHistory');
                 loadQueryHistory();
             }
         }
@@ -1142,7 +1224,7 @@
             };
             
             savedQueries.push(savedQuery);
-            localStorage.setItem('savedQueries', JSON.stringify(savedQueries));
+            mzSafeStorageSet('savedQueries', JSON.stringify(savedQueries));
             loadSavedQueries();
             showStatus('Query saved successfully', 'success');
         }
@@ -1176,7 +1258,7 @@
         function deleteSavedQuery(id) {
             if (confirm('Delete this saved query?')) {
                 savedQueries = savedQueries.filter(item => item.id !== id);
-                localStorage.setItem('savedQueries', JSON.stringify(savedQueries));
+                mzSafeStorageSet('savedQueries', JSON.stringify(savedQueries));
                 loadSavedQueries();
             }
         }

@@ -580,6 +580,34 @@ function attachSite(data) {
     return data;
 }
 
+function mzPtwPrefGet(key) {
+    try {
+        if (typeof mzStorageGetItemSafe === 'function') {
+            return mzStorageGetItemSafe(key);
+        }
+    } catch (_e) {}
+    try {
+        return localStorage.getItem(key);
+    } catch (e) {
+        try { return sessionStorage.getItem(key); } catch (_e) { return null; }
+    }
+}
+
+function mzPtwPrefSet(key, value) {
+    const v = String(value);
+    try {
+        if (typeof mzStorageSetItemSafe === 'function') {
+            mzStorageSetItemSafe(key, v);
+            return;
+        }
+    } catch (_e) {}
+    try {
+        localStorage.setItem(key, v);
+    } catch (e) {
+        try { sessionStorage.setItem(key, v); } catch (_e) {}
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     ShowLoader();
     setTimeout(function () {
@@ -596,8 +624,8 @@ document.addEventListener('DOMContentLoaded', function() {
             validateUserSignature_FM();
             // Restore saved preferences
             try {
-                showCancelled = localStorage.getItem('ptw_fm_show_cancelled') === 'true';
-                statusFilter = localStorage.getItem('ptw_fm_status_filter') || 'ALL';
+                showCancelled = mzPtwPrefGet('ptw_fm_show_cancelled') === 'true';
+                statusFilter = mzPtwPrefGet('ptw_fm_status_filter') || 'ALL';
                 $('#toggleShowCancelled').prop('checked', showCancelled);
                 $('#statusFilterSelect').val(statusFilter);
                 updateStatusChipsUI();
@@ -1289,11 +1317,11 @@ function updateStatusChipsUI(){
 }
 function setStatusFilter(code){
     statusFilter = code || 'ALL';
-    localStorage.setItem('ptw_fm_status_filter', statusFilter);
+    mzPtwPrefSet('ptw_fm_status_filter', statusFilter);
     if (statusFilter === 'CANCELLED' && !showCancelled){
         showCancelled = true;
         $('#toggleShowCancelled').prop('checked', true);
-        localStorage.setItem('ptw_fm_show_cancelled','true');
+        mzPtwPrefSet('ptw_fm_show_cancelled', 'true');
     }
     updateStatusChipsUI();
     try { $('#statusFilterSelect').val(statusFilter);} catch(_e){ console.warn('setStatusFilter select sync failed', _e); }
@@ -1309,7 +1337,7 @@ function applyStatusFilter(){
 function toggleShowCancelled(){
     try {
         showCancelled = $('#toggleShowCancelled').is(':checked');
-        localStorage.setItem('ptw_fm_show_cancelled', String(showCancelled));
+        mzPtwPrefSet('ptw_fm_show_cancelled', showCancelled);
         try { $('#toggleShowCancelledSm').prop('checked', showCancelled); } catch(_e) { console.warn('sync sm toggle failed', _e); }
         loadUnifiedData();
     } catch(e){ console.warn('toggleShowCancelled failed', e); }

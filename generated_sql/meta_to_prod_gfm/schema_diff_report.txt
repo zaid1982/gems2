@@ -1,0 +1,101 @@
+Meta tables: 142
+Prod tables: 121
+Missing tables in prod: 23
+Extra tables in prod (not in meta): 3
+
+Missing tables:
+- inventory_logs
+- lic_license
+- material_returns
+- ppm_offline_sync_log
+- ptw_approval_log
+- ptw_document
+- ptw_number_sequence
+- ptw_permit
+- ptw_status_history
+- ptw_worker
+- ref_space_category
+- ref_space_location
+- ref_space_status
+- ref_space_type
+- spc_reservation
+- spc_space
+- spc_space_asset
+- spc_space_media
+- sys_nav_role_backup_20251021
+- sys_site
+- sys_user_signature
+- vm_host
+- vm_visit
+
+Missing views (definition not included in meta schema dump):
+- vw_ppm_set_asset_details
+
+Extra tables:
+- z_jai_batch_ppm
+- z_migration
+- z_raw
+
+Per-table diffs (counts):
+- ast_asset: add_cols=0, change_cols=1, add_or_fix_indexes=2, add_or_fix_fks=0
+- ast_part_sub: add_cols=3, change_cols=0, add_or_fix_indexes=3, add_or_fix_fks=2
+- att_group: add_cols=0, change_cols=4, add_or_fix_indexes=0, add_or_fix_fks=0
+- att_participant: add_cols=0, change_cols=5, add_or_fix_indexes=0, add_or_fix_fks=0
+- att_transaction: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- att_type: add_cols=0, change_cols=5, add_or_fix_indexes=0, add_or_fix_fks=0
+- email_log: add_cols=0, change_cols=5, add_or_fix_indexes=0, add_or_fix_fks=0
+- email_parameter: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- email_send: add_cols=0, change_cols=5, add_or_fix_indexes=0, add_or_fix_fks=0
+- email_template: add_cols=0, change_cols=4, add_or_fix_indexes=0, add_or_fix_fks=0
+- fca_defect_category: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- fca_report: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- fca_task: add_cols=0, change_cols=8, add_or_fix_indexes=0, add_or_fix_fks=0
+- fca_task_section: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- fca_zone: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- gmi_monthly: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- gmi_weekly: add_cols=1, change_cols=2, add_or_fix_indexes=1, add_or_fix_fks=0
+- kpi: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- noti_web: add_cols=0, change_cols=8, add_or_fix_indexes=0, add_or_fix_fks=0
+- ppm: add_cols=0, change_cols=1, add_or_fix_indexes=1, add_or_fix_fks=1
+- ppm_checklist_quan: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- ppm_set: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- ppm_set_asset: add_cols=1, change_cols=0, add_or_fix_indexes=0, add_or_fix_fks=0
+- ppm_task: add_cols=1, change_cols=0, add_or_fix_indexes=3, add_or_fix_fks=0
+- ref_city: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- ref_country: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- ref_document: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- ref_state: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_address: add_cols=0, change_cols=3, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_audit: add_cols=0, change_cols=3, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_audit_action: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_audit_module: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_group: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_location: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_nav_second: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_upload: add_cols=0, change_cols=6, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_user: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_user_profile: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- sys_version: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- wfl_checkpoint: add_cols=0, change_cols=3, add_or_fix_indexes=0, add_or_fix_fks=0
+- wfl_flow: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- wfl_task: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+- wfl_transaction: add_cols=0, change_cols=2, add_or_fix_indexes=0, add_or_fix_fks=0
+- wo_import_batch: add_cols=9, change_cols=1, add_or_fix_indexes=3, add_or_fix_fks=0
+- wo_import_log: add_cols=6, change_cols=2, add_or_fix_indexes=3, add_or_fix_fks=1
+- wo_migration: add_cols=0, change_cols=7, add_or_fix_indexes=0, add_or_fix_fks=0
+- wo_task: add_cols=0, change_cols=1, add_or_fix_indexes=3, add_or_fix_fks=2
+- wo_task_public: add_cols=1, change_cols=7, add_or_fix_indexes=2, add_or_fix_fks=3
+- wo_task_request: add_cols=0, change_cols=0, add_or_fix_indexes=2, add_or_fix_fks=2
+- wo_task_request_2: add_cols=12, change_cols=1, add_or_fix_indexes=1, add_or_fix_fks=0
+- wo_task_upload: add_cols=0, change_cols=1, add_or_fix_indexes=0, add_or_fix_fks=0
+
+Warnings:
+- gmi_weekly.gmw_id: meta is AUTO_INCREMENT, but prod already has AUTO_INCREMENT column 'gmi_id'. Added without AUTO_INCREMENT as NULL.
+- wo_import_batch.import_filename: meta is NOT NULL with no DEFAULT; added as NULL to avoid failing on existing rows.
+- wo_import_batch.site_id: meta is NOT NULL with no DEFAULT; added as NULL to avoid failing on existing rows.
+- wo_import_batch.imported_by: meta is NOT NULL with no DEFAULT; added as NULL to avoid failing on existing rows.
+- wo_import_batch.created_at: meta is NOT NULL with no DEFAULT; added as NULL to avoid failing on existing rows.
+- wo_import_log.import_row_number: meta is NOT NULL with no DEFAULT; added as NULL to avoid failing on existing rows.
+- wo_import_log.import_status: meta is NOT NULL with no DEFAULT; added as NULL to avoid failing on existing rows.
+- wo_import_log.created_at: meta is NOT NULL with no DEFAULT; added as NULL to avoid failing on existing rows.
+- wo_task_public.wo_task_public: meta is AUTO_INCREMENT, but prod already has AUTO_INCREMENT column 'public_id'. Added without AUTO_INCREMENT as NULL.

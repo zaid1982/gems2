@@ -1022,6 +1022,36 @@
             }
         }
 
+        function mzSafeStorageGet(key) {
+            try {
+                const v = localStorage.getItem(key);
+                if (v !== null) { return v; }
+            } catch (e) { /* ignore */ }
+            try {
+                const v = sessionStorage.getItem(key);
+                if (v !== null) { return v; }
+            } catch (e) { /* ignore */ }
+            return null;
+        }
+
+        function mzSafeStorageSet(key, value) {
+            try {
+                localStorage.setItem(key, value);
+                return;
+            } catch (e) { /* ignore */ }
+            try {
+                sessionStorage.setItem(key, value);
+            } catch (e) { /* ignore */ }
+        }
+
+        function mzSafeJsonParse(raw, fallback) {
+            try {
+                return JSON.parse(raw);
+            } catch (e) {
+                return fallback;
+            }
+        }
+
         function saveQuery() {
             const query = editor.getValue().trim();
             if (!query) return;
@@ -1029,13 +1059,13 @@
             const name = prompt('Enter a name for this query:');
             if (name) {
                 // Save to localStorage for now (could be extended to server-side storage)
-                const savedQueries = JSON.parse(localStorage.getItem('savedQueries') || '[]');
+                const savedQueries = mzSafeJsonParse(mzSafeStorageGet('savedQueries') || '[]', []);
                 savedQueries.push({
                     name: name,
                     query: query,
                     timestamp: new Date().toISOString()
                 });
-                localStorage.setItem('savedQueries', JSON.stringify(savedQueries));
+                mzSafeStorageSet('savedQueries', JSON.stringify(savedQueries));
                 loadQueryTemplates();
                 showStatus('Query saved successfully', 'success');
             }
@@ -1154,15 +1184,15 @@
         }
 
         function deleteSavedQuery(index) {
-            const savedQueries = JSON.parse(localStorage.getItem('savedQueries') || '[]');
+            const savedQueries = mzSafeJsonParse(mzSafeStorageGet('savedQueries') || '[]', []);
             savedQueries.splice(index, 1);
-            localStorage.setItem('savedQueries', JSON.stringify(savedQueries));
+            mzSafeStorageSet('savedQueries', JSON.stringify(savedQueries));
             loadQueryTemplates();
         }
 
         function loadQueryHistory() {
             // Load from localStorage for now
-            queryHistory = JSON.parse(localStorage.getItem('queryHistory') || '[]');
+            queryHistory = mzSafeJsonParse(mzSafeStorageGet('queryHistory') || '[]', []);
             updateHistoryDisplay();
         }
 
@@ -1243,7 +1273,7 @@
 
         // Save query history to localStorage when page unloads
         window.addEventListener('beforeunload', function() {
-            localStorage.setItem('queryHistory', JSON.stringify(queryHistory));
+            mzSafeStorageSet('queryHistory', JSON.stringify(queryHistory));
         });
     </script>
 </body>

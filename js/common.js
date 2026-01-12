@@ -1178,6 +1178,46 @@ function mzGetDataVersion() {
     return mzAjaxRequest('version.php', 'GET');  
 }
 
+function mzStorageGetItemSafe(key) {
+    try {
+        const v = localStorage.getItem(key);
+        if (v !== null) { return v; }
+    } catch (e) { /* ignore */ }
+    try {
+        const v = sessionStorage.getItem(key);
+        if (v !== null) { return v; }
+    } catch (e) { /* ignore */ }
+    try {
+        if (window.__gemsMemStore && typeof window.__gemsMemStore[key] !== 'undefined') {
+            return window.__gemsMemStore[key];
+        }
+    } catch (e) { /* ignore */ }
+    return null;
+}
+
+function mzStorageSetItemSafe(key, value) {
+    // Returns where the item was stored: 'localStorage' | 'sessionStorage' | 'memory'
+    try {
+        localStorage.setItem(key, value);
+        return 'localStorage';
+    } catch (e) {
+        // QuotaExceededError and others fall through to session/memory
+    }
+    try {
+        sessionStorage.setItem(key, value);
+        return 'sessionStorage';
+    } catch (e) {
+        // Fall through to in-memory
+    }
+    try {
+        if (!window.__gemsMemStore) {
+            window.__gemsMemStore = {};
+        }
+        window.__gemsMemStore[key] = value;
+    } catch (e) { /* ignore */ }
+    return 'memory';
+}
+
 function mzGetLocalSimple(name, version, id, value, filters, sort) {
     if (typeof name === 'undefined' || typeof version === 'undefined' || typeof id === 'undefined' || typeof value === 'undefined') {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
@@ -1195,7 +1235,7 @@ function mzGetLocalSimple(name, version, id, value, filters, sort) {
     let getNew = false;
     let objData;
     let rawData;
-    const localData = localStorage.getItem(name+'_2');
+    const localData = mzStorageGetItemSafe(name+'_2');
     if (localData === null) {
         getNew = true;
     } else {
@@ -1209,7 +1249,7 @@ function mzGetLocalSimple(name, version, id, value, filters, sort) {
     
     if (getNew) {
         rawData = mzAjaxRequest('local_data.php', 'GET', {Name:name}); 
-        localStorage.setItem(name+'_2', JSON.stringify({version:version[name], data:rawData}));
+        mzStorageSetItemSafe(name+'_2', JSON.stringify({version:version[name], data:rawData}));
     }
     
     $.each(rawData, function (n, u) {
@@ -1262,7 +1302,7 @@ function mzGetLocalArray(name, version, id, filters, api, apiBeautify) {
     let getNew = false;
     let objData;
     let rawData;
-    const localData = localStorage.getItem(name+'_2');
+    const localData = mzStorageGetItemSafe(name+'_2');
     if (localData === null) {
         getNew = true;
     } else {
@@ -1284,7 +1324,7 @@ function mzGetLocalArray(name, version, id, filters, api, apiBeautify) {
             rawData = mzAjaxRequest(api+'.php', 'GET');
         }
         const rawEncrypted = CryptoJS.AES.encrypt(JSON.stringify({version:version[name], data:rawData}), 'GEMS');
-        localStorage.setItem(name+'_2', rawEncrypted);
+        mzStorageSetItemSafe(name+'_2', rawEncrypted.toString());
     }
 
     $.each(rawData, function (n, u) {
@@ -1325,7 +1365,7 @@ function mzGetLocalArrayV2(name, version, api) {
     let getNew = false;
     let objData;
     let rawData;
-    const localData = localStorage.getItem(name+'_2');
+    const localData = mzStorageGetItemSafe(name+'_2');
     if (localData === null) {
         getNew = true;
     } else {
@@ -1340,7 +1380,7 @@ function mzGetLocalArrayV2(name, version, api) {
     if (getNew) {
         rawData = mzAjaxRequest(api, 'GET', '', '', true);
         const rawEncrypted = CryptoJS.AES.encrypt(JSON.stringify({version:version[name], data:rawData}), 'GEMS');
-        localStorage.setItem(name+'_2', rawEncrypted);
+        mzStorageSetItemSafe(name+'_2', rawEncrypted.toString());
     }
     return rawData;
 }
@@ -1380,7 +1420,7 @@ function mzGetLocalRaw(name, version, filters, api) {
     let getNew = false;
     let objData;
     let rawData;
-    const localData = localStorage.getItem(name+'_2');
+    const localData = mzStorageGetItemSafe(name+'_2');
     if (localData === null) {
         getNew = true;
     } else {
@@ -1400,7 +1440,7 @@ function mzGetLocalRaw(name, version, filters, api) {
             rawData = mzAjaxRequest(api+'.php', 'GET');
         }
         const rawEncrypted = CryptoJS.AES.encrypt(JSON.stringify({version:version[name], data:rawData}), 'GEMS');
-        localStorage.setItem(name+'_2', rawEncrypted.toString());
+        mzStorageSetItemSafe(name+'_2', rawEncrypted.toString());
     }
     
     $.each(rawData, function (n, u) {

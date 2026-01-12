@@ -1212,6 +1212,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 200);
 });
 
+function mzPtwPrefGet(key) {
+    try {
+        if (typeof mzStorageGetItemSafe === 'function') {
+            return mzStorageGetItemSafe(key);
+        }
+    } catch (_e) {}
+    try {
+        return localStorage.getItem(key);
+    } catch (e) {
+        try { return sessionStorage.getItem(key); } catch (_e) { return null; }
+    }
+}
+
+function mzPtwPrefSet(key, value) {
+    const v = String(value);
+    try {
+        if (typeof mzStorageSetItemSafe === 'function') {
+            mzStorageSetItemSafe(key, v);
+            return;
+        }
+    } catch (_e) {}
+    try {
+        localStorage.setItem(key, v);
+    } catch (e) {
+        try { sessionStorage.setItem(key, v); } catch (_e) {}
+    }
+}
+
 function initializeSupervisorDashboard() {
     console.log('PTW Supervisor Dashboard initializing...');
     
@@ -1235,20 +1263,20 @@ function initializeSupervisorDashboard() {
 
                 // Initialize Show Cancelled toggle
                 try {
-                    const savedShowCancelled = localStorage.getItem('ptw_supervisor_show_cancelled');
+                    const savedShowCancelled = mzPtwPrefGet('ptw_supervisor_show_cancelled');
                     showCancelled = savedShowCancelled === 'true';
                     $('#toggleShowCancelled').prop('checked', showCancelled);
                 } catch(_e) {}
 
                 // Initialize status filter chips
                 try {
-                    const savedStatus = localStorage.getItem('ptw_supervisor_status_filter');
+                    const savedStatus = mzPtwPrefGet('ptw_supervisor_status_filter');
                     statusFilter = savedStatus || 'ALL';
                     // If user had CANCELLED selected, ensure toggle is on
                     if (statusFilter === 'CANCELLED' && !showCancelled) {
                         showCancelled = true;
                         $('#toggleShowCancelled').prop('checked', true);
-                        localStorage.setItem('ptw_supervisor_show_cancelled', 'true');
+                        mzPtwPrefSet('ptw_supervisor_show_cancelled', 'true');
                     }
                     updateStatusChipsUI();
                     try { $('#statusFilterSelect').val(statusFilter); } catch(_e) {}
@@ -2163,7 +2191,7 @@ function toggleAutoRefresh() {
     }
     
     // Save preference to localStorage
-    localStorage.setItem('ptw_supervisor_auto_refresh', autoRefreshEnabled);
+    mzPtwPrefSet('ptw_supervisor_auto_refresh', autoRefreshEnabled);
 }
 
 function updateNextRefreshTime() {
@@ -2402,7 +2430,7 @@ function buildHistoryList(permits){
 function toggleShowCancelled(){
     try {
         showCancelled = $('#toggleShowCancelled').is(':checked');
-        localStorage.setItem('ptw_supervisor_show_cancelled', String(showCancelled));
+        mzPtwPrefSet('ptw_supervisor_show_cancelled', showCancelled);
         // keep small-screen toggle in sync
         try { $('#toggleShowCancelledSm').prop('checked', showCancelled); } catch(_e) {}
         // Reload unified data to apply filter
@@ -2442,12 +2470,12 @@ function updateStatusChipsUI(){
 
 function setStatusFilter(code){
     statusFilter = code || 'ALL';
-    localStorage.setItem('ptw_supervisor_status_filter', statusFilter);
+    mzPtwPrefSet('ptw_supervisor_status_filter', statusFilter);
     // If selecting CANCELLED, ensure toggle is enabled
     if (statusFilter === 'CANCELLED' && !showCancelled) {
         showCancelled = true;
         try { $('#toggleShowCancelled').prop('checked', true); } catch(e) {}
-        localStorage.setItem('ptw_supervisor_show_cancelled', 'true');
+        mzPtwPrefSet('ptw_supervisor_show_cancelled', 'true');
     }
     updateStatusChipsUI();
     try { $('#statusFilterSelect').val(statusFilter); } catch(_e) {}
@@ -2663,7 +2691,7 @@ function generateSupportingDocumentsSection(permit) {
 // Load auto-refresh preference on page load
 $(document).ready(function() {
 
-    const savedPreference = localStorage.getItem('ptw_supervisor_auto_refresh');
+    const savedPreference = mzPtwPrefGet('ptw_supervisor_auto_refresh');
     if (savedPreference !== null) {
         autoRefreshEnabled = savedPreference === 'true';
         $('#autoRefreshToggle').prop('checked', autoRefreshEnabled);

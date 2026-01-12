@@ -165,6 +165,10 @@ switch ($action) {
     case 'execute':
         handleExecuteQuery();
         break;
+
+    case 'execute_file':
+        handleExecuteSqlFile();
+        break;
         
     case 'database_info':
         handleDatabaseInfo();
@@ -180,6 +184,251 @@ switch ($action) {
         
     default:
         sendResponse(false, null, "Invalid action specified");
+}
+
+function isLocalhostRequest() {
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    return $ip === '127.0.0.1' || $ip === '::1';
+}
+
+function isSqlFileExecutionEnabled() {
+    // Explicit enable flag to avoid accidental production exposure.
+    // Create this file temporarily when needed, then remove it.
+    $flagPath = __DIR__ . '/.allow_sql_upload';
+    return file_exists($flagPath);
+}
+
+function splitSqlStatements($sql) {
+    // Splits SQL into statements, ignoring semicolons inside strings/comments.
+    $statements = [];
+    $buffer = '';
+    $len = strlen($sql);
+    $inSingle = false;
+    $inDouble = false;
+    $inBacktick = false;
+    $inLineComment = false;
+    $inBlockComment = false;
+
+    for ($i = 0; $i < $len; $i++) {
+        $ch = $sql[$i];
+        $next = ($i + 1 < $len) ? $sql[$i + 1] : '';
+
+        if ($inLineComment) {
+            $buffer .= $ch;
+            if ($ch === "\n") {
+                $inLineComment = false;
+            }
+            continue;
+        }
+
+        if ($inBlockComment) {
+            $buffer .= $ch;
+            if ($ch === '*' && $next === '/') {
+                $buffer .= $next;
+                $i++;
+                $inBlockComment = false;
+            }
+            continue;
+        }
+
+        if (!$inSingle && !$inDouble && !$inBacktick) {
+            // Start of comments
+            if ($ch === '-' && $next === '-') {
+                $buffer .= $ch . $next;
+                $i++;
+                $inLineComment = true;
+                continue;
+            }
+            if ($ch === '#') {
+                $buffer .= $ch;
+                $inLineComment = true;
+                continue;
+            }
+            if ($ch === '/' && $next === '*') {
+                $buffer .= $ch . $next;
+                $i++;
+                $inBlockComment = true;
+                continue;
+            }
+        }
+
+        // Quote state transitions (handle escaped quotes)
+        if (!$inDouble && !$inBacktick && $ch === "'" ) {
+            // If already in single-quote and next is another single-quote, it's an escaped quote
+            if ($inSingle && $next === "'") {
+                $buffer .= $ch . $next;
+                $i++;
+                continue;
+            }
+            $inSingle = !$inSingle;
+            $buffer .= $ch;
+            continue;
+        }
+        if (!$inSingle && !$inBacktick && $ch === '"') {
+            // basic toggle; MySQL also supports backslash escapes but this is good enough for migrations
+            $inDouble = !$inDouble;
+            $buffer .= $ch;
+            continue;
+        }
+        if (!$inSingle && !$inDouble && $ch === '`') {
+            $inBacktick = !$inBacktick;
+            $buffer .= $ch;
+            continue;
+        }
+
+        if (!$inSingle && !$inDouble && !$inBacktick && $ch === ';') {
+            $stmt = trim($buffer);
+            if ($stmt !== '') {
+                $statements[] = $stmt;
+            }
+            $buffer = '';
+            continue;
+        }
+
+        $buffer .= $ch;
+    }
+
+    $stmt = trim($buffer);
+    if ($stmt !== '') {
+        $statements[] = $stmt;
+    }
+
+    return $statements;
+}
+
+function isSafeMigrationStatement($statement) {
+    $q = trim($statement);
+    if ($q === '') return ['safe' => true, 'reason' => 'Empty'];
+    $upper = strtoupper($q);
+
+    // Allow only schema-migration oriented operations.
+    $allowedStarts = [
+        'SET',
+        'ALTER',
+        'CREATE TABLE',
+        'CREATE INDEX',
+        'CREATE UNIQUE INDEX',
+        'CREATE VIEW',
+        'CREATE OR REPLACE VIEW'
+    ];
+
+    $allowed = false;
+    foreach ($allowedStarts as $start) {
+        if (strpos($upper, $start) === 0) {
+            $allowed = true;
+            break;
+        }
+    }
+
+    if (!$allowed) {
+        return ['safe' => false, 'reason' => 'Statement type not allowed for file execution'];
+    }
+
+    // Still block critical operations.
+    $dangerousPatterns = [
+        'DROP\s+DATABASE',
+        'DROP\s+SCHEMA',
+        'DROP\s+TABLE',
+        'TRUNCATE\s+TABLE',
+        'CREATE\s+DATABASE',
+        'CREATE\s+SCHEMA',
+        'DROP\s+USER',
+        'CREATE\s+USER',
+        'GRANT\s+',
+        'REVOKE\s+',
+        'FLUSH\s+',
+        'SHUTDOWN',
+        'KILL\s+',
+        'RESET\s+MASTER',
+        'RESET\s+SLAVE',
+        'CHANGE\s+MASTER',
+        'LOAD\s+DATA\s+INFILE',
+        'INTO\s+OUTFILE',
+        'INTO\s+DUMPFILE'
+    ];
+
+    foreach ($dangerousPatterns as $pattern) {
+        if (preg_match('/\b' . $pattern . '\b/i', $upper)) {
+            return ['safe' => false, 'reason' => 'Dangerous operation detected'];
+        }
+    }
+
+    return ['safe' => true, 'reason' => 'OK'];
+}
+
+function handleExecuteSqlFile() {
+    global $pdo;
+
+    if (!isLocalhostRequest()) {
+        sendResponse(false, null, 'SQL file execution is only allowed from localhost.');
+    }
+    if (!isSqlFileExecutionEnabled()) {
+        sendResponse(false, null, 'SQL file execution is disabled. Create maintenance/.allow_sql_upload to enable temporarily.');
+    }
+
+    if (!isset($_FILES['sqlFile']) || $_FILES['sqlFile']['error'] !== UPLOAD_ERR_OK) {
+        sendResponse(false, null, 'No SQL file uploaded (field name: sqlFile).');
+    }
+
+    $file = $_FILES['sqlFile'];
+    $name = $file['name'] ?? 'upload.sql';
+    $size = (int)($file['size'] ?? 0);
+
+    if ($size <= 0 || $size > 10 * 1024 * 1024) {
+        sendResponse(false, null, 'SQL file size must be between 1 byte and 10MB.');
+    }
+
+    if (!preg_match('/\.sql$/i', $name)) {
+        sendResponse(false, null, 'Only .sql files are allowed.');
+    }
+
+    $sql = file_get_contents($file['tmp_name']);
+    if ($sql === false) {
+        sendResponse(false, null, 'Failed to read uploaded file.');
+    }
+
+    $statements = splitSqlStatements($sql);
+    if (count($statements) === 0) {
+        sendResponse(false, null, 'No SQL statements found in file.');
+    }
+
+    $results = [];
+    $startTime = microtime(true);
+
+    foreach ($statements as $i => $stmt) {
+        $safety = isSafeMigrationStatement($stmt);
+        if (!$safety['safe']) {
+            sendResponse(false, [
+                'executed' => $results,
+                'failed_at' => $i + 1,
+                'statement' => substr($stmt, 0, 500)
+            ], 'Security Error: ' . $safety['reason']);
+        }
+
+        try {
+            // Use exec for DDL
+            $pdo->exec($stmt);
+            $results[] = [
+                'no' => $i + 1,
+                'ok' => true,
+                'preview' => substr(preg_replace('/\s+/', ' ', $stmt), 0, 200)
+            ];
+        } catch (PDOException $e) {
+            sendResponse(false, [
+                'executed' => $results,
+                'failed_at' => $i + 1,
+                'statement' => $stmt
+            ], 'SQL Error: ' . $e->getMessage());
+        }
+    }
+
+    $elapsed = round(microtime(true) - $startTime, 4);
+    sendResponse(true, [
+        'file' => $name,
+        'statement_count' => count($statements),
+        'execution_time' => $elapsed,
+        'executed' => $results
+    ], null);
 }
 
 function handleExecuteQuery() {
