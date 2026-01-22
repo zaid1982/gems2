@@ -986,6 +986,14 @@ function MainHome() {
         }
         $('#lblHmeReportType').text(reportType);
         $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+'</i>');
+
+        try {
+            if (typeof window.__homeSetUpdated === 'function') {
+                window.__homeSetUpdated();
+            } else {
+                $('#lblHomeUpdated span').text(new Date().toLocaleString());
+            }
+        } catch (e) { /* ignore */ }
     };
 
     this.genTableHmeDataWo = function (resetPaging) {
