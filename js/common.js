@@ -1178,6 +1178,38 @@ function mzGetDataVersion() {
     return mzAjaxRequest('version.php', 'GET');  
 }
 
+// Global safety net: prevent localStorage quota errors from crashing pages.
+// Falls back to sessionStorage when localStorage.setItem throws (e.g., QuotaExceededError).
+(function () {
+    try {
+        if (window.__gemsLocalStorageSetItemPatched) {
+            return;
+        }
+        window.__gemsLocalStorageSetItemPatched = true;
+
+        if (!window.localStorage || !window.sessionStorage) {
+            return;
+        }
+        const originalSetItem = window.localStorage.setItem ? window.localStorage.setItem.bind(window.localStorage) : null;
+        if (!originalSetItem) {
+            return;
+        }
+        window.localStorage.setItem = function (key, value) {
+            try {
+                return originalSetItem(key, value);
+            } catch (e) {
+                try {
+                    return window.sessionStorage.setItem(key, value);
+                } catch (_e) {
+                    // swallow
+                }
+            }
+        };
+    } catch (e) {
+        // ignore
+    }
+})();
+
 function mzStorageGetItemSafe(key) {
     try {
         const v = localStorage.getItem(key);

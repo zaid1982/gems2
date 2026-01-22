@@ -1,0 +1,10 @@
+# One entry per line. Supports IPv4 or CIDR.
+# Recommended: only allow your office LAN and/or bastion/jumpbox IPs.
+
+# Single IP
+# 192.168.1.50
+
+# Common private LAN ranges
+192.168.0.0/16
+10.0.0.0/8
+172.16.0.0/12

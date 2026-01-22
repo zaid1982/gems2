@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>GEMS 2.0 - Git Tool</title>
+    <link rel="icon" type="image/png" href="../img/icon/gfmicon.png" sizes="16x16">
+
+    <link rel="stylesheet" href="../css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/mdb.min.css">
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/gems2-ui.css" rel="stylesheet">
+
+    <script type="text/javascript" src="../js/jquery-3.7.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header>
+    <div class="includeHtml" id="h-nav_left"></div>
+    <div class="includeHtml" id="h-nav_top"></div>
+</header>
+
+<main>
+    <div class="container-fluid">
+        <section class="mb-5">
+            <div class="card card-cascade narrower gems-card-shell p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h4 class="mb-1">Maintenance - Git Tool</h4>
+                        <div class="text-muted" style="font-size: 13px;">LAN access required • Enable flag + allowlist + password</div>
+                    </div>
+                    <div>
+                        <button id="btnLogout" class="btn btn-outline-danger btn-sm" type="button" style="display:none;">Logout</button>
+                    </div>
+                </div>
+
+                <div id="authCard" class="card p-3 mb-3">
+                    <div class="row align-items-end">
+                        <div class="col-md-4">
+                            <label for="txtPassword" class="mb-1">Password</label>
+                            <input id="txtPassword" type="password" class="form-control" placeholder="maintenance/.git_tool_secret">
+                        </div>
+                        <div class="col-md-3">
+                            <button id="btnLogin" class="btn btn-primary btn-block" type="button">Login</button>
+                        </div>
+                        <div class="col-md-5 text-muted" style="font-size: 13px;">
+                            If this page says disabled/not configured, create:
+                            <div><code>maintenance/.allow_git_tool</code></div>
+                            <div><code>maintenance/.git_tool_allow_ips</code></div>
+                            <div><code>maintenance/.git_tool_secret</code></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="toolCard" class="card p-3" style="display:none;">
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <div class="mb-3">
+                                <label class="mb-1">Current Branch</label>
+                                <div id="lblCurrentBranch" class="font-weight-bold">—</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="optBranch" class="mb-1">Checkout Branch (existing local branches only)</label>
+                                <select id="optBranch" class="custom-select"></select>
+                                <div class="text-muted mt-1" style="font-size: 12px;">Tip: Use Fetch first to update remotes, but this tool only checks out local branches.</div>
+                            </div>
+
+                            <div class="d-flex flex-wrap" style="gap: 8px;">
+                                <button id="btnStatus" class="btn btn-outline-primary btn-sm" type="button"><i class="fas fa-list mr-1"></i>Status</button>
+                                <button id="btnBranches" class="btn btn-outline-primary btn-sm" type="button"><i class="fas fa-code-branch mr-1"></i>Refresh Branches</button>
+                                <button id="btnFetch" class="btn btn-outline-primary btn-sm" type="button"><i class="fas fa-cloud-download mr-1"></i>Fetch</button>
+                                <button id="btnPull" class="btn btn-primary btn-sm" type="button"><i class="fas fa-arrow-down mr-1"></i>Pull (ff-only)</button>
+                                <button id="btnCheckout" class="btn btn-warning btn-sm" type="button"><i class="fas fa-random mr-1"></i>Checkout</button>
+                                <button id="btnLog" class="btn btn-outline-secondary btn-sm" type="button"><i class="fas fa-stream mr-1"></i>Log</button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 mt-4 mt-lg-0">
+                            <label class="mb-1">Output</label>
+                            <pre id="preOut" class="p-3" style="background:#0b1020;color:#e8eefc;border-radius:8px;min-height: 260px; white-space: pre-wrap;">Ready.</pre>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
+</main>
+
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#'+divId).load('../html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+    });
+</script>
+
+<script type="text/javascript" src="../js/popper.min.js"></script>
+<script type="text/javascript" src="../js/bootstrap.js"></script>
+<script type="text/javascript" src="../js/mdb.js"></script>
+<script type="text/javascript" src="../js/addons/crypto.js"></script>
+
+<script>
+    let csrfToken = '';
+
+    function setOut(title, payload) {
+        const pre = document.getElementById('preOut');
+        const parts = [];
+        if (title) parts.push(title);
+        if (payload && typeof payload === 'object') {
+            if (payload.stdout) parts.push(payload.stdout);
+            if (payload.stderr) parts.push(payload.stderr);
+            if (!payload.stdout && !payload.stderr) parts.push(JSON.stringify(payload, null, 2));
+        } else if (typeof payload === 'string') {
+            parts.push(payload);
+        }
+        pre.textContent = parts.filter(Boolean).join('\n');
+    }
+
+    async function post(action, extra) {
+        const form = new FormData();
+        form.append('action', action);
+        if (csrfToken) form.append('csrf', csrfToken);
+        if (extra) {
+            Object.keys(extra).forEach(k => form.append(k, extra[k]));
+        }
+        const resp = await fetch('git_tool.php', { method: 'POST', body: form, credentials: 'same-origin' });
+        return await resp.json();
+    }
+
+    async function ping() {
+        const resp = await post('ping');
+        if (!resp.success) {
+            setOut('ERROR', resp.errmsg || 'Ping failed');
+            return;
+        }
+        csrfToken = (resp.result && resp.result.csrf) ? resp.result.csrf : '';
+        const authed = !!(resp.result && resp.result.authed);
+        document.getElementById('authCard').style.display = authed ? 'none' : '';
+        document.getElementById('toolCard').style.display = authed ? '' : 'none';
+        document.getElementById('btnLogout').style.display = authed ? '' : 'none';
+        if (authed) {
+            await refreshBranches();
+        }
+    }
+
+    async function login() {
+        const password = document.getElementById('txtPassword').value || '';
+        const form = new FormData();
+        form.append('action', 'login');
+        form.append('password', password);
+        const resp = await fetch('git_tool.php', { method: 'POST', body: form, credentials: 'same-origin' });
+        const json = await resp.json();
+        if (!json.success) {
+            setOut('LOGIN FAILED', json.errmsg || 'Invalid password');
+            return;
+        }
+        csrfToken = (json.result && json.result.csrf) ? json.result.csrf : '';
+        setOut('Authenticated', 'OK');
+        await ping();
+    }
+
+    async function logout() {
+        const resp = await post('logout');
+        csrfToken = '';
+        setOut('Logged out', resp.errmsg || 'OK');
+        await ping();
+    }
+
+    async function refreshBranches() {
+        const resp = await post('branches');
+        if (!resp.success) {
+            setOut('ERROR', resp.errmsg || 'Failed to load branches');
+            return;
+        }
+        const current = resp.result.current || '—';
+        document.getElementById('lblCurrentBranch').textContent = current;
+
+        const opt = document.getElementById('optBranch');
+        opt.innerHTML = '';
+        const branches = resp.result.local || [];
+        branches.forEach(b => {
+            const o = document.createElement('option');
+            o.value = b;
+            o.textContent = b;
+            if (b === current) o.selected = true;
+            opt.appendChild(o);
+        });
+        setOut('Branches loaded', { current: current, localCount: branches.length, remoteCount: (resp.result.remote||[]).length });
+    }
+
+    async function status() {
+        const resp = await post('status');
+        if (!resp.success) return setOut('ERROR', resp.errmsg || 'status failed');
+        setOut('git status', resp.result);
+    }
+
+    async function fetchAll() {
+        const resp = await post('fetch');
+        if (!resp.success) return setOut('ERROR', resp.errmsg || 'fetch failed');
+        setOut('git fetch --all --prune', resp.result);
+        await refreshBranches();
+    }
+
+    async function pull() {
+        const resp = await post('pull');
+        if (!resp.success) return setOut('ERROR', resp.errmsg || 'pull failed');
+        setOut('git pull --ff-only', resp.result);
+        await refreshBranches();
+    }
+
+    async function checkout() {
+        const branch = document.getElementById('optBranch').value;
+        if (!branch) return;
+        const resp = await post('checkout', { branch: branch });
+        if (!resp.success) return setOut('ERROR', resp.errmsg || 'checkout failed');
+        setOut('git checkout ' + branch, resp.result);
+        await refreshBranches();
+    }
+
+    async function log() {
+        const resp = await post('log', { n: 20 });
+        if (!resp.success) return setOut('ERROR', resp.errmsg || 'log failed');
+        setOut('git log -n 20 --oneline --decorate', resp.result);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('btnLogin').addEventListener('click', login);
+        document.getElementById('btnLogout').addEventListener('click', logout);
+        document.getElementById('btnStatus').addEventListener('click', status);
+        document.getElementById('btnBranches').addEventListener('click', refreshBranches);
+        document.getElementById('btnFetch').addEventListener('click', fetchAll);
+        document.getElementById('btnPull').addEventListener('click', pull);
+        document.getElementById('btnCheckout').addEventListener('click', checkout);
+        document.getElementById('btnLog').addEventListener('click', log);
+        ping();
+    });
+</script>
+</body>
+</html>
