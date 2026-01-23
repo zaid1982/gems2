@@ -437,6 +437,39 @@ function SectionChecklist() {
             }, 300);
         });
 
+        const normalizeExecTime = function (hourSelector, minuteSelector) {
+            const hourRaw = $(hourSelector).val();
+            const minuteRaw = $(minuteSelector).val();
+            let hourVal = parseInt(hourRaw, 10);
+            let minuteVal = parseInt(minuteRaw, 10);
+            if (isNaN(hourVal)) {
+                hourVal = 0;
+            }
+            if (isNaN(minuteVal)) {
+                minuteVal = 0;
+            }
+            if (minuteVal >= 60) {
+                hourVal += Math.floor(minuteVal / 60);
+                minuteVal = minuteVal % 60;
+            }
+            if (minuteVal < 0) {
+                minuteVal = 0;
+            }
+            if (hourVal < 0) {
+                hourVal = 0;
+            }
+            $(hourSelector).val(hourVal);
+            $(minuteSelector).val(minuteVal);
+        };
+
+        $('#txtSckChecklistMinExecTimeMinute').on('blur change', function () {
+            normalizeExecTime('#txtSckChecklistMinExecTimeHour', '#txtSckChecklistMinExecTimeMinute');
+        });
+
+        $('#txtSckChecklistMaxExecTimeMinute').on('blur change', function () {
+            normalizeExecTime('#txtSckChecklistMaxExecTimeHour', '#txtSckChecklistMaxExecTimeMinute');
+        });
+
         $('#btnSckSave').on('click', function () {
             ShowLoader();
             setTimeout(function () {

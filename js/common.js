@@ -1791,6 +1791,15 @@ function mzOptionArr(name, data, defaultText, keyIndex, valIndex, type) {
 
 function mzChartOption() {
     Highcharts.setOptions({
+        plotOptions: {
+            series: {
+                turboThreshold: 0,
+                boostThreshold: 0,
+                boost: {
+                    enabled: false
+                }
+            }
+        },
         colors: Highcharts.map(['#ff4444', '#00C851', '#ffbb33', '#33b5e5', '#dce775', '#00897b', '#a1887f', '#ffff8d', '#ff8a65', '#7e57c2', '#9c27b0', '#ec407a', '#7283a7', '#bdbdbd'], function (color) {
             return {
                 radialGradient: {
@@ -2282,27 +2291,65 @@ function mzDurationStr (type, timeStart, timeEnd) {
 }
 
 function mzDurationSimple (timeStart, timeEnd) {
-    if (timeStart === null || timeEnd === null) {
+    if (timeStart === null || typeof timeStart === 'undefined' || timeStart === '' || timeEnd === null) {
         return null;
     }
-    const timeCreated = moment(timeStart);
-    const timeSubmit = timeEnd === '' ? moment() : moment(timeEnd);
-    const duration = moment.duration(timeSubmit.diff(timeCreated));
-    const minutes = duration.minutes();
-    const strMin = minutes + ' min';
-    if (minutes === 0) {
-        const seconds = duration.seconds();
-        return seconds + ' sec';
-    } else if (minutes < 60) {
-        return strMin;
+    let timeCreated = moment(timeStart, moment.ISO_8601, true);
+    if (!timeCreated.isValid()) {
+        timeCreated = moment(timeStart, 'YYYY-MM-DD HH:mm:ss', true);
     }
-    const hours = duration.hours();
-    const strHrs = hours + ' hour' + (hours > 1 ? 's' : '');
-    if (hours < 24) {
+    if (!timeCreated.isValid()) {
+        timeCreated = moment(timeStart);
+    }
+    let timeSubmit;
+    if (timeEnd === '') {
+        timeSubmit = moment();
+    } else {
+        timeSubmit = moment(timeEnd, moment.ISO_8601, true);
+        if (!timeSubmit.isValid()) {
+            timeSubmit = moment(timeEnd, 'YYYY-MM-DD HH:mm:ss', true);
+        }
+        if (!timeSubmit.isValid()) {
+            timeSubmit = moment(timeEnd);
+        }
+    }
+    if (!timeCreated.isValid() || !timeSubmit.isValid()) {
+        return '-';
+    }
+    if (timeCreated.isAfter(timeSubmit)) {
+        let utcCreated = moment.utc(timeStart, moment.ISO_8601, true);
+        if (!utcCreated.isValid()) {
+            utcCreated = moment.utc(timeStart, 'YYYY-MM-DD HH:mm:ss', true);
+        }
+        if (utcCreated.isValid()) {
+            timeCreated = utcCreated.local();
+        }
+    }
+    let duration = moment.duration(timeSubmit.diff(timeCreated));
+    let totalSeconds = Math.floor(duration.asSeconds());
+    if (totalSeconds < 0) {
+        duration = moment.duration(timeCreated.diff(timeSubmit));
+        totalSeconds = Math.floor(duration.asSeconds());
+    }
+    if (totalSeconds < 60) {
+        const seconds = Math.max(totalSeconds, 0);
+        return seconds + ' sec';
+    }
+    if (totalSeconds < 3600) {
+        const minutes = Math.floor(totalSeconds / 60);
+        return minutes + ' min';
+    }
+    if (totalSeconds < 86400) {
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const strHrs = hours + ' hour' + (hours > 1 ? 's' : '');
+        const strMin = minutes + ' min';
         return strHrs + ' ' + strMin;
     }
-    const days = duration.days();
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
     const strDay = days + ' day' + (days > 1 ? 's' : '');
+    const strHrs = hours + ' hour' + (hours > 1 ? 's' : '');
     return strDay + ' ' + strHrs;
 }
 

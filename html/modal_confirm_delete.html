@@ -3,14 +3,15 @@
     <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
         <div class="modal-content text-center gems-modal-card">
             <div class="modal-header gems-modal-header">
-                <p class="heading">Are you sure?</p>
+                <p class="heading">Delete confirmation</p>
             </div>
             <div class="modal-body gems-modal-body">
                 <i class="fas fa-times fa-4x animated rotateIn"></i>
+                <p id="mcdMessage" class="mt-3 mb-0">This action will permanently delete the selected record. This cannot be undone.</p>
             </div>
             <div class="modal-footer gems-modal-footer">
-                <button class="btn btn-outline-danger" id="btnMcdSubmit">Yes</button>
-                <a type="button" class="btn btn-danger waves-effect" data-dismiss="modal">No</a>
+                <button class="btn btn-outline-danger" id="btnMcdSubmit">Yes, delete</button>
+                <a type="button" class="btn btn-danger waves-effect" data-dismiss="modal">Cancel</a>
             </div>
         </div>
     </div>

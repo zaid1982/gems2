@@ -115,8 +115,12 @@ try {
         }
         else if ($action === 'update') {
             $fn_checklist->update_checklist($checklistId, $put_vars);
-            $fn_pdf_checklist->__set('checklistId', $checklistId);
-            $fn_pdf_checklist->create_pdf();
+            try {
+                $fn_pdf_checklist->__set('checklistId', $checklistId);
+                $fn_pdf_checklist->create_pdf();
+            } catch (Exception $pdf_ex) {
+                $fn_general->log_error('API', $api_name, __LINE__, 'Checklist PDF generation failed: '.$pdf_ex->getMessage());
+            }
             $fn_general->save_audit('66', $jwt_data->userId, 'Checklist Id = ' . $checklistId);
             $form_data['errmsg'] = $constant::SUC_CHECKLIST_EDIT;
         }

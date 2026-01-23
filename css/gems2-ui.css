@@ -690,6 +690,145 @@ body {
   border-radius: 20px;
 }
 
+/* Checklist task section styling */
+.sectionChecklist .module-data-card {
+  border: 0;
+  overflow: hidden;
+}
+.sectionChecklist .module-data-card .gradient-card-header {
+  border-radius: 999px;
+  padding: 16px 20px;
+  box-shadow: 0 16px 32px -24px rgba(0, 77, 255, 0.45);
+}
+.sectionChecklist .module-data-card .gradient-card-header > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sectionChecklist .module-data-card .gradient-card-header > span {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
+.sectionChecklist #btnDtSckChecklistQualExport,
+.sectionChecklist #btnDtSckChecklistQuanExport {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 110px;
+}
+.sectionChecklist #btnDtSckChecklistQualExport .dt-buttons,
+.sectionChecklist #btnDtSckChecklistQuanExport .dt-buttons {
+  display: flex;
+  gap: 8px;
+}
+.sectionChecklist #btnDtSckChecklistQualExport .dt-button.btn,
+.sectionChecklist #btnDtSckChecklistQuanExport .dt-button.btn {
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  border: 0;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.sectionChecklist .table {
+  margin-bottom: 0;
+}
+.sectionChecklist .table thead th {
+  border-top: 0;
+  border-bottom: 1px solid rgba(148,163,184,0.4);
+  font-size: .78rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(71,85,105,0.9);
+  background: rgba(248,250,252,0.9);
+}
+.sectionChecklist .table tbody td {
+  vertical-align: middle;
+  font-size: .95rem;
+  color: var(--gems-text);
+  border-top: 1px solid rgba(226,232,240,0.9);
+}
+.sectionChecklist .table tbody tr:nth-child(odd) {
+  background: rgba(248,250,252,0.6);
+}
+.sectionChecklist .table tbody tr:hover {
+  background: rgba(226,232,240,0.6);
+}
+
+.sectionChecklist .action-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+.sectionChecklist .btn-action {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 !important;
+  background: rgba(148,163,184,0.2);
+  color: #64748b;
+  box-shadow: 0 10px 20px -18px rgba(15,23,42,0.35);
+  transition: all .15s ease;
+}
+.sectionChecklist .btn-action i {
+  font-size: .95rem;
+}
+.sectionChecklist .btn-action:hover,
+.sectionChecklist .btn-action:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px -18px rgba(15,23,42,0.4);
+  outline: none;
+}
+.sectionChecklist .btn-action.btn-edit {
+  background: rgba(245,158,11,0.18);
+  color: #f59e0b;
+}
+.sectionChecklist .btn-action.btn-activate {
+  background: rgba(59,130,246,0.18);
+  color: #3b82f6;
+}
+.sectionChecklist .btn-action.btn-deactivate {
+  background: rgba(148,163,184,0.25);
+  color: #64748b;
+}
+.sectionChecklist .btn-action.btn-delete {
+  background: rgba(239,68,68,0.18);
+  color: #ef4444;
+}
+
+.sectionChecklist .badge.badge-pill {
+  padding: .35rem .75rem;
+  font-weight: 700;
+  border-radius: 999px;
+  box-shadow: 0 10px 18px -14px rgba(15,23,42,0.35);
+}
+
+@media (max-width: 991.98px) {
+  .sectionChecklist .module-data-card .gradient-card-header {
+    border-radius: 22px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .sectionChecklist .module-data-card .gradient-card-header > span {
+    order: 3;
+    width: 100%;
+    text-align: left;
+  }
+  .sectionChecklist #btnDtSckChecklistQualExport,
+  .sectionChecklist #btnDtSckChecklistQuanExport {
+    min-width: auto;
+  }
+}
+
 #modal_create_complaint .modal-dialog { max-width: 960px; }
 #modal_create_complaint .modal-content.mcc-modal {
   border-radius: 30px; border: 0; box-shadow: 0 32px 70px -42px rgba(21, 42, 70, 0.55);

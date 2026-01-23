@@ -50,6 +50,14 @@ function ModalConfirmDelete() {
         }
         id = _id;
         returnClass = typeof _returnClass !== 'undefined' ? _returnClass : '';
+        let message = 'This action will permanently delete the selected record. This cannot be undone.';
+        if (returnClass && typeof returnClass.getDeleteMessage === 'function') {
+            const customMessage = returnClass.getDeleteMessage(id);
+            if (typeof customMessage === 'string' && customMessage.trim() !== '') {
+                message = customMessage.trim();
+            }
+        }
+        $('#mcdMessage').text(message);
         $('#modal_confirm_delete').modal({backdrop: 'static', keyboard: false});
     };
 

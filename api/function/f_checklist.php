@@ -13,6 +13,28 @@ class Class_checklist {
         $this->fn_ppm = $fn_ppm;
     }
 
+    private function format_exec_time($hour, $minute) {
+        if ($hour === '' && $minute === '') {
+            return '';
+        }
+        if ($hour !== '' && $minute === '') {
+            return $hour;
+        }
+        $hourVal = intval($hour);
+        $minuteVal = intval($minute);
+        if ($hourVal < 0) {
+            $hourVal = 0;
+        }
+        if ($minuteVal < 0) {
+            $minuteVal = 0;
+        }
+        if ($minuteVal >= 60) {
+            $hourVal += intdiv($minuteVal, 60);
+            $minuteVal = $minuteVal % 60;
+        }
+        return $hourVal . ':' . str_pad((string)$minuteVal, 2, '0', STR_PAD_LEFT);
+    }
+
     private function get_exception($codes, $function, $line, $msg) {
         if ($msg != '') {
             $pos = strpos($msg,'-');
@@ -302,18 +324,8 @@ class Class_checklist {
                 throw new Exception('[' . __LINE__ . '] - Parameter checklistMaxAssistant not exist');
             }
 
-            $minExecTime = '';
-            if ($put_vars['checklistMinExecTimeHour'] !== '' && $put_vars['checklistMinExecTimeMinute'] === '') {
-                $minExecTime = $put_vars['checklistMinExecTimeHour'];
-            } else if ($put_vars['checklistMinExecTimeHour'] !== '' && $put_vars['checklistMinExecTimeMinute'] !== '') {
-                $minExecTime = $put_vars['checklistMinExecTimeHour'].':'.$put_vars['checklistMinExecTimeMinute'];
-            }
-            $maxExecTime = '';
-            if ($put_vars['checklistMaxExecTimeHour'] !== '' && $put_vars['checklistMaxExecTimeMinute'] === '') {
-                $maxExecTime = $put_vars['checklistMaxExecTimeHour'];
-            } else if ($put_vars['checklistMaxExecTimeHour'] !== '' && $put_vars['checklistMaxExecTimeMinute'] !== '') {
-                $maxExecTime = $put_vars['checklistMaxExecTimeHour'].':'.$put_vars['checklistMaxExecTimeMinute'];
-            }
+            $minExecTime = $this->format_exec_time($put_vars['checklistMinExecTimeHour'], $put_vars['checklistMinExecTimeMinute']);
+            $maxExecTime = $this->format_exec_time($put_vars['checklistMaxExecTimeHour'], $put_vars['checklistMaxExecTimeMinute']);
             $checklistName = $put_vars['checklistName'];
             $checklistDocumentNo = $put_vars['checklistDocumentNo'];
             $checklistIssueNo = $put_vars['checklistIssueNo'];
@@ -405,8 +417,8 @@ class Class_checklist {
                 'checklist_issue_no'=>$checklistIssueNo,
                 'checklist_desc'=>$put_vars['checklistDesc'],
                 'checklist_guideline'=>$put_vars['checklistGuideline'],
-                'checklist_min_exec_time'=>$put_vars['checklistMinExecTimeHour'].':'.$put_vars['checklistMinExecTimeMinute'],
-                'checklist_max_exec_time'=>$put_vars['checklistMaxExecTimeHour'].':'.$put_vars['checklistMaxExecTimeMinute'],
+                'checklist_min_exec_time'=>$this->format_exec_time($put_vars['checklistMinExecTimeHour'], $put_vars['checklistMinExecTimeMinute']),
+                'checklist_max_exec_time'=>$this->format_exec_time($put_vars['checklistMaxExecTimeHour'], $put_vars['checklistMaxExecTimeMinute']),
                 'checklist_max_assistant'=>$put_vars['checklistMaxAssistant'],
                 'checklist_registered_by'=>$userId,
                 'checklist_time_registered'=>'Now()',
@@ -489,8 +501,8 @@ class Class_checklist {
                 'checklist_issue_no'=>$checklistIssueNo,
                 'checklist_desc'=>$put_vars['checklistDesc'],
                 'checklist_guideline'=>$put_vars['checklistGuideline'],
-                'checklist_min_exec_time'=>$put_vars['checklistMinExecTimeHour'].':'.$put_vars['checklistMinExecTimeMinute'],
-                'checklist_max_exec_time'=>$put_vars['checklistMaxExecTimeHour'].':'.$put_vars['checklistMaxExecTimeMinute'],
+                'checklist_min_exec_time'=>$this->format_exec_time($put_vars['checklistMinExecTimeHour'], $put_vars['checklistMinExecTimeMinute']),
+                'checklist_max_exec_time'=>$this->format_exec_time($put_vars['checklistMaxExecTimeHour'], $put_vars['checklistMaxExecTimeMinute']),
                 'checklist_max_assistant'=>$put_vars['checklistMaxAssistant']
             );
 

@@ -593,6 +593,29 @@ function MainHome() {
         });
 
         let cntWo;
+        const exportAllData = function (e, dt, button, config, originalAction) {
+            const actionContext = this;
+            const settings = dt.settings()[0];
+            if (!settings.oFeatures.bServerSide) {
+                originalAction.call(actionContext, e, dt, button, config);
+                return;
+            }
+            const oldStart = settings._iDisplayStart;
+            dt.one('preXhr', function (_e, s, data) {
+                data.start = 0;
+                data.length = 2147483647;
+                dt.one('preDraw', function (_e2, _settings) {
+                    originalAction.call(actionContext, e, dt, button, config);
+                    _settings._iDisplayStart = oldStart;
+                    data.start = oldStart;
+                    setTimeout(function () {
+                        dt.ajax.reload(null, false);
+                    }, 0);
+                    return false;
+                });
+            });
+            dt.ajax.reload();
+        };
         let btnWoOpt = {
             exportOptions: {
                 columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 21, 22, 23, 24, 25, 26, 27, 28, 30],
@@ -621,14 +644,20 @@ function MainHome() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - Work Order List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
+                    action: function (e, dt, button, config) {
+                        exportAllData.call(this, e, dt, button, config, $.fn.dataTable.ext.buttons.print.action);
+                    }
                 }),
                 $.extend( true, {}, btnWoOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - Work Order List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
+                    action: function (e, dt, button, config) {
+                        exportAllData.call(this, e, dt, button, config, $.fn.dataTable.ext.buttons.excelHtml5.action);
+                    }
                 })
             ]
         }).container().appendTo($('#btnDtHmeDataWoExport'));
@@ -872,14 +901,20 @@ function MainHome() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - PPM List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
+                    action: function (e, dt, button, config) {
+                        exportAllData.call(this, e, dt, button, config, $.fn.dataTable.ext.buttons.print.action);
+                    }
                 }),
                 $.extend( true, {}, btnPpmOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - PPM List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
+                    action: function (e, dt, button, config) {
+                        exportAllData.call(this, e, dt, button, config, $.fn.dataTable.ext.buttons.excelHtml5.action);
+                    }
                 })
             ]
         }).container().appendTo($('#btnDtHmeDataPpmExport'));

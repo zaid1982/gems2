@@ -595,7 +595,12 @@ class Class_task {
             $result = array();
             $arrWhere = array('task_current'=>'1');
             if (!empty($siteCode)) {
-                $arrWhere['transaction_no'] = '%'.$siteCode.'%';
+                $siteId = Class_db::getInstance()->db_select_col('cli_site', array('site_code'=>$siteCode), 'site_id', null, 1);
+                if (!empty($siteId)) {
+                    $arrWhere['w1'] = "(trans_group = " . intval($siteId) . " OR transaction_no LIKE '%".$siteCode."%')";
+                } else {
+                    $arrWhere['transaction_no'] = '%'.$siteCode.'%';
+                }
             }
             if (!empty($flowId)) {
                 $arrWhere['flow_id'] = $flowId;
