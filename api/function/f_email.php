@@ -106,6 +106,13 @@ class Class_email {
             if (!empty($userWhereClause)) { // Only query if there's a valid user ID(s)
                 // Use the formatted userWhereClause here
                 $sys_user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$userWhereClause), NULL, 1);
+                
+                // Check if user account is active before sending email
+                if ($sys_user && isset($sys_user['user_status']) && $sys_user['user_status'] !== '1') {
+                    $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Skipping email for disabled user: '.$userWhereClause);
+                    return false; // Skip sending email to disabled accounts
+                }
+                
                 $sys_profile = Class_db::getInstance()->db_select_single('sys_user_profile', array('user_id'=>$userWhereClause, 'user_profile_status'=>'1'), NULL, 1);
             }
 

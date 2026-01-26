@@ -21,6 +21,13 @@ class Email extends General {
             parent::checkEmptyInteger($receiverId, 'receiverId');
             parent::checkEmptyInteger($emailTemplateId, 'emailTemplateId');
 
+            // Check if user account is active before sending email
+            $userStatus = DbMysql::selectColumn('sys_user', array('userId'=>$receiverId), 'userStatus');
+            if (empty($userStatus) || $userStatus !== 1) {
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Skipping email for disabled user: '.$receiverId);
+                return; // Skip sending email to disabled accounts
+            }
+
             $emailTemplate = DbMysql::select('email_template', array('emailTemplateId'=>$emailTemplateId));
             $receiverName = !empty($fullName) ? $fullName : DbMysql::selectColumn('sys_user', array('userId'=>$receiverId), 'userFirstName');
             $emailAddress = !empty($emailAddress) ? $emailAddress : DbMysql::selectColumn('sys_user_profile', array('userId'=>$receiverId, 'user_profile_status'=>'1'), 'userEmail');

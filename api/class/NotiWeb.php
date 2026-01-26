@@ -52,6 +52,14 @@ class NotiWeb extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($type, 'type');
             parent::checkEmptyInteger($userId, 'userId');
+
+            // Check if user account is active before inserting web notification
+            $userStatus = DbMysql::selectColumn('sys_user', array('userId'=>$userId), 'userStatus');
+            if (empty($userStatus) || $userStatus !== 1) {
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Skipping web notification for disabled user: '.$userId);
+                return; // Skip web notification for disabled accounts
+            }
+
             $columns = array('userId'=>$userId, 'notiWebType'=>$type);
             if ($type === 1 || $type === 2) {
                 $columns['notiWebText'] = '<b>'.$info.'</b> to be assigned';

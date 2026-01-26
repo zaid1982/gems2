@@ -20,6 +20,13 @@ class Noti extends General {
             parent::checkEmptyInteger($receiverId, 'receiverId');
             parent::checkEmptyInteger($notiTextId, 'notiTextId');
 
+            // Check if user account is active before sending notification
+            $userStatus = DbMysql::selectColumn('sys_user', array('userId'=>$receiverId), 'userStatus');
+            if (empty($userStatus) || $userStatus !== 1) {
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Skipping notification for disabled user: '.$receiverId);
+                return; // Skip sending notification to disabled accounts
+            }
+
             $notiText = DbMysql::select('noti_text', array('notiTextId'=>$notiTextId));
             $userToken = DbMysql::selectColumn('sys_user', array('userId'=>$receiverId), 'userToken');
 
