@@ -12,5 +12,8 @@ api/.DS_Store
 api/pdf/.DS_Store
 .DS_Store
 
+# Composer dependencies - installed via 'composer install'
+vendor/
+
 # Ignore all uploaded files stored outside api/
 upload/
