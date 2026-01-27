@@ -1,8 +1,8 @@
 <?php
-require_once 'src/BeforeValidException.php';
-require_once 'src/ExpiredException.php';
-require_once 'src/SignatureInvalidException.php';
-require_once 'src/JWT.php';
+require_once __DIR__ . '/../src/BeforeValidException.php';
+require_once __DIR__ . '/../src/ExpiredException.php';
+require_once __DIR__ . '/../src/SignatureInvalidException.php';
+require_once __DIR__ . '/../src/JWT.php';
 require_once 'trait/SiteFilterTrait.php';
 
 use \Firebase\JWT\JWT;
