@@ -83,6 +83,8 @@ RewriteRule ^item_v2/?$ api/item_v2.php
 RewriteRule ^item_v2/(.+)/?$ api/item_v2.php
 RewriteRule ^item_image/?$ api/item_image.php
 RewriteRule ^item_image/(.+)/?$ api/item_image.php
+RewriteRule ^part_image/?$ api/part_image.php
+RewriteRule ^part_image/(.+)/?$ api/part_image.php
 RewriteRule ^item_type/?$ api/item_type.php
 RewriteRule ^item_type/(.+)/?$ api/item_type.php
 RewriteRule ^item_type_v2/?$ api/item_type_v2.php

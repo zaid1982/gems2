@@ -336,25 +336,6 @@ function MainPpmGroup() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPgrTechnicianEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableTechnician.row(parseInt(rowId, 10)).data();
-                        self.viewDetails(currentRow['ppmGroupId'], rowId);
-                        setDetailsVisible(true);
-                    }
-                });
-                $('.lnkPgrTechnicianDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableTechnician.row(parseInt(rowId, 10)).data();
-                        modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
-                    }
-                });
                 updateGroupSummary(oTableTechnician, '#lblPgrTechnicianCount', '#lblPgrTechnicianUpdated', 'group');
             },
             language: _DATATABLE_LANGUAGE,
@@ -386,6 +367,27 @@ function MainPpmGroup() {
         });
         $('#dtPgrTechnician_filter').hide();
 
+        // Event delegation for Technician table
+        $('#dtPgrTechnician').on('click', '.lnkPgrTechnicianEdit', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableTechnician.row(parseInt(rowId, 10)).data();
+                self.viewDetails(currentRow['ppmGroupId'], rowId);
+                setDetailsVisible(true);
+            }
+        });
+        $('#dtPgrTechnician').on('click', '.lnkPgrTechnicianDelete', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableTechnician.row(parseInt(rowId, 10)).data();
+                modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
+            }
+        });
+
         $('#btnPgrTechnicianAdd').on('click', function () {
             modalPpmGroupClass.add(siteId, '5');
         });
@@ -407,25 +409,6 @@ function MainPpmGroup() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPgrSupervisorEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableSupervisor.row(parseInt(rowId, 10)).data();
-                        self.viewDetails(currentRow['ppmGroupId'], rowId);
-                        setDetailsVisible(true);
-                    }
-                });
-                $('.lnkPgrSupervisorDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableSupervisor.row(parseInt(rowId, 10)).data();
-                        modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
-                    }
-                });
                 updateGroupSummary(oTableSupervisor, '#lblPgrSupervisorCount', '#lblPgrSupervisorUpdated', 'group');
             },
             language: _DATATABLE_LANGUAGE,
@@ -457,6 +440,27 @@ function MainPpmGroup() {
         });
         $('#dtPgrSupervisor_filter').hide();
 
+        // Event delegation for Supervisor table
+        $('#dtPgrSupervisor').on('click', '.lnkPgrSupervisorEdit', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableSupervisor.row(parseInt(rowId, 10)).data();
+                self.viewDetails(currentRow['ppmGroupId'], rowId);
+                setDetailsVisible(true);
+            }
+        });
+        $('#dtPgrSupervisor').on('click', '.lnkPgrSupervisorDelete', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableSupervisor.row(parseInt(rowId, 10)).data();
+                modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
+            }
+        });
+
         $('#btnPgrSupervisorAdd').on('click', function () {
             modalPpmGroupClass.add(siteId, '3');
         });
@@ -477,26 +481,7 @@ function MainPpmGroup() {
                 applyRowLabels(nRow, tableLabelsEngineer);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPgrEngineerEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableEngineer.row(parseInt(rowId, 10)).data();
-                        self.viewDetails(currentRow['ppmGroupId'], rowId);
-                        setDetailsVisible(true);
-                    }
-                });
-                $('.lnkPgrEngineerDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableEngineer.row(parseInt(rowId, 10)).data();
-                        modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
-                    }
-                });
+                $('#dtPgrEngineer [data-toggle="tooltip"]').tooltip();
                 updateGroupSummary(oTableEngineer, '#lblPgrEngineerCount', '#lblPgrEngineerUpdated', 'group');
             },
             language: _DATATABLE_LANGUAGE,
@@ -517,8 +502,8 @@ function MainPpmGroup() {
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
                         let label = '<div class="action-btn-group">';
-                        label += '<button type="button" class="btn-action btn-edit lnkPgrEngineerEdit" id="lnkPgrEngineerEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
-                        label += '<button type="button" class="btn-action btn-delete lnkPgrEngineerDelete" id="lnkPgrEngineerDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                        label += '<button type="button" class="btn-action btn-edit" onclick="ppmGroupClass_.handleEngineerEdit(' + meta.row + ')" title="Edit"><i class="fas fa-edit"></i></button>';
+                        label += '<button type="button" class="btn-action btn-delete" onclick="ppmGroupClass_.handleEngineerDelete(' + meta.row + ')" title="Delete"><i class="fas fa-trash-alt"></i></button>';
                         label += '</div>';
                         return label;
                     }
@@ -548,25 +533,6 @@ function MainPpmGroup() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPgrWoTechnicianEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableWoTechnician.row(parseInt(rowId, 10)).data();
-                        self.viewDetails(currentRow['ppmGroupId'], rowId);
-                        setDetailsVisible(true);
-                    }
-                });
-                $('.lnkPgrWoTechnicianDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableWoTechnician.row(parseInt(rowId, 10)).data();
-                        modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
-                    }
-                });
                 updateGroupSummary(oTableWoTechnician, '#lblPgrWoTechnicianCount', '#lblPgrWoTechnicianUpdated', 'group');
             },
             language: _DATATABLE_LANGUAGE,
@@ -596,6 +562,27 @@ function MainPpmGroup() {
             ]
         });
         $('#dtPgrWoTechnician_filter').hide();
+
+        // Event delegation for WoTechnician table
+        $('#dtPgrWoTechnician').on('click', '.lnkPgrWoTechnicianEdit', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableWoTechnician.row(parseInt(rowId, 10)).data();
+                self.viewDetails(currentRow['ppmGroupId'], rowId);
+                setDetailsVisible(true);
+            }
+        });
+        $('#dtPgrWoTechnician').on('click', '.lnkPgrWoTechnicianDelete', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableWoTechnician.row(parseInt(rowId, 10)).data();
+                modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
+            }
+        });
 
         $('#btnPgrWoTechnicianAdd').on('click', function () {
             modalPpmGroupClass.add(siteId, '8');
@@ -691,15 +678,6 @@ function MainPpmGroup() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPgrUserDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableUser.row(parseInt(rowId, 10)).data();
-                        modalConfirmDeleteClass.delete(currentRow['ppmGroupUserId'], modalPpmUserClass);
-                    }
-                });
                 updateUserSummary();
             },
             language: _DATATABLE_LANGUAGE,
@@ -735,6 +713,17 @@ function MainPpmGroup() {
             ]
         });
         $('#dtPgrUser_filter').hide();
+
+        // Event delegation for User table
+        $('#dtPgrUser').on('click', '.lnkPgrUserDelete', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableUser.row(parseInt(rowId, 10)).data();
+                modalConfirmDeleteClass.delete(currentRow['ppmGroupUserId'], modalPpmUserClass);
+            }
+        });
 
         $('#btnPgrUserAdd').on('click', function () {
             modalPpmUserClass.add(ppmGroupId, siteId, roleId);
@@ -909,5 +898,21 @@ function MainPpmGroup() {
 
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
         modalConfirmDeleteClass = _modalConfirmDeleteClass;
+    };
+
+    // Direct handler methods for Engineer table buttons
+    this.handleEngineerEdit = function (rowIndex) {
+        const currentRow = oTableEngineer.row(rowIndex).data();
+        if (currentRow) {
+            self.viewDetails(currentRow['ppmGroupId'], rowIndex);
+            setDetailsVisible(true);
+        }
+    };
+
+    this.handleEngineerDelete = function (rowIndex) {
+        const currentRow = oTableEngineer.row(rowIndex).data();
+        if (currentRow) {
+            modalConfirmDeleteClass.delete(currentRow['ppmGroupId'], modalPpmGroupClass);
+        }
     };
 }

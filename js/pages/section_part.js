@@ -96,6 +96,80 @@ function SectionPart () {
             classFrom.showMain();
             $(window).scrollTop(0);
         });
+
+        // Update Image button - triggers file input
+        $('#btnSptUpdateImage').on('click', function () {
+            if (!partId) {
+                toastr['error']('Please select a part first', _ALERT_TITLE_ERROR);
+                return;
+            }
+            $('#fileSptImage').click();
+        });
+
+        // Handle file selection for image upload
+        $('#fileSptImage').on('change', function () {
+            const file = this.files[0];
+            const inputElement = this;
+            if (!file) {
+                return;
+            }
+            
+            // Validate file type
+            if (!file.type.match('image.*')) {
+                toastr['error']('Please select an image file', _ALERT_TITLE_ERROR);
+                $(this).val('');
+                return;
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                toastr['error']('Image size must be less than 5MB', _ALERT_TITLE_ERROR);
+                $(this).val('');
+                return;
+            }
+
+            ShowLoader();
+            
+            // Read file as base64
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result.split(',')[1]; // Remove data:image/xxx;base64, prefix
+                
+                // Prepare data in format expected by uploadDocument
+                const uploadData = {
+                    name: 'Part Image',
+                    filename: file.name,
+                    type: file.type,
+                    size: file.size,
+                    data: base64Data,
+                    partId: partId
+                };
+                
+                try {
+                    // Use existing mzAjaxRequest2 for consistent API calls
+                    const result = mzAjaxRequest2('part_image/' + partId, 'POST', uploadData);
+                    HideLoader();
+                    toastr['success']('Image uploaded successfully', _ALERT_TITLE_SUCCESS);
+                    // Refresh the part details to show new image
+                    self.genDetails(partId);
+                    classFrom.genTable();
+                } catch (error) {
+                    HideLoader();
+                    toastr['error'](error.message || 'Failed to upload image', _ALERT_TITLE_ERROR);
+                }
+                
+                // Reset file input
+                $(inputElement).val('');
+            };
+            
+            reader.onerror = function() {
+                HideLoader();
+                toastr['error']('Failed to read image file', _ALERT_TITLE_ERROR);
+                $(inputElement).val('');
+            };
+            
+            reader.readAsDataURL(file);
+        });
         
         vData = [
             {
