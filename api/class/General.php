@@ -3,7 +3,7 @@ require_once __DIR__ . '/../src/BeforeValidException.php';
 require_once __DIR__ . '/../src/ExpiredException.php';
 require_once __DIR__ . '/../src/SignatureInvalidException.php';
 require_once __DIR__ . '/../src/JWT.php';
-require_once 'trait/SiteFilterTrait.php';
+require_once __DIR__ . '/../trait/SiteFilterTrait.php';
 
 use \Firebase\JWT\JWT;
 
