@@ -5,7 +5,12 @@
 require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
-require_once '../vendor/autoload.php'; // For PhpSpreadsheet
+
+// Load composer autoload for PhpSpreadsheet (required for import functionality)
+$vendorAutoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($vendorAutoload)) {
+    require_once $vendorAutoload;
+}
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 

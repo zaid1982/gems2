@@ -10,7 +10,12 @@ require_once 'function/f_general.php';
 require_once 'function/f_login.php';
 require_once 'function/f_wo.php';
 require_once 'class/WoImportFileParser.php';
-require_once '../vendor/autoload.php'; // For PhpSpreadsheet
+
+// Load composer autoload for PhpSpreadsheet (required for import functionality)
+$vendorAutoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($vendorAutoload)) {
+    require_once $vendorAutoload;
+}
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 

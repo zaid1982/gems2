@@ -191,7 +191,8 @@ class Class_db{
     private function get_comma_str($valueArr) {
         $comma_str = NULL;
         foreach ($valueArr as $item => $value) {
-            if ($value !== '') {
+            // Skip empty strings but include NULL values (they will be inserted as NULL)
+            if ($value !== '' || $value === null) {
                 $comma_str .= "$item, ";
             }
         } 
@@ -210,6 +211,11 @@ class Class_db{
         foreach ($valueArr as $item => $value) {
             if ($value === '') {
                 continue;            
+            }
+            // Handle NULL values - insert as SQL NULL
+            if ($value === null) {
+                $comma_str .= "NULL, ";
+                continue;
             }
             $l1 = substr($value, 0, 1);
             if ($value === 'Now()') {

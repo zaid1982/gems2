@@ -6,7 +6,9 @@ require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
 require_once 'class/Zone.php';
-require_once '../vendor/autoload.php';
+// Load composer autoload only when needed (for PhpSpreadsheet import/template features)
+// Deferred loading to avoid errors when vendor is not installed
+$vendorAutoload = __DIR__ . '/../vendor/autoload.php';
 
 $apiName = 'zone';
 $isTransaction = false;
@@ -25,6 +27,10 @@ try {
 
     // Handle template download BEFORE any logging or connection to prevent output contamination
     if ('GET' === $requestMethod && isset($urlArr[1]) && $urlArr[1] === 'template') {
+        // Load PhpSpreadsheet for template generation
+        if (file_exists($vendorAutoload)) {
+            require_once $vendorAutoload;
+        }
         // Clean all output buffers
         while (ob_get_level()) {
             ob_end_clean();
@@ -67,6 +73,10 @@ try {
         
         // Check if this is an import request (must check FILES first since FormData empties $_POST)
         if (isset($_FILES['file']) && isset($urlArr[1]) && $urlArr[1] === 'import') {
+            // Load PhpSpreadsheet for Excel import
+            if (file_exists($vendorAutoload)) {
+                require_once $vendorAutoload;
+            }
             $fnMain->logDebug('API', $apiName, __LINE__, 'POST import request - File: ' . $_FILES['file']['name']);
             
             DbMysql::beginTransaction();

@@ -6,7 +6,12 @@ require_once 'class/Constant.php';
 require_once 'class/General.php';
 require_once 'class/DbMysql.php';
 require_once 'class/Zone.php';
-require_once '../vendor/autoload.php';
+
+// Load composer autoload for PhpSpreadsheet (required for template generation)
+$vendorAutoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($vendorAutoload)) {
+    require_once $vendorAutoload;
+}
 
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
