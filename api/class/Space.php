@@ -979,7 +979,8 @@ class Space extends General {
             if (empty($doc)) {
                 DbMysql::insert('ref_document', array(
                     'documentId' => self::$documentId,
-                    'documentName' => 'Space Media',
+                    'documentDesc' => 'Space Media',
+                    'documentType' => 'Space',
                     'documentStatus' => 1
                 ));
             }
