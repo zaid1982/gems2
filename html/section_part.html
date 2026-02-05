@@ -103,6 +103,12 @@
         }
         .part-gallery-card figure { margin-bottom: 16px; }
         .part-gallery-card .tagline { font-size: 0.9rem; color: #7e8f9a; margin-bottom: 12px; }
+        .part-gallery-card #btnSptUpdateImage { 
+            font-size: 0.85rem; 
+            padding: 6px 14px; 
+            border-radius: 12px;
+            box-shadow: 0 4px 12px -4px rgba(31, 87, 255, 0.4);
+        }
         .part-form-card h5 { font-weight: 700; margin-bottom: 18px; color: #0f172a; }
         .part-form-card .form-action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
         .part-form-card .form-action-row .btn { border-radius: 12px; }
@@ -235,9 +241,14 @@
                 <div class="card-surface part-gallery-card">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0 font-weight-bold">Visual reference</h5>
-                        <span class="tagline"><i class="fas fa-images mr-2"></i>Latest uploads</span>
+                        <div class="d-flex align-items-center">
+                            <button type="button" class="btn btn-sm btn-primary btn-rounded waves-effect mr-2" id="btnSptUpdateImage" data-toggle="tooltip" title="Update Image"><i class="fas fa-camera mr-1"></i>Update Image</button>
+                            <span class="tagline"><i class="fas fa-images mr-2"></i>Latest uploads</span>
+                        </div>
                     </div>
                     <div class="mdb-lightbox no-margin" id="divSptImages"></div>
+                    <!-- Hidden file input for image upload -->
+                    <input type="file" id="fileSptImage" accept="image/*" style="display: none;">
                 </div>
                 <div class="card-surface part-form-card mt-4">
                     <div class="form-action-row">
