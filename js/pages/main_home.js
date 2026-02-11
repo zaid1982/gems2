@@ -593,28 +593,110 @@ function MainHome() {
         });
 
         let cntWo;
+
+        /**
+         * exportAllData – fetches ALL filtered records via the non-paginated
+         * `dashboard_list` API, injects them into the DataTable temporarily,
+         * triggers the export action, then restores the paginated view.
+         *
+         * Works for both WO (api/wo.php) and PPM (api/ppm.php) tables.
+         */
         const exportAllData = function (e, dt, button, config, originalAction) {
             const actionContext = this;
             const settings = dt.settings()[0];
+
+            // If not server-side, just export normally
             if (!settings.oFeatures.bServerSide) {
                 originalAction.call(actionContext, e, dt, button, config);
                 return;
             }
-            const oldStart = settings._iDisplayStart;
-            dt.one('preXhr', function (_e, s, data) {
-                data.start = 0;
-                data.length = 2147483647;
-                dt.one('preDraw', function (_e2, _settings) {
-                    originalAction.call(actionContext, e, dt, button, config);
-                    _settings._iDisplayStart = oldStart;
-                    data.start = oldStart;
-                    setTimeout(function () {
-                        dt.ajax.reload(null, false);
-                    }, 0);
-                    return false;
-                });
+
+            // Determine which API to call based on the table's ajax URL
+            const ajaxUrl = settings.ajax.url || settings.ajax;
+            const isWo  = (typeof ajaxUrl === 'string' && ajaxUrl.indexOf('wo.php') !== -1);
+            const isPpm = (typeof ajaxUrl === 'string' && ajaxUrl.indexOf('ppm.php') !== -1);
+            const listUrl = isWo
+                ? 'api/wo.php?type=dashboard_list'
+                : 'api/ppm.php?type=dashboard_list';
+
+            // Build query params from current filter state
+            const params = new URLSearchParams({
+                clientId: clientId || '',
+                siteId:   siteId   || ''
             });
-            dt.ajax.reload();
+            if (isPpm) {
+                // PPM dashboard_list expects year/month, not dateFrom/dateTo
+                // dateFrom is formatted as YYYY-MM-DD, extract year and month
+                if (dateFrom) {
+                    const parts = dateFrom.split('-');
+                    params.set('year', parts[0]);
+                    params.set('month', parts[1]);
+                }
+                params.set('isRoutine', '0');
+            } else {
+                params.set('dateFrom', dateFrom || '');
+                params.set('dateTo', dateTo || '');
+            }
+
+            ShowLoader();
+            toastr['info']('Preparing export — fetching all records…', 'Export');
+
+            $.ajax({
+                url: listUrl + '&' + params.toString(),
+                type: 'GET',
+                dataType: 'json',
+                timeout: 120000, // 2 minutes – generous for large datasets
+                beforeSend: function (xhr) {
+                    const token = sessionStorage.getItem('token');
+                    if (token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    }
+                },
+                success: function (json) {
+                    try {
+                        if (!json.success || !json.result) {
+                            toastr['error']('Failed to fetch export data.', _ALERT_TITLE_ERROR);
+                            HideLoader();
+                            return;
+                        }
+
+                        const allData = json.result;
+                        toastr['info']('Generating file for ' + allData.length + ' records…', 'Export');
+
+                        // Temporarily switch to client-side mode with all data
+                        settings.oFeatures.bServerSide = false;
+                        settings._iRecordsTotal = allData.length;
+                        settings._iRecordsDisplay = allData.length;
+
+                        // Clear existing data and load full dataset
+                        dt.clear();
+                        dt.rows.add(allData);
+                        dt.draw();
+
+                        // Run the original export action (print / excel)
+                        originalAction.call(actionContext, e, dt, button, config);
+
+                        // Restore server-side mode and reload paginated data
+                        settings.oFeatures.bServerSide = true;
+                        dt.ajax.reload(null, false);
+
+                        toastr['success']('Export complete (' + allData.length + ' records).', 'Export');
+                    } catch (ex) {
+                        toastr['error']('Export error: ' + ex.message, _ALERT_TITLE_ERROR);
+                        // Restore server-side mode on error
+                        settings.oFeatures.bServerSide = true;
+                        dt.ajax.reload(null, false);
+                    }
+                    HideLoader();
+                },
+                error: function (_xhr, status, err) {
+                    const msg = status === 'timeout'
+                        ? 'Export timed out — try narrowing the date range or selecting a specific site.'
+                        : 'Export request failed: ' + err;
+                    toastr['error'](msg, _ALERT_TITLE_ERROR);
+                    HideLoader();
+                }
+            });
         };
         let btnWoOpt = {
             exportOptions: {
