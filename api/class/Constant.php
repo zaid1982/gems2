@@ -1,15 +1,15 @@
 <?php
 
 class Constant {
-    // public static $dbUserName = 'root';
-    public static $dbUserName = 'zaid';
+    public static $dbUserName = 'root';
+    // public static $dbUserName = 'zaid';
     //public static $dbUserPassword = 'password';
-    public static $dbUserPassword = 'Amlyda@1982';
-    // public static $dbUserPassword = 'Globalfm@19';
-    public static $dbName = 'gems';
+    // public static $dbUserPassword = 'Amlyda@1982';
+    public static $dbUserPassword = 'Globalfm@19';
+    public static $dbName = 'gems2';
     // public static $dbHost = 'sp161.mschosting.cloud';
-    public static $dbHost = 'www.metadatasystem.my';
-    // public static $dbHost = '10.101.11.71';
+    // public static $dbHost = 'www.metadatasystem.my';
+    public static $dbHost = '10.101.11.69';
     // public static $folderDebug = '../../../logs/gems/debug/';
     // public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
     public static $folderDebug = '/Applications/XAMPP/logs/gems/debug/';

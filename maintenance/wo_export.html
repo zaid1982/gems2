@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WO Excel Export — GEMS2 Maintenance</title>
+    <style>
+        /* ── Reset & base ─────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1e293b;
+        }
+        a { color: #4338ca; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── Layout ───────────────────────────────────────── */
+        .wrapper {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+        .breadcrumb {
+            margin-bottom: 14px;
+            font-size: .85rem;
+            color: rgba(255,255,255,.8);
+        }
+        .breadcrumb a { color: #fff; }
+
+        .page-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: #fff;
+            padding: 28px 32px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .page-header .icon { font-size: 2rem; }
+        .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+        .page-header p  { font-size: .9rem; opacity: .85; margin-top: 4px; }
+
+        .card {
+            background: #fff;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,.15);
+            padding: 32px;
+        }
+
+        /* ── Form grid ────────────────────────────────────── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .form-grid .full { grid-column: 1 / -1; }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: .82rem;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: .95rem;
+            color: #1e293b;
+            background: #f8fafc;
+            transition: border-color .2s;
+        }
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #4338ca;
+            box-shadow: 0 0 0 3px rgba(67,56,202,.12);
+        }
+        select[multiple] {
+            min-height: 220px;
+        }
+
+        .hint {
+            font-size: .78rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* ── Buttons ──────────────────────────────────────── */
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: .95rem;
+            border: none;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4338ca, #6366f1);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(67,56,202,.35);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(67,56,202,.45);
+        }
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1.5px solid #e2e8f0;
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+        .btn-outline {
+            background: transparent;
+            color: #4338ca;
+            border: 1.5px solid #4338ca;
+        }
+        .btn-outline:hover:not(:disabled) {
+            background: #eef2ff;
+        }
+
+        /* ── Status panel ─────────────────────────────────── */
+        .status-panel {
+            margin-top: 24px;
+            padding: 16px 20px;
+            border-radius: 10px;
+            font-size: .9rem;
+            display: none;
+        }
+        .status-panel.info    { background: #eff6ff; color: #1e40af; border-left: 4px solid #3b82f6; display: block; }
+        .status-panel.success { background: #f0fdf4; color: #166534; border-left: 4px solid #22c55e; display: block; }
+        .status-panel.error   { background: #fef2f2; color: #991b1b; border-left: 4px solid #ef4444; display: block; }
+        .status-panel.warn    { background: #fefce8; color: #854d0e; border-left: 4px solid #eab308; display: block; }
+
+        /* ── Spinner ──────────────────────────────────────── */
+        .spinner {
+            display: inline-block;
+            width: 18px; height: 18px;
+            border: 2.5px solid rgba(255,255,255,.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Responsive ───────────────────────────────────── */
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .wrapper { padding: 16px 10px 40px; }
+            .page-header { padding: 20px; }
+            .card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="breadcrumb">
+        <a href="dashboard.html">← Maintenance Dashboard</a>
+    </div>
+
+    <div class="page-header">
+        <div class="icon">📊</div>
+        <div>
+            <h1>Work Order Excel Export</h1>
+            <p>Generate a full Excel spreadsheet of work orders for selected sites &amp; date range</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <!-- Client filter -->
+        <div class="form-grid">
+            <div>
+                <label for="selClient">Client</label>
+                <select id="selClient">
+                    <option value="">— All Clients —</option>
+                </select>
+            </div>
+            <div>
+                <label>&nbsp;</label>
+                <button class="btn btn-outline" type="button" id="btnSelectAll">Select All Sites</button>
+                <button class="btn btn-outline" type="button" id="btnDeselectAll" style="margin-left:4px;">Deselect All</button>
+            </div>
+        </div>
+
+        <!-- Site multi-select -->
+        <div class="form-grid">
+            <div class="full">
+                <label for="selSites">Sites <span style="font-weight:400;text-transform:none;color:#94a3b8;">(hold Ctrl / ⌘ to select multiple)</span></label>
+                <select id="selSites" multiple>
+                    <option disabled>Loading sites…</option>
+                </select>
+                <div class="hint" id="lblSiteCount">0 sites selected</div>
+            </div>
+        </div>
+
+        <!-- Date range -->
+        <div class="form-grid">
+            <div>
+                <label for="txtDateFrom">Date From</label>
+                <input type="date" id="txtDateFrom">
+            </div>
+            <div>
+                <label for="txtDateTo">Date To</label>
+                <input type="date" id="txtDateTo">
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button class="btn btn-secondary" type="button" id="btnCount">🔢 Preview Count</button>
+            <button class="btn btn-primary"   type="button" id="btnExport">📥 Export to Excel</button>
+        </div>
+
+        <!-- Status -->
+        <div class="status-panel" id="statusPanel"></div>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    const API = 'wo_export.php';
+
+    const $client   = document.getElementById('selClient');
+    const $sites    = document.getElementById('selSites');
+    const $dateFrom = document.getElementById('txtDateFrom');
+    const $dateTo   = document.getElementById('txtDateTo');
+    const $btnCount  = document.getElementById('btnCount');
+    const $btnExport = document.getElementById('btnExport');
+    const $status    = document.getElementById('statusPanel');
+    const $lblCount  = document.getElementById('lblSiteCount');
+
+    // Default dates: current month
+    const now = new Date();
+    $dateFrom.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    $dateTo.value = lastDay.toISOString().slice(0, 10);
+
+    // ── Load clients ──────────────────────────────────
+    async function loadClients() {
+        try {
+            const res = await fetch(API + '?action=clients');
+            const json = await res.json();
+            if (json.success && json.data) {
+                json.data.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.client_id;
+                    opt.textContent = c.client_name;
+                    $client.appendChild(opt);
+                });
+            }
+        } catch (e) {
+            showStatus('error', 'Failed to load clients: ' + e.message);
+        }
+    }
+
+    // ── Load sites ────────────────────────────────────
+    async function loadSites(clientId) {
+        $sites.innerHTML = '<option disabled>Loading…</option>';
+        try {
+            let url = API + '?action=sites';
+            if (clientId) url += '&clientId=' + encodeURIComponent(clientId);
+            const res = await fetch(url);
+            const json = await res.json();
+            $sites.innerHTML = '';
+            if (json.success && json.data && json.data.length) {
+                json.data.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.site_id;
+                    opt.textContent = (s.site_code ? s.site_code + ' — ' : '') + s.site_name + '  [' + s.client_name + ']';
+                    $sites.appendChild(opt);
+                });
+            } else {
+                $sites.innerHTML = '<option disabled>No sites found</option>';
+            }
+            updateSiteCount();
+        } catch (e) {
+            showStatus('error', 'Failed to load sites: ' + e.message);
+        }
+    }
+
+    function getSelectedSiteIds() {
+        return Array.from($sites.selectedOptions).map(o => o.value);
+    }
+
+    function updateSiteCount() {
+        const n = getSelectedSiteIds().length;
+        $lblCount.textContent = n + ' site' + (n !== 1 ? 's' : '') + ' selected';
+    }
+
+    // ── Events ────────────────────────────────────────
+    $client.addEventListener('change', () => loadSites($client.value));
+    $sites.addEventListener('change', updateSiteCount);
+
+    document.getElementById('btnSelectAll').addEventListener('click', () => {
+        Array.from($sites.options).forEach(o => { if (!o.disabled) o.selected = true; });
+        updateSiteCount();
+    });
+    document.getElementById('btnDeselectAll').addEventListener('click', () => {
+        Array.from($sites.options).forEach(o => o.selected = false);
+        updateSiteCount();
+    });
+
+    // ── Preview count ─────────────────────────────────
+    $btnCount.addEventListener('click', async () => {
+        const ids = getSelectedSiteIds();
+        if (!ids.length) return showStatus('warn', 'Please select at least one site.');
+
+        $btnCount.disabled = true;
+        showStatus('info', '⏳ Counting records…');
+
+        try {
+            const body = new FormData();
+            body.append('action', 'count');
+            body.append('siteIds', ids.join(','));
+            body.append('dateFrom', $dateFrom.value);
+            body.append('dateTo', $dateTo.value);
+
+            const res = await fetch(API, { method: 'POST', body });
+            const json = await res.json();
+            if (json.success) {
+                const cnt = json.data.count;
+                showStatus(cnt > 0 ? 'success' : 'warn',
+                    cnt > 0
+                        ? `✅ Found <strong>${cnt.toLocaleString()}</strong> work orders. Ready to export.`
+                        : '⚠️ No work orders found for the selected criteria.'
+                );
+            } else {
+                showStatus('error', '❌ ' + (json.error || 'Unknown error'));
+            }
+        } catch (e) {
+            showStatus('error', '❌ ' + e.message);
+        }
+        $btnCount.disabled = false;
+    });
+
+    // ── Export ─────────────────────────────────────────
+    $btnExport.addEventListener('click', async () => {
+        const ids = getSelectedSiteIds();
+        if (!ids.length) return showStatus('warn', 'Please select at least one site.');
+
+        $btnExport.disabled = true;
+        $btnExport.innerHTML = '<span class="spinner"></span> Generating…';
+        showStatus('info', '⏳ Building Excel file — this may take a moment for large datasets…');
+
+        try {
+            const body = new FormData();
+            body.append('action', 'export');
+            body.append('siteIds', ids.join(','));
+            body.append('dateFrom', $dateFrom.value);
+            body.append('dateTo', $dateTo.value);
+
+            const res = await fetch(API, { method: 'POST', body });
+
+            // Check if we got JSON error or binary file
+            const contentType = res.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                const json = await res.json();
+                showStatus('error', '❌ ' + (json.error || 'Export failed'));
+            } else {
+                const blob = await res.blob();
+                const url  = URL.createObjectURL(blob);
+                const a    = document.createElement('a');
+                // Extract filename from header if available
+                const disp = res.headers.get('content-disposition') || '';
+                const match = disp.match(/filename="?([^"]+)"?/);
+                a.download = match ? match[1] : 'wo_export.xlsx';
+                a.href = url;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                showStatus('success', '✅ Excel file downloaded successfully!');
+            }
+        } catch (e) {
+            showStatus('error', '❌ ' + e.message);
+        }
+
+        $btnExport.disabled = false;
+        $btnExport.innerHTML = '📥 Export to Excel';
+    });
+
+    // ── Helpers ────────────────────────────────────────
+    function showStatus(type, html) {
+        $status.className = 'status-panel ' + type;
+        $status.innerHTML = html;
+    }
+
+    // ── Init ──────────────────────────────────────────
+    loadClients();
+    loadSites('');
+})();
+</script>
+</body>
+</html>

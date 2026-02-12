@@ -190,7 +190,7 @@ class General {
             $throwCode = $isAlert ? 31 : 30;
             foreach ($indexArr as $index) {
                 if (!array_key_exists($index, $inputArr)) {
-                    throw new Exception('Index '.$index.' not exist');
+                    throw new Exception('Index '.$index.' not exist', $throwCode);
                 }
                 $param = $inputArr[$index];
                 if (is_null($param) || $param === '') {

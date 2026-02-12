@@ -2344,6 +2344,8 @@ class Class_wo {
                 $row_result['assistants'] = $dataLocal['assistants'];
                 $row_result['assetId'] = $dataLocal['asset_id'];
                 $row_result['assetNo'] = $dataLocal['asset_no'];
+                $row_result['zoneCode'] = $this->fn_general->clear_null(isset($dataLocal['zone_code']) ? $dataLocal['zone_code'] : '');
+                $row_result['zoneName'] = $this->fn_general->clear_null(isset($dataLocal['zone_name']) ? $dataLocal['zone_name'] : '');
                 array_push($result, $row_result);
             }
 
@@ -2584,6 +2586,8 @@ class Class_wo {
                 $row_result['assistants'] = $dataLocal['assistants'];
                 $row_result['assetId'] = $dataLocal['asset_id'];
                 $row_result['assetNo'] = $dataLocal['asset_no'];
+                $row_result['zoneCode'] = $this->fn_general->clear_null(isset($dataLocal['zone_code']) ? $dataLocal['zone_code'] : '');
+                $row_result['zoneName'] = $this->fn_general->clear_null(isset($dataLocal['zone_name']) ? $dataLocal['zone_name'] : '');
                 array_push($result, $row_result);
             }
 

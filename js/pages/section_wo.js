@@ -516,7 +516,6 @@ function SectionWo () {
                     if (woTask['assetId'] !== null) {
                         $('#divSwoAsset').show();
                         const asset = mzAjaxRequest('asset.php?assetId='+woTask['assetId'], 'GET');
-                        console.log(asset);
                         $('#pSwoAssetNo').text(asset['assetNo']);
                         $('#pSwoAssetName').text(asset['assetName']);
                     } else {

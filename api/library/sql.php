@@ -1768,10 +1768,13 @@ class Class_sql
                 $sql = "SELECT 
                         wo_task.*,
                         ast_asset.asset_no,
+                        cli_zone.zone_code,
+                        cli_zone.zone_name,
                         GROUP_CONCAT(wo_task_assist.user_id) AS assistants
                     FROM wo_task 
                     LEFT JOIN wo_task_assist ON wo_task_assist.wo_task_id = wo_task.wo_task_id
                     LEFT JOIN ast_asset ON ast_asset.asset_id = wo_task.asset_id
+                    LEFT JOIN cli_zone ON cli_zone.zone_id = wo_task.zone_id
                     GROUP BY wo_task.wo_task_id";
             } else if ($title === 'vw_checklist_frequency') {
                 $sql = "

@@ -281,8 +281,9 @@ class AttGroup extends General {
     public function insert (array $params, array $maps): void {
         try {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
-            parent::checkMandatoryArray($maps, array('coordinates'));
-            parent::checkEmptyArray($maps['coordinates'], 'coordinates');
+            if (!array_key_exists('coordinates', $maps) || empty($maps['coordinates'])) {
+                throw new Exception('Please draw the work area on the map before submitting.', 31);
+            }
             if (DbMysql::count('att_group', parent::arraySpliceAssoc($params, array('siteId', 'attGroupName'))) > 0) {
                 throw new Exception(str_replace('__', $params['attGroupName'], Constant::$attGroup['errAlreadyExist']), 31);
             }

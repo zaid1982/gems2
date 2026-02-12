@@ -122,7 +122,6 @@ function ModalPpmSet () {
                     ShowLoader(); setTimeout(function () {
                         if (submitType === 'add') {
                             data['action'] = 'create_ppm_set';
-                            console.log(data);
                             mzAjaxRequest('ppm.php', 'POST', data);
                             successAfterSubmit();
                         } else if (submitType === 'put') {

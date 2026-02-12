@@ -17,7 +17,6 @@ function SectionPr() {
         });
 
         $('#txtSprSupplier').on('click', function () {
-            alert(0);
         });
 
         let exportOptSprItem = Object.assign({}, mzExportOpt);

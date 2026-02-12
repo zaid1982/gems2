@@ -245,7 +245,6 @@ function MainAttendance() {
             dataCalendar['backgroundColor'] = backgroundColor[parseInt(u['d'])%5];
             dataCalendars.push(dataCalendar);
         });
-        console.log(dataCalendars);
 
         const calendarEl = document.getElementById('calendar');
         let calendar = new FullCalendar.Calendar(calendarEl, {

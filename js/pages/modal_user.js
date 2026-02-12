@@ -35,22 +35,51 @@ function ModalUser() {
     }
 
     // Helper: set PTW checkbox values from refRole
+    // Falls back to previously-set data-role-id so values are never wiped
     function applyPtwRoleIds() {
-        const rSup = getRoleIdByDesc('PTW Supervisor');
-        const rShe = getRoleIdByDesc('PTW SHE');
-        const rFm  = getRoleIdByDesc('PTW Facility Manager');
-        if (rSup) $('#chkMusRolePTWSUP').val(rSup).attr('data-role-id', rSup); else $('#divMusRolePTWSUP').hide();
-        if (rShe) $('#chkMusRolePTWSHE').val(rShe).attr('data-role-id', rShe); else $('#divMusRolePTWSHE').hide();
-        if (rFm)  $('#chkMusRolePTWFM').val(rFm).attr('data-role-id', rFm); else $('#divMusRolePTWFM').hide();
+        const mapping = [
+            { desc: 'PTW Supervisor',       chk: '#chkMusRolePTWSUP', div: '#divMusRolePTWSUP' },
+            { desc: 'PTW SHE',              chk: '#chkMusRolePTWSHE', div: '#divMusRolePTWSHE' },
+            { desc: 'PTW Facility Manager', chk: '#chkMusRolePTWFM',  div: '#divMusRolePTWFM'  }
+        ];
+        mapping.forEach(function (m) {
+            let id = getRoleIdByDesc(m.desc);
+            if (!id) {
+                // Fallback: keep any previously resolved value
+                id = String($(m.chk).attr('data-role-id') || $(m.chk).val() || '').trim();
+            }
+            if (id) {
+                $(m.chk).val(id).attr('data-role-id', id);
+            }
+        });
 
-        // MR Reviewer is a workflow role that may not exist in older local caches.
-        // Always ensure the checkbox has a usable roleId so it gets included in payload.
+        // MR Reviewer fallback
         let rMrReviewer = getRoleIdByDesc('MR Reviewer');
         if (!rMrReviewer) {
             const existing = String($('#chkMusRoleMRReviewer').attr('data-role-id') || $('#chkMusRoleMRReviewer').val() || '').trim();
             rMrReviewer = existing ? existing : '27';
         }
         $('#chkMusRoleMRReviewer').val(rMrReviewer).attr('data-role-id', rMrReviewer);
+    }
+
+    // Helper: check dynamic role checkboxes by their value attribute (for roles with non-standard IDs)
+    // This is needed because mzSetFieldValue looks for #chkMusRole{id} but dynamic roles have custom IDs
+    function checkDynamicRolesByValue(roleIds) {
+        if (!roleIds || !Array.isArray(roleIds)) return;
+        // List of dynamic role checkbox selectors
+        const dynamicRoleCheckboxes = [
+            '#chkMusRoleMRReviewer',
+            '#chkMusRolePTWSUP',
+            '#chkMusRolePTWSHE',
+            '#chkMusRolePTWFM'
+        ];
+        dynamicRoleCheckboxes.forEach(function(selector) {
+            const $chk = $(selector);
+            const chkVal = String($chk.val() || '').trim();
+            if (chkVal && roleIds.indexOf(chkVal) !== -1) {
+                $chk.prop('checked', true);
+            }
+        });
     }
 
     this.init = function () {
@@ -266,9 +295,8 @@ function ModalUser() {
         // Ensure PTW roles are hidden until user type selection
         $('#divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
         $('#divMusRoleMRReviewer').hide();
-        // Clear PTW checkbox values until refRole is set
-        $('#chkMusRolePTWSUP, #chkMusRolePTWSHE, #chkMusRolePTWFM').val('');
-        $('#chkMusRoleMRReviewer').val('');
+        // Re-apply PTW/MR role IDs so values are never left empty
+        applyPtwRoleIds();
     };
 
     this.add = function () {
@@ -317,6 +345,7 @@ function ModalUser() {
 
                 const dataUser = mzAjaxRequest('profile.php?userId='+userId, 'GET');
                 const roles = dataUser['roles'];
+                const rolesArray = roles ? roles.split(',') : [];
                 const userType = dataUser['userType'];
                 formValidate.disableField('txtMusUserName');
                 formValidate.disableField('txtMusUserPassword');
@@ -326,7 +355,9 @@ function ModalUser() {
                 mzSetFieldValue('MusUserContactNo', dataUser['userContactNo'], 'text');
                 mzSetFieldValue('MusUserEmail', dataUser['userEmail'], 'text');
                 mzSetFieldValue('MusDesignationId', dataUser['designationId'], 'select', 'Designation *');
-                mzSetFieldValue('MusRole', roles.split(','), 'check');
+                mzSetFieldValue('MusRole', rolesArray, 'check');
+                // Also check dynamic roles by their value attribute
+                checkDynamicRolesByValue(rolesArray);
 
                 mzOptionStop('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: dataUser['clientId'], siteStatus: '1'}, 'required');
                 mzSetFieldValue('MusClientId', dataUser['clientId'], 'select', 'Client *');

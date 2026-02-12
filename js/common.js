@@ -1602,11 +1602,14 @@ function mzOption(name, data, defaultText, keyIndex, valIndex, filters, type, is
                         if (dataValue === filterVal) {
                             filterCnt++;
                         } else if (filterVal !== null && typeof filterVal === 'string' && filterVal.substr(0,1) === '#') {
-                            const filterSplit = dataValue.split(',');
-                            for (let j=0; j<filterSplit.length; j++) {
-                                if (filterSplit[j] === filterVal.substr(1)) {
-                                    filterCnt++;
-                                    break;
+                            // Handle null/undefined dataValue - skip if no roles assigned
+                            if (dataValue !== null && dataValue !== undefined && typeof dataValue === 'string') {
+                                const filterSplit = dataValue.split(',');
+                                for (let j=0; j<filterSplit.length; j++) {
+                                    if (filterSplit[j] === filterVal.substr(1)) {
+                                        filterCnt++;
+                                        break;
+                                    }
                                 }
                             }
                         } else if (filterVal !== null && typeof filterVal === 'string' && filterVal.substr(0,1) === '(') {
@@ -1714,11 +1717,14 @@ function mzOptionV2(name, data, defaultText, valIndex, filters, type, isSort, so
                         if (dataValue === filterVal) {
                             filterCnt++;
                         } else if (filterVal !== null && typeof filterVal === 'string' && filterVal.substr(0,1) === '#') {
-                            const filterSplit = dataValue.split(',');
-                            for (let j=0; j<filterSplit.length; j++) {
-                                if (filterSplit[j] === filterVal.substr(1)) {
-                                    filterCnt++;
-                                    break;
+                            // Handle null/undefined dataValue - skip if no roles assigned
+                            if (dataValue !== null && dataValue !== undefined && typeof dataValue === 'string') {
+                                const filterSplit = dataValue.split(',');
+                                for (let j=0; j<filterSplit.length; j++) {
+                                    if (filterSplit[j] === filterVal.substr(1)) {
+                                        filterCnt++;
+                                        break;
+                                    }
                                 }
                             }
                         } else if (filterVal !== null && typeof filterVal === 'string' && filterVal.substr(0,1) === '(') {

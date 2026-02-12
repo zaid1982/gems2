@@ -497,6 +497,8 @@ function MainHome() {
                             return '<h6><span class="badge badge-pill '+refStatus[row['woTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['woTaskStatus']]['statusDesc']+'</span></h6>';
                         }
                     },
+                    {mData: 'zoneCode', visible: false},
+                    {mData: 'zoneName', visible: false},
                     {mData: null, bSortable: false, sClass: 'text-center action-cell',
                         mRender: function (data, type, row, meta) {
                             let label = '<div class="action-btn-group">';
@@ -583,7 +585,7 @@ function MainHome() {
         oTableWo.column(13).visible(false);
 
         $('#optHmeDataWoColumns').on('change', function () {
-            for (let i=1; i<=14; i++) {
+            for (let i=1; i<=16; i++) {
                 oTableWo.column(i).visible(false);
             }
             const selectedColumns = $(this).val();
@@ -700,7 +702,7 @@ function MainHome() {
         };
         let btnWoOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 21, 22, 23, 24, 25, 26, 27, 28, 30],
+                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 29, 30, 32],
                 format: {
                     body: function ( data, row, column ) {
                         if (row === 0 && column === 0) {
@@ -710,7 +712,7 @@ function MainHome() {
                             const n = data.search('">');
                             const k = data.substr(n+2);
                             return k.replace('</span></h6>','');
-                        } else if (column === 23) {
+                        } else if (column === 25) {
                             return data.replace('<ul style="padding-left: 20px; margin-bottom: 0px !important;"><li>', '').replaceAll('</li><li>', ', ').replace('</li></ul>', '');
                         }
                         return column === 0 ? cntWo++ : data;

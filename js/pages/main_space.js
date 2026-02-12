@@ -41,7 +41,6 @@
         }
         options = options || {};
         const skipLoader = options.skipLoader === true;
-        console.log('Loading spaces for site:', currentSiteId, 'status:', $('#optSpcStatus').val());
         if (!skipLoader) { ShowLoader(); }
         const status = $('#optSpcStatus').val();
         const params = { siteId: currentSiteId, status: status };

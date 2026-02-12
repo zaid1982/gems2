@@ -8,13 +8,27 @@ api/pdf/wr/
 api/pdf/mrf/
 globalfm.p12
 9880959c-7403-4c07-9d2a-4af4ee4c1abb.txt
-api/.DS_Store
-api/pdf/.DS_Store
-.DS_Store
+**/.DS_Store
 
 # Composer dependencies - installed via 'composer install'
 vendor/
+composer.lock
 
 # Ignore all uploaded files stored outside api/
 upload/
 *.code-workspace
+
+# Development & debugging tools (never deploy to production)
+developer/
+generated_sql/
+
+# Backup files
+*.backup
+
+# Test scripts & data at root level
+test_*.sh
+test_*.php
+test_*.csv
+
+# Postman collections
+*.postman_collection.json

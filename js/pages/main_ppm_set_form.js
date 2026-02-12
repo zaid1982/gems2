@@ -341,7 +341,6 @@ function MainPpmSetForm () {
         dtPpsa.clear().draw(); // Clear existing data
 
         ShowLoader(); setTimeout(function () {
-            console.log('Loading assets for PPM Set ID:', _ppmSetId);
             mzFetch('api/ppm.php?type=assets_in_ppm_set&ppmSetId=' + _ppmSetId, 'GET').then(res => { //
                 dtPpsa.rows.add(res).draw(); // Add new data
                 HideLoader(); //

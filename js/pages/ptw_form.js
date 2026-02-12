@@ -112,7 +112,6 @@ class PtwForm {
 
     setPublicMode(isPublic = true) {
         this.isPublicMode = isPublic;
-        console.log('PTW Form set to public mode:', isPublic);
     }
 
     setUserSite(userSite) {
@@ -128,14 +127,11 @@ class PtwForm {
     }
 
     init() {
-        console.log('Initializing PTW Form - Public Mode:', this.isPublicMode);
-        
         // For public mode, skip user authentication and site loading
         if (this.isPublicMode) {
             // Enforce site_id presence for public form
             this.siteId = this.getSiteIdFromUrl();
             if (!this.siteId) {
-                console.warn('Public PTW form is missing required site_id in URL. Disabling form.');
                 this.setupEventHandlers();
                 this.showMissingSiteOverlay();
                 return; // stop further init
@@ -174,11 +170,8 @@ class PtwForm {
         // Submit for approval button (only option for public forms)
         $('#btnSubmitApproval').on('click', (e) => {
             e.preventDefault(); // Prevent form submission
-            console.log('Submit PTW button clicked');
             if (this.validateForm()) {
                 this.savePtw('PENDING_APPROVAL');
-            } else {
-                console.log('Form validation failed');
             }
         });
 
@@ -201,7 +194,6 @@ class PtwForm {
             if (!normalized) return '';
             // Allow numeric strings only (minimal validation)
             if (!/^\d+$/.test(normalized)) {
-                console.warn('Invalid site_id format in URL:', normalized);
                 return '';
             }
             return normalized;
@@ -281,17 +273,12 @@ class PtwForm {
         // Add first worker row
         this.addWorkerRow();
         
-        // Test dropdown accessibility
-    console.log('Work Type dropdown found:', $('#optPtwWorkType').length > 0);
-        
         // Force refresh dropdown styling
         this.refreshDropdowns();
     }
 
     refreshDropdowns() {
         // Ensure dropdowns are properly styled and functional
-        console.log('Refreshing dropdown functionality...');
-        
     const workTypeSelect = document.getElementById('optPtwWorkType');
         
     [workTypeSelect].forEach(select => {
@@ -311,7 +298,6 @@ class PtwForm {
                 
                 // Add click handler to test functionality
                 select.addEventListener('click', function(e) {
-                    console.log('Dropdown clicked:', this.id, 'Event:', e);
                     e.stopPropagation();
                     
                     // Force the dropdown to open programmatically if needed
@@ -326,23 +312,18 @@ class PtwForm {
                 
                 // Add focus handler
                 select.addEventListener('focus', function() {
-                    console.log('Dropdown focused:', this.id);
                 });
                 
                 // Add mousedown handler for additional control
                 select.addEventListener('mousedown', function(e) {
-                    console.log('Dropdown mousedown:', this.id);
                     e.stopPropagation();
                 });
                 
-                console.log('Refreshed dropdown:', select.id);
             }
         });
     }
 
     initializeFormForPublic() {
-        console.log('Initializing form for public use...');
-        
         // Set default dates
         const today = new Date();
         const tomorrow = new Date(today);
@@ -356,13 +337,9 @@ class PtwForm {
         
         // Force refresh dropdown styling
         this.refreshDropdowns();
-        
-        console.log('Public form initialization completed');
     }
 
     populateWorkTypeDropdown() {
-        console.log('Populating work type dropdown for public form...');
-        
         const workTypes = [
             { value: 'HOT_WORK', text: 'Hot Work (Welding, Cutting, Grinding)' },
             { value: 'COLD_WORK', text: 'Cold Work (Mechanical, Assembly)' },
@@ -385,8 +362,6 @@ class PtwForm {
                 option.textContent = workType.text;
                 select.appendChild(option);
             });
-            
-            console.log('Work type dropdown populated with', workTypes.length, 'options');
         } else {
             console.error('Work type dropdown not found');
         }
@@ -533,7 +508,6 @@ class PtwForm {
 
     loadPtwData(ptwId) {
         // Public forms don't support loading existing data
-        console.log('Loading PTW data not supported for public forms');
         showError('Loading existing PTW data is not available for public forms');
         return;
     }
@@ -603,8 +577,6 @@ class PtwForm {
         if (data.ptw_status && data.ptw_status !== 'DRAFT') {
             this.showApprovalSection(data);
         }
-        
-        console.log('PTW form populated successfully:', data);
     }
 
     /**
@@ -648,19 +620,14 @@ class PtwForm {
                 
                 if (checkboxId) {
                     $(`#${checkboxId}`).prop('checked', true);
-                    console.log(`Checked work type: ${workType} (${checkboxId})`);
                 }
             });
-
-            console.log('Loaded multiple work types:', workTypes);
         } catch (error) {
             console.error('Error loading multiple work types:', error);
         }
     }
 
     loadChecklistFromPtwData(data) {
-        console.log('Loading checklist data from PTW:', data);
-
         // Load hazard checklist if available
         if (data.ptw_hazard_checklist) {
             try {
@@ -675,7 +642,6 @@ class PtwForm {
         if (data.ptw_checklist_hot_work) {
             try {
                 const hotWorkData = JSON.parse(data.ptw_checklist_hot_work);
-                console.log('Loading hot work checklist data:', hotWorkData);
                 
                 if (typeof hotWorkData === 'object' && hotWorkData !== null) {
                     // Handle object format: {hotGasMonitoring: "Gas monitoring", ...}
@@ -683,9 +649,6 @@ class PtwForm {
                         const checkbox = document.getElementById(checkboxId);
                         if (checkbox) {
                             checkbox.checked = true;
-                            console.log(`Restored hot work item: ${checkboxId}`);
-                        } else {
-                            console.warn(`Hot work checkbox not found: ${checkboxId}`);
                         }
                     });
                 } else if (Array.isArray(hotWorkData)) {
@@ -694,11 +657,9 @@ class PtwForm {
                         const checkbox = document.getElementById(itemId);
                         if (checkbox) {
                             checkbox.checked = true;
-                            console.log(`Restored hot work item: ${itemId}`);
                         }
                     });
                 }
-                console.log('Loaded hot work checklist successfully');
             } catch (e) {
                 console.error('Error parsing hot work checklist:', e);
             }
@@ -708,7 +669,6 @@ class PtwForm {
         if (data.ptw_checklist_cold_work) {
             try {
                 const coldWorkData = JSON.parse(data.ptw_checklist_cold_work);
-                console.log('Loading cold work checklist data:', coldWorkData);
                 
                 if (typeof coldWorkData === 'object' && coldWorkData !== null) {
                     // Handle object format: {coldElectricalWork: "Electrical Work", ...}
@@ -720,14 +680,12 @@ class PtwForm {
                             const textArea = document.getElementById('coldSpecialPrecautions');
                             if (textArea && itemValue) {
                                 textArea.value = itemValue;
-                                console.log(`Restored cold work special precautions: ${itemValue}`);
                             }
                         } else {
                             // Handle checkbox items
                             const checkbox = document.getElementById(itemKey);
                             if (checkbox) {
                                 checkbox.checked = true;
-                                console.log(`Restored cold work item: ${itemKey}`);
                                 
                                 // Handle "Others" text field
                                 if (itemKey === 'coldOthers') {
@@ -736,11 +694,8 @@ class PtwForm {
                                         // Use the value from the checkbox data (which should be the text)
                                         textField.value = itemValue || '';
                                         textField.disabled = false;
-                                        console.log(`Restored cold work others text: ${itemValue}`);
                                     }
                                 }
-                            } else {
-                                console.warn(`Cold work checkbox not found: ${itemKey}`);
                             }
                         }
                     });
@@ -750,11 +705,9 @@ class PtwForm {
                         const checkbox = document.getElementById(itemId);
                         if (checkbox) {
                             checkbox.checked = true;
-                            console.log(`Restored cold work item: ${itemId}`);
                         }
                     });
                 }
-                console.log('Loaded cold work checklist successfully');
             } catch (e) {
                 console.error('Error parsing cold work checklist:', e);
             }
@@ -764,7 +717,6 @@ class PtwForm {
         if (data.ptw_checklist_confined_space) {
             try {
                 const confinedSpaceData = JSON.parse(data.ptw_checklist_confined_space);
-                console.log('Loading confined space checklist data:', confinedSpaceData);
                 
                 if (typeof confinedSpaceData === 'object' && confinedSpaceData !== null) {
                     // Handle object format with booleans and text fields
@@ -774,10 +726,8 @@ class PtwForm {
                         if (el) {
                             if (el.type === 'checkbox') {
                                 el.checked = !!confinedSpaceData[key];
-                                console.log(`Restored confined space checkbox: ${key}`);
                             } else if (textKeys.has(key)) {
                                 el.value = confinedSpaceData[key] || '';
-                                console.log(`Restored confined space text: ${key} = ${el.value}`);
                             }
                         }
                     });
@@ -797,11 +747,9 @@ class PtwForm {
                         const checkbox = document.getElementById(itemId);
                         if (checkbox) {
                             checkbox.checked = true;
-                            console.log(`Restored confined space item: ${itemId}`);
                         }
                     });
                 }
-                console.log('Loaded confined space checklist successfully');
             } catch (e) {
                 console.error('Error parsing confined space checklist:', e);
             }
@@ -823,7 +771,6 @@ class PtwForm {
                         $(`input[name="${key}"][value="${value}"]`).prop('checked', true);
                     }
                 });
-                console.log('Loaded declaration checklist:', declarationData);
             } catch (e) {
                 console.error('Error parsing declaration checklist:', e);
             }
@@ -833,7 +780,6 @@ class PtwForm {
         if (data.ptw_supporting_docs_checklist) {
             try {
                 const supportingDocsData = JSON.parse(data.ptw_supporting_docs_checklist);
-                console.log('Loading supporting documents data:', supportingDocsData);
                 
                 if (Array.isArray(supportingDocsData)) {
                     // Create reverse mapping from value to ID
@@ -864,18 +810,11 @@ class PtwForm {
                                 if (checkbox) {
                                     checkbox.checked = true;
                                     checkedCount++;
-                                    console.log(`✓ Restored supporting document: ${docValue} -> ${checkboxId}`);
-                                } else {
-                                    console.error(`✗ Checkbox not found: ${checkboxId} for ${docValue}`);
                                 }
-                            } else {
-                                console.warn(`✗ Unknown supporting document value: ${docValue}`);
                             }
                         });
-                        console.log(`Supporting docs loading complete: ${checkedCount}/${supportingDocsData.length} checkboxes checked`);
                     }, 100);
                 }
-                console.log('Loaded supporting docs checklist successfully');
             } catch (e) {
                 console.error('Error parsing supporting docs checklist:', e);
             }
@@ -903,8 +842,6 @@ class PtwForm {
                         $(`#${hazardId}`).prop('checked', hazardData === true);
                     }
                 });
-                
-                console.log('Loaded hazardous activities:', hazardsData);
             } catch (e) {
                 console.error('Error parsing hazardous activities:', e);
             }
@@ -937,8 +874,6 @@ class PtwForm {
                         $(`#txt${key.charAt(0).toUpperCase() + key.slice(1)}`).val(certData);
                     }
                 });
-                
-                console.log('Loaded certificate numbers:', certificateData);
             } catch (e) {
                 console.error('Error parsing certificate numbers:', e);
             }
@@ -1104,9 +1039,6 @@ class PtwForm {
         
         const container = $('#specificChecklistContainer');
         
-        console.log('Loading checklist for work type (jQuery):', workTypeJQuery);
-        console.log('Loading checklist for work type (Native):', workTypeNative);
-        console.log('Final work type used:', workType);
         container.empty();
 
         if (workType && workType !== '' && this.workTypeChecklists[workType]) {
@@ -1129,9 +1061,7 @@ class PtwForm {
             
             html += '</div>';
             container.html(html);
-            console.log('Loaded', items.length, 'checklist items for', workType);
         } else {
-            console.log('No checklist items found for work type:', workType);
             if (!workType || workType === '') {
                 container.html('<p class="text-muted">Select a work type to see specific requirements.</p>');
             } else {
@@ -1141,8 +1071,6 @@ class PtwForm {
     }
 
     syncWorkTypeSectionsAfterLoad(data) {
-        console.log('Syncing work type sections after data load...');
-        
         // Check if any hot work items were loaded and ensure main checkbox is checked and section is visible
         if (data.ptw_checklist_hot_work) {
             try {
@@ -1154,7 +1082,6 @@ class PtwForm {
                     const hotWorkMainCheckbox = document.getElementById('chkHotWork');
                     if (hotWorkMainCheckbox) {
                         hotWorkMainCheckbox.checked = true;
-                        console.log('Checked main hot work checkbox');
                     }
                     
                     // Show the hot work section
@@ -1162,7 +1089,6 @@ class PtwForm {
                     if (hotWorkSection) {
                         hotWorkSection.style.display = 'block';
                         hotWorkSection.classList.remove('d-none');
-                        console.log('Showed hot work section');
                     }
                 }
             } catch (e) {
@@ -1181,7 +1107,6 @@ class PtwForm {
                     const coldWorkMainCheckbox = document.getElementById('chkColdWork');
                     if (coldWorkMainCheckbox) {
                         coldWorkMainCheckbox.checked = true;
-                        console.log('Checked main cold work checkbox');
                     }
                     
                     // Show the cold work section
@@ -1189,7 +1114,6 @@ class PtwForm {
                     if (coldWorkSection) {
                         coldWorkSection.style.display = 'block';
                         coldWorkSection.classList.remove('d-none');
-                        console.log('Showed cold work section');
                     }
                 }
             } catch (e) {
@@ -1208,7 +1132,6 @@ class PtwForm {
                     const confinedSpaceMainCheckbox = document.getElementById('chkConfinedSpace');
                     if (confinedSpaceMainCheckbox) {
                         confinedSpaceMainCheckbox.checked = true;
-                        console.log('Checked main confined space checkbox');
                     }
                     
                     // Show the confined space section
@@ -1216,15 +1139,12 @@ class PtwForm {
                     if (confinedSpaceSection) {
                         confinedSpaceSection.style.display = 'block';
                         confinedSpaceSection.classList.remove('d-none');
-                        console.log('Showed confined space section');
                     }
                 }
             } catch (e) {
                 console.error('Error syncing confined space section:', e);
             }
         }
-        
-        console.log('Work type sections sync completed');
     }
 
     loadChecklistData(checklistData) {
@@ -1275,7 +1195,6 @@ class PtwForm {
     // updateRiskDisplay removed (risk level no longer used)
 
     validateForm() {
-        console.log('validateForm called');
         let isValid = true;
         const errors = [];
 
@@ -1303,7 +1222,6 @@ class PtwForm {
 
         // Basic validation with safe checks
         const description = $('#txtPtwDescription').val();
-        console.log('Description value:', description);
         if (!description || !description.trim()) {
             errors.push('PTW Description is required');
             $('#txtPtwDescription').addClass('is-invalid');
@@ -1311,7 +1229,6 @@ class PtwForm {
         }
 
         const workArea = $('#txtPtwWorkArea').val();
-        console.log('Work Area value:', workArea);
         if (!workArea || !workArea.trim()) {
             errors.push('Work Area is required');
             $('#txtPtwWorkArea').addClass('is-invalid');
@@ -1424,7 +1341,6 @@ class PtwForm {
                         is_certified: false // Table format doesn't have certification checkbox
                     };
                     workers.push(worker);
-                    console.log('Worker from table:', worker);
                 }
             });
         } else {
@@ -1450,8 +1366,6 @@ class PtwForm {
 
     getChecklistData() {
         const checklist = {};
-        
-        console.log('Starting to collect checklist data...');
 
         // General checklist
         let generalCount = 0;
@@ -1460,7 +1374,6 @@ class PtwForm {
                 checklist[$(this).attr('id')] = $(this).is(':checked');
                 if ($(this).is(':checked')) {
                     generalCount++;
-                    console.log(`Found checked general item: ${$(this).attr('id')}`);
                 }
             }
         });
@@ -1472,7 +1385,6 @@ class PtwForm {
                 checklist[$(this).attr('id')] = $(this).is(':checked');
                 if ($(this).is(':checked')) {
                     ppeCount++;
-                    console.log(`Found checked PPE item: ${$(this).attr('id')}`);
                 }
             }
         });
@@ -1481,7 +1393,6 @@ class PtwForm {
         const ppeOthersField = document.getElementById('ppe_others');
         if (ppeOthersField && ppeOthersField.value.trim() !== '') {
             checklist['ppe_others'] = ppeOthersField.value.trim();
-            console.log(`Found PPE others text: ${ppeOthersField.value.trim()}`);
         }
 
         // Specific checklist (work type specific items)
@@ -1493,19 +1404,12 @@ class PtwForm {
             specific[item] = isChecked;
             if (isChecked) {
                 specificCount++;
-                console.log(`Found checked specific item: ${item} (ID: ${$(this).attr('id')})`);
             }
         });
         
         if (Object.keys(specific).length > 0) {
             checklist.specific = specific;
         }
-        
-        console.log(`Checklist collection summary:`);
-        console.log(`- General checklist items checked: ${generalCount}`);
-        console.log(`- PPE checklist items checked: ${ppeCount}`);
-        console.log(`- Specific work type items checked: ${specificCount} out of ${Object.keys(specific).length} total`);
-        console.log('All checklist data:', checklist);
 
         return checklist;
     }
@@ -1536,7 +1440,6 @@ class PtwForm {
             declarations['ppeOthersSpecify'] = ppeOthers.value;
         }
         
-        console.log('Collected contractor declarations:', declarations);
         return declarations;
     }
 
@@ -1581,7 +1484,6 @@ class PtwForm {
             };
         });
         
-        console.log('Collected certificate data:', certificates);
         return certificates;
     }
 
@@ -1618,8 +1520,6 @@ class PtwForm {
     getSupportingDocumentsData() {
         const supportingDocs = [];
         
-        console.log('Starting to collect supporting documents data...');
-        
         // Collect all checked supporting document checkboxes using actual HTML IDs
         const supportingDocMapping = [
             { id: 'docCalibrationCert', value: 'calibration_certificate' },
@@ -1642,18 +1542,14 @@ class PtwForm {
             const checkbox = document.getElementById(doc.id);
             if (checkbox && checkbox.checked) {
                 supportingDocs.push(doc.value);
-                console.log(`Found checked supporting document: ${doc.id} -> ${doc.value}`);
             }
         });
         
-        console.log('Collected supporting documents:', supportingDocs);
         return supportingDocs;
     }
 
     getHazardousActivitiesData() {
         const hazards = {};
-        
-        console.log('Starting to collect hazardous activities data...');
         
         // Collect all hazardous activity checkboxes
         const hazardIds = [
@@ -1674,10 +1570,7 @@ class PtwForm {
                 hazards[hazardId] = isChecked;
                 if (isChecked) {
                     checkedCount++;
-                    console.log(`Found checked hazard: ${hazardId}`);
                 }
-            } else {
-                console.warn(`Hazard checkbox not found: ${hazardId}`);
             }
         });
         
@@ -1693,14 +1586,9 @@ class PtwForm {
             };
             if (isOthersChecked) {
                 checkedCount++;
-                console.log(`Found checked hazard: hazOthers with value: ${othersText.val()}`);
             }
-        } else {
-            console.warn('Others hazard checkbox not found: hazOthers');
         }
         
-        console.log(`Collected hazardous activities: ${checkedCount} items checked out of ${hazardIds.length + 1} total`);
-        console.log('All hazardous activities data:', hazards);
         return hazards;
     }
 
@@ -1711,25 +1599,19 @@ class PtwForm {
             confined_space: null
         };
         
-        console.log('Starting to collect work type specific checklists...');
-        
         // Collect hot work checklist items
         const hotWorkItems = {};
         const hotWorkCheckboxes = document.querySelectorAll('#hotWorkSection input[type="checkbox"]');
-        console.log(`Found ${hotWorkCheckboxes.length} hot work checkboxes`);
         hotWorkCheckboxes.forEach(checkbox => {
-            console.log(`Hot work checkbox: ${checkbox.id}, checked: ${checkbox.checked}`);
             if (checkbox.checked) {
                 const label = checkbox.nextElementSibling ? checkbox.nextElementSibling.textContent.trim() : checkbox.id;
                 hotWorkItems[checkbox.id] = label;
-                console.log(`Added hot work item: ${checkbox.id} = ${label}`);
 
                 // Handle "Others" text field for hot work
                 if (checkbox.id === 'hotOthers') {
                     const hotOthersText = document.getElementById('hotOthersText');
                     if (hotOthersText && hotOthersText.value.trim()) {
                         hotWorkItems['hotOthersText'] = hotOthersText.value.trim();
-                        console.log(`Added hot work others text: ${hotOthersText.value.trim()}`);
                     }
                 }
 
@@ -1738,7 +1620,6 @@ class PtwForm {
                     const nameEl = document.getElementById('hotFirewatchName');
                     if (nameEl && nameEl.value.trim()) {
                         hotWorkItems['hotFirewatchName'] = nameEl.value.trim();
-                        console.log(`Added hot work firewatch name: ${nameEl.value.trim()}`);
                     }
                 }
 
@@ -1747,7 +1628,6 @@ class PtwForm {
                     const txtEl = document.getElementById('hotFireExtinguisherText');
                     if (txtEl && txtEl.value.trim()) {
                         hotWorkItems['hotFireExtinguisherText'] = txtEl.value.trim();
-                        console.log(`Added hot work extinguisher details: ${txtEl.value.trim()}`);
                     }
                 }
 
@@ -1756,7 +1636,6 @@ class PtwForm {
                     const txtEl = document.getElementById('hotControlsOthersText');
                     if (txtEl && txtEl.value.trim()) {
                         hotWorkItems['hotControlsOthersText'] = txtEl.value.trim();
-                        console.log(`Added hot work controls others text: ${txtEl.value.trim()}`);
                     }
                 }
 
@@ -1765,7 +1644,6 @@ class PtwForm {
                     const hoursEl = document.getElementById('hotGasEveryHoursValue');
                     if (hoursEl && hoursEl.value.trim()) {
                         hotWorkItems['hotGasEveryHoursValue'] = hoursEl.value.trim();
-                        console.log(`Added hot work gas every (hours): ${hoursEl.value.trim()}`);
                     }
                 }
             }
@@ -1774,7 +1652,6 @@ class PtwForm {
         const hotSpecialPrecautions = document.getElementById('hotSpecialPrecautions');
         if (hotSpecialPrecautions && hotSpecialPrecautions.value.trim()) {
             hotWorkItems['hotSpecialPrecautions'] = hotSpecialPrecautions.value.trim();
-            console.log(`Added hot work special precautions: ${hotSpecialPrecautions.value.trim()}`);
         }
         if (Object.keys(hotWorkItems).length > 0) {
             workTypeChecklists.hot_work = hotWorkItems;
@@ -1783,20 +1660,16 @@ class PtwForm {
         // Collect cold work checklist items
         const coldWorkItems = {};
         const coldWorkCheckboxes = document.querySelectorAll('#coldWorkSection input[type="checkbox"]');
-        console.log(`Found ${coldWorkCheckboxes.length} cold work checkboxes`);
         coldWorkCheckboxes.forEach(checkbox => {
-            console.log(`Cold work checkbox: ${checkbox.id}, checked: ${checkbox.checked}`);
             if (checkbox.checked) {
                 const label = checkbox.nextElementSibling ? checkbox.nextElementSibling.textContent.trim() : checkbox.id;
                 coldWorkItems[checkbox.id] = label;
-                console.log(`Added cold work item: ${checkbox.id} = ${label}`);
                 
                 // Handle "Others" text field for cold work
                 if (checkbox.id === 'coldOthers') {
                     const othersText = document.getElementById('coldOthersText');
                     if (othersText && othersText.value.trim()) {
                         coldWorkItems[checkbox.id] = othersText.value.trim();
-                        console.log(`Added cold work others text: ${othersText.value.trim()}`);
                     }
                 }
             }
@@ -1806,7 +1679,6 @@ class PtwForm {
         const coldSpecialPrecautions = document.getElementById('coldSpecialPrecautions');
         if (coldSpecialPrecautions && coldSpecialPrecautions.value.trim()) {
             coldWorkItems['coldSpecialPrecautions'] = coldSpecialPrecautions.value.trim();
-            console.log(`Added cold work special precautions: ${coldSpecialPrecautions.value.trim()}`);
         }
         
         if (Object.keys(coldWorkItems).length > 0) {
@@ -1848,15 +1720,11 @@ class PtwForm {
         if ((CS.csStandbyPersonName||'').trim()) CS.csEntryAttendant = true;
         if ((CS.csCommunicationOthersText||'').trim()) CS.csCommunicationOthers = true;
         workTypeChecklists.confined_space = CS;
-        console.log('Added confined space structured object:', CS);
         
-        console.log('Work type specific checklists collected:', workTypeChecklists);
         return workTypeChecklists;
     }
 
     resetForm() {
-        console.log('Resetting form for next submission...');
-        
         // Clear all form inputs
         $('#txtPtwDescription, #txtPtwWorkArea, #txtPtwHazards, #txtPtwControlMeasures').val('');
         $('#txtPtwApplicantName, #txtPtwApplicantContact, #txtPtwApplicantDept').val('');
@@ -1909,12 +1777,9 @@ class PtwForm {
         
         // Re-enable submit button
         $('#btnSubmitApproval').prop('disabled', false);
-        
-        console.log('Form reset completed');
     }
 
     savePtw(status = 'PENDING_APPROVAL') {
-        console.log('savePtw called with status:', status);
         // Guard: site_id required for public submissions
         if (this.isPublicMode) {
             if (!this.siteId) {
@@ -1930,15 +1795,12 @@ class PtwForm {
         // Ensure work type synchronization before validation
         if (typeof window.updateWorkTypeDropdown === 'function') {
             window.updateWorkTypeDropdown();
-            console.log('Work type synchronized before validation:', $('#optPtwWorkType').val());
         }
         
         if (!this.validateForm()) {
-            console.log('Validation failed, returning');
             return;
         }
 
-        console.log('Starting PTW save process...');
         ShowLoader();
 
         // Collect all selected work types for multiple selection support
@@ -1955,11 +1817,6 @@ class PtwForm {
         
         // Final check: if work_type is empty but checkboxes are selected, fix it
         let workType = $('#optPtwWorkType').val();
-        console.log('Initial work type from dropdown:', workType);
-        console.log('Cold work checkbox checked:', $('#chkColdWork').is(':checked'));
-        console.log('Hot work checkbox checked:', $('#chkHotWork').is(':checked'));
-        console.log('Confined space checkbox checked:', $('#chkConfinedSpace').is(':checked'));
-        console.log('All selected work types:', selectedWorkTypes);
         
         if (!workType) {
             // Priority order: Hot Work > Confined Space > Cold Work
@@ -1967,19 +1824,13 @@ class PtwForm {
             if ($('#chkHotWork').is(':checked')) {
                 workType = 'HOT_WORK';
                 $('#optPtwWorkType').val('HOT_WORK');
-                console.log('Work type set to HOT_WORK (hot work checkbox checked)');
             } else if ($('#chkConfinedSpace').is(':checked')) {
                 workType = 'CONFINED_SPACE';
                 $('#optPtwWorkType').val('CONFINED_SPACE');
-                console.log('Work type set to CONFINED_SPACE (confined space checkbox checked)');
             } else if ($('#chkColdWork').is(':checked')) {
                 workType = 'COLD_WORK';
                 $('#optPtwWorkType').val('COLD_WORK');
-                console.log('Work type set to COLD_WORK (cold work checkbox checked)');
             }
-            console.log('Work type fixed from checkboxes:', workType);
-        } else {
-            console.log('Work type already set from dropdown:', workType);
         }
 
     const formData = {
@@ -2078,24 +1929,6 @@ class PtwForm {
             }
         }
 
-        console.log('Form data prepared for public submission:', formData);
-        console.log('Primary work type being sent:', formData.work_type);
-        console.log('All selected work types being sent:', formData.work_types_selected);
-        console.log('Selected work types array:', selectedWorkTypes);
-        console.log('Contractor supervisor being sent:', formData.contractor_supervisor);
-        console.log('Staff NRIC being sent:', formData.staff_nric);
-        console.log('Supervisor contact being sent:', formData.supervisor_contact);
-        console.log('Identification number being sent:', formData.identification_no);
-        console.log('Level being sent:', formData.level);
-        console.log('Workers data being sent:', formData.workers);
-        console.log('Checklist data being sent:', formData.checklist_data);
-        console.log('Hot work checklist being sent:', formData.checklist_hot_work);
-        console.log('Cold work checklist being sent:', formData.checklist_cold_work);
-        console.log('Confined space checklist being sent:', formData.checklist_confined_space);
-        console.log('Hazardous activities being sent:', formData.hazardous_activities);
-        console.log('API URL:', this.apiUrl);
-        console.log('Starting public PTW submission process...');
-
         // Disable submit button to prevent double submission
         $('#btnSubmitApproval').prop('disabled', true);
 
@@ -2108,7 +1941,6 @@ class PtwForm {
             data: formData,
             headers: headers,
             success: (response) => {
-                console.log('AJAX Success Response:', response);
                 if (response.success === true) {
                     const res = response.result || response;
                     const refNo = (res.ptw_permit_number && res.ptw_permit_number !== '')
@@ -2126,7 +1958,6 @@ class PtwForm {
                     // If there are uploaded documents (from ptw_form.html), upload them now
                     const pendingDocs = (typeof window.getUploadedDocuments === 'function') ? window.getUploadedDocuments() : [];
                     if (permitId && Array.isArray(pendingDocs) && pendingDocs.length > 0) {
-                        console.log(`Uploading ${pendingDocs.length} document(s) for permit ${permitId}...`);
                         const fd = new FormData();
                         fd.append('permit_id', String(permitId));
                         if (this.siteId) fd.append('site_id', String(this.siteId));
@@ -2158,7 +1989,6 @@ class PtwForm {
                                 try {
                                     this.showQrModal(refNo, viewUrl);
                                 } catch (e) { console.warn('QR modal error:', e); }
-                                console.log('Public PTW submission successful! Clearing form...');
                                 setTimeout(() => {
                                     this.resetForm();
                                     showSuccess('Form cleared for next submission.');
@@ -2170,14 +2000,12 @@ class PtwForm {
                         try {
                             this.showQrModal(refNo, viewUrl);
                         } catch (e) { console.warn('QR modal error:', e); }
-                        console.log('Public PTW submission successful! Clearing form...');
                         setTimeout(() => {
                             this.resetForm();
                             showSuccess('Form cleared for next submission.');
                         }, 1500);
                     }
                 } else {
-                    console.log('API returned error:', response.message);
                     showError(response.message || 'Failed to save PTW');
                     // Re-enable button on error
                     $('#btnSubmitApproval').prop('disabled', false);
@@ -2185,11 +2013,7 @@ class PtwForm {
                 HideLoader();
             },
             error: (xhr, status, error) => {
-                console.error('AJAX Error Details:');
-                console.error('XHR:', xhr);
-                console.error('Status:', status);
-                console.error('Error:', error);
-                console.error('Response Text:', xhr.responseText);
+                console.error('AJAX Error:', error, xhr.responseText);
                 showError('Failed to save PTW: ' + error);
                 
                 // Re-enable button on error
