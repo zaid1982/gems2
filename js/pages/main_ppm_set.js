@@ -241,9 +241,9 @@ function MainPpmSet () {
             aaSorting: [[1, 'asc']],
             ordering: true,
             language: _DATATABLE_LANGUAGE,
-            pageLength: 10,
+            pageLength: 15,
             autoWidth: false,
-            dom: 't',
+            dom: "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 d-flex justify-content-end mt-3'p>>",
             columnDefs: [
                 { targets: [0, 7], orderable: false, className: 'text-center noVis' },
                 { targets: [5], className: 'text-right' },

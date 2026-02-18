@@ -8,11 +8,13 @@ function ModalPpmSetSelectAsset () {
 
     let currentPpmSetId;
     let currentContractId;
+    let currentAssetGroupId;
+    let currentAssetCategoryId;
     let currentAssetTypeId;
+    let callbackOnAddFunction;
 
     this.init = function () {
-            
-        console.log(refStatus);
+
         // Initialize DataTable for Available Assets
         dtMpssa = $('#dtMpssa').DataTable({ // HTML table ID from modal_ppm_set_select_asset.html
             bLengthChange: false,
@@ -73,10 +75,11 @@ function ModalPpmSetSelectAsset () {
                 { mData: 'assetNo'}, // Asset No
                 { mData: 'assetName'}, // Asset Name
                 { mData: 'assetLocationDesc'}, // Location
-                { mData: 'assetStatus', mRender: function (data) { // Status (assuming from ast_asset.asset_status)
-                        // console.log({data});
-                        // return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
-                        return '';
+                { mData: 'assetStatus', mRender: function (data) {
+                        if (refStatus && refStatus[data]) {
+                            return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                        }
+                        return '<span class="badge badge-pill badge-secondary">N/A</span>';
                     }}
             ]
         });
@@ -193,11 +196,10 @@ function ModalPpmSetSelectAsset () {
             $('#chkMpssaSelectAll').prop('checked', false); // Uncheck select all checkbox
 
             ShowLoader(); setTimeout(function () {
-                // API call to get available assets
-                mzFetch('api/ppm.php?type=assets_for_ppm_set_selection&ppmSetId='+currentPpmSetId+'&contractId='+currentContractId+'&assetTypeId='+currentAssetTypeId+'&assetGroupId='+currentAssetGroupId+'&assetCategoryId='+currentAssetCategoryId, 'GET').then(res => {
-                    dtMpssa.rows.add(res).draw(); // Add new data
-                    $('#modal_ppm_set_select_asset').modal({backdrop: 'static', keyboard: false}).scrollTop(0); // Show modal
-                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+                mzFetch('api/ppm.php?type=assets_for_ppm_set_selection&ppmSetId='+currentPpmSetId+'&assetTypeId='+currentAssetTypeId+'&assetGroupId='+currentAssetGroupId+'&assetCategoryId='+currentAssetCategoryId, 'GET').then(res => {
+                    dtMpssa.rows.add(res).draw();
+                    $('#modal_ppm_set_select_asset').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
+                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }).finally(() => { HideLoader(); });
             }, 200);
 
         } catch (e) { toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); }

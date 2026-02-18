@@ -68,10 +68,11 @@ function ModalPpmSet () {
     ];
 
     function successAfterSubmit() {
-        toastr['success']('PPM Set successfully updated!', _ALERT_TITLE_SUCCESS);
-        classFrom.genTable(); // Refresh table after update
-        $('#modal_ppm_set').modal('hide'); // Hide modal after update
-        HideLoader(); // Remove loading
+        const msg = submitType === 'add' ? 'PPM Set successfully created!' : 'PPM Set successfully updated!';
+        toastr['success'](msg, _ALERT_TITLE_SUCCESS);
+        classFrom.genTable();
+        $('#modal_ppm_set').modal('hide');
+        HideLoader();
     }
 
     /**
@@ -150,15 +151,20 @@ function ModalPpmSet () {
                         assetCategoryId: mzNullInt('optMpsAssetCategory'), // Add assetCategoryId
                     };
                     ShowLoader(); setTimeout(function () {
-                        if (submitType === 'add') {
-                            data['action'] = 'create_ppm_set';
-                            mzAjaxRequest('ppm.php', 'POST', data);
-                            successAfterSubmit();
-                        } else if (submitType === 'put') {
-                            data['ppmSetId'] = parseInt(ppmSetId);
-                            data['action'] = 'update_ppm_set';
-                            mzAjaxRequest('ppm.php?ppmSetId='+parseInt(ppmSetId), 'PUT', data);
-                            successAfterSubmit();
+                        try {
+                            if (submitType === 'add') {
+                                data['action'] = 'create_ppm_set';
+                                mzAjaxRequest('ppm.php', 'POST', data);
+                                successAfterSubmit();
+                            } else if (submitType === 'put') {
+                                data['ppmSetId'] = parseInt(ppmSetId);
+                                data['action'] = 'update_ppm_set';
+                                mzAjaxRequest('ppm.php?ppmSetId='+parseInt(ppmSetId), 'PUT', data);
+                                successAfterSubmit();
+                            }
+                        } catch (e) {
+                            toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                            HideLoader();
                         }
                     }, 200);
                 }
@@ -189,9 +195,7 @@ function ModalPpmSet () {
             formValidate.clearValidation();
             self.resetOption(); // Clear and reset dropdowns
 
-            // ADDED: Initialize the first dropdown here when adding a new record
-            // This ensures refAssetGroup is populated when 'add' is called
-            mzOptionStop('optMpsAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+            _populateSelect('optMpsAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
 
             $('#h4MpsTitle').html('<i class="fas fa-plus mr-2"></i>Add PPM Set'); // Renamed ID and text
             $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0); // Show new modal ID
@@ -216,10 +220,8 @@ function ModalPpmSet () {
                 mzSetFieldValue('txtMpsName', res['ppmSetName']); // This will work with 'txt' prefix
                 mzSetFieldValue('txaMpsDesc', res['ppmSetDesc']); // This will work with 'txa' prefix
 
-                // ADDED: Initialize the first dropdown here when editing, before setting its value
-                // This ensures refAssetGroup is populated when 'edit' is called
-                mzOptionStop('optMpsAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
-                
+                _populateSelect('optMpsAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+
                 mzSetFieldValue('optMpsAssetGroup', res['assetGroupId']);
                 $('#optMpsAssetGroup').trigger('change');
                 mzSetFieldValue('optMpsAssetCategory', res['assetCategoryId']);
@@ -227,15 +229,17 @@ function ModalPpmSet () {
                 mzSetFieldValue('optMpsAssetType', res['assetTypeId']);
                 $('#optMpsAssetType').trigger('change');
 
-                mzSetFieldValue('optMpsPpmGroupId', res['ppmGroupId']); // This will work with 'opt' prefix
-                
-                const isDisable = res['ppmSetStatus'] != 1; // Using loose equality to check for both 1 and "1"
-                mzDisableSelect('optMpsAssetGroup', isDisable);
-                mzDisableSelect('optMpsAssetCategory', isDisable);
-                mzDisableSelect('optMpsAssetType', isDisable);
-                mzDisableSelect('optMpsPpmGroupId', isDisable);
-                $('#txtMpsName').prop('disabled', isDisable);
-                $('#txaMpsDesc').prop('disabled', isDisable);
+                mzSetFieldValue('optMpsPpmGroupId', res['ppmGroupId']);
+
+                const isDisable = res['ppmSetStatus'] != 1;
+                if (isDisable) {
+                    mzDisableSelect('optMpsAssetGroup', true);
+                    mzDisableSelect('optMpsAssetCategory', true);
+                    mzDisableSelect('optMpsAssetType', true);
+                    mzDisableSelect('optMpsPpmGroupId', true);
+                    $('#txtMpsName').prop('disabled', true);
+                    $('#txaMpsDesc').prop('disabled', true);
+                }
 
                 formValidate.disableField('optMpsAssetGroup', isDisable);
                 formValidate.disableField('optMpsAssetCategory', isDisable);
@@ -246,14 +250,14 @@ function ModalPpmSet () {
 
                 $('#h4MpsTitle').html('<i class="fas fa-edit mr-2"></i>Edit PPM Set');
                 $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
-            }).catch((e) => { 
-                toastr['error'](e.message, _ALERT_TITLE_ERROR); 
-                HideLoader(); 
+                HideLoader();
+            }).catch((e) => {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                HideLoader();
             });
-        } catch (e) { 
-            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); 
-        } finally {
-            HideLoader(); // Ensure loader is hidden even if an error occurs
+        } catch (e) {
+            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+            HideLoader();
         }
     };
 
