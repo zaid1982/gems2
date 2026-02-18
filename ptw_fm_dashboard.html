@@ -101,28 +101,6 @@
         }
     </style>
 
-    <script>
-        // Minimal UI guard: verify user has FM role before rendering
-        (function(){
-            function getAuthHeader() {
-                const t = sessionStorage.getItem('token') || localStorage.getItem('token');
-                return t ? { 'Authorization': 'Bearer ' + t } : { 'Authorization': 'Bearer valid_test_token_for_fm_dashboard' };
-            }
-            fetch('api/ptw.php?action=get_my_roles', { headers: getAuthHeader() })
-                .then(r => r.json())
-                .then(j => {
-                    if (!j || !j.success || !j.result || (!j.result.hasFM && !j.result.isAdmin)) {
-                        // No FM role: send to home
-                        window.location.href = 'home.html';
-                    }
-                })
-                .catch(() => {
-                    // On error, fail closed to home
-                    window.location.href = 'home.html';
-                });
-        })();
-    </script>
-    
     <!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <!--JQuery Migrate-->
@@ -613,6 +591,13 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function () {
         try {
             initiatePages();
+
+            // Role guard: ensure user has PTW FM (26) or Admin (1,10,19) role
+            if (!mzIsRoleExist('26') && !mzIsRoleExist('1') && !mzIsRoleExist('10') && !mzIsRoleExist('19')) {
+                window.location.href = 'home.html';
+                return;
+            }
+
             versionLocal_ = mzGetDataVersion();
             changePasswordClass_ = new ModalChangePassword();
             
