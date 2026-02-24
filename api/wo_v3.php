@@ -170,11 +170,13 @@ try {
             $fnTask->checkValidity($checkpointId);
             $fnTask->submit('', 10, 8, 0, 0, $bodyParams['woTaskAssignedTo']);
             $fnMain->submitAssign($bodyParams, $woTask['transactionId']);
+            // After submitAssign, woTaskIsWr and woTaskNo may have been updated (self-finding WR → WO conversion)
+            $woTaskNoAfter = !empty($fnMain->woTaskNo) ? $fnMain->woTaskNo : $woTask['woTaskNo'];
             $emailTemplateId = $fnMain->woTaskIsWr === 1 ? 11 : 5;
             $notiTextId = $fnMain->woTaskIsWr === 1 ? 12 : 6;
-            $fnEmail->prepare($bodyParams['woTaskAssignedTo'], $emailTemplateId, array('task_no' => $woTask['woTaskNo']));
-            $fnNoti->prepare($bodyParams['woTaskAssignedTo'], $notiTextId, array('task_no' => $woTask['woTaskNo']));
-            $fnMain->saveAudit(129, 'Work ' . ($fnMain->woTaskIsWr === 1 ? 'Request' : 'Order') . ' no. = ' . $woTask['woTaskNo']);
+            $fnEmail->prepare($bodyParams['woTaskAssignedTo'], $emailTemplateId, array('task_no' => $woTaskNoAfter));
+            $fnNoti->prepare($bodyParams['woTaskAssignedTo'], $notiTextId, array('task_no' => $woTaskNoAfter));
+            $fnMain->saveAudit(129, 'Work ' . ($fnMain->woTaskIsWr === 1 ? 'Request' : 'Order') . ' no. = ' . $woTaskNoAfter);
             $formData['errmsg'] = Constant::$wo['assign'];
         }
         else if ($urlArr[1] === 'reject_complaint' && isset($urlArr[2])) {

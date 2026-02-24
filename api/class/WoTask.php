@@ -332,13 +332,44 @@ class WoTask extends General {
 
             $columns['woTaskAssignedBy'] = $this->userId;
             $columns['woTaskTimeAssigned'] = 'NOW()';
-            if ($this->woTaskIsWr === 1) {
+
+            // Check if this is a Self-Finding (Internal Complaint) WR that should convert to WO at assignment.
+            // woTaskTypeInit '2' = Internal Complaint (Self Finding) — immutable original type.
+            $woTask = DbMysql::select($this::$tableName, array('woTaskId'=>$this->woTaskId), 1);
+            $shouldConvertToWo = ($this->woTaskIsWr === 1 && intval($woTask['woTaskTypeInit']) === 2);
+
+            if ($shouldConvertToWo) {
+                // Self-Finding WR converts to WO upon assignment.
+                // Generate new WO number using the assigning user's site.
+                $siteId = intval(DbMysql::selectColumn('sys_user', array('userId'=>$this->userId), 'siteId', true));
+                $site = DbMysql::select('cli_site', array('siteId'=>$siteId), 1);
+                $curDates = new DateTime();
+                $siteCode = $site['siteCode'];
+                $runningNo = intval($site['siteRunningNoWo']);
+                $runningNoTemp = 100000 + $runningNo;
+                $runningNoStr = substr(strval($runningNoTemp), 1);
+                DbMysql::update('cli_site', array('siteRunningNoWo'=>'++'), array('siteId'=>$siteId));
+                $newWoTaskNo = 'WO'.$siteCode.$curDates->format("ymd").$runningNoStr;
+
+                $woStatus = 13; // In Progress
+                $columns['woTaskNo'] = $newWoTaskNo;
+                $columns['woTaskIsWr'] = 0;
+                $columns['woTaskIsPdf'] = 1;
+                $columns['woTaskIsPdfWr'] = 0;
+
+                // Update instance properties so caller can use updated values
+                $this->woTaskIsWr = 0;
+                $this->woTaskNo = $newWoTaskNo;
+            } else if ($this->woTaskIsWr === 1) {
+                // Client/Public Complaint WR — stays as WR after assignment
                 $woStatus = 27;
                 $columns['woTaskIsPdfWr'] = 1;
             } else {
+                // Already a WO (reassignment or non-WR site)
                 $woStatus = 13;
                 $columns['woTaskIsPdf'] = 1;
             }
+
             $columns['woTaskStatus'] = $woStatus;
             DbMysql::update($this::$tableName, $columns, array('woTaskId'=>$this->woTaskId));
             DbMysql::update('wfl_transaction', array('transactionStatus'=>$woStatus), array('transactionId'=>$transactionId));
