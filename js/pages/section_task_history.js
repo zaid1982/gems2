@@ -301,9 +301,11 @@ function SectionTaskHistory() {
         let trainStationFlag = '';
         if (taskDetails && taskDetails['flowId'] === '2') {
             const woTask = mzAjaxRequest('wo.php?type=wo_by_transaction&transactionId=' + transactionId, 'GET');
-            if (woTask['woTaskTypeInit'] === '1') {
+            if (woTask['woTaskTypeInit'] === '1' || woTask['woTaskTypeInit'] === '6') {
+                // Self-Finding (1) and Public Complaint (6) both start at CP 11
                 trainStationFlag = woTask['woTaskIsWr'] === '1' ? '3' : '1';
             } else {
+                // Internal/Client Complaint starts at CP 10
                 trainStationFlag = '2';
             }
 
