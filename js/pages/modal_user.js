@@ -35,25 +35,18 @@ function ModalUser() {
     }
 
     // Helper: set PTW checkbox values from refRole
-    // Falls back to previously-set data-role-id so values are never wiped
     function applyPtwRoleIds() {
-        const mapping = [
-            { desc: 'PTW Supervisor',       chk: '#chkMusRolePTWSUP', div: '#divMusRolePTWSUP' },
-            { desc: 'PTW SHE',              chk: '#chkMusRolePTWSHE', div: '#divMusRolePTWSHE' },
-            { desc: 'PTW Facility Manager', chk: '#chkMusRolePTWFM',  div: '#divMusRolePTWFM'  }
-        ];
-        mapping.forEach(function (m) {
-            let id = getRoleIdByDesc(m.desc);
-            if (!id) {
-                // Fallback: keep any previously resolved value
-                id = String($(m.chk).attr('data-role-id') || $(m.chk).val() || '').trim();
-            }
-            if (id) {
-                $(m.chk).val(id).attr('data-role-id', id);
-            }
-        });
+        console.log('[modal_user] applyPtwRoleIds called, refRole:', refRole);
+        const rSup = getRoleIdByDesc('PTW Supervisor');
+        const rShe = getRoleIdByDesc('PTW SHE');
+        const rFm  = getRoleIdByDesc('PTW Facility Manager');
+        console.log('[modal_user] PTW role IDs: Supervisor=' + rSup + ', SHE=' + rShe + ', FM=' + rFm);
+        if (rSup) $('#chkMusRolePTWSUP').val(rSup).attr('data-role-id', rSup); else $('#divMusRolePTWSUP').hide();
+        if (rShe) $('#chkMusRolePTWSHE').val(rShe).attr('data-role-id', rShe); else $('#divMusRolePTWSHE').hide();
+        if (rFm)  $('#chkMusRolePTWFM').val(rFm).attr('data-role-id', rFm); else $('#divMusRolePTWFM').hide();
 
-        // MR Reviewer fallback
+        // MR Reviewer is a workflow role that may not exist in older local caches.
+        // Always ensure the checkbox has a usable roleId so it gets included in payload.
         let rMrReviewer = getRoleIdByDesc('MR Reviewer');
         if (!rMrReviewer) {
             const existing = String($('#chkMusRoleMRReviewer').attr('data-role-id') || $('#chkMusRoleMRReviewer').val() || '').trim();
@@ -225,8 +218,11 @@ function ModalUser() {
                         let isInternalComplainer = false;
                         let isWoAssigner = false;
                         let isWoHelpdesk = false;
+                        // Debug: log all checked checkboxes and their values
+                        console.log('[modal_user] Collecting checked roles:');
                         $("input[name='chkMusRole[]']:checked").map(function(){
                             const val = ($(this).val() || '').trim();
+                            console.log('[modal_user] Checkbox id=' + $(this).attr('id') + ', val=' + val);
                             if (val !== '') {
                                 rolesStr += ','+val;
                             }
@@ -241,6 +237,7 @@ function ModalUser() {
                             }
                         });
                         rolesStr = rolesStr.length > 0 ? rolesStr.slice(1) : rolesStr;
+                        console.log('[modal_user] Final rolesStr:', rolesStr);
                         const userType = $("input[name='chkMusUserType']:checked").val();
 
                         if (userType === '1' && isInternalComplainer === false) {
@@ -295,8 +292,9 @@ function ModalUser() {
         // Ensure PTW roles are hidden until user type selection
         $('#divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
         $('#divMusRoleMRReviewer').hide();
-        // Re-apply PTW/MR role IDs so values are never left empty
-        applyPtwRoleIds();
+        // Clear PTW checkbox values until refRole is set
+        $('#chkMusRolePTWSUP, #chkMusRolePTWSHE, #chkMusRolePTWFM').val('');
+        $('#chkMusRoleMRReviewer').val('');
     };
 
     this.add = function () {

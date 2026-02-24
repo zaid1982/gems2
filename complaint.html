@@ -320,24 +320,26 @@
             ];
             $('.divPsaForm').hide();
 
-            const urlParams = window.location.href.split('?z=');
-            if (!mzValidNumeric(urlParams[1])) {
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const zoneParam = urlSearchParams.get('z');
+            if (!mzValidNumeric(zoneParam)) {
                 throw new Error(_ALERT_MSG_ERROR_DEFAULT);
             }
-            const zoneId = parseInt(urlParams[1]);
+            const zoneId = parseInt(zoneParam);
 
             ShowLoader(); setTimeout(function () {
                 mzFetch('zone/ext/'+zoneId).then(zone => {
-                    if (zone['zoneStatus'] !== 1) {
-                        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                    if (parseInt(zone['zoneStatus']) !== 1) {
+                        throw new Error('Zone is not active. Please contact Administrator!');
                     }
                     siteId = zone['siteId'];
-                    const site = mzAjaxRequest('site.php?external=1&siteId='+siteId, 'GET');
-                    if (site['siteIsPublic'] !== '1') {
-                        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+                    $('#lblPsaZoneName').text(zone['zoneCode']+' - '+zone['zoneName']);
+                    return mzFetch('api/site.php?external=1&siteId='+siteId);
+                }).then(site => {
+                    if (String(site['siteIsPublic']) !== '1') {
+                        throw new Error('Site is not available for public complaints. Please contact Administrator!');
                     }
                     $('#lblPsaSiteName').text(site['siteName']);
-                    $('#lblPsaZoneName').text(zone['zoneCode']+' - '+zone['zoneName']);
                     $('.divPsaErr').hide();
                     $('.divPsaForm').show();
                 }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
@@ -393,7 +395,7 @@
                             }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
                         }, 200);
                     }
-                } catch (e) { oastr['error'](e.message, _ALERT_TITLE_ERROR); }
+                } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
             });
         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
     });
