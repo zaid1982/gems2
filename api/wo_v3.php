@@ -106,7 +106,7 @@ try {
             throw new Exception('[line: ' . __LINE__ . '] - Invalid siteId');
         }
         $siteId = intval($bodyParams['siteId']);
-        $fnMain->userId = DbMysql::selectColumn('sys_user', array('userFirstName'=>Constant::$publicUser, 'siteId'=>$siteId), 'userId', 1);
+        $fnMain->userId = $fnMain->getOrCreatePublicUser($siteId);
         $fnMain->logDebug('API', $apiName, __LINE__, 'userId = '.$fnMain->userId);
         $groupId = DbMysql::selectColumn('sys_user_role', array('userId'=>$fnMain->userId, 'roleId'=>6), 'groupId', 1);
         if (DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'groupId', 1) !== $groupId) {

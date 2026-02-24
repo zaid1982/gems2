@@ -44,6 +44,78 @@ class WoTask extends General {
     }
 
     /**
+     * Auto-create a "Public User" for a site if one does not exist.
+     * This is needed for public complaint submissions — the system requires a
+     * user account with roleId=6 (Complainant) for each site that accepts public complaints.
+     *
+     * @param int $siteId
+     * @return int The userId of the (existing or newly created) Public User
+     * @throws Exception
+     */
+    public function getOrCreatePublicUser (int $siteId): int {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+            parent::checkEmptyInteger($siteId, 'siteId');
+
+            // Check if a Public User already exists for this site
+            $existingUser = DbMysql::select('sys_user', array('userFirstName'=>Constant::$publicUser, 'siteId'=>$siteId));
+            if (!empty($existingUser)) {
+                $userId = $existingUser['userId'];
+                // Ensure role 6 exists for this user
+                if (DbMysql::count('sys_user_role', array('userId'=>$userId, 'roleId'=>6)) === 0) {
+                    $groupId = DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'groupId', true);
+                    DbMysql::insert('sys_user_role', array('userId'=>$userId, 'roleId'=>6, 'groupId'=>$groupId));
+                }
+                return $userId;
+            }
+
+            // Create a new Public User
+            $groupId = DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'groupId', true);
+            $siteCode = DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'siteCode', true);
+            $userName = 'public_' . strtolower($siteCode);
+
+            // Ensure username is unique — append siteId if collision
+            if (DbMysql::count('sys_user', array('userName'=>$userName)) > 0) {
+                $userName = 'public_' . strtolower($siteCode) . '_' . $siteId;
+            }
+
+            $userId = DbMysql::insert('sys_user', array(
+                'userName'=>$userName,
+                'userType'=>'2',
+                'userPassword'=>md5(bin2hex(random_bytes(16))),
+                'userFirstName'=>Constant::$publicUser,
+                'siteId'=>$siteId,
+                'userStatus'=>1
+            ));
+
+            DbMysql::insert('sys_user_profile', array(
+                'userId'=>$userId,
+                'userEmail'=>'public@' . strtolower($siteCode) . '.gems',
+                'userContactNo'=>''
+            ));
+
+            DbMysql::insert('sys_user_group', array('userId'=>$userId, 'groupId'=>$groupId));
+            DbMysql::insert('sys_user_role', array('userId'=>$userId, 'roleId'=>6, 'groupId'=>$groupId));
+
+            // Create checkpoint-user mappings for role 6 so WflTask::createNew works
+            $checkpoints = DbMysql::selectAll('wfl_checkpoint', array('checkpointType'=>'<>3', 'roleId'=>6));
+            foreach ($checkpoints as $checkpoint) {
+                DbMysql::insert('wfl_checkpoint_user', array(
+                    'userId'=>$userId,
+                    'checkpointId'=>$checkpoint['checkpointId'],
+                    'roleId'=>6,
+                    'groupId'=>$groupId
+                ));
+            }
+
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Created Public User for siteId='.$siteId.', userId='.$userId);
+            return $userId;
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @param int $siteId
      * @return void
      * @throws Exception
