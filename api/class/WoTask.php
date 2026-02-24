@@ -47,6 +47,8 @@ class WoTask extends General {
      * Auto-create a "Public User" for a site if one does not exist.
      * This is needed for public complaint submissions — the system requires a
      * user account with roleId=6 (Complainant) for each site that accepts public complaints.
+     * Also ensures all workflow-related entries (sys_user_group, sys_user_role,
+     * wfl_checkpoint_user) are in place for both new and existing users.
      *
      * @param int $siteId
      * @return int The userId of the (existing or newly created) Public User
@@ -57,58 +59,73 @@ class WoTask extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             parent::checkEmptyInteger($siteId, 'siteId');
 
+            $groupId = DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'groupId', true);
+            $siteCode = DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'siteCode', true);
+
             // Check if a Public User already exists for this site
             $existingUser = DbMysql::select('sys_user', array('userFirstName'=>Constant::$publicUser, 'siteId'=>$siteId));
             if (!empty($existingUser)) {
                 $userId = $existingUser['userId'];
-                // Ensure role 6 exists for this user
-                if (DbMysql::count('sys_user_role', array('userId'=>$userId, 'roleId'=>6)) === 0) {
-                    $groupId = DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'groupId', true);
-                    DbMysql::insert('sys_user_role', array('userId'=>$userId, 'roleId'=>6, 'groupId'=>$groupId));
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Found existing Public User userId='.$userId.' for siteId='.$siteId);
+            } else {
+                // Create a new Public User
+                $userName = 'public_' . strtolower($siteCode);
+                // Ensure username is unique — append siteId if collision
+                if (DbMysql::count('sys_user', array('userName'=>$userName)) > 0) {
+                    $userName = 'public_' . strtolower($siteCode) . '_' . $siteId;
                 }
-                return $userId;
+
+                $userId = DbMysql::insert('sys_user', array(
+                    'userName'=>$userName,
+                    'userType'=>'2',
+                    'userPassword'=>md5(bin2hex(random_bytes(16))),
+                    'userFirstName'=>Constant::$publicUser,
+                    'siteId'=>$siteId,
+                    'userStatus'=>1
+                ));
+
+                DbMysql::insert('sys_user_profile', array(
+                    'userId'=>$userId,
+                    'userEmail'=>'public@' . strtolower($siteCode) . '.gems',
+                    'userContactNo'=>''
+                ));
+
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Created Public User for siteId='.$siteId.', userId='.$userId);
             }
 
-            // Create a new Public User
-            $groupId = DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'groupId', true);
-            $siteCode = DbMysql::selectColumn('cli_site', array('siteId'=>$siteId), 'siteCode', true);
-            $userName = 'public_' . strtolower($siteCode);
-
-            // Ensure username is unique — append siteId if collision
-            if (DbMysql::count('sys_user', array('userName'=>$userName)) > 0) {
-                $userName = 'public_' . strtolower($siteCode) . '_' . $siteId;
+            // Ensure sys_user_group exists with the correct groupId
+            if (DbMysql::count('sys_user_group', array('userId'=>$userId, 'groupId'=>$groupId)) === 0) {
+                DbMysql::insert('sys_user_group', array('userId'=>$userId, 'groupId'=>$groupId));
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Inserted sys_user_group for userId='.$userId.', groupId='.$groupId);
             }
 
-            $userId = DbMysql::insert('sys_user', array(
-                'userName'=>$userName,
-                'userType'=>'2',
-                'userPassword'=>md5(bin2hex(random_bytes(16))),
-                'userFirstName'=>Constant::$publicUser,
-                'siteId'=>$siteId,
-                'userStatus'=>1
-            ));
+            // Ensure sys_user_role for roleId=6 with correct groupId
+            if (DbMysql::count('sys_user_role', array('userId'=>$userId, 'roleId'=>6, 'groupId'=>$groupId)) === 0) {
+                // Remove any role 6 entry with wrong groupId
+                if (DbMysql::count('sys_user_role', array('userId'=>$userId, 'roleId'=>6)) > 0) {
+                    DbMysql::delete('sys_user_role', array('userId'=>$userId, 'roleId'=>6));
+                }
+                DbMysql::insert('sys_user_role', array('userId'=>$userId, 'roleId'=>6, 'groupId'=>$groupId));
+                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Inserted sys_user_role for userId='.$userId.', roleId=6, groupId='.$groupId);
+            }
 
-            DbMysql::insert('sys_user_profile', array(
-                'userId'=>$userId,
-                'userEmail'=>'public@' . strtolower($siteCode) . '.gems',
-                'userContactNo'=>''
-            ));
-
-            DbMysql::insert('sys_user_group', array('userId'=>$userId, 'groupId'=>$groupId));
-            DbMysql::insert('sys_user_role', array('userId'=>$userId, 'roleId'=>6, 'groupId'=>$groupId));
-
-            // Create checkpoint-user mappings for role 6 so WflTask::createNew works
+            // Ensure wfl_checkpoint_user entries exist for roleId=6
             $checkpoints = DbMysql::selectAll('wfl_checkpoint', array('checkpointType'=>'<>3', 'roleId'=>6));
             foreach ($checkpoints as $checkpoint) {
-                DbMysql::insert('wfl_checkpoint_user', array(
-                    'userId'=>$userId,
-                    'checkpointId'=>$checkpoint['checkpointId'],
-                    'roleId'=>6,
-                    'groupId'=>$groupId
-                ));
+                if (DbMysql::count('wfl_checkpoint_user', array('userId'=>$userId, 'checkpointId'=>$checkpoint['checkpointId'], 'roleId'=>6, 'groupId'=>$groupId)) === 0) {
+                    // Remove stale entry with wrong groupId if exists
+                    if (DbMysql::count('wfl_checkpoint_user', array('userId'=>$userId, 'checkpointId'=>$checkpoint['checkpointId'], 'roleId'=>6)) > 0) {
+                        DbMysql::delete('wfl_checkpoint_user', array('userId'=>$userId, 'checkpointId'=>$checkpoint['checkpointId'], 'roleId'=>6));
+                    }
+                    DbMysql::insert('wfl_checkpoint_user', array(
+                        'userId'=>$userId,
+                        'checkpointId'=>$checkpoint['checkpointId'],
+                        'roleId'=>6,
+                        'groupId'=>$groupId
+                    ));
+                }
             }
 
-            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Created Public User for siteId='.$siteId.', userId='.$userId);
             return $userId;
         } catch (Exception|Throwable $ex) {
             throw new Exception('[' . __CLASS__ . ':' . __FUNCTION__ . '] ' . $ex->getMessage(), $ex->getCode());
