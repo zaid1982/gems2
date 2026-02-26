@@ -835,6 +835,10 @@ class Class_db{
             //$this->DBH = new PDO("mysql:host=$dbhost;dbname=$dbname;charset=utf8", $config['username'], $config['password']);
             $this->DBH = new PDO("mysql:host=$dbhost;port=3306;dbname=$dbname;charset=utf8", $config['username'], $config['password']);
             $this->DBH->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+            
+            // Match DbMysql: remove STRICT_TRANS_TABLES so MySQL warnings
+            // (e.g. 1265 Data truncated for ENUM columns) are not promoted to errors.
+            $this->DBH->exec("SET SESSION sql_mode = 'ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'");
         }
         catch(PDOException $e) {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()));

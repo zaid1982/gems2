@@ -78,7 +78,12 @@ try {
             $now = new DateTime();
             $year = intval($now->format('Y'));
             $month = intval($now->format('n'));
-            $fnAttTransaction->updateMonthly($fnMain->attParticipantId, $year, $month, intval($params['generateType']));
+            $transactionCount = DbMysql::count('att_transaction', array('attParticipantId'=>$fnMain->attParticipantId, 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month));
+            if ($transactionCount === 0) {
+                $fnAttTransaction->insertMonthly($fnMain->attParticipantId, $year, $month, intval($params['generateType']));
+            } else {
+                $fnAttTransaction->updateMonthly($fnMain->attParticipantId, $year, $month, intval($params['generateType']));
+            }
         }
         $fnMain->saveAudit(192, $fnMain->attParticipantName);
         $formData['errmsg'] = str_replace('__', $fnMain->attParticipantName, Constant::$attParticipant['update']);

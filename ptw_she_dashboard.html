@@ -582,19 +582,108 @@
             </div>
         </div> -->
 
-        <!-- Main Content -->
+        <!-- Main Content - Pending SHE Approval -->
         <div class="main-content-card">
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        <h4><i class="fas fa-exclamation-triangle mr-2"></i>PTW Permits Awaiting SHE Approval</h4>
+                        <h4 class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            PTW Permits Awaiting SHE Approval
+                            <span class="badge badge-warning ml-2" id="countPendingSHEList">0</span>
+                        </h4>
                     </div>
-                    <!-- Right-side header controls intentionally removed (no risk filters) -->
                 </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table id="dtPendingSHE" class="table table-striped table-modern w-100" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="width:4%" class="text-center">No</th>
+                                <th style="width:14%">Request No</th>
+                                <th style="width:14%">Permit No</th>
+                                <th style="width:20%">Company Name</th>
+                                <th style="width:16%">Date</th>
+                                <th style="width:12%">Status</th>
+                                <th style="width:20%" class="text-nowrap">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- In-Progress PTW (All Statuses) -->
+        <div class="main-content-card mt-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4 class="d-flex align-items-center">
+                            <i class="fas fa-clipboard-list mr-2"></i>
+                            In-Progress PTW
+                            <span class="badge badge-info ml-2" id="countInProgressList">0</span>
+                        </h4>
+                    </div>
+                    <div class="col-md-4 text-right header-controls">
+                        <div class="d-inline-block mr-2 align-middle">
+                            <label for="statusFilterSelectSHE" class="mr-2 mb-0 small text-muted d-sm-inline">Status:</label>
+                            <select id="statusFilterSelectSHE" class="form-control form-control-sm" onchange="setStatusFilter(this.value)" aria-label="Status filter" title="Status filter">
+                                <option value="ALL">All</option>
+                                <option value="PENDING_SUPERVISOR">Pending Supervisor</option>
+                                <option value="PENDING_SHE">Pending SHE</option>
+                                <option value="PENDING_FM">Pending FM</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="SUSPENDED">Suspended</option>
+                            </select>
+                        </div>
+                        <div class="custom-control custom-switch d-inline-block mr-2">
+                            <input type="checkbox" class="custom-control-input" id="toggleShowCancelled" onchange="toggleShowCancelled()">
+                            <label class="custom-control-label" for="toggleShowCancelled"><small>Show Cancelled</small></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="dtInProgressSHE" class="table table-striped table-modern w-100" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="width:4%" class="text-center">No</th>
+                                <th style="width:14%">Request No</th>
+                                <th style="width:14%">Permit No</th>
+                                <th style="width:20%">Company Name</th>
+                                <th style="width:16%">Date</th>
+                                <th style="width:12%">Status</th>
+                                <th style="width:20%" class="text-nowrap">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Permit History -->
+        <div class="main-content-card mt-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4 class="d-flex align-items-center">
+                            <i class="fas fa-history mr-2"></i>
+                            Permit History
+                            <span class="badge badge-info ml-2" id="countHistoryList">0</span>
+                        </h4>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <small class="text-muted">Closed, Cancelled, Rejected</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="dtHistorySHE" class="table table-striped table-modern w-100" style="width:100%">
                         <thead>
                             <tr>
                                 <th style="width:4%" class="text-center">No</th>
@@ -747,9 +836,13 @@ window.safeToast = window.safeToast || function(type, message, title) {
 };
 
 let shePermitsTable;
+let inProgressSHETable;
+let historySHETable;
 let currentPermitId = null;
 let currentPermitNumber = null;
 let refreshInterval;
+let statusFilter = 'ALL';
+let showCancelled = false;
 let versionLocal_;
 let changePasswordClass_;
 
@@ -807,9 +900,54 @@ function initializeSHEDashboard() {
         ]
     });
 
+    // Initialize In-Progress DataTable
+    inProgressSHETable = $('#dtInProgressSHE').DataTable({
+        responsive: true,
+        lengthChange: false,
+        pageLength: 10,
+        autoWidth: false,
+        order: [[4, 'desc']],
+        language: { emptyTable: "No in-progress permits", zeroRecords: "No matching permits found" },
+        columns: [
+            { data: null, className: 'text-center', width: '4%', render: function(_d,_t,_r,meta){ return meta.row + 1; } },
+            { data: 'ptw_request_number', width: '14%', render: function(d){ return d || '-'; } },
+            { data: 'ptw_permit_number', width: '14%', render: function(d){ return d || '-'; } },
+            { data: 'ptw_contractor_company', width: '20%', render: function(d,_t,row){ return d || (row && row.ptw_applicant_company_dept) || '-'; } },
+            { data: null, width: '16%', render: function(_d,type,row){ return renderInProgressDateSHE(_d,type,row); } },
+            { data: 'ptw_status', width: '12%', render: function(_s,_t,row){ return getStatusBadge(getDisplayStatusSHE(row)); } },
+            { data: null, width: '20%', className: 'text-nowrap', render: function(_d,_t,row){ return getUnifiedActionButtonsSHE(row); } }
+        ],
+        columnDefs: [
+            { targets: [6], orderable: false, searchable: false }
+        ]
+    });
+
+    // Initialize History DataTable
+    historySHETable = $('#dtHistorySHE').DataTable({
+        responsive: true,
+        lengthChange: false,
+        pageLength: 10,
+        autoWidth: false,
+        order: [[4, 'desc']],
+        language: { emptyTable: "No historical records", zeroRecords: "No matching records found" },
+        columns: [
+            { data: null, className: 'text-center', width: '4%', render: function(_d,_t,_r,meta){ return meta.row + 1; } },
+            { data: 'ptw_request_number', width: '14%', render: function(d){ return d || '-'; } },
+            { data: 'ptw_permit_number', width: '14%', render: function(d){ return d || '-'; } },
+            { data: 'ptw_contractor_company', width: '20%', render: function(d,_t,row){ return d || (row && row.ptw_applicant_company_dept) || '-'; } },
+            { data: null, width: '16%', render: function(_d,type,row){ return renderHistoryDateSHE(_d,type,row); } },
+            { data: 'ptw_status', width: '12%', render: function(_s,_t,row){ return getStatusBadge(getDisplayStatusSHE(row)); } },
+            { data: null, width: '20%', className: 'text-nowrap', render: function(_d,_t,row){ return getViewOnlyButtonsSHE(row); } }
+        ],
+        columnDefs: [
+            { targets: [6], orderable: false, searchable: false }
+        ]
+    });
+
     // Load initial data
     loadShePermits();
     loadSummaryStats();
+    loadAllPermitData();
     
     // Set up auto-refresh
     setupAutoRefresh();
@@ -862,6 +1000,7 @@ function refreshAllData() {
     showInfo('Refreshing dashboard data...');
     loadShePermits();
     loadSummaryStats();
+    loadAllPermitData();
 }
 
 // --- Signature Validation (SHE) ---
@@ -931,6 +1070,7 @@ function populateShePermitsTable(permits) {
         shePermitsTable.clear();
         if (list.length) shePermitsTable.rows.add(list);
         shePermitsTable.draw();
+        try { document.getElementById('countPendingSHEList').textContent = shePermitsTable.rows().count(); } catch(e) {}
     } catch(e){
         console.error('populateShePermitsTable error', e);
     }
@@ -1537,15 +1677,42 @@ function getWorkTypeBadge(workType) {
 }
 
 function getStatusBadge(status) {
-    if(!status) return '<span class="badge badge-modern badge-compact badge-dark">-</span>';
-    const s = status.toUpperCase();
-    if (s === 'COMPLETED' || s === 'CLOSED') return '<span class="badge-modern badge-compact badge-closed">Closed</span>';
-    if (s.includes('PENDING')) return '<span class="badge-modern badge-compact badge-warning">' + (s === 'PENDING_SHE' ? 'Pending SHE' : s === 'PENDING_FM' ? 'Pending FM' : 'Pending') + '</span>';
-    if (s === 'ACTIVE' || s === 'EXTENDED') return '<span class="badge-modern badge-compact badge-info">' + (s === 'EXTENDED' ? 'Extended' : 'Active') + '</span>';
-    if (s.includes('REJECT')) return '<span class="badge-modern badge-compact badge-danger">Rejected</span>';
-    if (s.includes('CANCEL')) return '<span class="badge-modern badge-compact badge-danger">Cancelled</span>';
-    if (s.includes('SUSPEND')) return '<span class="badge-modern badge-compact badge-dark">Suspended</span>';
-    return '<span class="badge-modern badge-compact badge-info">' + status + '</span>';
+    if (!status) return '<span class="badge badge-modern badge-compact badge-info">-</span>';
+    const s = status.toString();
+    const map = {
+        // Display labels
+        'Draft': '<span class="badge badge-modern badge-compact badge-dark">Draft</span>',
+        'Pending Supervisor': '<span class="badge badge-modern badge-compact badge-info">Pending Supervisor</span>',
+        'Pending SHE': '<span class="badge badge-modern badge-compact badge-warning">Pending SHE</span>',
+        'Pending FM': '<span class="badge badge-modern badge-compact badge-info">Pending FM</span>',
+        'Active': '<span class="badge badge-modern badge-compact badge-success">Active</span>',
+        'Approved': '<span class="badge badge-modern badge-compact badge-success">Approved</span>',
+        'Extended': '<span class="badge badge-modern badge-compact badge-success">Extended</span>',
+        'Closure Requested': '<span class="badge badge-modern badge-compact badge-warning">Closure Requested</span>',
+        'Cancellation Requested': '<span class="badge badge-modern badge-compact badge-warning">Cancellation Requested</span>',
+        'Suspension Requested': '<span class="badge badge-modern badge-compact badge-warning">Suspension Requested</span>',
+        'Extension Requested': '<span class="badge badge-modern badge-compact badge-info">Extension Requested</span>',
+        'Closed': '<span class="badge badge-modern badge-compact badge-closed">Closed</span>',
+        'Cancelled': '<span class="badge badge-modern badge-compact badge-dark">Cancelled</span>',
+        'Suspended': '<span class="badge badge-modern badge-compact badge-warning">Suspended</span>',
+        'Rejected': '<span class="badge badge-modern badge-compact badge-danger">Rejected</span>',
+        // Raw enums
+        'ACTIVE': '<span class="badge badge-modern badge-compact badge-success">Active</span>',
+        'EXTENDED': '<span class="badge badge-modern badge-compact badge-success">Extended</span>',
+        'PENDING_SUPERVISOR': '<span class="badge badge-modern badge-compact badge-info">Pending Supervisor</span>',
+        'PENDING_SHE': '<span class="badge badge-modern badge-compact badge-warning">Pending SHE</span>',
+        'PENDING_FM': '<span class="badge badge-modern badge-compact badge-info">Pending FM</span>',
+        'PENDING_CLOSURE': '<span class="badge badge-modern badge-compact badge-warning">Closure Requested</span>',
+        'PENDING_CANCELLATION': '<span class="badge badge-modern badge-compact badge-warning">Cancellation Requested</span>',
+        'PENDING_SUSPENSION': '<span class="badge badge-modern badge-compact badge-warning">Suspension Requested</span>',
+        'PENDING_EXTENSION': '<span class="badge badge-modern badge-compact badge-info">Extension Requested</span>',
+        'SUSPENDED': '<span class="badge badge-modern badge-compact badge-warning">Suspended</span>',
+        'CANCELLED': '<span class="badge badge-modern badge-compact badge-dark">Cancelled</span>',
+        'REJECTED': '<span class="badge badge-modern badge-compact badge-danger">Rejected</span>',
+        'COMPLETED': '<span class="badge badge-modern badge-compact badge-closed">Closed</span>',
+        'CLOSED': '<span class="badge badge-modern badge-compact badge-closed">Closed</span>'
+    };
+    return map[s] || '<span class="badge badge-modern badge-compact badge-info">' + s + '</span>';
 }
 
 function getDaysPendingHtml(days) {
@@ -1653,6 +1820,7 @@ window.addEventListener('message', function(event) {
         setTimeout(() => {
             loadShePermits();
             loadSummaryStats();
+            loadAllPermitData();
         }, 500);
     }
 });
@@ -1662,6 +1830,248 @@ $('#ptwModal').on('hidden.bs.modal', function () {
     // Clear iframe source to stop any ongoing processes
     document.getElementById('ptwIframe').src = 'about:blank';
 });
+
+// ===============================
+// IN-PROGRESS & HISTORY TABLES
+// ===============================
+
+// Utility: get permit ID from row
+function getPermitIdSHE(row) {
+    return row.ptw_permit_id || row.permit_id || row.id || row.ptw_permit_number || row.ptw_request_number || null;
+}
+
+// Display status mapper (mirrors supervisor logic)
+function getDisplayStatusSHE(row) {
+    if (!row) return '';
+    if (row.ptw_display_status) return row.ptw_display_status;
+    const st = (row.ptw_status || '').toUpperCase();
+    switch (st) {
+        case 'DRAFT': return 'Draft';
+        case 'SUBMITTED':
+        case 'PENDING_SUPERVISOR': return 'Pending Supervisor';
+        case 'PENDING_SHE': return 'Pending SHE';
+        case 'PENDING_FM': return 'Pending FM';
+        case 'PENDING_CLOSURE': return 'Closure Requested';
+        case 'PENDING_CANCELLATION': return 'Cancellation Requested';
+        case 'PENDING_SUSPENSION': return 'Suspension Requested';
+        case 'PENDING_EXTENSION': return 'Extension Requested';
+        case 'COMPLETED':
+        case 'CLOSED': return 'Closed';
+        case 'CANCELLED': return 'Cancelled';
+        case 'SUSPENDED': return 'Suspended';
+        case 'REJECTED': return 'Rejected';
+        case 'APPROVED':
+        case 'ACTIVE': return 'Active';
+        case 'EXTENDED': return 'Extended';
+        default: return st || '';
+    }
+}
+
+// Date renderer for In-Progress table
+function renderInProgressDateSHE(_data, type, row) {
+    const s = (row.ptw_status || '').toUpperCase();
+    var d = null;
+    if (s === 'PENDING_SUPERVISOR') d = row.created_date;
+    else if (s === 'PENDING_SHE') d = row.ptw_supervisor_approval_date || row.approved_supervisor_date || row.created_date;
+    else if (s === 'PENDING_FM') d = row.approved_she_date || row.updated_date || row.created_date;
+    else if (s === 'ACTIVE' || s === 'EXTENDED') d = row.ptw_valid_to || row.ptw_valid_from;
+    else if (s === 'SUSPENDED') d = row.suspended_date || row.updated_date;
+    else d = row.updated_date || row.created_date || row.ptw_valid_from;
+    if (type === 'display') return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+    return d ? moment(d).valueOf() : 0;
+}
+
+// Date renderer for History table
+function renderHistoryDateSHE(_data, type, row) {
+    const s = (row.ptw_status || '').toUpperCase();
+    var d = null;
+    if (s === 'CANCELLED') d = row.updated_date;
+    else if (s === 'REJECTED') d = row.rejected_date || row.updated_date || row.created_date;
+    else d = row.completed_date || row.closed_date || row.ptw_completed_date || row.updated_date || row.ptw_valid_to;
+    if (type === 'display') return d ? moment(d).format('DD/MM/YYYY HH:mm') : '-';
+    return d ? moment(d).valueOf() : 0;
+}
+
+// Build in-progress list (excludes history statuses)
+function buildInProgressListSHE(permits, active) {
+    const historyStatuses = new Set(['CANCELLED', 'CLOSED', 'COMPLETED', 'REJECTED']);
+    const map = new Map();
+    function addRow(r) {
+        const id = getPermitIdSHE(r);
+        if (!id) return;
+        var s = r.ptw_status || '';
+        if (!s) return;
+        if (historyStatuses.has(s)) return;
+        if (!map.has(id)) map.set(id, r);
+    }
+    if (Array.isArray(permits)) permits.forEach(addRow);
+    if (Array.isArray(active)) {
+        active.forEach(function(r) {
+            if (!r.ptw_status) r.ptw_status = 'ACTIVE';
+            addRow(r);
+        });
+    }
+    return Array.from(map.values());
+}
+
+// Build history list
+function buildHistoryListSHE(permits) {
+    const historyStatuses = new Set(['CANCELLED', 'CLOSED', 'COMPLETED', 'REJECTED']);
+    const map = new Map();
+    if (Array.isArray(permits)) {
+        permits.forEach(function(r) {
+            const id = getPermitIdSHE(r);
+            if (!id) return;
+            const s = r.ptw_status || '';
+            if (historyStatuses.has(s)) {
+                if (!map.has(id)) map.set(id, r);
+            }
+        });
+    }
+    return Array.from(map.values());
+}
+
+// Populate In-Progress table
+function populateInProgressTable(list) {
+    try {
+        const rows = Array.isArray(list) ? list : [];
+        inProgressSHETable.clear();
+        if (rows.length) inProgressSHETable.rows.add(rows);
+        inProgressSHETable.draw();
+        try { document.getElementById('countInProgressList').textContent = inProgressSHETable.rows().count(); } catch(e) {}
+        applyStatusFilter();
+    } catch(e) { console.error('populateInProgressTable error', e); }
+}
+
+// Populate History table
+function populateHistoryTable(list) {
+    try {
+        const rows = Array.isArray(list) ? list : [];
+        historySHETable.clear();
+        if (rows.length) historySHETable.rows.add(rows);
+        historySHETable.draw();
+        try { document.getElementById('countHistoryList').textContent = historySHETable.rows().count(); } catch(e) {}
+    } catch(e) { console.error('populateHistoryTable error', e); }
+}
+
+// Load all permit data (calls dashboard_data API)
+function loadAllPermitData() {
+    try {
+        const dash = mzAjaxRequest('ptw.php', 'GET', { action: 'dashboard_data' });
+        var permits = [];
+        var active = [];
+        if (dash) {
+            const root = dash.result || dash;
+            if (Array.isArray(root.permits)) permits = root.permits;
+            if (Array.isArray(root.activePtw)) active = root.activePtw;
+        }
+        const inProgress = buildInProgressListSHE(permits, active);
+        populateInProgressTable(inProgress);
+        const history = buildHistoryListSHE(permits);
+        populateHistoryTable(history);
+    } catch (error) {
+        console.error('Error loading all permit data:', error);
+    }
+}
+
+// ====================================
+// ACTION BUTTONS FOR IN-PROGRESS TABLE
+// ====================================
+
+// Unified action buttons router – SHE only acts on PENDING_SHE (top table);
+// In-Progress and History tables are view-only with status markers.
+function getUnifiedActionButtonsSHE(row) {
+    const s = (row.ptw_status || '').toUpperCase();
+    const permitId = getPermitIdSHE(row) || 'unknown';
+
+    // Determine status marker for the dropdown
+    var marker = '';
+    switch(s) {
+        case 'PENDING_SUPERVISOR': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-info"></i> Awaiting Supervisor</span>'; break;
+        case 'PENDING_SHE': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-warning"></i> Awaiting SHE Review</span>'; break;
+        case 'PENDING_FM': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-info"></i> Awaiting FM</span>'; break;
+        case 'ACTIVE': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-check-circle text-success"></i> Active</span>'; break;
+        case 'EXTENDED': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-clock text-success"></i> Extended</span>'; break;
+        case 'SUSPENDED': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-pause-circle text-warning"></i> Suspended</span>'; break;
+        case 'PENDING_CLOSURE': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-warning"></i> Closure Requested</span>'; break;
+        case 'PENDING_CANCELLATION': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-warning"></i> Cancellation Requested</span>'; break;
+        case 'PENDING_SUSPENSION': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-warning"></i> Suspension Requested</span>'; break;
+        case 'PENDING_EXTENSION': marker = '<span class="dropdown-item disabled" tabindex="-1"><i class="fas fa-hourglass-half text-info"></i> Extension Requested</span>'; break;
+    }
+
+    var dropdownContent = '';
+    if (marker) {
+        dropdownContent = marker + '<div class="dropdown-divider"></div>';
+    }
+    dropdownContent += '<a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF(\'' + permitId + '\')"><i class="fas fa-file-pdf text-danger"></i> Download PDF</a>';
+
+    return '<div class="btn-group action-split">' +
+        '<button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal(\'' + permitId + '\', \'she\')" title="View PTW"><i class="fas fa-file-alt"></i> View</button>' +
+        '<button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false"><span class="sr-only">Toggle Dropdown</span></button>' +
+        '<div class="dropdown-menu dropdown-menu-right">' + dropdownContent + '</div></div>';
+}
+
+// View-only buttons (for history items)
+function getViewOnlyButtonsSHE(row) {
+    const permitId = getPermitIdSHE(row) || 'unknown';
+    return '<div class="btn-group action-split">' +
+        '<button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal(\'' + permitId + '\', \'she\')" title="View PTW"><i class="fas fa-file-alt"></i> View</button>' +
+        '<button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false"><span class="sr-only">Toggle Dropdown</span></button>' +
+        '<div class="dropdown-menu dropdown-menu-right">' +
+        '<a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF(\'' + permitId + '\')"><i class="fas fa-file-pdf text-danger"></i> Download PDF</a>' +
+        '</div></div>';
+}
+
+// ====================================
+// STATUS FILTER
+// ====================================
+
+function statusCodeToLabel(code) {
+    const map = {
+        'PENDING_SUPERVISOR': 'Pending Supervisor',
+        'PENDING_SHE': 'Pending SHE',
+        'PENDING_FM': 'Pending FM',
+        'ACTIVE': 'Active',
+        'EXTENDED': 'Extended',
+        'SUSPENDED': 'Suspended',
+        'CLOSED': 'Closed',
+        'COMPLETED': 'Closed',
+        'CANCELLED': 'Cancelled',
+        'PENDING_CLOSURE': 'Closure Requested',
+        'PENDING_CANCELLATION': 'Cancellation Requested',
+        'PENDING_SUSPENSION': 'Suspension Requested',
+        'PENDING_EXTENSION': 'Extension Requested'
+    };
+    return map[code] || code;
+}
+
+function setStatusFilter(code) {
+    statusFilter = code || 'ALL';
+    if (statusFilter === 'CANCELLED' && !showCancelled) {
+        showCancelled = true;
+        try { $('#toggleShowCancelled').prop('checked', true); } catch(e) {}
+    }
+    try { $('#statusFilterSelectSHE').val(statusFilter); } catch(e) {}
+    applyStatusFilter();
+}
+
+function applyStatusFilter() {
+    if (!inProgressSHETable) return;
+    var colIndex = 5; // Status column
+    if (statusFilter === 'ALL') {
+        inProgressSHETable.column(colIndex).search('').draw();
+        return;
+    }
+    var label = statusCodeToLabel(statusFilter).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    inProgressSHETable.column(colIndex).search('^' + label + '$', true, false).draw();
+}
+
+function toggleShowCancelled() {
+    try {
+        showCancelled = $('#toggleShowCancelled').is(':checked');
+        loadAllPermitData();
+    } catch(e) { console.warn('toggleShowCancelled failed', e); }
+}
 
 // ===============================
 // PDF FUNCTIONALITY

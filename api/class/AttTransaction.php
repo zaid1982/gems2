@@ -281,7 +281,7 @@ class AttTransaction extends General {
             $this->shiftCurrent = $shiftCurrent;
             $dateNow = new DateTime();
             $dateNow->setTime(0, 0);
-            $attTransactionList = DbMysql::selectAll('att_transaction', array('attParticipantId'=>$attParticipantId, 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month), 0, true, 'attTransactionDate');
+            $attTransactionList = DbMysql::selectAll('att_transaction', array('attParticipantId'=>$attParticipantId, 'year(attTransactionDate)'=>$year, 'month(attTransactionDate)'=>$month), 0, false, 'attTransactionDate');
             foreach ($attTransactionList as $attTransaction) {
                 $dateProcess = new DateTime($attTransaction['attTransactionDate']);
                 $checkPastDay = $dateNow->diff($dateProcess);
