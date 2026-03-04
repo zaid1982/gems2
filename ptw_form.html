@@ -4962,17 +4962,27 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                 deleteChain.then(() => {
                     try {
                         const pendingDocs = (typeof window.getUploadedDocuments === 'function') ? window.getUploadedDocuments() : [];
+                        console.log('📎 Upload step: pendingDocs count =', pendingDocs.length, '| permitId =', permitId, '| siteId =', siteId);
                         if (permitId && Array.isArray(pendingDocs) && pendingDocs.length > 0) {
                             const fd = new FormData();
                             fd.append('permit_id', String(permitId));
-                            if (siteId) fd.append('site_id', String(siteId));
-                            pendingDocs.forEach((doc) => { if (doc && doc.file) fd.append('files[]', doc.file, doc.name || 'document'); });
+                            fd.append('site_id', String(siteId || 0));
+                            pendingDocs.forEach((doc) => {
+                                if (doc && doc.file) {
+                                    fd.append('files[]', doc.file, doc.name || 'document');
+                                    console.log('📎 Appending file:', doc.name, 'size:', doc.file.size);
+                                }
+                            });
                             return fetch('api/ptw_document_upload.php', { method: 'POST', body: fd })
-                                .then(up => up.json())
-                                .then(upRes => {
+                                .then(up => up.text())
+                                .then(txt => {
+                                    console.log('📎 Upload response:', txt);
+                                    let upRes; try { upRes = JSON.parse(txt); } catch(e) { throw new Error('Invalid upload response: ' + txt); }
                                     if (!(upRes && upRes.success)) {
                                         console.warn('Document upload failed:', upRes);
-                                        showError('Saved changes, but document upload failed.');
+                                        showError('Saved changes, but document upload failed: ' + (upRes.message || 'Unknown error'));
+                                    } else {
+                                        console.log('✅ Upload success:', upRes);
                                     }
                                     if (typeof window.clearUploadedDocuments === 'function') window.clearUploadedDocuments();
                                 });
