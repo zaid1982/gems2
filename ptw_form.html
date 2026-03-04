@@ -3307,6 +3307,8 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
     if (token) {
         apiUrl += '&t=' + encodeURIComponent(token);
     }
+    // Cache-bust to guarantee fresh data after edits
+    apiUrl += (apiUrl.indexOf('?') !== -1 ? '&' : '?') + '_ts=' + Date.now();
         console.log('🌐 API URL:', apiUrl);
         
         // Make API call to load PTW data using the correct endpoint
@@ -3321,7 +3323,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                     if (authTok) { headers['Authorization'] = 'Bearer ' + authTok; }
                 } catch (e) {}
             }
-            return fetch(apiUrl, { headers });
+            return fetch(apiUrl, { headers: headers, cache: 'no-store' });
         })()
             .then(response => {
                 console.log('📥 Received API response:', response.status, response.statusText);
@@ -3496,11 +3498,15 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         Object.keys(fieldMapping).forEach(fieldId => {
             const element = document.getElementById(fieldId);
             const dataKey = fieldMapping[fieldId];
-            if (element && data[dataKey]) {
+            if (element && data[dataKey] !== undefined && data[dataKey] !== null) {
                 if (element.type === 'date' || element.type === 'datetime-local') {
                     // Format date for date inputs
-                    const date = new Date(data[dataKey]);
-                    element.value = date.toISOString().split('T')[0];
+                    if (data[dataKey]) {
+                        const date = new Date(data[dataKey]);
+                        element.value = date.toISOString().split('T')[0];
+                    } else {
+                        element.value = '';
+                    }
                 } else {
                     element.value = data[dataKey];
                 }
@@ -3769,7 +3775,8 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                             linkHtml = '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + (safeName || 'Document') + '</a>';
                             actionHtml = '<a class="btn btn-sm btn-primary" href="' + href + '" target="_blank" rel="noopener">View</a>';
                         }
-                        rowsHtml += '<tr>' +
+                        // Attach data-doc-id so edit mode can add delete buttons
+                        rowsHtml += '<tr data-doc-id="' + (docId || '') + '">' +
                                     '<td>' + (idx + 1) + '</td>' +
                                     '<td>' + linkHtml + '</td>' +
                                     '<td>' + actionHtml + '</td>' +
@@ -4058,7 +4065,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                         'liftingCert': { checkbox: 'chkLiftingCert', textField: 'certLifting' },
                         'physicalIsolation': { checkbox: 'chkPhysicalIsolation', textField: 'certPhysicalIsolation' },
                         'electricalIsolation': { checkbox: 'chkElectricalIsolation', textField: 'certElectricalIsolation' },
-                        'confinedSpaceCert': { checkbox: 'chkConfinedSpace', textField: 'certConfinedSpace' },
+                        'confinedSpaceCert': { checkbox: 'chkConfinedSpaceCert', textField: 'certConfinedSpace' },
                         'othersCert': { checkbox: 'chkOthers', textField: 'certOthers' },
                         'excavationPlan': { checkbox: 'chkExcavationPlan' },
                         'liftingPlan': { checkbox: 'chkLiftingPlan' },
@@ -4445,9 +4452,14 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         } catch (e) { console.warn('setupEditCapability failed', e); }
     }
 
+    // Track document IDs queued for deletion during edit mode
+    window._pendingDocDeletes = [];
+
     function enterEditMode() {
         try {
             document.body.classList.remove('view-mode');
+            // Reset pending document deletions
+            window._pendingDocDeletes = [];
             // Start from fully disabled, then enable only allowed sections
             const allControls = document.querySelectorAll('input, textarea, select, button');
             allControls.forEach(el => {
@@ -4462,6 +4474,66 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             });
             // Enable only allowed sections per stage
             setSectionsEditable(window.allowedEditableSections || ['section1','section2','section3','section4']);
+
+            // --- Enable worker delete + add in edit mode (Section 1) ---
+            try {
+                const allowed = new Set(window.allowedEditableSections || ['section1','section2','section3','section4']);
+                if (allowed.has('section1')) {
+                    const wTbody = document.querySelector('#workersTable tbody');
+                    if (wTbody) {
+                        Array.from(wTbody.rows).forEach(row => {
+                            // Make inputs editable
+                            row.querySelectorAll('input').forEach(inp => {
+                                inp.readOnly = false; inp.disabled = false;
+                                inp.style.backgroundColor = ''; inp.style.cursor = '';
+                            });
+                            // Replace the "-" action cell with a delete button
+                            const lastTd = row.cells[row.cells.length - 1];
+                            if (lastTd && lastTd.textContent.trim() === '-') {
+                                lastTd.innerHTML = '<button type="button" class="btn btn-sm btn-danger" onclick="removeWorkerRow(this)"><i class="fas fa-trash"></i></button>';
+                            }
+                            // Enable existing delete buttons
+                            lastTd.querySelectorAll('button').forEach(b => {
+                                b.disabled = false; b.style.opacity = ''; b.style.cursor = '';
+                            });
+                        });
+                    }
+                    // Enable Add Worker button
+                    const addBtn = document.getElementById('btnAddWorker');
+                    if (addBtn) { addBtn.disabled = false; addBtn.style.opacity = ''; addBtn.style.cursor = ''; }
+                }
+
+                // --- Enable document delete in edit mode (Section 2) ---
+                if (allowed.has('section2')) {
+                    const dTbody = document.getElementById('documentsTableBody');
+                    if (dTbody) {
+                        Array.from(dTbody.rows).forEach(row => {
+                            const docId = row.getAttribute('data-doc-id');
+                            if (!docId) return; // skip placeholder row
+                            // Add a delete button next to the View button
+                            const actionTd = row.cells[row.cells.length - 1];
+                            if (actionTd && !actionTd.querySelector('.btn-danger')) {
+                                const delBtn = document.createElement('button');
+                                delBtn.type = 'button';
+                                delBtn.className = 'btn btn-sm btn-danger ml-1';
+                                delBtn.title = 'Delete document';
+                                delBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                                delBtn.onclick = function() { deleteExistingDocument(docId, row); };
+                                actionTd.appendChild(delBtn);
+                            }
+                            // Enable existing buttons
+                            actionTd.querySelectorAll('button, a.btn').forEach(b => {
+                                b.disabled = false; b.style.opacity = ''; b.style.cursor = '';
+                            });
+                        });
+                    }
+                    // Enable file upload area
+                    const uploadArea = document.querySelector('.file-upload-area');
+                    if (uploadArea) { uploadArea.style.pointerEvents = ''; uploadArea.style.opacity = ''; }
+                    const fileInput = document.getElementById('fileInput');
+                    if (fileInput) { fileInput.disabled = false; }
+                }
+            } catch (e) { console.warn('Edit mode: worker/doc enable failed', e); }
             // Keep approval sections hidden in edit mode (handled elsewhere)
             const approvalSections = document.getElementById('approvalSections');
             if (approvalSections) { approvalSections.style.display = 'none'; }
@@ -4570,33 +4642,182 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
             remarks: document.getElementById('txtPtwRemarks')?.value || ''
         };
 
-        // Attach complex payloads, guarding against missing helpers
-        try { data.workers = (window.ptwFormClass_ && typeof window.ptwFormClass_.getWorkersData === 'function') ? window.ptwFormClass_.getWorkersData() : []; } catch (e) {}
+        // Attach workers: prefer ptwFormClass_ if available, otherwise read from DOM table
         try {
-            const hazard = (typeof window.ptwFormClass_?.getChecklistData === 'function') ? window.ptwFormClass_.getChecklistData() : {};
-            data.checklist_data = JSON.stringify(hazard);
+            if (window.ptwFormClass_ && typeof window.ptwFormClass_.getWorkersData === 'function') {
+                data.workers = window.ptwFormClass_.getWorkersData();
+            } else {
+                // Read workers directly from the table rows
+                const wTbody = document.querySelector('#workersTable tbody');
+                const workers = [];
+                if (wTbody) {
+                    Array.from(wTbody.rows).forEach(row => {
+                        const nameInput = row.querySelector('.worker-name');
+                        const desigInput = row.querySelector('.worker-designation');
+                        const idInput = row.querySelector('.worker-id');
+                        const name = nameInput ? nameInput.value.trim() : '';
+                        if (name) {
+                            workers.push({
+                                name: name,
+                                designation: desigInput ? desigInput.value.trim() : '',
+                                identification: idInput ? idInput.value.trim() : ''
+                            });
+                        }
+                    });
+                }
+                data.workers = workers;
+            }
+        } catch (e) { data.workers = []; }
+        // Stringify workers for FormData (sent as POST field)
+        if (Array.isArray(data.workers)) { data.workers = JSON.stringify(data.workers); }
+        // ── checklist_data (hazard/PPE checklist) ──
+        try {
+            if (typeof window.ptwFormClass_?.getChecklistData === 'function') {
+                data.checklist_data = JSON.stringify(window.ptwFormClass_.getChecklistData());
+            } else {
+                // DOM-direct: replicate PtwForm.getChecklistData()
+                const _cl = {};
+                document.querySelectorAll('.form-check-input').forEach(function(el) {
+                    var id = el.id || '';
+                    if (id.startsWith('chk') && !el.classList.contains('specific-checklist') && !el.classList.contains('worker-certified')) {
+                        _cl[id] = !!el.checked;
+                    }
+                    if (id.startsWith('ppe')) {
+                        _cl[id] = !!el.checked;
+                    }
+                });
+                var ppeOF = document.getElementById('ppe_others');
+                if (ppeOF && ppeOF.value.trim()) _cl['ppe_others'] = ppeOF.value.trim();
+                var _spec = {};
+                document.querySelectorAll('.specific-checklist').forEach(function(el) {
+                    var item = el.getAttribute('data-item') || el.dataset.item;
+                    if (item) _spec[item] = !!el.checked;
+                });
+                if (Object.keys(_spec).length) _cl.specific = _spec;
+                data.checklist_data = JSON.stringify(_cl);
+            }
         } catch (e) {}
+
+        // ── declaration_checklist (contractor declarations) ──
         try {
-            const decl = (typeof window.ptwFormClass_?.getContractorDeclarations === 'function') ? window.ptwFormClass_.getContractorDeclarations() : {};
-            data.declaration_checklist = JSON.stringify(decl);
+            if (typeof window.ptwFormClass_?.getContractorDeclarations === 'function') {
+                data.declaration_checklist = JSON.stringify(window.ptwFormClass_.getContractorDeclarations());
+            } else {
+                var _decl = {};
+                for (var di = 1; di <= 6; di++) {
+                    var sel = document.querySelector('input[name="declaration' + di + '"]:checked');
+                    _decl['declaration' + di] = sel ? sel.value : null;
+                }
+                var ccEl = document.getElementById('contractorConfirmation');
+                if (ccEl) _decl.contractorConfirmation = !!ccEl.checked;
+                var ppOS = document.getElementById('ppeOthersSpecify');
+                if (ppOS) _decl.ppeOthersSpecify = ppOS.value || '';
+                data.declaration_checklist = JSON.stringify(_decl);
+            }
         } catch (e) {}
+
+        // ── certificate_numbers ──
         try {
-            const certs = (typeof window.ptwFormClass_?.getCertificateData === 'function') ? window.ptwFormClass_.getCertificateData() : {};
-            data.certificate_numbers = JSON.stringify(certs);
+            if (typeof window.ptwFormClass_?.getCertificateData === 'function') {
+                data.certificate_numbers = JSON.stringify(window.ptwFormClass_.getCertificateData());
+            } else {
+                var _certs = {};
+                var mainCF = [
+                    { checkbox:'chkExcavationCert', input:'certExcavation', name:'excavationCert' },
+                    { checkbox:'chkLiftingCert', input:'certLifting', name:'liftingCert' },
+                    { checkbox:'chkPhysicalIsolation', input:'certPhysicalIsolation', name:'physicalIsolation' },
+                    { checkbox:'chkElectricalIsolation', input:'certElectricalIsolation', name:'electricalIsolation' },
+                    { checkbox:'chkConfinedSpaceCert', input:'certConfinedSpace', name:'confinedSpaceCert' },
+                    { checkbox:'chkOthers', input:'certOthers', name:'othersCert' }
+                ];
+                mainCF.forEach(function(f) {
+                    var cb = document.getElementById(f.checkbox);
+                    var inp = document.getElementById(f.input);
+                    var isChk = cb ? !!cb.checked : false;
+                    _certs[f.name] = { checked: isChk, value: isChk && inp ? (inp.value || '') : '' };
+                });
+                var subI = [
+                    { checkbox:'chkExcavationPlan', name:'excavationPlan' },
+                    { checkbox:'chkLiftingPlan', name:'liftingPlan' },
+                    { checkbox:'chkLiftingChecklist', name:'liftingChecklist' }
+                ];
+                subI.forEach(function(s) {
+                    var cb = document.getElementById(s.checkbox);
+                    _certs[s.name] = { checked: cb ? !!cb.checked : false, value: '' };
+                });
+                data.certificate_numbers = JSON.stringify(_certs);
+            }
         } catch (e) {}
+
+        // ── supporting_docs_checklist ──
         try {
-            const supp = (typeof window.ptwFormClass_?.getSupportingDocumentsData === 'function') ? window.ptwFormClass_.getSupportingDocumentsData() : [];
-            data.supporting_docs_checklist = JSON.stringify(supp);
+            if (typeof window.ptwFormClass_?.getSupportingDocumentsData === 'function') {
+                data.supporting_docs_checklist = JSON.stringify(window.ptwFormClass_.getSupportingDocumentsData());
+            } else {
+                var _supp = [];
+                var sdMap = [
+                    { id:'docCalibrationCert', value:'calibration_certificate' },
+                    { id:'docLoadChart', value:'load_chart' },
+                    { id:'docToolboxTalk', value:'toolbox_talk_record' },
+                    { id:'docSafetyDataSheet', value:'safety_data_sheet' },
+                    { id:'docJobMethodStatement', value:'job_method_statement' },
+                    { id:'docJobHazardAnalysis', value:'job_hazard_analysis' },
+                    { id:'docCertificateOfFitness', value:'certificate_of_fitness' },
+                    { id:'docCidbGreenCard', value:'cidb_green_card' },
+                    { id:'docAespCard', value:'aesp_card' },
+                    { id:'docCompetencyPersonCert', value:'competency_person_certificate' },
+                    { id:'docContractorChecklist', value:'contractor_checklist' },
+                    { id:'docMedicalCheckUp', value:'medical_check_up' },
+                    { id:'docHirarcEaia', value:'hirarc_eaia' },
+                    { id:'docTrafficManagementPlan', value:'traffic_management_plan' }
+                ];
+                sdMap.forEach(function(d) {
+                    var cb = document.getElementById(d.id);
+                    if (cb && cb.checked) _supp.push(d.value);
+                });
+                data.supporting_docs_checklist = JSON.stringify(_supp);
+            }
         } catch (e) {}
+
+        // ── hazardous_activities ──
         try {
-            const haz = (typeof window.ptwFormClass_?.getHazardousActivitiesData === 'function') ? window.ptwFormClass_.getHazardousActivitiesData() : {};
-            data.hazardous_activities = JSON.stringify(haz);
+            if (typeof window.ptwFormClass_?.getHazardousActivitiesData === 'function') {
+                data.hazardous_activities = JSON.stringify(window.ptwFormClass_.getHazardousActivitiesData());
+            } else {
+                var _hazA = {};
+                var hazIds = [
+                    'hazSlipperyFloor','hazSharpObjects','hazHotSurface','hazMovingVehicle',
+                    'hazVolatileLiquid','hazIlluminationDeficiency','hazRotatingParts','hazDroppedObjects',
+                    'hazFallFromHeight','hazElectrical','hazGasFumes','hazSimultaneousOperation',
+                    'hazChemical','hazIonizingRadiation','hazUnevenGround','hazExtremeWeather',
+                    'hazFlyingDebris','hazWildAnimals','hazOxygenDeficiency','hazPoisonousSubstance',
+                    'hazInfectiousSubstance','hazPinchPoint','hazExcessiveNoise','hazErgonomicFatigue',
+                    'hazPressurizedEquipment','hazEngulfmentEquipment','hazMolds'
+                ];
+                hazIds.forEach(function(hid) {
+                    var cb = document.getElementById(hid);
+                    if (cb) _hazA[hid] = !!cb.checked;
+                });
+                var hazOCb = document.getElementById('hazOthers');
+                var hazOTx = document.getElementById('hazOthersText');
+                if (hazOCb) {
+                    var isHO = !!hazOCb.checked;
+                    _hazA['hazOthers'] = { checked: isHO, value: isHO && hazOTx ? (hazOTx.value || '') : '' };
+                }
+                data.hazardous_activities = JSON.stringify(_hazA);
+            }
         } catch (e) {}
+
+        // ── work-type-specific checklists (hot_work, confined_space) ──
         try {
-            const wtc = (typeof window.ptwFormClass_?.getWorkTypeSpecificChecklists === 'function') ? window.ptwFormClass_.getWorkTypeSpecificChecklists() : {};
-            if (wtc.hot_work) data.checklist_hot_work = JSON.stringify(wtc.hot_work);
-            // Do not trust legacy cold_work shape; we'll build canonical below
-            if (wtc.confined_space) data.checklist_confined_space = JSON.stringify(wtc.confined_space);
+            if (typeof window.ptwFormClass_?.getWorkTypeSpecificChecklists === 'function') {
+                var wtc = window.ptwFormClass_.getWorkTypeSpecificChecklists();
+                if (wtc.hot_work) data.checklist_hot_work = JSON.stringify(wtc.hot_work);
+                if (wtc.confined_space) data.checklist_confined_space = JSON.stringify(wtc.confined_space);
+            }
+            // Note: cold_work is built canonically from DOM below; hot_work/confined_space
+            // are only set when ptwFormClass_ exists (create mode). In edit mode these
+            // fields are omitted so the backend preserves existing values.
         } catch (e) {}
 
         // Build canonical Cold Work JSON (overrides any legacy cold_work payload)
@@ -4658,6 +4879,11 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         const payload = collectEditFormData();
         if (!payload || !payload.permit_id) { showError('Permit context missing.'); return; }
 
+        console.log('💾 savePtwEdits: permit_id =', payload.permit_id);
+        console.log('💾 savePtwEdits: payload keys =', Object.keys(payload).join(', '));
+        console.log('💾 savePtwEdits: description =', payload.description);
+        console.log('💾 savePtwEdits: work_area =', payload.work_area);
+
         showLoadingIndicator();
         const headers = {};
         // Use Authorization for internal edits if available
@@ -4682,39 +4908,90 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         })
         .then(r => r.text())
         .then(txt => {
+            console.log('💾 savePtwEdits: raw response =', txt);
             let res = null;
             try { res = JSON.parse(txt); } catch (e) { throw new Error('Invalid response: ' + txt); }
+            console.log('💾 savePtwEdits: parsed response =', res);
             if (res && res.success === true) {
                 const result = res.result || {};
+                console.log('💾 savePtwEdits: result =', result, '| fields_updated:', result.fields_updated, '| rows_affected:', result.rows_affected);
+                if (result.fields_updated === 0) {
+                    console.warn('⚠️ savePtwEdits: No fields were matched for update!');
+                }
+                if (result.rows_affected === 0 && result.fields_updated > 0) {
+                    console.warn('⚠️ savePtwEdits: Fields were sent but 0 rows affected (values may be unchanged or permit_id mismatch)');
+                }
                 const permitId = window.currentPtwId;
                 const siteId = window.currentPtwSiteId;
-                // Upload any pending documents collected in the UI
-                try {
-                    const pendingDocs = (typeof window.getUploadedDocuments === 'function') ? window.getUploadedDocuments() : [];
-                    if (permitId && Array.isArray(pendingDocs) && pendingDocs.length > 0) {
-                        const fd = new FormData();
-                        fd.append('permit_id', String(permitId));
-                        if (siteId) fd.append('site_id', String(siteId));
-                        pendingDocs.forEach((doc) => { if (doc && doc.file) fd.append('files[]', doc.file, doc.name || 'document'); });
-                        return fetch('api/ptw_document_upload.php', { method: 'POST', body: fd })
-                            .then(up => up.json())
-                            .then(upRes => {
-                                if (!(upRes && upRes.success)) {
-                                    console.warn('Document upload failed:', upRes);
-                                    showError('Saved changes, but document upload failed.');
-                                }
-                                if (typeof window.clearUploadedDocuments === 'function') window.clearUploadedDocuments();
-                                showSuccess('Changes saved successfully.');
-                            })
-                            .catch(err => {
-                                console.error('Upload error:', err);
-                                showError('Saved changes, but document upload failed.');
-                            });
+
+                // Chain: delete docs → upload docs → show success → exit edit mode
+                // Step 1: Delete documents queued for removal
+                const docsToDelete = (window._pendingDocDeletes || []).slice();
+                // Get public token if present (needed for token-based auth on delete endpoint)
+                let _urlToken = '';
+                try { _urlToken = new URLSearchParams(window.location.search).get('t') || ''; } catch(e){}
+                let deleteChain = Promise.resolve();
+                let deleteFailed = false;
+                if (docsToDelete.length > 0) {
+                    console.log('🗑️ Deleting', docsToDelete.length, 'documents:', docsToDelete);
+                    const deletePromises = docsToDelete.map(docId => {
+                        const delHeaders = Object.assign({'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}, headers);
+                        let delBody = 'document_id=' + encodeURIComponent(docId) + '&permit_id=' + encodeURIComponent(permitId || '');
+                        if (_urlToken) delBody += '&t=' + encodeURIComponent(_urlToken);
+                        console.log('🗑️ Delete request:', {docId, permitId, hasToken: !!_urlToken, hasAuth: !!headers['Authorization']});
+                        return fetch('api/ptw_document_delete.php', {
+                            method: 'POST',
+                            headers: delHeaders,
+                            body: delBody
+                        }).then(r => r.text()).then(txt => {
+                            console.log('🗑️ Delete response for doc', docId, ':', txt);
+                            let dr; try { dr = JSON.parse(txt); } catch(e) { throw new Error('Invalid delete response: ' + txt); }
+                            if (!(dr && dr.success)) {
+                                deleteFailed = true;
+                                console.error('Doc delete failed for', docId, dr);
+                            } else {
+                                console.log('✅ Doc deleted:', docId);
+                            }
+                        }).catch(e => { deleteFailed = true; console.error('Doc delete error', docId, e); });
+                    });
+                    deleteChain = Promise.all(deletePromises);
+                    window._pendingDocDeletes = [];
+                }
+
+                // Step 2: After deletes, upload any new documents
+                deleteChain.then(() => {
+                    try {
+                        const pendingDocs = (typeof window.getUploadedDocuments === 'function') ? window.getUploadedDocuments() : [];
+                        if (permitId && Array.isArray(pendingDocs) && pendingDocs.length > 0) {
+                            const fd = new FormData();
+                            fd.append('permit_id', String(permitId));
+                            if (siteId) fd.append('site_id', String(siteId));
+                            pendingDocs.forEach((doc) => { if (doc && doc.file) fd.append('files[]', doc.file, doc.name || 'document'); });
+                            return fetch('api/ptw_document_upload.php', { method: 'POST', body: fd })
+                                .then(up => up.json())
+                                .then(upRes => {
+                                    if (!(upRes && upRes.success)) {
+                                        console.warn('Document upload failed:', upRes);
+                                        showError('Saved changes, but document upload failed.');
+                                    }
+                                    if (typeof window.clearUploadedDocuments === 'function') window.clearUploadedDocuments();
+                                });
+                        }
+                    } catch (e) { console.warn('Upload step skipped', e); }
+                    return Promise.resolve();
+                }).then(() => {
+                    // Step 3: All async ops done — show success and reload
+                    if (deleteFailed) {
+                        showError('Changes saved, but one or more documents failed to delete. Check console for details.');
+                    } else {
+                        showSuccess('Changes saved successfully.');
                     }
-                } catch (e) { console.warn('Upload step skipped', e); }
-                showSuccess('Changes saved successfully.');
-                // Return to view mode and reload fresh data
-                exitEditMode();
+                    exitEditMode();
+                }).catch(err => {
+                    console.error('Post-save ops error:', err);
+                    showSuccess('Changes saved (some file operations may have failed).');
+                    exitEditMode();
+                });
             } else {
                 const msg = (res && (res.message || res.error || res.errmsg)) || 'Failed to save changes';
                 if (/forbidden|403/i.test(msg)) { showError('You are not allowed to edit this permit.'); }
@@ -6482,6 +6759,37 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
     // Make functions globally accessible
     window.addWorkerToTable = addWorkerToTable;
     window.removeWorkerRow = removeWorkerRow;
+
+    // Delete an existing (server-side) document — queues for deletion on save
+    function deleteExistingDocument(docId, row) {
+        if (!docId) return;
+        if (!confirm('Delete this document? The change will be saved when you click Save.')) return;
+        window._pendingDocDeletes = window._pendingDocDeletes || [];
+        window._pendingDocDeletes.push(String(docId));
+        // Visually strike-through and fade out the row
+        row.style.opacity = '0.4';
+        row.style.textDecoration = 'line-through';
+        // Disable the delete button to prevent double-click
+        const btn = row.querySelector('.btn-danger');
+        if (btn) { btn.disabled = true; }
+        // Add undo link
+        const undoLink = document.createElement('a');
+        undoLink.href = 'javascript:void(0)';
+        undoLink.className = 'text-primary ml-2';
+        undoLink.textContent = 'Undo';
+        undoLink.style.fontSize = '12px';
+        undoLink.onclick = function() {
+            window._pendingDocDeletes = window._pendingDocDeletes.filter(id => id !== String(docId));
+            row.style.opacity = '';
+            row.style.textDecoration = '';
+            if (btn) btn.disabled = false;
+            undoLink.remove();
+        };
+        const actionTd = row.cells[row.cells.length - 1];
+        if (actionTd) actionTd.appendChild(undoLink);
+        console.log('Document queued for delete:', docId);
+    }
+    window.deleteExistingDocument = deleteExistingDocument;
 
     // Flag to prevent multiple dropdown protection runs
     let dropdownProtectionInitialized = false;

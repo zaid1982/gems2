@@ -622,11 +622,11 @@ class Class_ptw {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($permit_id, $update_data));
             
-            Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => strval($permit_id)));
+            $rows = Class_db::getInstance()->db_update('ptw_permit', $update_data, array('ptw_permit_id' => strval($permit_id)));
             
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'PTW permit updated: ' . $permit_id);
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'PTW permit updated: ' . $permit_id . ' (rows affected: ' . $rows . ')');
             
-            return true;
+            return $rows;
             
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());

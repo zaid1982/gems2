@@ -926,11 +926,17 @@ function update_ptw_permit_flexible($user_id, $user_site_id, $authHeader = '') {
         }
     }
 
+    $fn_general->log_debug('API', 'update_ptw_permit_flexible', __LINE__, 'Update fields count: ' . count($update) . ' for permit_id=' . $permit_id);
+
     // Never change ptw_status here; keep current workflow stage
+    $rows_affected = 0;
     if (!empty($update)) {
         $update['updated_by'] = $user_id;
         $update['updated_date'] = date('Y-m-d H:i:s');
-        $fn_ptw->update_permit($permit_id, $update);
+        $fn_general->log_debug('API', 'update_ptw_permit_flexible', __LINE__, 'Updating permit ' . $permit_id . ' with ' . count($update) . ' fields: ' . implode(', ', array_keys($update)));
+        $rows_affected = $fn_ptw->update_permit($permit_id, $update);
+    } else {
+        $fn_general->log_debug('API', 'update_ptw_permit_flexible', __LINE__, 'WARNING: No update fields matched from POST data. POST keys: ' . implode(', ', array_keys($_POST)));
     }
 
     // Replace workers if provided
@@ -1007,7 +1013,7 @@ function update_ptw_permit_flexible($user_id, $user_site_id, $authHeader = '') {
         }
     } catch (Exception $e) { /* non-fatal */ }
 
-    return array('ptw_permit_id' => $permit_id, 'status' => 'updated');
+    return array('ptw_permit_id' => $permit_id, 'status' => 'updated', 'fields_updated' => count($update), 'rows_affected' => $rows_affected);
 }
 
 function delete_ptw_permit($user_id, $user_site_id) {
