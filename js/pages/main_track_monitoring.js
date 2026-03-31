@@ -253,14 +253,14 @@ function MainTrackMonitoring() {
                     text: '<i class="fas fa-print"></i>',
                     title: 'GEMS 2.0 - Transaction List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
                 }),
                 $.extend(true, {}, btnTrackOpt, {
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel"></i>',
                     title: 'GEMS 2.0 - Transaction List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
                 }),
                 $.extend(true, {}, btnTrackOpt, {
                     extend: 'pdfHtml5',
@@ -268,7 +268,7 @@ function MainTrackMonitoring() {
                     title: 'GEMS 2.0 - Transaction List',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
                 })
             ]
         }).container().appendTo($('#btnDtTnmListExport'));

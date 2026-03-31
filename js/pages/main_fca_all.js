@@ -102,11 +102,11 @@ function MainFcaAll () {
         uniqueStatuses.sort(function (a, b) {
             return a.label.localeCompare(b.label);
         });
-        try {
-            select.materialSelect('destroy');
-        } catch (err) {
-            // ignore destroy errors when component is not initialised
-        }
+        // try {
+        //     select.materialSelect('destroy');
+        // } catch (err) {
+        //     // ignore destroy errors when component is not initialised
+        // }
         select.empty();
         select.append('<option value="" selected>All statuses</option>');
         uniqueStatuses.forEach(function (item) {
@@ -117,7 +117,7 @@ function MainFcaAll () {
         }
         select.val(statusFilterValue || '');
         try {
-            select.materialSelect();
+            // select.materialSelect();
         } catch (err2) {
             // ignore initialisation errors
         }
