@@ -4,8 +4,11 @@
  * Handles CSV, XLS, and XLSX files
  */
 
-// Include composer autoloader for PhpSpreadsheet
-require_once __DIR__ . '/../../vendor/autoload.php';
+// Include composer autoloader for PhpSpreadsheet when available.
+$vendorAutoload = __DIR__ . '/../../vendor/autoload.php';
+if (file_exists($vendorAutoload)) {
+    require_once $vendorAutoload;
+}
 
 // Add PhpSpreadsheet imports
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -14,6 +17,13 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 class WoImportFileParser {
     
     private $supportedFormats = ['csv', 'xlsx', 'xls'];
+    private $knownHeaderNames = [
+        'external_wo_number', 'description', 'location', 'wo_type', 'severity', 'assigned_to_email', 'created_date', 'assigned_date', 'completed_date', 'verified_date',
+        'created_by_email', 'verified_by_email', 'repair_description', 'longitude', 'latitude', 'rating', 'asset_number', 'zone_id', 'external_reference',
+        'date', 'request no', 'request no.', 'work order no', 'work order no.', 'site', 'complaint type', 'complainant', 'complaint description', 'trade',
+        'pic', 'pic name', 'technician', 'assigned technician', 'executor', 'fixed by', 'assigned by', 'verified by', 'asset no', 'asset no.', 'asset number', 'asset code',
+        'complaint time', 'assigned time', 'executed time', 'execution time', 'completed time', 'completed date', 'verified time', 'respond duration', 'assistants'
+    ];
     
     /**
      * Parse uploaded file and return data array
@@ -45,29 +55,21 @@ class WoImportFileParser {
      * @return array Parsed data
      */
     private function parseCsv($filePath) {
-        $data = [];
-        $headers = null;
+        $rows = [];
         
         if (($handle = fopen($filePath, 'r')) !== FALSE) {
             while (($row = fgetcsv($handle, 0, ',')) !== FALSE) {
-                if ($headers === null) {
-                    // First row is headers
-                    $headers = array_map('trim', $row);
-                } else {
-                    // Map data to headers
-                    $rowData = [];
-                    for ($i = 0; $i < count($headers); $i++) {
-                        $rowData[$headers[$i]] = isset($row[$i]) ? trim($row[$i]) : '';
-                    }
-                    $data[] = $rowData;
-                }
+                $rows[] = array_map(function ($value) {
+                    return trim((string) $value);
+                }, $row);
             }
             fclose($handle);
         } else {
             throw new Exception('Could not open CSV file');
         }
         
-        return $data;
+        $mapped = $this->mapRowsWithDetectedHeader($rows);
+        return $mapped['data'];
     }
     
     /**
@@ -83,40 +85,174 @@ class WoImportFileParser {
         if (!class_exists('\PhpOffice\PhpSpreadsheet\IOFactory')) {
             throw new Exception('Excel support requires PhpSpreadsheet library. Please install it with Composer or convert your file to CSV format.');
         }
+
+        if ($extension === 'xlsx' && !class_exists('ZipArchive')) {
+            throw new Exception('Excel .xlsx import requires the PHP Zip extension (ZipArchive). Please enable php-zip on the server or upload CSV format.');
+        }
         
         try {
             $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
-            $worksheet = $spreadsheet->getActiveSheet();
-            $data = [];
-            $headers = null;
+            $bestResult = ['score' => -1, 'data' => []];
             
-            foreach ($worksheet->getRowIterator() as $rowIndex => $row) {
-                $cellIterator = $row->getCellIterator();
-                $cellIterator->setIterateOnlyExistingCells(false);
-                
-                $rowData = [];
-                foreach ($cellIterator as $cell) {
-                    $rowData[] = $cell->getCalculatedValue();
-                }
-                
-                if ($headers === null) {
-                    // First row is headers
-                    $headers = array_map('trim', $rowData);
-                } else {
-                    // Map data to headers
-                    $mappedRow = [];
-                    for ($i = 0; $i < count($headers); $i++) {
-                        $mappedRow[$headers[$i]] = isset($rowData[$i]) ? trim($rowData[$i]) : '';
-                    }
-                    $data[] = $mappedRow;
+            foreach ($spreadsheet->getWorksheetIterator() as $worksheet) {
+                $rows = $this->getWorksheetRows($worksheet);
+                $mapped = $this->mapRowsWithDetectedHeader($rows, false);
+
+                if ($mapped['score'] > $bestResult['score']) {
+                    $bestResult = $mapped;
                 }
             }
+
+            if ($bestResult['score'] <= 0) {
+                throw new Exception('Could not detect the WO import header row. Please use the downloaded template or keep the data headers visible in the first sheet.');
+            }
             
-            return $data;
+            return $bestResult['data'];
             
         } catch (Exception $e) {
             throw new Exception('Failed to parse Excel file: ' . $e->getMessage());
         }
+    }
+
+    private function getWorksheetRows($worksheet) {
+        $rows = [];
+
+        foreach ($worksheet->getRowIterator() as $row) {
+            $cellIterator = $row->getCellIterator();
+            $cellIterator->setIterateOnlyExistingCells(false);
+
+            $rowData = [];
+            foreach ($cellIterator as $cell) {
+                $value = $cell->getCalculatedValue();
+
+                if (class_exists('\\PhpOffice\\PhpSpreadsheet\\Shared\\Date') && \PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell) && is_numeric($value)) {
+                    $value = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value)->format('Y-m-d H:i:s');
+                } else if ($value instanceof DateTimeInterface) {
+                    $value = $value->format('Y-m-d H:i:s');
+                } else if (is_object($value)) {
+                    $value = method_exists($value, '__toString') ? (string) $value : '';
+                }
+
+                $rowData[] = trim((string) $value);
+            }
+
+            $rows[] = $rowData;
+        }
+
+        return $rows;
+    }
+
+    private function mapRowsWithDetectedHeader($rows, $throwIfMissing = true) {
+        $headerInfo = $this->detectHeaderRow($rows);
+
+        if ($headerInfo === null) {
+            if ($throwIfMissing) {
+                throw new Exception('Could not detect the WO import header row. Please keep headers such as Date, Request No., Location, Complaint Description, Severity, and PIC Name in the file.');
+            }
+            return ['score' => 0, 'data' => []];
+        }
+
+        $headers = $this->sanitizeHeaders($rows[$headerInfo['index']]);
+        $data = [];
+
+        for ($rowIndex = $headerInfo['index'] + 1; $rowIndex < count($rows); $rowIndex++) {
+            if ($this->isEmptyRow($rows[$rowIndex])) {
+                continue;
+            }
+
+            $mappedRow = [];
+            foreach ($headers as $columnIndex => $header) {
+                if ($header === null) {
+                    continue;
+                }
+
+                $value = isset($rows[$rowIndex][$columnIndex]) ? trim((string) $rows[$rowIndex][$columnIndex]) : '';
+                if (isset($mappedRow[$header]) && $mappedRow[$header] !== '' && $value === '') {
+                    continue;
+                }
+                $mappedRow[$header] = $value;
+            }
+
+            if (!empty($mappedRow)) {
+                $data[] = $mappedRow;
+            }
+        }
+
+        return ['score' => $headerInfo['score'], 'data' => $data];
+    }
+
+    private function detectHeaderRow($rows) {
+        $bestIndex = null;
+        $bestScore = 0;
+
+        foreach ($rows as $rowIndex => $row) {
+            if ($this->isEmptyRow($row)) {
+                continue;
+            }
+
+            $score = $this->scoreHeaderRow($row);
+            if ($score > $bestScore) {
+                $bestScore = $score;
+                $bestIndex = $rowIndex;
+            }
+        }
+
+        if ($bestIndex === null || $bestScore < 2) {
+            return null;
+        }
+
+        return ['index' => $bestIndex, 'score' => $bestScore];
+    }
+
+    private function scoreHeaderRow($row) {
+        $knownHeaders = array_flip(array_map([$this, 'normalizeHeaderName'], $this->knownHeaderNames));
+        $score = 0;
+
+        foreach ($row as $value) {
+            $normalized = $this->normalizeHeaderName($value);
+            if ($normalized !== '' && isset($knownHeaders[$normalized])) {
+                $score++;
+            }
+        }
+
+        return $score;
+    }
+
+    private function sanitizeHeaders($row) {
+        $headers = [];
+        $seen = [];
+
+        foreach ($row as $columnIndex => $header) {
+            $header = trim((string) $header);
+            if ($header === '') {
+                $headers[$columnIndex] = null;
+                continue;
+            }
+
+            if (!isset($seen[$header])) {
+                $seen[$header] = 0;
+                $headers[$columnIndex] = $header;
+                continue;
+            }
+
+            $seen[$header]++;
+            $headers[$columnIndex] = $header . ' ' . $seen[$header];
+        }
+
+        return $headers;
+    }
+
+    private function isEmptyRow($row) {
+        foreach ($row as $value) {
+            if (trim((string) $value) !== '') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function normalizeHeaderName($value) {
+        return preg_replace('/[^a-z0-9_]+/', '', strtolower(trim((string) $value)));
     }
     
     /**

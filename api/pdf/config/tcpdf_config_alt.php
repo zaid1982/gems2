@@ -79,7 +79,30 @@ define ('PDF_HEADER_LOGO_WIDTH', 30);
 /**
  * Cache directory for temporary files (full path).
  */
-define ('K_PATH_CACHE', sys_get_temp_dir().'/');
+$tcpdf_cache_paths = array(
+	ini_get('upload_tmp_dir'),
+	sys_get_temp_dir(),
+	'/Applications/XAMPP/xamppfiles/temp',
+	dirname(__DIR__).'/cache'
+);
+$tcpdf_cache_path = sys_get_temp_dir();
+foreach ($tcpdf_cache_paths as $cache_path) {
+	if (empty($cache_path)) {
+		continue;
+	}
+	if (!is_dir($cache_path)) {
+		@mkdir($cache_path, 0777, true);
+	}
+	if (is_dir($cache_path) && is_writable($cache_path)) {
+		$test_file = @tempnam($cache_path, 'tcpdf_');
+		if ($test_file !== false) {
+			@unlink($test_file);
+			$tcpdf_cache_path = $cache_path;
+			break;
+		}
+	}
+}
+define ('K_PATH_CACHE', rtrim($tcpdf_cache_path, '/\\').DIRECTORY_SEPARATOR);
 
 /**
  * Generic name for a blank image.

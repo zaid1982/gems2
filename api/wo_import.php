@@ -5,6 +5,7 @@ header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type');
 
 require_once 'library/constant.php';
+require_once 'class/Constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
 require_once 'function/f_login.php';
@@ -37,11 +38,11 @@ try {
     $fn_wo->__set('constant', $constant);
     $fn_wo->__set('fn_general', $fn_general);
 
-    Class_db::getInstance()->db_connect();
+    Class_db::getInstance()->db_connect_constant();
     $request_method = $_SERVER['REQUEST_METHOD'];
 
     // Check authorization
-    $headers = apache_request_headers();
+    $headers = getRequestHeaders();
     if (isset($headers['Authorization'])) {
         $jwt_data = $fn_login->check_jwt($headers['Authorization']);
     } else if (isset($headers['authorization'])) {
@@ -93,11 +94,30 @@ try {
             throw new Exception('Invalid action specified');
     }
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     echo json_encode([
         'success' => false,
         'message' => 'Error: ' . $e->getMessage()
     ]);
+}
+
+function getRequestHeaders() {
+    if (function_exists('apache_request_headers')) {
+        return apache_request_headers();
+    }
+
+    if (function_exists('getallheaders')) {
+        return getallheaders();
+    }
+
+    $headers = [];
+    foreach ($_SERVER as $name => $value) {
+        if (substr($name, 0, 5) === 'HTTP_') {
+            $key = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))));
+            $headers[$key] = $value;
+        }
+    }
+    return $headers;
 }
 
 /**
@@ -150,23 +170,48 @@ function getImportTemplate() {
             'column_mapping' => [
                 // User's template columns -> Our system columns
                 'Date' => 'created_date',
+                'Created Date' => 'created_date',
+                'Date Created' => 'created_date',
                 'Request No.' => 'external_wo_number',
+                'Request No' => 'external_wo_number',
+                'Request Number' => 'external_wo_number',
                 'Work Order No.' => 'external_wo_number',
+                'Work Order No' => 'external_wo_number',
+                'Work Order Number' => 'external_wo_number',
+                'WO No.' => 'external_wo_number',
+                'WO No' => 'external_wo_number',
                 'Complaint Description' => 'description',
+                'Description' => 'description',
+                'Task Description' => 'description',
                 'Location' => 'location',
                 'Complaint Type' => 'wo_type',
+                'Work Order Type' => 'wo_type',
+                'WO Type' => 'wo_type',
                 'Severity' => 'severity',
                 'PIC Name' => 'assigned_to_name',
+                'PIC' => 'assigned_to_name',
+                'Technician' => 'assigned_to_name',
+                'Assigned Technician' => 'assigned_to_name',
+                'Executor' => 'assigned_to_name',
                 'Fixed By' => 'assigned_to_name',
                 'Complainant' => 'created_by_name',
                 'Assigned By' => 'created_by_name',
                 'Verified By' => 'verified_by_name',
                 'Repair Description' => 'repair_description',
                 'Rating' => 'rating',
+                'Asset No' => 'asset_number',
+                'Asset No.' => 'asset_number',
+                'Asset Number' => 'asset_number',
+                'Asset Code' => 'asset_number',
                 'Complaint Time' => 'created_date',
                 'Assigned Time' => 'assigned_date',
+                'Assigned Date' => 'assigned_date',
                 'Executed Time' => 'completed_date',
+                'Execution Time' => 'completed_date',
+                'Completed Time' => 'completed_date',
+                'Completed Date' => 'completed_date',
                 'Verified Time' => 'verified_date',
+                'Verified Date' => 'verified_date',
                 // Legacy email-based columns (for backward compatibility)
                 'assigned_to_email' => 'assigned_to_email',
                 'created_by_email' => 'created_by_email',
@@ -257,7 +302,7 @@ function validateImportFile($file) {
             'headers' => $headers
         ];
         
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         return [
             'success' => false,
             'message' => 'File validation failed: ' . $e->getMessage()
@@ -323,7 +368,7 @@ function previewImportData($file, $siteId, $userId) {
             'can_proceed' => count($validRows) > 0
         ];
         
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         return [
             'success' => false,
             'message' => 'Preview failed: ' . $e->getMessage()
@@ -378,7 +423,7 @@ function executeImport($file, $siteId, $userId, $importOptions = []) {
                     logImportRow($batchId, $rowNumber, 'FAILED', 'Failed to create work order', $row);
                 }
                 
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 $skipped++;
                 $errors[] = "Row $rowNumber: " . $e->getMessage();
                 logImportRow($batchId, $rowNumber, 'ERROR', $e->getMessage(), $row);
@@ -403,7 +448,7 @@ function executeImport($file, $siteId, $userId, $importOptions = []) {
             ]
         ];
         
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         Class_db::getInstance()->db_rollback();
         return [
             'success' => false,
@@ -426,21 +471,65 @@ function parseImportFile($file) {
 function applyColumnMapping($row) {
     $template = getImportTemplate();
     $columnMapping = $template['template']['column_mapping'];
+    $normalizedColumnMapping = [];
+
+    foreach ($columnMapping as $userColumn => $systemColumn) {
+        $normalizedColumnMapping[normalizeImportColumnName($userColumn)] = $systemColumn;
+    }
     
     $mappedRow = [];
     
     foreach ($row as $userColumn => $value) {
-        // Check if this column needs mapping
+        $normalizedUserColumn = normalizeImportColumnName($userColumn);
+        $value = trim((string) $value);
+
         if (isset($columnMapping[$userColumn])) {
             $systemColumn = $columnMapping[$userColumn];
-            $mappedRow[$systemColumn] = $value;
+        } else if (isset($normalizedColumnMapping[$normalizedUserColumn])) {
+            $systemColumn = $normalizedColumnMapping[$normalizedUserColumn];
         } else {
-            // Keep unmapped columns as-is (for backward compatibility)
+            $systemColumn = $userColumn;
+        }
+
+        if (isset($mappedRow[$systemColumn]) && $mappedRow[$systemColumn] !== '' && $value === '') {
+            continue;
+        }
+
+        if (!isset($mappedRow[$systemColumn]) || $value !== '') {
             $mappedRow[$userColumn] = $value;
+            if ($systemColumn !== $userColumn) {
+                unset($mappedRow[$userColumn]);
+                $mappedRow[$systemColumn] = $value;
+            }
         }
     }
     
     return $mappedRow;
+}
+
+function normalizeImportColumnName($columnName) {
+    return preg_replace('/[^a-z0-9_]+/', '', strtolower(trim((string) $columnName)));
+}
+
+function fillMissingImportDates($row, &$warnings) {
+    if (empty($row['created_date'])) {
+        return $row;
+    }
+
+    $dateFallbacks = [
+        'assigned_date' => ['source' => 'created_date', 'label' => 'Assigned Time'],
+        'completed_date' => ['source' => 'assigned_date', 'label' => 'Executed Time'],
+        'verified_date' => ['source' => 'completed_date', 'label' => 'Verified Time']
+    ];
+
+    foreach ($dateFallbacks as $field => $fallback) {
+        if (empty($row[$field]) && !empty($row[$fallback['source']])) {
+            $row[$field] = $row[$fallback['source']];
+            $warnings[] = 'Missing ' . $fallback['label'] . '; using ' . $fallback['source'] . ' value.';
+        }
+    }
+
+    return $row;
 }
 
 /**
@@ -545,6 +634,64 @@ function normalizeFieldValues($row) {
     return $row;
 }
 
+function tableColumnExists($tableName, $columnName) {
+    static $columnCache = [];
+    $cacheKey = $tableName . '.' . $columnName;
+
+    if (!array_key_exists($cacheKey, $columnCache)) {
+        $row = Class_db::getInstance()->db_select_single('information_schema.columns', [
+            'table_schema' => Constant::$dbName,
+            'table_name' => $tableName,
+            'column_name' => $columnName
+        ]);
+        $columnCache[$cacheKey] = !empty($row);
+    }
+
+    return $columnCache[$cacheKey];
+}
+
+function assetBelongsToSite($asset, $siteId) {
+    if (empty($asset)) {
+        return false;
+    }
+
+    if (!empty($asset['contract_id'])) {
+        $contract = Class_db::getInstance()->db_select_single('cli_contract', ['contract_id' => $asset['contract_id']]);
+        if (!empty($contract) && (string) $contract['site_id'] === (string) $siteId) {
+            return true;
+        }
+    }
+
+    if (!empty($asset['zone_id'])) {
+        $zone = Class_db::getInstance()->db_select_single('cli_zone', ['zone_id' => $asset['zone_id']]);
+        if (!empty($zone) && (string) $zone['site_id'] === (string) $siteId) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function resolveImportAsset($assetNumber, $siteId) {
+    $assetNumber = trim((string) $assetNumber);
+    if ($assetNumber === '') {
+        return null;
+    }
+
+    $assets = Class_db::getInstance()->db_select('ast_asset', ['asset_no' => $assetNumber], 'asset_id ASC');
+    if (empty($assets)) {
+        throw new Exception('Asset not found in system: ' . $assetNumber);
+    }
+
+    foreach ($assets as $asset) {
+        if (assetBelongsToSite($asset, $siteId)) {
+            return $asset;
+        }
+    }
+
+    throw new Exception('Asset does not belong to selected site: ' . $assetNumber);
+}
+
 /**
  * Validate a single import row
  */
@@ -560,6 +707,9 @@ function validateImportRow($row, $siteId, $rowNumber) {
     
     // Normalize field values (text to numbers)
     $row = normalizeFieldValues($row);
+
+    // The page template only marks Date as required; default missing milestone dates forward.
+    $row = fillMissingImportDates($row, $warnings);
     
     // Check required fields (flexible - either name or email fields)
     $requiredFields = ['external_wo_number', 'description', 'location', 'wo_type', 'severity', 'created_date', 'assigned_date', 'completed_date', 'verified_date'];
@@ -600,6 +750,17 @@ function validateImportRow($row, $siteId, $rowNumber) {
     // If we couldn't resolve a name to email, add warning
     if (!empty($row['assigned_to_name']) && empty($row['assigned_to_email'])) {
         $warnings[] = 'Could not find user with name: ' . $row['assigned_to_name'];
+    }
+
+    if (!empty($row['asset_number'])) {
+        try {
+            $asset = resolveImportAsset($row['asset_number'], $siteId);
+            if (!empty($asset)) {
+                $row['asset_id'] = $asset['asset_id'];
+            }
+        } catch (Throwable $e) {
+            $errors[] = $e->getMessage();
+        }
     }
     
     // Validate date sequence
@@ -694,6 +855,11 @@ function importWorkOrder($row, $siteId, $importUserId, $options = []) {
         $assignedDate = new DateTime($row['assigned_date']);
         $completedDate = new DateTime($row['completed_date']);
         $verifiedDate = new DateTime($row['verified_date']);
+        $assetId = $row['asset_id'] ?? '';
+        if (!empty($row['asset_number']) && empty($assetId)) {
+            $asset = resolveImportAsset($row['asset_number'], $siteId);
+            $assetId = $asset['asset_id'];
+        }
         
         // Create workflow transaction first
         $transactionData = [
@@ -735,7 +901,6 @@ function importWorkOrder($row, $siteId, $importUserId, $options = []) {
             'wo_task_latitude' => $row['latitude'] ?? '',
             'wo_task_severity' => $row['severity'],
             'wo_task_rate' => $row['rating'] ?? '',
-            'wo_task_asset_no' => $row['asset_number'] ?? '',
             'zone_id' => $row['zone_id'] ?? '',
             'site_id' => $siteId,
             'ppm_group_id' => $ppmGroupId, // Add PPM group for gamification
@@ -755,12 +920,18 @@ function importWorkOrder($row, $siteId, $importUserId, $options = []) {
             'wo_task_is_imported' => '1',
             'transaction_id' => $transactionId
         ];
+
+        if (!empty($assetId) && tableColumnExists('wo_task', 'asset_id')) {
+            $woData['asset_id'] = $assetId;
+        } else if (!empty($row['asset_number']) && tableColumnExists('wo_task', 'wo_task_asset_no')) {
+            $woData['wo_task_asset_no'] = $row['asset_number'];
+        }
         
         $woTaskId = Class_db::getInstance()->db_insert('wo_task', $woData);
         
         return $woTaskId;
         
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         throw new Exception('Failed to import work order: ' . $e->getMessage());
     }
 }

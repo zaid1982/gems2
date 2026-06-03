@@ -8,7 +8,7 @@ require_once 'function/f_wo.php';
 require_once 'function/f_task.php';
 require_once 'function/f_email.php';
 require_once 'pdf/tcpdf_include.php';
-require_once 'pdf/wo.php';
+require_once 'pdf/wo_jkr.php';
 require_once 'pdf/wr.php';
 
 $api_name = 'api_wo';
@@ -23,7 +23,7 @@ $fn_general = new Class_general();
 $fn_login = new Class_login();
 $fn_wo = new Class_wo();
 $fn_task = new Class_task();
-$fn_pdf_wo = new Class_pdf_wo();
+$fn_pdf_wo = new Class_pdf_wo_jkr();
 $fn_pdf_wr = new Class_pdf_wr();
 $fn_email = new Class_email();
 

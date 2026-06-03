@@ -8,7 +8,7 @@ require_once 'function/f_task.php';
 require_once 'function/f_email.php';
 require_once 'function/f_wo.php';
 require_once 'pdf/tcpdf_include.php';
-require_once 'pdf/wo.php';
+require_once 'pdf/wo_jkr.php';
 require_once 'pdf/wr.php';
 require_once 'class/Constant.php';
 require_once 'class/General.php';
@@ -27,7 +27,7 @@ $fn_login = new Class_login();
 $fn_task = new Class_task();
 $fn_email = new Class_email();
 $fn_wo = new Class_wo();
-$fn_pdf_wo = new Class_pdf_wo();
+$fn_pdf_wo = new Class_pdf_wo_jkr();
 $fn_pdf_wr = new Class_pdf_wr();
 $fn_noti_web = new NotiWeb();
 
@@ -451,8 +451,9 @@ try {
             $longitude = filter_input(INPUT_POST, 'longitude');
             $latitude = filter_input(INPUT_POST, 'latitude');
             $fileUpload = filter_input(INPUT_POST, 'fileUpload', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $description = isset($fileUpload['description']) ? trim($fileUpload['description']) : '';
             $uploadId = $fn_general->uploadDocument($fileUpload, 27, $jwt_data->userId);
-            $returnVal = $fn_wo->save_wo_image_m($uploadId, 11, $longitude, $latitude);
+            $returnVal = $fn_wo->save_wo_image_m($uploadId, 11, $longitude, $latitude, $description);
             //$arrUploadType = $fn_wo->get_upload_type();
             //$fn_general->save_audit('114', $jwt_data->userId, 'Work Order no. = '.$returnVal.', upload type = '.$arrUploadType[intval($uploadType)]);
             $form_data['errmsg'] = $constant::SUC_SAVE;

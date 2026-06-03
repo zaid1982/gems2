@@ -5,11 +5,15 @@ class Constant {
     // public static $dbUserName = 'zaid';
     //public static $dbUserPassword = 'password';
     // public static $dbUserPassword = 'Amlyda@1982';
-    public static $dbUserPassword = 'Globalfm@19';
-    public static $dbName = 'gems2';
+    public static $dbUserPassword = '';
+    // public static $dbUserPassword = 'Globalfm@19';
+    // public static $dbName = 'gems';
+    public static $dbName = 'gfm_jkr';
+    // public static $dbName = 'gems_jkr_prod';
     // public static $dbHost = 'sp161.mschosting.cloud';
     // public static $dbHost = 'www.metadatasystem.my';
-    public static $dbHost = '10.101.11.69';
+    public static $dbHost = 'localhost';
+    // public static $dbHost = '10.101.11.69';
     // public static $folderDebug = '../../../logs/gems/debug/';
     // public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
     public static $folderDebug = '/Applications/XAMPP/logs/gems/debug/';
@@ -18,7 +22,7 @@ class Constant {
     public static $folderError = '/Applications/XAMPP/logs/gems/error/';
     // public static $url = '//localhost/gems2/api/';
     //public static $url = '//gems.globalfm.com.my/api/';
-    public static $url = '//gems.metadatasystem.my/api/';
+    public static $url = '//gems.local/api/';
     public static $redisHost = '127.0.0.1';
     public static $redisPort = 6379;
     public static $isLogged = true;

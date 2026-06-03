@@ -20,6 +20,22 @@ class General {
     public $pdfLineSize = 0.1;
     public $pdfLineBoldSize = 0.6;
 
+    private function safeLogToFile (string $message, string $folder, string $fileName): void {
+        if (trim($folder) === '') {
+            error_log($message);
+            return;
+        }
+        $folder = rtrim($folder, '/\\') . DIRECTORY_SEPARATOR;
+        if (!is_dir($folder)) {
+            @mkdir($folder, 0775, true);
+        }
+        if (is_dir($folder) && is_writable($folder)) {
+            @error_log($message, 3, $folder.$fileName);
+            return;
+        }
+        error_log($message);
+    }
+
     /**
      * @param $class
      * @param $function
@@ -29,7 +45,7 @@ class General {
     public function logDebug ($class, $function, $line, $msg): void {
         if ($this->isLogged) {
             $debugMsg = date("Y/m/d h:i:sa")." (".$this->userId.") [".$class.":".$function.":".$line."] - ".$msg."\r\n";
-            error_log($debugMsg, 3, Constant::$folderDebug.'debug_'.date("Ymd").'.log');
+            $this->safeLogToFile($debugMsg, Constant::$folderDebug, 'debug_'.date("Ymd").'.log');
         }
     }
 
@@ -42,9 +58,9 @@ class General {
     public function logError ($class, $function, $line, $msg): void {
         if ($this->isLogged) {
             $debugMsg = date("Y/m/d h:i:sa") . " (" . $this->userId . ") [" . $class . ":" . $function . ":" . $line . "] - (ERROR) " . $msg . "\r\n";
-            error_log($debugMsg, 3, Constant::$folderDebug . 'debug_' . date("Ymd") . '.log');
+            $this->safeLogToFile($debugMsg, Constant::$folderDebug, 'debug_' . date("Ymd") . '.log');
             $debugMsg = date("Y/m/d h:i:sa") . " (" . $this->userId . ") [" . $class . ":" . $function . ":" . $line . "] - " . $msg . "\r\n";
-            error_log($debugMsg, 3, Constant::$folderError . 'error_' . date("Ymd") . '.log');
+            $this->safeLogToFile($debugMsg, Constant::$folderError, 'error_' . date("Ymd") . '.log');
         }
     }
 

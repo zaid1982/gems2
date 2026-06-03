@@ -1,0 +1,187 @@
+-- ============================================================================
+-- JKR PROD WORKFLOW SYNC — STEP-BY-STEP (one query at a time)   gems_jkr_prod
+-- ============================================================================
+-- For web SQL tools that run ONE statement per submission (no shared transaction).
+-- Run STEP 1 -> STEP 16 IN ORDER. After each: confirm success (rows affected),
+-- and if any step ERRORS, STOP and report it before continuing.
+--
+-- Notes:
+--   * Each step is idempotent (safe to re-run) and order is dependency-safe.
+--   * There is NO surrounding transaction here (your tool auto-commits each
+--     statement). Take a BACKUP first - that is your rollback if needed.
+--   * The MR Reviewer GATE is intentionally NOT enabled (no CP41->56 rewire).
+--   * STEP 0 is an optional read-only pre-check.
+-- ============================================================================
+
+
+-- ====== STEP 0  (OPTIONAL, read-only) — current WO(2)+MR(4) assign rules ======
+SELECT c.flow_id, a.checkpoint_id AS cp_from, a.checkpoint_to AS cp_to, a.checkpoint_assign_type AS typ
+FROM wfl_checkpoint_assign a JOIN wfl_checkpoint c ON c.checkpoint_id = a.checkpoint_id
+WHERE c.flow_id IN (2,4)
+ORDER BY c.flow_id, a.checkpoint_id, a.checkpoint_to;
+
+
+-- ############################################################################
+-- WORK ORDER (flow 2)
+-- ############################################################################
+
+-- ====== STEP 1 — CP20 "Check WO": create or correct to cloud config ======
+INSERT INTO wfl_checkpoint
+  (checkpoint_id, flow_id, checkpoint_desc, checkpoint_type, checkpoint_claim_type,
+   checkpoint_due_day, checkpoint_next, checkpoint_case_1, checkpoint_case_2, checkpoint_case_3,
+   checkpoint_icon, role_id, group_id, checkpoint_order, checkpoint_color, checkpoint_skip)
+VALUES
+  (20, 2, 'Check WO', 2, 3, 1, 14, 16, 13, NULL, 'fas fa-check', 7, 1, 5, NULL, b'0')
+ON DUPLICATE KEY UPDATE
+  flow_id=2, checkpoint_desc='Check WO', checkpoint_type=2, checkpoint_claim_type=3,
+  checkpoint_due_day=1, checkpoint_next=14, checkpoint_case_1=16, checkpoint_case_2=13, checkpoint_case_3=NULL,
+  role_id=7, group_id=1, checkpoint_order=5, checkpoint_skip=b'0';
+
+-- ====== STEP 2 — CP13 "Execute WO": route to Check WO ======
+UPDATE wfl_checkpoint SET checkpoint_next = 20, checkpoint_case_3 = 13
+WHERE checkpoint_id = 13 AND flow_id = 2;
+
+-- ====== STEP 3 — CP19 "Verify WR": role 7, group 1 ======
+UPDATE wfl_checkpoint SET role_id = 7, group_id = 1
+WHERE checkpoint_id = 19 AND flow_id = 2;
+
+-- ====== STEP 4 — add the 4 missing assign rules ======
+INSERT INTO wfl_checkpoint_assign (checkpoint_assign_type, checkpoint_id, checkpoint_to)
+SELECT v.t, v.f, v.o
+FROM (        SELECT 1 AS t, 12 AS f, 20 AS o
+        UNION SELECT 1, 17, 16
+        UNION SELECT 1, 17, 19
+        UNION SELECT 1, 17, 20 ) v
+WHERE NOT EXISTS (SELECT 1 FROM wfl_checkpoint_assign a
+  WHERE a.checkpoint_assign_type = v.t AND a.checkpoint_id = v.f AND a.checkpoint_to = v.o);
+
+-- ====== STEP 5 — remove the buggy 11->19 rule ======
+DELETE FROM wfl_checkpoint_assign WHERE checkpoint_id = 11 AND checkpoint_to = 19;
+
+-- ====== STEP 6 — CP20 performers = CP12 (Assign WO) users ======
+INSERT INTO wfl_checkpoint_user (checkpoint_id, user_id, role_id, group_id)
+SELECT 20, cu.user_id, cu.role_id, cu.group_id
+FROM wfl_checkpoint_user cu
+WHERE cu.checkpoint_id = 12
+  AND NOT EXISTS (SELECT 1 FROM wfl_checkpoint_user x
+    WHERE x.checkpoint_id = 20 AND x.user_id = cu.user_id AND x.role_id = cu.role_id AND x.group_id <=> cu.group_id);
+
+-- ====== STEP 7 — CP19 role-7 performers = CP17 (Assign WR) users ======
+INSERT INTO wfl_checkpoint_user (checkpoint_id, user_id, role_id, group_id)
+SELECT 19, cu.user_id, cu.role_id, cu.group_id
+FROM wfl_checkpoint_user cu
+WHERE cu.checkpoint_id = 17
+  AND NOT EXISTS (SELECT 1 FROM wfl_checkpoint_user x
+    WHERE x.checkpoint_id = 19 AND x.user_id = cu.user_id AND x.role_id = cu.role_id AND x.group_id <=> cu.group_id);
+
+-- ====== STEP 8 — IN-FLIGHT: backfill CP20 assignment for type-1 WOs at Execute WO ======
+INSERT INTO wfl_task_assign (transaction_id, checkpoint_id, role_id, group_id, user_id)
+SELECT s.transaction_id, 20, 7, s.group_id, s.user_id
+FROM (
+  SELECT t.transaction_id,
+    COALESCE(
+      (SELECT a.group_id FROM wfl_task_assign a WHERE a.transaction_id=t.transaction_id AND a.checkpoint_id=16 ORDER BY a.task_assign_id DESC LIMIT 1),
+      (SELECT c.group_id      FROM wfl_task c WHERE c.transaction_id=t.transaction_id AND c.checkpoint_id=12 ORDER BY c.task_id DESC LIMIT 1),
+      t.group_id, 1) AS group_id,
+    COALESCE(
+      (SELECT a.user_id FROM wfl_task_assign a WHERE a.transaction_id=t.transaction_id AND a.checkpoint_id=16 ORDER BY a.task_assign_id DESC LIMIT 1),
+      (SELECT c.task_claimed_user FROM wfl_task c WHERE c.transaction_id=t.transaction_id AND c.checkpoint_id=12 ORDER BY c.task_id DESC LIMIT 1),
+      w.wo_task_assigned_by) AS user_id
+  FROM wfl_task t
+  JOIN wfl_transaction tr ON tr.transaction_id=t.transaction_id AND tr.flow_id=2
+  JOIN wo_task w          ON w.transaction_id=t.transaction_id AND w.wo_task_type_init NOT IN ('2','6')
+  WHERE t.task_current=1 AND t.checkpoint_id=13
+    AND NOT EXISTS (SELECT 1 FROM wfl_task_assign x WHERE x.transaction_id=t.transaction_id AND x.checkpoint_id=20)
+) s
+WHERE s.user_id IS NOT NULL;
+
+-- ====== STEP 9 — IN-FLIGHT: re-point CP19 tasks to the real CP17 assigner ======
+UPDATE wfl_task ct
+JOIN (SELECT x.transaction_id, x.task_claimed_user AS assigner, x.group_id FROM wfl_task x
+      JOIN (SELECT transaction_id, MAX(task_id) mid FROM wfl_task WHERE checkpoint_id=17 GROUP BY transaction_id) m
+        ON m.transaction_id=x.transaction_id AND m.mid=x.task_id) c17 ON c17.transaction_id=ct.transaction_id
+SET ct.task_claimed_user=c17.assigner, ct.group_id=COALESCE(c17.group_id,1), ct.role_id=7
+WHERE ct.task_current=1 AND ct.checkpoint_id=19 AND ct.task_status=8
+  AND c17.assigner IS NOT NULL AND (ct.task_claimed_user IS NULL OR ct.task_claimed_user<>c17.assigner);
+
+-- ====== STEP 10 — IN-FLIGHT: re-point the matching CP19 assignment rows ======
+UPDATE wfl_task_assign ta
+JOIN (SELECT x.transaction_id, x.task_claimed_user AS assigner, x.group_id FROM wfl_task x
+      JOIN (SELECT transaction_id, MAX(task_id) mid FROM wfl_task WHERE checkpoint_id=17 GROUP BY transaction_id) m
+        ON m.transaction_id=x.transaction_id AND m.mid=x.task_id) c17 ON c17.transaction_id=ta.transaction_id
+SET ta.user_id=c17.assigner, ta.group_id=COALESCE(c17.group_id,1), ta.role_id=7
+WHERE ta.checkpoint_id=19 AND c17.assigner IS NOT NULL
+  AND ta.transaction_id IN (SELECT transaction_id FROM wfl_task WHERE task_current=1 AND checkpoint_id=19 AND task_status=8)
+  AND (ta.user_id IS NULL OR ta.user_id<>c17.assigner);
+
+-- ############################################################################
+-- ROLES + MATERIAL REQUEST (flow 4)
+-- ############################################################################
+
+-- ====== STEP 11 — create missing roles (24,25,26 PTW; 23/27 already exist on prod) ======
+INSERT INTO ref_role (role_id, role_desc, role_type, role_status)
+SELECT v.id, v.d, v.t, 1
+FROM (        SELECT 23 AS id, 'Standalone Material Requestor' AS d, 2 AS t
+        UNION SELECT 24, 'PTW Supervisor',       2
+        UNION SELECT 25, 'PTW SHE',              2
+        UNION SELECT 26, 'PTW Facility Manager', 2
+        UNION SELECT 27, 'MR Reviewer',          1 ) v
+WHERE NOT EXISTS (SELECT 1 FROM ref_role r WHERE r.role_id = v.id);
+
+-- ====== STEP 12 — CP56 "MR Reviewer": create or correct to cloud config ======
+INSERT INTO wfl_checkpoint
+  (checkpoint_id, flow_id, checkpoint_desc, checkpoint_type, checkpoint_claim_type,
+   checkpoint_due_day, checkpoint_next, checkpoint_case_1, checkpoint_case_2, checkpoint_case_3,
+   checkpoint_icon, role_id, group_id, checkpoint_order, checkpoint_color, checkpoint_skip)
+VALUES
+  (56, 4, 'MR Reviewer', 2, 1, NULL, 42, 45, NULL, NULL, NULL, 27, NULL, 2, NULL, b'0')
+ON DUPLICATE KEY UPDATE
+  flow_id=4, checkpoint_desc='MR Reviewer', checkpoint_type=2, checkpoint_claim_type=1,
+  checkpoint_due_day=NULL, checkpoint_next=42, checkpoint_case_1=45, checkpoint_case_2=NULL, checkpoint_case_3=NULL,
+  role_id=27, group_id=NULL, checkpoint_order=2, checkpoint_skip=b'0';
+
+-- ====== STEP 13 — CP46 "Request Material Standalone": create or correct to cloud config ======
+INSERT INTO wfl_checkpoint
+  (checkpoint_id, flow_id, checkpoint_desc, checkpoint_type, checkpoint_claim_type,
+   checkpoint_due_day, checkpoint_next, checkpoint_case_1, checkpoint_case_2, checkpoint_case_3,
+   checkpoint_icon, role_id, group_id, checkpoint_order, checkpoint_color, checkpoint_skip)
+VALUES
+  (46, 4, 'Request Material Standalone', 1, 1, 1, 42, NULL, NULL, NULL, 'fas fa-shopping-cart', 23, 1, 1, NULL, b'0')
+ON DUPLICATE KEY UPDATE
+  flow_id=4, checkpoint_desc='Request Material Standalone', checkpoint_type=1, checkpoint_claim_type=1,
+  checkpoint_due_day=1, checkpoint_next=42, checkpoint_case_1=NULL, checkpoint_case_2=NULL, checkpoint_case_3=NULL,
+  role_id=23, group_id=1, checkpoint_order=1, checkpoint_skip=b'0';
+
+-- ====== STEP 14 — CP45 "Request Rejected": display order -> 4 ======
+UPDATE wfl_checkpoint SET checkpoint_order = 4 WHERE checkpoint_id = 45 AND flow_id = 4;
+
+-- ====== STEP 15 — CP56 reviewer pool from role-27 users (0 until reviewers assigned) ======
+INSERT INTO wfl_checkpoint_user (checkpoint_id, user_id, role_id, group_id)
+SELECT 56, ur.user_id, 27, COALESCE(ug.group_id, 1)
+FROM sys_user_role ur
+LEFT JOIN sys_user_group ug ON ug.user_id = ur.user_id
+WHERE ur.role_id = 27
+  AND NOT EXISTS (SELECT 1 FROM wfl_checkpoint_user x WHERE x.checkpoint_id = 56 AND x.user_id = ur.user_id AND x.role_id = 27);
+
+-- (MR Reviewer GATE stays OFF. To enable LATER, after assigning role-27 users:
+--   UPDATE wfl_checkpoint SET checkpoint_next = 56 WHERE checkpoint_id = 41 AND flow_id = 4; )
+
+
+-- ====== STEP 16 — VERIFICATION (read-only) — every row should read OK ======
+SELECT 'WO: CP20 exists' AS check_name, IF(COUNT(*)=1,'OK','FAIL') AS result FROM wfl_checkpoint WHERE checkpoint_id=20 AND flow_id=2
+UNION ALL SELECT 'WO: CP13 next=20 & case_3=13', IF(COUNT(*)=1,'OK','FAIL') FROM wfl_checkpoint WHERE checkpoint_id=13 AND checkpoint_next=20 AND checkpoint_case_3=13
+UNION ALL SELECT 'WO: CP19 role=7 & group=1', IF(COUNT(*)=1,'OK','FAIL') FROM wfl_checkpoint WHERE checkpoint_id=19 AND role_id=7 AND group_id=1
+UNION ALL SELECT 'WO: 4 assign rules present', IF(COUNT(*)=4,'OK',CONCAT('FAIL ',COUNT(*),'/4')) FROM wfl_checkpoint_assign WHERE (checkpoint_id,checkpoint_to) IN ((12,20),(17,16),(17,19),(17,20))
+UNION ALL SELECT 'WO: buggy 11->19 removed', IF(COUNT(*)=0,'OK','FAIL') FROM wfl_checkpoint_assign WHERE checkpoint_id=11 AND checkpoint_to=19
+UNION ALL SELECT 'WO: CP20 performers present', IF(COUNT(*)>0,'OK','FAIL') FROM wfl_checkpoint_user WHERE checkpoint_id=20
+UNION ALL SELECT 'WO: CP19 role-7 performers', IF(COUNT(*)>0,'OK','FAIL') FROM wfl_checkpoint_user WHERE checkpoint_id=19 AND role_id=7
+UNION ALL SELECT 'WO: in-flight CP13 all have CP20 assign', IF(COUNT(*)=0,'OK',CONCAT('FAIL ',COUNT(*))) FROM wfl_task t
+   JOIN wfl_transaction tr ON tr.transaction_id=t.transaction_id AND tr.flow_id=2
+   JOIN wo_task w ON w.transaction_id=t.transaction_id AND w.wo_task_type_init NOT IN ('2','6')
+   WHERE t.task_current=1 AND t.checkpoint_id=13 AND NOT EXISTS (SELECT 1 FROM wfl_task_assign x WHERE x.transaction_id=t.transaction_id AND x.checkpoint_id=20)
+UNION ALL SELECT 'ROLES: 23-27 all exist', IF(COUNT(*)=5,'OK',CONCAT('FAIL ',COUNT(*),'/5')) FROM ref_role WHERE role_id BETWEEN 23 AND 27
+UNION ALL SELECT 'MR: CP56 exists', IF(COUNT(*)=1,'OK','FAIL') FROM wfl_checkpoint WHERE checkpoint_id=56 AND flow_id=4
+UNION ALL SELECT 'MR: CP46 exists', IF(COUNT(*)=1,'OK','FAIL') FROM wfl_checkpoint WHERE checkpoint_id=46 AND flow_id=4
+UNION ALL SELECT 'MR: CP45 order=4', IF(COUNT(*)=1,'OK','FAIL') FROM wfl_checkpoint WHERE checkpoint_id=45 AND checkpoint_order=4
+UNION ALL SELECT 'MR: reviewer pool (0 = assign reviewers later)', CONCAT(COUNT(*),' user(s)') FROM wfl_checkpoint_user WHERE checkpoint_id=56
+UNION ALL SELECT 'MR: gate OFF (CP41 next=42)', IF((SELECT checkpoint_next FROM wfl_checkpoint WHERE checkpoint_id=41)=42,'OK (off)','ON (56)');

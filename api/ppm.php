@@ -1,5 +1,8 @@
 <?php
 
+date_default_timezone_set("Asia/Kuala_Lumpur");
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
+
 require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
@@ -14,7 +17,6 @@ $api_name = 'api_ppm';
 $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
-date_default_timezone_set("Asia/Kuala_Lumpur");
 
 $constant = new Class_constant();
 $fn_general = new Class_general();
@@ -47,7 +49,7 @@ try {
     $jwt_data = $fn_login->check_jwt($headers['Authorization']);
     
     // Get user site information for site filtering
-    $user = Class_db::getInstance()->db_select('sys_user', array('user_id'=>$jwt_data->userId));
+    $user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>$jwt_data->userId));
     if (empty($user)) {
         throw new Exception('[' . __LINE__ . '] - User not found');
     }

@@ -11,6 +11,31 @@ $formData = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
+if (!function_exists('gems_get_request_headers')) {
+    function gems_get_request_headers (): array {
+        if (function_exists('apache_request_headers')) {
+            return apache_request_headers();
+        }
+        $headers = array();
+        foreach ($_SERVER as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
+                $name = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($key, 5)))));
+                $headers[$name] = $value;
+            }
+        }
+        if (isset($_SERVER['CONTENT_TYPE'])) {
+            $headers['Content-Type'] = $_SERVER['CONTENT_TYPE'];
+        }
+        if (isset($_SERVER['CONTENT_LENGTH'])) {
+            $headers['Content-Length'] = $_SERVER['CONTENT_LENGTH'];
+        }
+        if (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) && !isset($headers['Authorization'])) {
+            $headers['Authorization'] = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        }
+        return $headers;
+    }
+}
+
 $fnMain = new NotiWeb();
 
 try {
@@ -25,14 +50,14 @@ try {
     if (isset($urlArr[1]) && $urlArr[1] === 'ext') {
         array_shift($urlArr);
     } else {
-        $fnMain->checkJwt(apache_request_headers());
+        $fnMain->checkJwt(gems_get_request_headers());
     }
 
     if ('GET' === $requestMethod) {
         if (!isset ($urlArr[1])) {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
         }
-        if ($urlArr[1] === 'by_userId') {
+        if (strtolower($urlArr[1]) === 'by_userid') {
             $result = $fnMain->getByUserId();
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
@@ -56,17 +81,25 @@ try {
         throw new Exception('[line: ' . __LINE__ . '] - Wrong Request Method');
     }
     DbMysql::close();
-} catch (Exception $e) {
+} catch (Throwable $e) {
     try {
         if ($isTransaction) {
             DbMysql::rollback();
         }
         DbMysql::close();
-    } catch (Exception $ex) {
+    } catch (Throwable $ex) {
         $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
     }
-    $formData['error'] = strpos($e->getMessage(), '] -') ? substr($e->getMessage(), strpos($e->getMessage(), '] -') + 4) : substr($e->getMessage(), strripos($e->getMessage(), '] ') + 2);
-    $formData['errmsg'] = $e->getCode() === 31 ? $formData['error'] : Constant::$err['default'];
+    // DEBUG: expose raw error to caller — REMOVE after diagnosing 500
+    $formData['error']  = $e->getMessage();
+    $formData['errmsg'] = $e->getMessage();
+    $formData['debug']  = array(
+        'class' => get_class($e),
+        'code'  => $e->getCode(),
+        'file'  => $e->getFile(),
+        'line'  => $e->getLine(),
+        'trace' => explode("\n", $e->getTraceAsString()),
+    );
     $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
 }
 

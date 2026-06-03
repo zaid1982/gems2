@@ -848,6 +848,24 @@ class Class_db{
     /**
      * @throws Exception
      */
+    public function db_connect_constant() {
+        try {
+            if (!class_exists('Constant')) {
+                require_once __DIR__ . '/../class/Constant.php';
+            }
+
+            $this->DBH = new PDO("mysql:host=".Constant::$dbHost.";dbname=".Constant::$dbName.";charset=utf8", Constant::$dbUserName, Constant::$dbUserPassword);
+            $this->DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->DBH->exec("SET SESSION sql_mode = 'ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'");
+        }
+        catch(PDOException $e) {
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()));
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
     public function db_rollback() {
          try {
             if (empty($this->DBH)) {

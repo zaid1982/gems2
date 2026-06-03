@@ -81,7 +81,14 @@ class Class_sql
                 INNER JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task_assign.transaction_id AND transaction_status = 4";
             } else if ($title === 'vw_user_list') {
                 $sql = "SELECT
-                    sys_user.*,
+                    sys_user.user_id,
+                    sys_user.user_name,
+                    sys_user.user_type,
+                    sys_user.user_first_name,
+                    sys_user.user_last_name,
+                    sys_user.user_mykad_no,
+                    sys_user.user_status,
+                    sys_user.site_id,
                     sys_user_profile.user_contact_no,
                     sys_user_profile.user_email,
                     sys_user_profile.designation_id,
@@ -164,7 +171,22 @@ class Class_sql
                 FROM ppm_checklist WHERE checklist_type = 2";
             } else if ($title === 'vw_ppm_asset') {
                 $sql = "SELECT 
-                    ast_asset.*,
+                    ast_asset.asset_id,
+                    ast_asset.asset_no,
+                    ast_asset.asset_name,
+                    ast_asset.asset_serial_no,
+                    ast_asset.asset_desc,
+                    ast_asset.asset_capacity,
+                    ast_asset.location_code_id,
+                    ast_asset.ppm_group_id,
+                    ast_asset.asset_group_id,
+                    ast_asset.asset_category_id,
+                    ast_asset.asset_type_id,
+                    ast_asset.asset_brand_id,
+                    ast_asset.asset_model_id,
+                    ast_asset.contract_id,
+                    ast_asset.asset_time_created,
+                    ast_asset.asset_status,
                     ppm.ppm_id,
                     ppm.ppm_task_no,
                     ppm.ppm_date_start,
@@ -382,7 +404,12 @@ class Class_sql
                 FROM sys_upload";
             } else if ($title === 'vw_ppm_scheduled') {
                 $sql = "SELECT
-                    ppm_task.*,
+                    ppm_task.ppm_task_id,
+                    ppm_task.ppm_task_no,
+                    ppm_task.ppm_task_start_date,
+                    ppm_task.ppm_task_assigned_to,
+                    ppm_task.pdf_id,
+                    ppm_task.ppm_task_status,
                     task_frequency.frequency
                 FROM ppm_task
                 LEFT JOIN (SELECT ppm_task_id, GROUP_CONCAT(frequency_name SEPARATOR ', ') AS frequency

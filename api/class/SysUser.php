@@ -44,17 +44,23 @@ class SysUser extends General {
             
             // Build query with site filtering for non-administrators
             $whereClause = "";
-            $params = array();
             if (!$isAdministrator && !empty($userSite)) {
-                $whereClause = " WHERE sys_user.site_id = ?";
-                $params[] = $userSite;
+                $whereClause = " WHERE sys_user.site_id = " . intval($userSite);
                 parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Applying site filter for site_id: ' . $userSite);
             } else {
                 parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'No site filter applied - Administrator: ' . ($isAdministrator ? 'YES' : 'NO') . ', UserSite: ' . $userSite);
             }
             
             $sysUserArr = DbMysql::selectSqlAll(/** @lang text */"SELECT
-                    sys_user.*,
+                    sys_user.user_id AS user_ref_id,
+                    sys_user.user_id,
+                    sys_user.user_name,
+                    sys_user.user_type,
+                    sys_user.user_first_name,
+                    sys_user.user_last_name,
+                    sys_user.user_mykad_no,
+                    sys_user.user_status,
+                    sys_user.site_id,
                     sys_user_profile.user_contact_no,
                     sys_user_profile.user_email,
                     sys_user_profile.designation_id,
@@ -68,23 +74,9 @@ class SysUser extends General {
                             user_id, GROUP_CONCAT(role_id) AS roles, MIN(group_id) AS group_id
                         FROM sys_user_role
                         GROUP BY user_id
-                    ) user_group ON user_group.user_id = sys_user.user_id" . $whereClause, $params, 1);
+                    ) user_group ON user_group.user_id = sys_user.user_id" . $whereClause, array(), 1);
             
-            // Debug: Log query results
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Query returned ' . count($sysUserArr) . ' users');
-            foreach ($sysUserArr as $user) {
-                parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'User: ' . $user['userName'] . ' (Site: ' . $user['siteId'] . ')');
-            }
-            foreach ($sysUserArr as $i=>$sysUser) {
-                $sysUserArr[$i]['userPassword'] = null;
-                $sysUserArr[$i]['userPasswordTemp'] = null;
-                $sysUserArr[$i]['userToken'] = null;
-                $sysUserArr[$i]['userDeviceId'] = null;
-                $sysUserArr[$i][1] = null;
-                $sysUserArr[$i][2] = null;
-                $sysUserArr[$i][10] = null;
-                $sysUserArr[$i][17] = null;
-            }
             return $sysUserArr;
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());

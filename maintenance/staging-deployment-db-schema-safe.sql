@@ -56,6 +56,8 @@ CREATE TABLE IF NOT EXISTS `noti_web` (
   `noti_web_icon` varchar(30) NOT NULL,
   `noti_web_color` varchar(30) NOT NULL,
   `noti_web_link` varchar(100) DEFAULT NULL,
+  `nav_id` tinyint(4) DEFAULT NULL,
+  `nav_second_id` tinyint(4) DEFAULT NULL,
   `noti_web_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`noti_web_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;

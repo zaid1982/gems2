@@ -22,6 +22,31 @@ $fn_email = new Class_email();
 $fn_ptw = new Class_ptw();
 $current_user_roles = array();
 
+if (!function_exists('gems_get_request_headers')) {
+    function gems_get_request_headers (): array {
+        if (function_exists('apache_request_headers')) {
+            return apache_request_headers();
+        }
+        $headers = array();
+        foreach ($_SERVER as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
+                $name = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($key, 5)))));
+                $headers[$name] = $value;
+            }
+        }
+        if (isset($_SERVER['CONTENT_TYPE'])) {
+            $headers['Content-Type'] = $_SERVER['CONTENT_TYPE'];
+        }
+        if (isset($_SERVER['CONTENT_LENGTH'])) {
+            $headers['Content-Length'] = $_SERVER['CONTENT_LENGTH'];
+        }
+        if (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION']) && !isset($headers['Authorization'])) {
+            $headers['Authorization'] = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        }
+        return $headers;
+    }
+}
+
 // Centralized PTW role mappings (aliased from constants for easy use in this file)
 $PTW_ROLE_ADMIN = Class_constant::ROLE_ADMIN;
 $PTW_ROLE_SUPERVISOR = Class_constant::PTW_ROLE_SUPERVISOR;
@@ -48,7 +73,7 @@ try {
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
     // Check authorization (with fallback for testing and public forms)
-    $headers = apache_request_headers();
+    $headers = gems_get_request_headers();
     $is_public_form = isset($_POST['public_user']) && $_POST['public_user'] === 'Public User';
     
     if ($is_public_form) {

@@ -30,6 +30,31 @@ class Class_pdf_wo {
         }
     }
 
+    private function get_upload_file_path ($upload) {
+        if (empty($upload['upload_folder']) || empty($upload['upload_filename']) || empty($upload['upload_extension'])) {
+            return '';
+        }
+        $relativePath = $upload['upload_folder'].'/'.$upload['upload_filename'].'.'.$upload['upload_extension'];
+        $paths = array(
+            $relativePath,
+            dirname(__DIR__, 2).'/'.$relativePath
+        );
+        foreach ($paths as $path) {
+            if (is_file($path) && is_readable($path)) {
+                return $path;
+            }
+        }
+        return '';
+    }
+
+    private function get_upload_image_html ($upload) {
+        $imagePath = $this->get_upload_file_path($upload);
+        if ($imagePath === '') {
+            return '<br/><br/><i>Image file not available</i>';
+        }
+        return '<br/><br/><img src="'.str_replace('\\', '/', $imagePath).'" height="200" />';
+    }
+
     /**
      * @param $property
      * @return mixed
@@ -270,7 +295,7 @@ class Class_pdf_wo {
                         $pdf->setPage($pdf->getPage());
                     }
                     $pdf->writeHTMLCell(8, 65, '', '', '', 1);
-                    $pdf->writeHTMLCell(92, 65, '', '', '<br/><br/><img src="'.$img_display['upload_folder'].'/'.$img_display['upload_filename'].'.'.$img_display['upload_extension'].'" height="200" />', 1, '', '', '', 'C');
+                    $pdf->writeHTMLCell(92, 65, '', '', $this->get_upload_image_html($img_display), 1, '', '', '', 'C');
                     $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : ".$this->fn_general->clear_null($img_display['wo_task_upload_desc']).
                         "<br/>Time Taken : ".$this->fn_general->convertDateToDisplay($img_display['wo_task_upload_timestamp']).
                         "<br/>Longitude : ".$this->fn_general->clear_null($img_display['wo_task_upload_longitude']).
@@ -431,7 +456,10 @@ class Class_pdf_wo {
             foreach ($woUploads as $woUpload) {
                 $uploadType = $woUpload['wo_task_upload_type'];
                 if ($woUpload['upload_extension'] === 'png') {
-                    $fileDir = $woUpload['upload_folder'].'/'.$woUpload['upload_filename'].'.'.$woUpload['upload_extension'];
+                    $fileDir = $this->get_upload_file_path($woUpload);
+                    if ($fileDir === '') {
+                        continue;
+                    }
                     $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Sign : '.$fileDir);
                     if ($uploadType === '7' && $signService === false) {
                         $pdf->Image($fileDir, 20, $pdf->GetY()-30, 40, 30, 'PNG', '', '', false, 300);
@@ -455,7 +483,7 @@ class Class_pdf_wo {
 
                 if (!empty($img_before)) {
                     $pdf->SetFont('helvetica', '', 9);
-                    $pdf->writeHTMLCell(100, 65, '', '', '<br/><br/><img src="' . $img_before['upload_folder'] . '/' . $img_before['upload_filename'] . '.' . $img_before['upload_extension'] . '" height="200" />', 1, '', '', '', 'C');
+                    $pdf->writeHTMLCell(100, 65, '', '', $this->get_upload_image_html($img_before), 1, '', '', '', 'C');
                     $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : " . $this->fn_general->clear_null($img_before['wo_task_upload_desc']) .
                         "<br/>Time Taken : " . $this->fn_general->convertDateToDisplay($img_before['wo_task_upload_timestamp']) .
                         "<br/>Longitude : " . $this->fn_general->clear_null($img_before['wo_task_upload_longitude']) .
@@ -474,7 +502,7 @@ class Class_pdf_wo {
                 if (!empty($img_during)) {
                     $pdf->SetFont('helvetica', '', 9);
                     foreach ($img_during as $key => $img_display) {
-                        $pdf->writeHTMLCell(100, 65, '', '', '<br/><br/><img src="' . $img_display['upload_folder'] . '/' . $img_display['upload_filename'] . '.' . $img_display['upload_extension'] . '" height="200" />', 1, '', '', '', 'C');
+                        $pdf->writeHTMLCell(100, 65, '', '', $this->get_upload_image_html($img_display), 1, '', '', '', 'C');
                         $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : " . $this->fn_general->clear_null($img_display['wo_task_upload_desc']) .
                             "<br/>Time Taken : " . $this->fn_general->convertDateToDisplay($img_display['wo_task_upload_timestamp']) .
                             "<br/>Longitude : " . $this->fn_general->clear_null($img_display['wo_task_upload_longitude']) .
@@ -503,7 +531,7 @@ class Class_pdf_wo {
 
                 if (!empty($img_after)) {
                     $pdf->SetFont('helvetica', '', 9);
-                    $pdf->writeHTMLCell(100, 65, '', '', '<br/><br/><img src="' . $img_after['upload_folder'] . '/' . $img_after['upload_filename'] . '.' . $img_after['upload_extension'] . '" height="200" />', 1, '', '', '', 'C');
+                    $pdf->writeHTMLCell(100, 65, '', '', $this->get_upload_image_html($img_after), 1, '', '', '', 'C');
                     $pdf->writeHTMLCell(80, 65, '', '', "<br/><br/>Description : " . $this->fn_general->clear_null($img_after['wo_task_upload_desc']) .
                         "<br/>Time Taken : " . $this->fn_general->convertDateToDisplay($img_after['wo_task_upload_timestamp']) .
                         "<br/>Longitude : " . $this->fn_general->clear_null($img_after['wo_task_upload_longitude']) .
@@ -518,25 +546,17 @@ class Class_pdf_wo {
             // close and output PDF document
             $folder_code = floor(intval($this->woTaskId)/1000);
             $folder = 'pdf/wo/'.$folder_code;
+            $folderPath = __DIR__.'/wo/'.$folder_code;
 
-            $result = $this->fn_general->folderExist($folder);
-            if (!$result) {
-                mkdir ($folder,0777, true);
+            if (!is_dir($folderPath) && !mkdir($folderPath, 0777, true)) {
+                throw new Exception('[' . __LINE__ . '] - Unable to create PDF folder '.$folderPath);
+            }
+            if (!is_writable($folderPath)) {
+                throw new Exception('[' . __LINE__ . '] - PDF folder not writable '.$folderPath);
             }
             $filename = 'wo_'.substr((10000000+intval($this->woTaskId)),1).'.pdf';
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Filename pdf : '.$filename);
-
-            $config = parse_ini_file('library/config.ini');
-            $environment = $config['environment'];
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'File : '.__FILE__);
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Environment : '.$environment);
-            if ($environment == 'windows') {
-                $filename_src = '\wo\\' . $folder_code . '\\' . $filename;
-            } else {
-                $filename_src = '/wo/' . $folder_code . '/' . $filename;
-            }
-            //$filename_src = '\wo\\'.$folder_code.'\\'.$filename;
-            $pdf->Output(dirname(__FILE__). $filename_src, 'F');
+            $pdf->Output($folderPath.'/'.$filename, 'F');
 
             $pdfId = $woTask['pdf_id'];
             if (empty($pdfId)) {

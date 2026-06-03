@@ -1382,7 +1382,7 @@ class Class_wo {
      * @return mixed
      * @throws Exception
      */
-    public function save_wo_image_m ($uploadId, $uploadType, $longitude='', $latitude='') {
+    public function save_wo_image_m ($uploadId, $uploadType, $longitude='', $latitude='', $description='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
 
@@ -1402,8 +1402,17 @@ class Class_wo {
                 throw new Exception('[' . __LINE__ . '] - Parameter latitude empty');
             }
 
-            Class_db::getInstance()->db_insert('wo_task_upload', array('wo_task_id'=>$this->woTaskId, 'wo_task_upload_type'=>$uploadType, 'upload_id'=>$uploadId,
-                'wo_task_upload_longitude'=>$longitude, 'wo_task_upload_latitude'=>$latitude));
+            $row = array(
+                'wo_task_id' => $this->woTaskId,
+                'wo_task_upload_type' => $uploadType,
+                'upload_id' => $uploadId,
+                'wo_task_upload_longitude' => $longitude,
+                'wo_task_upload_latitude' => $latitude,
+            );
+            if ($description !== null && $description !== '') {
+                $row['wo_task_upload_desc'] = $description;
+            }
+            Class_db::getInstance()->db_insert('wo_task_upload', $row);
 
             $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$this->woTaskId), null, 1);
             return $woTask['wo_task_no'];
