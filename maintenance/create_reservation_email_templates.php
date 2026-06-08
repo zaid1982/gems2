@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
 require_once __DIR__.'/../api/class/Constant.php';
 require_once __DIR__.'/../api/class/DbMysql.php';
 

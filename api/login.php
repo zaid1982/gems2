@@ -41,13 +41,18 @@ try {
             $roleId = filter_input(INPUT_POST, 'roleId');
 
             $result = $fn_login->check_login_web($username, $password, $roleId);
-            $fn_general->save_audit('1', $result['userId']);
+            $fn_general->save_audit(\Gfm\Domain\AuditAction::LOGIN, $result['userId']);
+        }
+        else if ($action === 'refresh_token') {
+            // Exchange a valid refresh token for a fresh access token without re-login.
+            $refreshToken = filter_input(INPUT_POST, 'refreshToken');
+            $result = $fn_login->refresh_access_token($refreshToken);
         }
         else if ($action === 'forgot_password') {      
             $username = filter_input(INPUT_POST, 'username');
 
             $userId = $fn_user->forgot_password($username);
-            $fn_general->save_audit('4', $userId);
+            $fn_general->save_audit(\Gfm\Domain\AuditAction::FORGOT_PASSWORD, $userId);
             $form_data['errmsg'] = $constant::SUC_FORGOT_PASSWORD;
         } else {
             throw new Exception('[' . __LINE__ . '] - Parameter action ('.$action.') invalid');
@@ -67,7 +72,6 @@ try {
     }
     Class_db::getInstance()->db_close();
     $form_data['error'] = substr($ex->getMessage(), strpos($ex->getMessage(), '] - ') + 4);
-    print_r($ex);
     if ($ex->getCode() === 31) {
         $form_data['errmsg'] = substr($ex->getMessage(), strpos($ex->getMessage(), '] - ') + 4);
     } else {

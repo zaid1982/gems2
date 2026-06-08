@@ -16,7 +16,9 @@ $is_transaction = false;
 $form_data = array('success'=>false, 'result'=>'', 'error'=>'', 'errmsg'=>'');
 $result = '';
 date_default_timezone_set("Asia/Kuala_Lumpur");
-error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
+// Error reporting is configured centrally and gated on APP_DEBUG (see api/bootstrap.php).
+// Prod default reproduces the legacy mask; set APP_DEBUG=true to surface all errors.
+\Gfm\Support\ErrorHandler::register();
 
 $constant = new Class_constant();
 $fn_general = new Class_general();

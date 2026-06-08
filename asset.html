@@ -311,6 +311,9 @@
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
+                if (!versionLocal_['gems_siteZone']) {
+                    versionLocal_['gems_siteZone'] = '1';
+                }
                 const refZone_ = mzGetLocalArrayV2('gems_siteZone', versionLocal_, 'zone/ref');
                 const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId', [], 'severity');
 

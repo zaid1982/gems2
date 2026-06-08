@@ -92,11 +92,9 @@ class Class_login {
             if ($username === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter username empty');
             }
-            
-            $key = "gems2";
-            $token = array('iss'=>'gems2/jwt', 'userId'=>$userId, 'username'=>$username, 'iat'=>time(), 'exp'=>time()+10);
-            $jwt = JWT::encode($token, $key);              
-            return $jwt;
+
+            // Secret + lifetime now come from Config (env-first); see Gfm\Security\TokenService.
+            return \Gfm\Security\TokenService::issueAccessToken((string) $userId, (string) $username);
         }
         catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -115,16 +113,61 @@ class Class_login {
             if ($jwt === '') {
                 throw new Exception('[' . __LINE__ . '] - Parameter jwt empty');
             }
-            
-            $key = "gems2";
-            JWT::$leeway = 86400; // $leeway in seconds
-            $token = substr($jwt, 7);
-            $data = JWT::decode($token, $key, array('HS256'));
-            
+
+            // Secret + leeway now come from Config (env-first). Handles the
+            // "Bearer " prefix and validates the signature/expiry.
+            $data = \Gfm\Security\TokenService::decode($jwt);
+
             if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$data->userId)) == 0) {
                 throw new Exception('[' . __LINE__ . '] - Token not valid');
             }
             return $data;
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Issue a long-lived refresh token. Additive: clients that do not use it
+     * are unaffected.
+     * @throws Exception
+     */
+    public function create_refresh_jwt ($userId='', $username='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            if ($userId === '' || $username === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId/username empty');
+            }
+            return \Gfm\Security\TokenService::issueRefreshToken((string) $userId, (string) $username);
+        }
+        catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Exchange a valid refresh token for a fresh access token plus a rotated
+     * refresh token.
+     * @return array{token:string, refreshToken:string}
+     * @throws Exception
+     */
+    public function refresh_access_token ($refreshJwt='') {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            if ($refreshJwt === '') {
+                throw new Exception('[' . __LINE__ . '] - Parameter refreshToken empty');
+            }
+            $data = \Gfm\Security\TokenService::decodeRefresh($refreshJwt);
+            if (Class_db::getInstance()->db_count('sys_user', array('user_id'=>$data->userId)) == 0) {
+                throw new Exception('[' . __LINE__ . '] - Token not valid');
+            }
+            return array(
+                'token' => \Gfm\Security\TokenService::issueAccessToken((string) $data->userId, (string) $data->username),
+                'refreshToken' => \Gfm\Security\TokenService::issueRefreshToken((string) $data->userId, (string) $data->username),
+            );
         }
         catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
@@ -247,6 +290,7 @@ class Class_login {
             $token = $this->create_jwt($userId, $username);
 
             $result['token'] = $token;
+            $result['refreshToken'] = $this->create_refresh_jwt($userId, $username);
             $result['userId'] = $userId;
             $result['userName'] = $username;
             $result['userFirstName'] = $profile['user_first_name'];
@@ -315,6 +359,7 @@ class Class_login {
             $token = $this->create_jwt($userId, $username);
 
             $result['token'] = $token;
+            $result['refreshToken'] = $this->create_refresh_jwt($userId, $username);
             $result['userId'] = $userId;
             $result['userName'] = $username;
             $result['userFirstName'] = $profile['user_first_name'];

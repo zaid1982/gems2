@@ -1,7 +1,9 @@
 <?php
 
 date_default_timezone_set("Asia/Kuala_Lumpur");
-error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
+// Error reporting is configured centrally and gated on APP_DEBUG (see api/bootstrap.php).
+// Prod default reproduces the legacy mask; set APP_DEBUG=true to surface all errors.
+require_once __DIR__ . '/bootstrap.php';
 
 require_once 'library/constant.php';
 require_once 'function/db.php';

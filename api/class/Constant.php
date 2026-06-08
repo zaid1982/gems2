@@ -1,32 +1,47 @@
 <?php
 
 class Constant {
+    // NOTE: Connection credentials are resolved at runtime from Gfm\Support\Config
+    // (environment variables first, then api/library/config.ini). The values below
+    // are non-secret local-development defaults only; do NOT put real secrets here.
+    // They are kept so code that reads Constant::$db* directly keeps working, and are
+    // overridden by Constant::boot() (called at the bottom of this file) from Config.
     public static $dbUserName = 'root';
-    // public static $dbUserName = 'zaid';
-    //public static $dbUserPassword = 'password';
-    // public static $dbUserPassword = 'Amlyda@1982';
     public static $dbUserPassword = '';
-    // public static $dbUserPassword = 'Globalfm@19';
-    // public static $dbName = 'gems';
     public static $dbName = 'gfm_jkr';
-    // public static $dbName = 'gems_jkr_prod';
-    // public static $dbHost = 'sp161.mschosting.cloud';
-    // public static $dbHost = 'www.metadatasystem.my';
     public static $dbHost = 'localhost';
-    // public static $dbHost = '10.101.11.69';
-    // public static $folderDebug = '../../../logs/gems/debug/';
-    // public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
     public static $folderDebug = '/Applications/XAMPP/logs/gems/debug/';
-    // public static $folderError = '../../../logs/gems/error/';
-    // public static string $folderError = 'C:\xampp\logs\gems\error\\';
     public static $folderError = '/Applications/XAMPP/logs/gems/error/';
-    // public static $url = '//localhost/gems2/api/';
-    //public static $url = '//gems.globalfm.com.my/api/';
     public static $url = '//gems.local/api/';
     public static $redisHost = '127.0.0.1';
     public static $redisPort = 6379;
     public static $isLogged = true;
     public static $publicUser = 'Public User';
+
+    /**
+     * Sync environment-specific values from Config so deployment differences
+     * (DB host/name, credentials, log paths, base URL) are driven by env vars
+     * / config.ini instead of editing this committed file.
+     */
+    public static function boot(): void {
+        require_once __DIR__ . '/../bootstrap.php';
+        if (!class_exists('\\Gfm\\Support\\Config')) {
+            return;
+        }
+        self::$dbUserName = \Gfm\Support\Config::dbUser();
+        self::$dbUserPassword = \Gfm\Support\Config::dbPassword();
+        self::$dbName = \Gfm\Support\Config::dbName();
+        self::$dbHost = \Gfm\Support\Config::dbHost();
+        $logDir = \Gfm\Support\Config::logDir();
+        if ($logDir !== '') {
+            self::$folderDebug = rtrim($logDir, '/\\') . '/debug/';
+            self::$folderError = rtrim($logDir, '/\\') . '/error/';
+        }
+        $url = \Gfm\Support\Config::appUrl();
+        if ($url !== '') {
+            self::$url = $url;
+        }
+    }
 
     public static $err = array(
         'default' => 'Error on system. Please contact Administrator!'
@@ -175,3 +190,6 @@ class Constant {
         'errInvalidWindow' => 'Reservation end time must be later than start time.'
     );
 }
+
+// Apply environment/config.ini overrides as soon as this file is loaded.
+Constant::boot();

@@ -1,0 +1,18 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 6
+    paths:
+        - api/src/Gfm
+        - tests
+    bootstrapFiles:
+        - vendor/autoload.php
+    treatPhpDocTypesAsCertain: false
+    # Legacy global classes (Class_db, Class_general, ...) are not yet
+    # namespaced/autoloaded; ignore "unknown class" noise from the seams
+    # where new code bridges into them until they are migrated.
+    ignoreErrors:
+        - identifier: class.notFound
+          path: api/src/Gfm/*
+    reportUnmatchedIgnoredErrors: false

@@ -1,6 +1,17 @@
 <?php
+require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . '/../library/sql.php';
 
+/**
+ * Legacy data-access singleton.
+ *
+ * @deprecated The string-concatenation query builders (db_select/db_update/
+ * db_insert/get_whereAnd_str/...) are being phased out. New and migrated code
+ * should use Gfm\Database\Connection + Gfm\Database\SafeQuery (parameterized).
+ * Connection credentials are unified through Gfm\Support\Config; the live PDO
+ * is shared via Gfm\Database\Connection::setShared() so both paths use one
+ * connection per request.
+ */
 class Class_db{
     
     private static $instance;
@@ -85,6 +96,19 @@ class Class_db{
         }
     }
     
+    /**
+     * Safely quote a scalar value as a SQL string literal using the charset-aware
+     * PDO::quote() (returns the value WITH surrounding quotes). Falls back to
+     * addslashes only if no connection is available. This replaces the previous
+     * addslashes()/raw-interpolation approach in the clause builders.
+     */
+    private function quoteValue($value) {
+        if ($this->DBH instanceof PDO) {
+            return $this->DBH->quote((string) $value);
+        }
+        return "'" . addslashes((string) $value) . "'";
+    }
+
     private function get_whereAnd_str($columnsArr) {
         $where_str = NULL;
         foreach ($columnsArr as $item => $value) {
@@ -115,7 +139,7 @@ class Class_db{
             } else if ($value === 'Curdate()') {
                 $where_str .= "$item = CURDATE() AND ";
             } else if ($l1 == '%') {
-                $where_str .= "$item like '".str_replace("'", "`", $value)."' AND ";
+                $where_str .= "$item like ".$this->quoteValue($value)." AND ";
             }  else if ($l1 == '(') {
                 $where_str .= "$item in $value AND ";
             } else if ($l2 == 'N(') {
@@ -126,17 +150,17 @@ class Class_db{
                 if ($r2 === 'Now()' || $r2 === 'Curdate()') {
                     $where_str .= "$item $l1 $r2 AND ";
                 } else {
-                    $where_str .= "$item $l2 '$r2' AND ";
+                    $where_str .= "$item $l2 ".$this->quoteValue($r2)." AND ";
                 }
             }  else if ($l1 == '>' || $l1 == '<') {
                 $r1 = substr($value, 1);
                 if ($r1 == 'Now()' || $r1 === 'Curdate()') {
                     $where_str .= "$item $l1 $r1 AND "; 
                 } else {
-                    $where_str .= "$item $l1 '$r1' AND "; 
+                    $where_str .= "$item $l1 ".$this->quoteValue($r1)." AND "; 
                 }
             }  else {
-                $where_str .= "$item = '".addslashes($value)."' AND ";
+                $where_str .= "$item = ".$this->quoteValue($value)." AND ";
             }
         } 
         
@@ -175,7 +199,7 @@ class Class_db{
                 $r1 = substr($value, 1);
                 $set_str .= "$item=$r1, ";
             } else {
-                $set_str .= "$item='".addslashes($value)."', ";  // $set_str .= "$item='".str_replace("'", "`", $value)."', ";
+                $set_str .= "$item=".$this->quoteValue($value).", ";
             }
         } 
         
@@ -229,7 +253,7 @@ class Class_db{
                 $comma_str .= "$value, ";
             } 
             else {
-                $comma_str .= "'".addslashes($value)."', ";
+                $comma_str .= $this->quoteValue($value).", ";
             }
         } 
         
@@ -271,6 +295,18 @@ class Class_db{
      * @return mixed|string
      * @throws Exception
      */
+    /**
+     * Escape content that will be placed INSIDE an existing single-quoted SQL
+     * string literal (the template already supplies the surrounding quotes),
+     * preventing string-literal breakout / injection.
+     */
+    private function escapeSqlLiteralContent($value) {
+        $value = str_replace(chr(0), '', (string) $value);
+        $value = str_replace('\\', '\\\\', $value);
+        $value = str_replace("'", "''", $value);
+        return $value;
+    }
+
     public function get_sql ($tablename, $param=array()) {
         if (substr($tablename, 0, 2) == 'vw' || substr($tablename, 0, 2) == 'mw' || substr($tablename, 0, 2) == 'dt' || substr($tablename, 0, 2) == 'vg' || substr($tablename, 0, 2) == 'mg') {
             $fn_sql = new Class_sql();
@@ -279,9 +315,18 @@ class Class_db{
                 $s = "SELECT * FROM (".$s.") as mainTable ";
             }          
             if (!empty($param)){
+                // Placeholders interpolated inside single-quoted string contexts in
+                // the SQL templates (e.g. LIKE '%[search_text]%', '[date_start]').
+                // Their value can be user-controlled (datatable search box, date
+                // range), so escape the content to prevent string-literal breakout.
+                // Numeric / structural placeholders are server-built and left as-is.
+                $quotedPlaceholders = array('search_text', 'wo_type', 'date_start', 'date_end', 'dateStart', 'dateEnd', 'ppmTaskStartDate');
                 foreach ($param as $item => $value) {
                     if (strpos($s,"[".$item."]") !== false) {
-                        $s = str_replace ("[".$item."]", $value, $s);
+                        $safe = in_array($item, $quotedPlaceholders, true)
+                            ? $this->escapeSqlLiteralContent((string) $value)
+                            : $value;
+                        $s = str_replace ("[".$item."]", $safe, $s);
                     }
                 }
             }
@@ -829,16 +874,22 @@ class Class_db{
      */
     public function db_connect() {
         try {
-            $config = parse_ini_file(__DIR__ . '/../library/config.ini');
-            $dbname = $config['dbname'];    
-            $dbhost = $config['dbhost'];    
-            //$this->DBH = new PDO("mysql:host=$dbhost;dbname=$dbname;charset=utf8", $config['username'], $config['password']);
-            $this->DBH = new PDO("mysql:host=$dbhost;port=3306;dbname=$dbname;charset=utf8", $config['username'], $config['password']);
+            // Config resolves env vars first, then falls back to library/config.ini,
+            // so existing deployments keep working unchanged.
+            $dbhost = \Gfm\Support\Config::dbHost();
+            $dbname = \Gfm\Support\Config::dbName();
+            $dbuser = \Gfm\Support\Config::dbUser();
+            $dbpass = \Gfm\Support\Config::dbPassword();
+            $dbport = \Gfm\Support\Config::dbPort();
+            $this->DBH = new PDO("mysql:host=$dbhost;port=$dbport;dbname=$dbname;charset=utf8", $dbuser, $dbpass);
             $this->DBH->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
             
             // Match DbMysql: remove STRICT_TRANS_TABLES so MySQL warnings
             // (e.g. 1265 Data truncated for ENUM columns) are not promoted to errors.
             $this->DBH->exec("SET SESSION sql_mode = 'ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'");
+            // Share this handle so new Gfm\Database\SafeQuery code runs on the
+            // same connection/transaction during a legacy request.
+            \Gfm\Database\Connection::setShared($this->DBH);
         }
         catch(PDOException $e) {
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()));
@@ -850,11 +901,12 @@ class Class_db{
      */
     public function db_connect_constant() {
         try {
-            if (!class_exists('Constant')) {
-                require_once __DIR__ . '/../class/Constant.php';
-            }
-
-            $this->DBH = new PDO("mysql:host=".Constant::$dbHost.";dbname=".Constant::$dbName.";charset=utf8", Constant::$dbUserName, Constant::$dbUserPassword);
+            // Resolve credentials via Config (env vars first, then library/config.ini).
+            $this->DBH = new PDO(
+                "mysql:host=".\Gfm\Support\Config::dbHost().";port=".\Gfm\Support\Config::dbPort().";dbname=".\Gfm\Support\Config::dbName().";charset=utf8",
+                \Gfm\Support\Config::dbUser(),
+                \Gfm\Support\Config::dbPassword()
+            );
             $this->DBH->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->DBH->exec("SET SESSION sql_mode = 'ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'");
         }
@@ -880,6 +932,16 @@ class Class_db{
     
     public function db_close() {  
         $this->DBH = null;
+        \Gfm\Database\Connection::setShared(null);
+    }
+
+    /**
+     * Expose the live PDO handle so new/migrated code can run parameterized
+     * queries via Gfm\Database\SafeQuery on the same connection/transaction.
+     * @return PDO|null
+     */
+    public function getPdo() {
+        return $this->DBH;
     }
 
     /**

@@ -1,5 +1,14 @@
 .idea/
+
+# Environment / secrets (never commit real values; commit .env.example instead)
+.env
+.env.*
+!.env.example
 api/library/config.ini
+
+# Dev tooling caches
+.phpunit.cache/
+.php-cs-fixer.cache
 api/upload/
 api/pdf/ppm/
 api/pdf/checklist/
@@ -12,7 +21,8 @@ globalfm.p12
 
 # Composer dependencies - installed via 'composer install'
 vendor/
-composer.lock
+# NOTE: composer.lock SHOULD be committed for an application so installs are
+# reproducible (CI relies on it). It is intentionally NOT ignored.
 
 # Ignore all uploaded files stored outside api/
 upload/
@@ -32,3 +42,13 @@ test_*.csv
 
 # Postman collections
 *.postman_collection.json
+
+# Stray debug / scratch artifacts (see docs/REPO_HYGIENE.md for untracking existing ones)
+response.json
+*.log
+*.tmp
+
+# OS / editor cruft
+.vscode/
+*.swp
+Thumbs.db

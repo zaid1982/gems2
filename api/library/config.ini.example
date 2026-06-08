@@ -1,0 +1,41 @@
+; =============================================================================
+; GFM GEMS legacy INI configuration (TEMPLATE)
+;
+; Prefer configuring the application via environment variables / .env (see
+; .env.example at the repo root). This file is only a fallback consumed by
+; Gfm\Support\Config when the matching env var is not set.
+;
+; Copy to "config.ini" (git-ignored) and fill in real values. Do NOT commit
+; real credentials.
+; =============================================================================
+
+[database]
+username = root
+password = ''
+dbhost = localhost
+dbport = 3306
+dbname = gfm_jkr
+log_dir =
+environment = production
+
+[app]
+; Public base URL of the API, e.g. //gems.example.com/api/
+url =
+
+[mail]
+mail_from = gems-support@example.com
+mail_envelope_from = gems-support@example.com
+
+[maintenance]
+; Shared secret for maintenance/ tools. Sent as X-Api-Key from the dashboard UI.
+; Generate: php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
+api_key =
+
+[smtp]
+host = smtp.office365.com
+port = 587
+; STARTTLS | TLS | PLAIN
+security = STARTTLS
+m_username = gems-support@example.com
+m_password =
+timeout = 30

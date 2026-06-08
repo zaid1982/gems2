@@ -34,8 +34,12 @@ const _DATATABLE_LANGUAGE =  {
     }*/
 };
 
-const mzUrlDownload = '//gems.globalfm.com.my/api/';
-//const mzUrlDownload = '//localhost:8081/gems2/api/';
+// API base URL comes from js/config.js (window.GFM_API_BASE) when available;
+// falls back to the production URL so pages that don't yet include config.js
+// behave exactly as before.
+const mzUrlDownload = (typeof window !== 'undefined' && window.GFM_API_BASE)
+    ? window.GFM_API_BASE
+    : '//gems.globalfm.com.my/api/';
 let mzCnt = 0;
 const mzExportOpt = {
     columns: ':visible',
@@ -1392,7 +1396,7 @@ function mzGetLocalArrayV2(name, version, api) {
         throw new Error(_ALERT_MSG_ERROR_DEFAULT);
     }
     if (typeof version[name] === 'undefined' || version[name] === '') {
-        throw new Error(_ALERT_MSG_ERROR_DEFAULT);
+        throw new Error('Missing sys_version key: ' + name);
     }
     let getNew = false;
     let objData;

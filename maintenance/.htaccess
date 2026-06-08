@@ -1,0 +1,15 @@
+# Maintenance tools entry point. API key is required via dashboard.html.
+DirectoryIndex dashboard.html
+
+RewriteEngine On
+
+# Block web access to log output and other sensitive artifacts.
+RewriteRule ^logs/ - [F,L]
+
+<FilesMatch "\.(sql|log|json|bat|pem|der)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(\.git_tool_|\.allow_)">
+    Require all denied
+</FilesMatch>

@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Lint, static analysis & tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: [ '8.3', '8.4' ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, intl, zip, gd, bcmath, pdo, pdo_mysql
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate composer.json
+        run: composer validate --strict --no-check-publish
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ matrix.php-version }}-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Check code style (php-cs-fixer)
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose
+
+      - name: Static analysis (phpstan)
+        run: vendor/bin/phpstan analyse --no-progress
+
+      - name: Unit tests (phpunit)
+        run: vendor/bin/phpunit --testsuite unit
+
+      - name: Dependency vulnerability audit
+        run: composer audit --no-dev || true

@@ -45,20 +45,25 @@ try {
             //    throw new Exception('[' . __LINE__ . '] - Parameter deviceId empty');
             //}
             $result = $fn_login->check_login($username, $password, $deviceId);
-            $fn_general->save_audit('1', $result['userId']);
+            $fn_general->save_audit(\Gfm\Domain\AuditAction::LOGIN, $result['userId']);
+        }
+        else if ($action === 'refresh_token') {
+            // Exchange a valid refresh token for a fresh access token without re-login.
+            $refreshToken = filter_input(INPUT_POST, 'refreshToken');
+            $result = $fn_login->refresh_access_token($refreshToken);
         }
         else if ($action === 'reset_password') {
             $username = filter_input(INPUT_POST, 'username');
             $password = filter_input(INPUT_POST, 'password');
             $userId = $fn_login->reset_password($username, $password);
-            $fn_general->save_audit('103', $userId);
+            $fn_general->save_audit(\Gfm\Domain\AuditAction::RESET_PASSWORD, $userId);
             $form_data['errmsg'] = $constant::SUC_RESET_PASSWORD;
         }
         else if ($action === 'forgot_password') {      
             $email = filter_input(INPUT_POST, 'email');
 
             $result = $fn_user->forgot_password($email);
-            $fn_general->save_audit('4', $result['userId']);
+            $fn_general->save_audit(\Gfm\Domain\AuditAction::FORGOT_PASSWORD, $result['userId']);
             $result = $result['tempPassword'];
             $form_data['errmsg'] = $constant::SUC_FORGOT_PASSWORD;
         } else {

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
+
 // Log Explorer Backend API
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');

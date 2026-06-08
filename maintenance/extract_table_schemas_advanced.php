@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
+
 /**
  * Advanced Database Schema Extractor with Analysis
  * 

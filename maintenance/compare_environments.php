@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
+
 /**
  * Environment Comparison Tool
  * Compares workflow configuration between environments

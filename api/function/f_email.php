@@ -364,22 +364,19 @@ class Class_email {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
-            // Load mail and smtp configuration
-            $config = @parse_ini_file(__DIR__ . '/../library/config.ini', true);
-            if ($config === false) {
-                throw new Exception('[' . __LINE__ . '] - Unable to read config.ini');
-            }
+            // Load mail and smtp configuration (env vars first, then library/config.ini).
+            $smtp = \Gfm\Support\Config::smtp();
 
-            $mailFrom = $config['mail']['mail_from'] ?? '';
-            $mailEnvelopeFrom = $config['mail']['mail_envelope_from'] ?? $mailFrom;
+            $mailFrom = $smtp['from'];
+            $mailEnvelopeFrom = $smtp['envelope_from'] !== '' ? $smtp['envelope_from'] : $mailFrom;
 
             $smtpConf = [
-                'host' => $config['smtp']['host'] ?? 'smtp.office365.com',
-                'port' => isset($config['smtp']['port']) ? intval($config['smtp']['port']) : 587,
-                'username' => $config['smtp']['m_username'] ?? ($config['smtp']['username'] ?? ''),
-                'password' => $config['smtp']['m_password'] ?? ($config['smtp']['password'] ?? ''),
-                'security' => strtoupper($config['smtp']['security'] ?? 'STARTTLS'), // STARTTLS|TLS|PLAIN
-                'timeout' => isset($config['smtp']['timeout']) ? intval($config['smtp']['timeout']) : 30,
+                'host' => $smtp['host'] !== '' ? $smtp['host'] : 'smtp.office365.com',
+                'port' => $smtp['port'] > 0 ? $smtp['port'] : 587,
+                'username' => $smtp['username'],
+                'password' => $smtp['password'],
+                'security' => strtoupper($smtp['security'] !== '' ? $smtp['security'] : 'STARTTLS'), // STARTTLS|TLS|PLAIN
+                'timeout' => $smtp['timeout'] > 0 ? $smtp['timeout'] : 30,
             ];
 
             if (empty($smtpConf['username']) || empty($smtpConf['password'])) {
