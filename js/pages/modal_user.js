@@ -34,16 +34,25 @@ function ModalUser() {
         return '';
     }
 
-    // Helper: set PTW checkbox values from refRole
+    // Helper: set PTW checkbox values from refRole (fallback IDs match sql/add_ptw_roles.sql)
     function applyPtwRoleIds() {
         console.log('[modal_user] applyPtwRoleIds called, refRole:', refRole);
-        const rSup = getRoleIdByDesc('PTW Supervisor');
-        const rShe = getRoleIdByDesc('PTW SHE');
-        const rFm  = getRoleIdByDesc('PTW Facility Manager');
+        let rSup = getRoleIdByDesc('PTW Supervisor');
+        let rShe = getRoleIdByDesc('PTW SHE');
+        let rFm  = getRoleIdByDesc('PTW Facility Manager');
+        if (!rSup) {
+            rSup = String($('#chkMusRolePTWSUP').attr('data-role-id') || $('#chkMusRolePTWSUP').val() || '24').trim();
+        }
+        if (!rShe) {
+            rShe = String($('#chkMusRolePTWSHE').attr('data-role-id') || $('#chkMusRolePTWSHE').val() || '25').trim();
+        }
+        if (!rFm) {
+            rFm = String($('#chkMusRolePTWFM').attr('data-role-id') || $('#chkMusRolePTWFM').val() || '26').trim();
+        }
         console.log('[modal_user] PTW role IDs: Supervisor=' + rSup + ', SHE=' + rShe + ', FM=' + rFm);
-        if (rSup) $('#chkMusRolePTWSUP').val(rSup).attr('data-role-id', rSup); else $('#divMusRolePTWSUP').hide();
-        if (rShe) $('#chkMusRolePTWSHE').val(rShe).attr('data-role-id', rShe); else $('#divMusRolePTWSHE').hide();
-        if (rFm)  $('#chkMusRolePTWFM').val(rFm).attr('data-role-id', rFm); else $('#divMusRolePTWFM').hide();
+        $('#chkMusRolePTWSUP').val(rSup).attr('data-role-id', rSup);
+        $('#chkMusRolePTWSHE').val(rShe).attr('data-role-id', rShe);
+        $('#chkMusRolePTWFM').val(rFm).attr('data-role-id', rFm);
 
         // MR Reviewer is a workflow role that may not exist in older local caches.
         // Always ensure the checkbox has a usable roleId so it gets included in payload.

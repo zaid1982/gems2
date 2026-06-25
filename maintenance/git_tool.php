@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
+
 // LAN Git Maintenance Tool (guarded)
 // - Repo path is fixed
 // - IP allowlist + enable flag + password login

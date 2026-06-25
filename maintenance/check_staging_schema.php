@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
+
 /**
  * Staging Database Schema Fix
  * Identifies and reports schema differences that cause WflTask errors

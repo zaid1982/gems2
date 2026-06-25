@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
+
 /**
  * WO Export — Back-office Excel generator for Work Order data.
  *

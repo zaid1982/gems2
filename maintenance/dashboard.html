@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="maintenance-auth.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GEMS2 Database Management Dashboard</title>
@@ -856,8 +857,11 @@
         // Global variables
         let dbStats = {};
         
-        // Initialize dashboard
+        // Initialize dashboard (after maintenance API key unlock)
         document.addEventListener('DOMContentLoaded', function() {
+            if (!window.GfmMaintenanceAuth || !window.GfmMaintenanceAuth.getKey()) {
+                return;
+            }
             updateTime();
             loadDatabaseStats();
             setInterval(updateTime, 1000);

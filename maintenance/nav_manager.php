@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
+
 /**
  * Navigation Manager Backend
  * CRUD for sys_nav, sys_nav_second, and role assignment/order in sys_nav_role

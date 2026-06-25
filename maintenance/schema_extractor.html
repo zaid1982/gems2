@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="maintenance-auth.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🗄️ Database Schema Extractor - GEMS2</title>
@@ -626,33 +627,25 @@
             document.querySelector(`[data-format="${format}"]`).classList.add('selected');
         }
 
-        // Export schema
-        function exportSchema() {
+        // Export schema (authenticated fetch — form submit cannot send X-Api-Key header)
+        async function exportSchema() {
             if (!currentSchema) {
                 showError('No schema data available. Please extract schema first.');
                 return;
             }
-            
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'schema_extractor.php';
-            
-            const actionInput = document.createElement('input');
-            actionInput.type = 'hidden';
-            actionInput.name = 'action';
-            actionInput.value = 'export_schema';
-            
-            const formatInput = document.createElement('input');
-            formatInput.type = 'hidden';
-            formatInput.name = 'format';
-            formatInput.value = selectedFormat;
-            
-            form.appendChild(actionInput);
-            form.appendChild(formatInput);
-            document.body.appendChild(form);
-            
-            form.submit();
-            document.body.removeChild(form);
+
+            try {
+                const body = new FormData();
+                body.append('action', 'export_schema');
+                body.append('format', selectedFormat);
+                const filename = await window.GfmMaintenanceAuth.downloadPhp('schema_extractor.php', {
+                    method: 'POST',
+                    body: body,
+                });
+                showSuccess('Schema exported: ' + filename);
+            } catch (error) {
+                showError('Export failed: ' + error.message);
+            }
         }
 
         // Copy schema to clipboard

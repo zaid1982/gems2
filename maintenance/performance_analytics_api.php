@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
+
 /**
  * Performance Analytics API
  * Provides real-time database performance metrics and analytics

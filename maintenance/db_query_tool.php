@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
+
 /**
  * Database Query Tool Backend
  * Handles AJAX requests for database operations

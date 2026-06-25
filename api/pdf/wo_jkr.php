@@ -17,20 +17,7 @@ require_once __DIR__.'/tcpdf_include.php';
 require_once __DIR__.'/wo.php';
 require_once __DIR__.'/wr.php';
 
-class MYPDF_wo_jkr extends TCPDF {
-    public function Header() {
-        $this->SetFillColor(255, 255, 255);
-        $this->Rect(0, 0, $this->getPageWidth(), $this->getPageHeight(), 'F');
-    }
-
-    public function Footer() {
-        $this->SetY(-15);
-        $this->SetFont('helvetica', 'I', 8);
-        $this->Cell(0, 10, 'This form is system-generated and does not require a signature.', 0, 0, 'L', 0);
-        $this->Cell(0, 10, 'Page '.$this->getAliasNumPage().' of '.$this->getAliasNbPages(), 0, 0, 'R', 0);
-    }
-}
-
+if (!class_exists('Class_pdf_wo_jkr')) {
 class Class_pdf_wo_jkr extends Class_pdf_wo {
     private function get_jkr_exception($codes, $function, $line, $msg) {
         if ($msg != '') {
@@ -409,162 +396,10 @@ class Class_pdf_wo_jkr extends Class_pdf_wo {
     }
 
     public function create_pdf() {
-        try {
-            $fnGeneral = $this->fn_general();
-            $woTaskId = $this->wo_task_id();
-            $fnGeneral->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__CLASS__);
-
-            if (empty($woTaskId)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter woTaskId Empty');
-            }
-
-            $pdf = new MYPDF_wo_jkr(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-            $pdf->SetCreator(PDF_CREATOR);
-            $pdf->SetAuthor('GEMS 2.0');
-            $pdf->SetTitle('Work Request / Work Order');
-            $pdf->SetSubject('Work Request and Work Order Details');
-            $pdf->setPrintHeader(true);
-            $pdf->setPrintFooter(true);
-            $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-            $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-            $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-            $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-            $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-            $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-            $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-            $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-            $pdf->AddPage();
-
-            $arrUserFullName = $fnGeneral->getUserFullName();
-            $arrCategory = array('', 'Complaint', 'Finding', 'Request', 'Breakdown', 'Defect', 'Public Complaint');
-            $arrSeverity = $fnGeneral->getSeverityName();
-            $arrStatus = $fnGeneral->getRefStatus();
-
-            $woTask = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$woTaskId), null, 1);
-            $clientId = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['site_id']), 'client_id', null, 1);
-            $reporterProfile = $this->user_profile($woTask['wo_task_created_by']);
-            $picProfile = $this->user_profile($this->array_get($woTask, 'wo_task_assigned_to'));
-            $location = $this->get_location_data($woTask);
-            $asset = $this->get_asset_data($woTask);
-            $uploads = $this->collect_uploads($woTaskId);
-
-            $severityId = intval($this->clear($this->array_get($woTask, 'wo_task_severity'), 0));
-            $categoryId = intval($this->clear($this->array_get($woTask, 'wo_task_type'), 0));
-            $statusId = intval($this->clear($this->array_get($woTask, 'wo_task_status'), 0));
-            $arrSla = array('', '4 hours', '2 hours');
-            $arrDueHours = array('', '4', '2');
-            $arrRespondSla = array('', '4 hours', '2 hours');
-            $arrRespondDueMinutes = array('', '240', '120');
-            $arrClientSeverity = Class_db::getInstance()->db_select('cli_client_severity', array('client_id'=>$clientId));
-            foreach ($arrClientSeverity as $clientSeverity) {
-                $key = intval($clientSeverity['severity_id']);
-                if (isset($clientSeverity['client_severity_hour'])) {
-                    $arrSla[$key] = $clientSeverity['client_severity_hour'].' hours';
-                    $arrDueHours[$key] = $clientSeverity['client_severity_hour'];
-                }
-                if (isset($clientSeverity['client_severity_respond_time'])) {
-                    $arrRespondSla[$key] = $clientSeverity['client_severity_respond_time'].' minutes';
-                    $arrRespondDueMinutes[$key] = $clientSeverity['client_severity_respond_time'];
-                }
-            }
-
-            $createdTime = $this->array_get($woTask, 'wo_task_time_created');
-            $assignedTime = $this->array_get($woTask, 'wo_task_time_assigned');
-            $wrCheckedTime = $this->array_get($woTask, 'wo_task_time_wr_checked');
-            $wrVerifiedTime = $this->array_get($woTask, 'wo_task_time_wr_verified');
-            $executedTime = $this->array_get($woTask, 'wo_task_time_executed');
-            $verifiedTime = $this->array_get($woTask, 'wo_task_time_verified');
-            $respondDueText = $this->add_time_text($createdTime, $this->array_get($arrRespondDueMinutes, $severityId), 'minute');
-            $woDueText = $this->add_time_text($createdTime, $this->array_get($arrDueHours, $severityId), 'hour');
-            $respondActual = $wrCheckedTime !== '' ? $wrCheckedTime : $assignedTime;
-            $respondDuration = $this->duration_text($createdTime, $respondActual);
-            $respondStatus = $respondDueText !== '' && $respondActual !== '' ? $this->sla_status((new DateTime($createdTime))->modify('+'.intval($this->array_get($arrRespondDueMinutes, $severityId)).' minute')->format('Y-m-d H:i:s'), $respondActual) : '';
-            $workStart = $wrVerifiedTime !== '' ? $wrVerifiedTime : $assignedTime;
-            $workDuration = $this->duration_text($workStart, $executedTime);
-            $workStatus = $woDueText !== '' && $executedTime !== '' ? $this->sla_status((new DateTime($createdTime))->modify('+'.intval($this->array_get($arrDueHours, $severityId)).' hour')->format('Y-m-d H:i:s'), $executedTime) : '';
-
-            $this->document_title($pdf, 'WORK REQUEST (WR)');
-            $this->section_header($pdf, 'A. Complaint Details [User Details: Public & Client for Complaints or Internal: for Self-Finding]');
-            $this->pair_rows($pdf, array(
-                array('Reported by', $this->user_name($arrUserFullName, $woTask['wo_task_created_by']), 'Phone No', $this->array_get($reporterProfile, 'user_contact_no')),
-                array('Email', $this->array_get($reporterProfile, 'user_email'), 'Reported Date / Time', $this->date_text($createdTime)),
-                array('Category', $this->array_get($arrCategory, $categoryId), 'Severity', $this->array_get($arrSeverity, $severityId)),
-                array('Work Request No', $this->clear($this->array_get($woTask, 'wo_task_request_no'), $woTask['wo_task_no']), 'Location Complaint', $location['name'])
-            ));
-            $this->text_block($pdf, 'B1. Description of Complaint [Manual Entry]', $this->array_get($woTask, 'wo_task_complaint'));
-            $this->image_section($pdf, 'B2. Complaint Images [Complain from User]', $uploads['1']);
-            $this->section_header($pdf, 'C1. Work Assessment Details [Selected by P.I.C. to verify the complaint]');
-            $this->pair_rows($pdf, array(
-                array('Person in Charge', $this->user_name($arrUserFullName, $this->array_get($woTask, 'wo_task_assigned_to')), 'SLA Respond Time', $this->array_get($arrRespondSla, $severityId)),
-                array('Email', $this->array_get($picProfile, 'user_email'), 'WR Due Date Time', $respondDueText),
-                array('Respond Date / Duration', trim($this->date_text($respondActual).' '.$respondDuration), 'Respond Status', $respondStatus)
-            ));
-            $this->image_section($pdf, 'C2. Response Images [P.I.C. verification of the complaint]', $uploads['11']);
-            $this->section_header($pdf, 'D1. Validation Details [Who issue/assigned the WR to the P.I.C.]');
-            $this->pair_rows($pdf, array(
-                array('Validation by', $this->user_name($arrUserFullName, $this->array_get($woTask, 'wo_task_wr_checked_by')), 'Designation', ''),
-                array('Verified Date', $this->date_text($wrVerifiedTime), 'Work Request Status', $this->array_get($arrStatus, $statusId))
-            ));
-            $this->text_block($pdf, 'D2. Remark Details [Remarks before selecting WR Status; ensure a note is added if rejected] [Manual Entry]', $this->array_get($woTask, 'wo_task_wr_check'));
-
-            $pdf->AddPage();
-            $this->document_title($pdf, 'WORK ORDER (WO)');
-            $this->section_header($pdf, 'A. Work Order Details');
-            $this->pair_rows($pdf, array(
-                array('Work Order No', $woTask['wo_task_no'], 'Status', $this->array_get($arrStatus, $statusId)),
-                array('Work Request No', $this->clear($this->array_get($woTask, 'wo_task_request_no'), $woTask['wo_task_no']), 'Category', $this->array_get($arrCategory, $categoryId)),
-                array('Location Name', $location['name'], 'Location Code', $location['code']),
-                array('Asset Name', $asset['name'], 'Asset Code', $asset['code']),
-                array('Severity', $this->array_get($arrSeverity, $severityId), 'WO Due Date/Time', $woDueText)
-            ));
-            $this->text_block($pdf, 'Complaint Description', $this->array_get($woTask, 'wo_task_complaint'), 12);
-            $this->section_header($pdf, 'B1. Work Assignment Details [Details of task issuer and receiver]');
-            $this->pair_rows($pdf, array(
-                array('Received By', $this->user_name($arrUserFullName, $this->array_get($woTask, 'wo_task_wr_verified_by')), 'Assigned To', $this->user_name($arrUserFullName, $this->array_get($woTask, 'wo_task_assigned_to'))),
-                array('Date Assigned', $this->date_text($assignedTime), 'Phone No', $this->array_get($picProfile, 'user_contact_no'))
-            ));
-            $this->section_header($pdf, 'B2. Support Personnel [Team members involved in execution]');
-            $pdf->SetFont('helvetica', '', 9);
-            $pdf->Cell(15, 6, 'No.', 1, 0, 'C', 0, '', 1);
-            $pdf->Cell(165, 6, 'Name', 1, 1, 'C', 0, '', 1);
-            $woAssists = Class_db::getInstance()->db_select('wo_task_assist', array('wo_task_id'=>$woTaskId));
-            $assistRows = max(count($woAssists), 3);
-            for ($i = 0; $i < $assistRows; $i++) {
-                $assistName = isset($woAssists[$i]) ? $this->user_name($arrUserFullName, $woAssists[$i]['user_id']) : '';
-                $pdf->Cell(15, 6, $assistName !== '' ? ($i + 1) : '', 1, 0, 'C', 0, '', 1);
-                $pdf->Cell(165, 6, $assistName, 1, 1, 'L', 0, '', 1);
-            }
-            $pdf->Ln(2);
-            $this->material_section($pdf, $this->get_materials($woTaskId));
-            $this->text_block($pdf, 'D. Work Execution Details [Action duration, task notes, and work timeline]', $this->array_get($woTask, 'wo_task_repair_desc'));
-            $this->pair_rows($pdf, array(
-                array('Start Date & Time', $this->date_text($workStart), 'End Date & Time', $this->date_text($executedTime)),
-                array('Duration', $workDuration, 'Status', $workStatus)
-            ));
-            $this->signature_section($pdf, array(
-                array('title'=>'Serviced By', 'signature'=>$this->first_upload_path($uploads['7']), 'name'=>$this->user_name($arrUserFullName, $this->array_get($woTask, 'wo_task_fixed_by')), 'designation'=>'', 'date'=>$this->date_text($executedTime)),
-                array('title'=>'Checked By', 'signature'=>$this->first_upload_path($uploads['12']), 'name'=>$this->user_name($arrUserFullName, $this->array_get($woTask, 'wo_task_wr_checked_by')), 'designation'=>'', 'date'=>$this->date_text($wrCheckedTime)),
-                array('title'=>'Verified By', 'signature'=>$this->first_upload_path($uploads['8']), 'name'=>$this->user_name($arrUserFullName, $this->array_get($woTask, 'wo_task_verified_by')), 'designation'=>'', 'date'=>$this->date_text($verifiedTime))
-            ));
-            $this->rating_section($pdf, $this->array_get($woTask, 'wo_task_rate'));
-            $this->image_section($pdf, 'J. Photo Documentation (Before) [Visual proof for each repair stage]', $uploads['2'], 1);
-            $this->image_section($pdf, 'J. Photo Documentation (During) [Visual proof for each repair stage]', $uploads['3']);
-            $this->image_section($pdf, 'J. Photo Documentation (After) [Visual proof for each repair stage]', $uploads['4'], 1);
-            $pdf->SetFont('helvetica', 'B', 9);
-            $pdf->Cell(0, 6, 'Notes:', 0, 1, 'L');
-            $pdf->SetFont('helvetica', '', 9);
-            $pdf->MultiCell(0, 5, 'Upon completion, the work request will be closed, and the user will receive a notification email for receipt acknowledgment.', 0, 'L', 0, 1);
-            $pdf->MultiCell(0, 5, 'If the Work Request (WR) is rejected, and you wish to submit a new complaint or request, please initiate a new Work Request submission.', 0, 'L', 0, 1);
-            $pdf->MultiCell(0, 5, '[Note: At least one image is required for each stage. Additional images are optional as needed].', 0, 'L', 0, 1);
-
-            return $this->save_pdf($pdf, $woTask, $woTaskId);
-        } catch(Exception $ex) {
-            $this->fn_general()->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            throw new Exception($this->get_jkr_exception('0051', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
-        }
+        return parent::create_pdf();
     }
 }
-
+}
 $isDirectRequest = isset($_SERVER['SCRIPT_FILENAME']) && realpath($_SERVER['SCRIPT_FILENAME']) === realpath(__FILE__);
 if (!$isDirectRequest) {
     return;

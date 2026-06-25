@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="maintenance-auth.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📁 Log Explorer - GEMS2 Maintenance</title>
@@ -487,10 +488,14 @@
             }
         }
 
-        // Download file
-        function downloadFile(filename) {
+        // Download file via authenticated fetch (X-Api-Key header)
+        async function downloadFile(filename) {
             const url = `log_explorer.php?action=download_file&directory=${encodeURIComponent(currentDirectory)}&filename=${encodeURIComponent(filename)}`;
-            window.open(url, '_blank');
+            try {
+                await window.GfmMaintenanceAuth.downloadPhp(url);
+            } catch (error) {
+                showError('Download failed: ' + error.message);
+            }
         }
 
         // Search in file

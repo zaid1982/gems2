@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/_require_auth.php';
+
 /**
  * Database Schema Comparison Tool
  * Compares DEV vs PROD database schemas and generates migration SQL

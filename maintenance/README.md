@@ -2,6 +2,16 @@
 
 This folder contains database maintenance and schema extraction utilities for the GEMS2 system.
 
+## Access control
+
+1. Set `[maintenance] api_key` in `api/library/config.ini`.
+2. Open `dashboard.html` and enter the key when prompted.
+3. The key is stored in `sessionStorage` and sent as `X-Api-Key` on all tool requests.
+
+All PHP backends enforce the key server-side via `maintenance/_require_auth.php`.
+Direct `.php` links, form posts, and file downloads are handled by `maintenance-auth.js`
+(`X-Api-Key` header on fetch; `api_key` query/body on navigation and forms).
+
 ## �️ Available Tools
 
 ### 1. **Interactive Data Editor** ⭐ NEW
