@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="maintenance-auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Deploy Browser - GEMS2 Maintenance</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #fff;
+            padding: 28px 30px;
+        }
+        .header h1 { font-size: 2rem; font-weight: 500; margin-bottom: 8px; }
+        .header p { opacity: 0.9; line-height: 1.5; }
+        .layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            min-height: 720px;
+        }
+        .sidebar {
+            border-right: 1px solid #e2e8f0;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-top, .editor-toolbar, .status-bar {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .breadcrumb {
+            font-size: 13px;
+            color: #64748b;
+            word-break: break-all;
+            margin-bottom: 12px;
+        }
+        .breadcrumb a {
+            color: #2563eb;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            background: #2563eb;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover { background: #1d4ed8; }
+        .btn.secondary { background: #64748b; }
+        .btn.secondary:hover { background: #475569; }
+        .btn.success { background: #16a34a; }
+        .btn.success:hover { background: #15803d; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .toolbar-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .file-list {
+            flex: 1;
+            overflow: auto;
+            padding: 8px;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .file-item:hover { background: #e2e8f0; }
+        .file-item.active { background: #dbeafe; color: #1d4ed8; }
+        .file-item .meta {
+            margin-left: auto;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        .editor-pane { display: flex; flex-direction: column; min-width: 0; }
+        .editor-meta {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        #editor {
+            flex: 1;
+            width: 100%;
+            min-height: 520px;
+            border: none;
+            padding: 16px;
+            font-family: Consolas, Monaco, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .status-bar {
+            font-size: 12px;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .alert {
+            margin: 16px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .alert.info { background: #eff6ff; color: #1d4ed8; }
+        .alert.error { background: #fef2f2; color: #b91c1c; }
+        .alert.success { background: #ecfdf5; color: #047857; }
+        .empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { max-height: 320px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📦 Code Deploy Browser</h1>
+        <p>Browse the GFM GEMS project, edit source files, or upload replacements for quick deployments.
+           Protected paths (config, secrets, vendor, upload, logs) are blocked.</p>
+    </div>
+
+    <div id="message" class="alert info">
+        Select a folder on the left, then open a file to view or replace it.
+    </div>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="breadcrumb" id="breadcrumb"></div>
+                <div class="toolbar-row">
+                    <button class="btn secondary" type="button" onclick="loadDirectory('')">🏠 Root</button>
+                    <button class="btn secondary" type="button" id="btnUp" onclick="goUp()">⬆️ Up</button>
+                    <a class="btn secondary" href="dashboard.html">Dashboard</a>
+                </div>
+            </div>
+            <div class="file-list" id="fileList">
+                <div class="empty">Loading...</div>
+            </div>
+        </aside>
+
+        <section class="editor-pane">
+            <div class="editor-toolbar">
+                <div class="editor-meta" id="editorMeta">No file selected</div>
+                <div class="toolbar-row">
+                    <button class="btn success" type="button" id="btnSave" disabled onclick="saveFile()">💾 Save</button>
+                    <button class="btn" type="button" id="btnDownload" disabled onclick="downloadFile()">⬇️ Download</button>
+                    <label class="btn secondary" id="btnUploadLabel" style="cursor:pointer;">
+                        📤 Replace via upload
+                        <input type="file" id="uploadInput" hidden disabled>
+                    </label>
+                    <button class="btn secondary" type="button" id="btnReload" disabled onclick="reloadFile()">↻ Reload</button>
+                </div>
+            </div>
+            <textarea id="editor" placeholder="Open an editable file from the list..." readonly></textarea>
+            <div class="status-bar">
+                <span id="statusLeft">Ready</span>
+                <span id="statusRight"></span>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+    const API = 'code_deploy.php';
+    let currentPath = '';
+    let currentFile = '';
+    let currentEditable = false;
+    let dirty = false;
+
+    function setMessage(text, type = 'info') {
+        const el = document.getElementById('message');
+        el.className = 'alert ' + type;
+        el.textContent = text;
+    }
+
+    function setStatus(left, right = '') {
+        document.getElementById('statusLeft').textContent = left;
+        document.getElementById('statusRight').textContent = right;
+    }
+
+    function apiUrl(action, params = {}) {
+        const url = new URL(API, window.location.href);
+        url.searchParams.set('action', action);
+        Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+        return url.toString();
+    }
+
+    async function apiJson(action, params = {}, init = {}) {
+        const method = (init.method || 'GET').toUpperCase();
+        let url = apiUrl(action, method === 'GET' ? params : {});
+        if (method !== 'GET') {
+            const body = init.body instanceof FormData ? init.body : new FormData();
+            if (!(init.body instanceof FormData)) {
+                Object.entries(params).forEach(([key, value]) => body.append(key, value));
+            }
+            init.body = body;
+            init.method = method;
+        }
+        const response = await fetch(url, init);
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || ('Request failed (' + response.status + ')'));
+        }
+        return data;
+    }
+
+    function renderBreadcrumb(path) {
+        const el = document.getElementById('breadcrumb');
+        if (!path) {
+            el.innerHTML = '<a onclick="loadDirectory(\'\')">project root</a>';
+            return;
+        }
+        const parts = path.split('/');
+        let html = '<a onclick="loadDirectory(\'\')">root</a>';
+        let cumulative = '';
+        parts.forEach((part, index) => {
+            cumulative += (index === 0 ? '' : '/') + part;
+            const target = cumulative;
+            html += ' / <a onclick="loadDirectory(\'' + target.replace(/'/g, "\\'") + '\')">' + part + '</a>';
+        });
+        el.innerHTML = html;
+        document.getElementById('btnUp').disabled = !path;
+    }
+
+    function renderEntries(entries) {
+        const list = document.getElementById('fileList');
+        if (!entries.length) {
+            list.innerHTML = '<div class="empty">Empty folder</div>';
+            return;
+        }
+        list.innerHTML = entries.map(entry => {
+            const icon = entry.type === 'dir' ? '📁' : (entry.editable ? '📝' : '📄');
+            const active = entry.path === currentFile ? ' active' : '';
+            const click = entry.type === 'dir'
+                ? 'loadDirectory(\'' + entry.path.replace(/'/g, "\\'") + '\')'
+                : 'openFile(\'' + entry.path.replace(/'/g, "\\'") + '\', ' + (entry.editable ? 'true' : 'false') + ')';
+            const meta = entry.type === 'dir' ? 'dir' : formatSize(entry.size);
+            return '<div class="file-item' + active + '" onclick="' + click + '">' +
+                '<span>' + icon + '</span><span>' + escapeHtml(entry.name) + '</span>' +
+                '<span class="meta">' + meta + '</span></div>';
+        }).join('');
+    }
+
+    function formatSize(bytes) {
+        if (bytes == null) return '';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function updateEditorControls() {
+        document.getElementById('btnSave').disabled = !currentFile || !currentEditable;
+        document.getElementById('btnDownload').disabled = !currentFile;
+        document.getElementById('btnReload').disabled = !currentFile;
+        document.getElementById('uploadInput').disabled = !currentFile || !currentEditable;
+    }
+
+    async function loadDirectory(path) {
+        if (dirty && !confirm('You have unsaved changes. Continue without saving?')) {
+            return;
+        }
+        try {
+            setStatus('Loading directory...');
+            const data = await apiJson('list', { path: path || '' });
+            currentPath = data.path || '';
+            renderBreadcrumb(currentPath);
+            renderEntries(data.entries || []);
+            setStatus('Folder: ' + (currentPath || 'project root'));
+        } catch (error) {
+            setMessage(error.message, 'error');
+            setStatus('Error');
+        }
+    }
+
+    function goUp() {
+        if (!currentPath) return;
+        const parts = currentPath.split('/');
+        parts.pop();
+        loadDirectory(parts.join('/'));
+    }
+
+    async function openFile(path, editable) {
+        if (dirty && !confirm('You have unsaved changes. Continue without saving?')) {
+            return;
+        }
+        try {
+            setStatus('Loading file...');
+            const data = await apiJson('read', { path });
+            currentFile = path;
+            currentEditable = !!editable;
+            dirty = false;
+            document.getElementById('editor').value = data.content || '';
+            document.getElementById('editor').readOnly = !currentEditable;
+            document.getElementById('editorMeta').textContent =
+                path + ' • ' + formatSize(data.size) + ' • modified ' + (data.modified || '-');
+            updateEditorControls();
+            const parent = path.includes('/') ? path.substring(0, path.lastIndexOf('/')) : '';
+            const listData = await apiJson('list', { path: parent });
+            currentPath = listData.path || '';
+            renderBreadcrumb(currentPath);
+            renderEntries(listData.entries || []);
+            setMessage(currentEditable
+                ? 'Editing ' + path + '. Save or upload to deploy changes.'
+                : 'Opened read-only file ' + path + '.', 'info');
+            setStatus('Open: ' + path, currentEditable ? 'Editable' : 'Read-only');
+        } catch (error) {
+            setMessage(error.message, 'error');
+        }
+    }
+
+    async function reloadFile() {
+        if (!currentFile) return;
+        await openFile(currentFile, currentEditable);
+    }
+
+    async function saveFile() {
+        if (!currentFile || !currentEditable) return;
+        try {
+            const content = document.getElementById('editor').value;
+            const data = await apiJson('write', { path: currentFile, content }, { method: 'POST' });
+            dirty = false;
+            setMessage(data.message || 'File saved', 'success');
+            setStatus('Saved: ' + currentFile, formatSize(data.size));
+        } catch (error) {
+            setMessage(error.message, 'error');
+        }
+    }
+
+    async function downloadFile() {
+        if (!currentFile) return;
+        try {
+            await window.GfmMaintenanceAuth.downloadPhp(apiUrl('download', { path: currentFile }));
+            setMessage('Downloaded ' + currentFile, 'success');
+        } catch (error) {
+            setMessage(error.message, 'error');
+        }
+    }
+
+    document.getElementById('editor').addEventListener('input', function () {
+        if (!currentEditable) return;
+        dirty = true;
+        setStatus('Unsaved changes', currentFile);
+    });
+
+    document.getElementById('uploadInput').addEventListener('change', async function (event) {
+        const file = event.target.files && event.target.files[0];
+        event.target.value = '';
+        if (!file || !currentFile) return;
+        if (file.name !== currentFile.split('/').pop()) {
+            setMessage('Upload filename must match target file: ' + currentFile.split('/').pop(), 'error');
+            return;
+        }
+        if (!confirm('Replace "' + currentFile + '" with the uploaded file?')) {
+            return;
+        }
+        try {
+            const body = new FormData();
+            body.append('action', 'upload');
+            body.append('path', currentFile);
+            body.append('file', file);
+            const data = await apiJson('upload', {}, { method: 'POST', body });
+            dirty = false;
+            setMessage(data.message || 'File replaced', 'success');
+            await reloadFile();
+        } catch (error) {
+            setMessage(error.message, 'error');
+        }
+    });
+
+    window.addEventListener('beforeunload', function (event) {
+        if (dirty) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
+    });
+
+    loadDirectory('');
+    apiJson('info').then(function (data) {
+        if (data.web_user) {
+            setStatus('Web server user: ' + data.web_user, data.permissions_hint || '');
+        }
+    }).catch(function () {});
+</script>
+</body>
+</html>

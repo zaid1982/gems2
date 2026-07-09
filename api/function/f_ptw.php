@@ -75,6 +75,110 @@ class Class_ptw {
     }
 
     /**
+     * Resolve the site-specific Public User used by unauthenticated PTW submissions.
+     * Creates the supporting user/group/role/checkpoint rows when they are missing.
+     *
+     * @param int|string $site_id
+     * @return int
+     * @throws Exception
+     */
+    public function get_or_create_public_user($site_id) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
+
+            $site_id = trim((string)$site_id);
+            if ($site_id === '' || !preg_match('/^\d+$/', $site_id)) {
+                throw new Exception('Public PTW submission requires a valid site_id');
+            }
+
+            $site = Class_db::getInstance()->db_select_single('cli_site', array('site_id' => $site_id), null, 1);
+            $group_id = isset($site['group_id']) ? (string)$site['group_id'] : '';
+            if ($group_id === '') {
+                throw new Exception('Site group not found for site_id ' . $site_id);
+            }
+
+            $public_user_name = 'Public User';
+            $public_user = Class_db::getInstance()->db_select_single('sys_user', array(
+                'user_first_name' => $public_user_name,
+                'site_id' => $site_id
+            ), 'user_id ASC');
+
+            if ($public_user && isset($public_user['user_id'])) {
+                $user_id = (string)$public_user['user_id'];
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Found Public User user_id=' . $user_id . ' for site_id=' . $site_id);
+            } else {
+                $site_code = isset($site['site_code']) ? strtolower(trim((string)$site['site_code'])) : '';
+                $site_code = trim(preg_replace('/[^a-z0-9]+/i', '_', $site_code), '_');
+                if ($site_code === '') {
+                    $site_code = 'site_' . $site_id;
+                }
+
+                $base_user_name = 'public_' . $site_code;
+                $user_name = $base_user_name;
+                if (Class_db::getInstance()->db_count('sys_user', array('user_name' => $user_name)) > 0) {
+                    $user_name = $base_user_name . '_' . $site_id;
+                }
+                $suffix = 1;
+                while (Class_db::getInstance()->db_count('sys_user', array('user_name' => $user_name)) > 0) {
+                    $user_name = $base_user_name . '_' . $site_id . '_' . $suffix;
+                    $suffix++;
+                }
+
+                $user_id = Class_db::getInstance()->db_insert('sys_user', array(
+                    'user_name' => $user_name,
+                    'user_type' => '2',
+                    'user_password' => md5($this->fn_general->generateRandomString(32)),
+                    'user_first_name' => $public_user_name,
+                    'site_id' => $site_id,
+                    'user_status' => '1'
+                ));
+
+                Class_db::getInstance()->db_insert('sys_user_profile', array(
+                    'user_id' => $user_id,
+                    'user_email' => 'public@' . $site_code . '.gems',
+                    'user_profile_status' => '1'
+                ));
+
+                $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Created Public User user_id=' . $user_id . ' for site_id=' . $site_id);
+            }
+
+            if (Class_db::getInstance()->db_count('sys_user_group', array('user_id' => $user_id, 'group_id' => $group_id)) == 0) {
+                Class_db::getInstance()->db_insert('sys_user_group', array('user_id' => $user_id, 'group_id' => $group_id));
+            }
+
+            if (Class_db::getInstance()->db_count('ref_role', array('role_id' => '6')) > 0) {
+                if (Class_db::getInstance()->db_count('sys_user_role', array('user_id' => $user_id, 'role_id' => '6', 'group_id' => $group_id)) == 0) {
+                    if (Class_db::getInstance()->db_count('sys_user_role', array('user_id' => $user_id, 'role_id' => '6')) > 0) {
+                        Class_db::getInstance()->db_delete('sys_user_role', array('user_id' => $user_id, 'role_id' => '6'));
+                    }
+                    Class_db::getInstance()->db_insert('sys_user_role', array('user_id' => $user_id, 'role_id' => '6', 'group_id' => $group_id));
+                }
+
+                $checkpoints = Class_db::getInstance()->db_select('wfl_checkpoint', array('checkpoint_type' => '<>3', 'role_id' => '6'));
+                foreach ($checkpoints as $checkpoint) {
+                    $checkpoint_id = $checkpoint['checkpoint_id'];
+                    if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id' => $user_id, 'checkpoint_id' => $checkpoint_id, 'role_id' => '6', 'group_id' => $group_id)) == 0) {
+                        if (Class_db::getInstance()->db_count('wfl_checkpoint_user', array('user_id' => $user_id, 'checkpoint_id' => $checkpoint_id, 'role_id' => '6')) > 0) {
+                            Class_db::getInstance()->db_delete('wfl_checkpoint_user', array('user_id' => $user_id, 'checkpoint_id' => $checkpoint_id, 'role_id' => '6'));
+                        }
+                        Class_db::getInstance()->db_insert('wfl_checkpoint_user', array(
+                            'user_id' => $user_id,
+                            'checkpoint_id' => $checkpoint_id,
+                            'role_id' => '6',
+                            'group_id' => $group_id
+                        ));
+                    }
+                }
+            }
+
+            return (int)$user_id;
+        } catch (Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * Execute raw SQL query with prepared statements
      * @param string $sql
      * @param array $params
@@ -1194,17 +1298,41 @@ class Class_ptw {
             $body .= '<p style="margin-top:10px">This is an automated message. Please login to GEMS2 to take the next action.</p>';
             $body .= '</body></html>';
 
-            // Send to each primary recipient. (CC not implemented yet in express helper; future: extend to array)
+            // Queue each primary recipient so PTW actions are not blocked by SMTP latency.
             if (empty($primaryTo)) {
                 $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'No primary recipients for event '.$notification_type);
                 return true;
             }
+            $ptwEmailTemplateIds = array(
+                'PENDING_SUPERVISOR' => '300',
+                'SUPERVISOR_APPROVED' => '301',
+                'SUPERVISOR_REJECTED' => '302',
+                'SHE_APPROVED' => '303',
+                'SHE_REJECTED' => '304',
+                'FM_APPROVED' => '305',
+                'FM_REJECTED' => '306',
+                'EXTENSION_REQUESTED' => '307',
+                'EXTENDED' => '308',
+                'CANCELLATION_REQUESTED' => '309',
+                'CANCELLED' => '310',
+                'SUSPENSION_REQUESTED' => '311',
+                'SUSPENDED' => '312',
+                'CLOSURE_REQUESTED' => '313',
+                'CLOSED' => '314'
+            );
+            $ptwEmailTemplateId = $ptwEmailTemplateIds[$notification_type] ?? '300';
             foreach ($primaryTo as $email) {
                 try {
                     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) continue;
-                    $this->fn_email->send_email_express($email, $subjectBase, $body);
+                    Class_db::getInstance()->db_insert('email_send', array(
+                        'email_template_id' => $ptwEmailTemplateId,
+                        'email_address' => $email,
+                        'email_title' => substr($subjectBase, 0, 150),
+                        'email_html' => $body,
+                        'user_id' => null
+                    ));
                 } catch (Exception $sx) {
-                    $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Email send failed to '.$email.': '.$sx->getMessage());
+                    $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Email queue failed for '.$email.': '.$sx->getMessage());
                 }
             }
 

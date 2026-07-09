@@ -26,7 +26,8 @@ INSERT INTO `sys_audit_module` (`audit_module_id`, `audit_module_desc`, `audit_m
   (13, 'Utilities', 1),
   (14, 'Attendance', 1),
   (15, 'Gamification', 1),
-  (16, 'FCA', 1)
+  (16, 'FCA', 1),
+  (17, 'Permit To Work', 1)
 ON DUPLICATE KEY UPDATE
   `audit_module_desc` = VALUES(`audit_module_desc`),
   `audit_module_status` = VALUES(`audit_module_status`);
@@ -260,7 +261,15 @@ INSERT INTO `sys_audit_action` (`audit_action_id`, `audit_action_desc`, `audit_m
   (224, 'Submit PPM Asset Group', 8, 1),
   (225, 'Delete PPM Asset Group', 8, 1),
   (226, 'Add Assets to PPM Asset Group', 8, 1),
-  (227, 'Delete Assets from PPM Asset Group', 8, 1)
+  (227, 'Delete Assets from PPM Asset Group', 8, 1),
+  (228, 'Request PTW Closure', 17, 1),
+  (229, 'Approve PTW Closure', 17, 1),
+  (230, 'Request PTW Extension', 17, 1),
+  (231, 'Approve PTW Extension', 17, 1),
+  (232, 'Request PTW Cancellation', 17, 1),
+  (233, 'Approve PTW Cancellation', 17, 1),
+  (234, 'Request PTW Suspension', 17, 1),
+  (235, 'Approve PTW Suspension', 17, 1)
 ON DUPLICATE KEY UPDATE
   `audit_action_desc` = VALUES(`audit_action_desc`),
   `audit_module_id` = VALUES(`audit_module_id`),
@@ -269,4 +278,5 @@ ON DUPLICATE KEY UPDATE
 SELECT 'seed_audit_config_from_current.sql completed' AS status,
        (SELECT COUNT(*) FROM `sys_audit_module`) AS audit_module_rows,
        (SELECT COUNT(*) FROM `sys_audit_action`) AS audit_action_rows,
-       (SELECT COUNT(*) FROM `sys_audit_action` WHERE `audit_action_id` = 118) AS has_preview_wo_pdf_action;
+       (SELECT COUNT(*) FROM `sys_audit_action` WHERE `audit_action_id` = 118) AS has_preview_wo_pdf_action,
+       (SELECT COUNT(*) FROM `sys_audit_action` WHERE `audit_action_id` = 232) AS has_ptw_cancel_request_action;

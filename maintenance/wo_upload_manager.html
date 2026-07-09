@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="maintenance-auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WO Upload Manager - GEMS2 Maintenance</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        .header {
+            background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+            color: #fff;
+            padding: 28px 30px;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 8px; font-weight: 500; }
+        .header p { opacity: 0.92; line-height: 1.5; }
+        .main { padding: 24px 30px 30px; }
+        .alert {
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        .alert.info { background: #ecfdf5; color: #047857; }
+        .alert.error { background: #fef2f2; color: #b91c1c; }
+        .alert.success { background: #eff6ff; color: #1d4ed8; }
+        .search-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .search-row input {
+            flex: 1;
+            min-width: 220px;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 11px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #0f766e;
+            color: #fff;
+        }
+        .btn:hover { background: #115e59; }
+        .btn.secondary { background: #64748b; }
+        .btn.danger { background: #dc2626; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .task-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 20px;
+        }
+        .task-box h2 { font-size: 1.2rem; margin-bottom: 8px; }
+        .task-meta { color: #64748b; font-size: 14px; line-height: 1.6; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background: #0f172a;
+            display: block;
+        }
+        .card-body { padding: 14px; }
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        .badge.deleted { background: #fee2e2; color: #b91c1c; }
+        .meta { font-size: 12px; color: #64748b; line-height: 1.5; margin-bottom: 10px; }
+        .card-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+        .card-actions label.btn { cursor: pointer; }
+        .results-list { margin-bottom: 16px; }
+        .result-item {
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            background: #f8fafc;
+        }
+        .result-item:hover { background: #eff6ff; border-color: #93c5fd; }
+        .empty { text-align: center; color: #94a3b8; padding: 40px 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🖼️ WO Upload Manager</h1>
+        <p>Find work order images, preview them, and replace wrong uploads in place.
+           The same <code>upload_id</code> is kept so the app and PDFs keep working.</p>
+    </div>
+
+    <div class="main">
+        <div id="message" class="alert info">
+            Search by WO number (e.g. WO-2024-001234) or numeric <code>wo_task_id</code>.
+        </div>
+
+        <div class="search-row">
+            <input type="text" id="searchInput" placeholder="WO number or wo_task_id">
+            <button class="btn" type="button" onclick="searchWo()">Search</button>
+            <a class="btn secondary" href="dashboard.html">Dashboard</a>
+        </div>
+
+        <div id="searchResults" class="results-list" style="display:none;"></div>
+        <div id="taskBox" style="display:none;"></div>
+        <div id="imageGrid" class="grid"></div>
+    </div>
+</div>
+
+<script>
+    const API = 'wo_upload_manager.php';
+    let currentTask = null;
+
+    function setMessage(text, type = 'info') {
+        const el = document.getElementById('message');
+        el.className = 'alert ' + type;
+        el.innerHTML = text;
+    }
+
+    async function apiJson(action, params = {}, init = {}) {
+        const method = (init.method || 'GET').toUpperCase();
+        let url = new URL(API, window.location.href);
+        url.searchParams.set('action', action);
+        if (method === 'GET') {
+            Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+        }
+        if (method !== 'GET') {
+            const body = init.body instanceof FormData ? init.body : new FormData();
+            if (!(init.body instanceof FormData)) {
+                Object.entries(params).forEach(([k, v]) => body.append(k, v));
+            }
+            init.method = method;
+            init.body = body;
+            url.searchParams.delete('action');
+            url.searchParams.set('action', action);
+        }
+        const response = await fetch(url.toString(), init);
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || ('Request failed (' + response.status + ')'));
+        }
+        return data;
+    }
+
+    async function searchWo() {
+        const q = document.getElementById('searchInput').value.trim();
+        if (!q) {
+            setMessage('Enter a WO number or wo_task_id.', 'error');
+            return;
+        }
+        try {
+            const data = await apiJson('search', { q });
+            const results = data.results || [];
+            const box = document.getElementById('searchResults');
+            if (!results.length) {
+                box.style.display = 'none';
+                document.getElementById('taskBox').style.display = 'none';
+                document.getElementById('imageGrid').innerHTML = '';
+                setMessage('No work orders found for "' + escapeHtml(q) + '".', 'error');
+                return;
+            }
+            if (results.length === 1) {
+                box.style.display = 'none';
+                await loadTask(results[0].wo_task_id);
+                return;
+            }
+            box.style.display = 'block';
+            box.innerHTML = '<strong>Select a work order:</strong>' + results.map(function (row) {
+                return '<div class="result-item" onclick="loadTask(' + row.wo_task_id + ')">' +
+                    '<strong>' + escapeHtml(row.wo_task_no) + '</strong> (ID ' + row.wo_task_id + ')<br>' +
+                    '<span style="color:#64748b;font-size:13px;">' + escapeHtml(row.wo_task_location || '') + '</span></div>';
+            }).join('');
+            setMessage('Multiple matches — click one to view uploads.', 'info');
+        } catch (error) {
+            setMessage(escapeHtml(error.message), 'error');
+        }
+    }
+
+    async function loadTask(woTaskId) {
+        try {
+            const data = await apiJson('list', { woTaskId: woTaskId });
+            currentTask = data.task;
+            document.getElementById('searchResults').style.display = 'none';
+
+            const task = data.task;
+            document.getElementById('taskBox').style.display = 'block';
+            document.getElementById('taskBox').innerHTML =
+                '<div class="task-box">' +
+                '<h2>' + escapeHtml(task.wo_task_no) + '</h2>' +
+                '<div class="task-meta">' +
+                '<div><strong>Task ID:</strong> ' + task.wo_task_id + '</div>' +
+                '<div><strong>Location:</strong> ' + escapeHtml(task.wo_task_location || '-') + '</div>' +
+                '<div><strong>Complaint:</strong> ' + escapeHtml(task.wo_task_complaint || '-') + '</div>' +
+                '<div><strong>Uploads:</strong> ' + data.imageCount + '</div>' +
+                '</div></div>';
+
+            renderImages(data.images || []);
+            setMessage('Loaded uploads for ' + escapeHtml(task.wo_task_no) + '.', 'success');
+        } catch (error) {
+            setMessage(escapeHtml(error.message), 'error');
+        }
+    }
+
+    function renderImages(images) {
+        const grid = document.getElementById('imageGrid');
+        if (!images.length) {
+            grid.innerHTML = '<div class="empty">No uploads linked to this work order.</div>';
+            return;
+        }
+
+        grid.innerHTML = images.map(function (img) {
+            const statusBadge = img.uploadStatus === '1'
+                ? '<span class="badge">' + escapeHtml(img.uploadTypeLabel) + '</span>'
+                : '<span class="badge deleted">' + escapeHtml(img.uploadTypeLabel) + ' (status ' + img.uploadStatus + ')</span>';
+            const missing = img.fileExists ? '' : '<div class="meta" style="color:#b91c1c;">File missing on disk</div>';
+            const previewUrl = window.GfmMaintenanceAuth.withApiKey(img.previewUrl) + '&_t=' + Date.now();
+
+            return '<div class="card">' +
+                '<img src="' + previewUrl + '" alt="upload ' + img.uploadId + '" loading="lazy">' +
+                '<div class="card-body">' +
+                statusBadge +
+                '<div class="meta">' +
+                '<div><strong>upload_id:</strong> ' + img.uploadId + '</div>' +
+                '<div><strong>Path:</strong> ' + escapeHtml(img.relativePath) + '</div>' +
+                '<div><strong>Original:</strong> ' + escapeHtml(img.originalFilename || '-') + '</div>' +
+                (img.description ? '<div><strong>Desc:</strong> ' + escapeHtml(img.description) + '</div>' : '') +
+                '<div><strong>When:</strong> ' + escapeHtml(img.timestamp || '-') + '</div>' +
+                missing +
+                '</div>' +
+                '<div class="card-actions">' +
+                '<button class="btn secondary" type="button" onclick="downloadImage(' + img.uploadId + ')">Download</button>' +
+                '<label class="btn">Replace<input type="file" accept="image/*" hidden onchange="replaceImage(' + img.uploadId + ', this)"></label>' +
+                '<button class="btn danger" type="button" onclick="softDelete(' + img.woTaskUploadId + ')">Remove link</button>' +
+                '</div></div></div>';
+        }).join('');
+    }
+
+    async function replaceImage(uploadId, input) {
+        const file = input.files && input.files[0];
+        input.value = '';
+        if (!file) return;
+        if (!confirm('Replace upload_id ' + uploadId + ' with "' + file.name + '"?\nA .bak backup is created if the old file exists.')) {
+            return;
+        }
+        try {
+            const body = new FormData();
+            body.append('action', 'replace');
+            body.append('uploadId', String(uploadId));
+            body.append('file', file);
+            const data = await apiJson('replace', {}, { method: 'POST', body });
+            setMessage(escapeHtml(data.message), 'success');
+            if (currentTask) {
+                await loadTask(currentTask.wo_task_id);
+            }
+        } catch (error) {
+            setMessage(escapeHtml(error.message), 'error');
+        }
+    }
+
+    async function downloadImage(uploadId) {
+        try {
+            await window.GfmMaintenanceAuth.downloadPhp(
+                API + '?action=preview&uploadId=' + encodeURIComponent(uploadId)
+            );
+        } catch (error) {
+            setMessage(escapeHtml(error.message), 'error');
+        }
+    }
+
+    async function softDelete(woTaskUploadId) {
+        if (!confirm('Remove this upload from the WO (soft delete, same as mobile app)?')) {
+            return;
+        }
+        try {
+            const data = await apiJson('soft_delete', { woTaskUploadId: String(woTaskUploadId) }, { method: 'POST' });
+            setMessage(escapeHtml(data.message), 'success');
+            if (currentTask) {
+                await loadTask(currentTask.wo_task_id);
+            }
+        } catch (error) {
+            setMessage(escapeHtml(error.message), 'error');
+        }
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    document.getElementById('searchInput').addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') searchWo();
+    });
+</script>
+</body>
+</html>

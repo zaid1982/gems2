@@ -20,6 +20,10 @@ class Space extends General {
     private const RESERVATION_RESERVED = 'RESERVED';
     private const RESERVATION_CANCELED = 'CANCELED';
 
+    private const EMAIL_TEMPLATE_RESERVATION_CREATED = 320;
+    private const EMAIL_TEMPLATE_RESERVATION_UPDATED = 321;
+    private const EMAIL_TEMPLATE_RESERVATION_CANCELED = 322;
+
     public function __construct(int $userId = 0, bool $isLogged = false)
     {
         $this->userId = $userId;
@@ -485,10 +489,10 @@ class Space extends General {
                     $paramsEmail['emailFilename'] = 'Reservation_'.$reservationId.'.ics';
                 }
                 // requester
-                $email->prepare(intval($this->userId), 25, $paramsEmail);
+                $email->prepare(intval($this->userId), self::EMAIL_TEMPLATE_RESERVATION_CREATED, $paramsEmail);
                 // space owner/maintainer (if stored); fallback to site manager role by convention
                 $siteManagerId = DbMysql::selectColumn('sys_user_role', array('siteId'=>intval($siteId), 'roleId'=>'IN|1,10'), 'userId');
-                if (!empty($siteManagerId)) { $email->prepare(intval($siteManagerId), 25, $paramsEmail); }
+                if (!empty($siteManagerId)) { $email->prepare(intval($siteManagerId), self::EMAIL_TEMPLATE_RESERVATION_CREATED, $paramsEmail); }
             } catch (Throwable $ex) { /* log only */ DbMysql::logError(__CLASS__, __FUNCTION__, __LINE__, 'Email prepare error: '.$ex->getMessage()); }
 
             return $reservation;
@@ -554,10 +558,10 @@ class Space extends General {
                     $paramsEmail['emailFilename'] = 'Reservation_'.$reservationId.'_cancel.ics';
                 }
                 // requester
-                $email->prepare(intval($reservation['requestedBy']), 27, $paramsEmail);
+                $email->prepare(intval($reservation['requestedBy']), self::EMAIL_TEMPLATE_RESERVATION_CANCELED, $paramsEmail);
                 // space/site manager
                 $siteManagerId = DbMysql::selectColumn('sys_user_role', array('siteId'=>intval($reservation['siteId']), 'roleId'=>'IN|1,10'), 'userId');
-                if (!empty($siteManagerId)) { $email->prepare(intval($siteManagerId), 27, $paramsEmail); }
+                if (!empty($siteManagerId)) { $email->prepare(intval($siteManagerId), self::EMAIL_TEMPLATE_RESERVATION_CANCELED, $paramsEmail); }
             } catch (Throwable $ex) { DbMysql::logError(__CLASS__, __FUNCTION__, __LINE__, 'Email prepare error: '.$ex->getMessage()); }
 
             return $reservation;
@@ -791,10 +795,10 @@ class Space extends General {
                     $paramsEmail['emailFilename'] = 'Reservation_'.$reservationId.'_update.ics';
                 }
                 // requester
-                $email->prepare(intval($reservation['requestedBy']), 26, $paramsEmail);
+                $email->prepare(intval($reservation['requestedBy']), self::EMAIL_TEMPLATE_RESERVATION_UPDATED, $paramsEmail);
                 // site manager
                 $siteManagerId = DbMysql::selectColumn('sys_user_role', array('siteId'=>intval($reservation['siteId']), 'roleId'=>'IN|1,10'), 'userId');
-                if (!empty($siteManagerId)) { $email->prepare(intval($siteManagerId), 26, $paramsEmail); }
+                if (!empty($siteManagerId)) { $email->prepare(intval($siteManagerId), self::EMAIL_TEMPLATE_RESERVATION_UPDATED, $paramsEmail); }
             } catch (Throwable $ex) { DbMysql::logError(__CLASS__, __FUNCTION__, __LINE__, 'Email prepare error: '.$ex->getMessage()); }
 
             return $reservation;

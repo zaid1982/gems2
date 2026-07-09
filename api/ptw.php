@@ -80,22 +80,19 @@ try {
         // Handle public form submission
         $fn_general->log_debug('API', $api_name, __LINE__, 'Public form submission detected');
         
-        // Get public user from database
+        // Resolve the site-specific public user used for audit fields.
         try {
-            $public_users = Class_db::getInstance()->db_select('sys_user', array('user_first_name' => 'Public User'));
-            if (count($public_users) > 0) {
-                $jwt_data = (object) array('userId' => $public_users[0]['user_id']);
-                // For public forms, require explicit site_id input; do not assume user's site
-                $provided_site_id = isset($_POST['site_id']) ? trim($_POST['site_id']) : '';
-                if ($provided_site_id === '' || !preg_match('/^\d+$/', $provided_site_id)) {
-                    $fn_general->log_error('API', $api_name, __LINE__, 'Public submission missing or invalid site_id');
-                    throw new Exception('Public PTW submission requires a valid site_id');
-                }
-                $user_site_id = $provided_site_id;
-                $fn_general->log_debug('API', $api_name, __LINE__, 'Using public user ID: ' . $jwt_data->userId . ', site_id (from request): ' . $user_site_id);
-            } else {
-                throw new Exception('Public user not found in system');
+            // For public forms, require explicit site_id input; do not assume user's site.
+            $provided_site_id = isset($_POST['site_id']) ? trim($_POST['site_id']) : '';
+            if ($provided_site_id === '' || !preg_match('/^\d+$/', $provided_site_id)) {
+                $fn_general->log_error('API', $api_name, __LINE__, 'Public submission missing or invalid site_id');
+                throw new Exception('Public PTW submission requires a valid site_id');
             }
+
+            $public_user_id = $fn_ptw->get_or_create_public_user($provided_site_id);
+            $jwt_data = (object) array('userId' => $public_user_id);
+            $user_site_id = $provided_site_id;
+            $fn_general->log_debug('API', $api_name, __LINE__, 'Using public user ID: ' . $jwt_data->userId . ', site_id (from request): ' . $user_site_id);
         } catch (Exception $e) {
             $fn_general->log_error('API', $api_name, __LINE__, 'Error getting public user: ' . $e->getMessage());
             throw new Exception('Failed to process public form submission');

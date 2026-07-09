@@ -12,6 +12,34 @@ All PHP backends enforce the key server-side via `maintenance/_require_auth.php`
 Direct `.php` links, form posts, and file downloads are handled by `maintenance-auth.js`
 (`X-Api-Key` header on fetch; `api_key` query/body on navigation and forms).
 
+### Code Deploy Browser
+**Files:** `code_deploy.html` + `code_deploy.php`
+
+Browse the project root, edit deployable source files, upload replacements, or download copies.
+Blocked: `config.ini`, `.env`, `vendor/`, `upload/`, `.git/`, secrets, and credential files.
+
+**Write permissions:** Apache/PHP must be able to write files you edit. If Save fails:
+
+- **macOS XAMPP:** `./maintenance/setup_code_deploy_permissions.sh`
+- **Linux:** `sudo ./maintenance/setup_code_deploy_permissions.sh` (defaults to `www-data`)
+- **Windows XAMPP:** open CMD as Administrator, then:
+  ```bat
+  cd C:\xampp\htdocs\gfm-gems\maintenance
+  setup_code_deploy_permissions.bat
+  ```
+- **Windows IIS:** `setup_code_deploy_permissions.bat iis` or:
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File setup_code_deploy_permissions.ps1 -Mode Iis
+  ```
+
+### WO Upload Manager
+**Files:** `wo_upload_manager.html` + `wo_upload_manager.php`
+
+Search by WO number or `wo_task_id`, preview linked uploads, replace files on disk (same
+`upload_id`), or soft-delete. Creates `.bak_YYYYMMDD_HHMMSS` before replace.
+
+**Write permissions:** web server needs write access to `upload/` (not covered by code-deploy scripts).
+
 ## �️ Available Tools
 
 ### 1. **Interactive Data Editor** ⭐ NEW
