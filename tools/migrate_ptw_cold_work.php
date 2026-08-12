@@ -4,7 +4,7 @@
 //   php tools/migrate_ptw_cold_work.php --apply
 //   php tools/migrate_ptw_cold_work.php --dry-run (default)
 
-require_once __DIR__ . '/../function/db.php';
+require_once __DIR__ . '/../api/function/db.php';
 
 function map_legacy_to_canonical($legacyRaw) {
     $cw = [

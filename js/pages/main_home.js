@@ -600,17 +600,34 @@ function MainHome() {
         const updateExportProgress = function (loaded, total, message) {
             const safeTotal = total > 0 ? total : 0;
             const remaining = Math.max(safeTotal - loaded, 0);
-            const pct = safeTotal > 0 ? Math.min(100, Math.round((loaded / safeTotal) * 100)) : 0;
+            const waiting = safeTotal <= 0;
+            const pct = waiting ? 0 : Math.min(100, Math.round((loaded / safeTotal) * 100));
+
+            if (waiting) {
+                $('#exportProgressTrack').addClass('is-waiting');
+                $('#exportProgressCounts').addClass('d-none');
+                $('#exportProgressDetailText').removeClass('d-none').text('Connecting to server…');
+                $('#exportProgressBar')
+                    .css('width', '40%')
+                    .attr('aria-valuenow', 0)
+                    .text('');
+                $('#exportProgressLabel').text(message || 'Waiting for server…');
+                return;
+            }
+
+            $('#exportProgressTrack').removeClass('is-waiting');
+            $('#exportProgressDetailText').addClass('d-none').text('');
+            $('#exportProgressCounts').removeClass('d-none');
             $('#exportLoadedCount').text(loaded.toLocaleString());
-            $('#exportTotalCount').text(safeTotal > 0 ? safeTotal.toLocaleString() : '?');
-            $('#exportRemainingCount').text(safeTotal > 0 ? remaining.toLocaleString() : '?');
+            $('#exportTotalCount').text(safeTotal.toLocaleString());
+            $('#exportRemainingCount').text(remaining.toLocaleString());
             $('#exportProgressBar')
                 .css('width', pct + '%')
                 .attr('aria-valuenow', pct)
                 .text(pct + '%');
             if (message) {
                 $('#exportProgressLabel').text(message);
-            } else if (safeTotal > 0 && loaded >= safeTotal) {
+            } else if (loaded >= safeTotal) {
                 $('#exportProgressLabel').text('Generating file…');
             } else {
                 $('#exportProgressLabel').text('Loading records…');
@@ -618,7 +635,7 @@ function MainHome() {
         };
 
         const showExportProgress = function () {
-            updateExportProgress(0, 0, 'Starting export…');
+            updateExportProgress(0, 0, 'Waiting for server…');
             $('#modalExportProgress').modal('show');
         };
 

@@ -374,7 +374,12 @@ class Class_pdf_wo_jkr extends Class_pdf_wo {
             throw new Exception('[' . __LINE__ . '] - PDF folder not writable '.$folderPath);
         }
 
-        $filename = 'wo_'.substr((10000000 + intval($woTaskId)), 1).'.pdf';
+        // Use WO number so browser Save As suggests the business number, not internal task id
+        $displayNo = $this->clear($this->array_get($woTask, 'wo_task_no'));
+        if ($displayNo === '' || $displayNo === '-') {
+            $displayNo = 'wo_'.substr((10000000 + intval($woTaskId)), 1);
+        }
+        $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', $displayNo).'.pdf';
         $this->fn_general()->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Filename pdf : '.$filename);
         $pdf->Output($folderPath.'/'.$filename, 'F');
 

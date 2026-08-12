@@ -807,7 +807,12 @@ class Class_pdf_ppm {
             if (!$result) {
                 mkdir ($folder,0777, true);
             }
-            $filename = 'ppm_'.substr((10000000+intval($this->ppmTaskId)),1).'.pdf';
+            // Use PPM number so browser Save As suggests the business number, not internal task id
+            $displayNo = !empty($ppmTask['ppm_task_no']) ? $ppmTask['ppm_task_no'] : (!empty($ppm['ppm_task_no']) ? $ppm['ppm_task_no'] : '');
+            if ($displayNo === '' || $displayNo === '-') {
+                $displayNo = 'ppm_'.substr((10000000+intval($this->ppmTaskId)),1);
+            }
+            $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', $displayNo).'.pdf';
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Filename pdf : '.$filename);
 
             $config = parse_ini_file('library/config.ini');

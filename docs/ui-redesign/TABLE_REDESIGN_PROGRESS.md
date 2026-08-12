@@ -2,7 +2,7 @@
 
 **Project**: Modern Table Design Implementation  
 **Start Date**: 1 November 2025  
-**Design System**: Documented in `DESIGN_SYSTEM_DOCS.md`  
+**Design System**: Documented in `docs/DESIGN_SYSTEM_DOCS.md`  
 **CSS Location**: `css/gems2-ui.css`  
 **Reference**: `home.html` + `js/pages/main_home.js`
 
@@ -586,7 +586,7 @@ When completing each page, ensure:
 - `.action-btn-group` - Button wrapper
 - `.status-badge` - Status pills (completed, pending, in-progress, cancelled)
 
-**Design Documentation**: `DESIGN_SYSTEM_DOCS.md`
+**Design Documentation**: `docs/DESIGN_SYSTEM_DOCS.md`
 
 **Reference Files**:
 - HTML: `home.html`

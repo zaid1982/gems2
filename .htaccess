@@ -3,39 +3,41 @@ RewriteEngine On
 RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
 RewriteRule .* - [F]
 
-RewriteRule ^/?$ login.html
-RewriteRule ^p_login/?$ login.html
-RewriteRule ^p_drawing_records/?$ drawing_records.html
-RewriteRule ^p_drawing_deleted/?$ drawing_deleted.html
-RewriteRule ^p_inventory/?$ inventory.html
-RewriteRule ^p_purchase_request/?$ purchase_request.html
-RewriteRule ^p_supplier_management/?$ supplier_management.html
-RewriteRule ^p_item_management/?$ item_management.html
-RewriteRule ^p_item_type_management/?$ item_type_management.html
-RewriteRule ^p_store_management/?$ store_management.html
-RewriteRule ^p_kpi_in/?$ kpi_in.html
-RewriteRule ^p_kpi_ppns/?$ kpi_ppns.html
-RewriteRule ^p_utility/?$ utility.html
-RewriteRule ^p_attendance/?$ attendance.html
-RewriteRule ^p_attendance_site/?$ attendance_site.html
-RewriteRule ^p_attendance_group/?$ attendance_group.html
-RewriteRule ^p_gamification/?$ gamification.html
-RewriteRule ^p_fca_task/?$ fca_task.html
-RewriteRule ^p_fca_all/?$ fca_all.html
-RewriteRule ^p_fca_zone/?$ fca_zone.html
-RewriteRule ^p_fca_defect/?$ fca_defect.html
-RewriteRule ^p_fca_report/?$ fca_report.html
-RewriteRule ^p_mrf/?$ mrf.html
-RewriteRule ^p_waste_main/?$ waste_main.html
-RewriteRule ^p_waste_type/?$ waste_type.html
-RewriteRule ^p_complaint/?$ complaint.html
-RewriteRule ^p_complaint/(.+)/?$ complaint.html
-RewriteRule ^p_zone/?$ zone.html
-RewriteRule ^p_wo_assign/?$ wo_assign.html
-RewriteRule ^p_wo_verify/?$ wo_verify.html
-RewriteRule ^p_ppm_asset/?$ ppm_asset.html
-RewriteRule ^p_ppm_asset_v2/?$ ppm_set_management.html
-RewriteRule ^p_license/?$ license.html
+# App pages live in pages/; public URLs stay at app root (no redirect).
+RewriteRule ^/?$ pages/login.html [L]
+RewriteRule ^p_login/?$ pages/login.html [L]
+RewriteRule ^p_drawing_records/?$ pages/drawing_records.html [L]
+RewriteRule ^p_drawing_deleted/?$ pages/drawing_deleted.html [L]
+RewriteRule ^p_inventory/?$ pages/inventory.html [L]
+RewriteRule ^p_purchase_request/?$ pages/purchase_request.html [L]
+RewriteRule ^p_supplier_management/?$ pages/supplier_management.html [L]
+RewriteRule ^p_item_management/?$ pages/item_management.html [L]
+RewriteRule ^p_item_type_management/?$ pages/item_type_management.html [L]
+RewriteRule ^p_store_management/?$ pages/store_management.html [L]
+RewriteRule ^p_kpi_in/?$ pages/kpi_in.html [L]
+RewriteRule ^p_kpi_ppns/?$ pages/kpi_ppns.html [L]
+RewriteRule ^p_utility/?$ pages/utility.html [L]
+RewriteRule ^p_attendance/?$ pages/attendance.html [L]
+RewriteRule ^p_attendance_site/?$ pages/attendance_site.html [L]
+RewriteRule ^p_attendance_group/?$ pages/attendance_group.html [L]
+RewriteRule ^p_gamification/?$ pages/gamification.html [L]
+RewriteRule ^p_fca_task/?$ pages/fca_task.html [L]
+RewriteRule ^p_fca_all/?$ pages/fca_all.html [L]
+RewriteRule ^p_fca_zone/?$ pages/fca_zone.html [L]
+RewriteRule ^p_fca_defect/?$ pages/fca_defect.html [L]
+RewriteRule ^p_fca_report/?$ pages/fca_report.html [L]
+RewriteRule ^p_mrf/?$ pages/mrf.html [L]
+RewriteRule ^p_waste_main/?$ pages/waste_main.html [L]
+RewriteRule ^p_waste_type/?$ pages/waste_type.html [L]
+RewriteRule ^p_complaint/?$ pages/complaint.html [L]
+RewriteRule ^p_complaint/(.+)/?$ pages/complaint.html [L]
+RewriteRule ^p_zone/?$ pages/zone.html [L]
+RewriteRule ^p_wo_assign/?$ pages/wo_assign.html [L]
+RewriteRule ^p_wo_verify/?$ pages/wo_verify.html [L]
+RewriteRule ^p_ppm_asset/?$ pages/ppm_asset.html [L]
+RewriteRule ^p_ppm_asset_v2/?$ pages/ppm_set_management.html [L]
+RewriteRule ^p_license/?$ pages/license.html [L]
+RewriteRule ^([A-Za-z0-9_]+)\.html$ pages/$1.html [L]
 
 RewriteRule ^asset_group/?$ api/asset_group_v2.php
 RewriteRule ^asset_group/(.+)/?$ api/asset_group_v2.php

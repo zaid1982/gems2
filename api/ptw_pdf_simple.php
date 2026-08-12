@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
-require_once '../function/f_ptw.php';
+require_once 'function/f_ptw.php';
 require_once 'tcpdf/tcpdf.php';
 
 // Initialize classes like WO API does
