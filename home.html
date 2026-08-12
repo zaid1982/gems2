@@ -547,6 +547,34 @@
         <div class="includeHtml" id="h-modal_pdf"></div>
         <div class="includeHtml" id="h-modal_wo_reassign"></div>
         <div class="includeHtml" id="h-modal_wo_edit"></div>
+
+        <!-- Export progress (chunked load for large WO/PPM lists) -->
+        <div class="modal fade" id="modalExportProgress" tabindex="-1" role="dialog" aria-labelledby="modalExportProgressTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header py-2">
+                        <h5 class="modal-title" id="modalExportProgressTitle">
+                            <i class="fas fa-file-excel mr-1"></i> Preparing Export
+                        </h5>
+                    </div>
+                    <div class="modal-body text-center px-3 pb-3">
+                        <p id="exportProgressLabel" class="mb-2 small text-muted">Loading records…</p>
+                        <div class="progress mb-2" style="height: 18px;">
+                            <div id="exportProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+                                 role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                        </div>
+                        <p id="exportProgressDetail" class="mb-0 small">
+                            Loaded <strong id="exportLoadedCount">0</strong> /
+                            <strong id="exportTotalCount">?</strong>
+                            &nbsp;(<strong id="exportRemainingCount">?</strong> remaining)
+                        </p>
+                    </div>
+                    <div class="modal-footer py-2 justify-content-center">
+                        <button type="button" class="btn btn-sm btn-outline-danger" id="btnExportProgressCancel">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- SCRIPTS -->

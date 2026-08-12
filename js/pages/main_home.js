@@ -595,110 +595,361 @@ function MainHome() {
         });
 
         let cntWo;
+        let exportAbortController = null;
+
+        const updateExportProgress = function (loaded, total, message) {
+            const safeTotal = total > 0 ? total : 0;
+            const remaining = Math.max(safeTotal - loaded, 0);
+            const pct = safeTotal > 0 ? Math.min(100, Math.round((loaded / safeTotal) * 100)) : 0;
+            $('#exportLoadedCount').text(loaded.toLocaleString());
+            $('#exportTotalCount').text(safeTotal > 0 ? safeTotal.toLocaleString() : '?');
+            $('#exportRemainingCount').text(safeTotal > 0 ? remaining.toLocaleString() : '?');
+            $('#exportProgressBar')
+                .css('width', pct + '%')
+                .attr('aria-valuenow', pct)
+                .text(pct + '%');
+            if (message) {
+                $('#exportProgressLabel').text(message);
+            } else if (safeTotal > 0 && loaded >= safeTotal) {
+                $('#exportProgressLabel').text('Generating file…');
+            } else {
+                $('#exportProgressLabel').text('Loading records…');
+            }
+        };
+
+        const showExportProgress = function () {
+            updateExportProgress(0, 0, 'Starting export…');
+            $('#modalExportProgress').modal('show');
+        };
+
+        const hideExportProgress = function () {
+            $('#modalExportProgress').modal('hide');
+        };
+
+        $('#btnExportProgressCancel').off('click').on('click', function () {
+            if (exportAbortController) {
+                exportAbortController.abort();
+            }
+        });
+
+        const parseSseChunk = function (buffer, onEvent) {
+            const parts = buffer.split('\n\n');
+            const rest = parts.pop();
+            for (let i = 0; i < parts.length; i++) {
+                const block = parts[i];
+                if (!block || block.charAt(0) === ':') {
+                    continue;
+                }
+                let eventName = 'message';
+                const dataLines = [];
+                const lines = block.split('\n');
+                for (let j = 0; j < lines.length; j++) {
+                    const line = lines[j];
+                    if (line.indexOf('event:') === 0) {
+                        eventName = line.slice(6).trim();
+                    } else if (line.indexOf('data:') === 0) {
+                        dataLines.push(line.slice(5).trim());
+                    }
+                }
+                if (!dataLines.length) {
+                    continue;
+                }
+                let payload = dataLines.join('\n');
+                try {
+                    payload = JSON.parse(payload);
+                } catch (_ignore) { /* keep raw string */ }
+                onEvent(eventName, payload);
+            }
+            return rest;
+        };
 
         /**
-         * exportAllData – fetches ALL filtered records via the non-paginated
-         * `dashboard_list` API, injects them into the DataTable temporarily,
-         * triggers the export action, then restores the paginated view.
-         *
-         * Works for both WO (api/wo.php) and PPM (api/ppm.php) tables.
+         * Server-side Excel via PhpSpreadsheet + SSE progress.
+         * Avoids browser freeze when generating large .xlsx files.
+         */
+        const exportServerExcel = function (module, dt) {
+            const searchValue = (typeof dt.search === 'function' ? dt.search() : '') || '';
+            const order = (typeof dt.order === 'function' && dt.order().length) ? dt.order()[0] : [1, 'desc'];
+            const token = sessionStorage.getItem('token');
+
+            if (exportAbortController) {
+                exportAbortController.abort();
+            }
+            exportAbortController = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            showExportProgress();
+
+            const params = new URLSearchParams({
+                action: 'generate',
+                module: module,
+                clientId: clientId || '',
+                siteId: siteId || '',
+                dateFrom: dateFrom || '',
+                dateTo: dateTo || '',
+                search: searchValue,
+                orderColumn: String(order[0]),
+                orderDir: order[1] || 'desc'
+            });
+            if (module === 'ppm') {
+                params.set('isRoutine', '0');
+            }
+
+            const headers = { 'Accept': 'text/event-stream' };
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+
+            const downloadFile = async function (downloadUrl, filename) {
+                updateExportProgress(
+                    parseInt($('#exportLoadedCount').text().replace(/,/g, ''), 10) || 0,
+                    parseInt($('#exportTotalCount').text().replace(/,/g, ''), 10) || 0,
+                    'Downloading file…'
+                );
+                const resp = await fetch(downloadUrl, {
+                    method: 'GET',
+                    headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+                    credentials: 'same-origin',
+                    signal: exportAbortController ? exportAbortController.signal : undefined
+                });
+                if (!resp.ok) {
+                    let errMsg = 'Download failed (HTTP ' + resp.status + ')';
+                    try {
+                        const errJson = await resp.json();
+                        if (errJson && errJson.errmsg) {
+                            errMsg = errJson.errmsg;
+                        }
+                    } catch (_ignore) { /* ignore */ }
+                    throw new Error(errMsg);
+                }
+                const blob = await resp.blob();
+                const objectUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = objectUrl;
+                link.download = filename || (module === 'wo' ? 'wo_list.xlsx' : 'ppm_list.xlsx');
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(objectUrl);
+            };
+
+            const run = async function () {
+                try {
+                    const resp = await fetch('api/dashboard_export.php?' + params.toString(), {
+                        method: 'GET',
+                        headers: headers,
+                        credentials: 'same-origin',
+                        signal: exportAbortController ? exportAbortController.signal : undefined
+                    });
+                    if (!resp.ok) {
+                        throw new Error('HTTP ' + resp.status);
+                    }
+                    if (!resp.body || typeof resp.body.getReader !== 'function') {
+                        throw new Error('Streaming export is not supported in this browser.');
+                    }
+
+                    const reader = resp.body.getReader();
+                    const decoder = new TextDecoder('utf-8');
+                    let buffer = '';
+                    let donePayload = null;
+                    let emptyMessage = null;
+                    let streamError = null;
+
+                    while (true) {
+                        const result = await reader.read();
+                        if (result.done) {
+                            break;
+                        }
+                        buffer += decoder.decode(result.value, { stream: true });
+                        buffer = parseSseChunk(buffer, function (eventName, payload) {
+                            if (eventName === 'progress' && payload) {
+                                updateExportProgress(
+                                    parseInt(payload.loaded, 10) || 0,
+                                    parseInt(payload.total, 10) || 0,
+                                    payload.message || ''
+                                );
+                            } else if (eventName === 'done') {
+                                donePayload = payload;
+                            } else if (eventName === 'empty') {
+                                emptyMessage = (payload && payload.message) ? payload.message : 'No records to export.';
+                            } else if (eventName === 'error') {
+                                streamError = (payload && payload.message) ? payload.message : 'Export failed.';
+                            }
+                        });
+                    }
+
+                    if (streamError) {
+                        throw new Error(streamError);
+                    }
+                    if (emptyMessage) {
+                        hideExportProgress();
+                        toastr['info'](emptyMessage, 'Export');
+                        return;
+                    }
+                    if (!donePayload || !donePayload.downloadUrl) {
+                        throw new Error('Export finished without a download link.');
+                    }
+
+                    await downloadFile(donePayload.downloadUrl, donePayload.filename);
+                    hideExportProgress();
+                    toastr['success'](
+                        'Export complete (' + (donePayload.records || 0).toLocaleString() + ' records).',
+                        'Export'
+                    );
+                } catch (ex) {
+                    const cancelled = ex && (ex.name === 'AbortError' || (ex.message && ex.message.indexOf('aborted') !== -1));
+                    hideExportProgress();
+                    if (cancelled) {
+                        toastr['info']('Export cancelled.', 'Export');
+                    } else {
+                        toastr['error']('Export error: ' + (ex.message || ex), _ALERT_TITLE_ERROR);
+                    }
+                } finally {
+                    exportAbortController = null;
+                }
+            };
+
+            run();
+        };
+
+        /**
+         * exportAllData – chunked fetch via dashboard_table with live progress.
+         * Used for Print (browser-side). Excel uses exportServerExcel instead.
          */
         const exportAllData = function (e, dt, button, config, originalAction) {
             const actionContext = this;
             const settings = dt.settings()[0];
 
-            // If not server-side, just export normally
             if (!settings.oFeatures.bServerSide) {
                 originalAction.call(actionContext, e, dt, button, config);
                 return;
             }
 
-            // Determine which API to call based on the table's ajax URL
             const ajaxUrl = settings.ajax.url || settings.ajax;
             const isWo  = (typeof ajaxUrl === 'string' && ajaxUrl.indexOf('wo.php') !== -1);
             const isPpm = (typeof ajaxUrl === 'string' && ajaxUrl.indexOf('ppm.php') !== -1);
-            const listUrl = isWo
-                ? 'api/wo.php?type=dashboard_list'
-                : 'api/ppm.php?type=dashboard_list';
-
-            // Build query params from current filter state
-            const params = new URLSearchParams({
-                clientId: clientId || '',
-                siteId:   siteId   || ''
-            });
-            if (isPpm) {
-                // PPM dashboard_list expects year/month, not dateFrom/dateTo
-                // dateFrom is formatted as YYYY-MM-DD, extract year and month
-                if (dateFrom) {
-                    const parts = dateFrom.split('-');
-                    params.set('year', parts[0]);
-                    params.set('month', parts[1]);
-                }
-                params.set('isRoutine', '0');
-            } else {
-                params.set('dateFrom', dateFrom || '');
-                params.set('dateTo', dateTo || '');
+            if (!isWo && !isPpm) {
+                toastr['error']('Unsupported export table.', _ALERT_TITLE_ERROR);
+                return;
             }
 
-            ShowLoader();
-            toastr['info']('Preparing export — fetching all records…', 'Export');
+            const tableUrl = isWo
+                ? 'api/wo.php?type=dashboard_table'
+                : 'api/ppm.php?type=dashboard_table';
+            const pageSize = 500;
+            const searchValue = (typeof dt.search === 'function' ? dt.search() : '') || '';
+            const order = (typeof dt.order === 'function' && dt.order().length) ? dt.order()[0] : [1, 'desc'];
+            const token = sessionStorage.getItem('token');
 
-            $.ajax({
-                url: listUrl + '&' + params.toString(),
-                type: 'GET',
-                dataType: 'json',
-                timeout: 120000, // 2 minutes – generous for large datasets
-                beforeSend: function (xhr) {
-                    const token = sessionStorage.getItem('token');
-                    if (token) {
-                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            if (exportAbortController) {
+                exportAbortController.abort();
+            }
+            exportAbortController = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+
+            showExportProgress();
+
+            const fetchChunk = function (start, draw) {
+                const params = new URLSearchParams();
+                params.set('exportMode', '1');
+                params.set('clientId', clientId || '');
+                params.set('siteId', siteId || '');
+                params.set('dateFrom', dateFrom || '');
+                params.set('dateTo', dateTo || '');
+                params.set('draw', String(draw));
+                params.set('start', String(start));
+                params.set('length', String(pageSize));
+                params.set('search[value]', searchValue);
+                params.set('search[regex]', 'false');
+                params.set('order[0][column]', String(order[0]));
+                params.set('order[0][dir]', order[1] || 'desc');
+                if (isPpm) {
+                    params.set('isRoutine', '0');
+                }
+
+                const headers = { 'Accept': 'application/json' };
+                if (token) {
+                    headers['Authorization'] = 'Bearer ' + token;
+                }
+
+                return fetch(tableUrl + '&' + params.toString(), {
+                    method: 'GET',
+                    headers: headers,
+                    signal: exportAbortController ? exportAbortController.signal : undefined,
+                    credentials: 'same-origin'
+                }).then(function (resp) {
+                    if (!resp.ok) {
+                        throw new Error('HTTP ' + resp.status);
                     }
-                },
-                success: function (json) {
-                    try {
+                    return resp.json();
+                });
+            };
+
+            const runExport = async function () {
+                const allData = [];
+                let total = 0;
+                let start = 0;
+                let draw = 1;
+                let cancelled = false;
+
+                try {
+                    while (true) {
+                        const json = await fetchChunk(start, draw++);
                         if (!json.success || !json.result) {
-                            toastr['error']('Failed to fetch export data.', _ALERT_TITLE_ERROR);
-                            HideLoader();
+                            throw new Error(json.errmsg || 'Failed to fetch export data.');
+                        }
+
+                        const chunk = Array.isArray(json.result.data) ? json.result.data : [];
+                        total = parseInt(json.result.recordsFiltered, 10) || total;
+                        if (start === 0 && total === 0 && chunk.length === 0) {
+                            updateExportProgress(0, 0);
+                            hideExportProgress();
+                            toastr['info']('No records to export for the current filters.', 'Export');
                             return;
                         }
 
-                        const allData = json.result;
-                        toastr['info']('Generating file for ' + allData.length + ' records…', 'Export');
+                        for (let i = 0; i < chunk.length; i++) {
+                            allData.push(chunk[i]);
+                        }
+                        updateExportProgress(allData.length, total || allData.length);
 
-                        // Temporarily switch to client-side mode with all data
-                        settings.oFeatures.bServerSide = false;
-                        settings._iRecordsTotal = allData.length;
-                        settings._iRecordsDisplay = allData.length;
-
-                        // Clear existing data and load full dataset
-                        dt.clear();
-                        dt.rows.add(allData);
-                        dt.draw();
-
-                        // Run the original export action (print / excel)
-                        originalAction.call(actionContext, e, dt, button, config);
-
-                        // Restore server-side mode and reload paginated data
-                        settings.oFeatures.bServerSide = true;
-                        dt.ajax.reload(null, false);
-
-                        toastr['success']('Export complete (' + allData.length + ' records).', 'Export');
-                    } catch (ex) {
-                        toastr['error']('Export error: ' + ex.message, _ALERT_TITLE_ERROR);
-                        // Restore server-side mode on error
-                        settings.oFeatures.bServerSide = true;
-                        dt.ajax.reload(null, false);
+                        if (chunk.length === 0 || allData.length >= total) {
+                            break;
+                        }
+                        start += pageSize;
                     }
-                    HideLoader();
-                },
-                error: function (_xhr, status, err) {
-                    const msg = status === 'timeout'
-                        ? 'Export timed out — try narrowing the date range or selecting a specific site.'
-                        : 'Export request failed: ' + err;
-                    toastr['error'](msg, _ALERT_TITLE_ERROR);
-                    HideLoader();
+
+                    $('#exportProgressLabel').text('Generating file for ' + allData.length.toLocaleString() + ' records…');
+                    updateExportProgress(allData.length, allData.length);
+
+                    // Temporarily switch to client-side mode with all data (skip draw for speed)
+                    settings.oFeatures.bServerSide = false;
+                    settings._iRecordsTotal = allData.length;
+                    settings._iRecordsDisplay = allData.length;
+                    dt.clear();
+                    dt.rows.add(allData);
+
+                    originalAction.call(actionContext, e, dt, button, config);
+
+                    settings.oFeatures.bServerSide = true;
+                    dt.ajax.reload(null, false);
+                    hideExportProgress();
+                    toastr['success']('Export complete (' + allData.length.toLocaleString() + ' records).', 'Export');
+                } catch (ex) {
+                    cancelled = ex && (ex.name === 'AbortError' || (ex.message && ex.message.indexOf('aborted') !== -1));
+                    try {
+                        settings.oFeatures.bServerSide = true;
+                        dt.ajax.reload(null, false);
+                    } catch (_ignore) { /* restore best-effort */ }
+                    hideExportProgress();
+                    if (cancelled) {
+                        toastr['info']('Export cancelled.', 'Export');
+                    } else {
+                        toastr['error']('Export error: ' + (ex.message || ex), _ALERT_TITLE_ERROR);
+                    }
+                } finally {
+                    exportAbortController = null;
                 }
-            });
+            };
+
+            runExport();
         };
         let btnWoOpt = {
             exportOptions: {
@@ -739,8 +990,8 @@ function MainHome() {
                     title:     'GEMS 2.0 - Work Order List',
                     titleAttr: 'Excel',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2',
-                    action: function (e, dt, button, config) {
-                        exportAllData.call(this, e, dt, button, config, $.fn.dataTable.ext.buttons.excelHtml5.action);
+                    action: function (e, dt) {
+                        exportServerExcel('wo', dt);
                     }
                 })
             ]
@@ -996,8 +1247,8 @@ function MainHome() {
                     title:     'GEMS 2.0 - PPM List',
                     titleAttr: 'Excel',
                     className: 'btn btn-outline-white btn-rounded btn-sm px-2',
-                    action: function (e, dt, button, config) {
-                        exportAllData.call(this, e, dt, button, config, $.fn.dataTable.ext.buttons.excelHtml5.action);
+                    action: function (e, dt) {
+                        exportServerExcel('ppm', dt);
                     }
                 })
             ]

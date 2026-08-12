@@ -334,86 +334,135 @@ class Class_vm {
             }
         } catch(Exception $e) { /* ignore */ }
 
-        // Notify host via email (best-effort; failure doesn't block submission)
+        $emailSent = $this->tryNotifyHostByEmail(
+            $v,
+            $resolvedHostName,
+            $uploadedPhotoAbs,
+            $jsonPhotoAbs,
+            $uploadedPhotoPath,
+            $jsonPhotoPath,
+            $relativePhotoPath
+        );
+
+        return ['success'=>true,'visit_id'=>$id,'email_sent'=>$emailSent];
+    }
+
+    private function isSmtpConfigured() {
         try {
+            $config = @parse_ini_file(__DIR__ . '/../library/config.ini', true);
+            if ($config === false || !isset($config['smtp'])) {
+                return false;
+            }
+            $username = $config['smtp']['m_username'] ?? ($config['smtp']['username'] ?? '');
+            $password = $config['smtp']['m_password'] ?? ($config['smtp']['password'] ?? '');
+            return $username !== '' && $password !== '';
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+
+    private function logVmWarning($message) {
+        try {
+            if (isset($this->fn_general)) {
+                $this->fn_general->log_error(__CLASS__, 'createVisit', 0, $message);
+            }
+        } catch (Throwable $e) { /* ignore */ }
+    }
+
+    private function tryNotifyHostByEmail($v, $resolvedHostName, $uploadedPhotoAbs, $jsonPhotoAbs, $uploadedPhotoPath, $jsonPhotoPath, $relativePhotoPath) {
+        try {
+            if (!$this->isSmtpConfigured()) {
+                $this->logVmWarning('Host email skipped: SMTP credentials not configured');
+                return false;
+            }
+
             $recipient = '';
-            // If host_id was supplied and resolved earlier, prefer its email
-            if(isset($v['hostId']) && $v['hostId']!==null){
-                $hostRowForEmail = Class_db::getInstance()->db_select_single('vm_host', ['host_id'=>strval($v['hostId'])]);
-                if(!empty($hostRowForEmail) && !empty($hostRowForEmail['email']) && filter_var($hostRowForEmail['email'], FILTER_VALIDATE_EMAIL)){
+            if (isset($v['hostId']) && $v['hostId'] !== null) {
+                $hostRowForEmail = Class_db::getInstance()->db_select_single('vm_host', ['host_id' => strval($v['hostId'])]);
+                if (!empty($hostRowForEmail) && !empty($hostRowForEmail['email']) && filter_var($hostRowForEmail['email'], FILTER_VALIDATE_EMAIL)) {
                     $recipient = $hostRowForEmail['email'];
                 }
             }
-            // Fallback: match by site + host name
-            if($recipient===''){
-                $rows = Class_db::getInstance()->db_select('vm_host', ['site_id'=>strval($v['siteId']), 'name'=>$resolvedHostName, 'active'=>'1'], 'host_id ASC', '1');
-                if(!empty($rows) && !empty($rows[0]['email']) && filter_var($rows[0]['email'], FILTER_VALIDATE_EMAIL)){
+            if ($recipient === '') {
+                $rows = Class_db::getInstance()->db_select('vm_host', ['site_id' => strval($v['siteId']), 'name' => $resolvedHostName, 'active' => '1'], 'host_id ASC', '1');
+                if (!empty($rows) && !empty($rows[0]['email']) && filter_var($rows[0]['email'], FILTER_VALIDATE_EMAIL)) {
                     $recipient = $rows[0]['email'];
                 }
             }
-            if($recipient!==''){
-                if (!class_exists('Class_email')) { require_once __DIR__ . '/f_email.php'; }
-                $mailer = new Class_email();
-                $safe = function($s){ return htmlspecialchars(strval($s), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); };
-                // Optional site name look-up
-                $siteName = '';
-                try {
-                    $siteRow = Class_db::getInstance()->db_select_single('cli_site', ['site_id'=>strval($v['siteId'])]);
-                    if(!empty($siteRow) && !empty($siteRow['site_name'])){ $siteName = $siteRow['site_name']; }
-                } catch(Exception $e) { /* ignore */ }
-                $subject = 'Visitor arrival notice';
-                // Build optional inline photo block (prefer absolute temp fallbacks; else uploaded relative path)
-                $inlinePath = '';
-                if ($uploadedPhotoAbs !== '' && is_file($uploadedPhotoAbs)) {
-                    $inlinePath = $uploadedPhotoAbs;
-                } else if ($jsonPhotoAbs !== '' && is_file($jsonPhotoAbs)) {
-                    $inlinePath = $jsonPhotoAbs;
-                } else {
-                    $finalPhotoPath = ($uploadedPhotoPath !== '' ? $uploadedPhotoPath : ($jsonPhotoPath !== '' ? $jsonPhotoPath : $relativePhotoPath));
-                    if ($finalPhotoPath !== '') {
-                        $baseDir = dirname(__DIR__, 2);
-                        $abs = $baseDir . '/' . $finalPhotoPath;
-                        if (is_file($abs)) { $inlinePath = $abs; }
+            if ($recipient === '') {
+                return false;
+            }
+
+            if (!class_exists('Class_email')) {
+                require_once __DIR__ . '/f_email.php';
+            }
+            $mailer = new Class_email();
+            $safe = function ($s) {
+                return htmlspecialchars(strval($s), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            };
+
+            $siteName = '';
+            try {
+                $siteRow = Class_db::getInstance()->db_select_single('cli_site', ['site_id' => strval($v['siteId'])]);
+                if (!empty($siteRow) && !empty($siteRow['site_name'])) {
+                    $siteName = $siteRow['site_name'];
+                }
+            } catch (Throwable $e) { /* ignore */ }
+
+            $subject = 'Visitor arrival notice';
+            $inlinePath = '';
+            if ($uploadedPhotoAbs !== '' && is_file($uploadedPhotoAbs)) {
+                $inlinePath = $uploadedPhotoAbs;
+            } else if ($jsonPhotoAbs !== '' && is_file($jsonPhotoAbs)) {
+                $inlinePath = $jsonPhotoAbs;
+            } else {
+                $finalPhotoPath = ($uploadedPhotoPath !== '' ? $uploadedPhotoPath : ($jsonPhotoPath !== '' ? $jsonPhotoPath : $relativePhotoPath));
+                if ($finalPhotoPath !== '') {
+                    $baseDir = dirname(__DIR__, 2);
+                    $abs = $baseDir . '/' . $finalPhotoPath;
+                    if (is_file($abs)) {
+                        $inlinePath = $abs;
                     }
                 }
-                $photoBlock = '';
-                if ($inlinePath !== '') {
-                    $photoBlock = '<div style="margin:10px 0; display:flex; align-items:flex-start; gap:16px;">'
-                        .   '<div style="border:1px solid #ddd; padding:4px; background:#f9f9f9;">'
-                        .     '<img src="cid:visitor_photo" alt="Visitor Photo" '
-                        .     'style="display:block; width:120px; height:160px; object-fit:cover; border:0;" />'
-                        .   '</div>'
-                        . '</div>';
-                }
-                $htmlBody = '<html><body>'
-                    . '<p>Dear ' . $safe($resolvedHostName) . ',</p>'
-                    . '<p>A visitor has arrived and is looking for you.</p>'
-                    . $photoBlock
-                    . '<ul>'
-                    . '<li><strong>Name:</strong> ' . $safe($v['name']) . '</li>'
-                    . '<li><strong>IC/ID:</strong> ' . $safe($v['ic']) . '</li>'
-                    . '<li><strong>Company:</strong> ' . $safe($v['company']) . '</li>'
-                    . '<li><strong>Contact:</strong> ' . $safe($v['contact']) . '</li>'
-                    . '<li><strong>Party size:</strong> ' . intval($v['party']) . '</li>'
-                    . '<li><strong>Purpose:</strong> ' . $safe($v['purpose']) . '</li>'
-                    . '<li><strong>Site:</strong> ' . $safe($siteName !== '' ? $siteName : $v['siteId']) . '</li>'
-                    . '<li><strong>Time:</strong> ' . date('Y-m-d H:i:s') . '</li>'
-                    . '</ul>'
-                    . '<p>Thank you.</p>'
-                    . '</body></html>';
-                if ($inlinePath !== '') {
-                    // Use inline image sender
-                    $mailer->send_email_365_inline_image($recipient, $subject, $htmlBody, $inlinePath, 'visitor_photo', 'visitor_photo');
-                } else {
-                    $mailer->send_email_express($recipient, $subject, $htmlBody);
-                }
             }
-        } catch(Exception $e) {
-            // Best-effort: do not block the submission; log if general helper available
-            try { if(isset($this->fn_general)) { $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, 'Host email send failed: ' . $e->getMessage()); } } catch(Exception $ee) {}
-        }
 
-        return ['success'=>true,'visit_id'=>$id];
+            $photoBlock = '';
+            if ($inlinePath !== '') {
+                $photoBlock = '<div style="margin:10px 0; display:flex; align-items:flex-start; gap:16px;">'
+                    . '<div style="border:1px solid #ddd; padding:4px; background:#f9f9f9;">'
+                    . '<img src="cid:visitor_photo" alt="Visitor Photo" '
+                    . 'style="display:block; width:120px; height:160px; object-fit:cover; border:0;" />'
+                    . '</div>'
+                    . '</div>';
+            }
+
+            $htmlBody = '<html><body>'
+                . '<p>Dear ' . $safe($resolvedHostName) . ',</p>'
+                . '<p>A visitor has arrived and is looking for you.</p>'
+                . $photoBlock
+                . '<ul>'
+                . '<li><strong>Name:</strong> ' . $safe($v['name']) . '</li>'
+                . '<li><strong>IC/ID:</strong> ' . $safe($v['ic']) . '</li>'
+                . '<li><strong>Company:</strong> ' . $safe($v['company']) . '</li>'
+                . '<li><strong>Contact:</strong> ' . $safe($v['contact']) . '</li>'
+                . '<li><strong>Party size:</strong> ' . intval($v['party']) . '</li>'
+                . '<li><strong>Purpose:</strong> ' . $safe($v['purpose']) . '</li>'
+                . '<li><strong>Site:</strong> ' . $safe($siteName !== '' ? $siteName : $v['siteId']) . '</li>'
+                . '<li><strong>Time:</strong> ' . date('Y-m-d H:i:s') . '</li>'
+                . '</ul>'
+                . '<p>Thank you.</p>'
+                . '</body></html>';
+
+            if ($inlinePath !== '') {
+                $mailer->send_email_365_inline_image($recipient, $subject, $htmlBody, $inlinePath, 'visitor_photo', 'visitor_photo');
+            } else {
+                $mailer->send_email_express($recipient, $subject, $htmlBody);
+            }
+            return true;
+        } catch (Throwable $e) {
+            $this->logVmWarning('Host email send failed: ' . $e->getMessage());
+            return false;
+        }
     }
 
     public function listVisits($siteId,$limit=100){

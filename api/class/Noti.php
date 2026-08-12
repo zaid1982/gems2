@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/NotiHelper.php';
+
 class Noti extends General {
 
     function __construct (int $userId=0, bool $isLogged=false) {
@@ -44,7 +46,15 @@ class Noti extends General {
                         $notiTextHtml = str_replace("[".$paramCode."]", $notiParams[$paramCode], $notiTextHtml);
                     }
                 }
-                DbMysql::insert('noti_send', array('notiTextId'=>$notiTextId, 'notiTo'=>$userToken, 'notiTitle'=>$notiTextTitle, 'notiHtml'=>$notiTextHtml, 'userId'=>$receiverId));
+                $notiData = NotiHelper::buildNotiData($notiTextId, $notiParams);
+                DbMysql::insert('noti_send', array(
+                    'notiTextId'=>$notiTextId,
+                    'notiTo'=>$userToken,
+                    'notiTitle'=>$notiTextTitle,
+                    'notiHtml'=>$notiTextHtml,
+                    'userId'=>$receiverId,
+                    'notiData'=>$notiData,
+                ));
             }
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());

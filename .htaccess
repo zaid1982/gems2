@@ -95,6 +95,8 @@ RewriteRule ^m_inventory/?$ api/m_inventory.php
 RewriteRule ^m_inventory/(.+)/?$ api/m_inventory.php
 RewriteRule ^noti_web/?$ api/noti_web.php
 RewriteRule ^noti_web/(.+)/?$ api/noti_web.php
+RewriteRule ^noti_mobile/?$ api/noti_mobile.php
+RewriteRule ^noti_mobile/(.+)/?$ api/noti_mobile.php
 RewriteRule ^part/?$ api/part.php
 RewriteRule ^part/(.+)/?$ api/part.php
 RewriteRule ^part_sub/?$ api/part_sub.php

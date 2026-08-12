@@ -30,5 +30,6 @@ test_*.sh
 test_*.php
 test_*.csv
 
-# Postman collections
-*.postman_collection.json
+# Firebase / Apple push secrets (store outside repo; see /Applications/XAMPP/xamppfiles/gfm-secrets/)
+*firebase-adminsdk*.json
+AuthKey_*.p8

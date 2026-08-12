@@ -2386,10 +2386,12 @@ class Class_wo {
 
             $start = intval($start) < 0 ? 0 : intval($start);
             $length = intval($length);
+            // Export mode allows larger pages to cut round-trips; normal UI stays capped at 200
+            $maxLength = (!empty($_GET['exportMode']) && $_GET['exportMode'] === '1') ? 500 : 200;
             if ($length <= 0) {
                 $length = 10;
-            } else if ($length > 200) {
-                $length = 200;
+            } else if ($length > $maxLength) {
+                $length = $maxLength;
             }
 
             if (empty($dateStart) || empty($dateEnd)) {

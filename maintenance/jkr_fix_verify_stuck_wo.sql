@@ -1,0 +1,16 @@
+-- ============================================================================
+-- JKR PROD: Fix verify-stuck / duplicate-current-task WOs (batch 2026-08-03)
+-- ============================================================================
+-- Root causes found:
+--   A) Duplicate wfl_task rows with task_current=1 (CP13+CP16, or CP16+CP15)
+--   B) Status 15 at CP16 Verify — repair signed but verify submit never completed
+--   C) Duplicate CP13 row after repair re-submit (WOIN25113003780)
+--
+-- NOT FOUND: WOIN26041314681
+-- DUPLICATE WO NUMBER: WOIN25092497556 exists twice (wo_task_id 165466, 165467)
+-- ALREADY OK (only CP15, status 16): WOIN24011935113, WOIN25111402671,
+--   WOIN25112002962, both WOIN25092497556 rows
+-- ============================================================================
+
+-- Type A: Close stale CP16 on already-completed WOs (CP15 remains current)
+-- UPDATE wfl_task SET task_current=2, task_status=9, task_time_submit=COALESCE(task_time_submit, NOW()) WHERE task_id IN (6494727, 6985010, 7165139);

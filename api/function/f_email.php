@@ -169,46 +169,45 @@ class Class_email {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
-            $userWhereClause = '';
-            if (is_array($userId) && !empty($userId)) {
-                $userWhereClause = '(' . implode(',', array_map('intval', $userId)) . ')';
-            } else if (!empty($userId)) {
-                $userWhereClause = (string)intval($userId); // Ensure single user ID is a string
-            } else {
-                // If userId is empty, throw an exception as mobile notifications typically require a user.
-                 throw new Exception('[' . __LINE__ . '] - Parameter userId empty for mobile notification');
+            require_once __DIR__ . '/../class/NotiHelper.php';
+
+            $userIds = NotiHelper::normalizeUserIds($userId);
+            if (empty($userIds)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty for mobile notification');
             }
 
-            // Use the formatted userWhereClause here
-            $userToken = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userWhereClause), 'user_token');
-            if (empty($userToken)) {
-                throw new Exception('[' . __LINE__ . '] - Parameter userToken empty');
-            }
-
-            // MODIFIED: Ensure notiTextId is cast to string for the query condition
             $notiText = Class_db::getInstance()->db_select_single('noti_text', array('noti_text_id'=>(string)$notiTextId), NULL, 1);
-            $notiTextTitle = $notiText['noti_text_title'];
-            $notiTextHtml = $notiText['noti_text_html'];
-
-            // MODIFIED: Ensure notiTextId is cast to string for the query condition
-            $notiParameters = Class_db::getInstance()->db_select('noti_parameter', array('noti_text_id'=>(string)$notiTextId));
-            foreach ($notiParameters as $parameter) {
-                $paramCode = $parameter['noti_param_code'];
-                if (!array_key_exists($paramCode, $notiParam)) {
-                    throw new Exception('[' . __LINE__ . '] - Index '.$paramCode.' in array notiParam empty');
-                }
-                if (strpos($notiTextTitle,"[".$paramCode."]") !== false) {
-                    $notiTextTitle = str_replace ("[".$paramCode."]", $notiParam[$paramCode], $notiTextTitle);
-                }
-                if (strpos($notiTextHtml,"[".$paramCode."]") !== false) {
-                    $notiTextHtml = str_replace ("[".$paramCode."]", $notiParam[$paramCode], $notiTextHtml);
-                }
+            if (empty($notiText)) {
+                throw new Exception('[' . __LINE__ . '] - Notification template not found');
             }
 
-            // If userId is an array, take the first element for noti_send
-            $insertUserId = is_array($userId) ? (empty($userId) ? null : $userId[0]) : $userId; // Use a single user ID for logging
-            Class_db::getInstance()->db_insert('noti_send', array('noti_text_id'=>(string)$notiTextId, 'noti_to'=>$userToken, 'noti_title'=>$notiTextTitle,
-                'noti_html'=>$notiTextHtml, 'user_id'=>$insertUserId));
+            $notiParameters = Class_db::getInstance()->db_select('noti_parameter', array('noti_text_id'=>(string)$notiTextId));
+            $resolved = NotiHelper::applyTemplateParams(
+                $notiText['noti_text_title'],
+                $notiText['noti_text_html'],
+                $notiParameters,
+                $notiParam
+            );
+            $notiData = NotiHelper::buildNotiData(intval($notiTextId), $notiParam);
+
+            foreach ($userIds as $receiverId) {
+                $user = Class_db::getInstance()->db_select_single('sys_user', array('user_id'=>(string)$receiverId), NULL, 1);
+                if (empty($user) || empty($user['user_status']) || $user['user_status'] !== '1') {
+                    continue;
+                }
+                if (empty($user['user_token'])) {
+                    continue;
+                }
+
+                Class_db::getInstance()->db_insert('noti_send', array(
+                    'noti_text_id' => (string)$notiTextId,
+                    'noti_to' => $user['user_token'],
+                    'noti_title' => $resolved['title'],
+                    'noti_html' => $resolved['html'],
+                    'user_id' => $receiverId,
+                    'noti_data' => $notiData,
+                ));
+            }
             return true;
         }
         catch(Exception $ex) {
@@ -793,7 +792,7 @@ class Class_email {
      * @param $message
      * @param $token
      */
-    public function send_mobile_notification ($title, $message, $token) {
+    public function send_mobile_notification ($title, $message, $token, $data=array()) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
 
@@ -807,38 +806,11 @@ class Class_email {
                 throw new Exception('[' . __LINE__ . '] - Parameter token empty');
             }
 
-            $curl = curl_init();
-
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://fcm.googleapis.com/fcm/send",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => "{\n \"to\" : \"".$token."\",\n \"collapse_key\" : \"type_a\",\n \"notification\" : {\n     \"body\" : \"".$message."\",\n     \"title\": \"".$title."\"\n }\n}",
-                CURLOPT_HTTPHEADER => array(
-                    "Accept: */*",
-                    "Authorization: key=AAAA0VbV4yY:APA91bEkhqjl72wrey1qcbBlaaGNZTVtRcDQMwBkIOTkzWzytnTHbEVypleaWjHA3SeO0klvh9M2M_MaX-1yf2jupOZnDyn2Zx9lx2CLDgZGOwPfBpr1HvFO14lnZSKlpqi1rKM5BX-i",
-                    "Cache-Control: no-cache",
-                    "Connection: keep-alive",
-                    "Content-Type: application/json",
-                    "Host: fcm.googleapis.com",
-                    "accept-encoding: gzip, deflate",
-                    "cache-control: no-cache"
-                ),
-            ));
-
-            $response = curl_exec($curl);
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'response = ' . $response);
-            $err = curl_error($curl);
-            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'err = ' . $err);
-
-            curl_close($curl);
+            require_once __DIR__ . '/../class/FcmClient.php';
+            FcmClient::send($token, $title, $message, is_array($data) ? $data : array());
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
-            //throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode()); // Keep this commented out or re-enable if you want exceptions to stop execution
+            throw $ex;
         }
     }
 
@@ -853,16 +825,27 @@ class Class_email {
             $notiSends = Class_db::getInstance()->db_select('noti_send', array(), 'noti_id', '100');
             foreach ($notiSends as $notiSend) {
                 $status = '23'; // fail
+                $dataPayload = array();
+                if (!empty($notiSend['noti_data'])) {
+                    $decoded = json_decode($notiSend['noti_data'], true);
+                    if (is_array($decoded)) {
+                        $dataPayload = $decoded;
+                    }
+                }
                 try {
-                    $this->send_mobile_notification($notiSend['noti_title'], $notiSend['noti_html'], $notiSend['noti_to']);
+                    $this->send_mobile_notification($notiSend['noti_title'], $notiSend['noti_html'], $notiSend['noti_to'], $dataPayload);
                     $status = '22';
                 } catch(Exception $ey) {
                 }
 
                 try {
                     Class_db::getInstance()->db_beginTransaction();
-                    Class_db::getInstance()->db_insert('noti_log', array('noti_text_id'=>$notiSend['noti_text_id'], 'noti_to'=>$notiSend['noti_to'], 'noti_title'=>$notiSend['noti_title'],
-                        'noti_html'=>$notiSend['noti_html'], 'user_id'=> (is_null($notiSend['user_id'])?'':$notiSend['user_id']), 'noti_id'=>$notiSend['noti_id'], 'noti_log_status'=>$status));
+                    $logRow = array('noti_text_id'=>$notiSend['noti_text_id'], 'noti_to'=>$notiSend['noti_to'], 'noti_title'=>$notiSend['noti_title'],
+                        'noti_html'=>$notiSend['noti_html'], 'user_id'=> (is_null($notiSend['user_id'])?'':$notiSend['user_id']), 'noti_id'=>$notiSend['noti_id'], 'noti_log_status'=>$status);
+                    if (!empty($notiSend['noti_data'])) {
+                        $logRow['noti_data'] = $notiSend['noti_data'];
+                    }
+                    Class_db::getInstance()->db_insert('noti_log', $logRow);
                     Class_db::getInstance()->db_delete('noti_send', array('noti_id'=>$notiSend['noti_id']));
                     Class_db::getInstance()->db_commit();
                 } catch(Exception $ez) {

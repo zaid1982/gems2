@@ -489,7 +489,8 @@
       fetch('api/vm.php', { method:'POST', body: fd })
         .then(r=>r.json())
         .then(resp=>{
-          const ok = !!(resp && (resp.success === true || (resp.result && resp.result.success === true)));
+          const visitId = resp && resp.result && resp.result.visit_id;
+          const ok = !!(resp && (resp.success === true || (resp.result && resp.result.success === true) || visitId));
           if(!ok){
             const errs = resp && resp.errors ? resp.errors : {};
             if (Object.keys(errs).length > 0) {
@@ -500,7 +501,7 @@
             }
             return;
           }
-          $('#refId').text(resp.result.visit_id);
+          $('#refId').text(visitId || (resp.result && resp.result.visit_id) || '');
           if (window.mdb && mdb.Modal) {
             const modal = new mdb.Modal(document.getElementById('successModal')); modal.show();
           } else if ($.fn.modal) {

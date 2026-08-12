@@ -1,0 +1,28 @@
+-- ============================================================================
+-- JKR PROD: Force-advance stuck WOs from CP13 (Execute WO) to CP15 (Closed)
+-- Date: 2026-08-03
+-- Verifier user_id: 1492 (same pattern as WOIN26073023262 closed tickets)
+--
+-- Affected tickets (9):
+--   Group 1: WOIN26060418424/425/426/427 (wo_task_id 186055,186054,186039,186036)
+--   Group 2: WOIN26062520122/123, WOIN26070221020/021/022
+--
+-- Run ONE statement at a time via db_query_tool.php (multi-statement blocked).
+-- Replace placeholders per ticket using the context query below.
+-- ============================================================================
+
+-- Context query (read-only):
+-- SELECT w.wo_task_id, w.wo_task_no, tr.transaction_id, tr.group_id, tr.user_id,
+--        wt.task_id AS cp13_task_id, wt.task_claimed_user AS fixed_by
+-- FROM wo_task w
+-- JOIN wfl_transaction tr ON tr.transaction_id = w.transaction_id
+-- JOIN wfl_task wt ON wt.transaction_id = w.transaction_id
+--   AND wt.task_current = 1 AND wt.checkpoint_id = 13
+-- WHERE w.wo_task_id = ?;
+
+-- Per ticket (example WOIN26060418424):
+-- UPDATE wfl_task SET task_current=2, task_status=9, task_time_submit=NOW() WHERE task_id=7178599;
+-- INSERT INTO wfl_task (transaction_id, checkpoint_id, task_created_user, task_created_group, task_status_previous, task_status, role_id, group_id, task_claimed_user, task_current, task_time_created)
+--   VALUES (5698702, 15, 1492, 24, 9, 7, 6, 24, 1463, 1, NOW());
+-- UPDATE wo_task SET wo_task_status=16, wo_task_fixed_by=99, wo_task_verified_by=1492, wo_task_time_executed=NOW(), wo_task_time_verified=NOW(), wo_task_is_pdf=1 WHERE wo_task_id=186055;
+-- UPDATE wfl_transaction SET transaction_status=16, transaction_time_complete=NOW() WHERE transaction_id=5698702;
