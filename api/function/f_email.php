@@ -815,6 +815,57 @@ class Class_email {
     }
 
     /**
+     * Backoff seconds after N failed attempts (1-based attempt count after increment).
+     * After MAX attempts the row is dead-lettered to noti_log.
+     */
+    private function push_retry_max_attempts () {
+        return 5;
+    }
+
+    private function push_retry_delay_seconds ($attemptAfterFail) {
+        $delays = array(
+            1 => 60,        // 1 min
+            2 => 300,       // 5 min
+            3 => 900,       // 15 min
+            4 => 1800,      // 30 min
+        );
+        return isset($delays[$attemptAfterFail]) ? $delays[$attemptAfterFail] : 3600;
+    }
+
+    private function push_truncate_title ($title, $suffix) {
+        $title = (string) $title;
+        $suffix = (string) $suffix;
+        if ($suffix === '') {
+            return $title;
+        }
+        if (strlen($title) + strlen($suffix) > 255) {
+            return substr($title, 0, max(0, 255 - strlen($suffix))).$suffix;
+        }
+        return $title.$suffix;
+    }
+
+    private function push_move_to_log ($notiSend, $status, $failReason = '') {
+        $logTitle = $notiSend['noti_title'];
+        if ($status === '23' && $failReason !== '') {
+            $logTitle = $this->push_truncate_title($logTitle, ' [FAIL: '.$failReason.']');
+        }
+        $logRow = array(
+            'noti_text_id' => $notiSend['noti_text_id'],
+            'noti_to' => $notiSend['noti_to'],
+            'noti_title' => $logTitle,
+            'noti_html' => $notiSend['noti_html'],
+            'user_id' => (is_null($notiSend['user_id']) ? '' : $notiSend['user_id']),
+            'noti_id' => $notiSend['noti_id'],
+            'noti_log_status' => $status,
+        );
+        if (!empty($notiSend['noti_data'])) {
+            $logRow['noti_data'] = $notiSend['noti_data'];
+        }
+        Class_db::getInstance()->db_insert('noti_log', $logRow);
+        Class_db::getInstance()->db_delete('noti_send', array('noti_id' => $notiSend['noti_id']));
+    }
+
+    /**
      * @return bool
      * @throws Exception
      */
@@ -822,9 +873,25 @@ class Class_email {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
 
-            $notiSends = Class_db::getInstance()->db_select('noti_send', array(), 'noti_id', '100');
+            $summary = array(
+                'total' => 0,
+                'ok' => 0,
+                'retry' => 0,
+                'dead' => 0,
+                'errors' => array(),
+            );
+            $maxAttempts = $this->push_retry_max_attempts();
+
+            // Only rows that are due now (new rows have NULL next_retry_at).
+            $notiSends = Class_db::getInstance()->db_select(
+                'noti_send',
+                array('w1' => '(noti_next_retry_at IS NULL OR noti_next_retry_at <= NOW())'),
+                'noti_id',
+                '100'
+            );
+
             foreach ($notiSends as $notiSend) {
-                $status = '23'; // fail
+                $summary['total']++;
                 $dataPayload = array();
                 if (!empty($notiSend['noti_data'])) {
                     $decoded = json_decode($notiSend['noti_data'], true);
@@ -832,24 +899,87 @@ class Class_email {
                         $dataPayload = $decoded;
                     }
                 }
-                try {
-                    $this->send_mobile_notification($notiSend['noti_title'], $notiSend['noti_html'], $notiSend['noti_to'], $dataPayload);
-                    $status = '22';
-                } catch(Exception $ey) {
-                }
 
                 try {
+                    $this->send_mobile_notification(
+                        $notiSend['noti_title'],
+                        $notiSend['noti_html'],
+                        $notiSend['noti_to'],
+                        $dataPayload
+                    );
+
                     Class_db::getInstance()->db_beginTransaction();
-                    $logRow = array('noti_text_id'=>$notiSend['noti_text_id'], 'noti_to'=>$notiSend['noti_to'], 'noti_title'=>$notiSend['noti_title'],
-                        'noti_html'=>$notiSend['noti_html'], 'user_id'=> (is_null($notiSend['user_id'])?'':$notiSend['user_id']), 'noti_id'=>$notiSend['noti_id'], 'noti_log_status'=>$status);
-                    if (!empty($notiSend['noti_data'])) {
-                        $logRow['noti_data'] = $notiSend['noti_data'];
-                    }
-                    Class_db::getInstance()->db_insert('noti_log', $logRow);
-                    Class_db::getInstance()->db_delete('noti_send', array('noti_id'=>$notiSend['noti_id']));
+                    $this->push_move_to_log($notiSend, '22');
                     Class_db::getInstance()->db_commit();
-                } catch(Exception $ez) {
-                    Class_db::getInstance()->db_rollback();
+                    $summary['ok']++;
+                    continue;
+                } catch (Throwable $ey) {
+                    $failReason = $ey->getMessage();
+                    $prevRetries = isset($notiSend['noti_retry_count']) ? intval($notiSend['noti_retry_count']) : 0;
+                    $attempt = $prevRetries + 1;
+
+                    if (count($summary['errors']) < 20) {
+                        $summary['errors'][] = array(
+                            'noti_id' => $notiSend['noti_id'],
+                            'user_id' => $notiSend['user_id'],
+                            'attempt' => $attempt,
+                            'error' => $failReason,
+                        );
+                    }
+                    $this->fn_general->log_error(
+                        __CLASS__,
+                        __FUNCTION__,
+                        __LINE__,
+                        'Push fail noti_id='.$notiSend['noti_id'].' user_id='.$notiSend['user_id'].
+                        ' attempt='.$attempt.'/'.$maxAttempts.' : '.$failReason
+                    );
+
+                    try {
+                        Class_db::getInstance()->db_beginTransaction();
+                        if ($attempt >= $maxAttempts) {
+                            // Dead-letter after max attempts.
+                            $this->push_move_to_log($notiSend, '23', $failReason.' (attempts='.$attempt.')');
+                            Class_db::getInstance()->db_commit();
+                            $summary['dead']++;
+                        } else {
+                            $delaySec = $this->push_retry_delay_seconds($attempt);
+                            Class_db::getInstance()->db_update(
+                                'noti_send',
+                                array(
+                                    'noti_retry_count' => (string) $attempt,
+                                    'noti_next_retry_at' => '|DATE_ADD(NOW(), INTERVAL '.$delaySec.' SECOND)',
+                                    'noti_last_error' => $failReason,
+                                ),
+                                array('noti_id' => $notiSend['noti_id'])
+                            );
+                            Class_db::getInstance()->db_commit();
+                            $summary['retry']++;
+                        }
+                    } catch (Exception $ez) {
+                        Class_db::getInstance()->db_rollback();
+                        $this->fn_general->log_error(
+                            __CLASS__,
+                            __FUNCTION__,
+                            __LINE__,
+                            'push retry/dead-letter write failed: '.$ez->getMessage()
+                        );
+                    }
+                }
+            }
+
+            if (PHP_SAPI === 'cli') {
+                echo 'Push summary: total='.$summary['total'].
+                    ' ok='.$summary['ok'].
+                    ' retry='.$summary['retry'].
+                    ' dead='.$summary['dead'].PHP_EOL;
+                foreach ($summary['errors'] as $err) {
+                    echo '  noti_id='.$err['noti_id'].
+                        ' user_id='.$err['user_id'].
+                        ' attempt='.$err['attempt'].
+                        ' error='.$err['error'].PHP_EOL;
+                }
+                if ($summary['total'] === 0) {
+                    echo 'Queue empty or no due rows (noti_next_retry_at in future). Nothing to send.'.PHP_EOL;
                 }
             }
 

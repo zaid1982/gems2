@@ -1,5 +1,8 @@
 <?php
 
+// Always run from api/ so relative config/log paths resolve (cron-safe).
+chdir(__DIR__);
+
 require_once 'library/constant.php';
 require_once 'function/db.php';
 require_once 'function/f_general.php';
@@ -17,7 +20,16 @@ try {
     Class_db::getInstance()->db_connect();
     $fn_email->send_push_notification();
     Class_db::getInstance()->db_close();
-} catch (Exception $ex) {
-    Class_db::getInstance()->db_close();
+} catch (Throwable $ex) {
+    if (class_exists('Class_db', false)) {
+        try {
+            Class_db::getInstance()->db_close();
+        } catch (Throwable $ignored) {
+        }
+    }
     $fn_general->log_error('API', $api_name, __LINE__, $ex->getMessage());
+    if (PHP_SAPI === 'cli') {
+        fwrite(STDERR, 'scheduler_push_notification FATAL: '.$ex->getMessage().PHP_EOL);
+        exit(1);
+    }
 }
