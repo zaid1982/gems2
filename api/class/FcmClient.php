@@ -18,12 +18,55 @@ class FcmClient {
             'project_number' => '899105022758',
             'service_account_path' => '',
             'legacy_server_key' => '',
+            'cafile' => '',
         );
         $config = @parse_ini_file(__DIR__ . '/../library/config.ini', true);
         if (!empty($config['fcm']) && is_array($config['fcm'])) {
             return array_merge($defaults, $config['fcm']);
         }
         return $defaults;
+    }
+
+    /**
+     * Resolve CA bundle for curl on Windows/XAMPP (avoids "unable to get local issuer certificate").
+     */
+    private static function resolveCaFile (array $config): string {
+        $candidates = array();
+        if (!empty($config['cafile'])) {
+            $candidates[] = trim($config['cafile']);
+        }
+        $candidates[] = __DIR__ . '/../library/certs/cacert.pem';
+        $candidates[] = 'C:\\xampp\\php\\extras\\ssl\\cacert.pem';
+        $candidates[] = 'C:\\xampp\\apache\\bin\\curl-ca-bundle.crt';
+
+        $iniCainfo = trim((string) ini_get('curl.cainfo'));
+        if ($iniCainfo !== '') {
+            $candidates[] = $iniCainfo;
+        }
+        $iniCafile = trim((string) ini_get('openssl.cafile'));
+        if ($iniCafile !== '') {
+            $candidates[] = $iniCafile;
+        }
+
+        foreach ($candidates as $path) {
+            if ($path !== '' && is_file($path) && is_readable($path)) {
+                return $path;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * @param resource|\CurlHandle $curl
+     * @param array $config
+     */
+    private static function applyCurlSslOptions ($curl, array $config): void {
+        $caFile = self::resolveCaFile($config);
+        if ($caFile !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caFile);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+        }
     }
 
     /**
@@ -68,7 +111,7 @@ class FcmClient {
             throw new Exception('Invalid Firebase service account JSON');
         }
 
-        $accessToken = self::getAccessToken($serviceAccount);
+        $accessToken = self::getAccessToken($serviceAccount, $config);
         $projectId = !empty($config['project_id']) ? $config['project_id'] : $serviceAccount['project_id'];
 
         $message = array(
@@ -116,6 +159,7 @@ class FcmClient {
                 'Content-Type: application/json',
             ),
         ));
+        self::applyCurlSslOptions($curl, $config);
 
         $response = curl_exec($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -133,10 +177,11 @@ class FcmClient {
 
     /**
      * @param array $serviceAccount
+     * @param array $config
      * @return string
      * @throws Exception
      */
-    private static function getAccessToken (array $serviceAccount): string {
+    private static function getAccessToken (array $serviceAccount, array $config = array()): string {
         $now = time();
         if (!empty(self::$accessToken) && self::$tokenExpiry > ($now + 60)) {
             return self::$accessToken;
@@ -166,6 +211,7 @@ class FcmClient {
                 'Content-Type: application/x-www-form-urlencoded',
             ),
         ));
+        self::applyCurlSslOptions($curl, $config);
 
         $response = curl_exec($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -225,6 +271,7 @@ class FcmClient {
                 'Content-Type: application/json',
             ),
         ));
+        self::applyCurlSslOptions($curl, $config);
 
         $response = curl_exec($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
