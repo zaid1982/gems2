@@ -4,6 +4,10 @@
  * WO PDF diagnostic endpoint — use on server when generate PDF returns HTTP 500.
  *
  * GET /api/pdf/wo_pdf_debug.php?woTaskId=184940&key=<maintenance api_key from config.ini>
+ * GET /api/pdf/wo_pdf_debug.php?woTaskId=184940&variant=lama&key=<maintenance api_key>
+ *
+ * variant=lama  → api/pdf/wo_lama.php (old GFM logo design)
+ * variant=jkr   → api/pdf/wo.php (current / default)
  *
  * Remove or restrict access after troubleshooting.
  */
@@ -70,6 +74,15 @@ if (empty($woTaskId)) {
     ), 400);
 }
 
+$variant = isset($_GET['variant']) ? strtolower(trim($_GET['variant'])) : 'jkr';
+if (!in_array($variant, array('jkr', 'lama'), true)) {
+    wo_pdf_debug_json(array(
+        'success' => false,
+        'error' => 'Invalid variant. Use variant=jkr or variant=lama.',
+    ), 400);
+}
+$pdfSource = $variant === 'lama' ? __DIR__.'/wo_lama.php' : __DIR__.'/wo.php';
+
 chdir($apiBasePath);
 
 try {
@@ -77,13 +90,19 @@ try {
     require_once $apiBasePath.'/function/db.php';
     require_once $apiBasePath.'/function/f_general.php';
     require_once $apiBasePath.'/pdf/tcpdf_include.php';
-    require_once __DIR__.'/wo.php';
+    require_once $pdfSource;
 
     if (!class_exists('TCPDF')) {
         throw new RuntimeException('TCPDF class not loaded. Check api/pdf/tcpdf_include.php paths on this server.');
     }
-    if (!class_exists('ArahanSiasatanPdf')) {
+    if ($variant === 'jkr' && !class_exists('ArahanSiasatanPdf')) {
         throw new RuntimeException('ArahanSiasatanPdf not loaded. Deploy api/pdf/arahan_siasatan_pdf.php.');
+    }
+    if ($variant === 'lama' && !class_exists('MYPDF_wo')) {
+        throw new RuntimeException('MYPDF_wo not loaded. Check api/pdf/wo_lama.php.');
+    }
+    if (!class_exists('Class_pdf_wo')) {
+        throw new RuntimeException('Class_pdf_wo not loaded from '.$pdfSource);
     }
 
     $constant = new Class_constant();
@@ -102,6 +121,8 @@ try {
 
     wo_pdf_debug_json(array(
         'success' => true,
+        'variant' => $variant,
+        'source' => basename($pdfSource),
         'woTaskId' => $woTaskId,
         'result' => $result,
         'php_version' => PHP_VERSION,
@@ -117,6 +138,8 @@ try {
     wo_pdf_debug_json(array(
         'success' => false,
         'stage' => 'exception',
+        'variant' => $variant,
+        'source' => basename($pdfSource),
         'woTaskId' => $woTaskId,
         'error' => $ex->getMessage(),
         'file' => $ex->getFile(),

@@ -362,7 +362,7 @@ class Class_pdf_wo {
             }
 
             // Use WO number so browser Save As suggests the business number, not internal task id
-            $displayNo = $this->clear_val(isset($woTask['wo_task_no']) ? $woTask['wo_task_no'] : '');
+            $displayNo = $this->clear($this->array_get($woTask, 'wo_task_no'), $this->array_get($woTask, 'wo_task_request_no'));
             if ($displayNo === '' || $displayNo === '-') {
                 $displayNo = 'wo_'.substr((10000000+intval($this->woTaskId)),1);
             }

@@ -55,6 +55,7 @@ try {
         $clientId = filter_input(INPUT_POST, 'clientId');
         $siteIsWr = filter_input(INPUT_POST, 'siteIsWr');
         $siteStatus = filter_input(INPUT_POST, 'siteStatus');
+        $siteIsPublic = filter_input(INPUT_POST, 'siteIsPublic');
 
         $params = array(
             'siteName' => $siteName,
@@ -62,7 +63,8 @@ try {
             'siteDesc' => $siteDesc,
             'clientId' => $clientId,
             'siteIsWr' => $siteIsWr,
-            'siteStatus' => $siteStatus
+            'siteStatus' => $siteStatus,
+            'siteIsPublic' => $siteIsPublic
         );
 
         Class_db::getInstance()->db_beginTransaction();
