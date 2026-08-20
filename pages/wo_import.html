@@ -21,106 +21,14 @@
     <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
-        :root {
-            --wo-primary: var(--gems-primary);
-            --wo-secondary: var(--gems-secondary);
-            --wo-text: var(--gems-text);
-            --wo-muted: var(--gems-muted);
-            --wo-radius: var(--gems-radius-lg);
-            --wo-shadow: var(--gems-shadow-lg);
-            --wo-card-shadow: var(--gems-card-shadow);
-        }
 
         body {
             background: linear-gradient(160deg, rgba(224, 242, 254, 0.8) 0%, rgba(237, 242, 247, 1) 55%, rgba(226, 232, 240, 1) 100%);
-            color: var(--wo-text);
+            color: var(--gems-text);
         }
 
         main.wo-import-main {
             /* padding: 1.75rem 0 3.5rem; */
-        }
-
-        .wo-page-header {
-            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.95) 0%, rgba(var(--gems-secondary-rgb), 0.9) 100%);
-            border-radius: 32px;
-            padding: 40px 36px;
-            margin-bottom: 32px;
-            color: #fff;
-            box-shadow: var(--wo-shadow);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 24px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .wo-page-header:after {
-            content: '';
-            position: absolute;
-            width: 240px;
-            height: 240px;
-            right: -70px;
-            top: -70px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .wo-page-header .header-text {
-            max-width: 760px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .wo-page-header h1 {
-            font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
-        }
-
-        .wo-page-header p {
-            margin-bottom: 0;
-            color: rgba(255, 255, 255, 0.82);
-        }
-
-        .wo-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.16);
-            font-size: 0.82rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .wo-page-header .header-actions {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 12px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .wo-page-header .header-actions .btn {
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: #fff;
-        }
-
-        .wo-page-header .header-actions .btn-icon {
-            padding: 0;
-        }
-
-        .wo-page-header .header-actions .btn-icon i {
-            margin: 0;
-        }
-
-        .wo-page-header .header-actions .btn:hover {
-            background: rgba(255, 255, 255, 0.12);
         }
 
         .wo-layout {
@@ -132,9 +40,9 @@
         .wo-flow-card,
         .wo-support-card {
             background: #fff;
-            border-radius: var(--wo-radius);
+            border-radius: var(--gems-radius-lg);
             padding: 28px 32px;
-            box-shadow: var(--wo-card-shadow);
+            box-shadow: var(--gems-card-shadow);
         }
 
         .wo-support-card {
@@ -144,19 +52,19 @@
         }
 
         .wo-support-card .text-primary {
-            color: var(--wo-primary) !important;
+            color: var(--gems-primary) !important;
         }
 
         .wo-support-card h3 {
             font-size: 1.1rem;
             font-weight: 700;
             margin-bottom: 6px;
-            color: var(--wo-text);
+            color: var(--gems-text);
         }
 
         .wo-support-card p {
             margin-bottom: 0;
-            color: var(--wo-muted);
+            color: var(--gems-muted);
         }
 
         .wo-metric {
@@ -170,7 +78,7 @@
 
         .wo-metric strong {
             font-size: 1.25rem;
-            color: var(--wo-primary);
+            color: var(--gems-primary);
         }
 
         .support-tip {
@@ -180,11 +88,11 @@
             display: flex;
             gap: 14px;
             align-items: flex-start;
-            color: var(--wo-text);
+            color: var(--gems-text);
         }
 
         .support-tip i {
-            color: var(--wo-secondary);
+            color: var(--gems-secondary);
             font-size: 1.3rem;
             margin-top: 2px;
         }
@@ -230,7 +138,7 @@
             gap: 14px;
             margin-bottom: 18px;
             font-weight: 700;
-            color: var(--wo-text);
+            color: var(--gems-text);
         }
 
         .step-number {
@@ -241,7 +149,7 @@
             height: 36px;
             border-radius: 50%;
             background: rgba(148, 163, 184, 0.3);
-            color: var(--wo-text);
+            color: var(--gems-text);
             font-weight: 600;
             transition: all 0.3s ease;
         }
@@ -267,7 +175,7 @@
         .template-download h5 {
             font-weight: 700;
             margin-bottom: 12px;
-            color: var(--wo-text);
+            color: var(--gems-text);
         }
 
         .template-download .alert {
@@ -285,7 +193,7 @@
         }
 
         .wo-site-card label {
-            color: var(--wo-muted);
+            color: var(--gems-muted);
             font-weight: 600;
         }
 
@@ -316,12 +224,12 @@
 
         .file-info-card h6 {
             font-weight: 700;
-            color: var(--wo-text);
+            color: var(--gems-text);
         }
 
         .file-info-card strong {
             display: block;
-            color: var(--wo-muted);
+            color: var(--gems-muted);
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
@@ -329,7 +237,7 @@
 
         .upload-progress label {
             font-weight: 600;
-            color: var(--wo-muted);
+            color: var(--gems-muted);
         }
 
         .progress {
@@ -383,7 +291,7 @@
 
         .modal-content {
             border-radius: 24px;
-            box-shadow: var(--wo-card-shadow);
+            box-shadow: var(--gems-card-shadow);
         }
 
         .modal-header {
@@ -395,7 +303,7 @@
 
         .modal-title {
             font-weight: 700;
-            color: var(--wo-text);
+            color: var(--gems-text);
         }
 
         .modal-body {
@@ -418,10 +326,6 @@
                 padding: 1.25rem 0 3rem;
             }
 
-            .wo-page-header {
-                padding: 32px 28px;
-            }
-
             .wo-flow-card,
             .wo-support-card {
                 padding: 24px;
@@ -429,13 +333,6 @@
         }
 
         @media (max-width: 575.98px) {
-            .wo-page-header {
-                padding: 26px 22px;
-            }
-
-            .wo-page-header .header-actions {
-                align-items: flex-start;
-            }
 
             .file-drop-zone {
                 padding: 32px 18px;
@@ -469,8 +366,8 @@
 </header>
 <!--Main layout-->
 <main class="wo-import-main">
-    <div class="container-fluid">
-        <section class="wo-page-header">
+    <div class="container-fluid module-page">
+        <section class="gems-page-header module-page-header">
             <div class="header-text">
                 <span class="wo-chip"><i class="fas fa-cloud-upload-alt"></i> Work Order Import</span>
                 <h1>Work Order Import</h1>

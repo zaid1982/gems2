@@ -23,30 +23,10 @@
       --muted: var(--gems-muted);
     }
     body { background: var(--gems-bg-page); }
-    .space-browse-header { margin: 32px 0 28px 0; padding: 40px 32px; }
-    .space-browse-header .header-text h2 { font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; }
-    .space-browse-header .header-text p { font-size: 1.05rem; opacity: 0.95; margin: 0; }
-
-    .filter-card { background:#fff; border-radius:24px; padding:24px 26px; box-shadow:0 20px 45px -26px rgba(15,23,42,0.35); }
-    .filter-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
-    .filter-label { font-size: .78rem; text-transform: uppercase; font-weight:600; letter-spacing:.08em; color:var(--muted); margin-bottom:6px; }
-    .filter-card .form-control,
-    .filter-card .custom-select {
-      border-radius:14px;
-      border:1px solid #e2e8f0;
-      padding:10px 14px;
-      box-shadow:none;
-      transition: border-color .2s ease, box-shadow .2s ease;
-    }
-    .filter-card .form-control:focus,
-    .filter-card .custom-select:focus {
-      border-color: rgba(79,70,229,0.75);
-      box-shadow:0 0 0 0.15rem rgba(79,70,229,0.1);
-    }
     .filter-card .filter-select:disabled {
-      background-color:var(--gems-bg-page);
-      color:#94a3b8;
-      cursor:not-allowed;
+      background-color: var(--gems-bg-page);
+      color: #94a3b8;
+      cursor: not-allowed;
     }
     /* .filter-card .select-wrapper { margin-bottom: 0; }
     .filter-card .select-wrapper input.select-dropdown {
@@ -108,7 +88,7 @@
 <main>
   <div class="container-fluid">
     <section class="mb-4 mt-lg-4">
-      <div class="gems-page-header space-browse-header">
+      <div class="gems-page-header module-page-header">
         <div class="header-text">
           <h2><i class="fas fa-globe-asia mr-3"></i>Space Explorer</h2>
           <p>Discover available rooms and spaces, compare at a glance, and jump straight into booking.</p>

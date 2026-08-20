@@ -18,78 +18,9 @@
     <!-- Shared modern chrome -->
     <link rel="stylesheet" href="css/gems2-ui.css">
     <style>
-        :root {
-            --signature-primary: var(--gems-primary);
-            --signature-accent: var(--gems-secondary);
-            --signature-bg: rgba(var(--gems-primary-rgb), 0.12);
-            --signature-card-radius: var(--gems-radius-lg);
-            --signature-shadow: var(--gems-shadow-lg);
-            --signature-border: rgba(var(--gems-primary-rgb), 0.18);
-            --signature-text: var(--gems-text);
-            --signature-muted: var(--gems-muted);
-        }
 
         main.signature-main {
             /* padding: 2rem 0 3.5rem; */
-        }
-
-        .signature-page-header {
-            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.96) 6%, rgba(var(--gems-secondary-rgb), 0.92) 100%);
-            color: #fff;
-            padding: 36px 34px;
-            border-radius: 30px;
-            box-shadow: var(--signature-shadow);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-            margin-bottom: 32px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .signature-page-header::after {
-            content: '';
-            position: absolute;
-            inset: auto -90px -140px auto;
-            width: 420px;
-            height: 420px;
-            border-radius: 52% 48% 60% 40%;
-            background: rgba(255, 255, 255, 0.16);
-            filter: blur(0.4px);
-        }
-
-        .signature-page-header .header-text { position: relative; z-index: 1; max-width: 620px; }
-        .signature-page-header h2 { font-weight: 700; font-size: 2.3rem; margin: 12px 0 8px; }
-        .signature-page-header p { margin: 0; font-size: 1.02rem; opacity: 0.95; }
-
-        .signature-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0.55rem 1.1rem;
-            border-radius: 999px;
-            background: rgba(15, 23, 42, 0.18);
-            font-size: 0.82rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-
-        .signature-page-header .header-actions {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .signature-page-header .header-actions .btn {
-            border-radius: 999px;
-            padding: 0.6rem 1.5rem;
-            font-weight: 600;
-            min-width: 160px;
         }
 
         .signature-grid {
@@ -100,8 +31,8 @@
 
         .signature-card {
             background: #fff;
-            border-radius: var(--signature-card-radius);
-            box-shadow: var(--signature-shadow);
+            border-radius: var(--gems-radius-lg);
+            box-shadow: var(--gems-shadow-lg);
             padding: 26px 28px;
             display: flex;
             flex-direction: column;
@@ -131,12 +62,12 @@
             margin: 0;
             font-size: 1.35rem;
             font-weight: 700;
-            color: var(--signature-text);
+            color: var(--gems-text);
         }
 
         .signature-card-header p {
             margin: 4px 0 0;
-            color: var(--signature-muted);
+            color: var(--gems-muted);
             font-size: 0.92rem;
         }
 
@@ -154,7 +85,7 @@
         .signature-preview { max-width: 100%; max-height: 180px; background: #fff; padding: 10px 14px; border-radius: 16px; box-shadow: 0 16px 32px -24px rgba(15,23,42,0.25); }
         .signature-preview.fallback { box-shadow: none; padding: 0; }
 
-        .signature-empty { color: var(--signature-muted); font-size: 0.94rem; text-align: center; }
+        .signature-empty { color: var(--gems-muted); font-size: 0.94rem; text-align: center; }
 
         .signature-tabs .nav-tabs {
             border: none;
@@ -169,7 +100,7 @@
             border: none;
             border-radius: 12px;
             font-weight: 600;
-            color: var(--signature-muted);
+            color: var(--gems-muted);
             padding: 0.55rem 1.4rem;
             transition: all 0.2s ease;
         }
@@ -177,14 +108,14 @@
         .signature-tabs .nav-tabs .nav-link.active {
             background: #fff;
             box-shadow: 0 14px 26px -18px rgba(var(--gems-primary-rgb), 0.45);
-            color: var(--signature-primary);
+            color: var(--gems-primary);
         }
 
         .sig-pad-wrapper {
             position: relative;
             border-radius: 18px;
             background: #fff;
-            border: 2px dashed var(--signature-border);
+            border: 2px dashed var(--gems-border);
             padding: 12px;
             min-height: 200px;
         }
@@ -220,14 +151,14 @@
 
         .toolbar-btn i { margin-right: 6px; }
 
-        .signature-upload-note { font-size: 0.82rem; color: var(--signature-muted); }
+        .signature-upload-note { font-size: 0.82rem; color: var(--gems-muted); }
 
         .signature-info {
             margin-top: 34px;
             background: rgba(var(--gems-secondary-rgb), 0.12);
             border-radius: 20px;
             padding: 18px 22px;
-            color: var(--signature-text);
+            color: var(--gems-text);
             display: flex;
             align-items: center;
             gap: 14px;
@@ -259,16 +190,10 @@
         }
 
         @media (max-width: 991.98px) {
-            .signature-page-header { padding: 28px 26px; }
-            .signature-page-header h2 { font-size: 2rem; }
-            .signature-page-header::after { width: 320px; height: 320px; }
         }
 
         @media (max-width: 767.98px) {
             main.signature-main { padding: 1.5rem 0 3rem; }
-            .signature-page-header { padding: 24px 22px; gap: 18px; }
-            .signature-page-header .header-actions { width: 100%; }
-            .signature-page-header .header-actions .btn { width: 100%; min-width: 0; }
             .signature-grid { gap: 22px; }
             .signature-card { padding: 22px; }
             .signature-card-header { align-items: flex-start; }
@@ -296,8 +221,8 @@
 </header>
 <!--Main layout-->
 <main class="signature-main">
-    <div class="container-fluid">
-        <section class="signature-page-header">
+    <div class="container-fluid module-page">
+        <section class="gems-page-header module-page-header">
             <div class="header-text">
                 <span class="signature-chip"><i class="fas fa-shield-check"></i> Secure approvals</span>
                 <h2>My Digital Signature</h2>

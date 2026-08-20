@@ -21,15 +21,6 @@
     <link href="css/gems2-ui.css" rel="stylesheet">
     
     <style>
-        :root {
-            --trade-primary: var(--gems-primary);
-            --trade-secondary: var(--gems-secondary);
-            --trade-text: var(--gems-text);
-            --trade-muted: var(--gems-muted);
-            --trade-radius: var(--gems-radius-lg);
-            --trade-shadow: var(--gems-shadow-lg);
-            --trade-card-shadow: var(--gems-card-shadow);
-        }
 
         body {
             background: linear-gradient(150deg, rgba(224, 242, 254, 0.75) 0%, rgba(237, 242, 247, 1) 55%, rgba(226, 232, 240, 1) 100%);
@@ -37,49 +28,6 @@
 
         main.trade-config-main {
             /* padding: 1.75rem 0 3.5rem; */
-        }
-
-        .config-page-header {
-            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.95) 0%, rgba(var(--gems-secondary-rgb), 0.92) 100%);
-            color: #fff;
-            border-radius: 32px;
-            padding: 40px 36px;
-            margin-bottom: 32px;
-            box-shadow: var(--trade-shadow);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 24px;
-        }
-
-        .config-page-header .header-text {
-            max-width: 720px;
-        }
-
-        .config-page-header h1 {
-            font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
-        }
-
-        .config-page-header p {
-            margin-bottom: 0;
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        .config-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.16);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-weight: 600;
         }
 
         .config-chip i {
@@ -148,13 +96,13 @@
             margin: 0 0 6px;
             font-size: 1.2rem;
             font-weight: 700;
-            color: var(--trade-text);
+            color: var(--gems-text);
             text-transform: capitalize;
         }
 
         .config-card-header p {
             margin: 0;
-            color: var(--trade-muted);
+            color: var(--gems-muted);
             font-size: 0.95rem;
         }
 
@@ -173,7 +121,7 @@
 
         .config-card-body .form-group label {
             font-weight: 600;
-            color: var(--trade-text);
+            color: var(--gems-text);
         }
 
         .config-card-body .form-control {
@@ -189,7 +137,7 @@
 
         .config-card-body .description {
             font-size: 0.85rem;
-            color: var(--trade-muted);
+            color: var(--gems-muted);
             margin-top: 6px;
         }
 
@@ -233,13 +181,13 @@
 
         .site-header .btn-link {
             text-decoration: none;
-            color: var(--trade-text);
+            color: var(--gems-text);
             font-weight: 600;
             padding: 0;
         }
 
         .site-header .btn-link:hover {
-            color: var(--trade-secondary);
+            color: var(--gems-secondary);
         }
 
         .site-header .btn-link:focus {
@@ -248,7 +196,7 @@
 
         .site-badge {
             background-color: rgba(var(--gems-secondary-rgb), 0.12);
-            color: var(--trade-text) !important; 
+            color: var(--gems-text) !important; 
             font-size: 0.75rem;
             border-radius: 999px;
             padding: 0.25rem 0.75rem;
@@ -269,7 +217,7 @@
 
         .ratio-input-group label {
             font-weight: 600;
-            color: var(--trade-text);
+            color: var(--gems-text);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -288,18 +236,18 @@
             font-weight: 600;
         }
 
-        .role-executor { background: rgba(var(--gems-primary-rgb), 0.16); color: var(--trade-primary) !important; }
+        .role-executor { background: rgba(var(--gems-primary-rgb), 0.16); color: var(--gems-primary) !important; }
         .role-reviewer { background: rgba(250, 204, 21, 0.22); color: #b45309 !important; }
         .role-verifier { background: rgba(34, 197, 94, 0.18); color: #15803d !important; }
         .role-other { background: rgba(148, 163, 184, 0.3); color: #1f2937 !important; }
 
         .description {
             font-size: 0.85rem;
-            color: var(--trade-muted);
+            color: var(--gems-muted);
         }
 
         #loadingGroups {
-            color: var(--trade-muted);
+            color: var(--gems-muted);
             font-weight: 500;
             padding: 24px 0;
         }
@@ -307,13 +255,13 @@
         .config-card-body .alert-info {
             background: rgba(var(--gems-primary-rgb), 0.12);
             border: none;
-            color: var(--trade-text);
+            color: var(--gems-text);
             border-radius: 18px;
             box-shadow: 0 18px 40px -32px rgba(var(--gems-primary-rgb), 0.45);
         }
 
         .config-card-body .alert-info i {
-            color: var(--trade-primary);
+            color: var(--gems-primary);
         }
 
         .collapse-icon {
@@ -329,18 +277,11 @@
                 padding: 24px 24px;
             }
 
-            .config-page-header {
-                padding: 32px 30px;
-            }
         }
 
         @media (max-width: 768px) {
             main.trade-config-main {
                 padding: 1.25rem 0 3rem;
-            }
-
-            .config-page-header {
-                padding: 28px 26px;
             }
 
             .config-actions {
@@ -410,8 +351,8 @@
 
 <!--Main layout-->
 <main class="trade-config-main">
-    <div class="container-fluid">
-        <section class="config-page-header">
+    <div class="container-fluid module-page">
+        <section class="gems-page-header module-page-header">
             <div class="header-text">
                 <span class="config-chip"><i class="fas fa-sliders-h"></i> Gamification</span>
                 <h1>Trade Ratio Configuration</h1>

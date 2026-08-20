@@ -69,28 +69,7 @@
   .btn-group.btn-group-sm .btn-icon { width: 32px; height: 32px; border-width: 1.5px; }
   .btn-icon:active { transform: translateY(1px); }
 
-  /* Modern module UI blueprint (Visits) */
-  .visits-page-header {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    color: #fff;
-    padding: 24px 28px; border-radius: 24px; box-shadow: 0 6px 16px rgba(2,6,23,.08);
-    margin-bottom: 16px;
-  }
-  .visits-page-header .header-text h2 { margin: 0 0 4px; font-weight: 700; }
-  .visits-page-header .header-text p { margin: 0; opacity: .9; }
-  .visits-page-header .header-actions { display:flex; flex-wrap:wrap; gap:12px; }
-  .visits-page-header .header-actions .btn-light.btn-icon { color:var(--gems-text); }
-
-  .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0; }
-  .metric-card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 6px 16px rgba(2,6,23,.06); }
-  .metric-label { color: var(--gems-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-  .metric-value { color: var(--gems-text); font-size: 28px; font-weight: 700; margin-top: 4px; }
-  .metric-subtext { color: var(--gems-muted); font-size: 12px; margin-top: 2px; }
-
-  .filter-card { background: #fff; border-radius: 20px; padding: 18px; margin: 16px 0; box-shadow: 0 6px 16px rgba(2,6,23,.06); }
-  .filter-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; align-items: start; }
-  .filter-label { display:block; color:var(--gems-muted); font-size:12px; margin-bottom:6px; text-transform: uppercase; letter-spacing: .06em; }
-  .summary-pill { justify-self: end; align-self: center; color:var(--gems-text); }
+  .filter-grid { grid-template-columns: repeat(4, minmax(0,1fr)); align-items: start; }
   .filter-card .form-control, .filter-card select.browser-default.custom-select { height: 46px; padding: 10px 12px; width: 100%; border-radius: 12px !important; }
   .filter-card input[type="date"] { padding: 8px 12px; }
 
@@ -130,7 +109,7 @@
   <!--Main layout-->
   <main>
     <div class="container-fluid page">
-  <section class="gems-page-header visits-page-header">
+  <section class="gems-page-header module-page-header">
         <div class="header-text">
           <h2><i class="fas fa-clipboard-list mr-2"></i> Admin: Visitor Registrations</h2>
           <p>Manage and audit visitor submissions</p>

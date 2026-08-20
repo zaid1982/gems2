@@ -14,93 +14,33 @@
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
     <style>
-        :root {
-            --profile-primary: var(--gems-primary);
-            --profile-accent: var(--gems-secondary);
-            --profile-bg: var(--gems-bg-page);
-            --profile-text: var(--gems-text);
-            --profile-muted: var(--gems-muted);
-            --profile-card-radius: var(--gems-radius-lg);
-            --profile-shadow: var(--gems-shadow-lg);
-        }
-
-        body { background: var(--profile-bg); }
-        main { padding: 1.75rem 0 3rem; }
 
         .profile-section { margin-top: 1.5rem; }
 
-        .profile-page-header {
-            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.98) 0%, rgba(var(--gems-secondary-rgb), 0.92) 100%);
-            color: #fff;
-            padding: 38px 34px;
-            border-radius: 30px;
-            box-shadow: var(--profile-shadow);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profile-page-header::after {
-            content: '';
-            position: absolute;
-            inset: -120px -80px auto auto;
-            width: 340px;
-            height: 340px;
-            border-radius: 55% 45% 60% 40%;
-            background: rgba(255, 255, 255, 0.14);
-            filter: blur(0.6px);
-        }
-
-        .profile-page-header .header-text { position: relative; z-index: 1; max-width: 620px; }
-        .profile-page-header .header-text h2 { font-weight: 700; font-size: 2.1rem; margin: 12px 0 8px; }
-        .profile-page-header .header-text p { margin: 0; font-size: 1rem; opacity: 0.96; }
-        .profile-chip { display: inline-flex; align-items: center; gap: 10px; padding: 0.55rem 1.2rem; border-radius: 999px; background: rgba(15, 23, 42, 0.18); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; }
-        .profile-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px; }
-        .profile-page-header .header-actions .btn { border-radius: 999px; padding: 0.65rem 1.6rem; font-weight: 600; min-width: 150px; }
-
-        .profile-metrics { margin-top: 1.8rem; }
-        .profile-metrics .metric-card {
-            background: #fff;
-            border-radius: 24px;
-            padding: 22px 24px;
-            box-shadow: 0 20px 46px -32px rgba(15, 23, 42, 0.4);
-            height: 100%;
-        }
-        .profile-metrics .metric-card.primary { background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.12), rgba(var(--gems-secondary-rgb), 0.16)); }
-        .profile-metrics .metric-card.success { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.12)); }
-        .profile-metrics .metric-card.muted { background: linear-gradient(135deg, rgba(var(--gems-secondary-rgb), 0.12), rgba(233, 213, 255, 0.18)); }
-        .profile-metrics .metric-label { display: block; color: var(--profile-muted); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
-        .profile-metrics .metric-value { display: block; color: var(--profile-text); font-weight: 700; font-size: 1.9rem; margin-top: 0.45rem; }
-        .profile-metrics .metric-subtext { display: block; margin-top: 0.35rem; color: var(--profile-muted); font-weight: 600; }
-
         .profile-content { margin-top: 1.5rem; }
-        .profile-summary-card { background: #fff; border-radius: var(--profile-card-radius); box-shadow: var(--profile-shadow); padding: 26px 28px; height: 100%; display: flex; flex-direction: column; gap: 22px; }
+        .profile-summary-card { background: #fff; border-radius: var(--gems-radius-lg); box-shadow: var(--gems-shadow-lg); padding: 26px 28px; height: 100%; display: flex; flex-direction: column; gap: 22px; }
     .profile-summary-head { display: flex; align-items: center; gap: 18px; }
     .profile-avatar-stack { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
     .profile-avatar { width: 72px; height: 72px; border-radius: 20px; background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.96), rgba(var(--gems-secondary-rgb), 0.92)); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 2.2rem; font-weight: 700; box-shadow: 0 18px 42px -30px rgba(var(--gems-primary-rgb), 0.8); overflow: hidden; position: relative; cursor: pointer; transition: transform 0.2s ease; }
     .profile-avatar:hover { transform: scale(1.02); }
     .profile-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .profile-avatar::after { content: '\f030'; font-family: "Font Awesome 5 Pro"; font-weight: 400; position: absolute; right: 8px; bottom: 6px; font-size: 0.9rem; color: rgba(255,255,255,0.92); text-shadow: 0 2px 6px rgba(15,23,42,0.45); pointer-events: none; }
-    .profile-avatar-stack .btn-profile-avatar { font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 999px; font-weight: 600; background: rgba(var(--gems-primary-rgb), 0.1); color: var(--profile-text); border: none; transition: background 0.2s ease; }
+    .profile-avatar-stack .btn-profile-avatar { font-size: 0.75rem; padding: 0.35rem 0.75rem; border-radius: 999px; font-weight: 600; background: rgba(var(--gems-primary-rgb), 0.1); color: var(--gems-text); border: none; transition: background 0.2s ease; }
     .profile-avatar-stack .btn-profile-avatar:hover { background: rgba(var(--gems-primary-rgb), 0.18); }
-    .profile-avatar-note { color: var(--profile-muted); font-size: 0.75rem; }
-        .profile-summary-head h3 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--profile-text); }
-        .profile-summary-head p { margin: 4px 0 0; color: var(--profile-muted); font-size: 0.95rem; }
+    .profile-avatar-note { color: var(--gems-muted); font-size: 0.75rem; }
+        .profile-summary-head h3 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--gems-text); }
+        .profile-summary-head p { margin: 4px 0 0; color: var(--gems-muted); font-size: 0.95rem; }
         .profile-summary-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-        .profile-summary-item { display: grid; grid-template-columns: 120px 1fr; gap: 12px; font-size: 0.95rem; color: var(--profile-text); }
-        .profile-summary-item .label { color: var(--profile-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.08em; }
+        .profile-summary-item { display: grid; grid-template-columns: 120px 1fr; gap: 12px; font-size: 0.95rem; color: var(--gems-text); }
+        .profile-summary-item .label { color: var(--gems-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.08em; }
         .profile-role-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-        .profile-role-chip { display: inline-flex; align-items: center; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(var(--gems-primary-rgb), 0.12); color: var(--profile-text); font-size: 0.78rem; font-weight: 600; }
+        .profile-role-chip { display: inline-flex; align-items: center; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(var(--gems-primary-rgb), 0.12); color: var(--gems-text); font-size: 0.78rem; font-weight: 600; }
 
-        .profile-form-card { background: #fff; border-radius: var(--profile-card-radius); box-shadow: var(--profile-shadow); padding: 28px 30px; }
-        .profile-form-card .card-title { font-weight: 700; font-size: 1.35rem; color: var(--profile-text); margin-bottom: 18px; }
-        .profile-form-card .md-form input[type="text"] { color: var(--profile-text); }
-        .profile-form-card .md-form label { color: var(--profile-muted); }
-        .profile-form-card .md-form .prefix { color: var(--profile-muted); }
+        .profile-form-card { background: #fff; border-radius: var(--gems-radius-lg); box-shadow: var(--gems-shadow-lg); padding: 28px 30px; }
+        .profile-form-card .card-title { font-weight: 700; font-size: 1.35rem; color: var(--gems-text); margin-bottom: 18px; }
+        .profile-form-card .md-form input[type="text"] { color: var(--gems-text); }
+        .profile-form-card .md-form label { color: var(--gems-muted); }
+        .profile-form-card .md-form .prefix { color: var(--gems-muted); }
         .profile-form-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 18px; }
         .profile-form-footer .btn { min-width: 150px; font-weight: 600; border-radius: 999px; }
 
@@ -109,10 +49,9 @@
         .profile-status-pill.inactive { background: rgba(239, 68, 68, 0.18); color: #991b1b; }
         .profile-status-pill.pending { background: rgba(234, 179, 8, 0.18); color: #92400e; }
 
-        .profile-updated-label { color: var(--profile-muted); font-size: 0.85rem; }
+        .profile-updated-label { color: var(--gems-muted); font-size: 0.85rem; }
 
         @media (max-width: 991.98px) {
-            .profile-page-header { flex-direction: column; align-items: flex-start; }
             .profile-summary-item { grid-template-columns: 1fr; }
             .profile-form-footer { flex-direction: column; align-items: stretch; }
             .profile-form-footer .btn { width: 100%; }
@@ -125,9 +64,9 @@
     <div class="includeHtml" id="h-nav_top"></div>
 </header>
 <main>
-    <div class="container-fluid">
+    <div class="container-fluid module-page">
         <section class="profile-section">
-            <div class="profile-page-header gems-page-header">
+            <div class="gems-page-header module-page-header">
                 <div class="header-text">
                     <span class="profile-chip"><i class="fas fa-id-card-alt mr-2"></i>Account Overview</span>
                     <h2 id="profileHeaderName">Hello, there</h2>
@@ -139,7 +78,7 @@
                 </div>
             </div>
 
-            <div class="row profile-metrics">
+            <div class="row profile-metrics metrics-row">
                 <div class="col-xl-3 col-md-6 mb-4">
                     <div class="metric-card primary">
                         <span class="metric-label">Roles Assigned</span>

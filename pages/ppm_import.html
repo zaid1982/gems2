@@ -21,106 +21,14 @@
     <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
-        :root {
-            --ppm-primary: var(--gems-primary);
-            --ppm-secondary: var(--gems-secondary);
-            --ppm-text: var(--gems-text);
-            --ppm-muted: var(--gems-muted);
-            --ppm-radius: var(--gems-radius-lg);
-            --ppm-shadow: var(--gems-shadow-lg);
-            --ppm-card-shadow: var(--gems-card-shadow);
-        }
 
         body {
             background: linear-gradient(160deg, rgba(224, 242, 254, 0.8) 0%, rgba(237, 242, 247, 1) 55%, rgba(226, 232, 240, 1) 100%);
-            color: var(--ppm-text);
+            color: var(--gems-text);
         }
 
         main.ppm-import-main {
             /* padding: 1.75rem 0 3.5rem; */
-        }
-
-        .ppm-page-header {
-            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.95) 0%, rgba(var(--gems-secondary-rgb), 0.9) 100%);
-            border-radius: 32px;
-            padding: 40px 36px;
-            margin-bottom: 32px;
-            color: #fff;
-            box-shadow: var(--ppm-shadow);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 24px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ppm-page-header:after {
-            content: '';
-            position: absolute;
-            width: 240px;
-            height: 240px;
-            right: -70px;
-            top: -70px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .ppm-page-header .header-text {
-            max-width: 720px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .ppm-page-header h1 {
-            font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
-        }
-
-        .ppm-page-header p {
-            margin-bottom: 0;
-            color: rgba(255, 255, 255, 0.82);
-        }
-
-        .ppm-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.16);
-            font-size: 0.82rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .ppm-page-header .header-actions {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 12px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .ppm-page-header .header-actions .btn {
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: #fff;
-        }
-
-        .ppm-page-header .header-actions .btn-icon {
-            padding: 0;
-        }
-
-        .ppm-page-header .header-actions .btn-icon i {
-            margin: 0;
-        }
-
-        .ppm-page-header .header-actions .btn:hover {
-            background: rgba(255, 255, 255, 0.12);
         }
 
         .ppm-layout {
@@ -132,9 +40,9 @@
         .ppm-flow-card,
         .ppm-support-card {
             background: #fff;
-            border-radius: var(--ppm-radius);
+            border-radius: var(--gems-radius-lg);
             padding: 28px 32px;
-            box-shadow: var(--ppm-card-shadow);
+            box-shadow: var(--gems-card-shadow);
         }
 
         .ppm-support-card {
@@ -151,7 +59,7 @@
 
         .ppm-support-card p {
             margin-bottom: 0;
-            color: var(--ppm-muted);
+            color: var(--gems-muted);
         }
 
         .support-tip {
@@ -161,11 +69,11 @@
             display: flex;
             gap: 14px;
             align-items: flex-start;
-            color: var(--ppm-text);
+            color: var(--gems-text);
         }
 
         .support-tip i {
-            color: var(--ppm-primary);
+            color: var(--gems-primary);
             font-size: 1.3rem;
         }
 
@@ -195,7 +103,7 @@
             gap: 14px;
             margin-bottom: 16px;
             font-weight: 700;
-            color: var(--ppm-text);
+            color: var(--gems-text);
         }
 
         .step-number {
@@ -206,7 +114,7 @@
             height: 36px;
             border-radius: 50%;
             background: rgba(148, 163, 184, 0.3);
-            color: var(--ppm-text);
+            color: var(--gems-text);
             font-weight: 600;
             transition: all 0.3s ease;
         }
@@ -232,7 +140,7 @@
         .template-download h5 {
             font-weight: 700;
             margin-bottom: 12px;
-            color: var(--ppm-text);
+            color: var(--gems-text);
         }
 
         .template-download .alert {
@@ -266,7 +174,7 @@
 
         .upload-progress label {
             font-weight: 600;
-            color: var(--ppm-muted);
+            color: var(--gems-muted);
         }
 
         .progress {
@@ -327,7 +235,7 @@
 
         .ppm-legend-item span {
             font-weight: 600;
-            color: var(--ppm-text);
+            color: var(--gems-text);
         }
 
         .import-step .alert {
@@ -336,7 +244,7 @@
 
         .modal-content {
             border-radius: 24px;
-            box-shadow: var(--ppm-card-shadow);
+            box-shadow: var(--gems-card-shadow);
         }
 
         .modal-header {
@@ -348,7 +256,7 @@
 
         .modal-title {
             font-weight: 700;
-            color: var(--ppm-text);
+            color: var(--gems-text);
         }
 
         .modal-body {
@@ -371,10 +279,6 @@
                 padding: 1.25rem 0 3rem;
             }
 
-            .ppm-page-header {
-                padding: 32px 28px;
-            }
-
             .ppm-flow-card,
             .ppm-support-card {
                 padding: 24px;
@@ -382,13 +286,6 @@
         }
 
         @media (max-width: 575.98px) {
-            .ppm-page-header {
-                padding: 26px 22px;
-            }
-
-            .ppm-page-header .header-actions {
-                align-items: flex-start;
-            }
 
             .file-drop-zone {
                 padding: 32px 18px;
@@ -422,8 +319,8 @@
 </header>
 <!--Main layout-->
 <main class="ppm-import-main">
-    <div class="container-fluid">
-        <section class="ppm-page-header">
+    <div class="container-fluid module-page">
+        <section class="gems-page-header module-page-header">
             <div class="header-text">
                 <span class="ppm-chip"><i class="fas fa-cloud-upload-alt"></i> PPM Import</span>
                 <h1>PPM Import Workflow</h1>
