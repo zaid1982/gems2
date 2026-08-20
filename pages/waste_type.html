@@ -15,232 +15,6 @@
   <link href="css/gems2-ui.css" rel="stylesheet">
   <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
   <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-  <style>
-    :root {
-      --wtt-primary: var(--gems-primary);
-      --wtt-accent: var(--gems-secondary);
-      --wtt-bg: var(--gems-bg-page);
-      --wtt-text: var(--gems-text);
-      --wtt-muted: var(--gems-muted);
-      --wtt-card-radius: var(--gems-radius-lg);
-      --wtt-shadow: var(--gems-shadow-lg);
-      --wtt-card-shadow: var(--gems-card-shadow);
-    }
-
-    body { background: var(--wtt-bg); }
-    main { padding: 1.5rem 0 3rem; }
-
-    .waste-type-section { margin-top: 1.5rem; }
-
-    .waste-type-header {
-      color: #fff;
-      padding: 34px 30px;
-      border-radius: 28px;
-      margin-bottom: 28px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--wtt-shadow);
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .waste-type-header::after {
-      content: '';
-      position: absolute;
-      right: -60px;
-      top: -60px;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.12);
-    }
-
-    .waste-type-header .header-text { position: relative; z-index: 1; max-width: 680px; }
-    .waste-type-header h2 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
-    .waste-type-header p { margin: 0; font-size: 1rem; opacity: 0.95; }
-
-  .waste-type-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 10px; }
-  .waste-type-header .header-actions .btn-light.btn-icon { color: var(--gems-text); }
-
-    .waste-type-metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 18px;
-      margin-bottom: 28px;
-    }
-
-    .metric-card {
-      background: #fff;
-      border-radius: var(--wtt-card-radius);
-      padding: 20px 22px;
-      box-shadow: var(--wtt-card-shadow);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .metric-card::after {
-      content: '';
-      position: absolute;
-      bottom: -38px;
-      right: -38px;
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      background: rgba(129, 140, 248, 0.1);
-    }
-
-    .metric-label { font-size: 0.76rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--wtt-muted); margin-bottom: 6px; }
-    .metric-value { font-size: 1.9rem; font-weight: 700; color: var(--wtt-text); }
-    .metric-subtext { font-size: 0.86rem; color: var(--wtt-muted); margin-top: 6px; }
-
-    .waste-type-filter-card {
-      background: #fff;
-      border-radius: 26px;
-      padding: 24px 28px;
-      box-shadow: 0 25px 50px -32px rgba(15, 23, 42, 0.35);
-    }
-
-    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
-    .filter-label { font-size: .78rem; text-transform: uppercase; font-weight: 600; letter-spacing: .08em; color: var(--wtt-muted); margin-bottom: 6px; }
-
-    .waste-type-filter-card .form-control,
-    .waste-type-filter-card .custom-select {
-      border-radius: 14px;
-      border: 1px solid #e2e8f0;
-      padding: 10px 14px;
-      box-shadow: none;
-      transition: border-color .2s ease, box-shadow .2s ease;
-    }
-
-    .waste-type-filter-card .form-control:focus,
-    .waste-type-filter-card .custom-select:focus {
-      border-color: rgba(var(--gems-primary-rgb), 0.75);
-      box-shadow: 0 0 0 0.15rem rgba(var(--gems-primary-rgb), 0.12);
-    }
-
-    .results-summary {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 22px;
-      gap: 12px;
-      color: var(--wtt-text);
-    }
-
-    .results-summary .summary-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      color: var(--wtt-muted);
-      background: rgba(148, 163, 184, 0.12);
-      border-radius: 999px;
-      padding: 6px 14px;
-    }
-
-    .results-summary .summary-pill i { color: var(--wtt-accent); }
-
-    .waste-type-data-card {
-      margin-top: 32px;
-      background: #fff;
-      border-radius: 26px;
-      box-shadow: 0 28px 60px -40px rgba(15, 23, 42, 0.42);
-      padding: 20px 24px;
-    }
-
-    .waste-type-data-card h6 { font-weight: 700; color: var(--wtt-text); margin-bottom: 18px; }
-
-    .waste-type-table-wrapper { border-radius: 18px; overflow: hidden; }
-    #dtWtt { width: 100% !important; border-collapse: collapse !important; }
-    #dtWtt thead th {
-      background: #eef2ff;
-      color: var(--gems-primary-dark);
-      font-weight: 700;
-      border: none;
-      padding: 0.85rem 0.75rem;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: .06em;
-    }
-    #dtWtt tbody tr { background: #fff; }
-    #dtWtt tbody td { border-bottom: 1px solid var(--gems-bg-page); padding: 0.9rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--wtt-text); }
-    #dtWtt tbody tr:last-child td { border-bottom: none; }
-
-    .badge-status {
-      border-radius: 999px;
-      font-weight: 600;
-      padding: 0.35rem 0.7rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .badge-status i { font-size: 0.8rem; }
-    .badge-status.active { background: rgba(34, 197, 94, 0.18); color: #166534; }
-    .badge-status.inactive { background: rgba(248, 113, 113, 0.18); color: #991b1b; }
-
-    .dataTables_wrapper .dataTables_filter { display: none !important; }
-    .dataTables_wrapper .dataTables_info { padding-top: 1rem; color: var(--wtt-muted); font-size: 0.85rem; }
-    .dataTables_wrapper .dataTables_paginate { padding-top: 0.75rem; }
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-      border-radius: 12px !important;
-      border: none !important;
-      margin: 0 3px !important;
-      padding: 0.35rem 0.75rem !important;
-      background: #e2e8f0 !important;
-      color: #1e293b !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-      background: var(--wtt-primary) !important;
-      color: #fff !important;
-    }
-
-    @media (max-width: 991.98px) {
-      .waste-type-header { padding: 28px 24px; }
-      .waste-type-header h2 { font-size: 1.8rem; }
-      .waste-type-header::after { width: 200px; height: 200px; right: -50px; top: -50px; }
-    }
-
-    @media (max-width: 767.98px) {
-      main { padding-top: 1rem; }
-      .waste-type-header { padding: 22px 18px; gap: 16px; }
-      .waste-type-metrics { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-
-      #dtWtt { display: block; }
-      #dtWtt thead { display: none; }
-      #dtWtt tbody { display: block; width: 100%; }
-      #dtWtt tbody tr {
-        display: block;
-        margin-bottom: 14px;
-        border: 1px solid #e2e8f0;
-        border-radius: 18px;
-        box-shadow: 0 12px 28px -22px rgba(15, 23, 42, 0.35);
-      }
-      #dtWtt tbody tr td {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.75rem 0.95rem;
-        border-bottom: 1px solid var(--gems-bg-page);
-      }
-      #dtWtt tbody tr td:last-child { border-bottom: none; }
-      #dtWtt tbody tr td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--wtt-muted);
-        margin-right: 12px;
-        text-align: left;
-      }
-      #dtWtt tbody tr td.text-center { justify-content: space-between; }
-      #dtWtt tbody tr td:nth-child(6) { justify-content: flex-end; }
-    }
-  </style>
 </head>
 <body class="fixed-sn light-blue-skin">
 <header>
@@ -248,9 +22,9 @@
   <div class="includeHtml" id="h-nav_top"></div>
 </header>
 <main>
-  <div class="container-fluid waste-type-layout">
+  <div class="container-fluid module-page module-master">
     <section class="waste-type-section">
-      <div class="gems-page-header waste-type-header">
+      <div class="gems-page-header module-page-header">
         <div class="header-text">
           <h2><i class="fas fa-dumpster-fire mr-3"></i>Waste Type Registry</h2>
           <p>Manage the catalog of waste types, monitor activation status, and keep recent additions in view.</p>
@@ -261,7 +35,7 @@
         </div>
       </div>
 
-      <div class="waste-type-metrics">
+      <div class="metrics-row">
         <div class="metric-card">
           <div class="metric-label">Total types</div>
           <div class="metric-value" id="metricWttTotal">-</div>
@@ -284,7 +58,7 @@
         </div>
       </div>
 
-      <div class="waste-type-filter-card">
+      <div class="filter-card">
         <div class="filter-grid">
           <div>
             <div class="filter-label">Search</div>
@@ -306,9 +80,9 @@
         </div>
       </div>
 
-      <div class="waste-type-data-card">
+      <div class="module-data-card">
         <h6 class="d-flex align-items-center mb-3"><i class="fas fa-recycle text-primary mr-2"></i>Waste Type Register</h6>
-        <div class="waste-type-table-wrapper">
+        <div class="module-table-wrapper">
           <table id="dtWtt" class="table table-hover mb-0 display">
             <thead>
             <tr>

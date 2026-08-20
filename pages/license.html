@@ -15,184 +15,6 @@
   <link href="css/gems2-ui.css" rel="stylesheet">
   <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
   <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-  <style>
-    :root {
-      --license-primary: var(--gems-primary);
-      --license-accent: var(--gems-secondary);
-      --license-bg: var(--gems-bg-page);
-      --license-text: var(--gems-text);
-      --license-muted: var(--gems-muted);
-      --license-border-radius: var(--gems-radius-lg);
-      --license-shadow: var(--gems-shadow-lg);
-      --license-card-shadow: var(--gems-card-shadow);
-    }
-
-    body { background: var(--license-bg); }
-    main { padding: 1.5rem 0 3rem; }
-
-    .license-section { margin-top: 1.5rem; }
-
-    .license-page-header {
-      color: #fff;
-      padding: 36px 32px;
-      border-radius: 28px;
-      margin-bottom: 28px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--license-shadow);
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .license-page-header::after {
-      content: '';
-      position: absolute;
-      right: -70px;
-      top: -70px;
-      width: 240px;
-      height: 240px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.12);
-      filter: blur(0px);
-    }
-
-    .license-page-header .header-text { position: relative; z-index: 1; max-width: 680px; }
-    .license-page-header h2 { font-size: 2.25rem; font-weight: 700; margin-bottom: 10px; }
-    .license-page-header p { margin: 0; font-size: 1.05rem; opacity: 0.95; }
-
-  .license-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px; }
-  .license-page-header .header-actions .btn-light.btn-icon { color: var(--gems-text); }
-
-    .license-metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 18px;
-      margin-bottom: 28px;
-    }
-
-    .metric-card {
-      background: #fff;
-      border-radius: var(--license-border-radius);
-      padding: 20px 22px;
-      box-shadow: var(--license-card-shadow);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .metric-card::after {
-      content: '';
-      position: absolute;
-      bottom: -40px;
-      right: -40px;
-      width: 140px;
-      height: 140px;
-      border-radius: 50%;
-      background: rgba(var(--gems-primary-rgb), 0.08);
-    }
-
-    .metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--license-muted); margin-bottom: 6px; }
-    .metric-value { font-size: 2rem; font-weight: 700; color: var(--license-text); }
-    .metric-subtext { font-size: 0.85rem; color: var(--license-muted); margin-top: 6px; }
-
-    .filter-card {
-      background: #fff;
-      border-radius: 24px;
-      padding: 24px 28px;
-      box-shadow: 0 25px 50px -32px rgba(15, 23, 42, 0.35);
-    }
-
-    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
-    .filter-label { font-size: .78rem; text-transform: uppercase; font-weight: 600; letter-spacing: .08em; color: var(--license-muted); margin-bottom: 6px; }
-
-    .filter-card .form-control,
-    .filter-card .custom-select {
-      border-radius: 14px;
-      border: 1px solid #e2e8f0;
-      padding: 10px 14px;
-      box-shadow: none;
-      transition: border-color .2s ease, box-shadow .2s ease;
-    }
-
-    .filter-card .form-control:focus,
-    .filter-card .custom-select:focus {
-      border-color: rgba(var(--gems-primary-rgb), 0.75);
-      box-shadow: 0 0 0 0.15rem rgba(var(--gems-primary-rgb), 0.1);
-    }
-
-    .results-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-top: 22px; gap: 12px; color: var(--license-text); }
-    .results-summary .summary-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--license-muted); }
-
-    .license-data-card { margin-top: 32px; background: #fff; border-radius: 24px; box-shadow: 0 28px 60px -40px rgba(15, 23, 42, 0.45); padding: 18px 24px; }
-    .license-data-card h6 { font-weight: 700; color: var(--license-text); margin-bottom: 18px; }
-
-    .license-table-wrapper { border-radius: 18px; overflow: hidden; }
-    #dtLcnData { width: 100% !important; border-collapse: collapse !important; }
-    #dtLcnData thead th {
-      background: #eef2ff;
-      color: var(--gems-primary-dark);
-      font-weight: 700;
-      border: none;
-      padding: 0.9rem 0.75rem;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: .06em;
-    }
-    #dtLcnData tbody tr { background: #fff; }
-    #dtLcnData tbody td { border-bottom: 1px solid var(--gems-bg-page); padding: 0.85rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--license-text); }
-    #dtLcnData tbody tr:last-child td { border-bottom: none; }
-
-    #dtLcnData tbody tr.table-danger td { background: rgba(248, 113, 113, 0.12); }
-    #dtLcnData tbody tr.table-warning td { background: rgba(250, 204, 21, 0.18); }
-
-    .badge-success { background: rgba(34, 197, 94, 0.18); color: #166534; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px; }
-    .badge-warning { background: rgba(250, 204, 21, 0.15); color: #854d0e; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px; }
-    .badge-danger { background: rgba(248, 113, 113, 0.18); color: #991b1b; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px; }
-    .badge-secondary { background: rgba(148, 163, 184, 0.18); color: #475569; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px; }
-
-    .license-table-wrapper .btn { border-radius: 10px; }
-
-    .dataTables_wrapper .dataTables_info { padding-top: 1rem; color: var(--license-muted); font-size: 0.85rem; }
-    .dataTables_wrapper .dataTables_paginate { padding-top: 0.75rem; }
-    .dataTables_wrapper .dataTables_paginate .paginate_button { border-radius: 12px !important; border: none !important; margin: 0 3px !important; padding: 0.35rem 0.75rem !important; background: #e2e8f0 !important; color: #1e293b !important; }
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: var(--gems-primary) !important; color: #fff !important; }
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled { background: #e2e8f0 !important; color: #94a3b8 !important; }
-
-    .dataTables_filter { display: none !important; }
-
-    .license-empty-state { text-align: center; padding: 48px 24px; color: var(--license-muted); }
-  .license-empty-state i { font-size: 48px; color: var(--gems-secondary); margin-bottom: 12px; }
-
-    /* View remains list-only; cards/toggle removed */
-
-  @media (max-width: 991.98px) {
-      .license-page-header { padding: 28px 24px; }
-      .license-page-header h2 { font-size: 2rem; }
-      .license-page-header::after { width: 200px; height: 200px; right: -60px; top: -60px; }
-    }
-
-    @media (max-width: 767.98px) {
-      main { padding-top: 1rem; }
-      .license-page-header { padding: 24px 20px; gap: 18px; }
-      .license-page-header h2 { font-size: 1.8rem; }
-      .license-metrics { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-
-      /* Turn the table into stacked cards */
-      #dtLcnData { display: block; }
-      #dtLcnData thead { display: none; }
-      #dtLcnData tbody { display: block; width: 100%; }
-      #dtLcnData tbody tr { display: block; margin-bottom: 14px; border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 10px 25px -18px rgba(15, 23, 42, 0.35); }
-      #dtLcnData tbody tr td { display: flex; align-items: flex-start; justify-content: space-between; padding: 0.75rem 0.95rem; border-bottom: 1px solid var(--gems-bg-page); }
-      #dtLcnData tbody tr td:last-child { border-bottom: none; }
-      #dtLcnData tbody tr td::before { content: attr(data-label); font-weight: 600; color: var(--license-muted); margin-right: 12px; }
-      #dtLcnData tbody tr td.text-center { justify-content: space-between; }
-      #dtLcnData tbody tr td:nth-child(1) { font-weight: 700; color: var(--license-text); }
-      #dtLcnData tbody tr td:nth-child(7),
-      #dtLcnData tbody tr td:nth-child(8) { justify-content: flex-end; }
-    }
-  </style>
 </head>
 <body class="fixed-sn light-blue-skin">
 <header>
@@ -200,9 +22,9 @@
   <div class="includeHtml" id="h-nav_top"></div>
 </header>
 <main>
-  <div class="container-fluid license-layout">
+  <div class="container-fluid module-page module-master">
     <section class="license-section">
-  <div class="gems-page-header license-page-header">
+  <div class="gems-page-header module-page-header">
         <div class="header-text">
           <h2><i class="fas fa-id-badge mr-3"></i>License Center</h2>
           <p>Track expiring licenses, download documents instantly, and keep your compliance calendar under control.</p>
@@ -217,7 +39,7 @@
         </div>
       </div>
 
-      <div class="license-metrics">
+      <div class="metrics-row">
         <div class="metric-card">
           <div class="metric-label">Active licenses</div>
           <div class="metric-value" id="metricTotal">-</div>
@@ -271,9 +93,9 @@
       </div>
 
       <!-- List (Table) View -->
-      <div id="licenseListView" class="license-data-card">
+      <div id="licenseListView" class="module-data-card">
         <h6 class="d-flex align-items-center mb-3"><i class="fas fa-layer-group mr-2 text-primary"></i>Active License Register</h6>
-        <div class="license-table-wrapper">
+        <div class="module-table-wrapper">
           <table id="dtLcnData" class="table table-hover mb-0 display">
             <thead>
             <tr>

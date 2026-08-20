@@ -19,88 +19,6 @@
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
     <link href="css/gems2-ui.css" rel="stylesheet">
-    <style>
-        :root {
-            --kpi-primary: var(--gems-primary);
-            --kpi-secondary: var(--gems-secondary);
-            --kpi-background: var(--gems-bg-page);
-            --kpi-text: var(--gems-text);
-            --kpi-muted: var(--gems-muted);
-            --kpi-radius: var(--gems-radius-lg);
-            --kpi-shadow: var(--gems-shadow-lg);
-        }
-
-        body {
-            background: var(--kpi-background);
-        }
-
-        .kpi-page-wrapper {
-            padding: 2.5rem 1.5rem 3rem;
-        }
-
-        .kpi-page-header {
-            background: linear-gradient(135deg, var(--kpi-primary) 0%, var(--kpi-secondary) 100%);
-            color: #fff;
-            border-radius: var(--kpi-radius);
-            padding: 2.4rem 2.85rem;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1.5rem;
-            box-shadow: var(--kpi-shadow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .kpi-page-header::after {
-            content: '';
-            position: absolute;
-            top: -80px;
-            right: -70px;
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.14);
-        }
-
-        .kpi-page-header .header-text { position: relative; z-index: 1; max-width: 720px; }
-        .kpi-page-header .header-subtitle { font-size: 0.85rem; text-transform: uppercase; letter-spacing: .1em; opacity: 0.82; margin-bottom: 0.75rem; }
-        .kpi-page-header h2 { font-size: 2.35rem; font-weight: 700; margin-bottom: 0.45rem; }
-        .kpi-page-header p { margin: 0; color: rgba(255, 255, 255, 0.82); }
-
-        .kpi-data-card {
-            margin-top: 2.6rem;
-            background: #fff;
-            border-radius: var(--kpi-radius);
-            box-shadow: var(--kpi-shadow);
-            overflow: hidden;
-        }
-
-        .kpi-data-card .card-body { padding: 2.4rem; }
-
-        .kpi-data-card .table-responsive table { width: 100% !important; }
-        .kpi-data-card thead th { 
-            background: #F3F4F6; 
-            border: none; 
-            font-weight: 600; 
-            text-transform: uppercase; 
-            letter-spacing: .06em; 
-            color: var(--kpi-text);
-            font-size: 0.75rem;
-        }
-        .kpi-data-card tbody td { border-color: #E2E8F0; }
-
-        @media (max-width: 992px) {
-            .kpi-page-wrapper { padding: 2.1rem 1.05rem 2.5rem; }
-            .kpi-page-header { padding: 2.1rem 2.1rem; }
-        }
-
-        @media (max-width: 768px) {
-            .kpi-page-header { padding: 2rem 1.85rem; }
-            .kpi-page-header h2 { font-size: 1.85rem; }
-        }
-    </style>
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -116,9 +34,9 @@
 </header>
 <!--Main layout-->
 <main>
-    <div class="kpi-page-wrapper">
+    <div class="module-page kpi-page-wrapper">
         <div class="container-fluid px-0">
-            <section class="kpi-page-header sectionKppMain">
+            <section class="gems-page-header module-page-header sectionKppMain">
                 <div class="header-text">
                     <span class="header-subtitle">Performance Monitoring</span>
                     <h2>KPI / APD</h2>
@@ -126,7 +44,7 @@
                 </div>
             </section>
 
-            <section class="kpi-data-card sectionKppMain">
+            <section class="module-data-card sectionKppMain">
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="dtKppData" class="table table-hover table-sm mb-0 display responsive" style="width: 100%">

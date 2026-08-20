@@ -16,225 +16,7 @@
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
     <style>
-        :root {
-            --tnm-primary: var(--gems-primary);
-            --tnm-accent: var(--gems-secondary);
-            --tnm-bg: var(--gems-bg-page);
-            --tnm-text: var(--gems-text);
-            --tnm-muted: var(--gems-muted);
-            --tnm-radius: var(--gems-radius-lg);
-            --tnm-shadow: var(--gems-shadow-lg);
-            --tnm-card-shadow: var(--gems-card-shadow);
-        }
-
-        body { background: var(--tnm-bg); color: var(--tnm-text); }
-        main { padding: 2rem 0 3.5rem; }
-
-        .tnm-section { margin-top: 1.5rem; }
-
-        .tnm-page-header {
-            border-radius: 28px;
-            padding: 40px 36px;
-            color: #fff;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--tnm-shadow);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 28px;
-        }
-
-        .tnm-page-header::after {
-            content: '';
-            position: absolute;
-            right: -70px;
-            top: -70px;
-            width: 240px;
-            height: 240px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.14);
-        }
-
-        .tnm-page-header .header-text { position: relative; z-index: 1; max-width: 620px; }
-        .tnm-page-header .header-text .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; background: rgba(255, 255, 255, 0.16); padding: 6px 14px; border-radius: 999px; margin-bottom: 14px; }
-        .tnm-page-header .header-text h2 { font-size: 2.3rem; font-weight: 700; margin-bottom: 12px; }
-        .tnm-page-header .header-text p { margin: 0; font-size: 1.05rem; opacity: 0.95; }
-
-        .tnm-page-header .header-actions {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-        }
-
-        .tnm-page-header .header-actions .btn-light.btn-icon { color: var(--gems-text); }
-
-        .tnm-metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 18px;
-            margin-top: 30px;
-        }
-
-        .metric-card {
-            background: #fff;
-            border-radius: var(--tnm-radius);
-            padding: 22px 24px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--tnm-card-shadow);
-        }
-
-        .metric-card::after {
-            content: '';
-            position: absolute;
-            bottom: -42px;
-            right: -38px;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: rgba(var(--gems-primary-rgb), 0.08);
-        }
-
-        .metric-label { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tnm-muted); margin-bottom: 6px; }
-        .metric-value { font-size: 2.1rem; font-weight: 700; color: var(--tnm-text); }
-        .metric-subtext { font-size: 0.85rem; color: var(--tnm-muted); margin-top: 6px; }
-
-        .filter-card {
-            margin-top: 32px;
-            background: #fff;
-            border-radius: 26px;
-            padding: 26px 28px;
-            box-shadow: 0 26px 55px -34px rgba(15, 23, 42, 0.4);
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-        }
-
-        .filter-label { font-size: 0.78rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.08em; color: var(--tnm-muted); margin-bottom: 6px; }
-
-        .filter-card .form-control {
-            border-radius: 14px;
-            border: 1px solid #e2e8f0;
-            padding: 10px 14px;
-            box-shadow: none;
-        }
-
-        .filter-card .form-control:focus { border-color: rgba(var(--gems-primary-rgb), 0.75); box-shadow: 0 0 0 0.15rem rgba(var(--gems-primary-rgb), 0.12); }
-
-        .filter-card .select-outline .select-dropdown, .filter-card .select-outline .dropdown-content { border-radius: 16px !important; }
-
-        .results-summary {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            margin-top: 24px;
-            color: var(--tnm-muted);
-        }
-
-        .summary-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            background: rgba(var(--gems-secondary-rgb), 0.08);
-            border-radius: 999px;
-            font-size: 0.85rem;
-            color: var(--tnm-text);
-        }
-
-        .tnm-data-card {
-            margin-top: 34px;
-            background: #fff;
-            border-radius: 26px;
-            box-shadow: 0 28px 65px -42px rgba(15, 23, 42, 0.48);
-            padding: 22px 26px 28px;
-        }
-
-        .tnm-data-card-header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 18px;
-        }
-
-        .tnm-data-card-header h6 {
-            margin: 0;
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--tnm-text);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .tnm-data-card-header .tnm-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-        .tnm-data-card-header .tnm-actions .btn { border-radius: 999px; padding: 0.45rem 1.35rem; font-weight: 600; }
-        #btnDtTnmListExport .btn { border-radius: 999px !important; margin-left: 4px; }
-
-        .tnm-table-wrapper { border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; }
-        #dtTnmList { width: 100% !important; border-collapse: collapse !important; }
-        #dtTnmList thead th {
-            background: #eef2ff;
-            color: var(--gems-primary-dark);
-            font-weight: 700;
-            border: none;
-            padding: 0.9rem 0.75rem;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.06em;
-        }
-        #dtTnmList tbody tr { background: #fff; }
-        #dtTnmList tbody td { border-bottom: 1px solid var(--gems-bg-page); padding: 0.85rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--tnm-text); }
-        #dtTnmList tbody tr:last-child td { border-bottom: none; }
-    #dtTnmList tbody tr { cursor: pointer; }
-        #dtTnmList tbody td .badge { font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px; }
-
-        .dataTables_wrapper .dataTables_filter { display: none !important; }
-        .dataTables_wrapper .dataTables_paginate { padding-top: 0.85rem; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button { border-radius: 12px !important; border: none !important; margin: 0 3px !important; padding: 0.35rem 0.75rem !important; background: #e2e8f0 !important; color: #1e293b !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: var(--tnm-primary) !important; color: #fff !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled { background: #e2e8f0 !important; color: #94a3b8 !important; }
-        .dataTables_wrapper .dataTables_info { padding-top: 0.9rem; color: var(--tnm-muted); font-size: 0.85rem; }
-
-        @media (max-width: 1199.98px) {
-            .tnm-page-header { padding: 34px 28px; }
-        }
-
-        @media (max-width: 991.98px) {
-            main { padding-top: 1.5rem; }
-            .tnm-page-header { padding: 30px 24px; gap: 22px; }
-            .tnm-page-header::after { width: 200px; height: 200px; right: -60px; top: -60px; }
-            .tnm-page-header .header-text h2 { font-size: 2rem; }
-        }
-
-        @media (max-width: 767.98px) {
-            .tnm-page-header { padding: 26px 22px; }
-            .tnm-page-header .header-actions { width: 100%; }
-            .tnm-metrics { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-            .tnm-data-card { padding: 18px 18px 24px; }
-        }
-
-        @media (max-width: 768px) {
-            #dtTnmList { display: block; }
-            #dtTnmList thead { display: none; }
-            #dtTnmList tbody { display: block; width: 100%; }
-            #dtTnmList tbody tr { display: block; margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 18px 36px -32px rgba(15, 23, 42, 0.35); overflow: hidden; }
-            #dtTnmList tbody td { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 0.95rem; border-bottom: 1px solid var(--gems-bg-page); }
-            #dtTnmList tbody tr td:last-child { border-bottom: none; }
-            #dtTnmList tbody td::before { content: attr(data-label); font-weight: 600; color: var(--tnm-muted); margin-right: 12px; }
-            #dtTnmList tbody td.text-center { justify-content: space-between; }
-        }
+        #dtTnmList tbody tr { cursor: pointer; }
     </style>
 </head>
 
@@ -245,9 +27,9 @@
 </header>
 
 <main>
-    <div class="container-fluid">
+    <div class="container-fluid module-page module-master">
         <section class="tnm-section sectionTnmMain">
-            <div class="gems-page-header tnm-page-header">
+            <div class="gems-page-header module-page-header">
                 <div class="header-text">
                     <div class="eyebrow"><i class="fas fa-compass"></i><span>Workflow insight</span></div>
                     <h2>Track &amp; Monitoring</h2>
@@ -263,7 +45,7 @@
                 </div>
             </div>
 
-            <div class="tnm-metrics">
+            <div class="metrics-row">
                 <div class="metric-card">
                     <div class="metric-label">Total transactions</div>
                     <div class="metric-value" id="metricTnmTotal">-</div>
@@ -329,15 +111,15 @@
                 </div>
             </div>
 
-            <div class="tnm-data-card" id="tnmTable">
-                <div class="tnm-data-card-header">
+            <div class="module-data-card" id="tnmTable">
+                <div class="module-card-header">
                     <h6><i class="fas fa-table"></i>Transaction list</h6>
-                    <div class="tnm-actions">
+                    <div class="module-card-actions">
                         <button type="button" id="btnDtTnmListRefresh" class="btn btn-outline-primary"><i class="fas fa-arrows-rotate mr-2"></i>Refresh</button>
                         <div id="btnDtTnmListExport" class="d-flex align-items-center"></div>
                     </div>
                 </div>
-                <div class="tnm-table-wrapper">
+                <div class="module-table-wrapper">
                     <table id="dtTnmList" class="table table-hover mb-0 display responsive" cellspacing="0" width="100%">
                         <thead>
                         <tr class="th-strong">

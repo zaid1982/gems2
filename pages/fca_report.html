@@ -21,25 +21,7 @@
     <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
-        .fca-report-header {
-            padding: 32px;
-            border-radius: 24px;
-            margin-bottom: 32px;
-        }
-
-        .fca-report-header .header-text h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .fca-report-header .header-text p {
-            font-size: 1rem;
-            opacity: 0.9;
-            margin: 0;
-        }
-
-        /* Modern table styling to match design system */
+        /* Report table */
         #dtFcrData { margin-bottom: 0; border-collapse: separate; border-spacing: 0; }
         #dtFcrData thead th { 
             background: var(--gems-bg-page); 
@@ -123,12 +105,12 @@
 <!--Main layout-->
 <main>
     <div class="container-fluid">
-        <section class="gems-page-header fca-report-header sectionFcrMain" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+        <section class="gems-page-header module-page-header fca-report-header sectionFcrMain">
             <div class="header-text">
                 <h2><i class="fas fa-file-pdf mr-3"></i>FCA PDF Report</h2>
                 <p>Generate and manage Facility Condition Appraisal PDF documents</p>
             </div>
-            <div class="header-actions" style="display: flex; gap: 12px;">
+            <div class="header-actions">
                 <!-- Actions will be added by DataTable buttons -->
             </div>
         </section>
