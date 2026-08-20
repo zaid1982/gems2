@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="maintenance-auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Viewer - GEMS2 Maintenance</title>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c3e50 100%);
+            color: #fff;
+            padding: 24px 28px;
+        }
+        .header h1 { font-size: 1.8rem; margin-bottom: 8px; font-weight: 500; }
+        .header p { opacity: 0.92; line-height: 1.5; }
+        .readonly {
+            display: inline-block;
+            margin-top: 10px;
+            background: rgba(255,255,255,0.15);
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 16px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .controls label { font-size: 13px; color: #475569; }
+        select, .btn {
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        select {
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            min-width: 240px;
+            background: #fff;
+        }
+        .btn {
+            border: none;
+            padding: 10px 14px;
+            cursor: pointer;
+            background: #1e3a5f;
+            color: #fff;
+        }
+        .btn:hover { background: #16304d; }
+        .btn.secondary { background: #64748b; }
+        .btn.success { background: #0f766e; }
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            min-height: 640px;
+        }
+        #canvas {
+            height: 680px;
+            border-right: 1px solid #e2e8f0;
+            background: #fbfdff;
+        }
+        .side {
+            padding: 18px;
+            overflow-y: auto;
+            background: #fff;
+        }
+        .side h2 { font-size: 1.05rem; margin-bottom: 8px; }
+        .side .muted { color: #64748b; font-size: 13px; line-height: 1.5; }
+        .kv { margin-top: 14px; }
+        .kv dt { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #64748b; margin-top: 10px; }
+        .kv dd { font-size: 14px; margin-top: 2px; }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: #e2e8f0;
+            color: #334155;
+            margin-right: 4px;
+        }
+        .badge.open { background: #dbeafe; color: #1d4ed8; }
+        .badge.warn { background: #fef3c7; color: #92400e; }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 12px 24px 18px;
+            font-size: 13px;
+            color: #475569;
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .swatch { width: 16px; height: 16px; border-radius: 4px; }
+        .line { width: 22px; height: 0; border-top: 3px solid #334155; }
+        .line.case1 { border-color: #e74c3c; }
+        .line.case2 { border-color: #f39c12; }
+        .line.case3 { border-color: #9b59b6; }
+        .line.assign { border-color: #94a3b8; border-top-style: dashed; }
+        .alert {
+            margin: 0 24px 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .alert.error { background: #fef2f2; color: #b91c1c; }
+        .alert.info { background: #eff6ff; color: #1d4ed8; }
+        .empty { color: #94a3b8; padding: 20px 0; }
+        @media (max-width: 960px) {
+            .workspace { grid-template-columns: 1fr; }
+            #canvas { border-right: none; border-bottom: 1px solid #e2e8f0; height: 520px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Workflow Viewer</h1>
+        <p>Live view of <code>wfl_flow</code> / <code>wfl_checkpoint</code> / <code>wfl_checkpoint_assign</code>.
+           This is the same config <code>submit_task</code> reads. No changes are saved.</p>
+        <span class="readonly">View only — no writes</span>
+        <span class="readonly" id="dbBadge">DB: …</span>
+    </div>
+
+    <div class="controls">
+        <label for="flowSelect">Flow</label>
+        <select id="flowSelect"></select>
+        <button class="btn" type="button" onclick="loadGraph()">Reload</button>
+        <button class="btn success" type="button" onclick="exportPng()">Export PNG</button>
+        <a class="btn secondary" href="dashboard.html">Dashboard</a>
+    </div>
+
+    <div id="message" class="alert info">Loading flows…</div>
+
+    <div class="legend">
+        <div class="legend-item"><span class="swatch" style="background:#27ae60;"></span>Start</div>
+        <div class="legend-item"><span class="swatch" style="background:#3498db;"></span>Normal</div>
+        <div class="legend-item"><span class="swatch" style="background:#475569;"></span>End</div>
+        <div class="legend-item"><span class="line"></span>Default next</div>
+        <div class="legend-item"><span class="line case1"></span>Case 1</div>
+        <div class="legend-item"><span class="line case2"></span>Case 2</div>
+        <div class="legend-item"><span class="line case3"></span>Case 3</div>
+        <div class="legend-item"><span class="line assign"></span>Pre-assign (not a route)</div>
+    </div>
+
+    <div class="workspace">
+        <div id="canvas"></div>
+        <aside class="side" id="side">
+            <h2>Checkpoint</h2>
+            <p class="muted">Click a node to see role, routing, assign rules, user-pool size, and open tasks.</p>
+            <div id="details" class="empty">Nothing selected.</div>
+        </aside>
+    </div>
+</div>
+
+<script>
+    const API = 'workflow_modeller.php';
+    const DEFAULT_FLOW = 2;
+    const EDGE_COLOR = {
+        next: '#334155',
+        case1: '#e74c3c',
+        case2: '#f39c12',
+        case3: '#9b59b6',
+        assign: '#94a3b8',
+    };
+    const NODE_COLOR = {
+        1: { background: '#27ae60', border: '#1e8449', highlight: '#2ecc71' },
+        2: { background: '#3498db', border: '#1d6fa5', highlight: '#5dade2' },
+        3: { background: '#475569', border: '#1e293b', highlight: '#64748b' },
+    };
+
+    let network = null;
+    let graph = null;
+    let checkpointMap = {};
+
+    function setMessage(text, type = 'info') {
+        const el = document.getElementById('message');
+        el.className = 'alert ' + type;
+        el.textContent = text;
+    }
+
+    async function apiJson(action, params = {}) {
+        const url = new URL(API, window.location.href);
+        url.searchParams.set('action', action);
+        Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
+        const response = await fetch(url.toString());
+        const data = await response.json();
+        if (data.connection) {
+            const badge = document.getElementById('dbBadge');
+            if (badge) {
+                badge.textContent = 'DB: ' + data.connection.host + ' / ' + data.connection.database;
+            }
+        }
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || ('Request failed (' + response.status + ')'));
+        }
+        return data;
+    }
+
+    function checkpointLabel(cp) {
+        const open = cp.openTasks > 0 ? '\n' + cp.openTasks + ' open' : '';
+        return 'CP' + cp.checkpointId + '\n' + cp.name + open;
+    }
+
+    function renderGraph(data) {
+        graph = data;
+        checkpointMap = {};
+        (data.checkpoints || []).forEach((cp) => { checkpointMap[cp.checkpointId] = cp; });
+
+        const nodes = new vis.DataSet((data.checkpoints || []).map((cp) => ({
+            id: cp.checkpointId,
+            label: checkpointLabel(cp),
+            level: Math.max(0, (cp.order || 1) - 1),
+            shape: cp.type === 1 ? 'box' : (cp.type === 3 ? 'ellipse' : 'box'),
+            color: NODE_COLOR[cp.type] || NODE_COLOR[2],
+            font: { color: '#fff', size: 13, face: 'Segoe UI' },
+            margin: 10,
+            title: 'CP' + cp.checkpointId + ' — ' + cp.name,
+        })));
+
+        const edges = new vis.DataSet((data.edges || []).map((edge) => ({
+            id: edge.id,
+            from: edge.from,
+            to: edge.to,
+            label: edge.label,
+            arrows: 'to',
+            dashes: edge.kind === 'assign',
+            color: { color: EDGE_COLOR[edge.kind] || '#334155' },
+            font: { size: 11, align: 'middle', color: '#475569', strokeWidth: 3, strokeColor: '#fff' },
+            smooth: { type: 'cubicBezier', forceDirection: 'vertical', roundness: 0.2 },
+        })));
+
+        if (network) {
+            network.destroy();
+        }
+        network = new vis.Network(document.getElementById('canvas'), { nodes, edges }, {
+            layout: {
+                hierarchical: {
+                    enabled: true,
+                    direction: 'UD',
+                    sortMethod: 'directed',
+                    levelSeparation: 110,
+                    nodeSpacing: 180,
+                    treeSpacing: 200,
+                },
+            },
+            physics: false,
+            interaction: { hover: true, tooltipDelay: 120 },
+            edges: { width: 1.6 },
+        });
+        network.on('click', (params) => {
+            if (params.nodes.length) {
+                showDetails(params.nodes[0]);
+            }
+        });
+
+        const flow = data.flow || {};
+        setMessage(
+            (flow.flowDesc || 'Flow') + ' — ' + (data.checkpoints || []).length + ' checkpoints, '
+            + (data.edges || []).length + ' links. Click a node for details.',
+            'info'
+        );
+        document.getElementById('details').innerHTML = '<p class="empty">Nothing selected.</p>';
+    }
+
+    function nameOf(id) {
+        const cp = checkpointMap[id];
+        return cp ? ('CP' + cp.checkpointId + ' ' + cp.name) : (id ? ('CP' + id + ' (missing)') : '—');
+    }
+
+    function showDetails(id) {
+        const cp = checkpointMap[id];
+        if (!cp) {
+            return;
+        }
+        const assigns = (graph.assigns || []).filter((row) => row.from === cp.checkpointId);
+        const incoming = (graph.assigns || []).filter((row) => row.to === cp.checkpointId);
+        const html = `
+            <h2>CP${cp.checkpointId} ${escapeHtml(cp.name)}</h2>
+            <p class="muted">${escapeHtml(cp.typeLabel)} · ${escapeHtml(cp.claimLabel)}</p>
+            <span class="badge">${escapeHtml(cp.typeLabel)}</span>
+            ${cp.skip ? '<span class="badge warn">skip</span>' : ''}
+            ${cp.openTasks ? '<span class="badge open">' + cp.openTasks + ' open tasks</span>' : ''}
+            <dl class="kv">
+                <dt>Role</dt><dd>${escapeHtml(cp.roleDesc || '—')} ${cp.roleId ? '(' + cp.roleId + ')' : ''}</dd>
+                <dt>Group</dt><dd>${escapeHtml(cp.groupName || 'Any / none')} ${cp.groupId ? '(' + cp.groupId + ')' : ''}</dd>
+                <dt>Due day</dt><dd>${cp.dueDay ?? '—'}</dd>
+                <dt>Order</dt><dd>${cp.order}</dd>
+                <dt>User pool</dt><dd>${cp.userCount} user(s) on this checkpoint</dd>
+                <dt>Default next</dt><dd>${escapeHtml(nameOf(cp.next))}</dd>
+                <dt>Case 1</dt><dd>${escapeHtml(nameOf(cp.case1))}</dd>
+                <dt>Case 2</dt><dd>${escapeHtml(nameOf(cp.case2))}</dd>
+                <dt>Case 3</dt><dd>${escapeHtml(nameOf(cp.case3))}</dd>
+                <dt>Pre-assign from here</dt>
+                <dd>${assigns.length ? assigns.map((a) => escapeHtml(a.typeLabel + ' → ' + nameOf(a.to))).join('<br>') : '—'}</dd>
+                <dt>Pre-assigned into here</dt>
+                <dd>${incoming.length ? incoming.map((a) => escapeHtml(nameOf(a.from) + ' · ' + a.typeLabel)).join('<br>') : '—'}</dd>
+            </dl>
+        `;
+        document.getElementById('details').innerHTML = html;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    async function loadFlows() {
+        const data = await apiJson('flows');
+        const select = document.getElementById('flowSelect');
+        select.innerHTML = '';
+        (data.flows || []).forEach((flow) => {
+            const option = document.createElement('option');
+            option.value = String(flow.flowId);
+            option.textContent = flow.flowId + ' — ' + flow.flowDesc;
+            if (flow.flowId === DEFAULT_FLOW) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+        if (!select.value && data.flows && data.flows[0]) {
+            select.value = String(data.flows[0].flowId);
+        }
+        select.onchange = loadGraph;
+    }
+
+    async function loadGraph() {
+        const flowId = document.getElementById('flowSelect').value || DEFAULT_FLOW;
+        setMessage('Loading flow ' + flowId + '…', 'info');
+        try {
+            const data = await apiJson('graph', { flow_id: flowId });
+            renderGraph(data);
+        } catch (err) {
+            setMessage(err.message, 'error');
+        }
+    }
+
+    function exportPng() {
+        if (!network) {
+            setMessage('Load a flow first.', 'error');
+            return;
+        }
+        const canvas = network.canvas.frame.canvas;
+        const link = document.createElement('a');
+        const flow = graph && graph.flow ? graph.flow : {};
+        link.download = 'workflow_' + (flow.flowId || 'flow') + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    (async function init() {
+        try {
+            await loadFlows();
+            await loadGraph();
+        } catch (err) {
+            setMessage(err.message, 'error');
+        }
+    })();
+</script>
+</body>
+</html>

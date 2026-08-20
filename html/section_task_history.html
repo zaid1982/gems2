@@ -5,14 +5,14 @@
                 <section class="task-history-section sectionTaskHistory mb-0">
     <style>
         :root {
-            --sth-primary: #4338ca;
-            --sth-accent: #38bdf8;
-            --sth-bg: #f1f5f9;
-            --sth-text: #0f172a;
-            --sth-muted: #64748b;
-            --sth-card-radius: 24px;
-            --sth-card-shadow: 0 26px 60px -40px rgba(15, 23, 42, 0.45);
-            --sth-pill-bg: rgba(67, 56, 202, 0.12);
+            --sth-primary: var(--gems-primary);
+            --sth-accent: var(--gems-secondary);
+            --sth-bg: var(--gems-bg-page);
+            --sth-text: var(--gems-text);
+            --sth-muted: var(--gems-muted);
+            --sth-card-radius: var(--gems-radius-lg);
+            --sth-card-shadow: var(--gems-card-shadow);
+            --sth-pill-bg: rgba(var(--gems-primary-rgb), 0.12);
         }
 
         .task-history-modal .modal-dialog { max-width: 1200px; }
@@ -28,7 +28,7 @@
         }
 
         .task-history-header {
-            background: linear-gradient(135deg, rgba(67, 56, 202, 0.95) 0%, rgba(56, 189, 248, 0.9) 100%);
+            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.95) 0%, rgba(var(--gems-secondary-rgb), 0.9) 100%);
             border-radius: 28px;
             padding: 32px 30px;
             color: #fff;
@@ -68,7 +68,7 @@
 
         .task-history-metrics { margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; }
         .task-history-metrics .metric-card { background: #fff; border-radius: var(--sth-card-radius); padding: 20px 22px; box-shadow: var(--sth-card-shadow); position: relative; overflow: hidden; }
-        .task-history-metrics .metric-card::after { content: ''; position: absolute; bottom: -36px; right: -36px; width: 140px; height: 140px; border-radius: 50%; background: rgba(67, 56, 202, 0.08); }
+        .task-history-metrics .metric-card::after { content: ''; position: absolute; bottom: -36px; right: -36px; width: 140px; height: 140px; border-radius: 50%; background: rgba(var(--gems-primary-rgb), 0.08); }
         .task-history-metrics .metric-label { font-size: 0.78rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.08em; color: var(--sth-muted); margin-bottom: 6px; }
         .task-history-metrics .metric-value { font-size: 2rem; font-weight: 700; color: var(--sth-text); }
         .task-history-metrics .metric-value.is-text { font-size: 1.15rem; }
@@ -85,7 +85,7 @@
         .task-info-card h5, .task-timeline-card h5 { font-weight: 700; font-size: 1.1rem; margin-bottom: 18px; color: var(--sth-text); display: flex; align-items: center; gap: 10px; }
 
         .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
-        .detail-field { background: #f8fafc; border-radius: 18px; padding: 16px 18px; }
+        .detail-field { background: var(--gems-bg-page); border-radius: 18px; padding: 16px 18px; }
         .detail-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--sth-muted); margin-bottom: 6px; display: block; }
         .detail-value { font-size: 1.05rem; font-weight: 600; color: var(--sth-text); word-break: break-word; }
 
@@ -94,18 +94,18 @@
         .history-legend span { display: inline-flex; align-items: center; gap: 6px; }
         .legend-dot { width: 10px; height: 10px; border-radius: 999px; }
         .legend-dot.complete { background: #22c55e; }
-        .legend-dot.current { background: #4338ca; }
+        .legend-dot.current { background: var(--gems-primary); }
         .legend-dot.upcoming { background: #cbd5f5; }
 
         .history-stepper { list-style: none; padding: 0; margin: 24px 0 0; position: relative; }
-        .history-step { display: flex; align-items: center; gap: 18px; padding: 16px 18px; border-radius: 18px; background: #f8fafc; position: relative; margin-bottom: 14px; box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.8); }
+        .history-step { display: flex; align-items: center; gap: 18px; padding: 16px 18px; border-radius: 18px; background: var(--gems-bg-page); position: relative; margin-bottom: 14px; box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.8); }
         .history-step:last-child { margin-bottom: 0; }
         .history-step::before { content: ''; position: absolute; left: 28px; top: -14px; width: 2px; height: 14px; background: rgba(148, 163, 184, 0.35); }
         .history-step:first-child::before { display: none; }
         .history-step.complete { box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.25); }
-        .history-step.current { box-shadow: inset 0 0 0 2px rgba(67, 56, 202, 0.55); background: rgba(99, 102, 241, 0.08); }
+        .history-step.current { box-shadow: inset 0 0 0 2px rgba(var(--gems-primary-rgb), 0.55); background: rgba(var(--gems-secondary-rgb), 0.08); }
         .history-step.upcoming { opacity: 0.75; }
-        .history-step .step-icon { width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(67, 56, 202, 0.1); color: var(--sth-primary); font-size: 1.1rem; }
+        .history-step .step-icon { width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(var(--gems-primary-rgb), 0.1); color: var(--sth-primary); font-size: 1.1rem; }
         .history-step.complete .step-icon { background: rgba(34, 197, 94, 0.14); color: #15803d; }
         .history-step.current .step-icon { background: rgba(76, 29, 149, 0.16); color: #4c1d95; }
         .history-step .step-content { display: flex; flex-direction: column; gap: 4px; }
@@ -124,9 +124,9 @@
 
         .history-table-wrapper { border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; }
         #dtSthList { width: 100% !important; border-collapse: collapse !important; }
-        #dtSthList thead th { background: #eef2ff; color: #3730a3; font-weight: 700; border: none; padding: 0.85rem 0.75rem; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.06em; }
+        #dtSthList thead th { background: #eef2ff; color: var(--gems-primary-dark); font-weight: 700; border: none; padding: 0.85rem 0.75rem; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.06em; }
         #dtSthList tbody tr { background: #fff; }
-        #dtSthList tbody td { border-bottom: 1px solid #f1f5f9; padding: 0.78rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--sth-text); }
+        #dtSthList tbody td { border-bottom: 1px solid var(--gems-bg-page); padding: 0.78rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--sth-text); }
         #dtSthList tbody tr:last-child td { border-bottom: none; }
 
         @media (max-width: 991.98px) {
@@ -146,7 +146,7 @@
             #dtSthList thead { display: none; }
             #dtSthList tbody { display: block; }
             #dtSthList tbody tr { display: block; margin-bottom: 14px; border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 16px 36px -32px rgba(15, 23, 42, 0.32); overflow: hidden; }
-            #dtSthList tbody td { display: flex; align-items: flex-start; justify-content: space-between; padding: 0.75rem 0.9rem; border-bottom: 1px solid #f1f5f9; }
+            #dtSthList tbody td { display: flex; align-items: flex-start; justify-content: space-between; padding: 0.75rem 0.9rem; border-bottom: 1px solid var(--gems-bg-page); }
             #dtSthList tbody td:last-child { border-bottom: none; }
             #dtSthList tbody td::before { content: attr(data-label); font-weight: 600; color: var(--sth-muted); margin-right: 12px; }
             #dtSthList tbody td.text-center { justify-content: space-between; }

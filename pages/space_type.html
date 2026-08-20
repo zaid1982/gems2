@@ -17,14 +17,14 @@
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
     <style>
       :root {
-        --primary-color: #4f46e5;
-        --primary-dark: #3730a3;
-        --light-bg: #f8fafc;
+        --primary-color: var(--gems-primary);
+        --primary-dark: var(--gems-primary-dark);
+        --light-bg: var(--gems-bg-page);
       }
       .space-type-header { margin: 24px 0 16px; }
       .space-type-header .header-text h2 { font-size: 1.75rem; font-weight: 700; margin: 0; }
       .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
-      .main-content-card .card-header { background: #f8fafc; color:#000; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+      .main-content-card .card-header { background: var(--gems-bg-page); color:#000; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
       .main-content-card .card-body { padding: 1rem 1.25rem; }
       .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
       .icon-btn{ border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
@@ -34,7 +34,7 @@
       .segmented-group{ display:inline-flex; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06); }
       .segmented-btn{ background:#fff; color:#374151; padding:8px 12px; border:none; border-right:1px solid #e5e7eb; font-weight:600; letter-spacing:.2px; }
       .segmented-btn:last-child{ border-right:none; }
-      .segmented-btn:hover{ background:#f8fafc; }
+      .segmented-btn:hover{ background:var(--gems-bg-page); }
       /* Badges */
       .badge-modern { padding: 6px 10px; border-radius: 16px; font-size: .75rem; font-weight: 600; display:inline-block; }
       .badge-success-dark { background: rgba(16, 185, 129, 1); color: #fff; }
@@ -49,8 +49,8 @@
       }
       .table.dataTable thead th,
       table.dataTable thead th { 
-        background: #F8FAFC !important; 
-        color: #64748B !important; 
+        background: var(--gems-bg-page) !important; 
+        color: var(--gems-muted) !important; 
         font-weight: 700 !important; 
         font-size: 11px !important; 
         text-transform: uppercase !important; 
@@ -65,7 +65,7 @@
       table.dataTable tbody tr { 
         background: #fff !important; 
         transition: all 0.15s ease !important; 
-        border-bottom: 1px solid #F1F5F9 !important;
+        border-bottom: 1px solid var(--gems-bg-page) !important;
       }
       .table.dataTable tbody tr:hover,
       table.dataTable tbody tr:hover { 
@@ -78,7 +78,7 @@
       table.dataTable tbody td { 
         padding: 16px !important; 
         vertical-align: middle !important; 
-        color: #0F172A !important; 
+        color: var(--gems-text) !important; 
         border: none !important;
         border-top: none !important;
         font-size: 14px !important;

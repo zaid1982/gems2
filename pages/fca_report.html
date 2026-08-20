@@ -42,8 +42,8 @@
         /* Modern table styling to match design system */
         #dtFcrData { margin-bottom: 0; border-collapse: separate; border-spacing: 0; }
         #dtFcrData thead th { 
-            background: #F8FAFC; 
-            color: #64748B; 
+            background: var(--gems-bg-page); 
+            color: var(--gems-muted); 
             font-weight: 700; 
             font-size: 11px; 
             text-transform: uppercase; 
@@ -56,7 +56,7 @@
         #dtFcrData tbody tr { 
             background: #fff; 
             transition: all 0.15s ease; 
-            border-bottom: 1px solid #F1F5F9;
+            border-bottom: 1px solid var(--gems-bg-page);
         }
         #dtFcrData tbody tr:hover { 
             background: #FAFBFC; 
@@ -67,12 +67,12 @@
         #dtFcrData tbody td { 
             padding: 16px; 
             vertical-align: middle; 
-            color: #0F172A; 
+            color: var(--gems-text); 
             border: none;
             font-size: 14px;
         }
-        #dtFcrData tbody td:first-child { font-weight: 600; color: #64748B; }
-        #dtFcrData tbody td:nth-child(3) { font-weight: 600; color: #4338CA; }
+        #dtFcrData tbody td:first-child { font-weight: 600; color: var(--gems-muted); }
+        #dtFcrData tbody td:nth-child(3) { font-weight: 600; color: var(--gems-primary); }
 
         /* Card styling */
         #divFcrCard { 
@@ -93,8 +93,8 @@
             border: 1px solid #E2E8F0;
         }
         div.dataTables_wrapper div.dataTables_filter input:focus {
-            border-color: #4338CA;
-            box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+            border-color: var(--gems-primary);
+            box-shadow: 0 0 0 3px rgba(var(--gems-primary-rgb), 0.1);
         }
 
         /* Mobile table stack at ≤768px */
@@ -104,7 +104,7 @@
             #dtFcrData tr { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; box-shadow: 0 4px 10px rgba(2,6,23,.04); }
             #dtFcrData td { border: 0; border-bottom: 1px dashed #e5e7eb; padding: 8px 0; }
             #dtFcrData td:last-child { border-bottom: 0; }
-            #dtFcrData td::before { content: attr(data-label); display: block; color: #64748B; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+            #dtFcrData td::before { content: attr(data-label); display: block; color: var(--gems-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
         }
     </style>
 	<!-- JQuery -->

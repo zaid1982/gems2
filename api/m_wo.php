@@ -144,31 +144,33 @@ try {
             $complaintImageUploads = array();
             $complaintImages = filter_input(INPUT_POST, 'complaintImages', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
-            // Normalize coordinates: accept from explicit fields or parse from woTaskLocation ("lat,lng"),
-            // and coerce empty/undefined/null-like strings to actual NULL values.
+            // Normalize coordinates. Do not use PHP empty() — empty("0") is true and
+            // would drop a numeric zero. Do not parse zone names as lat,lng.
             $normalizeCoord = function ($val) {
                 if ($val === null) return null;
                 if (is_array($val)) return null;
                 $val = trim((string)$val);
                 if ($val === '' || strtolower($val) === 'null' || strtolower($val) === 'undefined') return null;
-                // Some clients may send with degree symbols or extra chars; keep only valid float pattern
-                // If not numeric after trim, drop to null
                 if (!is_numeric($val)) return null;
                 return (string) (float) $val;
             };
 
-            // If explicit coords are missing, try to parse from woTaskLocation
-            $parsedLat = null; $parsedLng = null;
-            if (!empty($woTaskLocation) && strpos($woTaskLocation, ',') !== false) {
-                $parts = explode(',', $woTaskLocation, 2);
-                $latStr = isset($parts[0]) ? trim($parts[0]) : '';
-                $lngStr = isset($parts[1]) ? trim($parts[1]) : '';
-                $parsedLat = $normalizeCoord($latStr);
-                $parsedLng = $normalizeCoord($lngStr);
-            }
+            $isValidGpsPair = function ($lat, $lng) {
+                if ($lat === null || $lng === null) return false;
+                if (!is_numeric($lat) || !is_numeric($lng)) return false;
+                $latF = (float) $lat;
+                $lngF = (float) $lng;
+                if ($latF == 0.0 && $lngF == 0.0) return false;
+                if (abs($latF) > 90 || abs($lngF) > 180) return false;
+                return true;
+            };
 
-            $woTaskLatitude = $normalizeCoord(!empty($woTaskLatitude) ? $woTaskLatitude : $parsedLat);
-            $woTaskLongitude = $normalizeCoord(!empty($woTaskLongitude) ? $woTaskLongitude : $parsedLng);
+            $woTaskLatitude = $normalizeCoord($woTaskLatitude);
+            $woTaskLongitude = $normalizeCoord($woTaskLongitude);
+
+            if (!$isValidGpsPair($woTaskLatitude, $woTaskLongitude)) {
+                throw new Exception('[' . __LINE__ . '] - ' . $constant::ERR_WO_COORDINATE_EMPTY, 31);
+            }
 
             // Also normalize location string to avoid accidental spaces-only values
             $woTaskLocation = is_null($woTaskLocation) ? '' : trim((string)$woTaskLocation);
@@ -179,6 +181,10 @@ try {
                     // Normalize per-image coordinates as well
                     $imgLng = isset($complaintImage['longitude']) ? $normalizeCoord($complaintImage['longitude']) : null;
                     $imgLat = isset($complaintImage['latitude']) ? $normalizeCoord($complaintImage['latitude']) : null;
+                    if (!$isValidGpsPair($imgLat, $imgLng)) {
+                        $imgLat = $woTaskLatitude;
+                        $imgLng = $woTaskLongitude;
+                    }
                     $complaintImageUpload = array(
                         'uploadId' => $uploadId,
                         'description' => isset($complaintImage['description']) ? $complaintImage['description'] : '',

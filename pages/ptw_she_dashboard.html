@@ -24,14 +24,14 @@
     <style>
         /* Modern Dashboard Styling */
         :root {
-            --primary-color: #4f46e5; /* standardized to supervisor */
-            --primary-dark: #3730a3;
-            --secondary-color: #64748b;
+            --primary-color: var(--gems-primary); /* standardized to supervisor */
+            --primary-dark: var(--gems-primary-dark);
+            --secondary-color: var(--gems-muted);
             --success-color: #10b981;
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
-            --info-color: #3b82f6;
-            --light-bg: #f8fafc;
+            --info-color: var(--gems-primary);
+            --light-bg: var(--gems-bg-page);
             --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
             --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             --border-radius: 12px;
@@ -212,7 +212,7 @@
         }
 
         .main-content-card .card-header {
-            background: #f8fafc;
+            background: var(--gems-bg-page);
             border-bottom: 1px solid #e2e8f0;
             padding: 20px 24px;
         }
@@ -270,7 +270,7 @@
         }
 
         .table-modern thead th {
-            background: #f8fafc;
+            background: var(--gems-bg-page);
             border: none;
             padding: 16px 12px;
             font-weight: 600;
@@ -282,12 +282,12 @@
 
         .table-modern tbody td {
             padding: 16px 12px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--gems-bg-page);
             vertical-align: middle;
         }
 
         .table-modern tbody tr:hover {
-            background: #f8fafc;
+            background: var(--gems-bg-page);
         }
 
         /* Badge Styling */
@@ -414,7 +414,7 @@
         }
 
         .modal-modern .modal-footer {
-            background: #f8fafc;
+            background: var(--gems-bg-page);
             border-top: 1px solid #e2e8f0;
             border-radius: 0 0 var(--border-radius) var(--border-radius);
         }

@@ -700,15 +700,16 @@ class Class_sql
                 AND DATE(wo_task_time_created) >= '[date_start]' AND DATE(wo_task_time_created) <= '[date_end]'
                 GROUP BY wo_task_fixed_by ORDER BY total LIMIT 5";
             } else if ($title === 'vg_wo_average_execute_by_trade') {
-                $sql = "SELECT 
+                $sql = "SELECT
+                    ppm_group.ppm_group_id,
                     ppm_group_name,
-                    AVG(TIMESTAMPDIFF(SECOND, wo_task_time_assigned, wo_task_time_executed))/60 AS total, 
+                    AVG(TIMESTAMPDIFF(SECOND, wo_task_time_assigned, wo_task_time_executed))/60 AS total,
                     SEC_TO_TIME(AVG(TIMESTAMPDIFF(SECOND, wo_task_time_assigned, wo_task_time_executed))) AS display
                 FROM wo_task
                 LEFT JOIN ppm_group ON ppm_group.ppm_group_id = wo_task.ppm_group_id
                 WHERE wo_task.ppm_group_id IS NOT NULL AND wo_task_time_executed IS NOT NULL AND wo_task.site_id [site_id]
                 AND DATE(wo_task_time_created) >= '[date_start]' AND DATE(wo_task_time_created) <= '[date_end]'
-                GROUP BY ppm_group_name
+                GROUP BY ppm_group.ppm_group_id, ppm_group_name
                 ORDER BY total";
             } else if ($title === 'vg_count_ppm_by_site_status') {
                 $sql = "SELECT 

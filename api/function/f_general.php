@@ -142,6 +142,58 @@ class Class_general {
     }
 
     /**
+     * Merge DataTables column searches (and export col_* params) into a WHERE array.
+     * $fieldMap is js mData name => SQL column.
+     *
+     * @param array $where
+     * @param array $fieldMap
+     * @return array
+     */
+    public function apply_datatable_column_filters($where, $fieldMap)
+    {
+        $filters = array();
+
+        if (isset($_GET['columns']) && is_array($_GET['columns'])) {
+            foreach ($_GET['columns'] as $col) {
+                if (!is_array($col)) {
+                    continue;
+                }
+                $data = isset($col['data']) ? $col['data'] : '';
+                $val = '';
+                if (isset($col['search']) && is_array($col['search']) && isset($col['search']['value'])) {
+                    $val = trim((string) $col['search']['value']);
+                }
+                if ($data !== '' && $val !== '' && isset($fieldMap[$data])) {
+                    $filters[$fieldMap[$data]] = $val;
+                }
+            }
+        }
+
+        foreach ($fieldMap as $jsName => $sqlField) {
+            $key = 'col_' . $jsName;
+            if (isset($_GET[$key]) && $_GET[$key] !== '' && $_GET[$key] !== null) {
+                $filters[$sqlField] = trim((string) $_GET[$key]);
+            }
+        }
+
+        foreach ($filters as $field => $value) {
+            if ($value === '') {
+                continue;
+            }
+            if (preg_match('/^\^\(?([^)$]+)\)?\$$/', $value, $m)) {
+                $value = $m[1];
+            }
+            if (preg_match('/^[0-9]+$/', $value)) {
+                $where[$field] = $value;
+            } else if (preg_match('/^[A-Za-z0-9 _\\-\\/\\.]+$/', $value)) {
+                $where[$field] = $value;
+            }
+        }
+
+        return $where;
+    }
+
+    /**
      * @param string $audit_action_id
      * @param string $user_id
      * @param string $remark

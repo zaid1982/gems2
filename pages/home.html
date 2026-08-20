@@ -27,14 +27,14 @@
     <!-- Home page custom styles -->
     <style>
         :root {
-            --home-primary: #4338ca;
-            --home-accent: #38bdf8;
-            --home-bg: #f1f5f9;
-            --home-text: #0f172a;
-            --home-muted: #64748b;
-            --home-radius: 24px;
-            --home-shadow: 0 24px 50px -32px rgba(30, 41, 59, 0.35);
-            --home-card-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.25);
+            --home-primary: var(--gems-primary);
+            --home-accent: var(--gems-secondary);
+            --home-bg: var(--gems-bg-page);
+            --home-text: var(--gems-text);
+            --home-muted: var(--gems-muted);
+            --home-radius: var(--gems-radius-lg);
+            --home-shadow: var(--gems-shadow-lg);
+            --home-card-shadow: var(--gems-card-shadow);
         }
 
         body {
@@ -135,7 +135,7 @@
 
         #modalExportProgress .modal-header {
             border-bottom: 1px solid #e9ecef;
-            background: #f8fafc;
+            background: var(--gems-bg-page);
         }
 
         #modalExportProgress .modal-title {
@@ -178,11 +178,11 @@
         }
 
         #modalExportProgress #exportProgressDetail {
-            color: #64748b;
+            color: var(--gems-muted);
         }
 
         #modalExportProgress #exportProgressDetail strong {
-            color: #0f172a;
+            color: var(--gems-text);
         }
     </style>
     <!-- JQuery -->
@@ -674,7 +674,7 @@
         try {
             Highcharts.setOptions({
                 chart: { backgroundColor: '#ffffff', style: { fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif' } },
-                colors: ['#4338CA', '#38BDF8', '#22C55E', '#F59E0B', '#EF4444', '#94A3B8'],
+                colors: ['#0055b8', '#00ada8', '#22C55E', '#F59E0B', '#EF4444', '#94A3B8'],
                 title: { style: { color: '#0F172A', fontWeight: '700' } },
                 subtitle: { style: { color: '#64748B' } },
                 xAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } }, title: { style: { color: '#64748B' } } },

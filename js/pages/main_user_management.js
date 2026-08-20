@@ -467,7 +467,7 @@ function MainUserManagement() {
             credits: {
                 enabled: false
             },
-            colors: ['#4338CA', '#6366F1', '#8B5CF6', '#312E81', '#C7D2FE', '#A5B4FC', '#60A5FA', '#7C3AED'],
+            colors: ['#0055b8', '#00ada8', '#003f8a', '#243746', '#ceeff0', '#7e8f9a', '#5b676f', '#e7eaec'],
             plotOptions: {
                 column: {
                     colorByPoint: true,

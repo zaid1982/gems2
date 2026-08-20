@@ -15,14 +15,14 @@
   <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
   <style>
     :root {
-      --primary-color: #4f46e5;
-      --primary-dark: #3730a3;
+      --primary-color: var(--gems-primary);
+      --primary-dark: var(--gems-primary-dark);
       --card-shadow-lg: 0 10px 30px -12px rgba(15, 23, 42, 0.25);
       --card-shadow: 0 20px 45px -20px rgba(30, 64, 175, 0.45);
       --border-radius-xl: 22px;
-      --muted: #64748b;
+      --muted: var(--gems-muted);
     }
-    body { background: #f1f5f9; }
+    body { background: var(--gems-bg-page); }
     .space-browse-header { margin: 32px 0 28px 0; padding: 40px 32px; }
     .space-browse-header .header-text h2 { font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; }
     .space-browse-header .header-text p { font-size: 1.05rem; opacity: 0.95; margin: 0; }
@@ -44,7 +44,7 @@
       box-shadow:0 0 0 0.15rem rgba(79,70,229,0.1);
     }
     .filter-card .filter-select:disabled {
-      background-color:#f8fafc;
+      background-color:var(--gems-bg-page);
       color:#94a3b8;
       cursor:not-allowed;
     }
@@ -60,7 +60,7 @@
       transition: border-color .2s ease, box-shadow .2s ease;
     }
     .filter-card .select-wrapper input.select-dropdown[disabled] {
-      background-color:#f8fafc;
+      background-color:var(--gems-bg-page);
       color:#94a3b8;
       cursor:not-allowed;
     }
@@ -69,8 +69,8 @@
       box-shadow:0 0 0 0.15rem rgba(79,70,229,0.1);
     }
     .filter-card .select-wrapper span.caret { color:#4a5568; } */
-    .custom-control-label { font-weight: 500; color:#0f172a; }
-    .results-summary { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-top:22px; color:#0f172a; }
+    .custom-control-label { font-weight: 500; color:var(--gems-text); }
+    .results-summary { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-top:22px; color:var(--gems-text); }
 
     .space-grid { margin-top:36px; }
     .space-card { border-radius: var(--border-radius-xl); overflow:hidden; background:#fff; box-shadow: var(--card-shadow); transition: transform .25s ease, box-shadow .25s ease; position:relative; height:100%; display:flex; flex-direction:column; }
@@ -84,17 +84,17 @@
     .space-card__badge--disabled { background: rgba(148,163,184,0.9); }
     .space-card__favorite { position:absolute; top:16px; right:16px; width:38px; height:38px; border-radius:999px; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; color:#ef4444; font-size:1rem; box-shadow:0 10px 20px -12px rgba(15,23,42,0.45); }
     .space-card__body { padding:20px 22px 16px 22px; flex:1; display:flex; flex-direction:column; }
-    .space-card__title { font-size:1.15rem; font-weight:700; color:#0f172a; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .space-card__title { font-size:1.15rem; font-weight:700; color:var(--gems-text); margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
     .space-card__subtitle { color:var(--muted); font-size:.9rem; margin-bottom:12px; }
     .space-card__meta { display:flex; align-items:center; gap:8px; color:#1e293b; font-weight:500; font-size:.92rem; margin-bottom:8px; }
-    .space-card__meta i { color:#4338ca; }
+    .space-card__meta i { color:var(--gems-primary); }
     .space-card__stats { display:flex; gap:12px; flex-wrap:wrap; font-size:.82rem; color:#475569; margin-top:auto; }
     .space-card__actions { padding:18px 22px 22px 22px; display:flex; flex-wrap:wrap; gap:10px; }
     .btn-outline-primary { border-radius:12px; font-weight:600; }
     .btn-primary { border-radius:12px; font-weight:600; }
 
     #spaceGridEmpty { border-radius:20px; background:#fff; padding:60px 30px; box-shadow:0 20px 35px -28px rgba(15,23,42,0.4); text-align:center; color:#475569; font-size:1rem; }
-    #spaceGridEmpty i { font-size:2.2rem; color:#818cf8; margin-bottom:12px; }
+    #spaceGridEmpty i { font-size:2.2rem; color:var(--gems-secondary); margin-bottom:12px; }
 
   @media (max-width: 991.98px){ .space-browse-header { padding:32px 24px; } }
     @media (max-width: 767.98px){ .space-card__badge { top:12px; left:12px; } }

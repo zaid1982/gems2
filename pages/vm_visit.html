@@ -11,8 +11,9 @@
   <link rel="stylesheet" href="css/mdb.min.css">
   <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/gems2-ui.css" rel="stylesheet">
   <style>
-  :root { --vm-bg:#f6f8fa; --vm-primary:#1266f1; --vm-primary-dark:#0d47a1; --vm-muted:#627d98; --vm-border:#e1e7ef; --vm-text:#102a43; }
+  :root { --vm-bg:var(--gems-bg-page); --vm-primary:var(--gems-primary); --vm-primary-dark:var(--gems-primary-dark); --vm-muted:var(--gems-muted); --vm-border:var(--gems-border); --vm-text:var(--gems-text); }
   body { background:var(--vm-bg); color:var(--vm-text); }
   /* Header to match PTW public form */
   .vm-header { padding: 1.25rem 0 .5rem; }
@@ -92,7 +93,7 @@
   #btnSubmit.btn-primary { background: var(--vm-primary); border-color: var(--vm-primary); }
   #btnSubmit.btn-primary:hover { background: var(--vm-primary-dark); border-color: var(--vm-primary-dark); }
   #btnReset.btn-outline-secondary { color: #4b5563; border-color: #cbd5e1; }
-  #btnReset.btn-outline-secondary:hover { background: #f1f5f9; color: #111827; }
+  #btnReset.btn-outline-secondary:hover { background: var(--gems-bg-page); color: #111827; }
   @media (max-width: 767.98px){
     .vm-header { padding-top: 1rem; }
     .vm-header .title { font-size: 1.5rem; }

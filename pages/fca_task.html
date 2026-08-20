@@ -22,12 +22,12 @@
     <!-- Page styles -->
     <style>
         :root {
-            --fca-primary: #4338CA;
-            --fca-background: #F1F5F9;
-            --fca-text: #0F172A;
-            --fca-muted: #64748B;
-            --fca-radius: 26px;
-            --fca-shadow: 0 18px 45px -28px rgba(15, 23, 42, 0.5);
+            --fca-primary: var(--gems-primary);
+            --fca-background: var(--gems-bg-page);
+            --fca-text: var(--gems-text);
+            --fca-muted: var(--gems-muted);
+            --fca-radius: var(--gems-radius-lg);
+            --fca-shadow: var(--gems-shadow-lg);
         }
 
         body {
@@ -71,7 +71,7 @@
 
         .module-fca .btnFctTab {
             border: none;
-            background: rgba(67, 56, 202, 0.08);
+            background: rgba(var(--gems-primary-rgb), 0.08);
             color: var(--fca-primary);
             border-radius: 999px;
             padding: 0.55rem 1.25rem;
@@ -83,7 +83,7 @@
         }
 
         .module-fca .btnFctTab .tab-badge {
-            background: rgba(67, 56, 202, 0.18);
+            background: rgba(var(--gems-primary-rgb), 0.18);
             color: var(--fca-primary);
             border-radius: 999px;
             padding: 0.15rem 0.75rem;
@@ -94,7 +94,7 @@
         .module-fca .btnFctTab.is-active {
             background: var(--fca-primary);
             color: #fff;
-            box-shadow: 0 10px 30px -16px rgba(67, 56, 202, 0.75);
+            box-shadow: 0 10px 30px -16px rgba(var(--gems-primary-rgb), 0.75);
         }
 
         .module-fca .btnFctTab.is-active .tab-badge {
@@ -126,7 +126,7 @@
             width: 140px;
             height: 140px;
             border-radius: 50%;
-            background: rgba(67, 56, 202, 0.08);
+            background: rgba(var(--gems-primary-rgb), 0.08);
         }
 
         .module-fca .metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--fca-muted); margin-bottom: 0.55rem; }
@@ -140,7 +140,7 @@
         }
 
         .module-fca .card-pill {
-            background: rgba(67, 56, 202, 0.12);
+            background: rgba(var(--gems-primary-rgb), 0.12);
             color: var(--fca-primary);
             border-radius: 999px;
             padding: 0.35rem 0.85rem;
@@ -162,7 +162,7 @@
             gap: 0.45rem;
             padding: 0.4rem 0.9rem;
             border-radius: 999px;
-            background: rgba(67, 56, 202, 0.12);
+            background: rgba(var(--gems-primary-rgb), 0.12);
             color: var(--fca-primary);
             font-weight: 600;
         }

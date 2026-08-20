@@ -612,8 +612,13 @@ class Class_pdf_wo {
             if (!is_writable($folderPath)) {
                 throw new Exception('[' . __LINE__ . '] - PDF folder not writable '.$folderPath);
             }
-            $filename = 'wo_'.substr((10000000+intval($this->woTaskId)),1).'.pdf';
+            $displayNo = trim((string) (isset($woTask['wo_task_no']) ? $woTask['wo_task_no'] : ''));
+            if ($displayNo === '' || $displayNo === '-') {
+                $displayNo = 'wo_'.substr((10000000+intval($this->woTaskId)),1);
+            }
+            $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', $displayNo).'.pdf';
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Filename pdf : '.$filename);
+            $pdf->SetTitle($displayNo);
             $pdf->Output($folderPath.'/'.$filename, 'F');
 
             $pdfId = $woTask['pdf_id'];

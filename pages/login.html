@@ -25,16 +25,17 @@
     <link href="css/mdb.min.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <style>
         :root {
             --login-bg-start: #111827;
-            --login-bg-mid: #4338ca;
-            --login-bg-end: #6366f1;
+            --login-bg-mid: var(--gems-primary);
+            --login-bg-end: var(--gems-secondary);
             --login-surface: #ffffff;
             --login-surface-alt: rgba(255, 255, 255, 0.08);
-            --login-text-dark: #0f172a;
-            --login-text-muted: #64748b;
-            --login-border: rgba(99, 102, 241, 0.2);
+            --login-text-dark: var(--gems-text);
+            --login-text-muted: var(--gems-muted);
+            --login-border: rgba(var(--gems-primary-rgb), 0.2);
             --login-radius: 28px;
             --login-shadow: 0 30px 60px -35px rgba(15, 23, 42, 0.8);
         }
@@ -195,15 +196,15 @@
             padding: 0.85rem 1rem 0.85rem 2.75rem;
             border-radius: 14px;
             border: 1px solid var(--login-border);
-            background: #f8fafc;
+            background: var(--gems-bg-page);
             transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
         }
 
         .login-input-wrapper input:focus {
             outline: none;
-            border-color: rgba(99, 102, 241, 0.6);
+            border-color: rgba(var(--gems-primary-rgb), 0.6);
             background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18);
+            box-shadow: 0 0 0 4px rgba(var(--gems-primary-rgb), 0.18);
         }
 
         .login-error {
@@ -227,7 +228,7 @@
             padding: 0.9rem 1rem;
             border-radius: 18px;
             border: none;
-            background: #00ada8;
+            background: var(--gems-secondary);
             color: #ffffff;
             font-weight: 600;
             letter-spacing: 0.4px;
@@ -254,7 +255,7 @@
         }
 
         .login-support a {
-            color: #4338ca;
+            color: var(--gems-primary);
             font-weight: 500;
         }
 

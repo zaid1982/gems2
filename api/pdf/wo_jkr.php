@@ -381,6 +381,9 @@ class Class_pdf_wo_jkr extends Class_pdf_wo {
         }
         $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', $displayNo).'.pdf';
         $this->fn_general()->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Filename pdf : '.$filename);
+        if (method_exists($pdf, 'SetTitle')) {
+            $pdf->SetTitle($displayNo);
+        }
         $pdf->Output($folderPath.'/'.$filename, 'F');
 
         $pdfId = $this->array_get($woTask, 'pdf_id');

@@ -3022,6 +3022,15 @@ class Class_ppm {
                 $whereWithSearch['w1'] = $searchClause;
             }
 
+            $whereWithSearch = $this->fn_general->apply_datatable_column_filters($whereWithSearch, array(
+                'siteId' => 'site_id',
+                'ppmGroupId' => 'ppm_group_id',
+                'assetGroupId' => 'asset_group_id',
+                'ppmTaskStatus' => 'ppm_task_status',
+                'ppmTaskServicedBy' => 'ppm_task_serviced_by',
+                'lateness' => 'lateness'
+            ));
+
             $orderableColumns = array(
                 1 => 'ppm_task_no',
                 2 => 'site_id',
@@ -3054,7 +3063,9 @@ class Class_ppm {
             while (true) {
                 try {
                     $totalRecords = Class_db::getInstance()->db_count('vg_ppm_dashboard', $baseWhere);
-                    $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vg_ppm_dashboard', $whereWithSearch);
+                    $filteredRecords = ($whereWithSearch === $baseWhere)
+                        ? $totalRecords
+                        : Class_db::getInstance()->db_count('vg_ppm_dashboard', $whereWithSearch);
                     break;
                 } catch (Exception $ex) {
                     if ($retryRoutineFilter && $attempt === 0 && strpos($ex->getMessage(), 'ppm_is_routine') !== false) {
@@ -3097,7 +3108,9 @@ class Class_ppm {
 
             if ($countsNeedRefresh) {
                 $totalRecords = Class_db::getInstance()->db_count('vg_ppm_dashboard', $baseWhere);
-                $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vg_ppm_dashboard', $whereWithSearch);
+                $filteredRecords = ($whereWithSearch === $baseWhere)
+                    ? $totalRecords
+                    : Class_db::getInstance()->db_count('vg_ppm_dashboard', $whereWithSearch);
             }
             foreach ($dataLocals as $dataLocal) {
                 $row_result['ppmTaskId'] = $dataLocal['ppm_task_id'];

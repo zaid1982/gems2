@@ -23,13 +23,13 @@
     <!-- Your custom styles (optional) -->
     <style>
         :root {
-            --config-primary: #0ea5e9;
-            --config-secondary: #6366f1;
-            --config-text: #0f172a;
-            --config-muted: #64748b;
-            --config-radius: 26px;
-            --config-shadow: 0 34px 66px -38px rgba(15, 23, 42, 0.45);
-            --config-card-shadow: 0 26px 52px -32px rgba(15, 23, 42, 0.3);
+            --config-primary: var(--gems-primary);
+            --config-secondary: var(--gems-secondary);
+            --config-text: var(--gems-text);
+            --config-muted: var(--gems-muted);
+            --config-radius: var(--gems-radius-lg);
+            --config-shadow: var(--gems-shadow-lg);
+            --config-card-shadow: var(--gems-card-shadow);
         }
 
         body {
@@ -41,7 +41,7 @@
         }
 
         .config-page-header {
-            background: linear-gradient(135deg, rgba(14,165,233,0.95) 0%, rgba(99,102,241,0.92) 100%);
+            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.95) 0%, rgba(var(--gems-secondary-rgb), 0.92) 100%);
             color: #fff;
             border-radius: 32px;
             padding: 40px 36px;
@@ -94,7 +94,7 @@
         }
 
         .config-actions .btn-light.btn-icon {
-            color: #0f172a;
+            color: var(--gems-text);
         }
 
         .config-actions .btn-icon i {
@@ -127,13 +127,13 @@
             width: 54px;
             height: 54px;
             border-radius: 18px;
-            background: linear-gradient(135deg, rgba(14,165,233,1) 0%, rgba(99,102,241,1) 100%);
+            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 1) 0%, rgba(var(--gems-secondary-rgb), 1) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
             font-size: 1.5rem;
-            box-shadow: 0 24px 44px -26px rgba(14, 165, 233, 0.6);
+            box-shadow: 0 24px 44px -26px rgba(var(--gems-primary-rgb), 0.6);
         }
 
         .config-card-header h3 {
@@ -161,14 +161,14 @@
 
         .config-card .form-control {
             border-radius: 14px;
-            border: 1px solid rgba(99, 102, 241, 0.25);
+            border: 1px solid rgba(var(--gems-secondary-rgb), 0.25);
             padding: 0.65rem 0.85rem;
             transition: all 0.2s ease;
         }
 
         .config-card .form-control:focus {
             border-color: var(--config-secondary);
-            box-shadow: 0 0 0 0.18rem rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 0 0.18rem rgba(var(--gems-secondary-rgb), 0.2);
         }
 
         .config-card .description {
@@ -178,8 +178,8 @@
         }
 
         .config-alert {
-            background: linear-gradient(135deg, rgba(14,165,233,0.12) 0%, rgba(99,102,241,0.12) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.12) 0%, rgba(var(--gems-secondary-rgb), 0.12) 100%);
+            border: 1px solid rgba(var(--gems-secondary-rgb), 0.2);
             padding: 14px 18px;
             border-radius: 18px;
             display: flex;

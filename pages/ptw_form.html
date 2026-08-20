@@ -19,6 +19,7 @@
     <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <link href="css/style.css" rel="stylesheet">
+    <link href="css/gems2-ui.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <style>
         /* Form container centering and width control */
@@ -41,12 +42,12 @@
             margin-bottom: 2rem;
         }
         .config-header {
-            background: linear-gradient(45deg, #4285f4, #34a853);
+            background: var(--gems-header-gradient);
         }
         
         /* View Mode Styles */
         .view-mode-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gems-header-gradient);
             color: white;
             padding: 15px;
             border-radius: 8px 8px 0 0;
@@ -63,8 +64,8 @@
             font-weight: 700;
             letter-spacing: .02em;
             color: #fff;
-            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
-            box-shadow: 0 4px 12px rgba(13,71,161,0.25), inset 0 0 0 1px rgba(255,255,255,0.06);
+            background: var(--gems-header-gradient);
+            box-shadow: 0 4px 12px rgba(var(--gems-primary-rgb), 0.25), inset 0 0 0 1px rgba(255,255,255,0.06);
             margin-left: 10px;
         }
         
@@ -213,11 +214,11 @@
             color: #495057;
         }
         .form-control:focus {
-            border-color: #4285f4;
-            box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
+            border-color: var(--gems-primary);
+            box-shadow: 0 0 0 0.2rem rgba(var(--gems-primary-rgb), 0.25);
         }
         .btn-save {
-            background: linear-gradient(45deg, #34a853, #4285f4);
+            background: var(--gems-header-gradient);
             border: none;
         }
         .btn-save:hover {
@@ -298,8 +299,8 @@
         }
         
         .native-dropdown select:focus {
-            border-color: #4285f4 !important;
-            box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25) !important;
+            border-color: var(--gems-primary) !important;
+            box-shadow: 0 0 0 0.2rem rgba(var(--gems-primary-rgb), 0.25) !important;
             outline: none !important;
         }
         
@@ -365,7 +366,7 @@
         .signature-section.has-signature .signature-actions,
         .signature-section.has-signature .signature-hint { display: none !important; }
         .signature-section.has-signature .signature-image { display: block; }
-            border-top: 4px solid #4285f4;
+            border-top: 4px solid var(--gems-primary);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -380,7 +381,7 @@
         
         /* Enhanced public form styling */
         .public-form-header {
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            background: var(--gems-header-gradient);
             color: white;
             padding: 20px;
             border-radius: 10px;
@@ -458,7 +459,7 @@
             display: inline-block;
             width: 18px;
             height: 18px;
-            background-color: #4285f4;
+            background-color: var(--gems-primary);
             color: white;
             border-radius: 50%;
             text-align: center;
@@ -484,7 +485,7 @@
             padding: 10px;
             margin-top: 8px;
             font-size: 0.85rem;
-            color: #1565c0;
+            color: var(--gems-primary);
             position: relative;
             z-index: 1000;
         }
@@ -512,14 +513,14 @@
         }
         
         .help-example strong {
-            color: #0d47a1;
+            color: var(--gems-primary-dark);
             display: block;
             margin-bottom: 4px;
         }
         
         .help-example .example-text {
             font-style: italic;
-            color: #1976d2;
+            color: var(--gems-primary);
             background-color: #fff;
             padding: 4px 8px;
             border-radius: 4px;
@@ -629,7 +630,7 @@
         
         /* Tabbed interface styling */
         .nav-tabs {
-            border-bottom: 3px solid #4285f4;
+            border-bottom: 3px solid var(--gems-primary);
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
         
@@ -644,13 +645,13 @@
         
         .nav-tabs .nav-link:hover {
             border: none;
-            background: rgba(66, 133, 244, 0.1);
-            color: #4285f4;
+            background: rgba(var(--gems-primary-rgb), 0.1);
+            color: var(--gems-primary);
         }
         
         .nav-tabs .nav-link.active {
             border: none;
-            background: #4285f4;
+            background: var(--gems-primary);
             color: white;
             border-radius: 0;
             height: 100%;
@@ -690,7 +691,7 @@
         }
         
         #workersTable th {
-            background: #4285f4;
+            background: var(--gems-primary);
             color: white;
             font-weight: 600;
             border: none;
@@ -814,7 +815,7 @@
         }
         
         .file-upload-area {
-            border: 2px dashed #4285f4;
+            border: 2px dashed var(--gems-primary);
             border-radius: 8px;
             padding: 30px 20px;
             text-align: center;
@@ -836,7 +837,7 @@
         
         .upload-icon {
             font-size: 3rem;
-            color: #4285f4;
+            color: var(--gems-primary);
             margin-bottom: 15px;
         }
         
@@ -850,7 +851,7 @@
         }
         
         .documents-table th {
-            background: #4285f4;
+            background: var(--gems-primary);
             color: white;
             font-weight: 600;
             text-align: center;
@@ -924,7 +925,7 @@
         
         .work-type-item:hover {
             background: #e9ecef;
-            border-color: #4285f4;
+            border-color: var(--gems-primary);
             transform: translateY(-1px);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
@@ -946,16 +947,16 @@
         }
         
         .work-type-item:hover .form-check-label {
-            color: #4285f4;
+            color: var(--gems-primary);
         }
         
         .work-type-item .form-check-input:checked {
-            background-color: #4285f4;
-            border-color: #4285f4;
+            background-color: var(--gems-primary);
+            border-color: var(--gems-primary);
         }
         
         .work-type-item .form-check-input:checked + .form-check-label {
-            color: #4285f4;
+            color: var(--gems-primary);
             font-weight: 600;
         }
         
@@ -1024,7 +1025,7 @@
         
         .checkbox-item:hover {
             background: #e9ecef;
-            border-color: #4285f4;
+            border-color: var(--gems-primary);
             transform: translateY(-1px);
             box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         }
@@ -1048,16 +1049,16 @@
         }
         
         .checkbox-item:hover .form-check-label {
-            color: #4285f4;
+            color: var(--gems-primary);
         }
         
         .checkbox-item .form-check-input:checked {
-            background-color: #4285f4;
-            border-color: #4285f4;
+            background-color: var(--gems-primary);
+            border-color: var(--gems-primary);
         }
         
         .checkbox-item .form-check-input:checked + .form-check-label {
-            color: #4285f4;
+            color: var(--gems-primary);
             font-weight: 600;
         }
         
@@ -1152,7 +1153,7 @@
         }
         
         .documents-section .checkbox-item:hover .form-check-label {
-            color: #4285f4;
+            color: var(--gems-primary);
         }
         
         /* Phones and small tablets: 1 column ≤576px, 2 columns 577–768px; desktop remains 3 columns */
@@ -6923,7 +6924,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                 ">
                     <div style="
                         border: 4px solid #f3f3f3;
-                        border-top: 4px solid #4285f4;
+                        border-top: 4px solid var(--gems-primary);
                         border-radius: 50%;
                         width: 40px;
                         height: 40px;

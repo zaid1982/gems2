@@ -18,14 +18,14 @@
     <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
     <style>
         :root {
-            --attendance-primary: #4338ca;
-            --attendance-accent: #38bdf8;
-            --attendance-bg: #f1f5f9;
-            --attendance-text: #0f172a;
-            --attendance-muted: #64748b;
-            --attendance-card-radius: 24px;
-            --attendance-shadow: 0 24px 50px -32px rgba(30, 41, 59, 0.55);
-            --attendance-card-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.28);
+            --attendance-primary: var(--gems-primary);
+            --attendance-accent: var(--gems-secondary);
+            --attendance-bg: var(--gems-bg-page);
+            --attendance-text: var(--gems-text);
+            --attendance-muted: var(--gems-muted);
+            --attendance-card-radius: var(--gems-radius-lg);
+            --attendance-shadow: var(--gems-shadow-lg);
+            --attendance-card-shadow: var(--gems-card-shadow);
         }
 
         body { background: var(--attendance-bg); }
@@ -80,7 +80,7 @@
             width: 140px;
             height: 140px;
             border-radius: 50%;
-            background: rgba(67, 56, 202, 0.08);
+            background: rgba(var(--gems-primary-rgb), 0.08);
         }
 
         .metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--attendance-muted); margin-bottom: 6px; }
@@ -115,14 +115,14 @@
         }
 
             .filter-pill-group a:hover, .filter-pill-group a.active {
-            background: rgba(67, 56, 202, 0.12);
-            border-color: rgba(67, 56, 202, 0.45);
+            background: rgba(var(--gems-primary-rgb), 0.12);
+            border-color: rgba(var(--gems-primary-rgb), 0.45);
             color: var(--attendance-primary);
         }
 
             .filter-pill-group a.text-white {
                 background: var(--attendance-primary);
-                border-color: rgba(67, 56, 202, 0.6);
+                border-color: rgba(var(--gems-primary-rgb), 0.6);
                 color: #fff !important;
             }
 
@@ -184,7 +184,7 @@
         .attendance-data-card table { width: 100% !important; }
         .attendance-data-card thead th {
             background: #eef2ff;
-            color: #3730a3;
+            color: var(--gems-primary-dark);
             font-weight: 700;
             border: none;
             padding: 0.85rem 0.75rem;
@@ -194,7 +194,7 @@
         }
 
         .attendance-data-card tbody td {
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--gems-bg-page);
             padding: 0.85rem 0.75rem;
             vertical-align: middle;
             font-size: 0.93rem;
@@ -287,7 +287,7 @@
                 align-items: center;
                 justify-content: space-between;
                 padding: 0.75rem 0.95rem;
-                border-bottom: 1px solid #f1f5f9;
+                border-bottom: 1px solid var(--gems-bg-page);
             }
             .attendance-data-card tbody tr td:last-child { border-bottom: none; }
             .attendance-data-card tbody td::before {

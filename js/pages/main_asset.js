@@ -505,7 +505,7 @@ function MainAsset() {
                 text: 'Total Asset by Category',
                 style: { color: '#0F172A', fontWeight: '600', fontSize: '18px' }
             },
-                colors: ['#4338CA', '#38BDF8', '#0EA5E9', '#22C55E', '#F59E0B', '#F97316', '#EF4444', '#8B5CF6', '#14B8A6', '#6366F1'],
+                colors: ['#0055b8', '#00ada8', '#003f8a', '#22C55E', '#F59E0B', '#F97316', '#EF4444', '#7e8f9a', '#14B8A6', '#243746'],
             tooltip: {
                 useHTML: true,
                 backgroundColor: '#FFFFFF',
@@ -530,7 +530,7 @@ function MainAsset() {
             },
             legend: {
                 itemStyle: { color: '#0F172A', fontWeight: '500' },
-                itemHoverStyle: { color: '#4338CA' }
+                itemHoverStyle: { color: '#0055b8' }
             },
             series: [{ name: 'Asset Group', data: chartData }],
             drilldown: { series: chartDrilldown }

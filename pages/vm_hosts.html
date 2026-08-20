@@ -14,7 +14,7 @@
   <!-- Shared navigation + chrome -->
   <link href="css/gems2-ui.css" rel="stylesheet">
   <style>
-    body { background: #f6f8fa; }
+    body { background: var(--gems-bg-page); }
     .page { max-width: 1100px; margin: 0 auto; padding: 2rem 0; }
     /* Keep square look for cards/inputs/modals only; allow custom pills for buttons/badges */
     .card, .form-control, .modal-content, .input-group-text { border-radius: 0 !important; }
@@ -31,21 +31,21 @@
     .hosts-page-header .header-text h4 { margin: 0 0 6px; font-weight: 700; font-size: 1.6rem; }
     .hosts-page-header .header-text .sub { margin: 0; opacity: .95; }
   .hosts-page-header .header-actions { display:flex; flex-wrap:wrap; gap:12px; }
-  .hosts-page-header .header-actions .btn-light.btn-icon { color:#0F172A; }
+  .hosts-page-header .header-actions .btn-light.btn-icon { color:var(--gems-text); }
 
     .hosts-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
     .metric-card { background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 6px 16px rgba(2,6,23,.06); }
-    .metric-label { color: #64748B; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-    .metric-value { color: #0F172A; font-size: 28px; font-weight: 700; margin-top: 4px; }
-    .metric-subtext { color: #64748B; font-size: 12px; margin-top: 2px; }
+    .metric-label { color: var(--gems-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+    .metric-value { color: var(--gems-text); font-size: 28px; font-weight: 700; margin-top: 4px; }
+    .metric-subtext { color: var(--gems-muted); font-size: 12px; margin-top: 2px; }
 
     .filter-card { background: #fff; border-radius: 20px; padding: 18px; margin: 16px 0; box-shadow: 0 6px 16px rgba(2,6,23,.06); }
     .filter-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; align-items: end; }
-    .filter-label { display:block; color:#64748B; font-size:12px; margin-bottom:6px; text-transform: uppercase; letter-spacing: .06em; }
+    .filter-label { display:block; color:var(--gems-muted); font-size:12px; margin-bottom:6px; text-transform: uppercase; letter-spacing: .06em; }
     .filter-card .form-control, .filter-card select.browser-default.custom-select { height: 46px; padding: 10px 12px; width: 100%; border-radius: 12px !important; }
     .filter-card input[type="text"] { padding: 8px 12px; }
-    .results-summary { display:flex; align-items:center; justify-content: space-between; gap:12px; color:#0F172A; margin-top: 8px; }
-    .summary-pill { color:#64748B; font-size: .9rem; }
+    .results-summary { display:flex; align-items:center; justify-content: space-between; gap:12px; color:var(--gems-text); margin-top: 8px; }
+    .summary-pill { color:var(--gems-muted); font-size: .9rem; }
 
     /* Table card wrapper */
     .hosts-table-card { 
@@ -61,7 +61,7 @@
     /* DataTable controls styling */
     .hosts-table-card .dataTables_wrapper .dataTables_length,
     .hosts-table-card .dataTables_wrapper .dataTables_info {
-      color: #64748B;
+      color: var(--gems-muted);
       font-size: 13px;
       padding: 8px 4px;
     }
@@ -82,12 +82,12 @@
       background: #fff;
     }
     .hosts-table-card .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-      background: #4338CA !important;
+      background: var(--gems-primary) !important;
       color: #fff !important;
-      border-color: #4338CA;
+      border-color: var(--gems-primary);
     }
     .hosts-table-card .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) {
-      background: #F1F5F9;
+      background: var(--gems-bg-page);
       border-color: #CBD5E1;
     }
 
@@ -100,8 +100,8 @@
   /* Modern table styling to match design system */
   .table { margin-bottom: 0; border-collapse: separate; border-spacing: 0; }
   .table thead th { 
-    background: #F8FAFC; 
-    color: #64748B; 
+    background: var(--gems-bg-page); 
+    color: var(--gems-muted); 
     font-weight: 700; 
     font-size: 11px; 
     text-transform: uppercase; 
@@ -114,7 +114,7 @@
   .table tbody tr { 
     background: #fff; 
     transition: all 0.15s ease; 
-    border-bottom: 1px solid #F1F5F9;
+    border-bottom: 1px solid var(--gems-bg-page);
   }
   .table tbody tr:hover { 
     background: #FAFBFC; 
@@ -125,11 +125,11 @@
   .table tbody td { 
     padding: 16px; 
     vertical-align: middle; 
-    color: #0F172A; 
+    color: var(--gems-text); 
     border: none;
     font-size: 14px;
   }
-  /* .table tbody td:first-child { font-weight: 600; color: #4338CA; } */
+  /* .table tbody td:first-child { font-weight: 600; color: var(--gems-primary); } */
 
     /* License-style status badges (translucent, pill) */
     .badge-success { background: rgba(34, 197, 94, 0.18) !important; color: #166534 !important; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px !important; }
@@ -144,7 +144,7 @@
       #tbl tr { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; box-shadow: 0 4px 10px rgba(2,6,23,.04); }
       #tbl td { border: 0; border-bottom: 1px dashed #e5e7eb; padding: 8px 0; }
       #tbl td:last-child { border-bottom: 0; }
-      #tbl td::before { content: attr(data-label); display: block; color: #64748B; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+      #tbl td::before { content: attr(data-label); display: block; color: var(--gems-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
     }
   </style>
 </head>

@@ -17,14 +17,14 @@
   <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
   <style>
     :root {
-      --wtt-primary: #4338ca;
-      --wtt-accent: #818cf8;
-      --wtt-bg: #f1f5f9;
-      --wtt-text: #0f172a;
-      --wtt-muted: #64748b;
-      --wtt-card-radius: 24px;
-      --wtt-shadow: 0 24px 50px -32px rgba(30, 41, 59, 0.55);
-      --wtt-card-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.32);
+      --wtt-primary: var(--gems-primary);
+      --wtt-accent: var(--gems-secondary);
+      --wtt-bg: var(--gems-bg-page);
+      --wtt-text: var(--gems-text);
+      --wtt-muted: var(--gems-muted);
+      --wtt-card-radius: var(--gems-radius-lg);
+      --wtt-shadow: var(--gems-shadow-lg);
+      --wtt-card-shadow: var(--gems-card-shadow);
     }
 
     body { background: var(--wtt-bg); }
@@ -63,7 +63,7 @@
     .waste-type-header p { margin: 0; font-size: 1rem; opacity: 0.95; }
 
   .waste-type-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 10px; }
-  .waste-type-header .header-actions .btn-light.btn-icon { color: #0f172a; }
+  .waste-type-header .header-actions .btn-light.btn-icon { color: var(--gems-text); }
 
     .waste-type-metrics {
       display: grid;
@@ -117,8 +117,8 @@
 
     .waste-type-filter-card .form-control:focus,
     .waste-type-filter-card .custom-select:focus {
-      border-color: rgba(67, 56, 202, 0.75);
-      box-shadow: 0 0 0 0.15rem rgba(67, 56, 202, 0.12);
+      border-color: rgba(var(--gems-primary-rgb), 0.75);
+      box-shadow: 0 0 0 0.15rem rgba(var(--gems-primary-rgb), 0.12);
     }
 
     .results-summary {
@@ -158,7 +158,7 @@
     #dtWtt { width: 100% !important; border-collapse: collapse !important; }
     #dtWtt thead th {
       background: #eef2ff;
-      color: #3730a3;
+      color: var(--gems-primary-dark);
       font-weight: 700;
       border: none;
       padding: 0.85rem 0.75rem;
@@ -167,7 +167,7 @@
       letter-spacing: .06em;
     }
     #dtWtt tbody tr { background: #fff; }
-    #dtWtt tbody td { border-bottom: 1px solid #f1f5f9; padding: 0.9rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--wtt-text); }
+    #dtWtt tbody td { border-bottom: 1px solid var(--gems-bg-page); padding: 0.9rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--wtt-text); }
     #dtWtt tbody tr:last-child td { border-bottom: none; }
 
     .badge-status {
@@ -227,7 +227,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 0.75rem 0.95rem;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--gems-bg-page);
       }
       #dtWtt tbody tr td:last-child { border-bottom: none; }
       #dtWtt tbody tr td::before {

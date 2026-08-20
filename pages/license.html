@@ -17,14 +17,14 @@
   <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
   <style>
     :root {
-      --license-primary: #4338ca;
-      --license-accent: #38bdf8;
-      --license-bg: #f1f5f9;
-      --license-text: #0f172a;
-      --license-muted: #64748b;
-      --license-border-radius: 22px;
-      --license-shadow: 0 24px 50px -32px rgba(30, 41, 59, 0.55);
-      --license-card-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.38);
+      --license-primary: var(--gems-primary);
+      --license-accent: var(--gems-secondary);
+      --license-bg: var(--gems-bg-page);
+      --license-text: var(--gems-text);
+      --license-muted: var(--gems-muted);
+      --license-border-radius: var(--gems-radius-lg);
+      --license-shadow: var(--gems-shadow-lg);
+      --license-card-shadow: var(--gems-card-shadow);
     }
 
     body { background: var(--license-bg); }
@@ -64,7 +64,7 @@
     .license-page-header p { margin: 0; font-size: 1.05rem; opacity: 0.95; }
 
   .license-page-header .header-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px; }
-  .license-page-header .header-actions .btn-light.btn-icon { color: #0f172a; }
+  .license-page-header .header-actions .btn-light.btn-icon { color: var(--gems-text); }
 
     .license-metrics {
       display: grid;
@@ -90,7 +90,7 @@
       width: 140px;
       height: 140px;
       border-radius: 50%;
-      background: rgba(67,56,202,0.08);
+      background: rgba(var(--gems-primary-rgb), 0.08);
     }
 
     .metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--license-muted); margin-bottom: 6px; }
@@ -118,8 +118,8 @@
 
     .filter-card .form-control:focus,
     .filter-card .custom-select:focus {
-      border-color: rgba(67,56,202,0.75);
-      box-shadow: 0 0 0 0.15rem rgba(67, 56, 202, 0.1);
+      border-color: rgba(var(--gems-primary-rgb), 0.75);
+      box-shadow: 0 0 0 0.15rem rgba(var(--gems-primary-rgb), 0.1);
     }
 
     .results-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-top: 22px; gap: 12px; color: var(--license-text); }
@@ -132,7 +132,7 @@
     #dtLcnData { width: 100% !important; border-collapse: collapse !important; }
     #dtLcnData thead th {
       background: #eef2ff;
-      color: #3730a3;
+      color: var(--gems-primary-dark);
       font-weight: 700;
       border: none;
       padding: 0.9rem 0.75rem;
@@ -141,7 +141,7 @@
       letter-spacing: .06em;
     }
     #dtLcnData tbody tr { background: #fff; }
-    #dtLcnData tbody td { border-bottom: 1px solid #f1f5f9; padding: 0.85rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--license-text); }
+    #dtLcnData tbody td { border-bottom: 1px solid var(--gems-bg-page); padding: 0.85rem 0.75rem; vertical-align: middle; font-size: 0.95rem; color: var(--license-text); }
     #dtLcnData tbody tr:last-child td { border-bottom: none; }
 
     #dtLcnData tbody tr.table-danger td { background: rgba(248, 113, 113, 0.12); }
@@ -157,13 +157,13 @@
     .dataTables_wrapper .dataTables_info { padding-top: 1rem; color: var(--license-muted); font-size: 0.85rem; }
     .dataTables_wrapper .dataTables_paginate { padding-top: 0.75rem; }
     .dataTables_wrapper .dataTables_paginate .paginate_button { border-radius: 12px !important; border: none !important; margin: 0 3px !important; padding: 0.35rem 0.75rem !important; background: #e2e8f0 !important; color: #1e293b !important; }
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #4338ca !important; color: #fff !important; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: var(--gems-primary) !important; color: #fff !important; }
     .dataTables_wrapper .dataTables_paginate .paginate_button.disabled { background: #e2e8f0 !important; color: #94a3b8 !important; }
 
     .dataTables_filter { display: none !important; }
 
     .license-empty-state { text-align: center; padding: 48px 24px; color: var(--license-muted); }
-  .license-empty-state i { font-size: 48px; color: #818cf8; margin-bottom: 12px; }
+  .license-empty-state i { font-size: 48px; color: var(--gems-secondary); margin-bottom: 12px; }
 
     /* View remains list-only; cards/toggle removed */
 
@@ -184,7 +184,7 @@
       #dtLcnData thead { display: none; }
       #dtLcnData tbody { display: block; width: 100%; }
       #dtLcnData tbody tr { display: block; margin-bottom: 14px; border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 10px 25px -18px rgba(15, 23, 42, 0.35); }
-      #dtLcnData tbody tr td { display: flex; align-items: flex-start; justify-content: space-between; padding: 0.75rem 0.95rem; border-bottom: 1px solid #f1f5f9; }
+      #dtLcnData tbody tr td { display: flex; align-items: flex-start; justify-content: space-between; padding: 0.75rem 0.95rem; border-bottom: 1px solid var(--gems-bg-page); }
       #dtLcnData tbody tr td:last-child { border-bottom: none; }
       #dtLcnData tbody tr td::before { content: attr(data-label); font-weight: 600; color: var(--license-muted); margin-right: 12px; }
       #dtLcnData tbody tr td.text-center { justify-content: space-between; }

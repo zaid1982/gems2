@@ -19,14 +19,14 @@
     <link rel="stylesheet" href="css/gems2-ui.css">
     <style>
         :root {
-            --signature-primary: #4338ca;
-            --signature-accent: #38bdf8;
-            --signature-bg: rgba(67, 56, 202, 0.12);
-            --signature-card-radius: 26px;
-            --signature-shadow: 0 32px 60px -42px rgba(15, 23, 42, 0.55);
-            --signature-border: rgba(67, 56, 202, 0.18);
-            --signature-text: #0f172a;
-            --signature-muted: #64748b;
+            --signature-primary: var(--gems-primary);
+            --signature-accent: var(--gems-secondary);
+            --signature-bg: rgba(var(--gems-primary-rgb), 0.12);
+            --signature-card-radius: var(--gems-radius-lg);
+            --signature-shadow: var(--gems-shadow-lg);
+            --signature-border: rgba(var(--gems-primary-rgb), 0.18);
+            --signature-text: var(--gems-text);
+            --signature-muted: var(--gems-muted);
         }
 
         main.signature-main {
@@ -34,7 +34,7 @@
         }
 
         .signature-page-header {
-            background: linear-gradient(135deg, rgba(67,56,202,0.96) 6%, rgba(56,189,248,0.92) 100%);
+            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.96) 6%, rgba(var(--gems-secondary-rgb), 0.92) 100%);
             color: #fff;
             padding: 36px 34px;
             border-radius: 30px;
@@ -118,13 +118,13 @@
             width: 56px;
             height: 56px;
             border-radius: 18px;
-            background: linear-gradient(135deg, rgba(67,56,202,0.95), rgba(56,189,248,0.9));
+            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.95), rgba(var(--gems-secondary-rgb), 0.9));
             display: inline-flex;
             align-items: center;
             justify-content: center;
             color: #fff;
             font-size: 1.45rem;
-            box-shadow: 0 20px 40px -22px rgba(67, 56, 202, 0.5);
+            box-shadow: 0 20px 40px -22px rgba(var(--gems-primary-rgb), 0.5);
         }
 
         .signature-card-header h3 {
@@ -142,7 +142,7 @@
 
         .signature-preview-wrapper {
             background: rgba(15, 23, 42, 0.02);
-            border: 2px dashed rgba(67, 56, 202, 0.2);
+            border: 2px dashed rgba(var(--gems-primary-rgb), 0.2);
             border-radius: 18px;
             padding: 24px;
             display: flex;
@@ -159,7 +159,7 @@
         .signature-tabs .nav-tabs {
             border: none;
             display: inline-flex;
-            background: rgba(67, 56, 202, 0.08);
+            background: rgba(var(--gems-primary-rgb), 0.08);
             padding: 6px;
             border-radius: 16px;
             gap: 6px;
@@ -176,7 +176,7 @@
 
         .signature-tabs .nav-tabs .nav-link.active {
             background: #fff;
-            box-shadow: 0 14px 26px -18px rgba(67, 56, 202, 0.45);
+            box-shadow: 0 14px 26px -18px rgba(var(--gems-primary-rgb), 0.45);
             color: var(--signature-primary);
         }
 
@@ -224,7 +224,7 @@
 
         .signature-info {
             margin-top: 34px;
-            background: rgba(56,189,248,0.12);
+            background: rgba(var(--gems-secondary-rgb), 0.12);
             border-radius: 20px;
             padding: 18px 22px;
             color: var(--signature-text);
@@ -235,7 +235,7 @@
             font-size: 0.9rem;
         }
 
-        .signature-info i { color: #2563eb; font-size: 1.25rem; }
+        .signature-info i { color: var(--gems-primary); font-size: 1.25rem; }
 
         .signature-guidelines {
             list-style: none;

@@ -132,6 +132,7 @@ class Class_constant {
     const ERR_WO_NOT_CLIENT = 'You are not registered to any client to perform complaint. Please contact system administrator.';
     const ERR_WO_LOCATION_EMPTY = 'Complaint Location is empty';
     const ERR_WO_DESCRIPTION_EMPTY = 'Complaint Description is empty';
+    const ERR_WO_COORDINATE_EMPTY = 'GPS coordinates are required. Please enable location services and try again in an area with good GPS.';
 
     const SUC_SAVE = 'Successfully saved!';
     const SUC_SUBMITTED = 'Successfully submitted!';

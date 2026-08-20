@@ -83,7 +83,8 @@ class ArahanSiasatanPdf extends TCPDF
             false,
             true,
             $h,
-            $valign
+            $valign,
+            true
         );
     }
 
@@ -338,16 +339,19 @@ class ArahanSiasatanPdf extends TCPDF
 
     private function fitImage($path, $x, $y, $w, $h)
     {
-        if (!$path || !file_exists($path)) {
+        if (!$path || !is_file($path) || !is_readable($path)) {
             return;
         }
 
-        $info = getimagesize($path);
-        if (!$info) {
+        $info = @getimagesize($path);
+        if (!$info || empty($info[0]) || empty($info[1])) {
             return;
         }
 
         [$iw, $ih] = $info;
+        if ($iw <= 0 || $ih <= 0) {
+            return;
+        }
 
         $ratio = min($w / $iw, $h / $ih);
         $nw = $iw * $ratio;
@@ -356,11 +360,20 @@ class ArahanSiasatanPdf extends TCPDF
         $ix = $x + (($w - $nw) / 2);
         $iy = $y + (($h - $nh) / 2);
 
-        $this->Image($path, $ix, $iy, $nw, $nh, '', '', '', true, 300);
+        try {
+            $this->Image($path, $ix, $iy, $nw, $nh, '', '', '', true, 300);
+        } catch (Exception $e) {
+            return;
+        }
     }
 
     public function render(array $data)
     {
+        $noRuj = trim((string) ($data['no_ruj'] ?? ''));
+        if ($noRuj !== '' && $noRuj !== '-') {
+            $this->SetTitle($noRuj);
+        }
+
         $this->drawPageOne($data);
         $this->drawPhotoPages($data['photos'] ?? []);
 
@@ -501,6 +514,7 @@ class ArahanSiasatanPdf extends TCPDF
             $title = $group['title'] ?? '';
             $items = $group['items'] ?? [];
             foreach ($items as $itemIndex => $item) {
+                $item['_group_title'] = $title;
                 $flatItems[] = [
                     'title' => $itemIndex === 0 ? $title : '',
                     'item' => $item,
@@ -611,7 +625,9 @@ class ArahanSiasatanPdf extends TCPDF
             $rowH - 8
         );
 
-        $text = 'Keterangan : '.($item['keterangan'] ?? '')."\n"
+        $groupTitle = trim((string) ($item['_group_title'] ?? ''));
+        $text = ($groupTitle !== '' ? $groupTitle."\n" : '')
+            .'Keterangan : '.($item['keterangan'] ?? '')."\n"
             .'Masa Diambil : '.($item['masa'] ?? '')."\n"
             .'Longitude : '.($item['longitude'] ?? '')."\n"
             .'Latitude : '.($item['latitude'] ?? '');

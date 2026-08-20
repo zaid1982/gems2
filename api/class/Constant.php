@@ -1,28 +1,25 @@
 <?php
 
 class Constant {
+    // public static $dbUserName = 'root';
     public static $dbUserName = 'root';
-    // public static $dbUserName = 'zaid';
     //public static $dbUserPassword = 'password';
-    // public static $dbUserPassword = 'Amlyda@1982';
-    // public static $dbUserPassword = '';
+    // public static $dbUserPassword = 'GemS@1N#22';
     public static $dbUserPassword = 'Globalfm@19';
     public static $dbName = 'gems2';
-    // public static $dbName = 'gfm_jkr';
-    // public static $dbName = 'gems_jkr_prod';
+    // public static $dbName = 'gems_jkr';
     // public static $dbHost = 'sp161.mschosting.cloud';
-    // public static $dbHost = 'www.metadatasystem.my';
-    // public static $dbHost = 'localhost';
+    // public static $dbHost = '10.8.68.131';
     public static $dbHost = '10.101.11.69';
     // public static $folderDebug = '../../../logs/gems/debug/';
     // public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
-    public static $folderDebug = '/Applications/XAMPP/logs/gems/debug/';
+    public static $folderDebug = 'C:\xampp\htdocs\maintenance\logs\debug\\';
     // public static $folderError = '../../../logs/gems/error/';
     // public static string $folderError = 'C:\xampp\logs\gems\error\\';
-    public static $folderError = '/Applications/XAMPP/logs/gems/error/';
+    public static $folderError = 'C:\xampp\htdocs\maintenance\logs\error\\';
     // public static $url = '//localhost/gems2/api/';
     //public static $url = '//gems.globalfm.com.my/api/';
-    public static $url = '//gems.local/api/';
+    public static $url = '//10.8.68.130/api/';
     public static $redisHost = '127.0.0.1';
     public static $redisPort = 6379;
     public static $isLogged = true;

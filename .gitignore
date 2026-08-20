@@ -33,3 +33,4 @@ test_*.csv
 # Firebase / Apple push secrets (store outside repo; see /Applications/XAMPP/xamppfiles/gfm-secrets/)
 *firebase-adminsdk*.json
 AuthKey_*.p8
+api/C:/xampp/htdocs/maintenance/logs/debug/debug_20260820.log

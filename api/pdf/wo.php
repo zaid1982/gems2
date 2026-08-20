@@ -368,6 +368,7 @@ class Class_pdf_wo {
             }
             $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', $displayNo).'.pdf';
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Filename pdf : '.$filename);
+            $pdf->SetTitle($displayNo);
             $pdf->Output($folderPath.'/'.$filename, 'F');
 
             $pdfId = $woTask['pdf_id'];

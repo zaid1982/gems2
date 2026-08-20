@@ -2505,6 +2505,16 @@ class Class_wo {
                 $whereWithSearch['w1'] = $searchClause;
             }
 
+            $whereWithSearch = $this->fn_general->apply_datatable_column_filters($whereWithSearch, array(
+                'siteId' => 'site_id',
+                'woTaskStatus' => 'wo_task_status',
+                'woTaskType' => 'wo_task_type',
+                'ppmGroupId' => 'ppm_group_id',
+                'woTaskFixedBy' => 'wo_task_fixed_by',
+                'zoneName' => 'zone_name',
+                'zoneCode' => 'zone_code'
+            ));
+
             $orderableColumns = array(
                 1 => 'wo_task_time_created',
                 2 => 'wo_task_request_no',
@@ -2530,7 +2540,9 @@ class Class_wo {
             $limitSql = $start . ',' . $length;
 
             $totalRecords = Class_db::getInstance()->db_count('vg_wo_dashboard', $baseWhere);
-            $filteredRecords = empty($searchValue) ? $totalRecords : Class_db::getInstance()->db_count('vg_wo_dashboard', $whereWithSearch);
+            $filteredRecords = ($whereWithSearch === $baseWhere)
+                ? $totalRecords
+                : Class_db::getInstance()->db_count('vg_wo_dashboard', $whereWithSearch);
 
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('vg_wo_dashboard', $whereWithSearch, $orderSql, $limitSql);
@@ -3243,6 +3255,7 @@ class Class_wo {
                     array(
                         'y'=>doubleval($woByAverageExecute['total']),
                         'display'=>substr($woByAverageExecute['display'], 0, 8),
+                        'ppmGroupId'=>$woByAverageExecute['ppm_group_id'],
                         'ppmGroupName'=>$woByAverageExecute['ppm_group_name']
                     )
                 );

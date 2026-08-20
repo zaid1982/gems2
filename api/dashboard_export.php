@@ -180,6 +180,9 @@ try {
                 );
             }
 
+            if (empty($chunk)) {
+                $total = $loaded;
+            }
             sseEmit('progress', array(
                 'phase' => 'loading',
                 'loaded' => $loaded,
@@ -276,6 +279,9 @@ try {
                 );
             }
 
+            if (empty($chunk)) {
+                $total = $loaded;
+            }
             sseEmit('progress', array(
                 'phase' => 'loading',
                 'loaded' => $loaded,
@@ -293,10 +299,11 @@ try {
 
     Class_db::getInstance()->db_close();
 
+    $total = $loaded;
     sseEmit('progress', array(
         'phase' => 'writing',
         'loaded' => $loaded,
-        'total' => $total,
+        'total' => $loaded,
         'remaining' => 0,
         'message' => 'Generating Excel file…'
     ));

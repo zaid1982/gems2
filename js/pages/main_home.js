@@ -24,6 +24,13 @@ function MainHome() {
     let reportType = 'Work Order Report';
     let oTableWo;
     let oTablePpm;
+    const woCol = {
+        siteId: 18,
+        ppmGroupId: 19,
+        woTaskStatus: 20,
+        woTaskType: 21,
+        woTaskFixedBy: 31
+    };
     let totalPpm = 0;
     let totalLate = 0;
     const monthFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -649,6 +656,31 @@ function MainHome() {
             }
         });
 
+        const collectColumnFilters = function (dt) {
+            const filters = {};
+            if (!dt || typeof dt.columns !== 'function') {
+                return filters;
+            }
+            dt.columns().every(function () {
+                const value = this.search();
+                if (!value) {
+                    return;
+                }
+                const dataSrc = this.dataSrc();
+                if (typeof dataSrc === 'string' && dataSrc !== '') {
+                    filters[dataSrc] = value;
+                }
+            });
+            return filters;
+        };
+
+        const appendColumnFilters = function (params, dt) {
+            const filters = collectColumnFilters(dt);
+            Object.keys(filters).forEach(function (key) {
+                params.set('col_' + key, filters[key]);
+            });
+        };
+
         const parseSseChunk = function (buffer, onEvent) {
             const parts = buffer.split('\n\n');
             const rest = parts.pop();
@@ -709,6 +741,7 @@ function MainHome() {
             if (module === 'ppm') {
                 params.set('isRoutine', '0');
             }
+            appendColumnFilters(params, dt);
 
             const headers = { 'Accept': 'text/event-stream' };
             if (token) {
@@ -880,6 +913,7 @@ function MainHome() {
                 if (isPpm) {
                     params.set('isRoutine', '0');
                 }
+                appendColumnFilters(params, dt);
 
                 const headers = { 'Accept': 'application/json' };
                 if (token) {
@@ -924,6 +958,9 @@ function MainHome() {
 
                         for (let i = 0; i < chunk.length; i++) {
                             allData.push(chunk[i]);
+                        }
+                        if (chunk.length === 0) {
+                            total = allData.length;
                         }
                         updateExportProgress(allData.length, total || allData.length);
 
@@ -1531,8 +1568,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(16).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            oTableWo.column(18).search(event.point.series.userOptions.woTaskStatus, true, false).draw();
+                                            oTableWo.column(woCol.siteId).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTableWo.column(woCol.woTaskStatus).search(event.point.series.userOptions.woTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -1634,8 +1671,8 @@ function MainHome() {
                                     events: {
                                         click: function(event) {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(16).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
-                                            oTableWo.column(19).search(event.point.series.userOptions.woTaskType, true, false).draw();
+                                            oTableWo.column(woCol.siteId).search(siteIds[siteDescs.indexOf(this.category)], false, true, false);
+                                            oTableWo.column(woCol.woTaskType).search(event.point.series.userOptions.woTaskType, true, false).draw();
                                         }
                                     }
                                 }
@@ -1703,7 +1740,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(19).search(this.woTaskType, true, false).draw();
+                                            oTableWo.column(woCol.woTaskType).search(this.woTaskType, true, false).draw();
                                         }
                                     }
                                 }
@@ -1784,7 +1821,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(18).search(this.woTaskStatus, true, false).draw();
+                                            oTableWo.column(woCol.woTaskStatus).search(this.woTaskStatus, true, false).draw();
                                         }
                                     }
                                 }
@@ -1857,8 +1894,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            /* Search with regex */
-                                            oTableWo.column(17).search('^('+this.ppmGroupId+')$', true, false).draw();
+                                            oTableWo.column(woCol.ppmGroupId).search('^('+this.ppmGroupId+')$', true, false).draw();
                                         }
                                     }
                                 }
@@ -1938,7 +1974,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(10).search(this.ppmGroupName, true, false).draw();
+                                            oTableWo.column(woCol.ppmGroupId).search('^('+(this.ppmGroupId || '')+')$', true, false).draw();
                                         }
                                     }
                                 }
@@ -2017,7 +2053,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(29).search(this.woTaskFixedBy, true, false).draw();
+                                            oTableWo.column(woCol.woTaskFixedBy).search(this.woTaskFixedBy, true, false).draw();
                                         }
                                     }
                                 }
@@ -2096,7 +2132,7 @@ function MainHome() {
                                     events: {
                                         click: function() {
                                             oTableWo.search('').columns().search('').draw();
-                                            oTableWo.column(29).search(this.woTaskFixedBy, true, false).draw();
+                                            oTableWo.column(woCol.woTaskFixedBy).search(this.woTaskFixedBy, true, false).draw();
                                         }
                                     }
                                 }

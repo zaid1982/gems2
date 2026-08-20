@@ -87,9 +87,9 @@
             padding: 20px 22px;
             box-shadow: 0 25px 55px -35px rgba(15, 23, 42, 0.35);
         }
-        .metric-label { text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.12em; color: #7e8f9a; margin-bottom: 4px; }
+        .metric-label { text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.12em; color: var(--gems-muted); margin-bottom: 4px; }
         .metric-value { font-size: 2rem; font-weight: 700; color: #14213d; }
-        .metric-subtext { font-size: 0.85rem; color: #7e8f9a; }
+        .metric-subtext { font-size: 0.85rem; color: var(--gems-muted); }
         .part-body-grid {
             display: grid;
             grid-template-columns: minmax(320px, 360px) 1fr;
@@ -102,14 +102,14 @@
             box-shadow: 0 30px 70px -45px rgba(15, 23, 42, 0.3);
         }
         .part-gallery-card figure { margin-bottom: 16px; }
-        .part-gallery-card .tagline { font-size: 0.9rem; color: #7e8f9a; margin-bottom: 12px; }
+        .part-gallery-card .tagline { font-size: 0.9rem; color: var(--gems-muted); margin-bottom: 12px; }
         .part-gallery-card #btnSptUpdateImage { 
             font-size: 0.85rem; 
             padding: 6px 14px; 
             border-radius: 12px;
             box-shadow: 0 4px 12px -4px rgba(31, 87, 255, 0.4);
         }
-        .part-form-card h5 { font-weight: 700; margin-bottom: 18px; color: #0f172a; }
+        .part-form-card h5 { font-weight: 700; margin-bottom: 18px; color: var(--gems-text); }
         .part-form-card .form-action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
         .part-form-card .form-action-row .btn { border-radius: 12px; }
         .part-main-panel .filter-card {
@@ -120,13 +120,13 @@
             box-shadow: 0 28px 60px -45px rgba(15, 23, 42, 0.35);
         }
         .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; align-items: flex-end; }
-        .filter-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: #64748b; margin-bottom: 6px; font-weight: 600; }
+        .filter-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gems-muted); margin-bottom: 6px; font-weight: 600; }
         .filter-card .search-input { position: relative; }
         .filter-card .search-input i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
         .filter-card .search-input input { padding-left: 38px; border-radius: 14px; border: 1px solid #d7dce5; }
         .filter-card .custom-select,
         .filter-card .form-control { border-radius: 14px; border: 1px solid #d7dce5; }
-        .summary-pill { background: #eef2ff; border-radius: 16px; padding: 12px 16px; color: #0f172a; font-weight: 600; }
+        .summary-pill { background: #eef2ff; border-radius: 16px; padding: 12px 16px; color: var(--gems-text); font-weight: 600; }
         .module-data-card {
             background: #fff;
             border-radius: 24px;
@@ -141,8 +141,8 @@
             gap: 14px;
             padding: 22px 24px 0;
         }
-        .part-table-card .table-header h5 { margin: 0; font-weight: 700; color: #0f172a; }
-        .part-table-card .table-header p { margin: 2px 0 0; color: #64748b; }
+        .part-table-card .table-header h5 { margin: 0; font-weight: 700; color: var(--gems-text); }
+        .part-table-card .table-header p { margin: 2px 0 0; color: var(--gems-muted); }
         .table-header-actions { display: flex; align-items: center; gap: 10px; }
         .btn-header {
             border: none;
@@ -153,20 +153,20 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #0f172a;
+            color: var(--gems-text);
         }
         .table-export-group .btn { border-radius: 10px; margin-left: 6px; }
         .module-table-wrapper { padding: 12px 24px 24px; }
         .module-table-wrapper table { width: 100%; }
         .module-table-wrapper thead th {
-            background: #f8fafc;
+            background: var(--gems-bg-page);
             text-transform: uppercase;
             font-size: 0.73rem;
             letter-spacing: 0.12em;
             color: #475569;
             border: none;
         }
-        .module-table-wrapper tbody td { border-bottom: 1px solid #f1f5f9; color: #0f172a; }
+        .module-table-wrapper tbody td { border-bottom: 1px solid var(--gems-bg-page); color: var(--gems-text); }
         .part-side-panel .mdb-lightbox img { border-radius: 18px; box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.45); }
         .module-part-page .dataTables_filter { display: none !important; }
         @media (max-width: 1199.98px) {

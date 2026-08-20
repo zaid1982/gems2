@@ -58,14 +58,14 @@
                     font-weight: 600;
                 }
                 .utility-section .utility-metrics .metric-card {
-                    background: #f8fafc;
+                    background: var(--gems-bg-page);
                     border-radius: 22px;
                     padding: 22px 24px;
                     box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
                     height: 100%;
                 }
                 .utility-section .utility-metrics .metric-card.primary {
-                    background: rgba(67, 56, 202, 0.08);
+                    background: rgba(var(--gems-primary-rgb), 0.08);
                 }
                 .utility-section .utility-metrics .metric-card.warning {
                     background: rgba(249, 115, 22, 0.08);
@@ -79,24 +79,24 @@
                     text-transform: uppercase;
                     letter-spacing: 0.08em;
                     font-weight: 600;
-                    color: #64748b;
+                    color: var(--gems-muted);
                 }
                 .utility-section .utility-metrics .metric-value {
                     display: block;
                     font-weight: 700;
                     font-size: 1.75rem;
-                    color: #0f172a;
+                    color: var(--gems-text);
                     margin-top: 0.5rem;
                 }
                 .utility-section .utility-metrics .metric-card.primary .metric-value,
                 .utility-section .utility-metrics .metric-card.warning .metric-value,
                 .utility-section .utility-metrics .metric-card.cool .metric-value {
-                    color: #0f172a;
+                    color: var(--gems-text);
                 }
                 .utility-section .utility-metrics .metric-subtext {
                     display: block;
                     font-weight: 600;
-                    color: #4338ca;
+                    color: var(--gems-primary);
                     margin-top: 0.35rem;
                 }
                 .utility-section .utility-tabs-card {
@@ -117,8 +117,8 @@
                 }
                 .utility-section .utility-tabs-card .nav-link.active,
                 .utility-section .utility-tabs-card .nav-link:hover {
-                    background: rgba(67, 56, 202, 0.12);
-                    color: #4338ca;
+                    background: rgba(var(--gems-primary-rgb), 0.12);
+                    color: var(--gems-primary);
                 }
                 .utility-section .utility-tabs-card .tab-content {
                     padding: 24px 0 0;
