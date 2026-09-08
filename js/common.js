@@ -2406,3 +2406,78 @@ function mzNullCheckbox (fieldName, isInt) {
     });
     return returnVal;
 }
+
+function mzApplyTableDataLabels(table) {
+    if (typeof $ === 'undefined') {
+        return;
+    }
+    let api = null;
+    let $table;
+    if (table && typeof table.columns === 'function' && typeof table.table === 'function') {
+        api = table;
+        $table = $(api.table().node());
+    } else {
+        $table = $(table);
+        if (!$table.length) {
+            return;
+        }
+        if ($.fn.dataTable && $.fn.dataTable.isDataTable($table)) {
+            api = $table.DataTable();
+        }
+    }
+    if (!$table.length || $table.hasClass('no-stack')) {
+        return;
+    }
+    if ($table.find('thead th[colspan], thead th[rowspan]').length) {
+        return;
+    }
+
+    const clean = function (text) {
+        return String(text || '').replace(/\s+/g, ' ').trim();
+    };
+
+    if (api) {
+        const visibleIndexes = api.columns(':visible').indexes().toArray();
+        api.rows({ page: 'current' }).nodes().to$().each(function () {
+            $('td', this).each(function (cellIdx) {
+                const columnIndex = visibleIndexes[cellIdx];
+                if (columnIndex === undefined) {
+                    return;
+                }
+                const headerText = clean($(api.column(columnIndex).header()).text());
+                if (headerText) {
+                    $(this).attr('data-label', headerText);
+                }
+            });
+        });
+        return;
+    }
+
+    const headers = [];
+    $table.find('thead th').each(function () {
+        headers.push(clean($(this).text()));
+    });
+    $table.find('tbody tr').each(function () {
+        $('td', this).each(function (index) {
+            if (headers[index]) {
+                $(this).attr('data-label', headers[index]);
+            }
+        });
+    });
+}
+
+$(function () {
+    if (typeof $ === 'undefined') {
+        return;
+    }
+    $(document).on('draw.dt', function (event, settings) {
+        try {
+            mzApplyTableDataLabels(new $.fn.dataTable.Api(settings));
+        } catch (err) {
+            /* ignore tables that are mid-destroy */
+        }
+    });
+    $('.mobile-stack, .module-table-wrapper table, .modern-table-card table').each(function () {
+        mzApplyTableDataLabels(this);
+    });
+});

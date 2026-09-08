@@ -1225,11 +1225,49 @@ body {
 }
 
 @media (max-width: 767.98px) {
-  .mobile-stack thead { display: none; }
-  .mobile-stack tbody tr { display: block; margin-bottom: 12px; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 6px 16px -12px rgba(15,23,42,.25); overflow: hidden; }
-  .mobile-stack tbody td { display: flex; width: 100%; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px dashed #e5e7eb; }
-  .mobile-stack tbody td:last-child { border-bottom: none; }
-  .mobile-stack tbody td::before { content: attr(data-label); font-weight: 600; color: #475569; margin-right: 8px; }
+  .mobile-stack:not(.no-stack) thead,
+  .module-table-wrapper table:not(.no-stack) thead,
+  .modern-table-card table:not(.no-stack) thead { display: none; }
+  .mobile-stack:not(.no-stack) tbody tr,
+  .module-table-wrapper table:not(.no-stack) tbody tr,
+  .modern-table-card table:not(.no-stack) tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px -12px rgba(15,23,42,.25);
+    overflow: hidden;
+  }
+  .mobile-stack:not(.no-stack) tbody td,
+  .module-table-wrapper table:not(.no-stack) tbody td,
+  .modern-table-card table:not(.no-stack) tbody td {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px dashed #e5e7eb;
+  }
+  .mobile-stack:not(.no-stack) tbody td:last-child,
+  .module-table-wrapper table:not(.no-stack) tbody td:last-child,
+  .modern-table-card table:not(.no-stack) tbody td:last-child { border-bottom: none; }
+  .mobile-stack:not(.no-stack) tbody td::before,
+  .module-table-wrapper table:not(.no-stack) tbody td::before,
+  .modern-table-card table:not(.no-stack) tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #475569;
+    margin-right: 8px;
+  }
+  .mobile-stack:not(.no-stack) tbody td:not([data-label])::before,
+  .mobile-stack:not(.no-stack) tbody td[data-label=""]::before,
+  .module-table-wrapper table:not(.no-stack) tbody td:not([data-label])::before,
+  .module-table-wrapper table:not(.no-stack) tbody td[data-label=""]::before,
+  .modern-table-card table:not(.no-stack) tbody td:not([data-label])::before,
+  .modern-table-card table:not(.no-stack) tbody td[data-label=""]::before {
+    content: none;
+    margin: 0;
+  }
 }
 
 .fixed-sn main {
@@ -2062,11 +2100,11 @@ body:has(.module-page) {
     padding: 1.9rem 1.5rem;
   }
 
-  .module-master .module-table-wrapper thead {
+  .module-master .module-table-wrapper table:not(.no-stack) thead {
     display: none;
   }
 
-  .module-master .module-table-wrapper tbody tr {
+  .module-master .module-table-wrapper table:not(.no-stack) tbody tr {
     display: block;
     margin-bottom: 1.2rem;
     border: 1px solid rgba(15, 23, 42, 0.12);
@@ -2074,7 +2112,7 @@ body:has(.module-page) {
     padding: 0.85rem 1rem;
   }
 
-  .module-master .module-table-wrapper tbody td {
+  .module-master .module-table-wrapper table:not(.no-stack) tbody td {
     display: flex;
     justify-content: space-between;
     border: none;
@@ -2082,7 +2120,7 @@ body:has(.module-page) {
     font-size: 0.95rem;
   }
 
-  .module-master .module-table-wrapper tbody td::before {
+  .module-master .module-table-wrapper table:not(.no-stack) tbody td::before {
     content: attr(data-label);
     font-weight: 600;
     color: var(--module-muted);

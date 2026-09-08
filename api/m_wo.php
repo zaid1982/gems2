@@ -105,15 +105,45 @@ try {
         } else if ($type === 'wo_response_images') {
             $result = $fn_wo->get_wo_response_images_m();
         } else if ($type === 'preview_pdf') {
-            if ($fn_wo->get_wo_is_wr() === '1') {
-                $fn_pdf_wr->__set('woTaskId', $woTaskId);
-                $returnVal = $fn_pdf_wr->create_pdf();
-            } else {
-                $fn_pdf_wo->__set('woTaskId', $woTaskId);
-                $returnVal = $fn_pdf_wo->create_pdf();
+            $woTaskRow = Class_db::getInstance()->db_select_single('wo_task', array('wo_task_id'=>$woTaskId), null, 1);
+            $isWrPreview = $fn_wo->get_wo_is_wr() === '1';
+            $existingPdfId = $isWrPreview ? ($woTaskRow['pdf_id_wr'] ?? '') : ($woTaskRow['pdf_id'] ?? '');
+            $needsRegen = $isWrPreview
+                ? (($woTaskRow['wo_task_is_pdf_wr'] ?? '0') === '1')
+                : (($woTaskRow['wo_task_is_pdf'] ?? '0') === '1');
+            $servedExisting = false;
+
+            if (!$needsRegen && !empty($existingPdfId)) {
+                $pdfRow = Class_db::getInstance()->db_select_single('sys_pdf', array('pdf_id'=>$existingPdfId), null, 0);
+                if (!empty($pdfRow['pdf_folder']) && !empty($pdfRow['pdf_filename'])) {
+                    $pdfPath = __DIR__.'/'.$pdfRow['pdf_folder'].'/'.$pdfRow['pdf_filename'];
+                    if (is_file($pdfPath) && filesize($pdfPath) > 100) {
+                        $result = $fn_general->getPdf($existingPdfId);
+                        $servedExisting = true;
+                        $fn_general->save_audit('118', $jwt_data->userId, 'Work Order no. = '.$woTaskRow['wo_task_no']);
+                    }
+                }
             }
-            $result = $fn_general->getPdf($returnVal['pdfId']);
-            $fn_general->save_audit('118', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
+
+            if (!$servedExisting) {
+                try {
+                    if ($isWrPreview) {
+                        $fn_pdf_wr->__set('woTaskId', $woTaskId);
+                        $returnVal = $fn_pdf_wr->create_pdf();
+                    } else {
+                        $fn_pdf_wo->__set('woTaskId', $woTaskId);
+                        $returnVal = $fn_pdf_wo->create_pdf();
+                    }
+                    $result = $fn_general->getPdf($returnVal['pdfId']);
+                    $fn_general->save_audit('118', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
+                } catch (Exception $pdfEx) {
+                    if (empty($existingPdfId)) {
+                        throw $pdfEx;
+                    }
+                    $result = $fn_general->getPdf($existingPdfId);
+                    $fn_general->save_audit('118', $jwt_data->userId, 'Work Order no. = '.$woTaskRow['wo_task_no']);
+                }
+            }
         } else if ($type === 'wo_rate') {
             $result = $fn_wo->get_wo_rate_m();
         } else if ($type === 'wo_severity_list') {
