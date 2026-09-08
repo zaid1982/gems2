@@ -2128,3 +2128,161 @@ body:has(.module-page) {
     text-align: left;
   }
 }
+
+/* Asset Excel import modal */
+#modal_asset_import .mai-dialog {
+  max-width: 1080px;
+}
+#modal_asset_import .mai-card {
+  overflow: hidden !important;
+}
+#modal_asset_import .mai-body {
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+}
+#modal_asset_import .mai-lead {
+  margin: 0 0 22px;
+  color: var(--gems-muted);
+}
+#modal_asset_import .mai-section + .mai-section {
+  margin-top: 22px;
+}
+#modal_asset_import .mai-contract-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid rgba(36, 55, 70, 0.08);
+  border-radius: 16px;
+}
+#modal_asset_import .mai-contract-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gems-muted);
+}
+#modal_asset_import .mai-file-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+#modal_asset_import .mai-file-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+  padding: 16px;
+  background: #fff;
+  border: 1px dashed rgba(var(--gems-primary-rgb), 0.28);
+  border-radius: 18px;
+}
+#modal_asset_import .mai-file-row.has-file {
+  border-style: solid;
+  border-color: rgba(var(--gems-primary-rgb), 0.22);
+  background: rgba(var(--gems-primary-rgb), 0.04);
+}
+#modal_asset_import .mai-file-row .btn {
+  border-radius: 999px;
+  padding: 0.55rem 1.25rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+#modal_asset_import .mai-file-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+#modal_asset_import .mai-file-meta strong {
+  color: var(--gems-text);
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#modal_asset_import .mai-file-meta span {
+  color: var(--gems-muted);
+  font-size: 0.82rem;
+}
+#modal_asset_import .mai-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+#modal_asset_import .mai-metric-grid .metric-card {
+  margin: 0;
+  padding: 14px 16px;
+}
+#modal_asset_import .mai-metric-grid .metric-value {
+  font-size: 1.45rem;
+}
+#modal_asset_import .mai-result {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(34, 197, 94, 0.12);
+  color: #166534;
+  font-size: 0.92rem;
+}
+#modal_asset_import .mai-table-wrap {
+  margin-top: 12px;
+  max-height: 320px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid rgba(36, 55, 70, 0.08);
+  border-radius: 16px;
+}
+#modal_asset_import .mai-table-wrap table thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+  white-space: nowrap;
+}
+#modal_asset_import .mai-table-wrap td:last-child {
+  min-width: 180px;
+  white-space: normal;
+}
+#modal_asset_import .mai-footer {
+  justify-content: space-between;
+}
+#modal_asset_import .mai-footer-actions {
+  display: flex;
+  gap: 12px;
+}
+#modal_asset_import .mai-footer .btn-light {
+  background: #fff;
+  border: 1px solid rgba(36, 55, 70, 0.12);
+  color: var(--gems-text);
+}
+#modal_asset_import .mai-footer .btn-light:hover:not(:disabled) {
+  background: rgba(var(--gems-primary-rgb), 0.08);
+}
+#modal_asset_import .mai-footer .btn:disabled {
+  opacity: 0.55;
+}
+
+@media (max-width: 767.98px) {
+  #modal_asset_import .mai-file-row,
+  #modal_asset_import .mai-contract-row,
+  #modal_asset_import .mai-footer,
+  #modal_asset_import .mai-footer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #modal_asset_import .mai-file-row .btn,
+  #modal_asset_import .mai-footer .btn {
+    width: 100%;
+  }
+  #modal_asset_import .mai-metric-grid {
+    grid-template-columns: 1fr;
+  }
+}

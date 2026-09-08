@@ -226,6 +226,89 @@ class Class_asset {
     }
 
     /**
+     * Insert a fully-validated Active asset (used by Excel import).
+     *
+     * @param array $params Resolved field map (IDs already looked up)
+     * @param string $userId
+     * @return mixed
+     * @throws Exception
+     */
+    public function import_registered_asset ($params, $userId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            $constant = $this->constant;
+
+            if (empty($params) || empty($params['contractId']) || empty($params['assetNo']) || empty($params['assetName'])) {
+                throw new Exception('[' . __LINE__ . '] - Required import parameters empty');
+            }
+            if (empty($userId)) {
+                throw new Exception('[' . __LINE__ . '] - Parameter userId empty');
+            }
+
+            $contractId = $params['contractId'];
+            if (Class_db::getInstance()->db_count('ast_asset', array('asset_no'=>$params['assetNo'], 'contract_id'=>$contractId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SIMILAR, 31);
+            }
+            if (!empty($params['assetSerialNo'])
+                && Class_db::getInstance()->db_count('ast_asset', array('asset_serial_no'=>$params['assetSerialNo'], 'contract_id'=>$contractId)) > 0) {
+                throw new Exception('[' . __LINE__ . '] - '.$constant::ERR_ASSET_SIMILAR_SERIAL_NO, 31);
+            }
+
+            $insert = array(
+                'contract_id' => $contractId,
+                'asset_name' => $params['assetName'],
+                'asset_no' => $params['assetNo'],
+                'asset_location_code' => $params['assetLocationCode'],
+                'asset_group_id' => $params['assetGroupId'],
+                'asset_category_id' => $params['assetCategoryId'],
+                'asset_type_id' => $params['assetTypeId'],
+                'asset_status' => '1',
+                'asset_registered_by' => $userId,
+                'asset_time_registered' => 'Now()'
+            );
+
+            $optionalMap = array(
+                'assetSerialNo' => 'asset_serial_no',
+                'assetDesc' => 'asset_desc',
+                'assetBrandId' => 'asset_brand_id',
+                'assetModelId' => 'asset_model_id',
+                'ppmGroupId' => 'ppm_group_id',
+                'zoneId' => 'zone_id',
+                'assetCapacity' => 'asset_capacity',
+                'assetLocationDesc' => 'asset_location_desc',
+                'assetBlock' => 'asset_block',
+                'assetLevel' => 'asset_level',
+                'assetManufacturer' => 'asset_manufacturer',
+                'assetSupplier' => 'asset_supplier',
+                'assetAgency' => 'asset_agency',
+                'assetDepartment' => 'asset_department',
+                'assetConstructionZone' => 'asset_construction_zone',
+                'assetOperationZone' => 'asset_operation_zone',
+                'assetRoom' => 'asset_room',
+                'assetCompartment' => 'asset_compartment',
+                'assetAuthEmployee' => 'asset_auth_employee',
+                'assetCriticality' => 'asset_criticality',
+                'assetContractor' => 'asset_contractor',
+                'assetWarranty' => 'asset_warranty',
+                'assetWarrantyExpDate' => 'asset_warranty_exp_date',
+                'assetWarrantyNotes' => 'asset_warranty_notes',
+                'assetTechnicianNotes' => 'asset_technician_notes'
+            );
+            foreach ($optionalMap as $src => $column) {
+                if (isset($params[$src]) && $params[$src] !== '' && $params[$src] !== null) {
+                    $insert[$column] = $params[$src];
+                }
+            }
+
+            return Class_db::getInstance()->db_insert('ast_asset', $insert);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $userId
      * @throws Exception
      */

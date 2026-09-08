@@ -201,6 +201,7 @@ class Class_constant {
     const SUC_ASSET_DEACTIVATE = 'Asset successfully deactivated';
     const SUC_ASSET_ACTIVATE = 'Asset successfully activated';
     const SUC_ASSET_DELETE = 'Asset successfully deleted';
+    const SUC_ASSET_IMPORT = 'Assets successfully imported';
     const SUC_CHECKLIST_SAVE = 'Checklist successfully saved';
     const SUC_CHECKLIST_DUPLICATED = 'Checklist successfully duplicated';
     const SUC_CHECKLIST_REGISTER = 'Checklist successfully registered';

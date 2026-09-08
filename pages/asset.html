@@ -18,7 +18,7 @@
     <!--<link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>-->
     <!-- Your custom styles (optional) -->
     <link href="css/style.css?6" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
+    <link href="css/gems2-ui.css?7" rel="stylesheet">
 	<!-- JQuery -->
     <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 	<!--JQuery Migrate-->
@@ -64,7 +64,12 @@
                     </div>
                     <div class="header-actions">
                         <button type="button" id="btnDtAszAssetRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                        <button type="button" id="btnAszAssetAdd" class="btn btn-primary btn-icon" aria-label="Add asset" data-toggle="tooltip" data-placement="top" title="Add Asset"><i class="fas fa-plus"></i></button>
+                        <button type="button" id="btnAszAssetImport" class="btn btn-light" aria-label="Import assets from Excel">
+                            <i class="fas fa-file-excel mr-2"></i>Import Excel
+                        </button>
+                        <button type="button" id="btnAszAssetAdd" class="btn btn-primary" aria-label="Add asset">
+                            <i class="fas fa-plus mr-2"></i>Add Asset
+                        </button>
                     </div>
                 </section>
 
@@ -237,6 +242,7 @@
     </div>
     <div class="includeHtml" id="h-modal_change_password"></div>
     <div class="includeHtml" id="h-modal_confirm_delete"></div>
+    <div class="includeHtml" id="h-modal_asset_import"></div>
     <div class="includeHtml" id="h-modal_pdf"></div>
 
 </main>
@@ -287,6 +293,7 @@
     let assetClass_;
     let sectionAssetDetails_;
     let modalConfirmDelete_;
+    let modalAssetImport_;
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -299,6 +306,7 @@
                 assetClass_ = new MainAsset();
                 sectionAssetDetails_ = new SectionAssetDetails();
                 modalConfirmDelete_ = new ModalConfirmDelete();
+                modalAssetImport_ = new ModalAssetImport();
 
                 const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
@@ -341,6 +349,9 @@
                 assetClass_.setRefPpmGroup(refPpmGroup_);
                 assetClass_.setSectionAssetClass(sectionAssetDetails_);
                 assetClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                modalAssetImport_.setClassFrom(assetClass_);
+                modalAssetImport_.init();
+                assetClass_.setModalAssetImportClass(modalAssetImport_);
                 assetClass_.init();
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -353,6 +364,7 @@
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/section_asset_details.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_asset_import.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
 </script>

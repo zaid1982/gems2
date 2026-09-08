@@ -3,6 +3,7 @@ function MainAsset() {
     const className = 'MainAsset';
     let self = this;
     let modalConfirmDeleteClass;
+    let modalAssetImportClass;
     let refStatus;
     let refContract;
     let refAssetGroup;
@@ -153,7 +154,7 @@ function MainAsset() {
     this.init = function () {
         userSite = mzGetUserInfoByParam('siteId');
         if (!mzIsRoleExist('1,19')) {
-            $('#btnAszAssetAdd').hide();
+            $('#btnAszAssetAdd, #btnAszAssetImport').hide();
         }
 
         const filterSite = !mzIsRoleExist('1,10') ? {siteId: userSite} : {};
@@ -390,6 +391,16 @@ function MainAsset() {
             sectionAssetClass.add(contractId, $('#optAszGroupId').val(), $('#optAszCategoryId').val(), $('#optAszTypeId').val());
         });
 
+        $('#btnAszAssetImport').on('click', function () {
+            if (!contractId) {
+                toastr['warning']('Please select a contract first', _ALERT_TITLE_WARNING);
+                return;
+            }
+            if (modalAssetImportClass) {
+                modalAssetImportClass.open(contractId, $('#lblAszContractName').text());
+            }
+        });
+
         $('#btnDtAszAssetRefresh').on('click', function () {
             ShowLoader();
             setTimeout(function () {
@@ -622,5 +633,8 @@ function MainAsset() {
     };
     this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
         modalConfirmDeleteClass = _modalConfirmDeleteClass;
+    };
+    this.setModalAssetImportClass = function (_modalAssetImportClass) {
+        modalAssetImportClass = _modalAssetImportClass;
     };
 }

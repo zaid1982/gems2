@@ -1,0 +1,98 @@
+<div class="modal fade gems-modal" id="modal_asset_import" tabindex="-1" role="dialog" aria-labelledby="lblMaiTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl mai-dialog" role="document">
+        <div class="modal-content gems-modal-card mai-card">
+            <div class="gems-modal-header">
+                <div class="gems-modal-title" id="lblMaiTitle">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Import Assets</span>
+                </div>
+                <button type="button" class="gems-modal-close" data-dismiss="modal" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="gems-modal-body mai-body">
+                <p class="mai-lead">Upload an Excel file to create Active assets under the selected contract. Invalid rows are skipped and listed with a reason.</p>
+
+                <div class="mai-section">
+                    <div class="gems-section-heading">Target</div>
+                    <div class="mai-contract-row">
+                        <span class="mai-contract-label">Contract</span>
+                        <span class="summary-pill mb-0" id="lblMaiContractName">—</span>
+                    </div>
+                </div>
+
+                <div class="mai-section">
+                    <div class="gems-section-heading">Excel file</div>
+                    <input type="file" id="fileMaiImport" class="mai-file-input" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+                    <div class="mai-file-row" id="divMaiFileRow">
+                        <button type="button" class="btn btn-primary" id="btnMaiChooseFile">
+                            <i class="fas fa-folder-open mr-2"></i>Choose File
+                        </button>
+                        <div class="mai-file-meta">
+                            <strong id="lblMaiFileName">No file selected</strong>
+                            <span id="lblMaiFileInfo">.xlsx or .xls, maximum 10MB</span>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary" id="btnMaiDownloadTemplate">
+                            <i class="fas fa-download mr-2"></i>Download Template
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mai-section" id="divMaiSummary" style="display: none;">
+                    <div class="gems-section-heading">Preview summary</div>
+                    <div class="mai-metric-grid">
+                        <div class="metric-card muted">
+                            <span class="metric-label">Total rows</span>
+                            <span class="metric-value" id="metricMaiTotal">0</span>
+                        </div>
+                        <div class="metric-card success">
+                            <span class="metric-label">Valid</span>
+                            <span class="metric-value" id="metricMaiValid">0</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Skipped</span>
+                            <span class="metric-value" id="metricMaiInvalid">0</span>
+                        </div>
+                    </div>
+                    <div class="mai-result" id="divMaiResult" style="display: none;"></div>
+                </div>
+
+                <div class="mai-section" id="divMaiPreviewWrap" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="gems-section-heading mb-0">Row results</div>
+                    </div>
+                    <div class="mai-table-wrap">
+                        <table class="table table-sm table-hover mb-0" id="tblMaiPreview">
+                            <thead>
+                            <tr class="th-strong">
+                                <th>Row</th>
+                                <th>Asset No</th>
+                                <th>Asset Name</th>
+                                <th>Group</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Reason</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="gems-modal-footer mai-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-2"></i>Close
+                </button>
+                <div class="mai-footer-actions">
+                    <button type="button" id="btnMaiPreview" class="btn btn-light" disabled>
+                        <i class="fas fa-search mr-2"></i>Preview
+                    </button>
+                    <button type="button" id="btnMaiExecute" class="btn btn-primary" disabled>
+                        <i class="fas fa-file-import mr-2"></i>Import Valid Rows
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
