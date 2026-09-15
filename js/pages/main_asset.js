@@ -16,9 +16,10 @@ function MainAsset() {
     let sectionAssetClass;
     let contractId = null;
     let userSite;
-    let assetDataCache = [];
     let lastListUpdatedText = '—';
     let statusFilterValue = '';
+    let searchDebounceTimer = null;
+    let summaryRequestSeq = 0;
 
     const assetTableHeaders = ['#', 'Asset Name', 'Asset No', 'Asset Serial No', 'Asset Group', 'Asset Category', 'Asset Type', 'Brand', 'Model', 'PPM Group', 'Location Code', 'Status', 'Actions'];
     const statusChipMap = {
@@ -114,18 +115,56 @@ function MainAsset() {
         });
     };
 
-    const setStatusFilter = function (value) {
-        statusFilterValue = value || '';
+    const reloadAssetTable = function (resetPaging) {
         if (!oTableAsset) {
             return;
         }
-        if (statusFilterValue === '') {
-            oTableAsset.column(17).search('').draw();
-        } else {
-            oTableAsset.column(17).search(`^${statusFilterValue}$`, true, false, true).draw();
-        }
+        oTableAsset.ajax.reload(null, resetPaging !== false);
+    };
+
+    const setStatusFilter = function (value, reload) {
+        statusFilterValue = value || '';
         setActiveStatusChip(statusFilterValue);
+        if (reload !== false) {
+            reloadAssetTable(true);
+        }
         refreshListSummary();
+    };
+
+    const lookupName = function (row, nameKey, idKey, ref, labelKey) {
+        if (row[nameKey]) {
+            return row[nameKey];
+        }
+        const id = row[idKey];
+        if (id && ref && ref[id] && ref[id][labelKey]) {
+            return ref[id][labelKey];
+        }
+        return '';
+    };
+
+    const loadAssetSummary = function () {
+        const requestId = ++summaryRequestSeq;
+        if (!contractId) {
+            updateAssetMetrics([]);
+            self.displayChart([]);
+            return;
+        }
+        const dataSummary = mzAjaxRequest('asset.php?type=summary&contractId=' + encodeURIComponent(contractId), 'GET');
+        if (requestId !== summaryRequestSeq) {
+            return;
+        }
+        const counts = dataSummary && dataSummary.counts ? dataSummary.counts : {total: 0, '1': 0, '2': 0, '5': 0};
+        $('#metricAszTotal').text(mzFormatNumber(counts.total || 0, 0));
+        $('#metricAszActive').text(mzFormatNumber(counts['1'] || 0, 0));
+        $('#metricAszInactive').text(mzFormatNumber(counts['2'] || 0, 0)).toggleClass('text-warning', (counts['2'] || 0) > 0);
+        $('#metricAszArchived').text(mzFormatNumber(counts['5'] || 0, 0)).toggleClass('text-danger', (counts['5'] || 0) > 0);
+        updateStatusChips({
+            '': counts.total || 0,
+            '1': counts['1'] || 0,
+            '2': counts['2'] || 0,
+            '5': counts['5'] || 0
+        });
+        self.displayChart(dataSummary && dataSummary.chart ? dataSummary.chart : []);
     };
 
     const findContractById = function (id) {
@@ -182,10 +221,42 @@ function MainAsset() {
         oTableAsset = $('#dtAszAsset').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[2, 'asc']],
+            processing: true,
+            serverSide: true,
+            deferRender: true,
+            order: [[2, 'asc']],
             language: _DATATABLE_LANGUAGE,
             autoWidth: false,
             pageLength: 25,
+            ajax: {
+                url: 'api/asset.php?type=datatable',
+                type: 'GET',
+                data: function (d) {
+                    d.contractId = contractId || '';
+                    d.assetGroupId = $('#optAszGroupId').val() || '';
+                    d.assetCategoryId = $('#optAszCategoryId').val() || '';
+                    d.assetTypeId = $('#optAszTypeId').val() || '';
+                    d.assetStatus = statusFilterValue || '';
+                },
+                beforeSend: function (xhr) {
+                    const token = sessionStorage.getItem('token');
+                    if (token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                    }
+                },
+                dataSrc: function (json) {
+                    if (!json.success || typeof json.result === 'undefined') {
+                        const message = json.errmsg !== '' ? json.errmsg : _ALERT_MSG_ERROR_DEFAULT;
+                        toastr['error'](message, _ALERT_TITLE_ERROR);
+                        return [];
+                    }
+                    json.recordsTotal = json.result.recordsTotal;
+                    json.recordsFiltered = json.result.recordsFiltered;
+                    json.draw = typeof json.result.draw !== 'undefined' ? json.result.draw : json.draw;
+                    lastListUpdatedText = getNowStamp();
+                    return json.result.data || [];
+                }
+            },
             dom: "<'row d-none'<'col-sm-12'f>>" +
                  "<'row'<'col-sm-12'tr>>" +
                  "<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
@@ -241,17 +312,17 @@ function MainAsset() {
                 refreshListSummary();
             },
             aoColumns: [
-                {mData: null},
-                {mData: null, mRender: function (data, type, row) { return row['assetName'] || ''; }},
-                {mData: null, mRender: function (data, type, row) { return row['assetNo'] || ''; }},
-                {mData: null, mRender: function (data, type, row) { return row['assetSerialNo'] || ''; }},
-                {mData: null, mRender: function (data, type, row) { return row['assetGroupId'] !== '' ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : ''; }},
-                {mData: null, mRender: function (data, type, row) { return row['assetCategoryId'] !== '' ? refAssetCategory[row['assetCategoryId']]['assetCategoryName'] : ''; }},
-                {mData: null, mRender: function (data, type, row) { return row['assetTypeId'] !== '' ? refAssetType[row['assetTypeId']]['assetTypeName'] : ''; }},
-                {mData: null, mRender: function (data, type, row) { return row['assetBrandId'] ? refAssetBrand[row['assetBrandId']]['assetBrandName'] : ''; }},
-                {mData: null, mRender: function (data, type, row) { return row['assetModelId'] ? refAssetModel[row['assetModelId']]['assetModelName'] : ''; }},
-                {mData: null, mRender: function (data, type, row) { return row['ppmGroupId'] !== '' ? refPpmGroup[row['ppmGroupId']]['ppmGroupName'] : ''; }},
-                {mData: 'assetLocationCode'},
+                {mData: null, defaultContent: ''},
+                {mData: 'assetName', defaultContent: ''},
+                {mData: 'assetNo', defaultContent: ''},
+                {mData: 'assetSerialNo', defaultContent: ''},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetGroupName', 'assetGroupId', refAssetGroup, 'assetGroupName'); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetCategoryName', 'assetCategoryId', refAssetCategory, 'assetCategoryName'); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetTypeName', 'assetTypeId', refAssetType, 'assetTypeName'); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetBrandName', 'assetBrandId', refAssetBrand, 'assetBrandName'); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetModelName', 'assetModelId', refAssetModel, 'assetModelName'); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'ppmGroupName', 'ppmGroupId', refPpmGroup, 'ppmGroupName'); }},
+                {mData: 'assetLocationCode', defaultContent: ''},
                 {mData: null, mRender: function (data, type, row) {
                         if (type !== 'display') {
                             const status = row['assetStatus'];
@@ -304,25 +375,26 @@ function MainAsset() {
         $('#dtAszAsset_filter').hide();
 
         $('#txtAszAssetSearch').on('keyup change', function () {
-            oTableAsset.search($(this).val()).draw();
+            const value = $(this).val();
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(function () {
+                oTableAsset.search(value).draw();
+            }, 350);
         });
 
         $('#optAszGroupId').on('change', function () {
             mzOptionStop('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
             mzOptionStopClear('optAszTypeId', 'All Asset Type');
-            oTableAsset.column(14).search(`^${$(this).val()}$`, true, false, true).draw();
-            oTableAsset.column(15).search('', false, true, false).draw();
-            oTableAsset.column(16).search('', false, true, false).draw();
+            reloadAssetTable(true);
         });
 
         $('#optAszCategoryId').on('change', function () {
             mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
-            oTableAsset.column(15).search(`^${$(this).val()}$`, true, false, true).draw();
-            oTableAsset.column(16).search('', false, true, false).draw();
+            reloadAssetTable(true);
         });
 
         $('#optAszTypeId').on('change', function () {
-            oTableAsset.column(16).search(`^${$(this).val()}$`, true, false, true).draw();
+            reloadAssetTable(true);
         });
 
         const btnAssetOpt = {
@@ -369,16 +441,13 @@ function MainAsset() {
         $('#optAszContractId').on('change', function () {
             contractId = $(this).val();
             updateContractBadge();
-            setStatusFilter('');
+            setStatusFilter('', false);
             ShowLoader();
             setTimeout(function () {
                 try {
                     $('#optAszGroupId').val(null);
                     mzOptionStopClear('optAszCategoryId', 'All Asset Category');
                     mzOptionStopClear('optAszTypeId', 'All Asset Type');
-                    oTableAsset.column(14).search('', false, true, false).draw();
-                    oTableAsset.column(15).search('', false, true, false).draw();
-                    oTableAsset.column(16).search('', false, true, false).draw();
                     self.genTableAsz();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -418,37 +487,32 @@ function MainAsset() {
                 setStatusFilter(status);
             });
         });
-        setStatusFilter('');
-
-        self.genTableAsz();
+        setStatusFilter('', false);
+        loadAssetSummary();
     };
 
     this.genTableAsz = function () {
-        if (!contractId) {
-            oTableAsset.clear().draw();
-            assetDataCache = [];
-            updateAssetMetrics(assetDataCache);
-            lastListUpdatedText = '—';
-            refreshListSummary();
-            self.displayChart();
+        if (!oTableAsset) {
             return;
         }
-        const dataAsset = mzAjaxRequest('asset.php?contractId=' + contractId, 'GET');
-        assetDataCache = Array.isArray(dataAsset) ? dataAsset : [];
-        oTableAsset.clear().rows.add(assetDataCache).draw();
-        lastListUpdatedText = getNowStamp();
-        updateAssetMetrics(assetDataCache);
+        if (!contractId) {
+            lastListUpdatedText = '—';
+            reloadAssetTable(true);
+            loadAssetSummary();
+            refreshListSummary();
+            return;
+        }
+        reloadAssetTable(true);
+        loadAssetSummary();
         refreshListSummary();
-        self.displayChart();
     };
 
     this.displayStats = function () {
-        const tableData = oTableAsset ? oTableAsset.rows().data().toArray() : [];
-        updateAssetMetrics(tableData);
+        loadAssetSummary();
         refreshListSummary();
     };
 
-    this.displayChart = function () {
+    this.displayChart = function (chartRows) {
         if (typeof Highcharts === 'undefined') {
             return;
         }
@@ -457,38 +521,40 @@ function MainAsset() {
         const drilldowns = {};
         const assetGroups = {};
 
-        assetDataCache.forEach(function (item) {
-            if (item['assetStatus'] === '1' && item['assetGroupId'] !== '' && item['assetCategoryId'] !== '' && item['assetTypeId'] !== '') {
-                const assetGroupId = item['assetGroupId'];
-                const assetCategoryId = item['assetCategoryId'];
-                const assetTypeId = item['assetTypeId'];
-                const assetGroupName = refAssetGroup[assetGroupId] ? refAssetGroup[assetGroupId]['assetGroupName'] : 'Unknown Group';
-                const assetCategoryName = refAssetCategory[assetCategoryId] ? refAssetCategory[assetCategoryId]['assetCategoryName'] : 'Unknown Category';
-                const assetTypeName = refAssetType[assetTypeId] ? refAssetType[assetTypeId]['assetTypeName'] : 'Unknown Type';
+        (chartRows || []).forEach(function (item) {
+            const assetGroupId = item['assetGroupId'];
+            const assetCategoryId = item['assetCategoryId'];
+            const assetTypeId = item['assetTypeId'];
+            const total = parseInt(item['total'], 10) || 0;
+            if (!assetGroupId || !assetCategoryId || !assetTypeId || total < 1) {
+                return;
+            }
+            const assetGroupName = refAssetGroup && refAssetGroup[assetGroupId] ? refAssetGroup[assetGroupId]['assetGroupName'] : 'Unknown Group';
+            const assetCategoryName = refAssetCategory && refAssetCategory[assetCategoryId] ? refAssetCategory[assetCategoryId]['assetCategoryName'] : 'Unknown Category';
+            const assetTypeName = refAssetType && refAssetType[assetTypeId] ? refAssetType[assetTypeId]['assetTypeName'] : 'Unknown Type';
 
-                if (assetGroups['group' + assetGroupId]) {
-                    assetGroups['group' + assetGroupId]['y'] += 1;
-                } else {
-                    assetGroups['group' + assetGroupId] = {name: assetGroupName, y: 1, drilldown: 'group' + assetGroupId};
-                }
+            if (assetGroups['group' + assetGroupId]) {
+                assetGroups['group' + assetGroupId]['y'] += total;
+            } else {
+                assetGroups['group' + assetGroupId] = {name: assetGroupName, y: total, drilldown: 'group' + assetGroupId};
+            }
 
-                if (!drilldowns['group' + assetGroupId]) {
-                    drilldowns['group' + assetGroupId] = {name: 'Asset Category', data: [], datas: {}, id: 'group' + assetGroupId};
-                }
-                if (drilldowns['group' + assetGroupId]['datas']['category' + assetCategoryId]) {
-                    drilldowns['group' + assetGroupId]['datas']['category' + assetCategoryId]['y'] += 1;
-                } else {
-                    drilldowns['group' + assetGroupId]['datas']['category' + assetCategoryId] = {name: assetCategoryName, y: 1, drilldown: 'category' + assetCategoryId};
-                }
+            if (!drilldowns['group' + assetGroupId]) {
+                drilldowns['group' + assetGroupId] = {name: 'Asset Category', data: [], datas: {}, id: 'group' + assetGroupId};
+            }
+            if (drilldowns['group' + assetGroupId]['datas']['category' + assetCategoryId]) {
+                drilldowns['group' + assetGroupId]['datas']['category' + assetCategoryId]['y'] += total;
+            } else {
+                drilldowns['group' + assetGroupId]['datas']['category' + assetCategoryId] = {name: assetCategoryName, y: total, drilldown: 'category' + assetCategoryId};
+            }
 
-                if (!drilldowns['category' + assetCategoryId]) {
-                    drilldowns['category' + assetCategoryId] = {name: 'Asset Type', data: [], datas: {}, id: 'category' + assetCategoryId};
-                }
-                if (drilldowns['category' + assetCategoryId]['datas']['type' + assetTypeId]) {
-                    drilldowns['category' + assetCategoryId]['datas']['type' + assetTypeId]['y'] += 1;
-                } else {
-                    drilldowns['category' + assetCategoryId]['datas']['type' + assetTypeId] = {name: assetTypeName, y: 1};
-                }
+            if (!drilldowns['category' + assetCategoryId]) {
+                drilldowns['category' + assetCategoryId] = {name: 'Asset Type', data: [], datas: {}, id: 'category' + assetCategoryId};
+            }
+            if (drilldowns['category' + assetCategoryId]['datas']['type' + assetTypeId]) {
+                drilldowns['category' + assetCategoryId]['datas']['type' + assetTypeId]['y'] += total;
+            } else {
+                drilldowns['category' + assetCategoryId]['datas']['type' + assetTypeId] = {name: assetTypeName, y: total};
             }
         });
 
@@ -548,52 +614,17 @@ function MainAsset() {
         });
     };
 
-    this.addTableAsz = function (_dataAdd) {
-        oTableAsset.row.add(_dataAdd).draw();
-        assetDataCache = oTableAsset.rows().data().toArray();
+    this.addTableAsz = function () {
         lastListUpdatedText = getNowStamp();
-        self.displayStats();
-        self.displayChart();
+        reloadAssetTable(false);
+        loadAssetSummary();
+        return 0;
     };
 
-    this.updateTableAsz = function (_dataEdit, _rowEdit) {
-        const currentRow = oTableAsset.row(_rowEdit).data();
-        if (typeof _dataEdit['action'] !== 'undefined') {
-            if (_dataEdit['action'] === 'save' || _dataEdit['action'] === 'submit') {
-                currentRow['assetName'] = _dataEdit['assetName'];
-                currentRow['assetNo'] = _dataEdit['assetNo'];
-                currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
-                currentRow['assetGroupId'] = _dataEdit['assetGroupId'];
-                currentRow['assetCategoryId'] = _dataEdit['assetCategoryId'];
-                currentRow['assetTypeId'] = _dataEdit['assetTypeId'];
-                currentRow['assetBrandId'] = _dataEdit['assetBrandId'];
-                currentRow['assetModelId'] = _dataEdit['assetModelId'];
-                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
-                currentRow['assetLocationDesc'] = _dataEdit['assetLocationDesc'];
-                currentRow['ppmGroupId'] = _dataEdit['ppmGroupId'];
-                currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
-            }
-            if (_dataEdit['action'] === 'submit') {
-                currentRow['assetStatus'] = '1';
-            }
-            if (_dataEdit['action'] === 'update') {
-                currentRow['assetName'] = _dataEdit['assetName'];
-                currentRow['assetNo'] = _dataEdit['assetNo'];
-                currentRow['assetSerialNo'] = _dataEdit['assetSerialNo'];
-                currentRow['assetLocationCode'] = _dataEdit['assetLocationCode'];
-                currentRow['assetLocationDesc'] = _dataEdit['assetLocationDesc'];
-                currentRow['ppmGroupId'] = _dataEdit['ppmGroupId'];
-                currentRow['assetCapacity'] = _dataEdit['assetCapacity'];
-            }
-        }
-        if (typeof _dataEdit['assetStatus'] !== 'undefined') {
-            currentRow['assetStatus'] = _dataEdit['assetStatus'];
-        }
-        oTableAsset.row(_rowEdit).data(currentRow).draw();
-        assetDataCache = oTableAsset.rows().data().toArray();
+    this.updateTableAsz = function () {
         lastListUpdatedText = getNowStamp();
-        self.displayStats();
-        self.displayChart();
+        reloadAssetTable(false);
+        loadAssetSummary();
     };
 
     this.deleteTableAsz = function () {

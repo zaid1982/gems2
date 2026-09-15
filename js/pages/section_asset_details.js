@@ -987,13 +987,16 @@ function SectionAssetDetails() {
     };
 
     this.getDetails = function () {
+        self.ensureDetailLookups();
         formValidate.clearValidation();
         formValidate2.clearValidation();
         formValidateLifespan.clearValidation();
         formValidateValue.clearValidation();
 
         const dataSsz = mzAjaxRequest('asset.php?assetId='+assetId, 'GET');
-        const registeredBy = dataSsz['assetRegisteredBy']!==''?refUser[dataSsz['assetRegisteredBy']]['userFullName']:'';
+        const registeredBy = dataSsz['assetRegisteredBy']!=='' && refUser && refUser[dataSsz['assetRegisteredBy']]
+            ? refUser[dataSsz['assetRegisteredBy']]['userFullName']
+            : '';
         const assetGroupId = dataSsz['assetGroupId'];
         const assetCategoryId = dataSsz['assetCategoryId'];
         const assetTypeId = dataSsz['assetTypeId'];
@@ -1245,10 +1248,32 @@ function SectionAssetDetails() {
         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); throw new Error(e.message)}
     }
 
+    this.ensureDetailLookups = function () {
+        if (!versionLocal) {
+            return;
+        }
+        if (!refAssetBrand) {
+            refAssetBrand = mzGetLocalArray('gems_assetBrand', versionLocal, 'assetBrandId', [], 'asset_brand');
+        }
+        if (!refAssetModel) {
+            refAssetModel = mzGetLocalArray('gems_assetModel', versionLocal, 'assetModelId', [], 'asset_model');
+        }
+        if (!refUser) {
+            refUser = mzGetLocalArray('gems_user', versionLocal, 'userId');
+        }
+        if (!refZone) {
+            refZone = mzGetLocalArrayV2('gems_siteZone', versionLocal, 'zone/ref');
+        }
+        if (!refSeverity) {
+            refSeverity = mzGetLocalArray('gems_severity', versionLocal, 'severityId', [], 'severity');
+        }
+    };
+
     this.add = function (_contractId, _assetGroupId, _assetCategoryId, _assetTypeId) {
         ShowLoader();
         setTimeout(function () {
             try {
+                self.ensureDetailLookups();
                 mzCheckFuncParam([_contractId]);
 
                 const data = {
@@ -1285,6 +1310,7 @@ function SectionAssetDetails() {
         ShowLoader();
         setTimeout(function () {
             try {
+                self.ensureDetailLookups();
                 mzCheckFuncParam([_assetId, _rowRefresh]);
                 assetId = _assetId;
                 rowRefresh = _rowRefresh;
@@ -1328,6 +1354,7 @@ function SectionAssetDetails() {
         ShowLoader();
         setTimeout(function () {
             try {
+                self.ensureDetailLookups();
                 mzCheckFuncParam([_assetId]);
                 assetId = _assetId;
 

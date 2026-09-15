@@ -142,6 +142,173 @@ class Class_asset {
     }
 
     /**
+     * Server-side page for Asset Management. Returns only the current page of slim rows.
+     *
+     * @param string $contractId
+     * @param int $start
+     * @param int $length
+     * @param string $searchValue
+     * @param int|null $orderColumn
+     * @param string $orderDir
+     * @param array $filters
+     * @return array
+     * @throws Exception
+     */
+    public function get_asset_datatable ($contractId, $start, $length, $searchValue, $orderColumn, $orderDir, $filters = array()) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($contractId)) {
+                return array('recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => array());
+            }
+
+            $baseWhere = array('contract_id' => $contractId);
+            if (!empty($filters['assetGroupId'])) {
+                $baseWhere['asset_group_id'] = $filters['assetGroupId'];
+            }
+            if (!empty($filters['assetCategoryId'])) {
+                $baseWhere['asset_category_id'] = $filters['assetCategoryId'];
+            }
+            if (!empty($filters['assetTypeId'])) {
+                $baseWhere['asset_type_id'] = $filters['assetTypeId'];
+            }
+            if (!empty($filters['assetStatus'])) {
+                $baseWhere['asset_status'] = $filters['assetStatus'];
+            }
+
+            $whereWithSearch = $baseWhere;
+            $searchValue = trim((string) $searchValue);
+            if ($searchValue !== '') {
+                $escaped = addslashes(str_replace(array('%', '_'), array('\\%', '\\_'), $searchValue));
+                $like = "'%".$escaped."%'";
+                $whereWithSearch['w1'] = '(asset_no LIKE '.$like
+                    .' OR asset_name LIKE '.$like
+                    .' OR asset_serial_no LIKE '.$like
+                    .' OR asset_location_code LIKE '.$like
+                    .' OR asset_group_name LIKE '.$like
+                    .' OR asset_category_name LIKE '.$like
+                    .' OR asset_type_name LIKE '.$like
+                    .' OR asset_brand_name LIKE '.$like
+                    .' OR asset_model_name LIKE '.$like
+                    .' OR ppm_group_name LIKE '.$like.')';
+            }
+
+            $orderableColumns = array(
+                1 => 'asset_name',
+                2 => 'asset_no',
+                3 => 'asset_serial_no',
+                4 => 'asset_group_name',
+                5 => 'asset_category_name',
+                6 => 'asset_type_name',
+                7 => 'asset_brand_name',
+                8 => 'asset_model_name',
+                9 => 'ppm_group_name',
+                10 => 'asset_location_code',
+                11 => 'asset_status'
+            );
+            $orderDir = strtolower((string) $orderDir) === 'desc' ? 'DESC' : 'ASC';
+            $orderSql = 'asset_no ASC';
+            if (!is_null($orderColumn) && array_key_exists((int) $orderColumn, $orderableColumns)) {
+                $orderSql = $orderableColumns[(int) $orderColumn].' '.$orderDir;
+            }
+
+            $start = max(0, (int) $start);
+            $length = (int) $length;
+            if ($length <= 0 || $length > 100) {
+                $length = 25;
+            }
+
+            $totalRecords = Class_db::getInstance()->db_count('vg_asset_datatable', array('contract_id' => $contractId));
+            $filteredRecords = ($whereWithSearch === $baseWhere && count($baseWhere) === 1)
+                ? $totalRecords
+                : Class_db::getInstance()->db_count('vg_asset_datatable', $whereWithSearch);
+
+            $result = array();
+            $arr_dataLocal = Class_db::getInstance()->db_select('vg_asset_datatable', $whereWithSearch, $orderSql, $start.','.$length);
+            foreach ($arr_dataLocal as $dataLocal) {
+                $result[] = array(
+                    'assetId' => $dataLocal['asset_id'],
+                    'assetNo' => $this->fn_general->clear_null($dataLocal['asset_no']),
+                    'assetName' => $this->fn_general->clear_null($dataLocal['asset_name']),
+                    'assetSerialNo' => $this->fn_general->clear_null($dataLocal['asset_serial_no']),
+                    'assetLocationCode' => $this->fn_general->clear_null($dataLocal['asset_location_code']),
+                    'assetGroupId' => $this->fn_general->clear_null($dataLocal['asset_group_id']),
+                    'assetCategoryId' => $this->fn_general->clear_null($dataLocal['asset_category_id']),
+                    'assetTypeId' => $this->fn_general->clear_null($dataLocal['asset_type_id']),
+                    'assetBrandId' => $this->fn_general->clear_null($dataLocal['asset_brand_id']),
+                    'assetModelId' => $this->fn_general->clear_null($dataLocal['asset_model_id']),
+                    'ppmGroupId' => $this->fn_general->clear_null($dataLocal['ppm_group_id']),
+                    'assetStatus' => $dataLocal['asset_status'],
+                    'assetGroupName' => $this->fn_general->clear_null($dataLocal['asset_group_name']),
+                    'assetCategoryName' => $this->fn_general->clear_null($dataLocal['asset_category_name']),
+                    'assetTypeName' => $this->fn_general->clear_null($dataLocal['asset_type_name']),
+                    'assetBrandName' => $this->fn_general->clear_null($dataLocal['asset_brand_name']),
+                    'assetModelName' => $this->fn_general->clear_null($dataLocal['asset_model_name']),
+                    'ppmGroupName' => $this->fn_general->clear_null($dataLocal['ppm_group_name'])
+                );
+            }
+
+            return array(
+                'recordsTotal' => intval($totalRecords),
+                'recordsFiltered' => intval($filteredRecords),
+                'data' => $result
+            );
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
+     * Contract-wide counts and chart buckets. Does not scan every asset row in PHP.
+     *
+     * @param string $contractId
+     * @return array
+     * @throws Exception
+     */
+    public function get_asset_summary ($contractId) {
+        try {
+            $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+            if (empty($contractId)) {
+                return array(
+                    'counts' => array('total' => 0, '1' => 0, '2' => 0, '5' => 0),
+                    'chart' => array()
+                );
+            }
+
+            $counts = array('total' => 0, '1' => 0, '2' => 0, '5' => 0);
+            $statusRows = Class_db::getInstance()->db_select('vg_asset_status_count', array('contract_id' => $contractId));
+            foreach ($statusRows as $row) {
+                $status = isset($row['asset_status']) ? (string) $row['asset_status'] : '';
+                $n = isset($row['total']) ? intval($row['total']) : 0;
+                $counts['total'] += $n;
+                if (isset($counts[$status])) {
+                    $counts[$status] = $n;
+                }
+            }
+
+            $chart = array();
+            $chartRows = Class_db::getInstance()->db_select('vg_asset_chart', array('contract_id' => $contractId));
+            foreach ($chartRows as $row) {
+                $chart[] = array(
+                    'assetGroupId' => $this->fn_general->clear_null($row['asset_group_id']),
+                    'assetCategoryId' => $this->fn_general->clear_null($row['asset_category_id']),
+                    'assetTypeId' => $this->fn_general->clear_null($row['asset_type_id']),
+                    'total' => intval($row['total'])
+                );
+            }
+
+            return array('counts' => $counts, 'chart' => $chart);
+        }
+        catch(Exception $ex) {
+            $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
+        }
+    }
+
+    /**
      * @param $assetId
      * @return array
      * @throws Exception

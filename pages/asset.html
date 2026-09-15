@@ -312,30 +312,20 @@
                 const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
                 const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
                 const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
-                const refAssetBrand_ = mzGetLocalArray('gems_assetBrand', versionLocal_, 'assetBrandId', [], 'asset_brand');
-                const refAssetModel_ = mzGetLocalArray('gems_assetModel', versionLocal_, 'assetModelId', [], 'asset_model');
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
                 const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
                 const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
                 const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
                 const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
-                const refZone_ = mzGetLocalArrayV2('gems_siteZone', versionLocal_, 'zone/ref');
-                const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId', [], 'severity');
 
                 sectionAssetDetails_.setClassFrom(assetClass_);
                 sectionAssetDetails_.setRefStatus(refStatus_);
                 sectionAssetDetails_.setRefAssetGroup(refAssetGroup_);
                 sectionAssetDetails_.setRefAssetCategory(refAssetCategory_);
                 sectionAssetDetails_.setRefAssetType(refAssetType_);
-                sectionAssetDetails_.setRefAssetBrand(refAssetBrand_);
-                sectionAssetDetails_.setRefAssetModel(refAssetModel_);
-                sectionAssetDetails_.setRefUser(refUser_);
                 sectionAssetDetails_.setRefContract(refContract_);
                 sectionAssetDetails_.setRefSite(refSite_);
                 sectionAssetDetails_.setRefClient(refClient_);
                 sectionAssetDetails_.setRefPpmGroup(refPpmGroup_);
-                sectionAssetDetails_.setRefZone(refZone_);
-                sectionAssetDetails_.setRefSeverity(refSeverity_);
                 sectionAssetDetails_.setVersionLocal(versionLocal_);
                 sectionAssetDetails_.init();
 
@@ -344,8 +334,6 @@
                 assetClass_.setRefAssetGroup(refAssetGroup_);
                 assetClass_.setRefAssetCategory(refAssetCategory_);
                 assetClass_.setRefAssetType(refAssetType_);
-                assetClass_.setRefAssetBrand(refAssetBrand_);
-                assetClass_.setRefAssetModel(refAssetModel_);
                 assetClass_.setRefPpmGroup(refPpmGroup_);
                 assetClass_.setSectionAssetClass(sectionAssetDetails_);
                 assetClass_.setModalConfirmDeleteClass(modalConfirmDelete_);

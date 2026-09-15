@@ -1935,6 +1935,54 @@ class Class_sql
                         INNER JOIN cli_site s ON wt.site_id = s.site_id
                         WHERE mr.return_status = 'pending'
                             AND [site_filter]";
+            } else if ($title === 'vg_asset_datatable') {
+                $sql = "SELECT
+                    a.asset_id,
+                    a.asset_no,
+                    a.asset_name,
+                    a.asset_serial_no,
+                    a.asset_location_code,
+                    a.asset_group_id,
+                    a.asset_category_id,
+                    a.asset_type_id,
+                    a.asset_brand_id,
+                    a.asset_model_id,
+                    a.ppm_group_id,
+                    a.contract_id,
+                    a.asset_status,
+                    g.asset_group_name,
+                    c.asset_category_name,
+                    t.asset_type_name,
+                    b.asset_brand_name,
+                    m.asset_model_name,
+                    p.ppm_group_name
+                FROM ast_asset a
+                LEFT JOIN ast_asset_group g ON g.asset_group_id = a.asset_group_id
+                LEFT JOIN ast_asset_category c ON c.asset_category_id = a.asset_category_id
+                LEFT JOIN ast_asset_type t ON t.asset_type_id = a.asset_type_id
+                LEFT JOIN ast_asset_brand b ON b.asset_brand_id = a.asset_brand_id
+                LEFT JOIN ast_asset_model m ON m.asset_model_id = a.asset_model_id
+                LEFT JOIN ppm_group p ON p.ppm_group_id = a.ppm_group_id";
+            } else if ($title === 'vg_asset_status_count') {
+                $sql = "SELECT
+                    contract_id,
+                    asset_status,
+                    COUNT(*) AS total
+                FROM ast_asset
+                GROUP BY contract_id, asset_status";
+            } else if ($title === 'vg_asset_chart') {
+                $sql = "SELECT
+                    contract_id,
+                    asset_group_id,
+                    asset_category_id,
+                    asset_type_id,
+                    COUNT(*) AS total
+                FROM ast_asset
+                WHERE asset_status = '1'
+                    AND asset_group_id IS NOT NULL
+                    AND asset_category_id IS NOT NULL
+                    AND asset_type_id IS NOT NULL
+                GROUP BY contract_id, asset_group_id, asset_category_id, asset_type_id";
             } else {
                 throw new Exception($this->get_exception('0098', __FUNCTION__, __LINE__, 'Sql not exist : ' . $title));
             }

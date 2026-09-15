@@ -29,6 +29,9 @@ try {
     $fn_general->log_debug('API', $api_name, __LINE__, 'Request method = '.$request_method);
 
     $headers = apache_request_headers();
+    if (!isset($headers['Authorization']) && isset($headers['authorization'])) {
+        $headers['Authorization'] = $headers['authorization'];
+    }
     if (!isset($headers['Authorization'])) {
         throw new Exception('[' . __LINE__ . '] - Parameter Authorization empty');
     }
@@ -56,7 +59,48 @@ try {
         $type = filter_input(INPUT_GET, 'type');
         $contractId = filter_input(INPUT_GET, 'contractId');
         if (!is_null($type)) {
-            if ($type === 'total_asset') {
+            if ($type === 'datatable') {
+                $contractId = filter_input(INPUT_GET, 'contractId');
+                if (!$isAdministrator && !empty($userSite) && !empty($contractId)) {
+                    $contractSite = Class_db::getInstance()->db_select_colm('cli_contract', array('contract_id'=>$contractId), 'site_id');
+                    if (empty($contractSite) || $contractSite[0] != $userSite) {
+                        throw new Exception('[' . __LINE__ . '] - Access denied to contract assets from different site');
+                    }
+                }
+                $draw = isset($_GET['draw']) ? intval($_GET['draw']) : 0;
+                $start = isset($_GET['start']) ? intval($_GET['start']) : 0;
+                $length = isset($_GET['length']) ? intval($_GET['length']) : 25;
+                $searchValue = '';
+                if (isset($_GET['search']) && is_array($_GET['search']) && isset($_GET['search']['value'])) {
+                    $searchValue = $_GET['search']['value'];
+                }
+                $orderColumn = null;
+                $orderDir = 'asc';
+                if (isset($_GET['order']) && is_array($_GET['order']) && isset($_GET['order'][0]['column'])) {
+                    $orderColumn = intval($_GET['order'][0]['column']);
+                    if (isset($_GET['order'][0]['dir'])) {
+                        $orderDir = $_GET['order'][0]['dir'];
+                    }
+                }
+                $filters = array(
+                    'assetGroupId' => filter_input(INPUT_GET, 'assetGroupId'),
+                    'assetCategoryId' => filter_input(INPUT_GET, 'assetCategoryId'),
+                    'assetTypeId' => filter_input(INPUT_GET, 'assetTypeId'),
+                    'assetStatus' => filter_input(INPUT_GET, 'assetStatus')
+                );
+                $datatableResult = $fn_asset->get_asset_datatable($contractId, $start, $length, $searchValue, $orderColumn, $orderDir, $filters);
+                $datatableResult['draw'] = $draw;
+                $result = $datatableResult;
+            } else if ($type === 'summary') {
+                $contractId = filter_input(INPUT_GET, 'contractId');
+                if (!$isAdministrator && !empty($userSite) && !empty($contractId)) {
+                    $contractSite = Class_db::getInstance()->db_select_colm('cli_contract', array('contract_id'=>$contractId), 'site_id');
+                    if (empty($contractSite) || $contractSite[0] != $userSite) {
+                        throw new Exception('[' . __LINE__ . '] - Access denied to contract assets from different site');
+                    }
+                }
+                $result = $fn_asset->get_asset_summary($contractId);
+            } else if ($type === 'total_asset') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
                 
