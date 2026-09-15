@@ -33,8 +33,9 @@ test_*.csv
 # Firebase / Apple push secrets (store outside repo; see /Applications/XAMPP/xamppfiles/gfm-secrets/)
 *firebase-adminsdk*.json
 AuthKey_*.p8
-# PHP debug/error logs. Do not use api/C:/xampp/... — that path is one folder name with backslashes.
-api/C*
+# Accidental Windows log dirs created as api/C:\xampp\...
+# Do not use api/C* — that also ignores api/class/
+api/C:*
 **/debug_*.log
 **/error_*.log
 maintenance/logs/
