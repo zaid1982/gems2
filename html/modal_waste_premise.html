@@ -1,0 +1,25 @@
+<div class="modal fade gems-modal" id="modal_waste_premise" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content gems-modal-card">
+      <div class="modal-header gems-modal-header">
+        <h4 class="text-white mt-2 ml-2">Premise Settings</h4>
+        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body gems-modal-body">
+        <form id="formWpr">
+          <input type="hidden" id="hidWprSiteId">
+          <div class="form-group"><label>Premise</label><p id="lblWprName" class="mb-0 font-weight-bold">-</p></div>
+          <div class="form-group"><label>Address</label><textarea id="txaWprAddress" class="form-control" rows="2"></textarea></div>
+          <div class="form-group"><label>Contact Number</label><input type="text" id="txtWprContact" class="form-control"></div>
+          <div class="form-group"><label>Cut-over Date</label><input type="date" id="txtWprCutover" class="form-control"></div>
+          <div class="form-check"><input type="checkbox" class="form-check-input" id="chkWprEvP"><label class="form-check-label" for="chkWprEvP">Evidence required for Produced</label></div>
+          <div class="form-check mb-2"><input type="checkbox" class="form-check-input" id="chkWprEvD"><label class="form-check-label" for="chkWprEvD">Evidence required for Disposed</label></div>
+        </form>
+      </div>
+      <div class="modal-footer gems-modal-footer">
+        <button class="btn btn-outline-info" data-dismiss="modal">Close</button>
+        <button class="btn btn-info" id="btnWprSave">Save</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -2,15 +2,16 @@
 
 class Constant {
     // public static $dbUserName = 'root';
-    public static $dbUserName = 'root';
-    //public static $dbUserPassword = 'password';
+    public static $dbUserName = 'zaid';
+    public static $dbUserPassword = 'Amlyda@1982';
     // public static $dbUserPassword = 'GemS@1N#22';
-    public static $dbUserPassword = 'Globalfm@19';
-    public static $dbName = 'gems2';
+    // public static $dbUserPassword = 'Globalfm@19';
+    // public static $dbName = 'gems2';
+    public static $dbName = 'gems';
     // public static $dbName = 'gems_jkr';
-    // public static $dbHost = 'sp161.mschosting.cloud';
+    public static $dbHost = 'sp162.mschosting.cloud';
     // public static $dbHost = '10.8.68.131';
-    public static $dbHost = '10.101.11.69';
+    // public static $dbHost = '10.101.11.69';
     // public static $folderDebug = '../../../logs/gems/debug/';
     // public static string $folderDebug = 'C:\xampp\logs\gems\debug\\';
     public static $folderDebug = 'C:\xampp\htdocs\maintenance\logs\debug\\';
@@ -19,7 +20,8 @@ class Constant {
     public static $folderError = 'C:\xampp\htdocs\maintenance\logs\error\\';
     // public static $url = '//localhost/gems2/api/';
     //public static $url = '//gems.globalfm.com.my/api/';
-    public static $url = '//10.8.68.130/api/';
+    public static $url = '//gems.metadatasystem.my/api/';
+    // public static $url = '//10.8.68.130/api/';
     public static $redisHost = '127.0.0.1';
     public static $redisPort = 6379;
     public static $isLogged = true;
@@ -161,6 +163,26 @@ class Constant {
         'enable' => 'Space __ successfully enabled!',
         'delete' => 'Space __ successfully removed!',
         'errAlreadyExist' => 'Space __ already exists for this site!'
+    );
+
+    public static $waste = array(
+        'draftSaved' => 'Waste record saved as Draft. Official totals are unchanged.',
+        'submitted' => 'Waste record submitted and included in the official register.',
+        'finalised' => 'Waste record finalised and included in the official register.',
+        'cancelled' => 'Waste record cancelled.',
+        'amended' => 'Final waste record amended. Previous values have been retained.',
+        'documentAdded' => 'Supporting document attached.',
+        'documentRemoved' => 'Supporting document removed.',
+        'openingSaved' => 'Opening balance saved.',
+        'premiseSaved' => 'Premise settings saved.',
+        'profileSaved' => 'Waste profile saved.',
+        'profileRemoved' => 'Waste profile deactivated.',
+        'locationSaved' => 'Location saved.',
+        'locationRemoved' => 'Location deactivated.',
+        'refSaved' => 'Reference value saved.',
+        'refRemoved' => 'Reference value deactivated.',
+        'reportGenerated' => 'JKR report version generated. Historical versions are unchanged.',
+        'submissionSaved' => 'JKR submission details recorded.'
     );
 
     public static $spaceReservation = array(

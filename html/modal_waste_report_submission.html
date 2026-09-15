@@ -1,0 +1,23 @@
+<div class="modal fade gems-modal" id="modal_waste_report_submission" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content gems-modal-card">
+      <div class="modal-header gems-modal-header">
+        <h4 class="text-white mt-2 ml-2">Record JKR Submission</h4>
+        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body gems-modal-body">
+        <input type="hidden" id="hidWrsId">
+        <div class="form-group"><label>Submission Date *</label><input type="date" id="txtWrsDate" class="form-control"></div>
+        <div class="form-group"><label>Submitted To *</label><input type="text" id="txtWrsTo" class="form-control"></div>
+        <div class="form-group"><label>Channel</label><select id="optWrsChannel" class="custom-select gems-plain-select browser-default"></select></div>
+        <div class="form-group"><label>Reference</label><input type="text" id="txtWrsRef" class="form-control"></div>
+        <div class="form-group"><label>Notes</label><textarea id="txaWrsNotes" class="form-control" rows="2"></textarea></div>
+        <div class="form-group"><label>Acknowledgement evidence</label><input type="file" id="txfWrsFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div>
+      </div>
+      <div class="modal-footer gems-modal-footer">
+        <button class="btn btn-outline-info" data-dismiss="modal">Close</button>
+        <button class="btn btn-info" id="btnWrsSave">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
