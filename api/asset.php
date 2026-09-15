@@ -100,6 +100,32 @@ try {
                     }
                 }
                 $result = $fn_asset->get_asset_summary($contractId);
+            } else if ($type === 'export') {
+                $contractId = filter_input(INPUT_GET, 'contractId');
+                if (!$isAdministrator && !empty($userSite) && !empty($contractId)) {
+                    $contractSite = Class_db::getInstance()->db_select_colm('cli_contract', array('contract_id'=>$contractId), 'site_id');
+                    if (empty($contractSite) || $contractSite[0] != $userSite) {
+                        throw new Exception('[' . __LINE__ . '] - Access denied to contract assets from different site');
+                    }
+                }
+                $searchValue = filter_input(INPUT_GET, 'search');
+                if ($searchValue === null && isset($_GET['search']) && is_array($_GET['search']) && isset($_GET['search']['value'])) {
+                    $searchValue = $_GET['search']['value'];
+                }
+                $orderColumn = filter_input(INPUT_GET, 'orderColumn');
+                $orderDir = filter_input(INPUT_GET, 'orderDir');
+                $orderColumn = ($orderColumn === null || $orderColumn === '') ? 2 : intval($orderColumn);
+                $orderDir = empty($orderDir) ? 'asc' : $orderDir;
+                $filters = array(
+                    'assetGroupId' => filter_input(INPUT_GET, 'assetGroupId'),
+                    'assetCategoryId' => filter_input(INPUT_GET, 'assetCategoryId'),
+                    'assetTypeId' => filter_input(INPUT_GET, 'assetTypeId'),
+                    'assetStatus' => filter_input(INPUT_GET, 'assetStatus')
+                );
+                $format = filter_input(INPUT_GET, 'format');
+                $fn_asset->stream_asset_export($contractId, (string) $searchValue, $orderColumn, $orderDir, $filters, (string) $format);
+                Class_db::getInstance()->db_close();
+                exit;
             } else if ($type === 'total_asset') {
                 $clientId = filter_input(INPUT_GET, 'clientId');
                 $siteId = filter_input(INPUT_GET, 'siteId');
@@ -229,4 +255,7 @@ try {
     $fn_general->log_error('API', $api_name, __LINE__, $ex->getMessage());
 }
 
+if (!headers_sent()) {
+    header('Content-Type: application/json; charset=utf-8');
+}
 echo json_encode($form_data);

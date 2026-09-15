@@ -142,6 +142,100 @@ class Class_asset {
     }
 
     /**
+     * @param string $contractId
+     * @param string $searchValue
+     * @param array $filters
+     * @return array{0: array, 1: array}
+     */
+    private function build_asset_list_where ($contractId, $searchValue, $filters = array()) {
+        $baseWhere = array('contract_id' => $contractId);
+        if (!empty($filters['assetGroupId'])) {
+            $baseWhere['asset_group_id'] = $filters['assetGroupId'];
+        }
+        if (!empty($filters['assetCategoryId'])) {
+            $baseWhere['asset_category_id'] = $filters['assetCategoryId'];
+        }
+        if (!empty($filters['assetTypeId'])) {
+            $baseWhere['asset_type_id'] = $filters['assetTypeId'];
+        }
+        if (!empty($filters['assetStatus'])) {
+            $baseWhere['asset_status'] = $filters['assetStatus'];
+        }
+
+        $whereWithSearch = $baseWhere;
+        $searchValue = trim((string) $searchValue);
+        if ($searchValue !== '') {
+            $escaped = addslashes(str_replace(array('%', '_'), array('\\%', '\\_'), $searchValue));
+            $like = "'%".$escaped."%'";
+            $whereWithSearch['w1'] = '(asset_no LIKE '.$like
+                .' OR asset_name LIKE '.$like
+                .' OR asset_serial_no LIKE '.$like
+                .' OR asset_location_code LIKE '.$like
+                .' OR asset_group_name LIKE '.$like
+                .' OR asset_category_name LIKE '.$like
+                .' OR asset_type_name LIKE '.$like
+                .' OR asset_brand_name LIKE '.$like
+                .' OR asset_model_name LIKE '.$like
+                .' OR ppm_group_name LIKE '.$like.')';
+        }
+
+        return array($baseWhere, $whereWithSearch);
+    }
+
+    /**
+     * @param int|null $orderColumn
+     * @param string $orderDir
+     * @return string
+     */
+    private function build_asset_list_order ($orderColumn, $orderDir) {
+        $orderableColumns = array(
+            1 => 'asset_name',
+            2 => 'asset_no',
+            3 => 'asset_serial_no',
+            4 => 'asset_group_name',
+            5 => 'asset_category_name',
+            6 => 'asset_type_name',
+            7 => 'asset_brand_name',
+            8 => 'asset_model_name',
+            9 => 'ppm_group_name',
+            10 => 'asset_location_code',
+            11 => 'asset_status'
+        );
+        $orderDir = strtolower((string) $orderDir) === 'desc' ? 'DESC' : 'ASC';
+        if (!is_null($orderColumn) && array_key_exists((int) $orderColumn, $orderableColumns)) {
+            return $orderableColumns[(int) $orderColumn].' '.$orderDir;
+        }
+        return 'asset_no ASC';
+    }
+
+    /**
+     * @param array $dataLocal
+     * @return array
+     */
+    private function map_asset_datatable_row ($dataLocal) {
+        return array(
+            'assetId' => $dataLocal['asset_id'],
+            'assetNo' => $this->fn_general->clear_null($dataLocal['asset_no']),
+            'assetName' => $this->fn_general->clear_null($dataLocal['asset_name']),
+            'assetSerialNo' => $this->fn_general->clear_null($dataLocal['asset_serial_no']),
+            'assetLocationCode' => $this->fn_general->clear_null($dataLocal['asset_location_code']),
+            'assetGroupId' => $this->fn_general->clear_null($dataLocal['asset_group_id']),
+            'assetCategoryId' => $this->fn_general->clear_null($dataLocal['asset_category_id']),
+            'assetTypeId' => $this->fn_general->clear_null($dataLocal['asset_type_id']),
+            'assetBrandId' => $this->fn_general->clear_null($dataLocal['asset_brand_id']),
+            'assetModelId' => $this->fn_general->clear_null($dataLocal['asset_model_id']),
+            'ppmGroupId' => $this->fn_general->clear_null($dataLocal['ppm_group_id']),
+            'assetStatus' => $dataLocal['asset_status'],
+            'assetGroupName' => $this->fn_general->clear_null($dataLocal['asset_group_name']),
+            'assetCategoryName' => $this->fn_general->clear_null($dataLocal['asset_category_name']),
+            'assetTypeName' => $this->fn_general->clear_null($dataLocal['asset_type_name']),
+            'assetBrandName' => $this->fn_general->clear_null($dataLocal['asset_brand_name']),
+            'assetModelName' => $this->fn_general->clear_null($dataLocal['asset_model_name']),
+            'ppmGroupName' => $this->fn_general->clear_null($dataLocal['ppm_group_name'])
+        );
+    }
+
+    /**
      * Server-side page for Asset Management. Returns only the current page of slim rows.
      *
      * @param string $contractId
@@ -162,55 +256,8 @@ class Class_asset {
                 return array('recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => array());
             }
 
-            $baseWhere = array('contract_id' => $contractId);
-            if (!empty($filters['assetGroupId'])) {
-                $baseWhere['asset_group_id'] = $filters['assetGroupId'];
-            }
-            if (!empty($filters['assetCategoryId'])) {
-                $baseWhere['asset_category_id'] = $filters['assetCategoryId'];
-            }
-            if (!empty($filters['assetTypeId'])) {
-                $baseWhere['asset_type_id'] = $filters['assetTypeId'];
-            }
-            if (!empty($filters['assetStatus'])) {
-                $baseWhere['asset_status'] = $filters['assetStatus'];
-            }
-
-            $whereWithSearch = $baseWhere;
-            $searchValue = trim((string) $searchValue);
-            if ($searchValue !== '') {
-                $escaped = addslashes(str_replace(array('%', '_'), array('\\%', '\\_'), $searchValue));
-                $like = "'%".$escaped."%'";
-                $whereWithSearch['w1'] = '(asset_no LIKE '.$like
-                    .' OR asset_name LIKE '.$like
-                    .' OR asset_serial_no LIKE '.$like
-                    .' OR asset_location_code LIKE '.$like
-                    .' OR asset_group_name LIKE '.$like
-                    .' OR asset_category_name LIKE '.$like
-                    .' OR asset_type_name LIKE '.$like
-                    .' OR asset_brand_name LIKE '.$like
-                    .' OR asset_model_name LIKE '.$like
-                    .' OR ppm_group_name LIKE '.$like.')';
-            }
-
-            $orderableColumns = array(
-                1 => 'asset_name',
-                2 => 'asset_no',
-                3 => 'asset_serial_no',
-                4 => 'asset_group_name',
-                5 => 'asset_category_name',
-                6 => 'asset_type_name',
-                7 => 'asset_brand_name',
-                8 => 'asset_model_name',
-                9 => 'ppm_group_name',
-                10 => 'asset_location_code',
-                11 => 'asset_status'
-            );
-            $orderDir = strtolower((string) $orderDir) === 'desc' ? 'DESC' : 'ASC';
-            $orderSql = 'asset_no ASC';
-            if (!is_null($orderColumn) && array_key_exists((int) $orderColumn, $orderableColumns)) {
-                $orderSql = $orderableColumns[(int) $orderColumn].' '.$orderDir;
-            }
+            list($baseWhere, $whereWithSearch) = $this->build_asset_list_where($contractId, $searchValue, $filters);
+            $orderSql = $this->build_asset_list_order($orderColumn, $orderDir);
 
             $start = max(0, (int) $start);
             $length = (int) $length;
@@ -226,26 +273,7 @@ class Class_asset {
             $result = array();
             $arr_dataLocal = Class_db::getInstance()->db_select('vg_asset_datatable', $whereWithSearch, $orderSql, $start.','.$length);
             foreach ($arr_dataLocal as $dataLocal) {
-                $result[] = array(
-                    'assetId' => $dataLocal['asset_id'],
-                    'assetNo' => $this->fn_general->clear_null($dataLocal['asset_no']),
-                    'assetName' => $this->fn_general->clear_null($dataLocal['asset_name']),
-                    'assetSerialNo' => $this->fn_general->clear_null($dataLocal['asset_serial_no']),
-                    'assetLocationCode' => $this->fn_general->clear_null($dataLocal['asset_location_code']),
-                    'assetGroupId' => $this->fn_general->clear_null($dataLocal['asset_group_id']),
-                    'assetCategoryId' => $this->fn_general->clear_null($dataLocal['asset_category_id']),
-                    'assetTypeId' => $this->fn_general->clear_null($dataLocal['asset_type_id']),
-                    'assetBrandId' => $this->fn_general->clear_null($dataLocal['asset_brand_id']),
-                    'assetModelId' => $this->fn_general->clear_null($dataLocal['asset_model_id']),
-                    'ppmGroupId' => $this->fn_general->clear_null($dataLocal['ppm_group_id']),
-                    'assetStatus' => $dataLocal['asset_status'],
-                    'assetGroupName' => $this->fn_general->clear_null($dataLocal['asset_group_name']),
-                    'assetCategoryName' => $this->fn_general->clear_null($dataLocal['asset_category_name']),
-                    'assetTypeName' => $this->fn_general->clear_null($dataLocal['asset_type_name']),
-                    'assetBrandName' => $this->fn_general->clear_null($dataLocal['asset_brand_name']),
-                    'assetModelName' => $this->fn_general->clear_null($dataLocal['asset_model_name']),
-                    'ppmGroupName' => $this->fn_general->clear_null($dataLocal['ppm_group_name'])
-                );
+                $result[] = $this->map_asset_datatable_row($dataLocal);
             }
 
             return array(
@@ -258,6 +286,240 @@ class Class_asset {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
+    }
+
+    /**
+     * Stream the filtered asset list as Excel or PDF. Uses the same filters as the table.
+     *
+     * @param string $contractId
+     * @param string $searchValue
+     * @param int|null $orderColumn
+     * @param string $orderDir
+     * @param array $filters
+     * @param string $format xlsx|pdf
+     * @return void
+     * @throws Exception
+     */
+    public function stream_asset_export ($contractId, $searchValue, $orderColumn, $orderDir, $filters, $format) {
+        $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+
+        if (empty($contractId)) {
+            throw new Exception('[' . __LINE__ . '] - Please select a contract first', 31);
+        }
+
+        $format = strtolower(trim((string) $format));
+        if ($format !== 'xlsx' && $format !== 'pdf') {
+            throw new Exception('[' . __LINE__ . '] - Invalid export format', 31);
+        }
+
+        list($baseWhere, $whereWithSearch) = $this->build_asset_list_where($contractId, $searchValue, $filters);
+        $orderSql = $this->build_asset_list_order($orderColumn, $orderDir);
+        $filteredRecords = intval(Class_db::getInstance()->db_count('vg_asset_datatable', $whereWithSearch));
+        if ($filteredRecords < 1) {
+            throw new Exception('[' . __LINE__ . '] - No assets to export for the current filters', 31);
+        }
+
+        $maxRows = $format === 'pdf' ? 5000 : 20000;
+        if ($filteredRecords > $maxRows) {
+            $hint = $format === 'pdf'
+                ? 'PDF is limited to 5,000 rows. Narrow the filters or export Excel instead.'
+                : 'Excel is limited to 20,000 rows. Narrow the filters and try again.';
+            throw new Exception('[' . __LINE__ . '] - Too many rows to export ('.$filteredRecords.'). '.$hint, 31);
+        }
+
+        $statusMap = array();
+        try {
+            $statusMap = $this->fn_general->getRefStatus();
+        } catch (Exception $e) {
+            $statusMap = array(1 => 'Active', 2 => 'Inactive', 5 => 'Archived');
+        }
+
+        $headers = array(
+            '#', 'Asset Name', 'Asset No', 'Asset Serial No', 'Asset Group', 'Asset Category',
+            'Asset Type', 'Brand', 'Model', 'PPM Group', 'Location Code', 'Status'
+        );
+
+        @set_time_limit(180);
+        @ini_set('memory_limit', '512M');
+
+        $excelRows = array();
+        $chunk = 1000;
+        $start = 0;
+        $rowNo = 0;
+        while ($start < $filteredRecords) {
+            $arr_dataLocal = Class_db::getInstance()->db_select('vg_asset_datatable', $whereWithSearch, $orderSql, $start.','.$chunk);
+            if (empty($arr_dataLocal)) {
+                break;
+            }
+            foreach ($arr_dataLocal as $dataLocal) {
+                $row = $this->map_asset_datatable_row($dataLocal);
+                $rowNo++;
+                $statusId = isset($row['assetStatus']) ? intval($row['assetStatus']) : 0;
+                $statusText = isset($statusMap[$statusId]) ? $statusMap[$statusId] : (string) $row['assetStatus'];
+                $excelRows[] = array(
+                    $rowNo,
+                    $row['assetName'],
+                    $row['assetNo'],
+                    $row['assetSerialNo'],
+                    $row['assetGroupName'],
+                    $row['assetCategoryName'],
+                    $row['assetTypeName'],
+                    $row['assetBrandName'],
+                    $row['assetModelName'],
+                    $row['ppmGroupName'],
+                    $row['assetLocationCode'],
+                    $statusText
+                );
+            }
+            $start += $chunk;
+        }
+
+        $stamp = date('Ymd_His');
+        if ($format === 'xlsx') {
+            $this->stream_asset_export_xlsx($headers, $excelRows, 'GEMS_asset_list_'.$stamp.'.xlsx');
+        } else {
+            $this->stream_asset_export_pdf($headers, $excelRows, 'GEMS_asset_list_'.$stamp.'.pdf');
+        }
+    }
+
+    /**
+     * @param array $headers
+     * @param array $rows
+     * @param string $filename
+     * @return void
+     * @throws Exception
+     */
+    private function stream_asset_export_xlsx ($headers, $rows, $filename) {
+        $vendorAutoload = dirname(__DIR__, 2) . '/vendor/autoload.php';
+        if (file_exists($vendorAutoload)) {
+            require_once $vendorAutoload;
+        }
+        if (!class_exists('\PhpOffice\PhpSpreadsheet\Spreadsheet')) {
+            throw new Exception('[' . __LINE__ . '] - PhpSpreadsheet is not installed. Run composer install.', 31);
+        }
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Assets');
+        $sheet->fromArray($headers, null, 'A1');
+        $headerRange = 'A1:'.\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($headers)).'1';
+        $headerStyle = $sheet->getStyle($headerRange);
+        $headerStyle->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFFFF'));
+        $headerStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('0055B8');
+        $sheet->freezePane('A2');
+
+        $rowNum = 2;
+        foreach (array_chunk($rows, 1000) as $batch) {
+            $sheet->fromArray($batch, null, 'A'.$rowNum);
+            $rowNum += count($batch);
+        }
+        unset($rows);
+
+        $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($headers));
+        if ($rowNum > 2) {
+            $sheet->setAutoFilter('A1:'.$lastCol.($rowNum - 1));
+        }
+        foreach (range(1, count($headers)) as $colIndex) {
+            $sheet->getColumnDimensionByColumn($colIndex)->setAutoSize(true);
+        }
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        header('Cache-Control: no-cache, must-revalidate');
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->setPreCalculateFormulas(false);
+        $writer->save('php://output');
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet, $writer);
+    }
+
+    /**
+     * @param array $headers
+     * @param array $rows
+     * @param string $filename
+     * @return void
+     * @throws Exception
+     */
+    private function stream_asset_export_pdf ($headers, $rows, $filename) {
+        $tcpdf = dirname(__DIR__) . '/tcpdf/tcpdf.php';
+        if (!file_exists($tcpdf)) {
+            throw new Exception('[' . __LINE__ . '] - PDF library is not available', 31);
+        }
+        require_once $tcpdf;
+
+        $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator('GEMS 2.0');
+        $pdf->SetAuthor('GEMS 2.0');
+        $pdf->SetTitle('GEMS 2.0 - Asset List');
+        $pdf->SetMargins(8, 14, 8);
+        $pdf->SetHeaderMargin(6);
+        $pdf->SetFooterMargin(8);
+        $pdf->SetAutoPageBreak(true, 12);
+        $pdf->setPrintHeader(false);
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 7, 'GEMS 2.0 - Asset List', 0, 1, 'L');
+        $pdf->SetFont('helvetica', '', 8);
+        $pdf->Cell(0, 5, 'Generated '.date('Y-m-d H:i').'  •  '.count($rows).' row(s)', 0, 1, 'L');
+        $pdf->Ln(2);
+
+        $widths = array(10, 36, 26, 24, 24, 24, 24, 22, 22, 24, 22, 19);
+        $pdf->SetFillColor(0, 85, 184);
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetFont('helvetica', 'B', 7);
+        foreach ($headers as $i => $header) {
+            $pdf->Cell($widths[$i], 7, $header, 1, 0, 'C', true);
+        }
+        $pdf->Ln();
+        $pdf->SetTextColor(36, 55, 70);
+        $pdf->SetFont('helvetica', '', 7);
+        $fill = false;
+        foreach ($rows as $row) {
+            if ($pdf->GetY() > 190) {
+                $pdf->AddPage();
+                $pdf->SetFillColor(0, 85, 184);
+                $pdf->SetTextColor(255, 255, 255);
+                $pdf->SetFont('helvetica', 'B', 7);
+                foreach ($headers as $i => $header) {
+                    $pdf->Cell($widths[$i], 7, $header, 1, 0, 'C', true);
+                }
+                $pdf->Ln();
+                $pdf->SetTextColor(36, 55, 70);
+                $pdf->SetFont('helvetica', '', 7);
+            }
+            $pdf->SetFillColor(241, 245, 249);
+            foreach ($row as $i => $value) {
+                $align = $i === 0 ? 'C' : 'L';
+                $pdf->Cell($widths[$i], 6, $this->pdf_cell_text((string) $value, $i === 0 ? 6 : 22), 1, 0, $align, $fill);
+            }
+            $pdf->Ln();
+            $fill = !$fill;
+        }
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        $pdf->Output($filename, 'D');
+    }
+
+    /**
+     * @param string $value
+     * @param int $max
+     * @return string
+     */
+    private function pdf_cell_text ($value, $max) {
+        $value = trim(preg_replace('/\s+/', ' ', $value));
+        if (function_exists('mb_strlen') && mb_strlen($value) > $max) {
+            return mb_substr($value, 0, $max - 1).'…';
+        }
+        if (strlen($value) > $max) {
+            return substr($value, 0, $max - 1).'...';
+        }
+        return $value;
     }
 
     /**

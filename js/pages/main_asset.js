@@ -397,29 +397,84 @@ function MainAsset() {
             reloadAssetTable(true);
         });
 
-        const btnAssetOpt = {
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-                format: {
-                    body: function (data, row, column) {
-                        if (column === 11) {
-                            const start = data.indexOf('">');
-                            if (start >= 0) {
-                                const trimmed = data.substr(start + 2);
-                                return trimmed.replace('</span></h6>', '');
-                            }
-                        }
-                        return data;
-                    }
-                }
+        const downloadAssetExport = function (format) {
+            if (!contractId) {
+                toastr['warning']('Please select a contract first', _ALERT_TITLE_WARNING);
+                return;
             }
+            const order = oTableAsset.order();
+            const params = new URLSearchParams({
+                type: 'export',
+                format: format,
+                contractId: contractId,
+                assetGroupId: $('#optAszGroupId').val() || '',
+                assetCategoryId: $('#optAszCategoryId').val() || '',
+                assetTypeId: $('#optAszTypeId').val() || '',
+                assetStatus: statusFilterValue || '',
+                search: $('#txtAszAssetSearch').val() || oTableAsset.search() || '',
+                orderColumn: order && order[0] ? order[0][0] : 2,
+                orderDir: order && order[0] ? order[0][1] : 'asc'
+            });
+            ShowLoader();
+            fetch('api/asset.php?' + params.toString(), {
+                headers: {
+                    Authorization: 'Bearer ' + (sessionStorage.getItem('token') || '')
+                }
+            }).then(function (response) {
+                const contentType = response.headers.get('Content-Type') || '';
+                if (contentType.indexOf('application/json') !== -1) {
+                    return response.json().then(function (body) {
+                        throw new Error(body.errmsg || body.error || 'Failed to export asset list');
+                    });
+                }
+                if (!response.ok) {
+                    throw new Error('Failed to export asset list');
+                }
+                const disposition = response.headers.get('Content-Disposition') || '';
+                let filename = format === 'pdf' ? 'GEMS_asset_list.pdf' : 'GEMS_asset_list.xlsx';
+                const match = disposition.match(/filename="?([^"]+)"?/);
+                if (match && match[1]) {
+                    filename = match[1];
+                }
+                return response.blob().then(function (blob) {
+                    return { blob: blob, filename: filename };
+                });
+            }).then(function (payload) {
+                const url = window.URL.createObjectURL(payload.blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = payload.filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }).catch(function (e) {
+                toastr['error'](e.message || _ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+            }).finally(function () {
+                HideLoader();
+            });
         };
 
         new $.fn.dataTable.Buttons(oTableAsset, {
             buttons: [
-                $.extend(true, {}, btnAssetOpt, { extend: 'print', text: '<i class="fas fa-print"></i>', title: 'GEMS 2.0 - Asset List', titleAttr: 'Print', className: 'btn btn-outline-white btn-rounded btn-sm px-2' }),
-                $.extend(true, {}, btnAssetOpt, { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i>', title: 'GEMS 2.0 - Asset List', titleAttr: 'Excel', className: 'btn btn-outline-white btn-rounded btn-sm px-2' }),
-                $.extend(true, {}, btnAssetOpt, { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i>', title: 'GEMS 2.0 - Asset List', titleAttr: 'PDF', orientation: 'landscape', className: 'btn btn-outline-white btn-rounded btn-sm px-2' })
+                {
+                    text: '<i class="fas fa-print"></i>',
+                    titleAttr: 'Print / PDF',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
+                    action: function () { downloadAssetExport('pdf'); }
+                },
+                {
+                    text: '<i class="fas fa-file-excel"></i>',
+                    titleAttr: 'Excel',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
+                    action: function () { downloadAssetExport('xlsx'); }
+                },
+                {
+                    text: '<i class="fas fa-file-pdf"></i>',
+                    titleAttr: 'PDF',
+                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
+                    action: function () { downloadAssetExport('pdf'); }
+                }
             ]
         }).container().appendTo($('#btnDtAszAssetExport'));
 
