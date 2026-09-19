@@ -818,60 +818,179 @@ function mzGoToMenu(url, navId, navSecondId) {
     window.location.href = url;
 }
 
+function mzIsTablerPage() {
+    return !!(document.body && document.body.classList.contains('gems-tabler'));
+}
+
+function mzBuildNavMenu(menuSet, navId, navSecondId) {
+    let titleHtml = '';
+    let menuHtml = '';
+    const isTabler = mzIsTablerPage();
+    $.each(menuSet, function (n, nav) {
+        const strActive = navId === nav['navId'] ? 'active' : '';
+        const strBold = navId === nav['navId'] ? 'font-weight-bold' : '';
+        const navSeconds = nav['navSecond'];
+        if (isTabler) {
+            if (navSeconds.length > 0) {
+                const expanded = navId === nav['navId'];
+                menuHtml += '<li class="nav-item dropdown' + (expanded ? ' active' : '') + '">';
+                menuHtml += '<a class="nav-link dropdown-toggle" href="#nav-' + nav['navId'] + '" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="' + (expanded ? 'true' : 'false') + '">';
+                menuHtml += '<span class="nav-link-icon"><i class="fas fa-' + nav['navIcon'] + '"></i></span>';
+                menuHtml += '<span class="nav-link-title">' + nav['navDesc'] + '</span>';
+                menuHtml += '</a>';
+                menuHtml += '<div class="dropdown-menu' + (expanded ? ' show' : '') + '">';
+                if (expanded) {
+                    titleHtml += '<span class="text-primary">' + nav['navDesc'] + '</span>';
+                }
+                $.each(navSeconds, function (n2, nav2nd) {
+                    const childActive = navSecondId === nav2nd['navSecondId'];
+                    menuHtml += '<a class="dropdown-item' + (childActive ? ' active' : '') + '" href="' + nav2nd['navSecondPage'] + '" onclick="mzGoToMenu(\'' + nav['navPage'] + '\', \'' + nav['navId'] + '\', \'' + nav2nd['navSecondId'] + '\');">' + nav2nd['navSecondDesc'] + '</a>';
+                    if (childActive) {
+                        titleHtml += '<span class="small"> / ' + nav2nd['navSecondDesc'] + '</span>';
+                    }
+                });
+                menuHtml += '</div></li>';
+            } else {
+                menuHtml += '<li class="nav-item' + (strActive ? ' active' : '') + '">';
+                menuHtml += '<a class="nav-link" href="#" onclick="mzGoToMenu(\'' + nav['navPage'] + '\', \'' + nav['navId'] + '\', \'0\');">';
+                menuHtml += '<span class="nav-link-icon"><i class="fas fa-' + nav['navIcon'] + '"></i></span>';
+                menuHtml += '<span class="nav-link-title">' + nav['navDesc'] + '</span>';
+                menuHtml += '</a></li>';
+                if (navId === nav['navId']) {
+                    titleHtml += nav['navDesc'];
+                }
+            }
+        } else {
+            let itemHtml = '<li>';
+            if (navSeconds.length > 0) {
+                itemHtml += '<a class="collapsible-header waves-effect arrow-r ' + strActive + '"><i class="fas fa-' + nav['navIcon'] + '"></i> ' + nav['navDesc'] + '<i class="fa fa-angle-down rotate-icon"></i></a>';
+                itemHtml += '<div class="collapsible-body">';
+                itemHtml += '<ul>';
+                if (navId === nav['navId']) {
+                    titleHtml += '<span class="text-primary">' + nav['navDesc'] + '</span>';
+                }
+                $.each(navSeconds, function (n2, nav2nd) {
+                    const strHighlight = navSecondId === nav2nd['navSecondId'] ? 'font-weight-bold' : '';
+                    itemHtml += '<li><a href="' + nav2nd['navSecondPage'] + '" class="waves-effect ' + strHighlight + '" onclick="mzGoToMenu(\'' + nav['navPage'] + '\', \'' + nav['navId'] + '\', \'' + nav2nd['navSecondId'] + '\');">' + nav2nd['navSecondDesc'] + '</a></li>';
+                    if (navSecondId === nav2nd['navSecondId']) {
+                        titleHtml += '<span class="font-small"> / ' + nav2nd['navSecondDesc'] + '</span>';
+                    }
+                });
+                itemHtml += '</ul>';
+                itemHtml += '</div>';
+            } else {
+                itemHtml += '<a class="collapsible-header waves-effect ' + strBold + '" href="#" onclick="mzGoToMenu(\'' + nav['navPage'] + '\', \'' + nav['navId'] + '\', \'0\');"><i class="fas fa-' + nav['navIcon'] + '"></i> ' + nav['navDesc'] + '</a>';
+                if (navId === nav['navId']) {
+                    titleHtml += nav['navDesc'];
+                }
+            }
+            itemHtml += '</li>';
+            menuHtml += itemHtml;
+        }
+    });
+    return { menuHtml: menuHtml, titleHtml: titleHtml };
+}
+
+function mzBuildNotificationLink(row, withBreak) {
+    let linkTo;
+    if (row['notiWebType'] === 4) {
+        linkTo = '<a onclick="mzDownloadFile(\''+row['notiWebLink']+'\');"><span>' + row['notiWebText'] + '</span></a>';
+    } else {
+        linkTo = '<a onclick="mzGoToMenu(\''+row['notiWebLink']+'\', \''+row['navId']+'\', \''+row['navSecondId']+'\');"><span>' + row['notiWebText'] + '</span></a>';
+    }
+    return withBreak ? linkTo + '<br>\n' : linkTo;
+}
+
+function mzBuildNotificationRow(row, durationText) {
+    if (mzIsTablerPage()) {
+        // fa-solid, not fa-duotone: the vendored fa-duotone-900 webfont does not
+        // shape the secondary layer, so every duotone glyph renders as two halves.
+        return '<div class="dropdown-item d-flex align-items-start gap-2 ' + row['notiWebColor'] + '">' +
+            '<i class="fa fa-solid fa-lg ' + row['notiWebIcon'] + ' mt-1"></i>' +
+            '<div class="flex-fill min-w-0">' +
+            mzBuildNotificationLink(row, false) +
+            '<div class="d-flex align-items-center gap-2 mt-1">' +
+            '<span class="text-secondary" style="font-size:12px">' + row['notiWebTitle'] + '</span>' +
+            '<span class="text-secondary ms-auto text-nowrap" style="font-size:12px"><i class="fa fa-regular fa-clock"></i> ' + durationText + ' ago <a href="#" onclick="mzNotificationDelete('+row['notiWebId']+');return false;"><i class="fa fa-solid fa-trash"></i></a></span>' +
+            '</div></div></div>';
+    }
+    return '<div class="dropdown-item ' + row['notiWebColor'] + ' z-depth-1 my-2">\n' +
+        '<i class="fa fa-duotone fa-lg ' + row['notiWebIcon'] + ' mr-1"></i>\n' +
+        mzBuildNotificationLink(row, true) +
+        '<p class="float-right mb-0" style="font-size: 12px"><i class="fa fa-regular fa-clock"></i> ' + durationText + ' ago <a onclick="mzNotificationDelete('+row['notiWebId']+');"><i class="fa fa-trash fa-duotone ml-1"></i></a></p>\n' +
+        '<p class="text-left mb-0" style="font-size: 12px">' + row['notiWebTitle'] + '</p>\n' +
+        '</div>';
+}
+
+function mzBuildNotificationFooter(totalLatest, total) {
+    if (mzIsTablerPage()) {
+        return '<div class="dropdown-item text-secondary py-2" style="font-size:12px">latest '+totalLatest+' out of '+total+' notifications</div>';
+    }
+    return '<a class="dropdown-item mt-1 py-0" href="#">\n' +
+        '<span class="mb-0" style="font-size: 12px">latest '+totalLatest+' out of '+total+' notifications</span>\n' +
+        '</a>';
+}
+
 function initiatePages() {
-    $(".button-collapse").sideNav();
+    const isTabler = mzIsTablerPage();
 
-    let container = document.querySelector('.custom-scrollbar');
-    /*Ps.initialize(container, {
-        wheelSpeed: 2,
-        wheelPropagation: true,
-        minScrollbarLength: 20
-    });*/
+    if (!isTabler) {
+        $(".button-collapse").sideNav();
 
-    // Material Select Initialization (guard against double init)
-    $(document).ready(function () {
-        $('.mdb-select').each(function(){
-            var $sel = $(this);
-            if ($sel.data('mdbSkip') === true || $sel.attr('data-mdb-skip') === 'true') {
-                return;
-            }
-            // Only initialize if not yet wrapped by MDB select wrapper
-            if (!$sel.parent().hasClass('select-wrapper')) {
-                try { $sel.materialSelect(); } catch(e) { /* ignore */ }
-            }
+        let container = document.querySelector('.custom-scrollbar');
+        /*Ps.initialize(container, {
+            wheelSpeed: 2,
+            wheelPropagation: true,
+            minScrollbarLength: 20
+        });*/
+
+        // Material Select Initialization (guard against double init)
+        $(document).ready(function () {
+            $('.mdb-select').each(function(){
+                var $sel = $(this);
+                if ($sel.data('mdbSkip') === true || $sel.attr('data-mdb-skip') === 'true') {
+                    return;
+                }
+                // Only initialize if not yet wrapped by MDB select wrapper
+                if (!$sel.parent().hasClass('select-wrapper')) {
+                    try { $sel.materialSelect(); } catch(e) { /* ignore */ }
+                }
+            });
+            $(".mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
         });
-        $(".mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
-    });
 
-    // Tooltips Initialization
-    $('.material-tooltip-main').tooltip({
-        template: '<div class="tooltip md-tooltip-main">' +
-        '<div class="tooltip-arrow md-arrow"></div>' +
-        '<div class="tooltip-inner md-inner"></div>' +
-    '</div>'});
-    $('[data-toggle="tooltip"]').tooltip();
-    
-    // Dismissible Popover
-    $('[data-toggle="popover"]').popover();
-    $('.popover-dismiss').popover({
-        trigger: 'focus'
-    });
+        // Tooltips Initialization
+        $('.material-tooltip-main').tooltip({
+            template: '<div class="tooltip md-tooltip-main">' +
+            '<div class="tooltip-arrow md-arrow"></div>' +
+            '<div class="tooltip-inner md-inner"></div>' +
+        '</div>'});
+        $('[data-toggle="tooltip"]').tooltip();
 
-    // Data Picker Initialization
-    $('.datepicker').pickadate({
-        /*monthsFull: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
-            'November', 'December'],
-        monthsShort: ['Jan', 'Feb', 'Mac', 'Apr', 'May', 'Jun', 'Jul', 'Ogo', 'Sep', 'Oct',
-            'Nov', 'Dec'],
-        weekdaysShort: ['Ahd', 'Isn', 'Sel', 'Rab', 'Kha', 'Jum', 'Sab'],
-        weekdaysFull: ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'],
-        today: 'Hari ini',
-        clear: 'Padam',
-        close: 'Batal'*/
-    });
+        // Dismissible Popover
+        $('[data-toggle="popover"]').popover();
+        $('.popover-dismiss').popover({
+            trigger: 'focus'
+        });
 
-    // Time Picker Initialization
-    //$('.timepicker').pickatime({});
+        // Data Picker Initialization
+        $('.datepicker').pickadate({
+            /*monthsFull: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+                'November', 'December'],
+            monthsShort: ['Jan', 'Feb', 'Mac', 'Apr', 'May', 'Jun', 'Jul', 'Ogo', 'Sep', 'Oct',
+                'Nov', 'Dec'],
+            weekdaysShort: ['Ahd', 'Isn', 'Sel', 'Rab', 'Kha', 'Jum', 'Sab'],
+            weekdaysFull: ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'],
+            today: 'Hari ini',
+            clear: 'Padam',
+            close: 'Batal'*/
+        });
+
+        // Time Picker Initialization
+        //$('.timepicker').pickatime({});
+    } else if (typeof window.gemsInitTooltips === 'function') {
+        window.gemsInitTooltips(document);
+    }
 
     const token = sessionStorage.getItem('token');
     const navId = sessionStorage.getItem('navId');
@@ -890,41 +1009,12 @@ function initiatePages() {
         window.location.href = 'p_login?f=1';
     }
 
-    const menuSet = userInfo.menu;
-    let titleHtml = '';
-    $.each(menuSet, function (n, nav) {
-        let menuHtml = '<li>';
-        const strActive = navId === nav['navId'] ? 'active' : '';
-        const strBold = navId === nav['navId'] ? 'font-weight-bold' : '';
-        const navSeconds = nav['navSecond'];
-        if (navSeconds.length > 0) {
-            menuHtml += '<a class="collapsible-header waves-effect arrow-r ' + strActive + '"><i class="fas fa-' + nav['navIcon'] + '"></i> ' + nav['navDesc'] + '<i class="fa fa-angle-down rotate-icon"></i></a>';
-            menuHtml += '<div class="collapsible-body">';
-            menuHtml += '<ul>';
-            if (navId === nav['navId']) {
-                titleHtml += '<span class="text-primary">' + nav['navDesc'] + '</span>';
-            }
-            $.each(navSeconds, function (n2, nav2nd) {
-                const strHighlight = navSecondId === nav2nd['navSecondId'] ? 'font-weight-bold' : '';
-                menuHtml += '<li><a href="' + nav2nd['navSecondPage'] + '" class="waves-effect ' + strHighlight + '" onclick="mzGoToMenu(\'' + nav['navPage'] + '\', \'' + nav['navId'] + '\', \'' + nav2nd['navSecondId'] + '\');">' + nav2nd['navSecondDesc'] + '</a></li>';
-                if (navSecondId === nav2nd['navSecondId']) {
-                    titleHtml += '<span class="font-small"> / ' + nav2nd['navSecondDesc'] + '</span>';
-                }
-            });
-            menuHtml += '</ul>';
-            menuHtml += '</div>';
-        } else {
-            menuHtml += '<a class="collapsible-header waves-effect ' + strBold + '" href="#" onclick="mzGoToMenu(\'' + nav['navPage'] + '\', \'' + nav['navId'] + '\', \'0\');"><i class="fas fa-' + nav['navIcon'] + '"></i> ' + nav['navDesc'] + '</a>';
-            if (navId === nav['navId']) {
-                titleHtml += nav['navDesc'];
-            }
-        }
-        menuHtml += '</li>';
-        $('#ulNavLeft').append(menuHtml);
-    });
-
-    $('#pBasePageTitle').append(titleHtml);
-    $('.collapsible').collapsible();
+    const built = mzBuildNavMenu(userInfo.menu, navId, navSecondId);
+    $('#ulNavLeft').append(built.menuHtml);
+    $('#pBasePageTitle').append(built.titleHtml);
+    if (!isTabler) {
+        $('.collapsible').collapsible();
+    }
 
     $('#btnChangePassword').on('click', function () {
         changePasswordClass_.edit('Top', userInfo['userId']);
@@ -940,24 +1030,11 @@ function mzNotificationGenerate () {
         divElement.html('');
         if (typeof res['total'] !== 'undefined' && typeof res['data'] !== 'undefined') {
             for (const row of res['data']) {
-                let linkTo = '';
-                if (row['notiWebType'] === 4) {
-                    linkTo = '<a onclick="mzDownloadFile(\''+row['notiWebLink']+'\');"><span>' + row['notiWebText'] + '</span></a><br>\n';
-                } else {
-                    linkTo = '<a onclick="mzGoToMenu(\''+row['notiWebLink']+'\', \''+row['navId']+'\', \''+row['navSecondId']+'\');"><span>' + row['notiWebText'] + '</span></a><br>\n';
-                }
-                divElement.append('<div class="dropdown-item ' + row['notiWebColor'] + ' z-depth-1 my-2">\n' +
-                    '<i class="fa fa-duotone fa-lg ' + row['notiWebIcon'] + ' mr-1"></i>\n' +
-                    linkTo +
-                    '<p class="float-right mb-0" style="font-size: 12px"><i class="fa fa-regular fa-clock"></i> ' + mzDurationSimple (row['notiWebTimestamp'], '') + ' ago <a onclick="mzNotificationDelete('+row['notiWebId']+');"><i class="fa fa-trash fa-duotone ml-1"></i></a></p>\n' +
-                    '<p class="text-left mb-0" style="font-size: 12px">' + row['notiWebTitle'] + '</p>\n' +
-                    '</div>');
+                divElement.append(mzBuildNotificationRow(row, mzDurationSimple (row['notiWebTimestamp'], '')));
             }
             const totalLatest = res['total'] > 50 ? 50 : res['total'];
             $('#navNotificationTotal').text(totalLatest);
-            divElement.append('<a class="dropdown-item mt-1 py-0" href="#">\n' +
-                '<span class="mb-0" style="font-size: 12px">latest '+totalLatest+' out of '+res['total']+' notifications</span>\n' +
-                '</a>')
+            divElement.append(mzBuildNotificationFooter(totalLatest, res['total']));
         }
     }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
 }

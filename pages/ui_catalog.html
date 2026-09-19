@@ -13,7 +13,7 @@
   Pass bar: this page must look correct at 1366x768 and 1280x800, and stack
   cleanly at ~375px. A 1920x1080 screenshot proves nothing.
 -->
-<html lang="en" data-bs-theme="light">
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <!-- Asset stack mirrors html/head_tabler.html — keep the two in sync. -->
   <meta charset="utf-8">
@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
-  <link rel="stylesheet" href="css/gems-theme.css">
+  <link rel="stylesheet" href="css/gems-theme.css?p1">
 
   <style>
     /* ------------------------------------------------------------------
@@ -76,7 +76,11 @@
 
 <body class="gems-tabler">
 <div class="page">
+  <!-- Host IS the Tabler aside (sibling of .page-wrapper). Top bar lives INSIDE
+       .page-wrapper so Tabler's :has() rules do not hide the sidebar. -->
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
   <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
     <div class="page-body">
       <div class="container-xl">
 
@@ -110,6 +114,7 @@
         <div class="card mb-3">
           <div class="card-body py-2 cat-toc">
             <span class="text-muted me-2" style="font-size:.75rem;">Jump to:</span>
+            <a href="#sec-chrome">Chrome</a> &middot;
             <a href="#sec-tokens">Tokens</a> &middot;
             <a href="#sec-controls">Controls</a> &middot;
             <a href="#sec-buttons">Buttons</a> &middot;
@@ -122,6 +127,46 @@
             <a href="#sec-qa">Close-up QA list</a>
           </div>
         </div>
+
+        <!-- =========================================================
+             0. CHROME — live P1 shell (not a drawing)
+             ========================================================= -->
+        <section class="cat-section" id="sec-chrome">
+          <h2>0. Chrome — the live sidebar and top bar on this page</h2>
+          <p class="cat-note">
+            Loaded from <code>html/nav_left_tabler.html</code> and
+            <code>html/nav_top_tabler.html</code>. Menu HTML comes from
+            <code>mzBuildNavMenu()</code> with a fixture, not a hand-copied sample.
+            This page still never calls <code>initiatePages()</code> (auth gate).
+            At 1366&times;768 and 1280&times;800 the sidebar is fixed at 240px and
+            content starts at 240px. Below 992px the sidebar becomes the header
+            and the hamburger opens <code>#sidebar-menu</code>. Inspect icons,
+            teal active state, notification rows, and the profile menu &mdash; not
+            only the layout box.
+          </p>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <div class="cat-do">
+                <span class="cat-tag">Do</span>
+                <code>navbar-expand-lg</code>, host element is the
+                <code>aside</code>/<code>header</code>,
+                <code>data-bs-toggle="dropdown"</code> +
+                <code>data-bs-auto-close="false"</code> for groups,
+                one icon size, teal inset on the active item.
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="cat-dont">
+                <span class="cat-tag">Don&rsquo;t</span>
+                Load chrome into a wrapper <code>div</code>. Use
+                <code>navbar-expand-xxl</code> at laptop sizes. Call
+                <code>.collapse()</code> or <code>$('a').click()</code> after
+                injecting the menu. Load <code>mdb*.js</code> or
+                <code>js/modules/dropdown.js</code> on this page.
+              </div>
+            </div>
+          </div>
+        </section>
 
         <!-- =========================================================
              1. TOKENS
@@ -940,7 +985,7 @@
 <script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
 <script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
 <script src="js/modules/toastr.js"></script>
-<script src="js/common.js"></script>
+<script src="js/common.js?p1"></script>
 
 <script>
   // The catalog deliberately never calls initiatePages(): that function gates on
@@ -955,6 +1000,44 @@
     }
     ruler();
     $(window).on('resize', ruler);
+
+    // P1 chrome: load the real fragments, then the real menu builder with a fixture.
+    var chromeFixture = [
+      { navId: '1', navDesc: 'Work Order', navIcon: 'clipboard-list', navPage: 'home.html', navSecond: [
+        { navSecondId: '11', navSecondDesc: 'My Work Orders', navSecondPage: 'home.html' },
+        { navSecondId: '12', navSecondDesc: 'Assign Work Order', navSecondPage: 'wo_assign.html' }
+      ]},
+      { navId: '2', navDesc: 'Preventive Maintenance', navIcon: 'calendar-check', navPage: 'ppm_management.html', navSecond: [
+        { navSecondId: '21', navSecondDesc: 'PPM Schedule', navSecondPage: 'ppm_management.html' }
+      ]},
+      { navId: '3', navDesc: 'A reasonably long navigation label', navIcon: 'building', navPage: 'site.html', navSecond: [] },
+      { navId: '4', navDesc: 'Reports', navIcon: 'chart-bar', navPage: 'report_wo_summary.html', navSecond: [
+        { navSecondId: '41', navSecondDesc: 'WO Summary', navSecondPage: 'report_wo_summary.html' }
+      ]}
+    ];
+    var notiFixture = [
+      { notiWebType: 1, notiWebLink: '#', navId: '1', navSecondId: '11', notiWebText: 'WO-1042 assigned to you', notiWebColor: '', notiWebIcon: 'fa-bell', notiWebTitle: 'Work Order', notiWebId: 1 },
+      { notiWebType: 4, notiWebLink: 'fixture.pdf', navId: '1', navSecondId: '11', notiWebText: 'Monthly report is ready', notiWebColor: '', notiWebIcon: 'fa-file-pdf', notiWebTitle: 'Document', notiWebId: 2 }
+    ];
+    function fillChrome() {
+      var built = mzBuildNavMenu(chromeFixture, '1', '11');
+      $('#ulNavLeft').html(built.menuHtml);
+      $('#pBasePageTitle').html(built.titleHtml);
+      var $noti = $('#navNotification').empty();
+      $noti.append(mzBuildNotificationRow(notiFixture[0], '5 min'));
+      $noti.append(mzBuildNotificationRow(notiFixture[1], '2 hr'));
+      $noti.append(mzBuildNotificationFooter(2, 2));
+      $('#navNotificationTotal').text(2);
+      if (typeof window.gemsUpgradeLegacyToggles === 'function') {
+        window.gemsUpgradeLegacyToggles(document);
+      }
+    }
+    var chromePending = 2;
+    function chromeLoaded() {
+      if (--chromePending === 0) { fillChrome(); }
+    }
+    $('#h-nav_left_tabler').load('html/nav_left_tabler.html?' + Date.now(), chromeLoaded);
+    $('#h-nav_top_tabler').load('html/nav_top_tabler.html?' + Date.now(), chromeLoaded);
 
     // Tooltips: BS5-native attributes here, but gemsInitTooltips() from the shim
     // also picks up legacy data-toggle="tooltip" markup on migrated pages.

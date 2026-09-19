@@ -8,9 +8,30 @@
   keep this file as the single source of truth for what the stack should be.
 
   Required on the page itself:
-    <html lang="en" data-bs-theme="light">   forces light; tabler-theme.min.js is
-                                             deliberately not vendored
+    <html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
+                                             forces light; tabler-theme.min.js is
+                                             deliberately not vendored. The
+                                             navbar-position attribute is required
+                                             or Tabler 1.5 hides .navbar-vertical
+                                             when a non-vertical navbar-expand-*
+                                             also sits under .page.
     <body class="gems-tabler">               scopes gems-theme.css component rules
+
+  Authenticated page skeleton (P1 chrome). The includeHtml HOST must BE the
+  Tabler aside, a sibling of .page-wrapper. The top bar is INSIDE .page-wrapper
+  (not a .page sibling): Tabler 1.5 uses :has() to hide a vertical sidebar when
+  .page has a non-vertical navbar-expand-* child.
+
+    <div class="page">
+      <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+      <div class="page-wrapper">
+        <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+        <div class="page-body">…</div>
+      </div>
+    </div>
+
+  navbar-expand-lg (not -xxl): visible 15rem sidebar at 1280/1366; native
+  hamburger fold below 992px. Fragments are inner markup only.
 
   NEVER load these next to Tabler — they conflict:
     css/bootstrap.min.css, css/mdb.min.css, css/mdb.lite.min.css,

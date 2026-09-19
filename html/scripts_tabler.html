@@ -18,7 +18,12 @@
     7. page scripts
 
   Do NOT add: js/popper.min.js, js/bootstrap*.js, js/mdb*.js,
-  js/jquery-migrate-3.4.0.min.js, js/vendor/tabler/tabler-theme.min.js.
+  js/modules/dropdown.js, js/jquery-migrate-3.4.0.min.js,
+  js/vendor/tabler/tabler-theme.min.js.
+
+  Chrome is loaded after this stack via .includeHtml into the aside/header
+  hosts documented in html/head_tabler.html. initiatePages() then fills
+  #ulNavLeft; it must not run on pages without a session (the catalog).
 -->
 
 <script src="js/jquery-3.7.0.min.js"></script>

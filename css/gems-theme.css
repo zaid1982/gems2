@@ -517,17 +517,83 @@ body.gems-tabler {
 .gems-tabler .modal-footer > .btn { margin: 0; }
 
 /* --------------------------------------------------------------------------
-   10. Chrome — INTENTIONALLY NOT IN THIS FILE YET
-   Sidebar, sidebar active state and notification-row styling belong to P1,
-   which builds the Tabler nav fragments and the common.js dual-init. An earlier
-   draft of this file carried them and got them wrong: Tabler keeps
-   .navbar-vertical.navbar-expand-lg at position:fixed from >=992px, so zeroing
-   .page-wrapper's margin below 1400px overlapped the first 240px of content at
-   both 1280x800 and 1366x768 — the two sizes the plan designs for. The fold must
-   be keyed on Tabler's own navbar-expand-xxl breakpoint, with a real shell to
-   verify against. --gems-sidebar-w (15rem) stays defined in the token block so
-   P1 has the budget number; nothing consumes it yet.
+   10. Chrome — sidebar budget, active state, notification rows
+   --------------------------------------------------------------------------
+   Layout is Tabler's. Do not re-declare .page-wrapper { margin } or
+   position:fixed here — that is how P0 overlapped the first 240px of content.
+
+   Breakpoint is navbar-expand-lg (992px), not -xxl. The plan's 1000–1120px
+   content budget at 1280/1366 only holds with a visible 15rem sidebar
+   (1280−240=1040, 1366−240=1126). expand-xxl would fold the sidebar at those
+   laptop sizes into Tabler's phone header + in-flow collapse. Below 992px the
+   aside itself becomes the header and #sidebar-menu is Tabler's native fold.
+
+   The aside MUST be a sibling of .page-wrapper. The top bar lives inside
+   .page-wrapper. html needs data-bs-navbar-position="vertical" so Tabler 1.5
+   does not hide .navbar-vertical when a non-vertical navbar-expand-* exists.
    -------------------------------------------------------------------------- */
+body.gems-tabler {
+  --tblr-sidebar-width: var(--gems-sidebar-w);
+}
+
+body.gems-tabler .navbar-vertical {
+  --tblr-navbar-active-bg: rgba(var(--gems-secondary-rgb), 0.12);
+  --tblr-navbar-active-color: var(--gems-text);
+}
+
+body.gems-tabler .navbar-vertical .nav-item.active > .nav-link:not(.dropdown-toggle),
+body.gems-tabler .navbar-vertical .dropdown-item.active {
+  box-shadow: inset 3px 0 0 var(--gems-secondary);
+}
+
+/* Tabler's caret is a border-bottom + border-inline-start box rotated -45deg,
+   not a text glyph, so it can never fall back to "¬". 135deg is the value
+   Tabler itself uses for .dropup: it points the same corner up. rotate(180deg)
+   only turns the L upside down, which reads as a corner mark. */
+body.gems-tabler .navbar-vertical .dropdown-toggle[aria-expanded="true"]::after {
+  transform: rotate(135deg);
+}
+
+body.gems-tabler .navbar .avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--gems-primary-rgb), 0.08);
+  color: var(--gems-primary);
+}
+
+/* One declaration, not min-width + max-width: min-width wins over max-width, so
+   the phone constraint has to live on `width` itself. */
+body.gems-tabler .gems-notification-menu {
+  width: min(22rem, calc(100vw - 1.5rem));
+  max-height: min(24rem, calc(100vh - 6rem));
+  overflow-y: auto;
+  padding: 0.25rem 0;
+}
+
+body.gems-tabler .gems-notification-menu .dropdown-item {
+  white-space: normal;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+/* The bell sits ~110px from the right edge on a phone, and .dropdown-menu-end
+   anchors the menu's right edge to the bell, so a 22rem menu still hangs off the
+   left of the screen even at the clamped width. Taking the <li> out of the
+   positioning flow promotes the header (.navbar is position:relative) to
+   containing block, so the menu spans the header instead of the bell. Tabler
+   positions dropdowns with logical inset properties — override those, not
+   left/right. */
+@media (max-width: 575.98px) {
+  body.gems-tabler .gems-notification-nav {
+    position: static;
+  }
+
+  body.gems-tabler .gems-notification-menu {
+    inset-inline: 0.75rem;
+    width: auto;
+  }
+}
 
 /* --------------------------------------------------------------------------
    11. Toastr
