@@ -1,12 +1,19 @@
+/**
+ * KPI / APD Summary.
+ *
+ * Reads the monthly evaluation through kpa/report/summary. When a month has not
+ * been created yet the API returns the configured indicators with empty results
+ * so the grid still shows the structure.
+ */
 function MainKpiIn () {
 
     const className = 'MainKpiIn';
     let self = this;
+    const kc = new KpaCommon();
     let oTableKpi;
+    let summary = null;
     let kpiData = [];
     let lastUpdatedText = '—';
-    let selectedYear = new Date().getFullYear();
-    let selectedMonth = new Date().getMonth() + 1;
     let categoryFilterValue = '';
 
     const tableHeaders = ['KPI No.', 'KPI', 'PI No.', 'Performance Indicator', 'Target (%)', 'Actual (%)', 'Demerit Point', 'Points Imposed', 'Weightage (W)', 'APD Value (RM)', 'APD Deducted (RM)'];
@@ -25,35 +32,6 @@ function MainKpiIn () {
         asset: '#linkKpiAsset',
         energy: '#linkKpiEnergy',
         safety: '#linkKpiSafety'
-    };
-
-    const baseData = function () {
-        return [
-            { categoryKey: 'service', kpiNo: '1', kpiName: 'Service Delivery related to Core Business', piNo: '1A', indicator: 'Customer Satisfaction Survey rating > 80%', target: 80, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 5, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'service', kpiNo: '1', kpiName: 'Service Delivery related to Core Business', piNo: '1B', indicator: 'Customer Rating in Work Order sheet > 70%', target: 70, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 5, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'service', kpiNo: '1', kpiName: 'Service Delivery related to Core Business', piNo: '1C', indicator: 'Response Time 100% meet target', target: 100, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 5, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'service', kpiNo: '1', kpiName: 'Service Delivery related to Core Business', piNo: '1D', indicator: 'Execution Time > 95% meet target', target: 95, actual: null, demeritPoint: 2, demeritImposed: 0, weight: 5, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'service', kpiNo: '1', kpiName: 'Service Delivery related to Core Business', piNo: '1E', indicator: 'Pending/Backlog Work Order Completion 100% (Schedule B)', target: 100, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 5, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'service', kpiNo: '1', kpiName: 'Service Delivery related to Core Business', piNo: '1F', indicator: 'Self Finding Work Order Quantity > 80% from total Work Order', target: 80, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 10, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'service', kpiNo: '1', kpiName: 'Service Delivery related to Core Business', piNo: '1G', indicator: 'Cleaning Performance > 85%', target: 85, actual: null, demeritPoint: 2, demeritImposed: 0, weight: 6, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'service', kpiNo: '1', kpiName: 'Service Delivery related to Core Business', piNo: '1H', indicator: 'Pest Control Performance > 95%', target: 95, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 5, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'service', kpiNo: '1', kpiName: 'Service Delivery related to Core Business', piNo: '1I', indicator: 'Critical Services > 95% available', target: 95, actual: null, demeritPoint: 3, demeritImposed: 0, weight: 8, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'service', kpiNo: '1', kpiName: 'Service Delivery related to Core Business', piNo: '1J', indicator: 'Normal Services > 85% available', target: 85, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 7, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'asset', kpiNo: '2', kpiName: 'Asset Performance', piNo: '2A', indicator: 'PPM for Architecture and C&S assets 100% implemented', target: 80, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 4, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'asset', kpiNo: '2', kpiName: 'Asset Performance', piNo: '2B', indicator: 'PPM for Mechanical assets 100% implemented', target: 70, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 4, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'asset', kpiNo: '2', kpiName: 'Asset Performance', piNo: '2C', indicator: 'PPM for Electrical assets 100% implemented', target: 100, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 4, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'asset', kpiNo: '2', kpiName: 'Asset Performance', piNo: '2D', indicator: 'Engineering Reports & Recommendation action 100% taken', target: 95, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 4, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'asset', kpiNo: '2', kpiName: 'Asset Performance', piNo: '2E', indicator: 'Work done as specification / asset quality meet standards', target: 100, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 4, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'energy', kpiNo: '3', kpiName: 'Building Energy Efficiency', piNo: '3A', indicator: 'Energy Conservation programs 100% implemented', target: 80, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 4, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'energy', kpiNo: '3', kpiName: 'Building Energy Efficiency', piNo: '3B', indicator: 'Building Energy Index (BEI) target 100% met (target to be set after energy audit)', target: 70, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 3, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'energy', kpiNo: '3', kpiName: 'Building Energy Efficiency', piNo: '3C', indicator: 'Utility Consumption 100% No Wastage', target: 100, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 3, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'safety', kpiNo: '4', kpiName: 'Safety & Statutory Compliance', piNo: '4A', indicator: 'Relevant Acts & Regulations 100% comply', target: 80, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 3, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'safety', kpiNo: '4', kpiName: 'Safety & Statutory Compliance', piNo: '4B', indicator: 'HSE programs 100% implemented', target: 70, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 3, apdValue: 0, apdDeducted: 0 },
-            { categoryKey: 'safety', kpiNo: '4', kpiName: 'Safety & Statutory Compliance', piNo: '4C', indicator: 'Reports submitted 100% on time with sufficient content', target: 100, actual: null, demeritPoint: 1, demeritImposed: 0, weight: 3, apdValue: 0, apdDeducted: 0 }
-        ];
-    };
-
-    const initMaterialSelect = function (selector) {
     };
 
     const applyTableDataLabels = function () {
@@ -105,29 +83,19 @@ function MainKpiIn () {
         $('#lblKpiListUpdated').text(lastUpdatedText);
     };
 
-    const updateMetrics = function (dataSet) {
-        let totalIndicators = 0;
-        let totalWeight = 0;
-        let totalDemerit = 0;
-        let totalApdDeducted = 0;
-        const categoryCounts = { '': 0, service: 0, asset: 0, energy: 0, safety: 0 };
+    const updateMetrics = function () {
+        $('#metricKpiTotal').text(mzFormatNumber(summary ? summary.piTotal : 0, 0));
+        $('#metricKpiWeight').text(mzFormatNumber(summary ? summary.weightageTotal : 0, 0));
+        $('#metricKpiDemerit').text(mzFormatNumber(summary ? summary.totalDemerit : 0, 0));
+        $('#metricKpiApdDeducted').text(formatCurrency(summary ? summary.totalApdDeducted : 0));
 
-        dataSet.forEach(function (item) {
-            totalIndicators += 1;
-            totalWeight += parseFloat(item.weight) || 0;
-            totalDemerit += parseFloat(item.demeritPoint) || 0;
-            totalApdDeducted += parseFloat(item.apdDeducted) || 0;
+        const categoryCounts = { '': 0, service: 0, asset: 0, energy: 0, safety: 0 };
+        kpiData.forEach(function (item) {
             categoryCounts[''] += 1;
             if (categoryCounts[item.categoryKey] !== undefined) {
                 categoryCounts[item.categoryKey] += 1;
             }
         });
-
-        $('#metricKpiTotal').text(mzFormatNumber(totalIndicators, 0));
-        $('#metricKpiWeight').text(mzFormatNumber(totalWeight, 0));
-        $('#metricKpiDemerit').text(mzFormatNumber(totalDemerit, 0));
-        $('#metricKpiApdDeducted').text(formatCurrency(totalApdDeducted));
-
         $.each(categoryChipMap, function (key, selector) {
             const label = categoryLabelMap[key];
             const count = categoryCounts[key] || 0;
@@ -136,10 +104,20 @@ function MainKpiIn () {
     };
 
     const updateSelectedLabel = function () {
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const monthIndex = Math.max(1, Math.min(12, parseInt(selectedMonth, 10) || 1)) - 1;
-        const label = `${monthNames[monthIndex]} ${selectedYear}`;
-        $('#lblKpiSelected').text(`Viewing KPI / APD performance for ${label}`);
+        if (!summary) {
+            $('#lblKpiSelected').text('Select a site and period.');
+            return;
+        }
+        const site = summary.siteName ? ' · ' + summary.siteName : '';
+        $('#lblKpiSelected').text(`Viewing KPI / APD performance for ${summary.periodLabel}${site}`);
+        if (summary.exists) {
+            $('#lblKpiEvalStatus').html(kc.evalStatusBadge(summary.status) +
+                ' <span class="ml-2">' + summary.piSubmitted + ' of ' + summary.piTotal + ' submitted · MPV ' +
+                kc.fmtMoney(summary.mpv) + ' · APD max ' + kc.fmtMoney(summary.apdMaxAmount) + '</span>');
+        } else {
+            $('#lblKpiEvalStatus').html(kc.evalStatusBadge('NOT_STARTED') +
+                ' <span class="ml-2">No evaluation exists for this month yet. Showing the configured structure.</span>');
+        }
     };
 
     const setActiveCategoryChip = function (value) {
@@ -150,13 +128,6 @@ function MainKpiIn () {
                 $(selector).removeClass('active');
             }
         });
-    };
-
-    const handlePeriodChange = function () {
-        selectedYear = parseInt($('#optKpiYear').val(), 10) || selectedYear;
-        selectedMonth = parseInt($('#optKpiMonth').val(), 10) || selectedMonth;
-        updateSelectedLabel();
-        self.refreshData();
     };
 
     const bindSearchField = function () {
@@ -198,44 +169,55 @@ function MainKpiIn () {
         oTableKpi = $('#dtKpi').DataTable({
             bLengthChange: false,
             searching: true,
-            aaSorting: [[0, 'asc'], [2, 'asc']],
+            aaSorting: [],
+            ordering: false,
             language: _DATATABLE_LANGUAGE,
             pageLength: 25,
             autoWidth: false,
             dom: 't<"dt-pagination-wrapper d-flex justify-content-center"p>',
             columnDefs: [
-                { orderable: false, targets: [1, 3, 5, 9, 10] },
                 { className: 'text-center align-middle', targets: [0, 2, 4, 5, 6, 7, 8, 9, 10] },
                 { className: 'align-middle', targets: [1, 3] }
             ],
-            fnRowCallback: function (nRow, aData, iDisplayIndex) {
-                const info = oTableKpi.page.info();
-                $('td', nRow).eq(0).html(aData.kpiNo);
-            },
             drawCallback: function () {
                 applyTableDataLabels();
                 refreshListSummary();
             },
             aoColumns: [
-                { mData: 'kpiNo', defaultContent: '' },
-                { mData: 'kpiName', defaultContent: '', mRender: function (data, type) {
+                { mData: 'groupNo', defaultContent: '' },
+                { mData: 'groupName', defaultContent: '', mRender: function (data, type) {
                         if (type !== 'display') {
                             return data || '';
                         }
                         return data ? `<strong>${data}</strong>` : '<span class="text-muted">—</span>';
                     } },
                 { mData: 'piNo', defaultContent: '' },
-                { mData: 'indicator', defaultContent: '', mRender: function (data, type) {
+                { mData: 'piName', defaultContent: '', mRender: function (data, type) {
                         if (type !== 'display') {
                             return data || '';
                         }
                         return data ? data : '<span class="text-muted">No description</span>';
                     } },
-                { mData: 'target', defaultContent: '', mRender: function (data) {
-                        return mzFormatNumber(data, 0);
+                { mData: 'targetValue', defaultContent: '', mRender: function (data, type, row) {
+                        if (type !== 'display') {
+                            return data || 0;
+                        }
+                        return mzFormatNumber(data, 2) + (row.targetUnit === 'BEI' ? ' BEI' : '');
                     } },
-                { mData: 'actual', defaultContent: '', mRender: function (data) {
-                        return data === null || data === undefined || data === '' ? '<span class="text-muted">—</span>' : mzFormatNumber(data, 2);
+                { mData: 'actualValue', defaultContent: '', mRender: function (data, type, row) {
+                        if (type !== 'display') {
+                            return data === null || data === undefined ? '' : data;
+                        }
+                        if (data === null || data === undefined || data === '') {
+                            return '<span class="text-muted">—</span>';
+                        }
+                        const value = mzFormatNumber(data, 2);
+                        if (row.isPass === null || row.isPass === undefined) {
+                            return value;
+                        }
+                        return row.isPass
+                            ? '<span class="text-success font-weight-bold">' + value + '</span>'
+                            : '<span class="text-danger font-weight-bold">' + value + '</span>';
                     } },
                 { mData: 'demeritPoint', defaultContent: '', mRender: function (data) {
                         return mzFormatNumber(data, 0);
@@ -243,7 +225,7 @@ function MainKpiIn () {
                 { mData: 'demeritImposed', defaultContent: '', mRender: function (data) {
                         return mzFormatNumber(data, 0);
                     } },
-                { mData: 'weight', defaultContent: '', mRender: function (data) {
+                { mData: 'weightagePct', defaultContent: '', mRender: function (data) {
                         return mzFormatNumber(data, 0);
                     } },
                 { mData: 'apdValue', defaultContent: '', mRender: function (data, type) {
@@ -267,16 +249,12 @@ function MainKpiIn () {
             columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             format: {
                 body: function (data, row, column) {
-                    if (column === 0) {
-                        const rowData = oTableKpi.row(row).data();
-                        return rowData ? rowData.kpiNo : stripHtml(data);
-                    }
                     if (column === 1 || column === 3) {
                         return stripHtml(data);
                     }
                     if (column >= 4 && column <= 8) {
                         const clean = stripHtml(data);
-                        return clean === '' ? '0' : clean;
+                        return clean === '' || clean === '—' ? '0' : clean;
                     }
                     if (column === 9 || column === 10) {
                         const clean = stripHtml(data).replace('RM', '').trim();
@@ -333,30 +311,40 @@ function MainKpiIn () {
         });
     };
 
+    const queryString = function () {
+        const p = [];
+        if ($('#optKpiSite').val()) { p.push('siteId=' + $('#optKpiSite').val()); }
+        p.push('year=' + ($('#optKpiYear').val() || new Date().getFullYear()));
+        p.push('month=' + ($('#optKpiMonth').val() || (new Date().getMonth() + 1)));
+        return p.join('&');
+    };
+
     this.refreshData = function () {
-        kpiData = baseData();
+        summary = kc.apiGet('report/summary?' + queryString());
+        kpiData = (summary && summary.indicators) ? summary.indicators : [];
         if (!oTableKpi) {
             buildTable();
         }
         oTableKpi.clear().rows.add(kpiData).draw();
         lastUpdatedText = getNowStamp();
-        updateMetrics(kpiData);
+        updateMetrics();
+        updateSelectedLabel();
         refreshListSummary();
     };
 
     this.init = function () {
-        initMaterialSelect('#optKpiYear');
-        initMaterialSelect('#optKpiMonth');
-
-        selectedYear = parseInt($('#optKpiYear').val(), 10) || selectedYear;
-        selectedMonth = parseInt($('#optKpiMonth').val(), 10) || selectedMonth;
-        updateSelectedLabel();
+        kc.loadCaps();
+        kc.loadSites();
+        kc.fillSelect('optKpiSite', kc.sites, 'siteId', function (r) { return r.siteName; }, null, kc.caps.siteId || '');
+        kc.fillYears('optKpiYear', new Date().getFullYear(), 5, 1);
+        kc.fillMonths('optKpiMonth', new Date().getMonth() + 1);
 
         bindSearchField();
         bindCategoryChips();
 
-        $('#optKpiYear').off('change').on('change', handlePeriodChange);
-        $('#optKpiMonth').off('change').on('change', handlePeriodChange);
+        $('#optKpiSite, #optKpiYear, #optKpiMonth').off('change').on('change', function () {
+            self.refreshData();
+        });
 
         $('#btnKpiRefresh').off('click').on('click', function () {
             ShowLoader();
@@ -371,7 +359,8 @@ function MainKpiIn () {
         });
 
         $('#btnKpiDownload').off('click').on('click', function () {
-            toastr['info']('Download link will be available once the source file is published.', 'Coming Soon');
+            if (!oTableKpi) { return; }
+            oTableKpi.button('.buttons-excel').trigger();
         });
 
         this.refreshData();

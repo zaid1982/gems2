@@ -7,6 +7,7 @@ class WasteTransaction extends WasteBase {
                        t.qty, t.unit, t.qty_kg, t.txn_status, t.external_ref, t.wo_ref,
                        t.source_activity, t.location_text, t.txn_created_at, t.finalised_at,
                        t.txn_created_by, t.finalised_by,
+                       t.entry_mode, t.collection_status, t.disposal_txn_id, t.parent_txn_id,
                        s.site_name, s.site_code, c.sw_code, c.sw_description,
                        loc.location_name, hm.value_name AS handling_method,
                        (SELECT COUNT(*) FROM wst_transaction_document d WHERE d.txn_id = t.txn_id AND d.doc_status = 1) AS doc_count
@@ -52,6 +53,14 @@ class WasteTransaction extends WasteBase {
         if (!empty($filters['extRef'])) {
             $sql .= " AND t.external_ref LIKE :extRef";
             $params['extRef'] = '%' . $filters['extRef'] . '%';
+        }
+        if (!empty($filters['collectionStatus'])) {
+            $sql .= " AND t.collection_status = :collectionStatus";
+            $params['collectionStatus'] = strtoupper($filters['collectionStatus']);
+        }
+        if (!empty($filters['entryMode'])) {
+            $sql .= " AND t.entry_mode = :entryMode";
+            $params['entryMode'] = strtoupper($filters['entryMode']);
         }
         $sql .= " ORDER BY t.event_date DESC, t.txn_id DESC";
         $rows = $this->queryAll($sql, $params);
@@ -100,7 +109,33 @@ class WasteTransaction extends WasteBase {
             ? round($preview['balanceBeforeKg'] + floatval($row['qtyKg']), 3)
             : round($preview['balanceBeforeKg'] - floatval($row['qtyKg']), 3);
         $row['affectedReports'] = $this->affectedReports(intval($row['siteId']), $row['eventDate']);
+        $row['linked'] = $this->linkedRecord($row);
         return $row;
+    }
+
+    /**
+     * Produced records expose their disposal, Disposed records expose their
+     * originating generation. Used by the record detail screen.
+     */
+    private function linkedRecord(array $row): array {
+        $linkedId = intval($row['disposalTxnId'] ?? 0) ?: intval($row['parentTxnId'] ?? 0);
+        if ($linkedId <= 0) {
+            return array();
+        }
+        $linked = $this->queryOne(
+            "SELECT t.txn_id, t.txn_ref, t.txn_type, t.event_date, t.qty, t.unit, t.qty_kg, t.txn_status,
+                    t.collection_status, t.consignment_note_ref, t.consignment_receipt_ref, t.disposal_remarks,
+                    c.sw_code
+             FROM wst_transaction t
+             INNER JOIN ref_sw_code c ON c.sw_code_id = t.sw_code_id
+             WHERE t.txn_id = :id",
+            array('id' => $linkedId)
+        );
+        if (empty($linked)) {
+            return array();
+        }
+        $linked['documents'] = $this->listDocuments($linkedId);
+        return $linked;
     }
 
     public function create(array $columns): array {
@@ -446,6 +481,9 @@ class WasteTransaction extends WasteBase {
         $qty = floatval($row['qty'] ?? 0);
         $locationId = intval($row['locationId'] ?? $row['location_id'] ?? 0);
         $locationText = trim(strval($row['locationText'] ?? $row['location_text'] ?? ''));
+        // SIMPLE records come from the Waste Generation / Disposal screens, which
+        // do not collect the Fifth Schedule handling and location details.
+        $isSimple = strtoupper(strval($row['entryMode'] ?? $row['entry_mode'] ?? 'REGISTER')) === 'SIMPLE';
         if ($siteId <= 0) {
             throw new Exception('Select a premise.', 31);
         }
@@ -469,8 +507,12 @@ class WasteTransaction extends WasteBase {
         if ($eventDate > date('Y-m-d')) {
             throw new Exception('A completed transaction cannot use a future event date.', 31);
         }
-        if ($locationId <= 0 && $locationText === '') {
+        if (!$isSimple && $locationId <= 0 && $locationText === '') {
             throw new Exception('Enter the storage or handling location.', 31);
+        }
+        if ($isSimple) {
+            // Disposal evidence is enforced by WasteGeneration::dispose().
+            return;
         }
         $premise = DbMysql::select('wst_premise', array('siteId' => $siteId));
         $needEvidence = false;

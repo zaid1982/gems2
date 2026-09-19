@@ -2,7 +2,8 @@ function MainWasteDashboard() {
     const wc = new WasteCommon();
     let data = null;
     let dt;
-    const colors = { produced: '#00ada8', disposed: '#dc2626', current: '#0055b8' };
+    let dtHist;
+    const colors = { produced: '#00ada8', disposed: '#dc2626', current: '#0055b8', pending: '#f59e0b' };
 
     const filters = function () {
         const p = [];
@@ -12,6 +13,24 @@ function MainWasteDashboard() {
         if ($('#optWdbSw').val()) p.push('swCodeIds=' + $('#optWdbSw').val());
         p.push('granularity=' + ($('#optWdbGrain').val() || 'day'));
         return p.join('&');
+    };
+
+    /**
+     * Month/Year selection drives the date inputs so the period filters and the
+     * quick filter never disagree.
+     */
+    const applyMonthYear = function () {
+        const year = Number($('#optWdbYear').val());
+        const month = Number($('#optWdbMonth').val());
+        if (!year) { return; }
+        if (month >= 1 && month <= 12) {
+            const start = moment({ year: year, month: month - 1, day: 1 });
+            $('#txtWdbFrom').val(start.format('YYYY-MM-DD'));
+            $('#txtWdbTo').val(start.endOf('month').format('YYYY-MM-DD'));
+        } else {
+            $('#txtWdbFrom').val(moment({ year: year, month: 0, day: 1 }).format('YYYY-MM-DD'));
+            $('#txtWdbTo').val(moment({ year: year, month: 11, day: 31 }).format('YYYY-MM-DD'));
+        }
     };
 
     const drill = function (extra) {
@@ -80,6 +99,40 @@ function MainWasteDashboard() {
         }).join(''));
     };
 
+    /**
+     * One row per waste type combining period movement, pending and closing.
+     */
+    const renderHistorical = function () {
+        const pendingMap = {};
+        (data.pendingBySw || []).forEach(function (r) { pendingMap[r.swCode] = Number(r.pendingKg); });
+        const disposedMap = {};
+        (data.disposedBySw || []).forEach(function (r) { disposedMap[r.swCode] = Number(r.disposedKg); });
+        const codes = {};
+        (data.bySwCode || []).forEach(function (r) {
+            codes[r.swCode] = {
+                swCode: r.swCode,
+                swDescription: r.swDescription,
+                producedKg: Number(r.producedKg),
+                disposedKg: Number(r.disposedKg),
+                pendingKg: pendingMap[r.swCode] || 0,
+                closingKg: Number(r.closingKg)
+            };
+        });
+        Object.keys(pendingMap).concat(Object.keys(disposedMap)).forEach(function (code) {
+            if (!codes[code]) {
+                codes[code] = {
+                    swCode: code,
+                    swDescription: '',
+                    producedKg: 0,
+                    disposedKg: disposedMap[code] || 0,
+                    pendingKg: pendingMap[code] || 0,
+                    closingKg: 0
+                };
+            }
+        });
+        dtHist.clear().rows.add(Object.keys(codes).sort().map(function (c) { return codes[c]; })).draw();
+    };
+
     const render = function () {
         data = wc.apiGet('dashboard?' + filters());
         const k = data.kpis || {};
@@ -90,8 +143,19 @@ function MainWasteDashboard() {
         $('#kCur').text(wc.fmtQty(k.currentKg || 0));
         $('#kFinal').text(k.finalTransactions || 0);
         $('#kDraft').text(k.draftRecords || 0);
+        $('#kPending').text(wc.fmtQty(k.pendingTotalKg || 0));
         $('#lblWdbUpdated').text('Last refreshed: ' + (data.refreshedAt || '-'));
         $('#lblWdbFilter').text('Period ' + (data.filters.periodFrom) + ' to ' + data.filters.periodTo + ' · As-at ' + data.filters.asAt);
+
+        const pending = data.pendingBySw || [];
+        chart('chartPending', 'bar', pending.map(function (r) { return r.swCode; }), [
+            { name: 'Pending', color: colors.pending, data: pending.map(function (r) { return Number(r.pendingKg); }) }
+        ]);
+        const disposed = data.disposedBySw || [];
+        chart('chartDisposed', 'bar', disposed.map(function (r) { return r.swCode; }), [
+            { name: 'Disposed', color: colors.disposed, data: disposed.map(function (r) { return Number(r.disposedKg); }) }
+        ]);
+        renderHistorical();
 
         const trend = data.trend || [];
         chart('chartTrend', 'column', trend.map(function (r) { return r.period; }), [
@@ -128,6 +192,11 @@ function MainWasteDashboard() {
         const last = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
         $('#txtWdbFrom').val(first);
         $('#txtWdbTo').val(last);
+        const thisYear = now.getFullYear();
+        const years = [];
+        for (let y = thisYear + 1; y >= thisYear - 5; y--) { years.push({ y: y }); }
+        wc.fillSelect('optWdbYear', years, 'y', function (r) { return String(r.y); }, 'All years', thisYear);
+        $('#optWdbMonth').val(String(now.getMonth() + 1));
         wc.loadCaps();
         wc.loadLookups(wc.caps.siteId);
         wc.fillSelect('optWdbSite', wc.sites, 'siteId', function (r) { return r.siteName; }, 'All authorised');
@@ -154,18 +223,52 @@ function MainWasteDashboard() {
                 $('td', row).each(function (i) { $(this).attr('data-label', labels[i]); });
             }
         });
+        dtHist = $('#dtWdbHist').DataTable({
+            data: [],
+            bLengthChange: false,
+            searching: false,
+            pageLength: 10,
+            autoWidth: false,
+            language: _DATATABLE_LANGUAGE,
+            dom: "<'row align-items-center mb-2'<'col-sm-12 px-0'B>><'row'<'col-sm-12'tr>><'row'<'col-sm-6'i><'col-sm-6'p>>",
+            buttons: wc.dtButtons('GEMS - Historical Waste by Type'),
+            columns: [
+                { data: 'swCode' },
+                { data: 'swDescription' },
+                { data: 'producedKg', className: 'text-qty', render: wc.fmtQty },
+                { data: 'disposedKg', className: 'text-qty', render: wc.fmtQty },
+                { data: 'pendingKg', className: 'text-qty', render: wc.fmtQty },
+                { data: 'closingKg', className: 'text-qty', render: wc.fmtQty }
+            ],
+            createdRow: function (row) {
+                const labels = ['SW Code', 'Description', 'Produced', 'Disposed', 'Pending', 'Closing'];
+                $('td', row).each(function (i) { $(this).attr('data-label', labels[i]); });
+            }
+        });
+        dtHist.buttons().container().appendTo($('#btnDtWdbHistExport'));
+
         render();
+        $('#optWdbMonth, #optWdbYear').on('change', function () {
+            applyMonthYear();
+            render();
+        });
         $('#btnWdbRefresh, #txtWdbFrom, #txtWdbTo, #optWdbSite, #optWdbSw, #optWdbGrain').on('change click', function (e) {
             if (e.type === 'click' && this.id !== 'btnWdbRefresh') return;
             render();
         });
         $('#optWdbAnalysis').on('change', renderAnalysis);
+        $('#btnWdbPendExcel').on('click', function () { dtHist.button('.buttons-excel').trigger(); });
+        $('#btnWdbPendPrint').on('click', function () {
+            const c = Highcharts.charts.find(function (x) { return x && x.renderTo && x.renderTo.id === 'chartPending'; });
+            if (c) { c.print(); }
+        });
         $('.metric-card').on('click', function () {
             const kpi = $(this).data('kpi');
             if (kpi === 'produced') drill('type=P&status=FINAL');
             else if (kpi === 'disposed') drill('type=D&status=FINAL');
             else if (kpi === 'final') drill('status=FINAL');
             else if (kpi === 'draft') drill('status=DRAFT');
+            else if (kpi === 'pending') { window.location.href = 'p_waste_pending'; }
             else drill('status=FINAL');
         });
     };

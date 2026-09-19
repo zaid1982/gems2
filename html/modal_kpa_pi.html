@@ -1,0 +1,106 @@
+<div class="modal fade gems-modal" id="modal_kpa_pi" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content gems-modal-card">
+      <div class="modal-header gems-modal-header">
+        <h4 class="text-white mt-2 ml-2" id="h4KpiTitle">Performance Indicator</h4>
+        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body gems-modal-body">
+        <input type="hidden" id="hidKpiId">
+        <div class="row">
+          <div class="col-md-4 form-group">
+            <label class="waste-label" for="optKpiGroup">KPI group <span class="waste-req">*</span></label>
+            <select id="optKpiGroup" class="custom-select gems-plain-select browser-default"></select>
+          </div>
+          <div class="col-md-2 form-group">
+            <label class="waste-label" for="txtKpiNo">PI No. <span class="waste-req">*</span></label>
+            <input type="text" id="txtKpiNo" class="form-control" maxlength="10" placeholder="1C">
+          </div>
+          <div class="col-md-6 form-group">
+            <label class="waste-label" for="txtKpiName">Performance Indicator <span class="waste-req">*</span></label>
+            <input type="text" id="txtKpiName" class="form-control" placeholder="Response Time meets target">
+          </div>
+          <div class="col-md-3 form-group">
+            <label class="waste-label" for="txtKpiTarget">Target <span class="waste-req">*</span></label>
+            <input type="number" step="0.0001" id="txtKpiTarget" class="form-control">
+          </div>
+          <div class="col-md-3 form-group">
+            <label class="waste-label" for="optKpiUnit">Target unit</label>
+            <select id="optKpiUnit" class="custom-select gems-plain-select browser-default">
+              <option value="%">Percentage (%)</option>
+              <option value="BEI">Building Energy Index</option>
+            </select>
+          </div>
+          <div class="col-md-3 form-group">
+            <label class="waste-label" for="txtKpiDemerit">Demerit point</label>
+            <input type="number" min="0" id="txtKpiDemerit" class="form-control" value="1">
+          </div>
+          <div class="col-md-3 form-group">
+            <label class="waste-label" for="txtKpiWeight">Weightage (%)</label>
+            <input type="number" step="0.01" min="0" max="100" id="txtKpiWeight" class="form-control">
+          </div>
+          <div class="col-md-4 form-group">
+            <label class="waste-label" for="optKpiPassRule">Pass rule</label>
+            <select id="optKpiPassRule" class="custom-select gems-plain-select browser-default">
+              <option value="GTE_TARGET">Actual must be at or above target</option>
+              <option value="LTE_TARGET">Actual must be at or below target</option>
+              <option value="EQ_TARGET">Actual must equal target</option>
+            </select>
+          </div>
+          <div class="col-md-4 form-group">
+            <label class="waste-label" for="optKpiCalc">Calculation</label>
+            <select id="optKpiCalc" class="custom-select gems-plain-select browser-default">
+              <option value="EXPRESSION">Formula expression</option>
+              <option value="BACKLOG_AVG">Backlog bucket average</option>
+              <option value="BEI">Building Energy Index</option>
+              <option value="AVG_PARAMS">Average of parameters</option>
+              <option value="DIRECT">Direct value</option>
+            </select>
+          </div>
+          <div class="col-md-4 form-group">
+            <label class="waste-label" for="optKpiSource">Data source</label>
+            <select id="optKpiSource" class="custom-select gems-plain-select browser-default">
+              <option value="MANUAL">Manual entry</option>
+              <option value="GEMS">Automated from GEMS+</option>
+            </select>
+          </div>
+          <div class="col-12 form-group" id="divKpiFormula">
+            <label class="waste-label" for="txtKpiFormula">Formula</label>
+            <input type="text" id="txtKpiFormula" class="form-control" placeholder="(p2/p1)*100">
+            <small class="text-muted">Use the parameter keys p1, p2, p3 with + - * / ( ) and min() / max(). Example: <code>100-((p1/p2)*100)</code></small>
+          </div>
+          <div class="col-12 form-group" id="divKpiTest">
+            <div class="d-flex align-items-center flex-wrap">
+              <button type="button" class="btn btn-outline-info btn-sm m-0 mr-3" id="btnKpiTest">Test formula</button>
+              <span id="lblKpiTestResult" class="text-muted"></span>
+            </div>
+            <div id="divKpiTestInputs" class="row mt-2"></div>
+          </div>
+          <div class="col-md-4 form-group">
+            <label class="waste-label" for="txtKpiOrder">Display order</label>
+            <input type="number" min="1" id="txtKpiOrder" class="form-control" value="1">
+          </div>
+          <div class="col-md-4 form-group">
+            <label class="waste-label" for="optKpiStatus">Status</label>
+            <select id="optKpiStatus" class="custom-select gems-plain-select browser-default">
+              <option value="1">Active</option>
+              <option value="2">Inactive</option>
+            </select>
+          </div>
+          <div class="col-md-4 form-group">
+            <label class="waste-label" for="txtKpiEffective">Effective from</label>
+            <input type="date" id="txtKpiEffective" class="form-control">
+          </div>
+          <div class="col-12 form-group mb-0">
+            <label class="waste-label" for="txaKpiDesc">Description</label>
+            <textarea id="txaKpiDesc" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer gems-modal-footer">
+        <button class="btn btn-outline-info" data-dismiss="modal">Close</button>
+        <button class="btn btn-info" id="btnKpiSave">Save</button>
+      </div>
+    </div>
+  </div>
+</div>

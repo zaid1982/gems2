@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>GEMS 2.0 - Execute Disposal</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/gems2-ui.css" rel="stylesheet">
+  <style>
+    .waste-image-drop { border: 2px dashed #cbd5e1; border-radius: 16px; padding: 18px; text-align: center; cursor: pointer; position: relative; }
+    .waste-image-drop.is-set { border-color: #00ada8; background: rgba(0, 173, 168, 0.06); }
+    .waste-image-drop input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .waste-image-drop img { max-height: 160px; border-radius: 12px; margin-top: 10px; }
+    .waste-image-drop .drop-hint { font-size: 0.85rem; color: #64748b; }
+    .waste-required-pill { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #b91c1c; }
+  </style>
+  <script src="js/jquery-3.7.0.min.js"></script>
+  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
+<main>
+  <div class="container-fluid module-page module-master waste-page waste-form-page">
+    <div class="gems-page-header module-page-header">
+      <div class="header-text">
+        <h2><i class="fas fa-truck-ramp-box mr-3"></i>Execute Disposal</h2>
+        <p id="pWdsSubtitle">Capture the disposal evidence and the actual disposed weight.</p>
+        <div class="waste-header-meta">
+          <span id="lblWdsRefChip" class="waste-header-chip">Loading…</span>
+          <span id="lblWdsStatusBadge" class="waste-status-badge is-draft" style="display:none"></span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a class="btn btn-light" href="p_waste_pending"><i class="fas fa-arrow-left mr-2"></i>Back</a>
+      </div>
+    </div>
+
+    <form id="formWds" class="waste-sheet">
+      <input type="hidden" id="hidWdsId">
+
+      <section class="waste-letter-block">
+        <h3 class="waste-letter">A. Waste record</h3>
+        <div class="waste-grid-4">
+          <div class="waste-field"><label class="waste-label">Waste reference</label><input type="text" id="txtWdsRef" class="form-control" readonly></div>
+          <div class="waste-field waste-field-span-2"><label class="waste-label">Waste type</label><input type="text" id="txtWdsType" class="form-control" readonly></div>
+          <div class="waste-field"><label class="waste-label">Generated date</label><input type="text" id="txtWdsGenDate" class="form-control" readonly></div>
+          <div class="waste-field"><label class="waste-label">Registered weight (kg)</label><input type="text" id="txtWdsRegKg" class="form-control" readonly></div>
+          <div class="waste-field"><label class="waste-label">Premise</label><input type="text" id="txtWdsSite" class="form-control" readonly></div>
+        </div>
+      </section>
+
+      <section class="waste-letter-block">
+        <h3 class="waste-letter">B. Disposal evidence <span class="waste-required-pill">Both images required</span></h3>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="waste-label">During disposal image <span class="waste-req">*</span></label>
+            <div class="waste-image-drop" id="dropWdsDuring">
+              <input type="file" id="filWdsDuring" accept="image/*" capture="environment">
+              <i class="fas fa-camera fa-2x text-muted"></i>
+              <div class="drop-hint mt-2" id="hintWdsDuring">Tap to capture or choose a photo taken during the disposal</div>
+              <div id="prevWdsDuring"></div>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="waste-label">After disposal image <span class="waste-req">*</span></label>
+            <div class="waste-image-drop" id="dropWdsAfter">
+              <input type="file" id="filWdsAfter" accept="image/*" capture="environment">
+              <i class="fas fa-camera fa-2x text-muted"></i>
+              <div class="drop-hint mt-2" id="hintWdsAfter">Tap to capture or choose a photo taken after the disposal</div>
+              <div id="prevWdsAfter"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="waste-letter-block">
+        <h3 class="waste-letter">C. Disposal details</h3>
+        <div class="waste-grid-4">
+          <div class="waste-field">
+            <label class="waste-label" for="txtWdsDate">Disposal date <span class="waste-req">*</span></label>
+            <input type="date" id="txtWdsDate" class="form-control">
+          </div>
+          <div class="waste-field">
+            <label class="waste-label" for="txtWdsActualKg">Actual disposed weight (kg) <span class="waste-req">*</span></label>
+            <input type="number" step="0.001" min="0.001" id="txtWdsActualKg" class="form-control" placeholder="0.000">
+          </div>
+          <div class="waste-field waste-field-span-2">
+            <label class="waste-label" for="txtWdsRemarks">Remarks</label>
+            <input type="text" id="txtWdsRemarks" class="form-control" placeholder="Optional notes">
+          </div>
+        </div>
+        <div class="waste-note" id="divWdsVariance" style="display:none">
+          <i class="fas fa-triangle-exclamation"></i>
+          <div id="lblWdsVariance"></div>
+        </div>
+      </section>
+
+      <section class="waste-letter-block">
+        <h3 class="waste-letter">D. Consignment documents (optional)</h3>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="waste-label">Consignment note</label>
+            <div class="waste-image-drop" id="dropWdsNote">
+              <input type="file" id="filWdsNote" accept="image/*,.pdf">
+              <i class="fas fa-file-lines fa-2x text-muted"></i>
+              <div class="drop-hint mt-2" id="hintWdsNote">Attach the consignment note if available</div>
+              <div id="prevWdsNote"></div>
+            </div>
+            <input type="text" id="txtWdsNoteRef" class="form-control mt-2" placeholder="Consignment note reference">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="waste-label">Consignment receipt</label>
+            <div class="waste-image-drop" id="dropWdsReceipt">
+              <input type="file" id="filWdsReceipt" accept="image/*,.pdf">
+              <i class="fas fa-receipt fa-2x text-muted"></i>
+              <div class="drop-hint mt-2" id="hintWdsReceipt">Attach the consignment receipt if available</div>
+              <div id="prevWdsReceipt"></div>
+            </div>
+            <input type="text" id="txtWdsReceiptRef" class="form-control mt-2" placeholder="Consignment receipt reference">
+          </div>
+        </div>
+      </section>
+    </form>
+
+    <div class="waste-form-footer">
+      <div class="waste-form-footer-note" id="lblWdsFooterNote">Both disposal images are required before you can save.</div>
+      <div class="waste-form-footer-actions">
+        <a class="btn btn-light" href="p_waste_pending">Cancel</a>
+        <button type="button" class="btn btn-primary" id="btnWdsSave" disabled><i class="fas fa-check mr-2"></i>Save Disposal</button>
+      </div>
+    </div>
+  </div>
+  <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
+<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
+<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
+<script>
+  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/waste_common.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/main_waste_dispose.js?'+Date.now()+'"></scr'+'ipt>');
+  document.addEventListener('DOMContentLoaded', function(){
+    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainWasteDispose().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 250);
+  });
+</script>
+</body></html>

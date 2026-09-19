@@ -1,0 +1,34 @@
+<div class="modal fade gems-modal" id="modal_kpa_eval_mpv" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content gems-modal-card">
+      <div class="modal-header gems-modal-header">
+        <h4 class="text-white mt-2 ml-2">Monthly Payment Value</h4>
+        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body gems-modal-body">
+        <input type="hidden" id="hidKmvEvalId">
+        <p id="pKmvPeriod" class="text-muted"></p>
+        <div class="form-group">
+          <label class="waste-label" for="txtKmvMpv">Monthly Payment Value (RM)</label>
+          <input type="number" step="0.001" min="0" id="txtKmvMpv" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="waste-label" for="txtKmvMaxApd">Maximum APD (%)</label>
+          <input type="number" step="0.01" min="0" max="100" id="txtKmvMaxApd" class="form-control">
+        </div>
+        <div class="form-group mb-0">
+          <label class="waste-label" for="txtKmvRemarks">Remarks</label>
+          <input type="text" id="txtKmvRemarks" class="form-control">
+        </div>
+        <div class="waste-note mt-2">
+          <i class="fas fa-triangle-exclamation"></i>
+          <div>Saving recalculates the APD value of every indicator in this month.</div>
+        </div>
+      </div>
+      <div class="modal-footer gems-modal-footer">
+        <button class="btn btn-outline-info" data-dismiss="modal">Close</button>
+        <button class="btn btn-info" id="btnKmvSave">Save &amp; Recalculate</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>GEMS 2.0 - Monthly Electricity Summary</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/gems2-ui.css" rel="stylesheet">
+  <style>
+    .enr-chart { height: 380px; }
+    .enr-table th, .enr-table td { white-space: nowrap; }
+    .enr-table td.enr-calc, .enr-table th.enr-calc { text-align: right; font-variant-numeric: tabular-nums; }
+    .enr-table tfoot td { font-weight: 700; background: #f8fafc; border-top: 2px solid #cbd5e1; }
+  </style>
+  <script src="js/jquery-3.7.0.min.js"></script>
+  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
+<main>
+  <div class="container-fluid module-page module-master">
+    <section>
+      <div class="gems-page-header module-page-header">
+        <div class="header-text">
+          <span class="header-subtitle">Energy Monitoring</span>
+          <h2>Monthly Electricity Summary</h2>
+          <p>Twelve months of consumption per incoming meter, derived from the daily cumulative readings.</p>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn btn-light btn-icon" id="btnEmoRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+          <button type="button" class="btn btn-outline-white btn-icon" id="btnEmoExport" title="Export CSV"><i class="fas fa-file-excel"></i></button>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-grid">
+          <div><div class="filter-label">Site</div><select id="optEmoSite" class="custom-select gems-plain-select browser-default"></select></div>
+          <div><div class="filter-label">Year</div><select id="optEmoYear" class="custom-select gems-plain-select browser-default"></select></div>
+        </div>
+        <div class="results-summary">
+          <div id="lblEmoSummary" class="summary-pill">Loading…</div>
+        </div>
+      </div>
+
+      <div class="module-data-card mb-4">
+        <div class="module-card-header">
+          <div><h4>Consumption by month</h4><p>Stacked by incoming meter with the monthly total.</p></div>
+        </div>
+        <div class="card-body">
+          <div id="chartEmo" class="enr-chart"></div>
+        </div>
+      </div>
+
+      <div class="module-data-card">
+        <div class="module-card-header">
+          <div><h4>Monthly totals</h4><p>Total per meter, combined total and the average daily consumption.</p></div>
+        </div>
+        <div class="module-table-wrapper">
+          <table class="table table-hover mb-0 enr-table" id="tblEmo">
+            <thead id="theadEmo"></thead>
+            <tbody id="tbodyEmo"></tbody>
+            <tfoot id="tfootEmo"></tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
+<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
+<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/highcharts/highcharts.js"></script>
+<script src="js/vendor/highcharts/modules/exporting.js"></script>
+<script>
+  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/energy_common.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/main_energy_monthly.js?'+Date.now()+'"></scr'+'ipt>');
+  document.addEventListener('DOMContentLoaded', function(){
+    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainEnergyMonthly().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 300);
+  });
+</script>
+</body></html>

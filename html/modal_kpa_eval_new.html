@@ -1,0 +1,49 @@
+<div class="modal fade gems-modal" id="modal_kpa_eval_new" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content gems-modal-card">
+      <div class="modal-header gems-modal-header">
+        <h4 class="text-white mt-2 ml-2">Create Monthly Evaluation</h4>
+        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body gems-modal-body">
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label class="waste-label" for="optKenYear">Evaluation year <span class="waste-req">*</span></label>
+            <select id="optKenYear" class="custom-select gems-plain-select browser-default"></select>
+          </div>
+          <div class="col-md-6 form-group">
+            <label class="waste-label" for="optKenMonth">Evaluation month <span class="waste-req">*</span></label>
+            <select id="optKenMonth" class="custom-select gems-plain-select browser-default"></select>
+          </div>
+          <div class="col-md-6 form-group">
+            <label class="waste-label" for="txtKenMpv">Monthly Payment Value (RM) <span class="waste-req">*</span></label>
+            <input type="number" step="0.001" min="0" id="txtKenMpv" class="form-control">
+          </div>
+          <div class="col-md-6 form-group">
+            <label class="waste-label" for="txtKenMaxApd">Maximum APD (%)</label>
+            <input type="text" id="txtKenMaxApd" class="form-control" readonly>
+          </div>
+          <div class="col-12 form-group">
+            <label class="waste-label" for="txtKenApdMax">APD Maximum (RM)</label>
+            <input type="text" id="txtKenApdMax" class="form-control" readonly>
+          </div>
+          <div class="col-12 form-group mb-0">
+            <label class="waste-label" for="txtKenRemarks">Remarks</label>
+            <input type="text" id="txtKenRemarks" class="form-control">
+          </div>
+        </div>
+        <div class="waste-note mt-2">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            <div><strong id="lblKenPiCount">0</strong> active indicators will be copied from the KPI template into this month.</div>
+            <div>The MPV defaults to the previous month. Changing it later recalculates every APD figure.</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer gems-modal-footer">
+        <button class="btn btn-outline-info" data-dismiss="modal">Close</button>
+        <button class="btn btn-info" id="btnKenCreate">Create Month</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -83,33 +83,21 @@
                     <div class="filter-card kpi-filter">
                         <div class="filter-grid">
                             <div>
+                                <label class="filter-label" for="optKpiSite">Site</label>
+                                <div class="select-outline">
+                                    <select id="optKpiSite" class="custom-select gems-plain-select browser-default"></select>
+                                </div>
+                            </div>
+                            <div>
                                 <label class="filter-label" for="optKpiYear">Year</label>
                                 <div class="select-outline">
-                                    <select id="optKpiYear" class="mdb-select md-form md-outline colorful-select mt-0">
-                                        <option value="2022">2022</option>
-                                        <option value="2023">2023</option>
-                                        <option value="2024">2024</option>
-                                        <option value="2025" selected>2025</option>
-                                    </select>
+                                    <select id="optKpiYear" class="custom-select gems-plain-select browser-default"></select>
                                 </div>
                             </div>
                             <div>
                                 <label class="filter-label" for="optKpiMonth">Month</label>
                                 <div class="select-outline">
-                                    <select id="optKpiMonth" class="mdb-select md-form md-outline colorful-select mt-0">
-                                        <option value="1">January</option>
-                                        <option value="2">February</option>
-                                        <option value="3">March</option>
-                                        <option value="4">April</option>
-                                        <option value="5">May</option>
-                                        <option value="6">June</option>
-                                        <option value="7">July</option>
-                                        <option value="8" selected>August</option>
-                                        <option value="9">September</option>
-                                        <option value="10">October</option>
-                                        <option value="11">November</option>
-                                        <option value="12">December</option>
-                                    </select>
+                                    <select id="optKpiMonth" class="custom-select gems-plain-select browser-default"></select>
                                 </div>
                             </div>
                             <div>
@@ -122,6 +110,7 @@
                         </div>
                         <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
                             <span id="lblKpiFilterCount">Showing 0 of 0</span>
+                            <span id="lblKpiEvalStatus"></span>
                             <span id="lblKpiFilterUpdated">—</span>
                         </div>
                     </div>
@@ -243,6 +232,7 @@
         }, 200);
     });
 
+    document.write('<scr' + 'ipt src="js/pages/kpa_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
     document.write('<scr' + 'ipt src="js/pages/main_kpi_in.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 

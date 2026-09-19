@@ -19,6 +19,10 @@ class WasteBase extends General {
     public const AUDIT_REPORT = 242;
     public const AUDIT_SUBMIT = 243;
     public const AUDIT_SETUP = 244;
+    public const AUDIT_GENERATE = 245;
+    public const AUDIT_GENERATE_EDIT = 246;
+    public const AUDIT_GENERATE_DELETE = 247;
+    public const AUDIT_DISPOSE = 248;
 
     private $roleCache = null;
 
@@ -294,7 +298,11 @@ class WasteBase extends General {
         $fileUpload['width'] = $fileUpload['width'] ?? null;
         $fileUpload['height'] = $fileUpload['height'] ?? null;
         $temp = parent::uploadPrepare($fileUpload, $documentId);
-        $filename = (new DateTime())->format('YmdHis') . '_' . $prefix . '_' . $this->userId;
+        // The random suffix matters: a disposal attaches up to four files in one
+        // request, and a second-resolution timestamp alone would give them all
+        // the same name, so each rename() would overwrite the previous file.
+        $filename = (new DateTime())->format('YmdHis') . '_' . $prefix . '_' . $this->userId
+            . '_' . bin2hex(random_bytes(4));
         return parent::uploadSave($temp, $folder, $filename);
     }
 

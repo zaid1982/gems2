@@ -839,6 +839,20 @@ select[hidden] {
 .badge-status.in-progress { background: rgba(250, 204, 21, 0.18); color: #854d0e; }
 .badge-status.incomplete,
 .badge-status.inactive { background: rgba(248, 113, 113, 0.18); color: #991b1b; }
+.badge-status.neutral { background: rgba(148, 163, 184, 0.22); color: #475569; }
+
+.autosave-state {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+}
+.autosave-state.is-saving { color: #0369a1; }
+.autosave-state.is-saved { color: #166534; }
+.autosave-state.is-error { color: #991b1b; }
+.autosave-state[hidden] { display: none !important; }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button {
   border-radius: 12px !important;

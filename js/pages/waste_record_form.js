@@ -263,6 +263,43 @@ function WasteRecordForm() {
         $('#txfWrfFile').val('');
     };
 
+    /**
+     * A Produced record shows its disposal, a Disposed record shows the
+     * generation it came from, together with the typed disposal evidence.
+     */
+    const renderLinked = function (row) {
+        const linked = row.linked;
+        const box = $('#divWrfLinked');
+        if (!linked || !linked.txnId) {
+            box.addClass('d-none');
+            return;
+        }
+        const isDisposal = linked.txnType === 'D';
+        $('#lblWrfLinkedTitle').text(isDisposal ? 'Disposal collection' : 'Waste generation');
+        const fields = [
+            ['Reference', linked.txnRef],
+            [isDisposal ? 'Disposal date' : 'Generated date', wc.fmtDate(linked.eventDate)],
+            [isDisposal ? 'Actual disposed weight' : 'Registered weight', wc.fmtQty(linked.qtyKg)],
+            ['Status', linked.txnStatus]
+        ];
+        if (isDisposal && linked.consignmentNoteRef) { fields.push(['Consignment note', linked.consignmentNoteRef]); }
+        if (isDisposal && linked.consignmentReceiptRef) { fields.push(['Consignment receipt', linked.consignmentReceiptRef]); }
+        if (isDisposal && linked.disposalRemarks) { fields.push(['Disposal remarks', linked.disposalRemarks]); }
+        $('#divWrfLinkedFields').html(fields.map(function (f) {
+            return '<div class="waste-field"><label class="waste-label">' + f[0] + '</label>' +
+                '<input type="text" class="form-control" value="' + String(f[1] === null || f[1] === undefined ? '-' : f[1]).replace(/"/g, '&quot;') + '" readonly disabled></div>';
+        }).join(''));
+        $('#divWrfLinkedDocs').html((linked.documents || []).map(function (d) {
+            return '<div class="waste-file-chip">' +
+                '<i class="fas fa-image"></i>' +
+                '<span><strong>' + (d.documentType || d.docDescription || 'Document') + '</strong><small>' +
+                wc.fmtDate(d.docDate) + (d.docRef ? ' · ' + d.docRef : '') + '</small></span>' +
+                (d.uploadId ? '<a href="#" class="lnkDocOpen" data-id="' + d.uploadId + '">Open</a>' : '') +
+                '</div>';
+        }).join(''));
+        box.removeClass('d-none');
+    };
+
     const applyRecord = function (row) {
         current = row;
         $('#hidWrfId').val(row.txnId);
@@ -304,6 +341,7 @@ function WasteRecordForm() {
         syncAliasHeight();
         pendingDocs = [];
         renderDocs(row.documents || []);
+        renderLinked(row);
         if (row.history && row.history.length) {
             $('#divWrfHistory').removeClass('d-none');
             $('#divWrfHistList').html(row.history.map(function (h) {

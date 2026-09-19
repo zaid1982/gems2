@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>GEMS 2.0 - KPI Structure</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/gems2-ui.css" rel="stylesheet">
+  <script src="js/jquery-3.7.0.min.js"></script>
+  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
+<main>
+  <div class="container-fluid module-page module-master">
+    <section>
+      <div class="gems-page-header module-page-header">
+        <div class="header-text">
+          <span class="header-subtitle">KPI Administration</span>
+          <h2>KPI Structure</h2>
+          <p>Define the KPI groups, Performance Indicators, their formulas and the parameters captured each month.</p>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn btn-light btn-icon" id="btnKstRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-grid">
+          <div>
+            <div class="filter-label">Site</div>
+            <select id="optKstSite" class="custom-select gems-plain-select browser-default"></select>
+          </div>
+          <div>
+            <div class="filter-label">Maximum APD (%)</div>
+            <div class="input-group">
+              <input type="number" step="0.01" min="0" max="100" id="txtKstMaxApd" class="form-control">
+              <div class="input-group-append">
+                <button class="btn btn-primary m-0 px-3" type="button" id="btnKstSaveConfig">Save</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="filter-label">Total weightage</div>
+            <input type="text" id="txtKstWeightage" class="form-control" readonly>
+          </div>
+          <div>
+            <div class="filter-label">Structure source</div>
+            <input type="text" id="txtKstSource" class="form-control" readonly>
+          </div>
+        </div>
+        <div class="results-summary">
+          <div id="lblKstWeightWarn" class="summary-pill"></div>
+        </div>
+      </div>
+
+      <ul class="nav nav-tabs mb-3" id="kstTabs">
+        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tabKstPi" data-tab="pi">Performance Indicators</a></li>
+        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tabKstGroup" data-tab="group">KPI Groups</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="tabKstPi">
+          <div class="module-data-card">
+            <div class="module-card-header">
+              <div><h4>Performance Indicators</h4><p>Target, demerit, weightage, pass rule and calculation for each indicator.</p></div>
+              <div class="header-actions">
+                <div id="btnDtKstPiExport" class="d-inline-flex align-items-center"></div>
+                <button type="button" class="btn btn-primary btn-icon" id="btnKstPiAdd" title="Add PI"><i class="fas fa-plus"></i></button>
+              </div>
+            </div>
+            <div class="module-table-wrapper">
+              <table id="dtKstPi" class="table table-hover mb-0 display mobile-stack">
+                <thead><tr>
+                  <th>KPI</th><th>PI No.</th><th>Performance Indicator</th><th>Target</th>
+                  <th>Demerit</th><th>Weightage</th><th>Pass Rule</th><th>Calculation</th>
+                  <th>Source</th><th>Params</th><th>Status</th><th class="noVis">Actions</th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="tabKstGroup">
+          <div class="module-data-card">
+            <div class="module-card-header">
+              <div><h4>KPI Groups</h4><p>Top-level categories that the indicators belong to.</p></div>
+              <div class="header-actions">
+                <button type="button" class="btn btn-primary btn-icon" id="btnKstGroupAdd" title="Add group"><i class="fas fa-plus"></i></button>
+              </div>
+            </div>
+            <div class="module-table-wrapper">
+              <table id="dtKstGroup" class="table table-hover mb-0 display mobile-stack">
+                <thead><tr><th>#</th><th>Group No.</th><th>Group Name</th><th>Indicators</th><th>Weightage</th><th>Order</th><th>Status</th><th class="noVis">Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="includeHtml" id="h-modal_change_password"></div>
+  <div class="includeHtml" id="h-modal_kpa_group"></div>
+  <div class="includeHtml" id="h-modal_kpa_pi"></div>
+  <div class="includeHtml" id="h-modal_kpa_param"></div>
+</main>
+<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
+<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
+<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script>
+  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/kpa_common.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/main_kpa_structure.js?'+Date.now()+'"></scr'+'ipt>');
+  document.addEventListener('DOMContentLoaded', function(){
+    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainKpaStructure().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 300);
+  });
+</script>
+</body></html>

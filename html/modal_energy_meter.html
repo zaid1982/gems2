@@ -1,0 +1,40 @@
+<div class="modal fade gems-modal" id="modal_energy_meter" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content gems-modal-card">
+      <div class="modal-header gems-modal-header">
+        <h4 class="text-white mt-2 ml-2">Incoming Meter Setup</h4>
+        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body gems-modal-body">
+        <input type="hidden" id="hidEmtId">
+        <p class="text-muted">Add, rename or deactivate the incoming electricity supplies recorded for this site.</p>
+        <div class="module-table-wrapper mb-3">
+          <table id="tblEmtList" class="table table-hover table-sm mb-0">
+            <thead><tr><th>Meter</th><th>Description</th><th>Order</th><th>Status</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="row">
+          <div class="col-md-4 form-group">
+            <label class="waste-label" for="txtEmtName">Meter name <span class="waste-req">*</span></label>
+            <input type="text" id="txtEmtName" class="form-control" placeholder="Incoming No.3">
+          </div>
+          <div class="col-md-4 form-group">
+            <label class="waste-label" for="txtEmtDesc">Description</label>
+            <input type="text" id="txtEmtDesc" class="form-control" placeholder="Main incoming supply 3">
+          </div>
+          <div class="col-md-2 form-group">
+            <label class="waste-label" for="txtEmtOrder">Order</label>
+            <input type="number" min="1" id="txtEmtOrder" class="form-control" value="1">
+          </div>
+          <div class="col-md-2 form-group d-flex align-items-end">
+            <button type="button" class="btn btn-info m-0 w-100" id="btnEmtSave">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer gems-modal-footer">
+        <button class="btn btn-outline-info" data-dismiss="modal">Done</button>
+      </div>
+    </div>
+  </div>
+</div>

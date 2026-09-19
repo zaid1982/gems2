@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>GEMS 2.0 - Daily Electricity</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/gems2-ui.css" rel="stylesheet">
+  <style>
+    .enr-grid { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .enr-grid th, .enr-grid td { padding: 6px 8px; border-bottom: 1px solid #eef2f7; white-space: nowrap; }
+    .enr-grid thead th { background: #f8fafc; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.04em; color: #475569; position: sticky; top: 0; z-index: 2; }
+    .enr-grid thead tr.enr-grid-sub th { top: 32px; }
+    .enr-grid tbody tr:hover { background: rgba(0, 85, 184, 0.04); }
+    .enr-grid tbody tr.is-weekend { background: rgba(148, 163, 184, 0.08); }
+    .enr-grid tfoot td { font-weight: 700; background: #f8fafc; border-top: 2px solid #cbd5e1; }
+    .enr-grid input { width: 110px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 3px 7px; font-size: 0.84rem; }
+    .enr-grid input.enr-remark { width: 180px; }
+    .enr-grid input:focus { outline: none; border-color: var(--gems-primary, #0055b8); }
+    .enr-grid .enr-calc { text-align: right; font-variant-numeric: tabular-nums; }
+    .enr-grid-wrap { max-height: 70vh; overflow: auto; }
+    .enr-meter-head { border-left: 2px solid #e2e8f0; }
+  </style>
+  <script src="js/jquery-3.7.0.min.js"></script>
+  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
+<main>
+  <div class="container-fluid module-page module-master">
+    <section>
+      <div class="gems-page-header module-page-header">
+        <div class="header-text">
+          <span class="header-subtitle">Energy Monitoring</span>
+          <h2>Daily Electricity</h2>
+          <p>Enter the cumulative meter reading on the days it is taken. Consumption is spread across any days that were missed.</p>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn btn-light btn-icon" id="btnEdyRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+          <button type="button" class="btn btn-outline-white btn-icon" id="btnEdyExport" title="Export CSV"><i class="fas fa-file-excel"></i></button>
+          <button type="button" class="btn btn-light btn-icon" id="btnEdyMeters" title="Meter setup"><i class="fas fa-gauge"></i></button>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-grid">
+          <div><div class="filter-label">Site</div><select id="optEdySite" class="custom-select gems-plain-select browser-default"></select></div>
+          <div><div class="filter-label">Month</div><select id="optEdyMonth" class="custom-select gems-plain-select browser-default"></select></div>
+          <div><div class="filter-label">Year</div><select id="optEdyYear" class="custom-select gems-plain-select browser-default"></select></div>
+        </div>
+        <div class="results-summary">
+          <div id="lblEdyPeriod" class="summary-pill">Loading…</div>
+          <div id="lblEdyUpdated" class="summary-pill">Last refreshed: -</div>
+        </div>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric-card"><div class="metric-label">Total kWh</div><div class="metric-value" id="mEdyTotal">-</div><div class="metric-subtext">All incoming meters</div></div>
+        <div class="metric-card"><div class="metric-label">Average Daily</div><div class="metric-value" id="mEdyAvg">-</div><div class="metric-subtext">Days with readings only</div></div>
+        <div class="metric-card"><div class="metric-label">Days Covered</div><div class="metric-value" id="mEdyDays">-</div><div class="metric-subtext">Of the days in the month</div></div>
+        <div class="metric-card"><div class="metric-label">Meters</div><div class="metric-value" id="mEdyMeters">-</div><div class="metric-subtext">Active incoming supplies</div></div>
+      </div>
+
+      <div class="waste-note d-none" id="divEdyIssues">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div id="lblEdyIssues"></div>
+      </div>
+
+      <div class="module-data-card">
+        <div class="module-card-header">
+          <div>
+            <h4>Daily consumption <span id="lblEdySaveState" class="autosave-state" hidden></span></h4>
+            <p>Cumulative and maximum demand are editable. Consumption and the day total are calculated.</p>
+          </div>
+        </div>
+        <div class="enr-grid-wrap">
+          <table class="enr-grid" id="tblEdy">
+            <thead id="theadEdy"></thead>
+            <tbody id="tbodyEdy"></tbody>
+            <tfoot id="tfootEdy"></tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="includeHtml" id="h-modal_change_password"></div>
+  <div class="includeHtml" id="h-modal_energy_meter"></div>
+</main>
+<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
+<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
+<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
+<script>
+  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/energy_common.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/main_energy_daily.js?'+Date.now()+'"></scr'+'ipt>');
+  document.addEventListener('DOMContentLoaded', function(){
+    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainEnergyDaily().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 300);
+  });
+</script>
+</body></html>

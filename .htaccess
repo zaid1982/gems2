@@ -33,7 +33,18 @@ RewriteRule ^p_waste_records/?$ pages/waste_records.html [L]
 RewriteRule ^p_waste_opening_balance/?$ pages/waste_opening_balance.html [L]
 RewriteRule ^p_waste_report/?$ pages/waste_report.html [L]
 RewriteRule ^p_waste_setup/?$ pages/waste_setup.html [L]
+RewriteRule ^p_waste_generation/?$ pages/waste_generation.html [L]
+RewriteRule ^p_waste_pending/?$ pages/waste_pending.html [L]
+RewriteRule ^p_waste_dispose/?$ pages/waste_dispose.html [L]
 RewriteRule ^p_waste/?$ pages/waste_dashboard.html [L]
+RewriteRule ^p_kpa_structure/?$ pages/kpa_structure.html [L]
+RewriteRule ^p_kpa_assignment/?$ pages/kpa_assignment.html [L]
+RewriteRule ^p_kpa_evaluation/?$ pages/kpa_evaluation.html [L]
+RewriteRule ^p_kpa_pi_entry/?$ pages/kpa_pi_entry.html [L]
+RewriteRule ^p_kpa_history/?$ pages/kpa_history.html [L]
+RewriteRule ^p_energy_daily/?$ pages/energy_daily.html [L]
+RewriteRule ^p_energy_monthly/?$ pages/energy_monthly.html [L]
+RewriteRule ^p_energy_bei/?$ pages/energy_bei.html [L]
 RewriteRule ^p_complaint/?$ pages/complaint.html [L]
 RewriteRule ^p_complaint/(.+)/?$ pages/complaint.html [L]
 RewriteRule ^p_zone/?$ pages/zone.html [L]
@@ -168,3 +179,7 @@ RewriteRule ^license/?$ api/license.php
 RewriteRule ^license/(.+)/?$ api/license.php
 RewriteRule ^waste/?$ api/waste.php
 RewriteRule ^waste/(.+)/?$ api/waste.php
+RewriteRule ^kpa/?$ api/kpa.php
+RewriteRule ^kpa/(.+)/?$ api/kpa.php
+RewriteRule ^energy/?$ api/energy.php
+RewriteRule ^energy/(.+)/?$ api/energy.php

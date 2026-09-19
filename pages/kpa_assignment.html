@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>GEMS 2.0 - PI Assignment</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/mdb.min.css">
+  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/gems2-ui.css" rel="stylesheet">
+  <script src="js/jquery-3.7.0.min.js"></script>
+  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+</head>
+<body class="fixed-sn light-blue-skin">
+<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
+<main>
+  <div class="container-fluid module-page module-master">
+    <section>
+      <div class="gems-page-header module-page-header">
+        <div class="header-text">
+          <span class="header-subtitle">KPI Administration</span>
+          <h2>PI Assignment</h2>
+          <p>Decide which PI Entry users may capture and submit each Performance Indicator.</p>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn btn-light btn-icon" id="btnKasRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+        </div>
+      </div>
+
+      <div class="module-data-card mb-4">
+        <div class="module-card-header">
+          <div><h4>Assign users</h4><p>Choose an indicator, then one or more PI Entry users.</p></div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 form-group">
+              <label class="waste-label" for="optKasSite">Site</label>
+              <select id="optKasSite" class="custom-select gems-plain-select browser-default"></select>
+            </div>
+            <div class="col-md-4 form-group">
+              <label class="waste-label" for="optKasPi">Performance Indicator</label>
+              <select id="optKasPi" class="custom-select gems-plain-select browser-default"></select>
+            </div>
+            <div class="col-md-4 form-group">
+              <label class="waste-label" for="optKasUsers">PI Entry users</label>
+              <select id="optKasUsers" class="custom-select gems-plain-select browser-default" multiple size="5"></select>
+              <small class="text-muted">Hold Ctrl or Cmd to select more than one.</small>
+            </div>
+            <div class="col-md-1 form-group d-flex align-items-end">
+              <button type="button" class="btn btn-primary m-0 w-100" id="btnKasAssign" title="Assign"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+          <div id="divKasNoUsers" class="waste-note d-none">
+            <i class="fas fa-info-circle"></i>
+            <div>No user holds the <strong>PI Entry</strong> role yet. Grant the role in User Management first.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="module-data-card">
+        <div class="module-card-header">
+          <div><h4>Current assignments</h4><p>Active PI Entry assignments for the selected site.</p></div>
+        </div>
+        <div class="module-table-wrapper">
+          <table id="dtKas" class="table table-hover mb-0 display mobile-stack">
+            <thead><tr><th>#</th><th>KPI Group</th><th>PI No.</th><th>Performance Indicator</th><th>User</th><th class="noVis">Actions</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="includeHtml" id="h-modal_change_password"></div>
+</main>
+<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
+<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
+<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script>
+  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/kpa_common.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
+  document.write('<scr'+'ipt src="js/pages/main_kpa_assignment.js?'+Date.now()+'"></scr'+'ipt>');
+  document.addEventListener('DOMContentLoaded', function(){
+    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainKpaAssignment().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 300);
+  });
+</script>
+</body></html>

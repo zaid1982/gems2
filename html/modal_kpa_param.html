@@ -1,0 +1,67 @@
+<div class="modal fade gems-modal" id="modal_kpa_param" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content gems-modal-card">
+      <div class="modal-header gems-modal-header">
+        <h4 class="text-white mt-2 ml-2" id="h4KprTitle">PI Parameters</h4>
+        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+      </div>
+      <div class="modal-body gems-modal-body">
+        <input type="hidden" id="hidKprPiId">
+        <input type="hidden" id="hidKprParamId">
+        <p class="text-muted" id="pKprHelp">Parameters are the values the PI Entry user captures each month. The keys are referenced by the formula.</p>
+        <div class="module-table-wrapper mb-3">
+          <table id="tblKprList" class="table table-hover table-sm mb-0">
+            <thead><tr><th>Key</th><th>Label</th><th>Type</th><th>Source</th><th>Required</th><th>Order</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="row">
+          <div class="col-md-2 form-group">
+            <label class="waste-label" for="txtKprKey">Key <span class="waste-req">*</span></label>
+            <input type="text" id="txtKprKey" class="form-control" placeholder="p1" maxlength="10">
+          </div>
+          <div class="col-md-5 form-group">
+            <label class="waste-label" for="txtKprLabel">Label <span class="waste-req">*</span></label>
+            <input type="text" id="txtKprLabel" class="form-control" placeholder="Work Orders Generated">
+          </div>
+          <div class="col-md-2 form-group">
+            <label class="waste-label" for="optKprType">Type</label>
+            <select id="optKprType" class="custom-select gems-plain-select browser-default">
+              <option value="NUMBER">Number</option>
+              <option value="INT">Whole number</option>
+              <option value="PERCENT">Percentage</option>
+            </select>
+          </div>
+          <div class="col-md-3 form-group">
+            <label class="waste-label" for="optKprSource">Source</label>
+            <select id="optKprSource" class="custom-select gems-plain-select browser-default">
+              <option value="MANUAL">Manual entry</option>
+              <option value="GEMS">Automated from GEMS+</option>
+            </select>
+          </div>
+          <div class="col-md-4 form-group">
+            <label class="waste-label" for="txtKprHook">GEMS+ hook (reserved)</label>
+            <input type="text" id="txtKprHook" class="form-control" placeholder="WO_GENERATED">
+          </div>
+          <div class="col-md-2 form-group">
+            <label class="waste-label" for="txtKprOrder">Order</label>
+            <input type="number" min="1" id="txtKprOrder" class="form-control" value="1">
+          </div>
+          <div class="col-md-3 form-group">
+            <label class="waste-label d-block">Required</label>
+            <div class="custom-control custom-checkbox mt-2">
+              <input type="checkbox" class="custom-control-input" id="chkKprRequired" checked>
+              <label class="custom-control-label" for="chkKprRequired">Must be filled before submit</label>
+            </div>
+          </div>
+          <div class="col-md-3 form-group d-flex align-items-end">
+            <button type="button" class="btn btn-info m-0 w-100" id="btnKprSave">Add / Update</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer gems-modal-footer">
+        <button class="btn btn-outline-info" data-dismiss="modal">Done</button>
+      </div>
+    </div>
+  </div>
+</div>

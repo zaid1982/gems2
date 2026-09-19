@@ -7,6 +7,7 @@ require_once 'class/WasteBase.php';
 require_once 'class/WasteReference.php';
 require_once 'class/WasteBalance.php';
 require_once 'class/WasteTransaction.php';
+require_once 'class/WasteGeneration.php';
 require_once 'class/WasteOpeningBalance.php';
 require_once 'class/WasteDashboard.php';
 require_once 'class/WasteReport.php';
@@ -72,6 +73,8 @@ try {
     $ref = $fnMain;
     $txn = new WasteTransaction();
     $txn->adopt($fnMain);
+    $gen = new WasteGeneration();
+    $gen->adopt($fnMain);
     $ob = new WasteOpeningBalance();
     $ob->adopt($fnMain);
     $dash = new WasteDashboard();
@@ -108,6 +111,10 @@ try {
             $result = $txn->duplicateCheck($_GET);
         } else if ($resource === 'transaction') {
             $result = $id ? $txn->get($id) : $txn->list($_GET);
+        } else if ($resource === 'generation' && $action === 'pending_summary') {
+            $result = $gen->pendingSummary($_GET);
+        } else if ($resource === 'generation') {
+            $result = $id ? $gen->get($id) : $gen->list($_GET);
         } else if ($resource === 'balance') {
             $siteId = $bal->resolveSiteId($_GET['siteId'] ?? null);
             $swCodeId = intval($_GET['swCodeId'] ?? 0);
@@ -131,7 +138,9 @@ try {
                 'canAmendFinal' => $fnMain->canAmendFinal(),
                 'canOpening' => $fnMain->canOpening(),
                 'canReport' => $fnMain->canReport(),
-                'canSetup' => $fnMain->canSetup()
+                'canSetup' => $fnMain->canSetup(),
+                'canGenerate' => $fnMain->canRecord(),
+                'canDispose' => $fnMain->canRecord()
             );
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong GET Request');
@@ -169,6 +178,12 @@ try {
         } else if ($resource === 'transaction') {
             $result = $txn->create($body);
             $formData['errmsg'] = Constant::$waste['draftSaved'];
+        } else if ($resource === 'generation' && $id && $action === 'dispose') {
+            $result = $gen->dispose($id, $body);
+            $formData['errmsg'] = Constant::$waste['disposed'];
+        } else if ($resource === 'generation') {
+            $result = $gen->create($body);
+            $formData['errmsg'] = Constant::$waste['generated'];
         } else if ($resource === 'opening_balance') {
             $result = $ob->save($body);
             $formData['errmsg'] = Constant::$waste['openingSaved'];
@@ -202,6 +217,9 @@ try {
         } else if ($resource === 'transaction' && $id) {
             $result = $txn->updateDraft($id, $body);
             $formData['errmsg'] = Constant::$waste['draftSaved'];
+        } else if ($resource === 'generation' && $id) {
+            $result = $gen->update($id, $body);
+            $formData['errmsg'] = Constant::$waste['generationUpdated'];
         } else if ($resource === 'opening_balance') {
             $result = $ob->save($body, $id ?: null);
             $formData['errmsg'] = Constant::$waste['openingSaved'];
@@ -224,6 +242,9 @@ try {
         } else if ($resource === 'transaction' && $id && $action === 'document' && $subId) {
             $result = $txn->removeDocument($id, $subId);
             $formData['errmsg'] = Constant::$waste['documentRemoved'];
+        } else if ($resource === 'generation' && $id) {
+            $result = $gen->delete($id, $body);
+            $formData['errmsg'] = Constant::$waste['generationDeleted'];
         } else {
             throw new Exception('[line: ' . __LINE__ . '] - Wrong DELETE Request');
         }

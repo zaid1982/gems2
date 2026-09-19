@@ -3,6 +3,19 @@
 class WasteDashboard extends WasteBase {
 
     public function get(array $filters): array {
+        // A month/year pair is a shortcut for the period filters.
+        $year = intval($filters['year'] ?? 0);
+        $month = intval($filters['month'] ?? 0);
+        if ($year > 0 && $month >= 1 && $month <= 12) {
+            $first = sprintf('%04d-%02d-01', $year, $month);
+            $filters['periodFrom'] = $first;
+            $filters['periodTo'] = date('Y-m-t', strtotime($first));
+            $filters['asAt'] = $filters['periodTo'];
+        } else if ($year > 0) {
+            $filters['periodFrom'] = sprintf('%04d-01-01', $year);
+            $filters['periodTo'] = sprintf('%04d-12-31', $year);
+            $filters['asAt'] = $filters['periodTo'];
+        }
         $periodFrom = $this->normalizeDate($filters['periodFrom'] ?? '') ?: date('Y-m-01');
         $periodTo = $this->normalizeDate($filters['periodTo'] ?? '') ?: date('Y-m-t');
         $asAt = $this->normalizeDate($filters['asAt'] ?? '') ?: $periodTo;
@@ -25,6 +38,16 @@ class WasteDashboard extends WasteBase {
 
         $draftCount = $this->countByStatus('DRAFT', $siteIds, $swCodeIds);
         $finalCount = intval($summary['transactionCount']);
+        $pendingBySw = $this->pendingBySwCode($siteIds, $swCodeIds);
+        $disposedBySw = $this->disposedBySwCode($siteIds, $swCodeIds, $periodFrom, $periodTo);
+        $pendingTotalKg = 0.0;
+        foreach ($pendingBySw as $line) {
+            $pendingTotalKg += floatval($line['pendingKg']);
+        }
+        $disposedTotalKg = 0.0;
+        foreach ($disposedBySw as $line) {
+            $disposedTotalKg += floatval($line['disposedKg']);
+        }
 
         return array(
             'filters' => array(
@@ -34,7 +57,9 @@ class WasteDashboard extends WasteBase {
                 'siteIds' => $siteIds,
                 'swCodeIds' => $swCodeIds,
                 'unit' => 'kg',
-                'granularity' => $granularity
+                'granularity' => $granularity,
+                'year' => $year ?: intval(date('Y', strtotime($periodFrom))),
+                'month' => $month
             ),
             'kpis' => array(
                 'openingKg' => $summary['openingKg'],
@@ -47,8 +72,12 @@ class WasteDashboard extends WasteBase {
                 'disposedMt' => $summary['disposedMt'],
                 'currentMt' => $summary['closingMt'],
                 'finalTransactions' => $finalCount,
-                'draftRecords' => $draftCount
+                'draftRecords' => $draftCount,
+                'pendingTotalKg' => round($pendingTotalKg, 3),
+                'disposedTotalKg' => round($disposedTotalKg, 3)
             ),
+            'pendingBySw' => $pendingBySw,
+            'disposedBySw' => $disposedBySw,
             'balanceTable' => $summary['lines'],
             'trend' => $this->trend($siteIds, $swCodeIds, $periodFrom, $periodTo, $granularity),
             'bySwCode' => $this->bySwCode($summary['lines']),
@@ -77,6 +106,70 @@ class WasteDashboard extends WasteBase {
         }
         $row = $this->queryOne($sql, $params);
         return intval($row['cnt'] ?? 0);
+    }
+
+    /**
+     * Waste awaiting collection, grouped by waste type. Not period bound: a
+     * pending record stays pending until it is disposed.
+     */
+    private function pendingBySwCode(array $siteIds, array $swCodeIds): array {
+        $sql = "SELECT c.sw_code, c.sw_description, SUM(t.qty_kg) AS pending_kg, COUNT(*) AS record_count
+                FROM wst_transaction t
+                INNER JOIN ref_sw_code c ON c.sw_code_id = t.sw_code_id
+                WHERE t.txn_type = 'P' AND t.txn_status = 'FINAL' AND t.collection_status = 'PENDING'";
+        $params = array();
+        if (!empty($siteIds)) {
+            list($keys, $inParams) = $this->inPlaceholders($siteIds, 's');
+            $sql .= ' AND t.site_id IN (' . implode(',', $keys) . ')';
+            $params = array_merge($params, $inParams);
+        } else if (!$this->isAdministrator()) {
+            $sql .= ' AND t.site_id = :own';
+            $params['own'] = $this->resolveSiteId();
+        }
+        if (!empty($swCodeIds)) {
+            list($keys, $inParams) = $this->inPlaceholders($swCodeIds, 'c');
+            $sql .= ' AND t.sw_code_id IN (' . implode(',', $keys) . ')';
+            $params = array_merge($params, $inParams);
+        }
+        $sql .= " GROUP BY c.sw_code, c.sw_description ORDER BY c.sw_code";
+        $rows = $this->queryAll($sql, $params);
+        foreach ($rows as &$row) {
+            $row['pendingKg'] = round(floatval($row['pendingKg']), 3);
+            $row['recordCount'] = intval($row['recordCount']);
+        }
+        return $rows;
+    }
+
+    /**
+     * Disposed kilograms within the selected period, grouped by waste type.
+     */
+    private function disposedBySwCode(array $siteIds, array $swCodeIds, string $from, string $to): array {
+        $sql = "SELECT c.sw_code, c.sw_description, SUM(t.qty_kg) AS disposed_kg, COUNT(*) AS record_count
+                FROM wst_transaction t
+                INNER JOIN ref_sw_code c ON c.sw_code_id = t.sw_code_id
+                WHERE t.txn_type = 'D' AND t.txn_status = 'FINAL'
+                  AND t.event_date BETWEEN :fromDate AND :toDate";
+        $params = array('fromDate' => $from, 'toDate' => $to);
+        if (!empty($siteIds)) {
+            list($keys, $inParams) = $this->inPlaceholders($siteIds, 's');
+            $sql .= ' AND t.site_id IN (' . implode(',', $keys) . ')';
+            $params = array_merge($params, $inParams);
+        } else if (!$this->isAdministrator()) {
+            $sql .= ' AND t.site_id = :own';
+            $params['own'] = $this->resolveSiteId();
+        }
+        if (!empty($swCodeIds)) {
+            list($keys, $inParams) = $this->inPlaceholders($swCodeIds, 'c');
+            $sql .= ' AND t.sw_code_id IN (' . implode(',', $keys) . ')';
+            $params = array_merge($params, $inParams);
+        }
+        $sql .= " GROUP BY c.sw_code, c.sw_description ORDER BY c.sw_code";
+        $rows = $this->queryAll($sql, $params);
+        foreach ($rows as &$row) {
+            $row['disposedKg'] = round(floatval($row['disposedKg']), 3);
+            $row['recordCount'] = intval($row['recordCount']);
+        }
+        return $rows;
     }
 
     private function trend(array $siteIds, array $swCodeIds, string $from, string $to, string $granularity): array {

@@ -182,7 +182,39 @@ class Constant {
         'refSaved' => 'Reference value saved.',
         'refRemoved' => 'Reference value deactivated.',
         'reportGenerated' => 'JKR report version generated. Historical versions are unchanged.',
-        'submissionSaved' => 'JKR submission details recorded.'
+        'submissionSaved' => 'JKR submission details recorded.',
+        'generated' => 'Waste generation recorded and is now pending collection.',
+        'generationUpdated' => 'Pending waste record updated.',
+        'generationDeleted' => 'Pending waste record deleted.',
+        'disposed' => 'Disposal recorded. The waste record is now marked as Disposed.'
+    );
+
+    public static $kpa = array(
+        'configSaved' => 'KPI configuration saved.',
+        'groupSaved' => 'KPI group saved.',
+        'groupRemoved' => 'KPI group deactivated.',
+        'piSaved' => 'Performance Indicator saved.',
+        'piRemoved' => 'Performance Indicator deactivated.',
+        'paramSaved' => 'PI parameter saved.',
+        'paramRemoved' => 'PI parameter removed.',
+        'assignmentSaved' => 'PI assignment saved.',
+        'assignmentRemoved' => 'PI assignment removed.',
+        'evaluationCreated' => 'Monthly KPI evaluation created from the KPI template.',
+        'evaluationUpdated' => 'Monthly KPI evaluation updated and recalculated.',
+        'paramsSaved' => 'PI parameters saved and the achievement recalculated.',
+        'piSubmitted' => 'PI submitted. The values are now locked.',
+        'piReopened' => 'PI reopened for editing.'
+    );
+
+    public static $energy = array(
+        'meterSaved' => 'Incoming meter saved.',
+        'meterRemoved' => 'Incoming meter deactivated.',
+        'readingSaved' => 'Meter reading saved.',
+        'readingRemoved' => 'Meter reading removed.',
+        'noteSaved' => 'Daily note saved.',
+        'configSaved' => 'Energy configuration saved.',
+        'beiSaved' => 'Monthly BEI saved.',
+        'beiFinalised' => 'Monthly BEI finalised.'
     );
 
     public static $spaceReservation = array(
