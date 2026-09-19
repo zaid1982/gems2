@@ -1,0 +1,39 @@
+<!--
+  head_tabler.html — canonical <head> asset stack for Tabler-migrated GEMS pages.
+
+  This is a COPY-PASTE REFERENCE, not a runtime .includeHtml fragment. Every GEMS
+  page declares its own head tags inline; injecting <link> elements through
+  $.load() would cause a flash of unstyled content and non-deterministic ordering
+  against the page's inline scripts. Copy the block below into the page head and
+  keep this file as the single source of truth for what the stack should be.
+
+  Required on the page itself:
+    <html lang="en" data-bs-theme="light">   forces light; tabler-theme.min.js is
+                                             deliberately not vendored
+    <body class="gems-tabler">               scopes gems-theme.css component rules
+
+  NEVER load these next to Tabler — they conflict:
+    css/bootstrap.min.css, css/mdb.min.css, css/mdb.lite.min.css,
+    css/style.css, css/gems2-ui.css,
+    js/popper.min.js (Popper v1; Tabler bundles Popper 2),
+    js/bootstrap*.js, js/mdb*.js, js/jquery-migrate-3.4.0.min.js
+
+  Load order matters: gems-theme.css must come last so its token overrides win.
+-->
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+
+<!-- Font Awesome Pro 6.5.1 (local; do not add the v5.6.1 CDN) -->
+<link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+
+<!-- Tabler 1.5 — bundles Bootstrap 5.3.8, so no separate bootstrap.css -->
+<link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+
+<!-- DataTables, Bootstrap 5 integration (bootstrap4 files stay for MDB pages) -->
+<link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+
+<!-- GFM theme: tokens, form-arrangement system, close-up component layer. LAST. -->
+<link rel="stylesheet" href="css/gems-theme.css">

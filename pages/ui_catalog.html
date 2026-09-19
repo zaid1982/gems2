@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<!--
+  ui_catalog.html — INTERNAL GEMS design-system catalog (P0 of the Tabler revamp).
+
+  Reach it at  http://<host>/ui_catalog.html  (the .htaccess catch-all rewrites
+  ^([A-Za-z0-9_]+)\.html$ to pages/$1.html, so asset paths stay root-relative).
+  Opening /pages/ui_catalog.html directly will break every asset, same as every
+  other GEMS page.
+
+  This page is the source later migration waves copy from. It is NOT in the
+  customer navigation and must never be added to a navSecondPage.
+
+  Pass bar: this page must look correct at 1366x768 and 1280x800, and stack
+  cleanly at ~375px. A 1920x1080 screenshot proves nothing.
+-->
+<html lang="en" data-bs-theme="light">
+<head>
+  <!-- Asset stack mirrors html/head_tabler.html — keep the two in sync. -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>GEMS 2.0 — UI Catalog (internal)</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+
+  <style>
+    /* ------------------------------------------------------------------
+       CATALOG-ONLY styles. Never copy these into a production page.
+       They exist to (a) lay out this document and (b) fake the legacy
+       mistakes in the "do not copy" panels without loading MDB.
+       ------------------------------------------------------------------ */
+    .cat-section { scroll-margin-top: 72px; margin-bottom: 1.5rem; }
+    .cat-section > h2 {
+      font-family: var(--gems-font-heading);
+      font-size: 1rem;
+      font-weight: 700;
+      padding-bottom: .35rem;
+      border-bottom: 2px solid var(--gems-primary);
+      margin-bottom: .75rem;
+    }
+    .cat-note { font-size: .75rem; color: var(--gems-muted); margin-bottom: .75rem; }
+    .cat-do, .cat-dont { border-radius: 8px; padding: .875rem; height: 100%; }
+    .cat-do { border: 1px solid #b7e3c9; background: #f6fcf8; }
+    .cat-dont { border: 1px solid #f0c2c2; background: #fdf7f7; }
+    .cat-tag { font-size: .6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .5rem; display: block; }
+    .cat-do .cat-tag { color: #1a7f4b; }
+    .cat-dont .cat-tag { color: #b21f1f; }
+    .cat-swatch { height: 44px; border-radius: 6px; border: 1px solid rgba(36,55,70,.12); }
+    .cat-ruler { position: fixed; right: 10px; bottom: 10px; z-index: 1090; background: var(--gems-text); color: #fff; font-size: .6875rem; padding: .3rem .5rem; border-radius: 6px; font-variant-numeric: tabular-nums; }
+    .cat-ruler.is-narrow { background: #b21f1f; }
+    .cat-toc a { font-size: .8125rem; }
+
+    /* --- fake legacy defects, scoped to .cat-dont only --- */
+    .cat-dont .bad-modal-header { display: block; padding: .75rem; border-radius: 26px 26px 0 0; background: linear-gradient(135deg, #0055b8, #00ada8); color: #fff; }
+    .cat-dont .bad-modal-header .bad-title { margin-top: .5rem; margin-left: .5rem; font-size: 1.25rem; }
+    .cat-dont .bad-modal-header .bad-close { float: right; padding-top: 1.5rem; background: none; border: 0; color: #fff; font-size: 1.25rem; outline: none; }
+    .cat-dont .bad-float-wrap { position: relative; padding-top: .25rem; }
+    .cat-dont .bad-float-label { position: absolute; top: .55rem; left: .75rem; color: #7e8f9a; pointer-events: none; }
+    .cat-dont .bad-input { width: 100%; height: 46px; border: 2px solid rgba(0,85,184,.35); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,85,184,.18); padding: 0 .75rem; }
+    .cat-dont .bad-select { width: 100%; height: 30px; border: 1px solid #ccc; border-radius: 0; }
+    .cat-dont .bad-btn-info { background: #33b5e5; border-color: #33b5e5; color: #fff; }
+    .cat-dont .bad-lift { transition: transform .15s ease; }
+    .cat-dont .bad-lift:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,.2); }
+    .cat-dont .bad-badge { text-transform: uppercase; letter-spacing: .08em; border-radius: 999px; background: #0055b8; color: #fff; font-size: .6875rem; padding: .25rem .6rem; }
+    .cat-dont .bad-th { text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; }
+    .cat-dont .bad-table-header { border-radius: 24px 24px 0 0; padding: .6rem .875rem; background: linear-gradient(135deg, #0055b8, #00ada8); color: #fff; }
+    .cat-dont .bad-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px 14px; }
+    .cat-dont .bad-nofocus:focus { outline: none; box-shadow: none; }
+  </style>
+</head>
+
+<body class="gems-tabler">
+<div class="page">
+  <div class="page-wrapper">
+    <div class="page-body">
+      <div class="container-xl">
+
+        <!-- =========================================================
+             Page header — title + subtitle + actions, one row.
+             No full-width blue/teal banner.
+             ========================================================= -->
+        <div class="page-header">
+          <!-- col-12 col-sm-* so the actions WRAP under the title below 576px.
+               A plain .col + .col-auto lets the buttons hold their width and
+               squeezes the title to one word per line on a phone. -->
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title">GEMS UI Catalog</h1>
+              <div class="page-subtitle">
+                Tabler 1.5 + GFM theme. The close-up contract and the one form-arrangement
+                system. Verify at 1366&times;768 and 1280&times;800 before copying anything.
+              </div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnCatToast">
+                <i class="fas fa-bell me-2"></i>Test toast
+              </button>
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCatCreate">
+                <i class="fas fa-plus me-2"></i>Open create modal
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-body py-2 cat-toc">
+            <span class="text-muted me-2" style="font-size:.75rem;">Jump to:</span>
+            <a href="#sec-tokens">Tokens</a> &middot;
+            <a href="#sec-controls">Controls</a> &middot;
+            <a href="#sec-buttons">Buttons</a> &middot;
+            <a href="#sec-badges">Badges</a> &middot;
+            <a href="#sec-filter">Demo 1: filter bar</a> &middot;
+            <a href="#sec-table">Table + empty state</a> &middot;
+            <a href="#sec-sheet">Demo 3: page sheet</a> &middot;
+            <a href="#sec-modals">Demo 2: modals</a> &middot;
+            <a href="#sec-focus">Focus &amp; density</a> &middot;
+            <a href="#sec-qa">Close-up QA list</a>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             1. TOKENS
+             ========================================================= -->
+        <section class="cat-section" id="sec-tokens">
+          <h2>1. Tokens — the palette does not change</h2>
+          <p class="cat-note">
+            Same five GFM colors the app already ships, mapped onto Tabler CSS variables in
+            <code>css/gems-theme.css</code>. Teal is an accent (active nav, metric highlight),
+            never a second primary.
+          </p>
+          <div class="row g-2">
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#0055b8"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Primary</strong><br>#0055b8</div>
+            </div>
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#00ada8"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Secondary</strong><br>#00ada8</div>
+            </div>
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#ceeff0"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Accent</strong><br>#ceeff0</div>
+            </div>
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#243746"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Text</strong><br>#243746</div>
+            </div>
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#e7eaec"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Border</strong><br>#e7eaec</div>
+            </div>
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#dc2626"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Error</strong><br>#dc2626</div>
+            </div>
+          </div>
+          <div class="row g-2 mt-3">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body">
+                  <div style="font-size:.75rem" class="text-muted mb-1">Type</div>
+                  <div style="font-family:var(--gems-font-heading);font-size:1.25rem;font-weight:700">Lato 700 — page and modal titles</div>
+                  <div style="font-family:var(--gems-font-body)">Poppins 400/500/600 — all UI text, labels and tables</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body">
+                  <div style="font-size:.75rem" class="text-muted mb-1">Density tokens (13-inch default)</div>
+                  <table class="table table-sm mb-0" style="font-size:.75rem">
+                    <tbody>
+                      <tr><td><code>--gems-control-h</code></td><td>38px</td></tr>
+                      <tr><td><code>--gems-field-gap</code></td><td>12px</td></tr>
+                      <tr><td><code>--gems-section-gap</code></td><td>20px</td></tr>
+                      <tr><td><code>--gems-sidebar-w</code></td><td>15rem / 240px</td></tr>
+                      <tr><td><code>--tblr-border-radius</code></td><td>8px</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             2. CONTROLS
+             ========================================================= -->
+        <section class="cat-section" id="sec-controls">
+          <h2>2. Controls — one height, one border, visible labels only</h2>
+          <p class="cat-note">
+            Text, select, date and textarea share border, radius, height and focus ring.
+            Label is always above the control. No floating labels, no <code>.md-form</code>.
+          </p>
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="cat-do">
+                <span class="cat-tag"><i class="fas fa-check-circle me-1"></i>Do</span>
+                <div class="gems-form-grid">
+                  <div class="gems-field gems-field-6">
+                    <label class="form-label" for="catSite">Site <span class="required" aria-hidden="true">*</span></label>
+                    <select class="form-select" id="catSite" aria-required="true">
+                      <option>Menara GFM</option>
+                      <option>Wisma Putra</option>
+                    </select>
+                  </div>
+                  <div class="gems-field gems-field-6">
+                    <label class="form-label" for="catTitle">License title <span class="required" aria-hidden="true">*</span></label>
+                    <input type="text" class="form-control" id="catTitle" aria-required="true" placeholder="e.g. Lift operating permit">
+                  </div>
+                  <div class="gems-field gems-field-6">
+                    <label class="form-label" for="catDate">Expiry date</label>
+                    <input type="date" class="form-control" id="catDate">
+                  </div>
+                  <div class="gems-field gems-field-6">
+                    <label class="form-label" for="catRef">Reference no.</label>
+                    <input type="text" class="form-control" id="catRef">
+                    <div class="gems-field-help">Optional. Printed on the compliance report.</div>
+                  </div>
+                  <div class="gems-field gems-field-12">
+                    <label class="form-label" for="catRemarks">Remarks</label>
+                    <textarea class="form-control" id="catRemarks" rows="2" placeholder="Long text is always full width"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="cat-dont">
+                <span class="cat-tag"><i class="fas fa-times-circle me-1"></i>Do not copy — today's page</span>
+                <div class="bad-float-wrap mb-3">
+                  <span class="bad-float-label">License title</span>
+                  <input type="text" class="bad-input" value="Lift operating permit">
+                </div>
+                <select class="bad-select mb-2">
+                  <option>Select height does not match the input</option>
+                </select>
+                <p class="mb-0" style="font-size:.6875rem;color:#b21f1f">
+                  Floating label sits on the value without a JS <code>.active</code> class;
+                  2px tinted border plus a drop shadow shouts louder than the data; the select
+                  is a different height, radius and border from the text input.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="mt-3" style="font-size:.875rem;font-weight:600">States</h3>
+          <div class="card">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-4">
+                  <label class="form-label" for="catInvalid">Invalid <span class="required" aria-hidden="true">*</span></label>
+                  <!-- aria-invalid, not just .is-invalid: without it assistive tech
+                       never announces the state (WCAG 4.1.2). Page scripts must set
+                       and clear it in step with the class. -->
+                  <input type="text" class="form-control is-invalid" id="catInvalid" value="" aria-required="true" aria-invalid="true" aria-describedby="catInvalidErr">
+                  <div class="gems-field-error" id="catInvalidErr" role="alert">Site is required.</div>
+                </div>
+                <div class="gems-field gems-field-4">
+                  <label class="form-label" for="catReadonly">Readonly</label>
+                  <input type="text" class="form-control" id="catReadonly" value="LIC-2026-0148" readonly>
+                </div>
+                <div class="gems-field gems-field-4">
+                  <label class="form-label" for="catDisabled">Disabled</label>
+                  <select class="form-select" id="catDisabled" disabled>
+                    <option>Locked to your assigned site</option>
+                  </select>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" id="catChkLabel">Checkboxes align to the first line of the label</label>
+                  <div role="group" aria-labelledby="catChkLabel">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" checked>
+                      <span class="form-check-label">Notify the compliance officer before expiry</span>
+                    </label>
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox">
+                      <span class="form-check-label">Include in the monthly client report</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="catError2">Two-line error grows the row, never shifts the neighbour</label>
+                  <input type="text" class="form-control is-invalid" id="catError2" aria-invalid="true" aria-describedby="catError2Err">
+                  <div class="gems-field-error" id="catError2Err" role="alert">
+                    This reference number is already recorded against another license at this site.
+                    Enter a unique reference.
+                  </div>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="catMulti">Multi-select keeps its rows</label>
+                  <select class="form-select" id="catMulti" multiple size="4">
+                    <option selected>Menara GFM</option>
+                    <option>Wisma Putra</option>
+                    <option selected>Kompleks D</option>
+                    <option>Blok Rasmi</option>
+                  </select>
+                  <div class="gems-field-help">
+                    <code>[multiple]</code> and <code>[size]</code> opt out of the single-row
+                    control height. Everything else stays locked to it.
+                  </div>
+                </div>
+              </div>
+              <p class="cat-note mt-2 mb-0">
+                The error element is empty until it is needed (<code>.gems-field-error:empty</code>
+                is <code>display:none</code>), so no permanent blank paragraph reserves space the
+                way the old <code>&lt;p id="txtXErr"&gt;</code> pattern did.
+                An invalid control carries <strong>both</strong> <code>.is-invalid</code> and
+                <code>aria-invalid="true"</code>, plus <code>aria-describedby</code> pointing at
+                its error element; page scripts must set and clear all three together, or the
+                field looks wrong to sighted users and reads as valid to everyone else.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             3. BUTTONS
+             ========================================================= -->
+        <section class="cat-section" id="sec-buttons">
+          <h2>3. Buttons — three sizes, three families</h2>
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="cat-do">
+                <span class="cat-tag"><i class="fas fa-check-circle me-1"></i>Do</span>
+                <div class="mb-2">
+                  <button class="btn btn-primary btn-sm">Small — tables, filters</button>
+                  <button class="btn btn-primary">Default — forms</button>
+                  <button class="btn btn-primary btn-lg">Large — login only</button>
+                </div>
+                <div class="mb-2">
+                  <button class="btn btn-primary">Primary action</button>
+                  <button class="btn btn-outline-secondary">Cancel / close</button>
+                  <button class="btn btn-ghost-secondary"><i class="fas fa-download me-1"></i>Toolbar ghost</button>
+                  <button class="btn btn-outline-danger">Danger</button>
+                </div>
+                <div>
+                  <span class="text-muted me-2" style="font-size:.75rem">Row actions — one 32px geometry:</span>
+                  <button class="btn gems-btn-action gems-btn-action-view" data-bs-toggle="tooltip" title="View license" aria-label="View license"><i class="fas fa-eye"></i></button>
+                  <button class="btn gems-btn-action gems-btn-action-edit" data-bs-toggle="tooltip" title="Edit license" aria-label="Edit license"><i class="fas fa-pen"></i></button>
+                  <button class="btn gems-btn-action gems-btn-action-delete" data-bs-toggle="tooltip" title="Delete license" aria-label="Delete license"><i class="fas fa-trash"></i></button>
+                </div>
+                <p class="cat-note mt-2 mb-0">
+                  Colour tint distinguishes view / edit / delete; geometry never changes.
+                  Tooltip <em>and</em> <code>aria-label</code>, always — a tooltip alone fails
+                  keyboard and screen-reader users.
+                </p>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="cat-dont">
+                <span class="cat-tag"><i class="fas fa-times-circle me-1"></i>Do not copy</span>
+                <div class="mb-2">
+                  <button class="btn bad-btn-info btn-sm">btn-info</button>
+                  <button class="btn btn-primary btn-sm">primary</button>
+                  <span class="ms-1" style="font-size:.6875rem;color:#b21f1f">cyan next to GFM blue</span>
+                </div>
+                <div class="mb-2">
+                  <button class="btn btn-primary btn-sm bad-lift">Hover me — bounces</button>
+                </div>
+                <div>
+                  <button class="btn btn-sm bad-nofocus" style="background:#eee">Tab to me — no focus ring</button>
+                </div>
+                <p class="mb-0 mt-2" style="font-size:.6875rem;color:#b21f1f">
+                  Five competing button systems (<code>.btn-action</code>, <code>.btn-icon</code>,
+                  <code>.btn-header</code>, <code>.gems-icon-button</code>),
+                  <code>translateY(-2px)</code> lifts on table rows, and
+                  <code>outline:none</code> with nothing put back.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             4. BADGES
+             ========================================================= -->
+        <section class="cat-section" id="sec-badges">
+          <h2>4. Badges — one status vocabulary</h2>
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="cat-do">
+                <span class="cat-tag"><i class="fas fa-check-circle me-1"></i>Do</span>
+                <span class="badge gems-badge gems-badge-success">Valid</span>
+                <span class="badge gems-badge gems-badge-warning">Expiring soon</span>
+                <span class="badge gems-badge gems-badge-danger">Expired</span>
+                <span class="badge gems-badge gems-badge-info">No expiry date</span>
+                <span class="badge gems-badge gems-badge-secondary">Draft</span>
+                <span class="badge gems-badge gems-badge-info">PTW</span>
+                <p class="cat-note mt-2 mb-0">
+                  Sentence case, one radius, semantic colour. Uppercase only when the status
+                  string is genuinely an acronym (PTW, KPA). Counts and
+                  &ldquo;showing 1 of 24&rdquo; use <span class="text-muted">muted text</span>,
+                  not a second pill language.
+                </p>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="cat-dont">
+                <span class="cat-tag"><i class="fas fa-times-circle me-1"></i>Do not copy</span>
+                <span class="bad-badge">VALID</span>
+                <span class="bad-badge" style="background:#00ada8">EXPIRING SOON</span>
+                <p class="mb-0 mt-2" style="font-size:.6875rem;color:#b21f1f">
+                  <code>.status-badge</code> vs <code>.badge-soft-*</code> vs
+                  <code>.badge-pill</code> vs page-specific chips — the same status looks
+                  different on Home and in a module table.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             DEMO 1 — FILTER BAR (4 fields + actions)
+             ========================================================= -->
+        <section class="cat-section" id="sec-filter">
+          <h2>5. Arrangement demo 1 — filter bar, 4 fields plus actions</h2>
+          <p class="cat-note">
+            One card, one grid, compact. On a 13-inch content pane this is 2-up and the action
+            buttons align to the <strong>control</strong> baseline, not the label. A fifth filter
+            goes behind &ldquo;More filters&rdquo; rather than wrapping a ragged second row.
+          </p>
+          <div class="card gems-filter-card mb-2">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="fltSite">Site</label>
+                  <select class="form-select" id="fltSite">
+                    <option>All sites</option>
+                    <option>Menara GFM</option>
+                  </select>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="fltSearch">Search</label>
+                  <input type="search" class="form-control" id="fltSearch" placeholder="Title or keyword">
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="fltStatus">Status</label>
+                  <select class="form-select" id="fltStatus">
+                    <option>All statuses</option>
+                    <option>Valid</option>
+                    <option>Expiring soon</option>
+                    <option>Expired</option>
+                  </select>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="fltMonth">Expiry month</label>
+                  <input type="month" class="form-control" id="fltMonth">
+                </div>
+                <div class="gems-field gems-field-12 gems-field-actions">
+                  <button class="btn btn-primary btn-sm"><i class="fas fa-filter me-1"></i>Apply</button>
+                  <button class="btn btn-outline-secondary btn-sm">Reset</button>
+                  <button class="btn btn-ghost-secondary btn-sm"><i class="fas fa-file-excel me-1"></i>Export</button>
+                  <button class="btn btn-ghost-secondary btn-sm ms-auto" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#catMoreFilters"
+                          aria-expanded="false" aria-controls="catMoreFilters">
+                    <i class="fas fa-sliders-h me-1"></i>More filters
+                  </button>
+                </div>
+              </div>
+              <div class="collapse" id="catMoreFilters">
+                <div class="gems-form-grid mt-2 pt-2" style="border-top:1px solid var(--gems-border)">
+                  <div class="gems-field gems-field-3">
+                    <label class="form-label" for="fltOwner">Owner</label>
+                    <select class="form-select" id="fltOwner"><option>Anyone</option></select>
+                  </div>
+                  <div class="gems-field gems-field-3">
+                    <label class="form-label" for="fltCat">Category</label>
+                    <select class="form-select" id="fltCat"><option>All categories</option></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Variant that exercises the rule the layout above cannot: when the
+               actions cell SHARES a row with a labelled field, the grid's
+               align-items:start would pin it to the label baseline. Three
+               span-3 filters plus span-3 actions share a row at every breakpoint
+               (4-up wide, 2-up on a laptop), so the baseline is always under test. -->
+          <p class="cat-note mb-1">
+            <strong>Inline variant.</strong> Fewer filters, actions in the last cell of the
+            same row. The buttons must sit on the <strong>control</strong> baseline, level with
+            the bottom of the selects &mdash; not lifted to the label line.
+          </p>
+          <div class="card gems-filter-card mb-2" id="catInlineFilterCard">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="fltInlineSite">Site</label>
+                  <select class="form-select" id="fltInlineSite">
+                    <option>All sites</option>
+                    <option>Menara GFM</option>
+                  </select>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="fltInlineSearch">Search</label>
+                  <input type="search" class="form-control" id="fltInlineSearch" placeholder="Title or keyword">
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="fltInlineStatus">Status</label>
+                  <select class="form-select" id="fltInlineStatus">
+                    <option>All statuses</option>
+                    <option>Valid</option>
+                  </select>
+                </div>
+                <div class="gems-field gems-field-3 gems-field-actions">
+                  <button class="btn btn-primary btn-sm"><i class="fas fa-filter me-1"></i>Apply</button>
+                  <button class="btn btn-outline-secondary btn-sm">Reset</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cat-dont">
+            <span class="cat-tag"><i class="fas fa-times-circle me-1"></i>Do not copy — <code>auto-fit / minmax(220px)</code></span>
+            <div class="bad-grid-4">
+              <div><div style="font-size:.75rem">Site</div><input class="bad-input"></div>
+              <div><div style="font-size:.75rem">Search</div><input class="bad-input"></div>
+              <div><div style="font-size:.75rem">Status</div><input class="bad-input"></div>
+              <div><div style="font-size:.75rem">Month</div><input class="bad-input"></div>
+              <div><div style="font-size:.75rem">Owner</div><input class="bad-input"></div>
+            </div>
+            <p class="mb-0 mt-2" style="font-size:.6875rem;color:#b21f1f">
+              Auto-fit tiles land as 3+1, or 4+1 leftover, or one stretched field depending on
+              the pane width, and the gaps (14px / 16px / 18px / 1.25rem) never agree.
+            </p>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             TABLE CARD + EMPTY STATE
+             ========================================================= -->
+        <section class="cat-section" id="sec-table">
+          <h2>6. Table card — no gradient header, quiet header cells</h2>
+          <div class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title mb-0"><i class="fas fa-id-badge me-2 text-primary"></i>Licenses</h3>
+              <!-- Length and search live in the card toolbar at one control height,
+                   never as DataTables' own "Show __ entries" row above the table.
+                   Widths come from .gems-toolbar-* rather than inline styles, so the
+                   phone rules in gems-theme.css can relax them instead of losing to
+                   inline specificity and overflowing the card. -->
+              <div class="gems-card-toolbar">
+                <label class="form-label mb-0 text-nowrap" for="catTableLen">Rows</label>
+                <select class="form-select form-select-sm gems-toolbar-rows" id="catTableLen">
+                  <option value="5" selected>5</option>
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                </select>
+                <input type="search" class="form-control form-control-sm gems-toolbar-search" id="catTableSearch"
+                       placeholder="Search table" aria-label="Search table">
+                <button class="btn gems-btn-action" data-bs-toggle="tooltip" title="Refresh" aria-label="Refresh table">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-vcenter table-hover mb-0" id="catTable">
+                <thead>
+                  <tr>
+                    <th>License</th>
+                    <th>Site</th>
+                    <th>Expiry</th>
+                    <th class="gems-num">Days left</th>
+                    <th>Status</th>
+                    <th class="w-1">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Lift operating permit</td>
+                    <td>Menara GFM</td>
+                    <td>2026-11-30</td>
+                    <td class="gems-num">72</td>
+                    <td><span class="badge gems-badge gems-badge-success">Valid</span></td>
+                    <td>
+                      <button class="btn gems-btn-action gems-btn-action-view" data-bs-toggle="tooltip" title="View" aria-label="View Lift operating permit"><i class="fas fa-eye"></i></button>
+                      <button class="btn gems-btn-action gems-btn-action-edit" data-bs-toggle="tooltip" title="Edit" aria-label="Edit Lift operating permit"><i class="fas fa-pen"></i></button>
+                      <button class="btn gems-btn-action gems-btn-action-delete" data-bs-toggle="tooltip" title="Delete" aria-label="Delete Lift operating permit"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Fire certificate</td>
+                    <td>Wisma Putra</td>
+                    <td>2026-10-05</td>
+                    <td class="gems-num">16</td>
+                    <td><span class="badge gems-badge gems-badge-warning">Expiring soon</span></td>
+                    <td>
+                      <button class="btn gems-btn-action gems-btn-action-view" data-bs-toggle="tooltip" title="View" aria-label="View Fire certificate"><i class="fas fa-eye"></i></button>
+                      <button class="btn gems-btn-action gems-btn-action-edit" data-bs-toggle="tooltip" title="Edit" aria-label="Edit Fire certificate"><i class="fas fa-pen"></i></button>
+                      <button class="btn gems-btn-action gems-btn-action-delete" data-bs-toggle="tooltip" title="Delete" aria-label="Delete Fire certificate"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Boiler licence</td>
+                    <td>Menara GFM</td>
+                    <td>2026-08-14</td>
+                    <td class="gems-num">-36</td>
+                    <td><span class="badge gems-badge gems-badge-danger">Expired</span></td>
+                    <td>
+                      <button class="btn gems-btn-action gems-btn-action-view" data-bs-toggle="tooltip" title="View" aria-label="View Boiler licence"><i class="fas fa-eye"></i></button>
+                      <button class="btn gems-btn-action gems-btn-action-edit" data-bs-toggle="tooltip" title="Edit" aria-label="Edit Boiler licence"><i class="fas fa-pen"></i></button>
+                      <button class="btn gems-btn-action gems-btn-action-delete" data-bs-toggle="tooltip" title="Delete" aria-label="Delete Boiler licence"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Signboard licence</td>
+                    <td>Wisma Putra</td>
+                    <td>&mdash;</td>
+                    <td class="gems-num">&mdash;</td>
+                    <td><span class="badge gems-badge gems-badge-info">No expiry date</span></td>
+                    <td>
+                      <button class="btn gems-btn-action gems-btn-action-view" data-bs-toggle="tooltip" title="View" aria-label="View Signboard licence"><i class="fas fa-eye"></i></button>
+                      <button class="btn gems-btn-action gems-btn-action-edit" data-bs-toggle="tooltip" title="Edit" aria-label="Edit Signboard licence"><i class="fas fa-pen"></i></button>
+                      <button class="btn gems-btn-action gems-btn-action-delete" data-bs-toggle="tooltip" title="Delete" aria-label="Delete Signboard licence"><i class="fas fa-trash"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <div class="card h-100">
+                <div class="card-header"><h3 class="card-title mb-0">Empty state lives in the card</h3></div>
+                <div class="card-body">
+                  <div class="gems-empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No licenses recorded for this site yet.</p>
+                    <button class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>Add license</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="cat-dont h-100">
+                <span class="cat-tag"><i class="fas fa-times-circle me-1"></i>Do not copy</span>
+                <div class="bad-table-header">Licenses</div>
+                <table class="table table-sm mb-2" style="border:1px solid #eee">
+                  <thead><tr><th class="bad-th">License</th><th class="bad-th">Status</th></tr></thead>
+                  <tbody><tr><td colspan="2" class="text-center text-muted">No data available in table</td></tr></tbody>
+                </table>
+                <p class="mb-0" style="font-size:.6875rem;color:#b21f1f">
+                  A second blue&rarr;teal gradient bar under the page header, shouty uppercase
+                  headers with 0.08em tracking, and DataTables' raw
+                  &ldquo;No data available in table&rdquo; instead of a real empty state.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             DEMO 3 — PAGE SHEET
+             ========================================================= -->
+        <section class="cat-section" id="sec-sheet">
+          <h2>7. Arrangement demo 3 — page sheet (pairs, full-width remarks, footer)</h2>
+          <p class="cat-note">
+            Waste-generation-style entry sheets use the same <code>gems-form-grid</code> as
+            filters and modals — not a separate <code>waste-grid-4</code>. Required note on the
+            left, Clear plus primary on the right; they stay on one line on a 13-inch screen.
+          </p>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title mb-0">Waste generation entry</h3></div>
+            <div class="card-body">
+              <div class="gems-form-section">
+                <div class="gems-form-section-title">Collection</div>
+                <div class="gems-form-grid">
+                  <div class="gems-field gems-field-6">
+                    <label class="form-label" for="shtSite">Site <span class="required" aria-hidden="true">*</span></label>
+                    <select class="form-select" id="shtSite" aria-required="true"><option>Menara GFM</option></select>
+                  </div>
+                  <div class="gems-field gems-field-6">
+                    <label class="form-label" for="shtZone">Zone <span class="required" aria-hidden="true">*</span></label>
+                    <select class="form-select" id="shtZone" aria-required="true"><option>Tower A</option></select>
+                  </div>
+                  <div class="gems-field gems-field-3">
+                    <label class="form-label" for="shtDate">Date <span class="required" aria-hidden="true">*</span></label>
+                    <input type="date" class="form-control" id="shtDate" aria-required="true">
+                  </div>
+                  <div class="gems-field gems-field-3">
+                    <label class="form-label" for="shtQty">Quantity (kg) <span class="required" aria-hidden="true">*</span></label>
+                    <input type="number" class="form-control" id="shtQty" aria-required="true">
+                  </div>
+                </div>
+              </div>
+              <div class="gems-form-section">
+                <div class="gems-form-section-title">Classification</div>
+                <div class="gems-form-grid">
+                  <div class="gems-field gems-field-6">
+                    <label class="form-label" for="shtStream">Waste stream <span class="required" aria-hidden="true">*</span></label>
+                    <select class="form-select" id="shtStream" aria-required="true"><option>Recyclable — paper</option></select>
+                  </div>
+                  <div class="gems-field gems-field-6">
+                    <label class="form-label" for="shtCode">SW code</label>
+                    <input type="text" class="form-control" id="shtCode">
+                  </div>
+                  <div class="gems-field gems-field-12">
+                    <label class="form-label" for="shtRemarks">Remarks</label>
+                    <textarea class="form-control" id="shtRemarks" rows="2"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer d-flex align-items-center flex-wrap gap-2">
+              <span class="text-muted" style="font-size:.75rem">
+                <span class="required" aria-hidden="true">*</span> Required fields
+              </span>
+              <div class="ms-auto d-flex gap-2">
+                <button class="btn btn-outline-secondary">Clear</button>
+                <button class="btn btn-primary">Save entry</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             DEMO 2 — MODALS
+             ========================================================= -->
+        <section class="cat-section" id="sec-modals">
+          <h2>8. Arrangement demo 2 — modals on a short laptop</h2>
+          <p class="cat-note">
+            Widths only: <code>sm</code> 480, <code>md</code> 640, <code>lg</code> 800.
+            Create/edit defaults to <code>md</code>. Anything taller than ~5 fields uses
+            <code>modal-dialog-scrollable</code>, never <code>modal-dialog-centered</code>:
+            on a 768px-tall screen the footer must stay visible while only the body scrolls.
+            No 960px dialog unless it contains a table.
+          </p>
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="cat-do">
+                <span class="cat-tag"><i class="fas fa-check-circle me-1"></i>Do — open these and watch the footer</span>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCatCreate">md scrollable, 6+6+12</button>
+                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCatConfirm">sm confirm</button>
+                <button class="btn btn-outline-secondary btn-sm" id="btnCatLegacy">Legacy <code>.modal('show')</code></button>
+                <p class="cat-note mt-2 mb-0">
+                  The third button goes through the jQuery shim
+                  (<code>$('#modalCatCreate').modal({backdrop:'static'})</code>) and its
+                  <code>data-dismiss="modal"</code> close button, proving the 200+ legacy call
+                  sites and 45 <code>hidden.bs.modal</code> listeners still work.
+                  Watch the shim log line appear below.
+                </p>
+                <pre class="mt-2 mb-0" id="catShimLog" style="font-size:.6875rem;color:var(--gems-text);background:#fff;border:1px solid var(--gems-border);border-radius:6px;padding:.5rem;max-height:90px;overflow:auto">(shim event log)</pre>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="cat-dont">
+                <span class="cat-tag"><i class="fas fa-times-circle me-1"></i>Do not copy — today's modal header</span>
+                <div class="bad-modal-header">
+                  <button class="bad-close" aria-hidden="true">&times;</button>
+                  <span class="bad-title">Add License</span>
+                </div>
+                <p class="mb-0 mt-2" style="font-size:.6875rem;color:#b21f1f">
+                  Gradient header with a 26px radius, title pushed by <code>mt-2 ml-2</code>,
+                  close button floated with <code>pt-4</code> so the X is never centred on the
+                  title, and <code>outline:none</code> on the close control. Add
+                  <code>modal-dialog-centered</code> plus <code>mt-3 pt-3 mb-5</code> and a
+                  <code>calc(100dvh - 235px)</code> body cap, and the footer falls off a 768px
+                  screen.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             FOCUS / HOVER / DENSITY
+             ========================================================= -->
+        <section class="cat-section" id="sec-focus">
+          <h2>9. Focus, hover, density</h2>
+          <div class="card">
+            <div class="card-body">
+              <p class="cat-note">
+                Press <kbd>Tab</kbd> from here and walk the whole page. Every control, link and
+                icon button must show a 2px <code>rgba(0,85,184,.35)</code> ring. Hover shifts
+                background only — nothing moves.
+              </p>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button class="btn btn-primary btn-sm">Button</button>
+                <a href="#sec-focus" class="btn btn-outline-secondary btn-sm">Link button</a>
+                <input class="form-control form-control-sm" style="width:160px" aria-label="Focus demo input">
+                <select class="form-select form-select-sm" style="width:160px" aria-label="Focus demo select"><option>Select</option></select>
+                <button class="btn gems-btn-action" aria-label="Icon button focus demo"><i class="fas fa-cog"></i></button>
+                <a href="#sec-tokens">Plain link</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             QA LIST
+             ========================================================= -->
+        <section class="cat-section" id="sec-qa">
+          <h2>10. Close-up QA — run this on every converted page</h2>
+          <div class="card">
+            <div class="card-body">
+              <p class="cat-note">
+                A screenshot of the whole page is not &ldquo;done&rdquo;. Check each screen in the
+                browser at <strong>1366&times;768</strong>, <strong>1280&times;800</strong> and
+                <strong>~375px</strong>. The badge in the bottom-right corner of this page reports
+                your current viewport.
+              </p>
+              <ol style="font-size:.8125rem;margin-bottom:0">
+                <li>Open every modal: title, close, first label, first input and footer buttons aligned and one family. Header and footer stay visible; only the body scrolls.</li>
+                <li>Select versus text input: same height and border.</li>
+                <li>Trigger a validation error: the message sits under its field and does not overlap or shove the next row off-grid.</li>
+                <li>Table: header, first-row actions, pagination, empty state. Filter the table to
+                    zero rows &mdash; DataTables must render the card empty state, never its raw
+                    &ldquo;No matching records found&rdquo;. Set <code>language.zeroRecords</code>
+                    <em>and</em> <code>language.emptyTable</code> on every table.</li>
+                <li>Tab through header actions, filters, table buttons and the modal. The focus ring is always visible.</li>
+                <li>Hover: nothing jumps, no cyan <code>btn-info</code> beside primary blue.</li>
+                <li>Form grid: no 1+3 leftover column, no control wrapping inside its cell, no horizontal page scroll.</li>
+                <li>Related pages that share the modal or section still match.</li>
+                <li>Legacy JS still binds: the shim <em>adds</em> <code>data-bs-toggle</code> and
+                    keeps <code>data-toggle</code>, so delegated selectors such as
+                    <code>$(document).on('shown.bs.tab', 'a[data-toggle="tab"]', &hellip;)</code>
+                    (<code>pages/ptw_form.html</code>) keep matching. Grep the page for
+                    <code>[data-toggle=</code> selectors and click each control once to confirm the
+                    handler fires <strong>exactly once</strong> &mdash; never twice, and never
+                    open-then-instantly-closed.</li>
+                <li>View source: no <code>mdb.min.css</code>, <code>bootstrap.min.css</code>, <code>style.css</code>, <code>gems2-ui.css</code>, <code>popper.min.js</code> or <code>mdb*.js</code>.</li>
+                <li>Console is clean — no shim errors, no missing-plugin TypeErrors.</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================================
+     Modal: md, scrollable, 6 + 6 + 12. The create/edit default.
+     Close control is btn-close, flex-centred by .modal-header.
+     data-dismiss (legacy) on Cancel is deliberate: it exercises the shim.
+     ============================================================= -->
+<div class="modal fade" id="modalCatCreate" tabindex="-1" aria-labelledby="modalCatCreateTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCatCreateTitle">Add license</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="gems-form-section">
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="mdlSite">Site <span class="required" aria-hidden="true">*</span></label>
+              <select class="form-select" id="mdlSite" aria-required="true">
+                <option>Menara GFM</option>
+                <option>Wisma Putra</option>
+              </select>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="mdlTitle">License title <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" class="form-control" id="mdlTitle" aria-required="true">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="mdlCategory">Category</label>
+              <select class="form-select" id="mdlCategory"><option>Statutory</option></select>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="mdlRef">Reference no.</label>
+              <input type="text" class="form-control" id="mdlRef">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="mdlStart">Issued date</label>
+              <input type="date" class="form-control" id="mdlStart">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="mdlEnd">Expiry date</label>
+              <input type="date" class="form-control" id="mdlEnd">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="mdlOwner">Responsible person</label>
+              <input type="text" class="form-control" id="mdlOwner">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="mdlWarn">Warning window (days)</label>
+              <input type="number" class="form-control" id="mdlWarn" value="30">
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="mdlFile">Document</label>
+              <input type="file" class="form-control" id="mdlFile">
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="mdlRemarks">Remarks</label>
+              <textarea class="form-control" id="mdlRemarks" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span class="text-muted me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <!-- legacy attribute on purpose — the shim must handle it -->
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary">Save license</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: sm confirm. Same footer pair on every dialog. -->
+<div class="modal fade" id="modalCatConfirm" tabindex="-1" aria-labelledby="modalCatConfirmTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCatConfirmTitle">Delete license?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">
+          <strong>Boiler licence</strong> will be removed from Menara GFM.
+          This cannot be undone.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-outline-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cat-ruler" id="catRuler">viewport</div>
+
+<!-- Script stack mirrors html/scripts_tabler.html — keep the two in sync. -->
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/common.js"></script>
+
+<script>
+  // The catalog deliberately never calls initiatePages(): that function gates on
+  // sessionStorage token/userInfo and would redirect design QA to the login page.
+  $(function () {
+    // Live viewport readout so "verify at 1366x768" is checkable, not aspirational.
+    function ruler() {
+      var w = window.innerWidth, h = window.innerHeight;
+      var $r = $('#catRuler');
+      $r.text(w + ' x ' + h + (w < 1280 ? '  (below laptop target)' : ''));
+      $r.toggleClass('is-narrow', w < 1280);
+    }
+    ruler();
+    $(window).on('resize', ruler);
+
+    // Tooltips: BS5-native attributes here, but gemsInitTooltips() from the shim
+    // also picks up legacy data-toggle="tooltip" markup on migrated pages.
+    window.gemsInitTooltips(document);
+
+    // DataTable on the Bootstrap 5 integration.
+    // dom drops DataTables' own length ('l') and filter ('f') controls: both live in
+    // the card header toolbar instead, so there is one control baseline. Info and
+    // pagination are wrapped in a card-footer rather than floating under the table.
+    // zeroRecords / emptyTable are NOT optional. Left at their defaults DataTables
+    // prints "No matching records found" / "No data available in table" — the exact
+    // raw strings the close-up contract bans. They accept markup, so the real
+    // empty state renders inside the card instead.
+    var emptyState =
+      '<div class="gems-empty-state">' +
+        '<i class="fas fa-inbox"></i>' +
+        '<p>No licenses match these filters.</p>' +
+        '<button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById(\'catTableSearch\').value=\'\';document.getElementById(\'catTableSearch\').dispatchEvent(new Event(\'keyup\'));">' +
+          'Clear search' +
+        '</button>' +
+      '</div>';
+
+    var table = $('#catTable').DataTable({
+      dom: 'rt<"card-footer d-flex align-items-center py-2"i<"ms-auto"p>>',
+      pageLength: 5,
+      language: {
+        info: 'Showing _START_ to _END_ of _TOTAL_',
+        infoEmpty: 'Showing 0 of 0',
+        zeroRecords: emptyState,
+        emptyTable: emptyState
+      },
+      columnDefs: [{ targets: 5, orderable: false }]
+    });
+    $('#catTableSearch').on('keyup', function () { table.search(this.value).draw(); });
+    $('#catTableLen').on('change', function () { table.page.len(parseInt(this.value, 10)).draw(); });
+
+    // Shim proof: legacy jQuery API + legacy events + legacy data-dismiss.
+    function log(msg) {
+      var $el = $('#catShimLog');
+      if ($el.text() === '(shim event log)') { $el.text(''); }
+      $el.append(new Date().toLocaleTimeString() + '  ' + msg + '\n');
+      $el.scrollTop($el[0].scrollHeight);
+    }
+    $('#btnCatLegacy').on('click', function () {
+      $('#modalCatCreate').modal({ backdrop: 'static', keyboard: false });
+      log("$('#modalCatCreate').modal({backdrop:'static'}) -> shown");
+    });
+    $('#modalCatCreate')
+      .on('shown.bs.modal', function () { log('jQuery shown.bs.modal fired'); })
+      .on('hidden.bs.modal', function () { log('jQuery hidden.bs.modal fired'); });
+    // Delegated form, which is how most GEMS page scripts bind it
+    $(document).on('hidden.bs.modal', '#modalCatConfirm', function () {
+      log('delegated hidden.bs.modal on #modalCatConfirm');
+    });
+
+    $('#btnCatToast').on('click', function () {
+      toastr['success']('License saved successfully.', 'SUCCESS');
+      toastr['error']('Expiry date must be after the issued date.', 'VALIDATION ERROR');
+    });
+  });
+</script>
+</body>
+</html>

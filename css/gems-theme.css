@@ -1,0 +1,606 @@
+/* ==========================================================================
+   gems-theme.css — GFM theme layer on top of Tabler 1.5 (Bootstrap 5.3)
+   --------------------------------------------------------------------------
+   Load order on a migrated page:
+     fontawesome all.min.css
+     css/vendor/tabler/tabler.min.css
+     js/vendor/datatables/css/dataTables.bootstrap5.min.css (+ buttons)
+     css/gems-theme.css            <- this file, always last
+
+   This file is deliberately THIN. It does three jobs and nothing else:
+     1. Map the existing GFM palette onto Tabler tokens (no new colors).
+     2. Define the ONE form-arrangement system (grid, spans, density).
+     3. Add the small close-up component rules Tabler does not already get right.
+
+   Never load this file next to css/mdb.min.css, css/bootstrap.min.css,
+   css/style.css or css/gems2-ui.css. Tabler and MDB conflict.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Fonts (self-hosted, latin subset — app must work offline)
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../font/lato/lato-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../font/lato/lato-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../font/poppins/poppins-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../font/poppins/poppins-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../font/poppins/poppins-600.woff2') format('woff2');
+}
+
+/* --------------------------------------------------------------------------
+   2. Tokens — GFM palette (unchanged values) + Tabler mapping + density
+   -------------------------------------------------------------------------- */
+:root {
+  /* GFM brand — same hexes the app already ships */
+  --gems-primary: #0055b8;
+  --gems-primary-rgb: 0, 85, 184;
+  --gems-primary-dark: #003f8a;
+  --gems-secondary: #00ada8;
+  --gems-secondary-rgb: 0, 173, 168;
+  --gems-accent: #ceeff0;
+  --gems-bg: #e7eaec;
+  --gems-bg-page: #f1f5f9;
+  --gems-text: #243746;
+  --gems-text-soft: #5b676f;
+  /* Muted TEXT must clear WCAG AA at the 12-13px sizes it is used at. The legacy
+     #7e8f9a from gems2-ui.css only reaches 3.34:1 on white and 3.05:1 on the page
+     background, so it stays available for icons and hairlines while muted text
+     uses a darker value: 4.76:1 on white, but only 4.34:1 on the #f1f5f9 canvas.
+     So --gems-muted is for muted text ON A CARD; anything muted sitting directly
+     on the page canvas (e.g. .page-subtitle) uses --gems-text-soft, which clears
+     5.3:1 there. Neither value is one of the five frozen brand hexes, so the
+     palette itself is unchanged. */
+  --gems-muted: #66757f;
+  --gems-muted-icon: #7e8f9a;
+  --gems-border: #e7eaec;
+  --gems-danger: #dc2626;
+
+  --gems-font-body: 'Poppins', 'Lato', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --gems-font-heading: 'Lato', 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Form arrangement — 13-inch laptop is the design target */
+  --gems-control-h: 38px;
+  --gems-label-gap: 4px;
+  --gems-field-gap: 12px;
+  --gems-section-gap: 20px;
+  --gems-sidebar-w: 15rem;          /* 240px, not 20rem */
+  --gems-focus-ring: 0 0 0 2px rgba(0, 85, 184, 0.35);
+
+  /* Tabler token overrides. Plain hex on purpose: it also removes Tabler's
+     light-dark() dependency for these properties. */
+  --tblr-primary: #0055b8;
+  --tblr-primary-rgb: 0, 85, 184;
+  --tblr-primary-fg: #fff;
+  --tblr-secondary: #5b676f;
+  --tblr-teal: #00ada8;
+  --tblr-font-sans-serif: var(--gems-font-body);
+  --tblr-body-color: #243746;
+  --tblr-body-color-rgb: 36, 55, 70;
+  --tblr-body-bg: #f1f5f9;
+  --tblr-link-color: #0055b8;
+  --tblr-link-hover-color: #003f8a;
+  --tblr-border-color: #e7eaec;
+  --tblr-border-radius: 8px;
+  --tblr-border-radius-sm: 6px;
+  --tblr-border-radius-lg: 10px;
+  --tblr-danger: #dc2626;
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --gems-control-h: 40px;
+    --gems-field-gap: 16px;
+    --gems-section-gap: 24px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. Canvas and type
+   -------------------------------------------------------------------------- */
+body.gems-tabler {
+  background: var(--gems-bg-page);      /* flat canvas, no gradient */
+  font-family: var(--gems-font-body);
+  color: var(--gems-text);
+  font-size: 0.875rem;
+}
+
+.gems-tabler h1,
+.gems-tabler h2,
+.gems-tabler h3,
+.gems-tabler .page-title,
+.gems-tabler .modal-title,
+.gems-tabler .card-title {
+  font-family: var(--gems-font-heading);
+  color: var(--gems-text);
+}
+
+/* Compact page header on a 13-inch screen */
+.gems-tabler .page-header {
+  margin-block: 0.75rem 1rem;
+}
+.gems-tabler .page-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.gems-tabler .page-subtitle {
+  /* Sits directly on the page canvas, where --gems-muted is only 4.34:1 */
+  color: var(--gems-text-soft);
+  font-size: 0.8125rem;
+  margin-top: 2px;
+}
+@media (max-width: 1366px) {
+  .gems-tabler .page-header {
+    margin-block: 0.5rem 0.75rem;
+  }
+}
+
+/* Teal stays an accent, not a second primary */
+.gems-tabler .text-gems-accent { color: var(--gems-secondary); }
+.gems-tabler .bg-gems-accent-soft { background: var(--gems-accent); }
+
+/* --------------------------------------------------------------------------
+   4. THE form arrangement system — one grid, 12 columns, laptop first
+   -------------------------------------------------------------------------- */
+.gems-form-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gems-field-gap);
+  align-items: start;
+}
+
+.gems-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gems-label-gap);
+  min-width: 0;                 /* lets controls shrink instead of overflowing */
+  grid-column: span 12;
+}
+
+/* Default spans (>= 1200px content). Note the class is gems-field-N, never
+   "gems-field span-N" — that older selector was invalid CSS. */
+.gems-field-3  { grid-column: span 3; }
+.gems-field-4  { grid-column: span 4; }
+.gems-field-6  { grid-column: span 6; }
+.gems-field-8  { grid-column: span 8; }
+.gems-field-12 { grid-column: span 12; }
+
+/* 13-inch content pane: max 2 columns. Short fields become halves so we never
+   render four skinny inputs in a row. */
+@media (max-width: 1399.98px) {
+  .gems-field-3,
+  .gems-field-4 { grid-column: span 6; }
+  .gems-field-8 { grid-column: span 12; }
+}
+
+/* 3-up only on genuinely wide screens */
+@media (min-width: 1600px) {
+  .gems-field-4 { grid-column: span 4; }
+  .gems-field-3 { grid-column: span 3; }
+}
+
+/* Phone: everything stacks */
+@media (max-width: 575.98px) {
+  .gems-field-3,
+  .gems-field-4,
+  .gems-field-6,
+  .gems-field-8,
+  .gems-field-12 { grid-column: span 12; }
+}
+
+/* Section rhythm — replaces ad-hoc mt-4 / mb-4_5 */
+.gems-form-section + .gems-form-section { margin-top: var(--gems-section-gap); }
+.gems-form-section-title {
+  font-family: var(--gems-font-heading);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* Buttons that sit in a grid cell align to the control baseline, not the label.
+   Two things are load-bearing here:
+   - flex-direction must be reset, because .gems-field is a column (label above
+     control) and the buttons would otherwise stack vertically inside the cell.
+   - align-self must beat the grid's align-items:start. When the actions cell
+     shares a row with a labelled field, start-alignment pins the 38px cell to the
+     top of the row, leaving the buttons ~23px above the control baseline. */
+.gems-field-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  align-self: end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+/* Match the control height exactly so Apply/Reset/Export sit on the control
+   baseline, not the label baseline. Tabler's .btn min-height is 40px, so both
+   height and min-height have to be set. */
+.gems-field-actions > .btn {
+  height: var(--gems-control-h);
+  min-height: var(--gems-control-h);
+}
+
+/* --------------------------------------------------------------------------
+   5. Controls — one height, one border, visible labels only
+   -------------------------------------------------------------------------- */
+.gems-tabler .form-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--gems-text-soft);
+  margin-bottom: 0;
+}
+.gems-tabler .form-label .required,
+.gems-tabler .gems-required {
+  color: var(--gems-danger);
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+/* One control height, for real. Tabler's own vertical padding would render these
+   at 40px regardless of a min-height floor, so set the height explicitly and zero
+   the padding-block — otherwise --gems-control-h is a number that describes
+   nothing and buttons beside a control sit 2px off its baseline. */
+.gems-tabler .form-control,
+.gems-tabler .form-select {
+  height: var(--gems-control-h);
+  min-height: var(--gems-control-h);
+  padding-block: 0;
+  font-size: 0.875rem;
+  border-color: #dfe4e8;          /* quiet chrome: data louder than the field */
+  border-width: 1px;
+  box-shadow: none;
+}
+/* Controls that are legitimately taller than one row must opt out of the fixed
+   height, or a multi-row select collapses to a single line. Five existing pages
+   use <select multiple> (kpa_assignment, modal_ppm, helpdesk, ptw_management,
+   ppm_management), so this exception has to exist before they migrate. */
+.gems-tabler textarea.form-control,
+.gems-tabler .form-control[type="file"],
+.gems-tabler .form-select[multiple],
+.gems-tabler .form-select[size]:not([size="1"]) {
+  height: auto;
+  min-height: var(--gems-control-h);
+  padding-block: 0.4375rem;
+}
+.gems-tabler textarea.form-control { min-height: calc(var(--gems-control-h) * 2); }
+
+.gems-tabler .form-control:focus,
+.gems-tabler .form-select:focus,
+.gems-tabler .form-check-input:focus,
+.gems-tabler .btn:focus-visible,
+.gems-tabler .btn-close:focus-visible,
+.gems-tabler .page-link:focus-visible,
+.gems-tabler a:focus-visible {
+  border-color: var(--gems-primary);
+  box-shadow: var(--gems-focus-ring);
+  outline: none;                  /* replaced, never removed */
+}
+
+.gems-tabler .form-control[readonly],
+.gems-tabler .form-control:disabled,
+.gems-tabler .form-select:disabled {
+  background-color: #eef1f4;
+  color: var(--gems-text-soft);
+  cursor: not-allowed;
+}
+
+/* Error text lives inside the field cell so a 2-line message grows the row
+   instead of shoving the sibling field off its baseline. */
+.gems-field-error,
+.gems-tabler .invalid-feedback {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--gems-danger);
+}
+.gems-field-error:empty { display: none; }   /* no reserved phantom space */
+.gems-field-help {
+  font-size: 0.75rem;
+  color: var(--gems-muted);
+}
+.gems-tabler .form-control.is-invalid,
+.gems-tabler .form-select.is-invalid { border-color: var(--gems-danger); }
+
+.gems-tabler .form-check { min-height: auto; }
+.gems-tabler .form-check-input:checked {
+  background-color: var(--gems-primary);
+  border-color: var(--gems-primary);
+}
+
+/* --------------------------------------------------------------------------
+   6. Buttons — three sizes, three families, no bounce
+   -------------------------------------------------------------------------- */
+.gems-tabler .btn { font-weight: 500; }
+.gems-tabler .btn:hover { transform: none; }        /* kill translateY lifts */
+
+.gems-tabler .btn-primary {
+  background-color: var(--gems-primary);
+  border-color: var(--gems-primary);
+  color: #fff;
+}
+.gems-tabler .btn-primary:hover,
+.gems-tabler .btn-primary:active {
+  background-color: var(--gems-primary-dark);
+  border-color: var(--gems-primary-dark);
+}
+
+/* One table/toolbar icon button geometry.
+   min-height is required: Tabler's .btn sets min-height 40px, which would beat a
+   plain height:32px and give a 40px hit target that breaks row density. 32px is
+   also the documented minimum touch/hit size for these actions. */
+.gems-tabler .gems-btn-action {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  line-height: 1;
+}
+.gems-tabler .gems-btn-action + .gems-btn-action { margin-left: 4px; }
+.gems-tabler .gems-btn-action:hover { background-color: #eef1f4; box-shadow: none; }
+/* Colour tints stay, geometry does not change */
+.gems-tabler .gems-btn-action-view   { color: var(--gems-primary); }
+.gems-tabler .gems-btn-action-edit   { color: var(--gems-secondary); }
+.gems-tabler .gems-btn-action-delete { color: var(--gems-danger); }
+
+/* --------------------------------------------------------------------------
+   7. Cards, filters, tables
+   -------------------------------------------------------------------------- */
+.gems-tabler .card {
+  border: 1px solid var(--gems-border);
+  border-radius: var(--tblr-border-radius);
+  box-shadow: 0 1px 2px rgba(36, 55, 70, 0.06);
+}
+
+.gems-filter-card .card-body { padding: 0.875rem 1rem; }
+
+/* No gradient table header. Plain text title + quiet header cells. */
+.gems-tabler .card-header {
+  background: #fff;
+  border-bottom: 1px solid var(--gems-border);
+  min-height: auto;
+  padding: 0.75rem 1rem;
+}
+/* Card-header toolbar (length select, search, icon actions).
+   Tabler's .card-header is a no-wrap flex row, so on a phone the toolbar's
+   min-content width pushes straight past the card edge and forces horizontal page
+   scroll. Below sm the header wraps and the toolbar takes its own full-width line
+   with its controls flexing, instead of overflowing. */
+.gems-card-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+.gems-card-toolbar .gems-toolbar-rows { width: 72px; }
+.gems-card-toolbar .gems-toolbar-search { width: 180px; }
+
+@media (max-width: 575.98px) {
+  .gems-tabler .card-header {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+  .gems-card-toolbar {
+    margin-left: 0;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .gems-card-toolbar .gems-toolbar-search {
+    width: auto;
+    flex: 1 1 8rem;
+    min-width: 0;
+  }
+}
+
+.gems-tabler .table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gems-text-soft);
+  text-transform: none;           /* not shouty uppercase + wide tracking */
+  letter-spacing: normal;
+  white-space: nowrap;
+}
+.gems-tabler .table tbody td {
+  font-size: 0.8125rem;
+  color: var(--gems-text);
+}
+.gems-tabler .table-hover tbody tr:hover > * {
+  background-color: #f5f7f9;
+  box-shadow: none;
+}
+.gems-tabler .gems-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty state inside the card, not a raw DataTables sentence */
+.gems-empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--gems-muted);
+}
+.gems-empty-state i { font-size: 1.75rem; margin-bottom: 0.5rem; display: block; }
+.gems-empty-state p { margin-bottom: 0.75rem; }
+
+/* DataTables toolbar shares the one control baseline.
+   Note: form-control-sm / form-select-sm change font and padding but NOT height —
+   the height rule above is deliberate and applies to every control on the page, so
+   a toolbar select and a form select can never drift apart. Button sizes (sm /
+   default / lg) are still the three real sizes. */
+.gems-tabler .dataTables_wrapper .dataTables_info {
+  font-size: 0.75rem;
+  color: var(--gems-muted);
+}
+
+/* --------------------------------------------------------------------------
+   8. Badges — one status vocabulary
+   -------------------------------------------------------------------------- */
+.gems-tabler .gems-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: none;           /* sentence case unless the string is an acronym */
+  letter-spacing: normal;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+.gems-tabler .gems-badge-success   { background: #e7f7ee; color: #1a7f4b; }
+.gems-tabler .gems-badge-warning   { background: #fdf3e2; color: #9a6206; }
+.gems-tabler .gems-badge-danger    { background: #fdeaea; color: #b21f1f; }
+.gems-tabler .gems-badge-info      { background: var(--gems-accent); color: #0b6b68; }
+.gems-tabler .gems-badge-secondary { background: #eef1f4; color: var(--gems-text-soft); }
+
+/* --------------------------------------------------------------------------
+   9. Modals — fit a 768px-tall laptop, flat header, sticky footer
+   -------------------------------------------------------------------------- */
+.gems-tabler .modal-dialog.gems-modal-sm { max-width: 480px; }
+.gems-tabler .modal-dialog.gems-modal-md { max-width: 640px; }
+.gems-tabler .modal-dialog.gems-modal-lg { max-width: 800px; }
+
+.gems-tabler .modal-dialog {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.gems-tabler .modal-dialog-scrollable .modal-content {
+  max-height: calc(100dvh - 1.5rem);
+}
+
+.gems-tabler .modal-header {
+  background: #fff;               /* no gradient header */
+  border-bottom: 1px solid var(--gems-border);
+  display: flex;
+  align-items: center;            /* close optically centered with the title */
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+.gems-tabler .modal-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  margin: 0;                      /* no mt-2 / ml-2 hacks */
+}
+.gems-tabler .modal-header .btn-close { margin: 0; }
+.gems-tabler .modal-body { padding: 1rem; }
+.gems-tabler .modal-footer {
+  border-top: 1px solid var(--gems-border);
+  padding: 0.75rem 1rem;
+  gap: 0.5rem;
+}
+.gems-tabler .modal-footer > .btn { margin: 0; }
+
+/* --------------------------------------------------------------------------
+   10. Chrome — INTENTIONALLY NOT IN THIS FILE YET
+   Sidebar, sidebar active state and notification-row styling belong to P1,
+   which builds the Tabler nav fragments and the common.js dual-init. An earlier
+   draft of this file carried them and got them wrong: Tabler keeps
+   .navbar-vertical.navbar-expand-lg at position:fixed from >=992px, so zeroing
+   .page-wrapper's margin below 1400px overlapped the first 240px of content at
+   both 1280x800 and 1366x768 — the two sizes the plan designs for. The fold must
+   be keyed on Tabler's own navbar-expand-xxl breakpoint, with a real shell to
+   verify against. --gems-sidebar-w (15rem) stays defined in the token block so
+   P1 has the budget number; nothing consumes it yet.
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   11. Toastr
+   js/modules/toastr.js is shared with the MDB pages, but its stylesheet only
+   ever existed inside css/mdb.css. Tabler pages do not load MDB, so without
+   these rules every toastr call renders as unstyled text in the document flow.
+   Both the md-toast-* (GEMS default positionClass) and plain toast-* class
+   names are covered.
+   -------------------------------------------------------------------------- */
+#toast-container {
+  position: fixed;
+  z-index: 1080;
+  pointer-events: none;
+}
+#toast-container.md-toast-top-right,
+#toast-container.toast-top-right {
+  top: 12px;
+  right: 12px;
+}
+#toast-container > div {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 8px;
+  padding: 12px 36px 12px 14px;
+  width: 20rem;
+  max-width: calc(100vw - 24px);
+  border-radius: var(--tblr-border-radius, 8px);
+  border-left: 4px solid transparent;
+  background: #fff;
+  color: var(--gems-text);
+  font-family: var(--gems-font-body);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  box-shadow: 0 8px 24px -12px rgba(36, 55, 70, 0.45), 0 0 0 1px var(--gems-border);
+  pointer-events: auto;
+}
+#toast-container > div:hover { box-shadow: 0 12px 28px -12px rgba(36, 55, 70, 0.55); }
+
+.md-toast-title, .toast-title { font-weight: 600; margin-bottom: 2px; }
+.md-toast-message, .toast-message { word-wrap: break-word; }
+
+.md-toast-success, .toast-success { border-left-color: #1a7f4b; }
+.md-toast-error,   .toast-error   { border-left-color: var(--gems-danger); }
+.md-toast-warning, .toast-warning { border-left-color: #9a6206; }
+.md-toast-info,    .toast-info    { border-left-color: var(--gems-primary); }
+
+.md-toast-close-button, .toast-close-button {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--gems-muted);
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 1;                     /* readable close icon, not a faint 0.3 x */
+  text-shadow: none;
+  float: none;
+}
+.md-toast-close-button:hover, .toast-close-button:hover { color: var(--gems-text); }
+.md-toast-close-button:focus-visible, .toast-close-button:focus-visible {
+  box-shadow: var(--gems-focus-ring);
+  outline: none;
+  border-radius: 4px;
+}
+
+.md-toast-progress, .toast-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background-color: rgba(var(--gems-primary-rgb), 0.45);
+  opacity: 1;
+}
+

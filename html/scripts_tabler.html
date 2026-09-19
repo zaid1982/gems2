@@ -1,0 +1,35 @@
+<!--
+  scripts_tabler.html — canonical script stack for Tabler-migrated GEMS pages.
+
+  COPY-PASTE REFERENCE, not a runtime .includeHtml fragment (see head_tabler.html).
+
+  Order is load-bearing:
+    1. jQuery                    — every GEMS page script assumes it
+    2. tabler.min.js             — defines window.tabler (+ .bootstrap)
+    3. gems-bs5-jquery.js        — registers $.fn.modal/tooltip/... and bridges
+                                   native *.bs.* events back into jQuery. MUST come
+                                   after Tabler and before any page script that
+                                   calls .modal() or listens for hidden.bs.modal
+    4. DataTables core + BS5 integration
+    5. toastr                    — MDB is not loaded, so toastr must be explicit or
+                                   every toastr['error'](...) call throws
+    6. common.js                 — declarations only; initiatePages() is called by
+                                   each page
+    7. page scripts
+
+  Do NOT add: js/popper.min.js, js/bootstrap*.js, js/mdb*.js,
+  js/jquery-migrate-3.4.0.min.js, js/vendor/tabler/tabler-theme.min.js.
+-->
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/common.js"></script>

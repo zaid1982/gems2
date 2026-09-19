@@ -11,7 +11,8 @@ globalfm.p12
 **/.DS_Store
 
 # Composer dependencies - installed via 'composer install'
-vendor/
+# Root-anchored: must not match vendored front-end assets in css/vendor/ or js/vendor/
+/vendor/
 composer.lock
 
 # Ignore all uploaded files stored outside api/

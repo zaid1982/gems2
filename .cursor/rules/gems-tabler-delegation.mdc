@@ -1,0 +1,182 @@
+---
+description: Execution and delegation policy for the GEMS Tabler UI revamp
+alwaysApply: false
+---
+
+# GEMS Tabler Migration Execution Policy
+
+When executing:
+
+.cursor/plans/tabler_gems_ui_revamp_4232fa82.plan.md
+
+the parent agent acts as the coordinator and primary implementation agent.
+
+Do not execute the entire migration as one large task.
+Work milestone by milestone.
+
+## Source of truth
+
+The approved migration plan is:
+
+.cursor/plans/tabler_gems_ui_revamp_4232fa82.plan.md
+
+Do not redesign the migration unless the real codebase exposes a conflict that requires reconsideration.
+
+---
+
+# Delegation policy
+
+## gems-architect
+
+Use `gems-architect` for tasks involving:
+
+- architecture decisions
+- legacy dependency analysis
+- Bootstrap 4 / MDB compatibility
+- Tabler / Bootstrap 5 coexistence risks
+- common.js changes
+- gems-bs5-jquery.js compatibility behavior
+- shared navigation or chrome
+- DataTables integration architecture
+- shared component decisions
+- dependency conflicts
+- unclear legacy JavaScript behavior
+- unexpected cross-page regressions
+- decisions that are difficult to reverse
+
+For P0:
+- consult gems-architect before finalizing foundation-level decisions
+- use its findings to validate the implementation against the real repository
+
+For P1:
+- consult gems-architect where shared chrome or compatibility behavior is affected
+
+Do not delegate repetitive page migration to gems-architect.
+
+---
+
+## gems-migrator
+
+Use `gems-migrator` when:
+
+- a reference implementation already exists
+- the design pattern has already been established
+- converting repetitive pages
+- converting forms
+- converting modals
+- replacing MDB markup
+- replacing Bootstrap 4 utilities
+- applying gems-form-grid
+- applying existing shared Tabler chrome
+- executing migration waves P3, P4, and P5
+
+Do not use gems-migrator to invent:
+
+- compatibility architecture
+- common.js architecture
+- shared navigation architecture
+- global design-system changes
+- new shared UI patterns
+
+If gems-migrator encounters such a decision, it must report it to the parent agent.
+
+---
+
+## gems-reviewer
+
+Use `gems-reviewer`:
+
+- after P0 is implemented
+- after significant P1 work
+- after P2 is implemented
+- before starting P3
+- after large migration batches
+- whenever unexpected cross-page regressions appear
+- before declaring a major milestone complete
+
+The reviewer should audit rather than redesign.
+
+Reviewer findings use:
+
+- BLOCKER
+- IMPORTANT
+- MINOR
+
+The parent agent must resolve BLOCKER findings before declaring the milestone complete.
+
+IMPORTANT findings should be resolved unless there is a documented reason not to.
+
+---
+
+# Execution boundaries
+
+Execute the migration in this order:
+
+P0
+→ review
+→ P1
+→ targeted review
+→ P2
+→ mandatory review
+→ stop before P3 unless the current user request explicitly asks to continue.
+
+Do not execute P0 through P6 as one continuous task.
+
+The implementation established during P0–P2 becomes the authoritative reference for later migration waves.
+
+Later pages should reuse established patterns instead of creating new local patterns.
+
+---
+
+# Parent agent responsibilities
+
+The parent agent remains responsible for:
+
+- understanding the current milestone
+- deciding what work to delegate
+- integrating subagent findings
+- editing architecture-sensitive files unless delegation is clearly appropriate
+- resolving conflicting recommendations
+- running tests
+- running the application
+- browser verification
+- inspecting console/runtime errors
+- checking git diff
+- keeping implementation aligned with the migration plan
+- preventing unrelated scope changes
+
+Subagent output is not automatically correct.
+The parent agent must validate it against the actual codebase.
+
+---
+
+# Safety for legacy behavior
+
+Preserve existing GEMS business behavior unless the migration plan explicitly requires a change.
+
+Especially preserve:
+
+- JavaScript IDs and selectors
+- mzAjaxRequest behavior
+- DataTables behavior
+- Highcharts behavior
+- server/API interaction
+- existing business workflows
+- existing form submission behavior
+
+Do not perform business-logic refactors as part of the UI migration.
+
+---
+
+# Completion rule
+
+A milestone is not complete only because it looks visually correct.
+
+Completion requires:
+
+- plan compliance
+- functional compatibility
+- no unresolved BLOCKER findings
+- relevant browser verification
+- no unexplained runtime errors
+- no accidental MDB + Tabler loading on the same migrated page

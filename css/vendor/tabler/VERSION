@@ -1,0 +1,18 @@
+@tabler/core 1.5.0 (bundles Bootstrap 5.3.8 + Popper 2)
+Source: npm pack @tabler/core@1.5.0 -> package/dist/
+
+Vendored files:
+  css/vendor/tabler/tabler.min.css   <- dist/css/tabler.min.css
+  js/vendor/tabler/tabler.min.js     <- dist/js/tabler.min.js
+
+Deliberately NOT vendored:
+  dist/js/tabler-theme.min.js    - only source of prefers-color-scheme; omitting it keeps GEMS light-only
+  dist/css/tabler-vendors.min.css - styles tom-select/apexcharts/litepicker/dropzone, none of which GEMS uses
+  dist/css/tabler-flags|payments|socials|marketing|props|themes.min.css
+  dist/libs/**, *.map
+
+tabler.min.js is a UMD bundle exposing window.tabler (with .Modal, .Tooltip, .Popover,
+.Collapse, .Tab, .Dropdown, .Toast, .Offcanvas, .Alert and .bootstrap). It does NOT
+register Bootstrap's jQuery interface and does NOT re-trigger events through jQuery —
+js/gems-bs5-jquery.js supplies both. Do not load popper.min.js, bootstrap*.js or mdb*.js
+alongside it.
