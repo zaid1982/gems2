@@ -1,92 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/home.html — Tabler-migrated (P2 reference implementation).
+
+  Asset stack is a verbatim copy of html/head_tabler.html and
+  html/scripts_tabler.html (M12: keep them aligned), plus a clearly fenced
+  "page extras" block for the DataTables Buttons extensions, Highcharts and
+  moment that only this page needs.
+
+  Dropped on purpose: css/addons-pro/steppers.min.css + js/addons-pro/stepper.min.js
+  (MDB Pro addon, nothing on this page uses it), js/vendor/datatables/js/pdfmake.min.js
+  + vfs_fonts.js (no pdfHtml5 button here), and the inline $('.datepicker').pickadate()
+  call — the two date filters are native <input type="date"> now and common.js's
+  date helpers branch on whether pickadate exists.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 
 <head>
-
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="google-site-verification" content="8nC6R3BSke261hapWFM0g_WzrHilooIuRoTGR0MC6cU">
     <title>GEMS 2.0</title>
-    <!-- Browser icon -->
     <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
+
+    <!-- Font Awesome Pro 6.5.1 (local; do not add the v5.6.1 CDN) -->
     <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css" />
-    <!-- Stepper CSS - minified-->
-    <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- GEMS2 shared UI design memory bank -->
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Home page custom styles -->
+
+    <!-- Tabler 1.5 — bundles Bootstrap 5.3.8, so no separate bootstrap.css -->
+    <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+
+    <!-- DataTables, Bootstrap 5 integration (bootstrap4 files stay for MDB pages) -->
+    <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+
+    <!-- GFM theme: tokens, form-arrangement system, close-up component layer. LAST. -->
+    <link rel="stylesheet" href="css/gems-theme.css">
+
     <style>
-        :root {
-            --home-primary: var(--gems-primary);
-            --home-accent: var(--gems-secondary);
-            --home-bg: var(--gems-bg-page);
-            --home-text: var(--gems-text);
-            --home-muted: var(--gems-muted);
-            --home-radius: var(--gems-radius-lg);
-            --home-shadow: var(--gems-shadow-lg);
-            --home-card-shadow: var(--gems-card-shadow);
-        }
-
-        body {
-            background: var(--home-bg);
-        }
-
-        .home-page-header {
-            margin: 18px 0 22px;
-        }
-
-        .home-metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .results-summary {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-            color: var(--home-muted);
-        }
-
-        .home-card {
-            background: #fff;
-            border-radius: var(--home-radius);
-            box-shadow: var(--home-card-shadow);
-        }
-
-        .home-card .card-body {
-            padding: 12px;
-        }
-
-        .chart-card .card-body {
-            padding: 0;
-        }
-
+        /* Page-local CSS is limited to what only this page can know: Highcharts
+           needs an explicit pixel height, and the per-chart loading overlay and the
+           indeterminate export progress bar are behaviours JS toggles. Everything
+           else (cards, controls, buttons, badges, table chrome) comes from
+           Tabler + gems-theme.css. */
         .chart-container {
-            height: 360px;
-            margin: 0;
+            height: 340px;
         }
 
-        @media (min-width: 1400px) {
+        @media (min-width: 1600px) {
             .chart-container {
                 height: 400px;
             }
         }
 
-        /* Per-chart loading overlay */
         .chart-card {
             position: relative;
         }
@@ -95,76 +64,21 @@
             position: absolute;
             inset: 0;
             background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(2px);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 5;
-            border-radius: var(--home-radius);
+            border-radius: var(--tblr-border-radius);
         }
 
         .chart-loading-overlay.show {
             display: flex;
         }
 
-        @media (max-width: 767.98px) {
-            .home-page-header {
-                padding: 22px 18px;
-            }
-
-            .home-page-header h2 {
-                font-size: 1.6rem;
-            }
-        }
-
-        /* Ensure Highcharts fullscreen/exports use white background */
-        .highcharts-fullscreen,
-        .highcharts-fullscreen .highcharts-container {
-            background: #ffffff !important;
-        }
-
-        .highcharts-container svg rect.highcharts-background {
-            fill: #ffffff !important;
-        }
-
-        /* Export progress modal — override global 6px .progress rule */
-        #modalExportProgress .modal-content {
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        #modalExportProgress .modal-header {
-            border-bottom: 1px solid #e9ecef;
-            background: var(--gems-bg-page);
-        }
-
-        #modalExportProgress .modal-title {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        #modalExportProgress .export-progress-track {
-            height: 22px !important;
-            border-radius: 999px;
-            background: #e9eef5;
-            overflow: hidden;
-            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
-        }
-
-        #modalExportProgress .export-progress-track .progress-bar {
-            height: 22px !important;
-            min-width: 0;
-            font-size: 0.75rem;
-            font-weight: 600;
-            line-height: 22px;
-            border-radius: 999px;
-            transition: width 0.35s ease;
-        }
-
+        /* JS toggles .is-waiting while the server has not reported a total yet. */
         #modalExportProgress .export-progress-track.is-waiting .progress-bar {
             width: 35% !important;
             color: transparent;
-            background-color: #33b5e5;
             animation: export-progress-indeterminate 1.2s ease-in-out infinite;
         }
 
@@ -172,133 +86,152 @@
             0% { transform: translateX(-100%); }
             100% { transform: translateX(320%); }
         }
-
-        #modalExportProgress #exportProgressLabel {
-            min-height: 1.25rem;
-        }
-
-        #modalExportProgress #exportProgressDetail {
-            color: var(--gems-muted);
-        }
-
-        #modalExportProgress #exportProgressDetail strong {
-            color: var(--gems-text);
-        }
     </style>
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!--JQuery Migrate-->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
 
-<body class="fixed-sn light-blue-skin">
-    <!--Main Navigation-->
-    <header>
-        <!-- Sidebar navigation -->
-        <div class="includeHtml" id="h-nav_left"></div>
-        <!-- Navbar -->
-        <div class="includeHtml" id="h-nav_top"></div>
-    </header>
-    <!--Main layout-->
-    <main>
-        <div class="container-fluid">
-            <!--Section: Dashboard shell -->
-            <section class="mt-2 mb-4 sectionHmeMain">
-                <div class="home-page-header gems-page-header">
-                    <div class="header-text">
-                        <h2><i class="fas fa-chart-line mr-2"></i> <span id="lblHmeReportType"></span></h2>
-                        <p id="lblHmeSelected">&nbsp;</p>
-                    </div>
-                    <div class="header-actions">
-                        <a href="#homeFilters" class="btn btn-light btn-icon" id="btnHomeScrollFilters"
-                            data-toggle="tooltip" data-placement="top" title="Show filters" aria-label="Show filters" style="display: flex !important; align-items: center; justify-content: center;"><i
-                                class="fas fa-filter"></i></a>
-                        <button id="btnHmeDownloadImageDo" class="btn btn-light btn-icon" data-toggle="tooltip"
-                            data-placement="top" title="Download WO images" aria-label="Download WO images"><i
-                                class="fa fa-regular fa-file-zipper"></i></button>
+<body class="gems-tabler">
+<div class="page">
+    <!-- The includeHtml HOST must BE the Tabler aside, a sibling of .page-wrapper;
+         the top bar lives INSIDE .page-wrapper. See html/nav_left_tabler.html. -->
+    <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+    <div class="page-wrapper">
+        <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+        <div class="page-body">
+            <div class="container-xl sectionHmeMain">
+
+                <!-- Page header: title + one-line description + actions. No banner. -->
+                <div class="page-header">
+                    <div class="row align-items-center g-2">
+                        <div class="col-12 col-sm">
+                            <h1 class="page-title">
+                                <i class="fas fa-chart-line me-2 text-primary"></i><span id="lblHmeReportType"></span>
+                            </h1>
+                            <div class="page-subtitle" id="lblHmeSelected">&nbsp;</div>
+                        </div>
+                        <div class="col-12 col-sm-auto">
+                            <a href="#homeFilters" class="btn btn-outline-secondary" id="btnHomeScrollFilters"
+                               data-bs-toggle="tooltip" title="Show filters" aria-label="Show filters">
+                                <i class="fas fa-filter"></i>
+                            </a>
+                            <button type="button" id="btnHmeDownloadImageDo" class="btn btn-outline-secondary"
+                                    data-bs-toggle="tooltip" title="Download WO images" aria-label="Download work order images">
+                                <i class="fa fa-regular fa-file-zipper"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="filter-card mb-4" id="homeFilters">
-                    <div class="filter-grid">
-                        <div class="dropdown">
-                            <div class="filter-label">Report Type</div>
-                            <a class="btn btn-outline-secondary dropdown-toggle w-100" id="navHmeReportType"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Work Order</a>
-                            <div class="dropdown-menu dropdown-primary w-100" aria-labelledby="navHmeReportType"
-                                id="divHmeReportType">
-                                <a class="dropdown-item lnkHmeReportType" href="#" id="lnkHmeReportType_2">Work
-                                    Order</a>
-                                <a class="dropdown-item lnkHmeReportType" href="#" id="lnkHmeReportType_1">PPM</a>
+                <!-- Filter card: the one gems-form-grid. Five controls, but Date From
+                     and Date To are one logical range (.gems-field-pair), so this
+                     reads as four filters and needs no "More filters" collapse.
+                     Below 1600px the grid is a deterministic 2-up (never a 4-up
+                     in the 1400–1599 band); the pair keeps the dates on one row.
+                     Apply sits in .gems-field-actions, on the control baseline. -->
+                <div class="card gems-filter-card mb-3" id="homeFilters">
+                    <div class="card-body">
+                        <div class="gems-form-grid">
+                            <div class="gems-field gems-field-3 dropdown">
+                                <label class="form-label" for="navHmeReportType">Report Type</label>
+                                <!-- Native data-bs-toggle only. main_home.js replaces the
+                                     CHILDREN of #divHmeReportType, never the menu element
+                                     itself: Bootstrap 5 resolves the menu once, so swapping
+                                     the element would orphan the dropdown instance. -->
+                                <a class="btn btn-outline-secondary dropdown-toggle w-100" href="#" role="button"
+                                   id="navHmeReportType" data-bs-toggle="dropdown" aria-expanded="false">Work Order</a>
+                                <div class="dropdown-menu w-100" aria-labelledby="navHmeReportType" id="divHmeReportType">
+                                    <a class="dropdown-item lnkHmeReportType" href="#" id="lnkHmeReportType_2">Work Order</a>
+                                    <a class="dropdown-item lnkHmeReportType" href="#" id="lnkHmeReportType_1">PPM</a>
+                                </div>
+                            </div>
+                            <div class="gems-field gems-field-3 dropdown">
+                                <label class="form-label" for="navHmeClient">Client</label>
+                                <a class="btn btn-outline-secondary dropdown-toggle w-100" href="#" role="button"
+                                   id="navHmeClient" data-bs-toggle="dropdown" aria-expanded="false">Client</a>
+                                <div class="dropdown-menu w-100" aria-labelledby="navHmeClient" id="divHmeClient"></div>
+                            </div>
+                            <div class="gems-field gems-field-3 dropdown">
+                                <label class="form-label" for="navHmeSite">Site</label>
+                                <a class="btn btn-outline-secondary dropdown-toggle w-100" href="#" role="button"
+                                   id="navHmeSite" data-bs-toggle="dropdown" aria-expanded="false">Site</a>
+                                <div class="dropdown-menu w-100" aria-labelledby="navHmeSite" id="divHmeSite"></div>
+                            </div>
+                            <div class="gems-field-pair">
+                                <div class="gems-field">
+                                    <label class="form-label" for="txtHmeDateFrom">Date From</label>
+                                    <input type="date" id="txtHmeDateFrom" class="form-control">
+                                </div>
+                                <div class="gems-field">
+                                    <label class="form-label" for="txtHmeDateTo">Date To</label>
+                                    <input type="date" id="txtHmeDateTo" class="form-control">
+                                </div>
+                            </div>
+                            <div class="gems-field gems-field-3 gems-field-actions">
+                                <button type="button" id="btnHmeSearch" class="btn btn-primary">
+                                    <i class="fa fa-regular fa-magnifying-glass-arrows-rotate me-2"></i>Apply Filters
+                                </button>
                             </div>
                         </div>
-                        <div class="dropdown">
-                            <div class="filter-label">Client</div>
-                            <a class="btn btn-outline-secondary dropdown-toggle w-100" id="navHmeClient"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Client</a>
-                            <div class="dropdown-menu dropdown-primary w-100" aria-labelledby="navHmeClient"
-                                id="divHmeClient"></div>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mt-2 text-secondary" style="font-size:.75rem">
+                            <div id="lblHmeSelectedw"></div>
+                            <div id="lblHomeUpdated" class="ms-auto text-nowrap">
+                                <i class="far fa-clock me-1"></i>Last refreshed: <span>-</span>
+                            </div>
                         </div>
-                        <div class="dropdown">
-                            <div class="filter-label">Site</div>
-                            <a class="btn btn-outline-secondary dropdown-toggle w-100" id="navHmeSite"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Site</a>
-                            <div class="dropdown-menu dropdown-primary w-100" aria-labelledby="navHmeSite"
-                                id="divHmeSite"></div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; justify-content: center;">
-                            <div class="filter-label">Date From</div>
-                            <input type="text" id="txtHmeDateFrom" class="form-control datepicker"
-                                placeholder="Date From">
-                        </div>
-                        <div style="display: flex; flex-direction: column; justify-content: center;">
-                            <div class="filter-label">Date To</div>
-                            <input type="text" id="txtHmeDateTo" class="form-control datepicker" placeholder="Date To">
-                        </div>
-                        <div style="align-self:end; display:flex; gap:8px;">
-                            <button id="btnHmeSearch" class="btn btn-primary"><i
-                                    class="fa fa-regular fa-magnifying-glass-arrows-rotate mr-2"></i>Apply
-                                Filters</button>
-                        </div>
-                    </div>
-                    <div class="results-summary">
-                        <div id="lblHmeSelectedw"></div>
-                        <div id="lblHomeUpdated"><i class="far fa-clock mr-2"></i>Last refreshed: <span>-</span></div>
                     </div>
                 </div>
-                <div class="home-metrics divHmeTopStats_ppm">
-                    <div class="metric-card">
-                        <div class="metric-label">Total Assets</div>
-                        <div class="metric-value" id="lblHmeTotalAsset">0</div>
-                        <div class="metric-subtext">Total active asset • Current</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Total PPM</div>
-                        <div class="metric-value" id="lblHmeTotalPpm">-</div>
-                        <div class="metric-subtext" id="lblHmeTotalPpmTitle">&nbsp;</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Total Late PPM</div>
-                        <div class="metric-value" id="lblHmeTotalPpmLate">-</div>
-                        <div class="metric-subtext" id="lblHmeTotalPpmLateTitle">&nbsp;</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">% PPM Done</div>
-                        <div class="metric-value" id="lblHmePercPpmDone">-</div>
-                        <div class="metric-progress mb-2">
-                            <div class="bar" id="divBarHmePercAttendance" style="width:0%"></div>
+
+                <!-- Metric strip. main_home.js shows/hides the whole row by the
+                     .divHmeTopStats_ppm class, so that class stays on the wrapper. -->
+                <div class="row row-cards mb-3 divHmeTopStats_ppm">
+                    <div class="col-6 col-lg-3">
+                        <div class="card">
+                            <div class="card-body py-2">
+                                <div class="text-secondary" style="font-size:.75rem">Total Assets</div>
+                                <div class="h2 mb-0" id="lblHmeTotalAsset">0</div>
+                                <div class="text-secondary" style="font-size:.75rem">Total active asset &bull; Current</div>
+                            </div>
                         </div>
-                        <div class="metric-subtext" id="lblHmePercPpmDoneTitle">&nbsp;</div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card">
+                            <div class="card-body py-2">
+                                <div class="text-secondary" style="font-size:.75rem">Total PPM</div>
+                                <div class="h2 mb-0" id="lblHmeTotalPpm">-</div>
+                                <div class="text-secondary" style="font-size:.75rem" id="lblHmeTotalPpmTitle">&nbsp;</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card">
+                            <div class="card-body py-2">
+                                <div class="text-secondary" style="font-size:.75rem">Total Late PPM</div>
+                                <div class="h2 mb-0" id="lblHmeTotalPpmLate">-</div>
+                                <div class="text-secondary" style="font-size:.75rem" id="lblHmeTotalPpmLateTitle">&nbsp;</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card">
+                            <div class="card-body py-2">
+                                <div class="text-secondary" style="font-size:.75rem">% PPM Done</div>
+                                <div class="h2 mb-0" id="lblHmePercPpmDone">-</div>
+                                <!-- id stays on the width-driven bar element -->
+                                <div class="progress progress-sm mb-1">
+                                    <div class="progress-bar" id="divBarHmePercAttendance" style="width:0%"></div>
+                                </div>
+                                <div class="text-secondary" style="font-size:.75rem" id="lblHmePercPpmDoneTitle">&nbsp;</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="row" id="homeChartsRow">
-                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme1">
-                        <div class="home-card chart-card">
+
+                <div class="row row-cards mb-3" id="homeChartsRow">
+                    <div class="col-lg-6" id="colChartHme1">
+                        <div class="card chart-card">
                             <div class="chart-loading-overlay" id="overlayChartHme1">
                                 <div class="text-center">
-                                    <div class="spinner-border text-primary" role="status"
-                                        style="width: 2.5rem; height: 2.5rem;"></div>
-                                    <div class="mt-2 text-muted small">Loading…</div>
+                                    <div class="spinner-border text-primary" style="width:2.5rem;height:2.5rem"></div>
+                                    <div class="mt-2 text-secondary small">Loading&hellip;</div>
                                 </div>
                             </div>
                             <div class="card-body p-0">
@@ -306,13 +239,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme2">
-                        <div class="home-card chart-card">
+                    <div class="col-lg-6" id="colChartHme2">
+                        <div class="card chart-card">
                             <div class="chart-loading-overlay" id="overlayChartHme2">
                                 <div class="text-center">
-                                    <div class="spinner-border text-primary" role="status"
-                                        style="width: 2.5rem; height: 2.5rem;"></div>
-                                    <div class="mt-2 text-muted small">Loading…</div>
+                                    <div class="spinner-border text-primary" style="width:2.5rem;height:2.5rem"></div>
+                                    <div class="mt-2 text-secondary small">Loading&hellip;</div>
                                 </div>
                             </div>
                             <div class="card-body p-0">
@@ -320,13 +252,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme3">
-                        <div class="home-card chart-card">
+                    <div class="col-lg-6" id="colChartHme3">
+                        <div class="card chart-card">
                             <div class="chart-loading-overlay" id="overlayChartHme3">
                                 <div class="text-center">
-                                    <div class="spinner-border text-primary" role="status"
-                                        style="width: 2.5rem; height: 2.5rem;"></div>
-                                    <div class="mt-2 text-muted small">Loading…</div>
+                                    <div class="spinner-border text-primary" style="width:2.5rem;height:2.5rem"></div>
+                                    <div class="mt-2 text-secondary small">Loading&hellip;</div>
                                 </div>
                             </div>
                             <div class="card-body p-0">
@@ -334,13 +265,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme4">
-                        <div class="home-card chart-card">
+                    <div class="col-lg-6" id="colChartHme4">
+                        <div class="card chart-card">
                             <div class="chart-loading-overlay" id="overlayChartHme4">
                                 <div class="text-center">
-                                    <div class="spinner-border text-primary" role="status"
-                                        style="width: 2.5rem; height: 2.5rem;"></div>
-                                    <div class="mt-2 text-muted small">Loading…</div>
+                                    <div class="spinner-border text-primary" style="width:2.5rem;height:2.5rem"></div>
+                                    <div class="mt-2 text-secondary small">Loading&hellip;</div>
                                 </div>
                             </div>
                             <div class="card-body p-0">
@@ -348,13 +278,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme5">
-                        <div class="home-card chart-card">
+                    <div class="col-lg-6" id="colChartHme5">
+                        <div class="card chart-card">
                             <div class="chart-loading-overlay" id="overlayChartHme5">
                                 <div class="text-center">
-                                    <div class="spinner-border text-primary" role="status"
-                                        style="width: 2.5rem; height: 2.5rem;"></div>
-                                    <div class="mt-2 text-muted small">Loading…</div>
+                                    <div class="spinner-border text-primary" style="width:2.5rem;height:2.5rem"></div>
+                                    <div class="mt-2 text-secondary small">Loading&hellip;</div>
                                 </div>
                             </div>
                             <div class="card-body p-0">
@@ -362,13 +291,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-12 col-sm-12 mb-4" id="colChartHme6">
-                        <div class="home-card chart-card">
+                    <div class="col-lg-6" id="colChartHme6">
+                        <div class="card chart-card">
                             <div class="chart-loading-overlay" id="overlayChartHme6">
                                 <div class="text-center">
-                                    <div class="spinner-border text-primary" role="status"
-                                        style="width: 2.5rem; height: 2.5rem;"></div>
-                                    <div class="mt-2 text-muted small">Loading…</div>
+                                    <div class="spinner-border text-primary" style="width:2.5rem;height:2.5rem"></div>
+                                    <div class="mt-2 text-secondary small">Loading&hellip;</div>
                                 </div>
                             </div>
                             <div class="card-body p-0">
@@ -377,429 +305,341 @@
                         </div>
                     </div>
                 </div>
-        </div>
 
-        <div class="home-table-card" id="divHmeTable_wo">
-            <div class="table-header">
-                <h5>
-                    <i class="fas fa-clipboard-list"></i>
-                    Work Order List
-                </h5>
-                <div class="table-header-actions">
-                    <button type="button" class="btn-header" data-toggle="tooltip" data-placement="top"
-                        title="All Work Order list from selected criteria">
-                        <i class="fas fa-info-circle"></i>
-                    </button>
-                    <button type="button" id="btnDtHmeDataWoRefresh" class="btn-header" data-toggle="tooltip"
-                        data-placement="top" title="Refresh data">
-                        <i class="fas fa-sync"></i>
-                    </button>
-                    <div id="btnDtHmeDataWoExport"></div>
-                </div>
-            </div>
-            <div class="table-controls">
-                <div class="select-outline">
-                    <select id="optHmeDataWoColumns" class="mdb-select md-form md-outline colorful-select mt-0"
-                        multiple>
-                        <option value="" disabled>Choose Column Visibility</option>
-                        <option value="1" selected>Date</option>
-                        <option value="2">Request No.</option>
-                        <option value="3" selected>Work Order No.</option>
-                        <option value="4">Site</option>
-                        <option value="5">Location</option>
-                        <option value="6" selected>Complaint Type</option>
-                        <option value="7" selected>Complainant</option>
-                        <option value="8">Complaint Description</option>
-                        <option value="9" selected>Severity</option>
-                        <option value="10" selected>Trade</option>
-                        <option value="11">PIC Name</option>
-                        <option value="12">Repair Description</option>
-                        <option value="13">Rating</option>
-                        <option value="14" selected>Progress</option>
-                        <option value="15">Zone Code</option>
-                        <option value="16">Zone Name</option>
-                        <option value="23">Fixed By</option>
-                        <option value="24">Assigned By</option>
-                        <option value="25">Verified By</option>
-                        <option value="26">Complaint Time</option>
-                        <option value="27">Respond Duration</option>
-                        <option value="28">Assigned Time</option>
-                        <option value="29">Executed Time</option>
-                        <option value="30">Verified Time</option>
-                        <option value="32">Assistants</option>
-                    </select>
-                    <label for="optHmeDataWoColumns">Columns Visibility</label>
-                </div>
-                <div class="table-search-box">
-                    <form class="form-inline md-form form-sm mt-0 mb-0 pb-0">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtHmeDataWoSearch" class="form-control form-control-sm"
-                                style="width: 250px; max-width:250px">
-                            <label for="txtHmeDataWoSearch" class="ml-4">Search</label>
+                <!-- Work Order table card. One card, plain-text title, no gradient bar.
+                     Column visibility is the DataTables Buttons colvis control built in
+                     main_home.js, not an MDB multi-select. The .table-responsive wrapper
+                     and the .card-footer holding info + pagination are created by the
+                     `dom` string there, so pagination never scrolls sideways with the
+                     table on a phone (N10/M11). -->
+                <div class="card mb-3" id="divHmeTable_wo">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="fas fa-clipboard-list me-2 text-primary"></i>Work Order List</h3>
+                        <div class="gems-card-toolbar">
+                            <input type="search" id="txtHmeDataWoSearch" class="form-control form-control-sm gems-toolbar-search"
+                                   placeholder="Search work orders" aria-label="Search work orders">
+                            <div id="btnDtHmeDataWoExport"></div>
+                            <button type="button" id="btnDtHmeDataWoRefresh" class="btn gems-btn-action"
+                                    data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh work order list">
+                                <i class="fas fa-sync"></i>
+                            </button>
+                            <button type="button" class="btn gems-btn-action" data-bs-toggle="tooltip"
+                                    title="All Work Order list from selected criteria"
+                                    aria-label="All Work Order list from selected criteria">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
                         </div>
-                    </form>
-                </div>
-            </div>
-            <div class="table-body">
-                <div class="table-responsive">
-                    <table id="dtHmeDataWo" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0"
-                        width="100%">
+                    </div>
+                    <table id="dtHmeDataWo" class="table table-vcenter card-table table-hover mb-0" width="100%">
                         <thead>
-                            <tr class="th-strong">
-                                <th style="width: 4%">#</th>
-                                <th>Date</th>
-                                <th>Request No.</th>
-                                <th>Work Order No.</th>
-                                <th>Site</th>
-                                <th>Location</th>
-                                <th>Complaint Type</th>
-                                <th>Complainant</th>
-                                <th>Complaint Description</th>
-                                <th>Severity</th>
-                                <th>Trade</th>
-                                <th>PIC Name</th>
-                                <th>Repair Description</th>
-                                <th>Rating</th>
-                                <th style="width: 8%">Progress</th>
-                                <th>Zone Code</th>
-                                <th>Zone Name</th>
-                                <th style="width: 95px; min-width: 95px">Action</th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th>Fixed By</th>
-                                <th>Assigned By</th>
-                                <th>Verified By</th>
-                                <th>Complaint Time</th>
-                                <th>Respond Duration</th>
-                                <th>Assigned Time</th>
-                                <th>Executed Time</th>
-                                <th>Verified Time</th>
-                                <th></th>
-                                <th>Assistants</th>
-                            </tr>
+                        <tr>
+                            <th style="width: 4%">#</th>
+                            <th>Date</th>
+                            <th>Request No.</th>
+                            <th>Work Order No.</th>
+                            <th>Site</th>
+                            <th>Location</th>
+                            <th>Complaint Type</th>
+                            <th>Complainant</th>
+                            <th>Complaint Description</th>
+                            <th>Severity</th>
+                            <th>Trade</th>
+                            <th>PIC Name</th>
+                            <th>Repair Description</th>
+                            <th>Rating</th>
+                            <th style="width: 8%">Progress</th>
+                            <th>Zone Code</th>
+                            <th>Zone Name</th>
+                            <th style="width: 95px; min-width: 95px">Action</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>Fixed By</th>
+                            <th>Assigned By</th>
+                            <th>Verified By</th>
+                            <th>Complaint Time</th>
+                            <th>Respond Duration</th>
+                            <th>Assigned Time</th>
+                            <th>Executed Time</th>
+                            <th>Verified Time</th>
+                            <th></th>
+                            <th>Assistants</th>
+                        </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
-            </div>
-        </div>
 
-        <div class="home-table-card" id="divHmeTable_ppm">
-            <div class="table-header">
-                <h5>
-                    <i class="fas fa-tools"></i>
-                    PPM List
-                </h5>
-                <div class="table-header-actions">
-                    <button type="button" class="btn-header" data-toggle="tooltip" data-placement="top"
-                        title="All PPM list from selected criteria">
-                        <i class="fas fa-info-circle"></i>
-                    </button>
-                    <button type="button" id="btnDtHmeDataPpmRefresh" class="btn-header" data-toggle="tooltip"
-                        data-placement="top" title="Refresh data">
-                        <i class="fas fa-sync"></i>
-                    </button>
-                    <div id="btnDtHmeDataPpmExport"></div>
-                </div>
-            </div>
-            <div class="table-controls">
-                <div class="select-outline">
-                    <select id="optHmeDataPpmColumns" class="mdb-select md-form md-outline colorful-select mt-0"
-                        multiple>
-                        <option value="" disabled>Choose Column Visibility</option>
-                        <option value="1" selected>PPM Task No.</option>
-                        <option value="2" selected>Site</option>
-                        <option value="3" selected>Schedule Date</option>
-                        <option value="4" selected>Frequency</option>
-                        <option value="5">Document No.</option>
-                        <option value="6" selected>Asset No.</option>
-                        <option value="7">Asset Name</option>
-                        <option value="8" selected>Asset Group</option>
-                        <option value="9" selected>Asset Category</option>
-                        <option value="10" selected>Asset Type</option>
-                        <option value="11">Location Code</option>
-                        <option value="12">Location Description</option>
-                        <option value="13">Block</option>
-                        <option value="14">Level</option>
-                        <option value="15">Remark</option>
-                        <option value="16">Trade</option>
-                        <option value="17" selected>Executor</option>
-                        <option value="18">Reviewer</option>
-                        <option value="19">Verifier</option>
-                        <option value="20">Time Scan</option>
-                        <option value="21">Time Executed</option>
-                        <option value="22">Time Reviewed</option>
-                        <option value="23">Time Verified</option>
-                        <option value="24">Lateness</option>
-                        <option value="25">Minimum Execution Time</option>
-                        <option value="26">Maximum Execution Time</option>
-                        <option value="27" selected>Execution Time Status</option>
-                        <option value="28" selected>Progress</option>
-                    </select>
-                    <label for="optHmeDataPpmColumns">Columns Visibility</label>
-                </div>
-                <div class="table-search-box">
-                    <form class="form-inline md-form form-sm mt-0 mb-0 pb-0">
-                        <div class="">
-                            <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                            <input type="text" id="txtHmeDataPpmSearch" class="form-control form-control-sm"
-                                style="width: 250px; max-width:250px">
-                            <label for="txtHmeDataPpmSearch" class="ml-4">Search</label>
+                <div class="card mb-3" id="divHmeTable_ppm">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="fas fa-tools me-2 text-primary"></i>PPM List</h3>
+                        <div class="gems-card-toolbar">
+                            <input type="search" id="txtHmeDataPpmSearch" class="form-control form-control-sm gems-toolbar-search"
+                                   placeholder="Search PPM tasks" aria-label="Search PPM tasks">
+                            <div id="btnDtHmeDataPpmExport"></div>
+                            <button type="button" id="btnDtHmeDataPpmRefresh" class="btn gems-btn-action"
+                                    data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh PPM list">
+                                <i class="fas fa-sync"></i>
+                            </button>
+                            <button type="button" class="btn gems-btn-action" data-bs-toggle="tooltip"
+                                    title="All PPM list from selected criteria"
+                                    aria-label="All PPM list from selected criteria">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
                         </div>
-                    </form>
-                </div>
-            </div>
-            <div class="table-body">
-                <div class="table-responsive">
-                    <table id="dtHmeDataPpm" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0"
-                        width="100%">
+                    </div>
+                    <table id="dtHmeDataPpm" class="table table-vcenter card-table table-hover mb-0" width="100%">
                         <thead>
-                            <tr class="th-strong">
-                                <th style="width: 4%">#</th>
-                                <th>PPM Task No.</th>
-                                <th>Site</th>
-                                <th>Schedule Date</th>
-                                <th>Frequency</th>
-                                <th>Document No.</th>
-                                <th>Asset No.</th>
-                                <th>Asset Name</th>
-                                <th>Asset Group</th>
-                                <th>Asset Category</th>
-                                <th>Asset Type</th>
-                                <th>Location Code</th>
-                                <th>Location Description</th>
-                                <th>Block</th>
-                                <th>Level</th>
-                                <th>Remark</th>
-                                <th>Trade</th>
-                                <th>Executor</th>
-                                <th>Reviewer</th>
-                                <th>Verifier</th>
-                                <th>Time Scan</th>
-                                <th>Time Executed</th>
-                                <th>Time Reviewed</th>
-                                <th>Time Verified</th>
-                                <th>Lateness</th>
-                                <th>Min Execution Time</th>
-                                <th>Max Execution Time</th>
-                                <th>Execution Status</th>
-                                <th style="width: 8%">Progress</th>
-                                <th style="width: 30px; min-width: 30px"></th>
-                            </tr>
+                        <tr>
+                            <th style="width: 4%">#</th>
+                            <th>PPM Task No.</th>
+                            <th>Site</th>
+                            <th>Schedule Date</th>
+                            <th>Frequency</th>
+                            <th>Document No.</th>
+                            <th>Asset No.</th>
+                            <th>Asset Name</th>
+                            <th>Asset Group</th>
+                            <th>Asset Category</th>
+                            <th>Asset Type</th>
+                            <th>Location Code</th>
+                            <th>Location Description</th>
+                            <th>Block</th>
+                            <th>Level</th>
+                            <th>Remark</th>
+                            <th>Trade</th>
+                            <th>Executor</th>
+                            <th>Reviewer</th>
+                            <th>Verifier</th>
+                            <th>Time Scan</th>
+                            <th>Time Executed</th>
+                            <th>Time Reviewed</th>
+                            <th>Time Verified</th>
+                            <th>Lateness</th>
+                            <th>Min Execution Time</th>
+                            <th>Max Execution Time</th>
+                            <th>Execution Status</th>
+                            <th style="width: 8%">Progress</th>
+                            <th style="width: 30px; min-width: 30px"></th>
+                        </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
                 </div>
+
             </div>
         </div>
-        </section>
-        </div>
+    </div>
+</div>
 
-        <div class="includeHtml" id="h-section_task_history"></div>
-        <div class="includeHtml" id="h-modal_change_password"></div>
-        <div class="includeHtml" id="h-modal_confirm_delete"></div>
-        <div class="includeHtml" id="h-modal_pdf"></div>
-        <div class="includeHtml" id="h-modal_wo_reassign"></div>
-        <div class="includeHtml" id="h-modal_wo_edit"></div>
+<!-- Shared fragments. section_task_history, modal_pdf, modal_wo_reassign,
+     modal_wo_edit, modal_change_password and modal_confirm_delete are still on
+     unmigrated MDB pages, so they convert in their own wave (P4/P5). Until then
+     gems-theme.css section 12 keeps them legible here. -->
+<div class="includeHtml" id="h-section_task_history"></div>
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
+<div class="includeHtml" id="h-modal_wo_reassign"></div>
+<div class="includeHtml" id="h-modal_wo_edit"></div>
 
-        <!-- Export progress (chunked load for large WO/PPM lists) -->
-        <div class="modal fade" id="modalExportProgress" tabindex="-1" role="dialog" aria-labelledby="modalExportProgressTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-                <div class="modal-content">
-                    <div class="modal-header py-2">
-                        <h5 class="modal-title" id="modalExportProgressTitle">
-                            <i class="fas fa-file-excel mr-1"></i> Preparing Export
-                        </h5>
-                    </div>
-                    <div class="modal-body text-center px-3 pb-3">
-                        <p id="exportProgressLabel" class="mb-2 small text-muted">Waiting for server…</p>
-                        <div id="exportProgressTrack" class="progress export-progress-track mb-2 is-waiting">
-                            <div id="exportProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-info"
-                                 role="progressbar" style="width: 40%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <p id="exportProgressDetail" class="mb-0 small">
-                            <span id="exportProgressDetailText">Connecting to server…</span>
-                            <span id="exportProgressCounts" class="d-none">
-                                Loaded <strong id="exportLoadedCount">0</strong> /
-                                <strong id="exportTotalCount">0</strong>
-                                &nbsp;(<strong id="exportRemainingCount">0</strong> remaining)
-                            </span>
-                        </p>
-                    </div>
-                    <div class="modal-footer py-2 justify-content-center">
-                        <button type="button" class="btn btn-sm btn-outline-danger" id="btnExportProgressCancel">Cancel</button>
-                    </div>
+<!-- Export progress (chunked load for large WO/PPM lists).
+     Written with data-bs-* now that the page is migrated; the shim also maps the
+     legacy data-backdrop / data-keyboard pair, but there is no reason to rely on
+     it here. Static backdrop + keyboard:false behaviour is unchanged. -->
+<div class="modal fade" id="modalExportProgress" tabindex="-1" aria-labelledby="modalExportProgressTitle"
+     aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered gems-modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalExportProgressTitle">
+                    <i class="fas fa-file-excel me-2"></i>Preparing Export
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                <p id="exportProgressLabel" class="mb-2 small text-secondary">Waiting for server&hellip;</p>
+                <div id="exportProgressTrack" class="progress export-progress-track mb-2 is-waiting">
+                    <div id="exportProgressBar" class="progress-bar progress-bar-striped progress-bar-animated"
+                         role="progressbar" style="width: 40%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
+                <p id="exportProgressDetail" class="mb-0 small text-secondary">
+                    <span id="exportProgressDetailText">Connecting to server&hellip;</span>
+                    <span id="exportProgressCounts" class="d-none">
+                        Loaded <strong id="exportLoadedCount">0</strong> /
+                        <strong id="exportTotalCount">0</strong>
+                        &nbsp;(<strong id="exportRemainingCount">0</strong> remaining)
+                    </span>
+                </p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-sm btn-outline-danger" id="btnExportProgressCancel">Cancel</button>
             </div>
         </div>
-    </main>
+    </div>
+</div>
 
-    <!-- SCRIPTS -->
-    <script type="text/javascript">
-        $('.includeHtml').each(function () {
-            const divId = $(this).attr('id');
-            $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-        });
-    </script>
+<!--  SCRIPTS — order is load-bearing, see html/scripts_tabler.html  -->
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
 
-    <!-- Bootstrap tooltips -->
-    <script type="text/javascript" src="js/popper.min.js"></script>
-    <!-- Bootstrap core JavaScript -->
-    <script type="text/javascript" src="js/bootstrap.js"></script>
-    <!-- MDB core JavaScript -->
-    <script type="text/javascript" src="js/mdb.js"></script>
-    <!-- Crypto JS -->
-    <script type="text/javascript" src="js/addons/crypto.js"></script>
-    <!-- DataTables.net -->
-    <script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-    <script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-    <script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-    <script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-    <script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-    <script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-    <script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-    <!-- Highchart -->
-    <script type="text/javascript" src="js/vendor/highcharts/highcharts.js?1"></script>
-    <script type="text/javascript" src="js/vendor/highcharts/modules/data.js?1"></script>
-    <script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js?1"></script>
-    <script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js?1"></script>
-    <script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js?1"></script>
-    <script type="text/javascript">
-        // Force a light theme (white background) for charts, including fullscreen and exports
-        try {
-            Highcharts.setOptions({
-                chart: { backgroundColor: '#ffffff', style: { fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif' } },
-                colors: ['#0055b8', '#00ada8', '#22C55E', '#F59E0B', '#EF4444', '#94A3B8'],
-                title: { style: { color: '#0F172A', fontWeight: '700' } },
-                subtitle: { style: { color: '#64748B' } },
-                xAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } }, title: { style: { color: '#64748B' } } },
-                yAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } }, title: { style: { color: '#64748B' } } },
-                legend: { itemStyle: { color: '#334155', fontWeight: '500' } },
-                tooltip: { borderColor: '#e2e8f0', backgroundColor: 'rgba(255,255,255,0.95)', style: { color: '#0F172A' } },
-                exporting: {
-                    chartOptions: {
-                        chart: { backgroundColor: '#ffffff' },
-                        xAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } } },
-                        yAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } } },
-                        legend: { itemStyle: { color: '#334155' } }
-                    }
-                },
-                plotOptions: {
-                    series: { marker: { enabled: false, states: { hover: { enabled: true } } } },
-                    column: { borderRadius: 4, pointPadding: 0.05, groupPadding: 0.08 },
-                    area: { fillOpacity: 0.25 }
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+
+<!-- MDB is not loaded, so toastr must be explicit or every toastr[...] call throws -->
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+
+<!-- page extras: Buttons exports + column visibility, Highcharts, moment -->
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/highcharts/highcharts.js?1"></script>
+<script src="js/vendor/highcharts/modules/data.js?1"></script>
+<script src="js/vendor/highcharts/modules/drilldown.js?1"></script>
+<script src="js/vendor/highcharts/modules/exporting.js?1"></script>
+<script src="js/vendor/highcharts/modules/export-data.js?1"></script>
+
+<script type="text/javascript">
+    $('.includeHtml').each(function () {
+        const divId = $(this).attr('id');
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+    });
+</script>
+
+<script type="text/javascript">
+    // Force a light theme (white background) for charts, including fullscreen and exports
+    try {
+        Highcharts.setOptions({
+            chart: { backgroundColor: '#ffffff', style: { fontFamily: 'Poppins, Lato, system-ui, -apple-system, Segoe UI, sans-serif' } },
+            colors: ['#0055b8', '#00ada8', '#22C55E', '#F59E0B', '#EF4444', '#94A3B8'],
+            title: { style: { color: '#0F172A', fontWeight: '700' } },
+            subtitle: { style: { color: '#64748B' } },
+            xAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } }, title: { style: { color: '#64748B' } } },
+            yAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } }, title: { style: { color: '#64748B' } } },
+            legend: { itemStyle: { color: '#334155', fontWeight: '500' } },
+            tooltip: { borderColor: '#e2e8f0', backgroundColor: 'rgba(255,255,255,0.95)', style: { color: '#0F172A' } },
+            exporting: {
+                chartOptions: {
+                    chart: { backgroundColor: '#ffffff' },
+                    xAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } } },
+                    yAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } } },
+                    legend: { itemStyle: { color: '#334155' } }
                 }
-            });
-        } catch (e) { /* Highcharts not ready yet; ignore */ }
-        // Helper to update the "Last refreshed" label
-        window.__homeSetUpdated = function () { try { document.querySelector('#lblHomeUpdated span').textContent = new Date().toLocaleString(); } catch (e) { } };
-    </script>
-    <!-- Stepper JavaScript - minified -->
-    <script type="text/javascript" src="js/addons-pro/stepper.min.js"></script>
-    <!-- Moment JavaScript -->
-    <script type="text/javascript" src="js/addons/moment.min.js"></script>
-
-    <!--Custom scripts-->
-    <script type="text/javascript">
-        document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
-        let versionLocal_;
-        let changePasswordClass_;
-        let modalConfirmDelete_;
-        let modalWoReassignClass_;
-        let modalWoEditClass_;
-        let sectionTaskHistoryClass_;
-        let homeClass_;
-
-        $('.divHmeTopStats_ppm').hide();
-
-        document.addEventListener('DOMContentLoaded', function () {
-
-            ShowLoader();
-            setTimeout(function () {
-                try {
-                    $('.datepicker').pickadate({
-                        clear: ''
-                    });
-                    initiatePages();
-                    versionLocal_ = mzGetDataVersion();
-                    changePasswordClass_ = new ModalChangePassword();
-                    modalConfirmDelete_ = new ModalConfirmDelete();
-                    modalWoReassignClass_ = new ModalWoReassign();
-                    modalWoEditClass_ = new ModalWoEdit();
-                    homeClass_ = new MainHome();
-                    sectionTaskHistoryClass_ = new SectionTaskHistory();
-
-                    const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
-                    const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
-                    const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
-                    const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
-                    const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
-                    const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
-                    const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
-                    const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
-                    const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                    const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
-                    const refFlow_ = mzGetLocalArray('gems_flow', versionLocal_, 'flowId');
-                    const refCheckpoint_ = mzGetLocalArray('gems_checkpoint', versionLocal_, 'checkpointId');
-
-                    modalWoReassignClass_.setRefUser(refUser_);
-                    modalWoReassignClass_.setRefPpmGroup(refPpmGroup_);
-                    modalWoReassignClass_.setClassFrom(homeClass_);
-                    modalWoReassignClass_.init();
-
-                    modalWoEditClass_.setRefUser(refUser_);
-                    modalWoEditClass_.setRefPpmGroup(refPpmGroup_);
-                    modalWoEditClass_.setRefStatus(refStatus_);
-                    modalWoEditClass_.setClassFrom(homeClass_);
-                    modalWoEditClass_.init();
-
-                    sectionTaskHistoryClass_.setRefStatus(refStatus_);
-                    sectionTaskHistoryClass_.setRefRole(refRole_);
-                    sectionTaskHistoryClass_.setRefUser(refUser_);
-                    sectionTaskHistoryClass_.setRefFlow(refFlow_);
-                    sectionTaskHistoryClass_.setRefCheckpoint(refCheckpoint_);
-                    sectionTaskHistoryClass_.setClassFrom(homeClass_);
-                    sectionTaskHistoryClass_.init();
-
-                    homeClass_.setRefClient(refClient_);
-                    homeClass_.setRefSite(refSite_);
-                    homeClass_.setRefContract(refContract_);
-                    homeClass_.setRefUser(refUser_);
-                    homeClass_.setRefPpmGroup(refPpmGroup_);
-                    homeClass_.setRefAssetGroup(refAssetGroup_);
-                    homeClass_.setRefAssetCategory(refAssetCategory_);
-                    homeClass_.setRefAssetType(refAssetType_);
-                    homeClass_.setRefStatus(refStatus_);
-                    homeClass_.setRefRole(refRole_);
-                    homeClass_.setRefFlow(refFlow_);
-                    homeClass_.setRefCheckpoint(refCheckpoint_);
-                    homeClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                    homeClass_.setModalWoReassignClass(modalWoReassignClass_);
-                    homeClass_.setModalWoEditClass(modalWoEditClass_);
-                    homeClass_.setSectionTaskHistoryClass(sectionTaskHistoryClass_);
-                    homeClass_.init();
-                } catch (e) {
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                }
-
-                HideLoader();
-            }, 300);
+            },
+            plotOptions: {
+                series: { marker: { enabled: false, states: { hover: { enabled: true } } } },
+                column: { borderRadius: 4, pointPadding: 0.05, groupPadding: 0.08 },
+                area: { fillOpacity: 0.25 }
+            }
         });
+    } catch (e) { /* Highcharts not ready yet; ignore */ }
+    // Helper to update the "Last refreshed" label
+    window.__homeSetUpdated = function () { try { document.querySelector('#lblHomeUpdated span').textContent = new Date().toLocaleString(); } catch (e) { } };
+</script>
 
-        document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-        document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-        document.write('<scr' + 'ipt src="js/pages/modal_wo_reassign.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-        document.write('<scr' + 'ipt src="js/pages/modal_wo_edit.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-        document.write('<scr' + 'ipt src="js/pages/section_task_history.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-        document.write('<scr' + 'ipt src="js/pages/main_home.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+<!--Custom scripts-->
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-    </script>
+    let versionLocal_;
+    let changePasswordClass_;
+    let modalConfirmDelete_;
+    let modalWoReassignClass_;
+    let modalWoEditClass_;
+    let sectionTaskHistoryClass_;
+    let homeClass_;
+
+    $('.divHmeTopStats_ppm').hide();
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        ShowLoader();
+        setTimeout(function () {
+            try {
+                // No $('.datepicker').pickadate() here: the date filters are native
+                // <input type="date"> and common.js's mzDateFromTo / mzSetDate /
+                // mzConvertDate take their native branch when pickadate is absent.
+                initiatePages();
+                versionLocal_ = mzGetDataVersion();
+                changePasswordClass_ = new ModalChangePassword();
+                modalConfirmDelete_ = new ModalConfirmDelete();
+                modalWoReassignClass_ = new ModalWoReassign();
+                modalWoEditClass_ = new ModalWoEdit();
+                homeClass_ = new MainHome();
+                sectionTaskHistoryClass_ = new SectionTaskHistory();
+
+                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+                const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
+                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+                const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
+                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+                const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
+                const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
+                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+                const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
+                const refFlow_ = mzGetLocalArray('gems_flow', versionLocal_, 'flowId');
+                const refCheckpoint_ = mzGetLocalArray('gems_checkpoint', versionLocal_, 'checkpointId');
+
+                modalWoReassignClass_.setRefUser(refUser_);
+                modalWoReassignClass_.setRefPpmGroup(refPpmGroup_);
+                modalWoReassignClass_.setClassFrom(homeClass_);
+                modalWoReassignClass_.init();
+
+                modalWoEditClass_.setRefUser(refUser_);
+                modalWoEditClass_.setRefPpmGroup(refPpmGroup_);
+                modalWoEditClass_.setRefStatus(refStatus_);
+                modalWoEditClass_.setClassFrom(homeClass_);
+                modalWoEditClass_.init();
+
+                sectionTaskHistoryClass_.setRefStatus(refStatus_);
+                sectionTaskHistoryClass_.setRefRole(refRole_);
+                sectionTaskHistoryClass_.setRefUser(refUser_);
+                sectionTaskHistoryClass_.setRefFlow(refFlow_);
+                sectionTaskHistoryClass_.setRefCheckpoint(refCheckpoint_);
+                sectionTaskHistoryClass_.setClassFrom(homeClass_);
+                sectionTaskHistoryClass_.init();
+
+                homeClass_.setRefClient(refClient_);
+                homeClass_.setRefSite(refSite_);
+                homeClass_.setRefContract(refContract_);
+                homeClass_.setRefUser(refUser_);
+                homeClass_.setRefPpmGroup(refPpmGroup_);
+                homeClass_.setRefAssetGroup(refAssetGroup_);
+                homeClass_.setRefAssetCategory(refAssetCategory_);
+                homeClass_.setRefAssetType(refAssetType_);
+                homeClass_.setRefStatus(refStatus_);
+                homeClass_.setRefRole(refRole_);
+                homeClass_.setRefFlow(refFlow_);
+                homeClass_.setRefCheckpoint(refCheckpoint_);
+                homeClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+                homeClass_.setModalWoReassignClass(modalWoReassignClass_);
+                homeClass_.setModalWoEditClass(modalWoEditClass_);
+                homeClass_.setSectionTaskHistoryClass(sectionTaskHistoryClass_);
+                homeClass_.init();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+
+            HideLoader();
+        }, 300);
+    });
+
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_wo_reassign.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_wo_edit.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/section_task_history.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_home.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+</script>
 
 </body>
 

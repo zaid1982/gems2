@@ -82,6 +82,13 @@ const mzExportExcelOpt = {
 };
 
 function ShowLoader() {
+    // The MDB markup below is styled only by css/mdb.min.css, which Tabler pages do
+    // not load — the overlay would show as a blank white sheet. Same dual-output
+    // pattern as mzBuildNotificationRow(); the id stays so HideLoader() is shared.
+    if (mzIsTablerPage()) {
+        jQuery('<div id="loading-overlay" role="status" aria-live="polite" aria-label="Loading" style="position: fixed; inset: 0; background-color: rgba(255, 255, 255, 0.6); z-index: 10000; display: flex; align-items: center; justify-content: center;"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div></div>').appendTo(document.body);
+        return;
+    }
     let overlay = jQuery('<div id="loading-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.6); z-index: 10000;"><div style="text-align: center; width: 100%; position: absolute; top: 40%; margin-top: -50px;"> <div class="preloader-wrapper big active"> <div class="spinner-layer spinner-blue"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-red"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-yellow"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> <div class="spinner-layer spinner-green"> <div class="circle-clipper left"> <div class="circle"></div> </div><div class="gap-patch"> <div class="circle"></div> </div><div class="circle-clipper right"> <div class="circle"></div> </div> </div> </div> </div> </div>');
     overlay.appendTo(document.body);
 }
@@ -441,10 +448,17 @@ function MzValidate(name) {
                 $('#' + fieldId + 'Pre').removeClass('active');
             }
             else if (u.type === 'select') {
-                fieldSelector.materialSelect('destroy');
+                // materialSelect only exists when MDB is loaded. Same guard as
+                // mzOptionStop*; on Tabler pages the native select needs no re-init.
+                const hasMaterialSelect = typeof fieldSelector.materialSelect === 'function';
+                if (hasMaterialSelect) {
+                    fieldSelector.materialSelect('destroy');
+                }
                 fieldSelector.val(null);
                 fieldLblSelector.removeClass('active');
-                fieldSelector.materialSelect();
+                if (hasMaterialSelect) {
+                    fieldSelector.materialSelect();
+                }
                 $('#' + fieldId + 'Pre').removeClass('active');
                 //$('.mdb-select').materialSelect('destroy');
                 //$('#' + fieldId).val(null).trigger( 'click');
@@ -818,6 +832,66 @@ function mzGoToMenu(url, navId, navSecondId) {
     window.location.href = url;
 }
 
+function mzNavPageKey(str) {
+    if (str === null || typeof str === 'undefined' || str === '') {
+        return '';
+    }
+    let value = String(str).split('#')[0].split('?')[0];
+    const slash = value.lastIndexOf('/');
+    if (slash !== -1) {
+        value = value.substring(slash + 1);
+    }
+    value = value.toLowerCase();
+    if (value.slice(-5) === '.html') {
+        value = value.slice(0, -5);
+    }
+    if (value.indexOf('p_') === 0) {
+        value = value.substring(2);
+    }
+    return value;
+}
+
+function mzResolveNavByLocation(menuSet, navId, navSecondId) {
+    const currentKey = mzNavPageKey(window.location.pathname);
+    const storedNavId = navId === null ? '' : String(navId);
+    const storedNavSecondId = navSecondId === null ? '' : String(navSecondId);
+    let storedMatches = false;
+    let childMatch = null;
+    let parentMatch = null;
+
+    $.each(menuSet, function (n, nav) {
+        const parentId = String(nav['navId']);
+        const parentKey = mzNavPageKey(nav['navPage']);
+        if (parentId === storedNavId && storedNavSecondId === '0' && parentKey !== '' && parentKey === currentKey) {
+            storedMatches = true;
+        }
+        if (parentKey !== '' && parentKey === currentKey && parentMatch === null) {
+            parentMatch = { navId: parentId, navSecondId: '0' };
+        }
+        $.each(nav['navSecond'] || [], function (n2, nav2nd) {
+            const childId = String(nav2nd['navSecondId']);
+            const childKey = mzNavPageKey(nav2nd['navSecondPage']);
+            if (parentId === storedNavId && childId === storedNavSecondId && childKey !== '' && childKey === currentKey) {
+                storedMatches = true;
+            }
+            if (childKey !== '' && childKey === currentKey && childMatch === null) {
+                childMatch = { navId: parentId, navSecondId: childId };
+            }
+        });
+    });
+
+    if (storedMatches) {
+        return { navId: storedNavId, navSecondId: storedNavSecondId };
+    }
+    if (childMatch) {
+        return childMatch;
+    }
+    if (parentMatch) {
+        return parentMatch;
+    }
+    return { navId: storedNavId, navSecondId: storedNavSecondId };
+}
+
 function mzIsTablerPage() {
     return !!(document.body && document.body.classList.contains('gems-tabler'));
 }
@@ -1009,7 +1083,12 @@ function initiatePages() {
         window.location.href = 'p_login?f=1';
     }
 
-    const built = mzBuildNavMenu(userInfo.menu, navId, navSecondId);
+    const resolvedNav = mzResolveNavByLocation(userInfo.menu, navId, navSecondId);
+    if (resolvedNav.navId !== String(navId) || resolvedNav.navSecondId !== String(navSecondId)) {
+        sessionStorage.setItem('navId', resolvedNav.navId);
+        sessionStorage.setItem('navSecondId', resolvedNav.navSecondId);
+    }
+    const built = mzBuildNavMenu(userInfo.menu, resolvedNav.navId, resolvedNav.navSecondId);
     $('#ulNavLeft').append(built.menuHtml);
     $('#pBasePageTitle').append(built.titleHtml);
     if (!isTabler) {
@@ -1063,7 +1142,45 @@ function mzGetProfile() {
     return JSON.parse(objEncrypted);
 }
 
+/* --------------------------------------------------------------------------
+   Date helpers: pickadate on MDB pages, native <input type="date"> on Tabler
+   pages. Migrated pages do not load MDB, so $.fn.pickadate is undefined there.
+   The guard is on the PLUGIN, not on mzIsTablerPage(): the question is whether
+   the widget exists, and MDB pages always have it, so their path is unchanged.
+   -------------------------------------------------------------------------- */
+function mzHasPickadate() {
+    return typeof $.fn.pickadate === 'function';
+}
+
+function mzPad2(n) {
+    return (n < 10 ? '0' : '') + n;
+}
+
+// month is 0-based, matching the Date/pickadate convention used by callers.
+function mzApplyDateValue($input, year, month, day) {
+    if (mzHasPickadate()) {
+        $input.pickadate('set').set('select', new Date(year, month, day));
+        return;
+    }
+    $input.val(year + '-' + mzPad2(month + 1) + '-' + mzPad2(day)).trigger('change');
+}
+
 function mzDateFromTo(startId, endId) {
+    if (!mzHasPickadate()) {
+        // Native equivalent of the pickadate min/max linkage below.
+        const $from = $('#'+startId);
+        const $to = $('#'+endId);
+        const syncBounds = function () {
+            const fromVal = $from.val();
+            const toVal = $to.val();
+            if (fromVal) { $to.attr('min', fromVal); } else { $to.removeAttr('min'); }
+            if (toVal) { $from.attr('max', toVal); } else { $from.removeAttr('max'); }
+        };
+        $from.off('change.gemsDateRange').on('change.gemsDateRange', syncBounds);
+        $to.off('change.gemsDateRange').on('change.gemsDateRange', syncBounds);
+        syncBounds();
+        return;
+    }
     // Get the elements
     let from_input = $('#'+startId).pickadate(),
     from_picker = from_input.pickadate('picker');
@@ -1096,6 +1213,11 @@ function mzDateFromTo(startId, endId) {
 }
 
 function mzDateFromToReset(startId, endId) {
+    if (!mzHasPickadate()) {
+        $('#'+endId).removeAttr('min');
+        $('#'+startId).removeAttr('max');
+        return;
+    }
     // Get the elements
     const from_input = $('#'+startId).pickadate();
     let from_picker = from_input.pickadate('picker');
@@ -1123,6 +1245,11 @@ function mzDateEnable(dateId, dateStr) {
 function mzConvertDate(dateInput) {
     if (typeof dateInput === 'undefined' || dateInput === '') {
         return '';
+    }
+    // Native <input type="date"> already yields the target format. pickadate's
+    // display value is "1 January 2026", so MDB pages never match this.
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+        return dateInput;
     }
     let dateNew = '';
     const dateSplit = dateInput.split(" ");
@@ -1933,14 +2060,16 @@ function mzSetFieldValue(name, value, type, label, isInit) {
     }
 
     if (type === 'select') {
-        if (typeof isInit === 'undefined') {
-            $('#opt'+name).materialSelect('destroy');
+        const $optSel = $('#opt'+name);
+        const reInit = typeof isInit === 'undefined' && typeof $optSel.materialSelect === 'function';
+        if (reInit) {
+            $optSel.materialSelect('destroy');
         }
-        $('#opt'+name).val(value);
+        $optSel.val(value);
         //$('#opt' + name).prevAll('.select-dropdown').children('li:contains('+value+')').trigger('click');
         $('#lbl'+name).addClass('active');
-        if (typeof isInit === 'undefined') {
-            $('#opt'+name).materialSelect();
+        if (reInit) {
+            $optSel.materialSelect();
         }
         $('#opt' + name + 'Pre').addClass('active');
     }
@@ -1980,7 +2109,7 @@ function mzSetFieldValue(name, value, type, label, isInit) {
             const day = parseInt(dateSplit[2]);
             const month = parseInt(dateSplit[1])-1;
             const year = parseInt(dateSplit[0]);
-            $('#txt'+name).pickadate('set').set('select', new Date(year, month, day));
+            mzApplyDateValue($('#txt'+name), year, month, day);
         } else if (type === 'date2') {
             const dateSplit = value.split("-");
             if (dateSplit.length !== 3) {
@@ -1989,7 +2118,7 @@ function mzSetFieldValue(name, value, type, label, isInit) {
             const day = parseInt(dateSplit[2]);
             const month = parseInt(dateSplit[1])-1;
             const year = parseInt(dateSplit[0]);
-            $('#txt'+name).pickadate('set').set('select', new Date(year, month, day));
+            mzApplyDateValue($('#txt'+name), year, month, day);
         }
         else if (type === 'summernote') {
             $('#txa'+name).summernote('code', value);
@@ -2006,6 +2135,10 @@ function mzSetDate(id, dateInput) {
         let day = parseInt(dateSplit[2]);
         let month = parseInt(dateSplit[1]);
         let year = parseInt(dateSplit[0]);
+        if (!mzHasPickadate()) {
+            $('#'+id).val(year + '-' + mzPad2(month) + '-' + mzPad2(day)).trigger('change');
+            return;
+        }
         const picker_input = $('#'+id).pickadate();
         let picker_value = picker_input.pickadate('picker');
         picker_value.set('select', [year, month-1, day]);
@@ -2115,9 +2248,14 @@ function mzDisableSelect(fieldId, disable) {
     if (disable) {
         selector.addClass('grey lighten-4');
     }
-    selector.materialSelect('destroy');
+    const hasMaterialSelect = typeof selector.materialSelect === 'function';
+    if (hasMaterialSelect) {
+        selector.materialSelect('destroy');
+    }
     selector.prop('disabled', disable);
-    selector.materialSelect({visibleOptions: 15});
+    if (hasMaterialSelect) {
+        selector.materialSelect({visibleOptions: 15});
+    }
 }
 
 function mzCheckFuncParam (arrParam) {

@@ -239,7 +239,8 @@
         <section class="cat-section" id="sec-controls">
           <h2>2. Controls — one height, one border, visible labels only</h2>
           <p class="cat-note">
-            Text, select, date and textarea share border, radius, height and focus ring.
+            Text, select, date, textarea and filter dropdown toggles share border, radius,
+            height (<code>--gems-control-h</code>, 38px) and focus ring.
             Label is always above the control. No floating labels, no <code>.md-form</code>.
           </p>
           <div class="row g-3">
@@ -262,10 +263,15 @@
                     <label class="form-label" for="catDate">Expiry date</label>
                     <input type="date" class="form-control" id="catDate">
                   </div>
-                  <div class="gems-field gems-field-6">
-                    <label class="form-label" for="catRef">Reference no.</label>
-                    <input type="text" class="form-control" id="catRef">
-                    <div class="gems-field-help">Optional. Printed on the compliance report.</div>
+                  <div class="gems-field gems-field-6 dropdown">
+                    <label class="form-label" for="catReportType">Report type</label>
+                    <a class="btn btn-outline-secondary dropdown-toggle w-100" href="#" role="button"
+                       id="catReportType" data-bs-toggle="dropdown" aria-expanded="false">Work Order</a>
+                    <div class="dropdown-menu w-100" aria-labelledby="catReportType">
+                      <a class="dropdown-item" href="#">Work Order</a>
+                      <a class="dropdown-item" href="#">PPM</a>
+                    </div>
+                    <div class="gems-field-help">Filter dropdowns are the same 38px control as the select and text input, not a 40px Tabler button.</div>
                   </div>
                   <div class="gems-field gems-field-12">
                     <label class="form-label" for="catRemarks">Remarks</label>
@@ -525,8 +531,8 @@
           <!-- Variant that exercises the rule the layout above cannot: when the
                actions cell SHARES a row with a labelled field, the grid's
                align-items:start would pin it to the label baseline. Three
-               span-3 filters plus span-3 actions share a row at every breakpoint
-               (4-up wide, 2-up on a laptop), so the baseline is always under test. -->
+               span-3 filters plus span-3 actions share a row at 1600+ (4-up)
+               and sit 2-up below that token, so the baseline is always under test. -->
           <p class="cat-note mb-1">
             <strong>Inline variant.</strong> Fewer filters, actions in the last cell of the
             same row. The buttons must sit on the <strong>control</strong> baseline, level with
@@ -560,6 +566,38 @@
               </div>
             </div>
           </div>
+          <p class="cat-note mb-1">
+            <strong>Date-range pair.</strong> Date From and Date To are one logical filter.
+            Wrap them in <code>gems-field-pair</code> (span 6) so they never split across
+            rows on a 13-inch pane. Do not give the inner fields their own
+            <code>gems-field-N</code> span.
+          </p>
+          <div class="card gems-filter-card mb-2" id="catDatePairCard">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="fltPairSite">Site</label>
+                  <select class="form-select" id="fltPairSite">
+                    <option>All sites</option>
+                    <option>Menara GFM</option>
+                  </select>
+                </div>
+                <div class="gems-field-pair">
+                  <div class="gems-field">
+                    <label class="form-label" for="fltPairFrom">Date From</label>
+                    <input type="date" class="form-control" id="fltPairFrom">
+                  </div>
+                  <div class="gems-field">
+                    <label class="form-label" for="fltPairTo">Date To</label>
+                    <input type="date" class="form-control" id="fltPairTo">
+                  </div>
+                </div>
+                <div class="gems-field gems-field-3 gems-field-actions">
+                  <button class="btn btn-primary btn-sm"><i class="fas fa-filter me-1"></i>Apply</button>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="cat-dont">
             <span class="cat-tag"><i class="fas fa-times-circle me-1"></i>Do not copy — <code>auto-fit / minmax(220px)</code></span>
             <div class="bad-grid-4">
@@ -581,6 +619,16 @@
              ========================================================= -->
         <section class="cat-section" id="sec-table">
           <h2>6. Table card — no gradient header, quiet header cells</h2>
+          <p class="cat-note">
+            Canonical DataTable card (copy this, not a second pattern): the
+            <code>&lt;table class="table table-vcenter card-table table-hover mb-0"&gt;</code>
+            is a <em>direct</em> child of the card. The <code>dom</code> string wraps
+            <strong>only</strong> the table in <code>.table-responsive</code> and puts
+            info + pagination in a real <code>.card-footer</code> outside the scroller.
+            Length, search and icon actions stay in <code>.gems-card-toolbar</code>.
+            Empty states are <code>language.emptyTable</code> / <code>zeroRecords</code>
+            markup, never DataTables' raw sentence.
+          </p>
           <div class="card mb-3">
             <div class="card-header">
               <h3 class="card-title mb-0"><i class="fas fa-id-badge me-2 text-primary"></i>Licenses</h3>
@@ -603,8 +651,7 @@
                 </button>
               </div>
             </div>
-            <div class="table-responsive">
-              <table class="table table-vcenter table-hover mb-0" id="catTable">
+              <table class="table table-vcenter card-table table-hover mb-0" id="catTable">
                 <thead>
                   <tr>
                     <th>License</th>
@@ -666,7 +713,6 @@
                   </tr>
                 </tbody>
               </table>
-            </div>
           </div>
 
           <div class="row g-3">
@@ -852,12 +898,14 @@
               </p>
               <ol style="font-size:.8125rem;margin-bottom:0">
                 <li>Open every modal: title, close, first label, first input and footer buttons aligned and one family. Header and footer stay visible; only the body scrolls.</li>
-                <li>Select versus text input: same height and border.</li>
+                <li>Select versus text input versus filter dropdown toggle: same height and border.</li>
                 <li>Trigger a validation error: the message sits under its field and does not overlap or shove the next row off-grid.</li>
                 <li>Table: header, first-row actions, pagination, empty state. Filter the table to
                     zero rows &mdash; DataTables must render the card empty state, never its raw
                     &ldquo;No matching records found&rdquo;. Set <code>language.zeroRecords</code>
-                    <em>and</em> <code>language.emptyTable</code> on every table.</li>
+                    <em>and</em> <code>language.emptyTable</code> on every table. Confirm
+                    pagination sits in the card footer and does <em>not</em> scroll sideways
+                    with the table (the <code>dom</code> string owns <code>.table-responsive</code>).</li>
                 <li>Tab through header actions, filters, table buttons and the modal. The focus ring is always visible.</li>
                 <li>Hover: nothing jumps, no cyan <code>btn-info</code> beside primary blue.</li>
                 <li>Form grid: no 1+3 leftover column, no control wrapping inside its cell, no horizontal page scroll.</li>
@@ -1043,14 +1091,18 @@
     // also picks up legacy data-toggle="tooltip" markup on migrated pages.
     window.gemsInitTooltips(document);
 
-    // DataTable on the Bootstrap 5 integration.
-    // dom drops DataTables' own length ('l') and filter ('f') controls: both live in
-    // the card header toolbar instead, so there is one control baseline. Info and
-    // pagination are wrapped in a card-footer rather than floating under the table.
-    // zeroRecords / emptyTable are NOT optional. Left at their defaults DataTables
-    // prints "No matching records found" / "No data available in table" — the exact
-    // raw strings the close-up contract bans. They accept markup, so the real
-    // empty state renders inside the card instead.
+    // Canonical DataTable card (same pattern as pages/license.html / home.html).
+    // The table is a direct child of the card. `<'table-responsive't>` puts ONLY
+    // the table in the horizontal scroller, so info + pagination sit in a real
+    // .card-footer outside it. Do not wrap the <table> in .table-responsive in
+    // HTML — that would pull the footer into the scroller.
+    // dom also drops DataTables' own length ('l') and filter ('f') controls:
+    // both live in the card header toolbar instead, so there is one control
+    // baseline. Hidden 'f' stays in the dom so the API search() still works.
+    // zeroRecords / emptyTable are NOT optional. Left at their defaults
+    // DataTables prints "No matching records found" / "No data available in
+    // table" — the exact raw strings the close-up contract bans. They accept
+    // markup, so the real empty state renders inside the card instead.
     var emptyState =
       '<div class="gems-empty-state">' +
         '<i class="fas fa-inbox"></i>' +
@@ -1061,7 +1113,9 @@
       '</div>';
 
     var table = $('#catTable').DataTable({
-      dom: 'rt<"card-footer d-flex align-items-center py-2"i<"ms-auto"p>>',
+      dom: "<'d-none'f>r"+
+           "<'table-responsive't>"+
+           "<'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>",
       pageLength: 5,
       language: {
         info: 'Showing _START_ to _END_ of _TOTAL_',

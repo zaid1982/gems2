@@ -157,7 +157,8 @@ function ModalLicense() {
     $('#lnkMlcCurrentFile').attr('href', '#').text('N/A');
     $('#btnMlcSubmit').show();
     $('#btnMlcSave, #btnMlcDelete').hide();
-    $('#lblMlcTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add License');
+    // No text-white: the Tabler modal header is flat white, not a gradient bar.
+    $('#lblMlcTitle').html('<i class="fas fa-plus me-2"></i>Add License');
   };
 
   // --- public ---------------------------------------------------------------
@@ -250,7 +251,7 @@ function ModalLicense() {
 
         $('#btnMlcSubmit').hide();
         $('#btnMlcSave, #btnMlcDelete').show();
-        $('#lblMlcTitle').html('<i class="fas fa-edit text-white"></i> &nbsp;Edit License');
+        $('#lblMlcTitle').html('<i class="fas fa-pen me-2"></i>Edit License');
         $('#modal_license').modal({ backdrop:'static', keyboard:false }).scrollTop(0);
       } catch(e){ toastr['error'](e.message, _ALERT_TITLE_ERROR); }
       HideLoader();

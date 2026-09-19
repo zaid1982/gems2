@@ -16,12 +16,14 @@ function MainLicense(){
     const thr = Number.isFinite(Number(row.warningDays)) ? Number(row.warningDays) : 30;
     return n <= thr;
   };
+  // One status vocabulary (gems-theme.css section 8): sentence case, one radius,
+  // semantic colour. Not BS4 badge-* / badge-pill / .status-badge.
   const badge = (row)=>{
     const n = Number(row.daysToExpire);
-    if (!Number.isFinite(n)) return '<span class="badge badge-secondary">N/A</span>';
-    if (n < 0) return '<span class="badge badge-danger">Expired</span>';
-    if (isWarning(row)) return '<span class="badge badge-warning">Expiring</span>';
-    return '<span class="badge badge-success">Valid</span>';
+    if (!Number.isFinite(n)) return '<span class="badge gems-badge gems-badge-info">No expiry date</span>';
+    if (n < 0) return '<span class="badge gems-badge gems-badge-danger">Expired</span>';
+    if (isWarning(row)) return '<span class="badge gems-badge gems-badge-warning">Expiring soon</span>';
+    return '<span class="badge gems-badge gems-badge-success">Valid</span>';
   };
   const humanizeDays = (days)=>{
     const n = Number(days);
@@ -41,7 +43,7 @@ function MainLicense(){
   const fileLink = (row)=> {
     if(!row.uploadId) return '';
     const link = mzAjaxRequest2('document/upload_link/'+row.uploadId, 'GET');
-    return `<a class="btn btn-outline-secondary btn-sm" target="_blank" href="${link}">Open</a>`;
+    return `<a class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener" href="${link}" aria-label="Open license file">Open</a>`;
   };
   const fmtDate = (d)=>{
     if (!d) return '-';
@@ -114,37 +116,32 @@ function MainLicense(){
       language:_DATATABLE_LANGUAGE,
       pageLength:25,
       autoWidth:false,
-      dom:"<'row d-none'<'col-sm-12'f>>"+
-          "<'row'<'col-sm-12'tr>>"+
-          "<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
+      // DataTables' own filter box stays hidden (the card filter drives search).
+      // `<'table-responsive't>` puts ONLY the table in the horizontal scroller, so
+      // info + pagination sit in a real .card-footer outside it and do not scroll
+      // sideways with the table on a phone.
+      dom:"<'d-none'f>r"+
+          "<'table-responsive't>"+
+          "<'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>",
+      // Empty state is set PER TABLE: _DATATABLE_LANGUAGE is a shared global on
+      // ~100 unmigrated MDB pages, so the contract's empty state cannot go there.
+      language: $.extend({}, _DATATABLE_LANGUAGE, {
+        emptyTable: '<div class="gems-empty-state"><i class="fas fa-id-badge"></i>'+
+                    '<p>No licenses recorded yet.</p></div>',
+        zeroRecords: '<div class="gems-empty-state"><i class="fas fa-filter"></i>'+
+                     '<p>No licenses match the current search or status filter.</p></div>'
+      }),
       fnRowCallback: function(nRow, aData, iDisplayIndex){
         const info = $(this).DataTable().page.info();
         $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
-        const n = Number(aData.daysToExpire);
-        // Clear any previous coloring to avoid stale classes on redraw/reuse
-        $(nRow).removeClass('table-danger table-warning table-success table-secondary');
-        if (Number.isFinite(n)) {
-          if (n < 0) {
-            $(nRow).addClass('table-danger');
-          } else if (isWarning(aData)) {
-            $(nRow).addClass('table-warning');
-          }
-        }
-        // Attach responsive labels for mobile card view
-        const $cells = $('td', nRow);
-        $cells.eq(0).attr('data-label', '#');
-        $cells.eq(1).attr('data-label', 'Title');
-        $cells.eq(2).attr('data-label', 'Start Date');
-        $cells.eq(3).attr('data-label', 'End Date');
-        $cells.eq(4).attr('data-label', 'Days Left');
-        $cells.eq(5).attr('data-label', 'Status');
-        $cells.eq(6).attr('data-label', 'File');
-        $cells.eq(7).attr('data-label', 'Actions');
+        // No row tint: status is carried by the badge alone. A tinted row was a
+        // second status vocabulary and fought table-hover.
       },
       columnDefs:[
         { bSortable:false, targets:[0,6,7] },
-        { className:'text-center', targets:[0,4,5,6,7] },
-        { className:'noVis', targets:[0,7] }
+        { className:'text-center', targets:[0,4,5,6] },
+        // Actions never wrap onto a second line, at any viewport width.
+        { className:'text-center text-nowrap', targets:[7] }
       ],
       aoColumns:[
         { mData:null },
@@ -154,11 +151,13 @@ function MainLicense(){
         { mData:'daysToExpire', mRender:function(d){ return humanizeDays(d); } },
   { mData:null, mRender:function(row){ return badge(row); } },
         { mData:null, mRender:function(row){ return fileLink(row); } },
+        // One 32px row-action geometry (gems-theme.css section 6). Colour tint
+        // distinguishes edit / delete; geometry never changes, no hover lift.
+        // Tooltip AND aria-label: a tooltip alone fails keyboard/screen readers.
         { mData:null, mRender:function(row, type, full, meta){
-            let label = '<div class="action-btn-group">';
-            label += '<button type="button" class="btn-action btn-edit lnkLcnEdit" id="lnkLcnEdit_'+meta.row+'" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>';
-            label += '<button type="button" class="btn-action btn-delete lnkLcnDelete" id="lnkLcnDelete_'+meta.row+'" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-            label += '</div>';
+            const title = $('<div>').text(row.licenseTitle || 'license').html();
+            let label = '<button type="button" class="btn gems-btn-action gems-btn-action-edit lnkLcnEdit" id="lnkLcnEdit_'+meta.row+'" data-toggle="tooltip" title="Edit" aria-label="Edit '+title+'"><i class="fas fa-pen"></i></button>';
+            label += '<button type="button" class="btn gems-btn-action gems-btn-action-delete lnkLcnDelete" id="lnkLcnDelete_'+meta.row+'" data-toggle="tooltip" title="Delete" aria-label="Delete '+title+'"><i class="fas fa-trash"></i></button>';
             return label;
         }}
       ]
@@ -181,6 +180,11 @@ function MainLicense(){
 
     oTable.on('draw', function(){
       updateResultsSummary();
+      // Row actions are re-rendered on every draw, so their tooltips have to be
+      // (re-)initialised here; initiatePages() only sees the page's static markup.
+      if (typeof window.gemsInitTooltips === 'function') {
+        window.gemsInitTooltips($('#dtLcnData tbody')[0]);
+      }
     });
 
     const tbody = $('#dtLcnData tbody');

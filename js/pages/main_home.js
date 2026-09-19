@@ -232,12 +232,47 @@ function MainHome() {
     function hideChartOverlay(chartId) {
         try { const sel = overlayIds[chartId]; if (sel) $(sel).removeClass('show'); } catch (e) { /* ignore */ }
     }
+
+    /* ref_status.status_color stores MDB Material colour words ('green',
+       'light-blue', 'blue-grey', 'indigo darken-1', ...). Those are mdb.css
+       background classes and mean nothing on a Tabler page, and several of them
+       ('light-blue', 'blue-grey', 'grey') have no Tabler equivalent to prefix
+       with bg-. Map them onto the ONE approved GEMS badge vocabulary
+       (gems-theme.css section 8) instead of inventing a per-page palette.
+       The <h6><span class="…">TEXT</span></h6> shape must not change: the export
+       body formatters below parse it. */
+    function statusBadgeClass(statusColor) {
+        const word = String(statusColor || '').trim().split(' ')[0];
+        switch (word) {
+            case 'green': case 'light-green': case 'lime': case 'teal':
+                return 'gems-badge-success';
+            case 'orange': case 'deep-orange': case 'amber': case 'yellow':
+                return 'gems-badge-warning';
+            case 'red': case 'pink':
+                return 'gems-badge-danger';
+            case 'blue': case 'light-blue': case 'indigo': case 'cyan':
+            case 'purple': case 'deep-purple':
+                return 'gems-badge-info';
+            default:
+                return 'gems-badge-secondary';
+        }
+    }
+
+    function statusBadge(status) {
+        // The <h6> must carry NO attributes. The export body formatters below strip
+        // the markup with data.search('">') — the first '">' has to be the end of the
+        // SPAN's class attribute, so any attribute on the <h6> would truncate the
+        // exported status text.
+        return '<h6><span class="badge gems-badge ' + statusBadgeClass(status['statusColor']) + '">' +
+            status['statusDesc'] + '</span></h6>';
+    }
+
     
     this.init = function () {
         $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
         userClient = mzGetUserInfoByParam('clientId');
         refSite[0] = {clientId:'1', siteDesc:'Overall'};
-        $('#lnkHmeReportType_2').addClass('active').addClass('text-white');
+        $('#lnkHmeReportType_2').addClass('active');
         mzDateFromTo('txtHmeDateFrom', 'txtHmeDateTo');
         
         $.each(refClient, function (_clientId, _client) {
@@ -253,7 +288,7 @@ function MainHome() {
                 }
             }
         });
-        $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
+        $('#lnkHmeClient_'+clientId).addClass('active');
         $('#navHmeClient').text(refClient[clientId]['clientName']);
 
         $('.lnkHmeClient').off('click').on('click', function () {
@@ -261,12 +296,12 @@ function MainHome() {
             const linkIndex = linkId.indexOf('_');
             try {
                 if (linkIndex > 0) {
-                    $('#lnkHmeClient_'+clientId).removeClass('active').removeClass('text-white');
+                    $('#lnkHmeClient_'+clientId).removeClass('active');
                     clientId = linkId.substr(linkIndex + 1);
-                    $('#lnkHmeClient_'+clientId).addClass('active').addClass('text-white');
-                    $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
+                    $('#lnkHmeClient_'+clientId).addClass('active');
+                    $('#lnkHmeSite_'+siteId).removeClass('active');
                     siteId = '0';
-                    $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
+                    $('#lnkHmeSite_'+siteId).addClass('active');
                     self.setOptionSite();
                     $('#navHmeClient').text(refClient[clientId]['clientName']);
                     //self.runChart();
@@ -287,7 +322,7 @@ function MainHome() {
             if (dateCtr < dateEarliest) {
                 break;
             }
-            const isActive = (dateCtr.getMonth() === currentMonth && dateCtr.getFullYear() === currentYear) ? 'active text-white' : '';
+            const isActive = (dateCtr.getMonth() === currentMonth && dateCtr.getFullYear() === currentYear) ? 'active' : '';
             $('#divHmeMonth').append('<a class="dropdown-item lnkHmeMonth '+isActive+'" href="#" id="lnkHmeMonth_'+dateCtr.getFullYear()+dateCtr.getMonth()+'">'+monthFull[dateCtr.getMonth()] + ' ' + dateCtr.getFullYear() + '</a>');
             dateCtr.setMonth(dateCtr.getMonth() - 1);
         }
@@ -301,8 +336,8 @@ function MainHome() {
                     if (linkIndex > 0) {
                         const year = linkId.substr(linkIndex + 1, 4);
                         const month = linkId.substr(linkIndex + 1 + 4);
-                        $('#lnkHmeMonth_'+currentYear+currentMonth).removeClass('active').removeClass('text-white');
-                        $('#lnkHmeMonth_'+year+month).addClass('active').addClass('text-white');
+                        $('#lnkHmeMonth_'+currentYear+currentMonth).removeClass('active');
+                        $('#lnkHmeMonth_'+year+month).addClass('active');
                         currentMonth = month;
                         currentYear = year;
                         self.runChart();
@@ -328,9 +363,9 @@ function MainHome() {
             const linkIndex = linkId.indexOf('_');
             try {
                 if (linkIndex > 0) {
-                    $('#lnkHmeReportType_'+reportId).removeClass('active').removeClass('text-white');
+                    $('#lnkHmeReportType_'+reportId).removeClass('active');
                     reportId = linkId.substr(linkIndex + 1);
-                    $('#lnkHmeReportType_'+reportId).addClass('active').addClass('text-white');
+                    $('#lnkHmeReportType_'+reportId).addClass('active');
                     if (reportId === '1') {
                         reportType = 'Planned Preventive Maintenance (PPM) Report';
                         $('#navHmeReportType').text('PPM');
@@ -355,6 +390,13 @@ function MainHome() {
             processing: true,
             serverSide: true,
             order: [[1, 'desc']],
+            // DataTables' own filter box stays hidden (the card toolbar search drives
+            // it). `<'table-responsive't>` puts ONLY the table in the horizontal
+            // scroller, so info + pagination sit in a real .card-footer outside it and
+            // do not scroll sideways with the table on a phone (N10/M11).
+            dom: "<'d-none'f>r"+
+                 "<'table-responsive't>"+
+                 "<'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>",
             ajax: {
                 url: 'api/wo.php?type=dashboard_table',
                 type: 'GET',
@@ -470,7 +512,14 @@ function MainHome() {
                     modalWoEditClass.load(mzGetLinkRow($(this), oTableWo));
                 });
             },
-            language: _DATATABLE_LANGUAGE,
+            // Empty state is set PER TABLE: _DATATABLE_LANGUAGE is a shared global on
+            // ~100 unmigrated MDB pages, so the contract's empty state cannot go there.
+            language: $.extend({}, _DATATABLE_LANGUAGE, {
+                emptyTable: '<div class="gems-empty-state"><i class="fas fa-clipboard-list"></i>'+
+                            '<p>No work orders for the selected client, site and date range.</p></div>',
+                zeroRecords: '<div class="gems-empty-state"><i class="fas fa-filter"></i>'+
+                             '<p>No work orders match this search.</p></div>'
+            }),
             aoColumns:
                 [
                     {mData: null, bSortable: false},
@@ -501,31 +550,37 @@ function MainHome() {
                     {mData: 'woTaskRate'},
                     {mData: null, sClass: 'text-center',
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['woTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['woTaskStatus']]['statusDesc']+'</span></h6>';
+                            return statusBadge(refStatus[row['woTaskStatus']]);
                         }
                     },
                     {mData: 'zoneCode', visible: false},
                     {mData: 'zoneName', visible: false},
-                    {mData: null, bSortable: false, sClass: 'text-center action-cell',
+                    // text-nowrap: row actions never stack vertically, at any width (N10/M11)
+                    {mData: null, bSortable: false, sClass: 'text-center text-nowrap action-cell',
                         mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
+                            // One 32px row-action geometry (gems-theme.css section 6);
+                            // colour tint distinguishes view / edit / delete. data-toggle
+                            // (not data-bs-toggle) is deliberate: drawCallback above
+                            // selects [data-toggle="tooltip"] to (re)initialise these.
+                            // Tooltip AND aria-label, per the close-up contract.
+                            const ref = row['woTaskNo'] && row['woTaskNo'] !== '-' ? row['woTaskNo'] : row['woTaskRequestNo'];
+                            let label = '';
                             if (row['woTaskIsWr'] === '1') {
-                                label += '<button type="button" class="btn-action btn-view lnkHmeDataWoPdfWr" id="lnkHmeDataWoPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"><i class="fas fa-file-pdf"></i></button>';
+                                label += '<button type="button" class="btn gems-btn-action gems-btn-action-view lnkHmeDataWoPdfWr" id="lnkHmeDataWoPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF" aria-label="Work Request PDF for ' + ref + '"><i class="fas fa-file-pdf"></i></button>';
                             }
                             if (row['woTaskIsWr'] !== '1' || row['woTaskTimeWrVerified'] !== '') {
-                                label += '<button type="button" class="btn-action btn-view lnkHmeDataWoPdf" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"><i class="far fa-file-pdf"></i></button>';
+                                label += '<button type="button" class="btn gems-btn-action gems-btn-action-view lnkHmeDataWoPdf" id="lnkHmeDataWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF" aria-label="Work Order PDF for ' + ref + '"><i class="far fa-file-pdf"></i></button>';
                             }
-                            label += '<button type="button" class="btn-action btn-view lnkHmeDataWoMrf" id="lnkHmeDataWoMrf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="View MRF Form"><i class="fas fa-box-open"></i></button>';
+                            label += '<button type="button" class="btn gems-btn-action gems-btn-action-view lnkHmeDataWoMrf" id="lnkHmeDataWoMrf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="View MRF Form" aria-label="View MRF form for ' + ref + '"><i class="fas fa-box-open"></i></button>';
                             if (isAdmin && row['woTaskAssignedTo'] !== '' && row['woTaskStatus'] === '13') {
-                                label += '<button type="button" class="btn-action btn-edit lnkHmeDataWoReassign" id="lnkHmeDataWoReassign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reassign"><i class="fa-regular fa-user-pen"></i></button>';
+                                label += '<button type="button" class="btn gems-btn-action gems-btn-action-edit lnkHmeDataWoReassign" id="lnkHmeDataWoReassign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reassign" aria-label="Reassign ' + ref + '"><i class="fa-regular fa-user-pen"></i></button>';
                             }
                             if (isAdmin) {
-                                label += '<button type="button" class="btn-action btn-edit lnkHmeDataWoEdit" id="lnkHmeDataWoEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fa-regular fa-file-pen"></i></button>';
+                                label += '<button type="button" class="btn gems-btn-action gems-btn-action-edit lnkHmeDataWoEdit" id="lnkHmeDataWoEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit" aria-label="Edit ' + ref + '"><i class="fa-regular fa-file-pen"></i></button>';
                             }
                             if (mzIsRoleExist('1')) {
-                                label += '<button type="button" class="btn-action btn-delete lnkHmeDataWoDelete" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="far fa-trash-alt"></i></button>';
+                                label += '<button type="button" class="btn gems-btn-action gems-btn-action-delete lnkHmeDataWoDelete" id="lnkHmeDataWoDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete" aria-label="Delete ' + ref + '"><i class="far fa-trash-alt"></i></button>';
                             }
-                            label += '</div>';
                             return label;
                         }
                     },
@@ -591,15 +646,9 @@ function MainHome() {
         oTableWo.column(12).visible(false);
         oTableWo.column(13).visible(false);
 
-        $('#optHmeDataWoColumns').on('change', function () {
-            for (let i=1; i<=16; i++) {
-                oTableWo.column(i).visible(false);
-            }
-            const selectedColumns = $(this).val();
-            $.each(selectedColumns, function (n, u) {
-                oTableWo.column(parseInt(u)).visible(true);
-            });
-        });
+        // Column visibility is the DataTables Buttons colvis control in the card
+        // toolbar (see below). The old #optHmeDataWoColumns MDB multi-select and its
+        // change handler are gone with it.
 
         let cntWo;
         let exportAbortController = null;
@@ -1026,14 +1075,27 @@ function MainHome() {
             }
         };
 
+        // Toolbar buttons use the one toolbar family. The bootstrap5 Buttons
+        // integration defaults to 'btn btn-secondary' (solid grey on a white card
+        // header) and the old per-button 'btn-outline-white btn-rounded' classes do
+        // not exist in Tabler at all, so the class is set once for the instance.
+        // The colvis button replaces the MDB .mdb-select multi-select that used to
+        // drive column visibility; `columns` lists exactly the indexes the old
+        // <option value>s offered, so the blank helper columns stay hidden.
         new $.fn.dataTable.Buttons(oTableWo, {
+            dom: { button: { className: 'btn btn-ghost-secondary btn-sm' } },
             buttons: [
+                {
+                    extend:    'colvis',
+                    text:      '<i class="fas fa-table-columns"></i>',
+                    titleAttr: 'Column visibility',
+                    columns:   [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,23,24,25,26,27,28,29,30,32]
+                },
                 $.extend( true, {}, btnWoOpt, {
                     extend:    'print',
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - Work Order List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
                     action: function (e, dt, button, config) {
                         exportAllData.call(this, e, dt, button, config, $.fn.dataTable.ext.buttons.print.action);
                     }
@@ -1043,7 +1105,6 @@ function MainHome() {
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - Work Order List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
                     action: function (e, dt) {
                         exportServerExcel('wo', dt);
                     }
@@ -1076,6 +1137,11 @@ function MainHome() {
             processing: true,
             serverSide: true,
             order: [[3, 'asc']],
+            // See the WO table above: table-only horizontal scroller, info and
+            // pagination in a real .card-footer outside it.
+            dom: "<'d-none'f>r"+
+                 "<'table-responsive't>"+
+                 "<'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>",
             ajax: {
                 url: 'api/ppm.php?type=dashboard_table',
                 type: 'GET',
@@ -1135,7 +1201,14 @@ function MainHome() {
                     }
                 });
             },
-            language: _DATATABLE_LANGUAGE,
+            // Empty state is set PER TABLE: _DATATABLE_LANGUAGE is a shared global on
+            // ~100 unmigrated MDB pages, so the contract's empty state cannot go there.
+            language: $.extend({}, _DATATABLE_LANGUAGE, {
+                emptyTable: '<div class="gems-empty-state"><i class="fas fa-tools"></i>'+
+                            '<p>No PPM tasks for the selected client, site and date range.</p></div>',
+                zeroRecords: '<div class="gems-empty-state"><i class="fas fa-filter"></i>'+
+                             '<p>No PPM tasks match this search.</p></div>'
+            }),
             aoColumns:
                 [
                     {mData: null, bSortable: false},
@@ -1184,26 +1257,33 @@ function MainHome() {
                     {mData: 'withinStatus'},
                     {mData: null,
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['ppmTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmTaskStatus']]['statusDesc']+'</span></h6>';
+                            return statusBadge(refStatus[row['ppmTaskStatus']]);
                         }
                     },
-                    {mData: null, bSortable: false, sClass: 'text-center action-cell',
+                    // text-nowrap: row actions never stack vertically, at any width (N10/M11)
+                    {mData: null, bSortable: false, sClass: 'text-center text-nowrap action-cell',
                         mRender: function (data, type, row, meta) {
                             let uploadIds = row['uploadIds'];
                             if (uploadIds.length > 0 && uploadIds[0] !== '') {
-                                let htmlDropdown = '<div class="action-btn-group"><div class="btn-group" role="group">\n' +
-                                    '                <button type="button" class="btn-action btn-view dropdown-toggle" data-toggle="dropdown"\n' +
-                                    '                   aria-haspopup="true" aria-expanded="false"><i class="fas fa-download"></i></button>\n' +
-                                    '                <div class="dropdown-menu" aria-labelledby="btnGroupVerticalDrop2">\n' +
-                                    '                    <a class="dropdown-item lnkHmeDataPpmPdf" id="lnkHmeDataPpmPdf_' + meta.row + '">PPM Form</a>\n';
+                                // data-bs-toggle is emitted directly: this markup is injected
+                                // on every draw, after the shim's ready sweep, so writing the
+                                // native attribute lets Bootstrap own the very first click
+                                // instead of relying on the shim's click fallback.
+                                // data-bs-popper-config keeps the menu from being clipped by
+                                // the surrounding .table-responsive scroller.
+                                let htmlDropdown = '<div class="dropdown d-inline-block">\n' +
+                                    '                <button type="button" class="btn gems-btn-action gems-btn-action-view dropdown-toggle" data-bs-toggle="dropdown"\n' +
+                                    '                   data-bs-popper-config=\'{"strategy":"fixed"}\' aria-expanded="false" aria-label="Download documents"><i class="fas fa-download"></i></button>\n' +
+                                    '                <div class="dropdown-menu dropdown-menu-end">\n' +
+                                    '                    <a class="dropdown-item lnkHmeDataPpmPdf" href="#" id="lnkHmeDataPpmPdf_' + meta.row + '">PPM Form</a>\n';
                                 for (let i=0; i<uploadIds.length; i++) {
                                     htmlDropdown += '<a class="dropdown-item" href="api/download.php?docId='+uploadIds[i]+'">Attachment '+(i+1)+'</a>\n';
                                 }
                                 htmlDropdown += '</div>\n' +
-                                    '            </div></div>';
+                                    '            </div>';
                                 return htmlDropdown;
                             } else {
-                                return '<div class="action-btn-group"><button type="button" class="btn-action btn-view lnkHmeDataPpmPdf" id="lnkHmeDataPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"><i class="far fa-file-pdf"></i></button></div>';
+                                return '<button type="button" class="btn gems-btn-action gems-btn-action-view lnkHmeDataPpmPdf" id="lnkHmeDataPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF" aria-label="PPM PDF for ' + (row['ppmTaskNo'] || 'task') + '"><i class="far fa-file-pdf"></i></button>';
                             }
                         }
                     },
@@ -1253,15 +1333,9 @@ function MainHome() {
         oTablePpm.column(25).visible(false);
         oTablePpm.column(26).visible(false);
 
-        $('#optHmeDataPpmColumns').on('change', function () {
-            for (let i=1; i<=28; i++) {
-                oTablePpm.column(i).visible(false);
-            }
-            const selectedColumns = $(this).val();
-            $.each(selectedColumns, function (n, u) {
-                oTablePpm.column(parseInt(u)).visible(true);
-            });
-        });
+        // Column visibility is the DataTables Buttons colvis control in the card
+        // toolbar (see below). The old #optHmeDataPpmColumns MDB multi-select and its
+        // change handler are gone with it.
 
         let cntPpm;
         let btnPpmOpt = {
@@ -1283,14 +1357,22 @@ function MainHome() {
             }
         };
 
+        // See the WO toolbar above for why the class is set on the instance and why
+        // colvis replaces the old MDB column-visibility multi-select.
         new $.fn.dataTable.Buttons(oTablePpm, {
+            dom: { button: { className: 'btn btn-ghost-secondary btn-sm' } },
             buttons: [
+                {
+                    extend:    'colvis',
+                    text:      '<i class="fas fa-table-columns"></i>',
+                    titleAttr: 'Column visibility',
+                    columns:   [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28]
+                },
                 $.extend( true, {}, btnPpmOpt, {
                     extend:    'print',
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - PPM List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
                     action: function (e, dt, button, config) {
                         exportAllData.call(this, e, dt, button, config, $.fn.dataTable.ext.buttons.print.action);
                     }
@@ -1300,7 +1382,6 @@ function MainHome() {
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - PPM List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
                     action: function (e, dt) {
                         exportServerExcel('ppm', dt);
                     }
@@ -1345,16 +1426,16 @@ function MainHome() {
             for (const _siteId of siteList) {
                 $('#divHmeSite').append('<a class="dropdown-item lnkHmeSite" href="#" id="lnkHmeSite_'+_siteId+'">'+refSite[_siteId]['siteDesc']+'</a>');
             }
-            $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
+            $('#lnkHmeSite_'+siteId).addClass('active');
             
             $('.lnkHmeSite').off('click').on('click', function () {
                 const linkId = $(this).attr('id');
                 const linkIndex = linkId.indexOf('_');
                 try {
                     if (linkIndex > 0) {
-                        $('#lnkHmeSite_'+siteId).removeClass('active').removeClass('text-white');
+                        $('#lnkHmeSite_'+siteId).removeClass('active');
                         siteId = linkId.substr(linkIndex + 1);
-                        $('#lnkHmeSite_'+siteId).addClass('active').addClass('text-white');
+                        $('#lnkHmeSite_'+siteId).addClass('active');
                         $('#navHmeSite').text(refSite[siteId]['siteDesc']);
                         //self.runChart();
                     }

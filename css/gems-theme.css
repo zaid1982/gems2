@@ -192,27 +192,47 @@ body.gems-tabler {
 .gems-field-8  { grid-column: span 8; }
 .gems-field-12 { grid-column: span 12; }
 
-/* 13-inch content pane: max 2 columns. Short fields become halves so we never
-   render four skinny inputs in a row. */
-@media (max-width: 1399.98px) {
+/* A logical pair (Date From + Date To) occupies one grid unit and never
+   splits across rows. Inner fields share the pair equally; they must not
+   carry their own gems-field-N span or the default span-12 would stack them. */
+.gems-field-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gems-field-gap);
+  min-width: 0;
+  grid-column: span 6;
+}
+.gems-field-pair > .gems-field {
+  grid-column: auto;
+}
+
+/* Below the 1600px wide token: max 2 columns. Short fields become halves so
+   we never render four skinny inputs — including the 1400–1599 band, where
+   an un-remapped span-3 field would otherwise become an unintended 4-up.
+   The cutoff is the same 1600px token that raises --gems-control-h, not a
+   second per-resolution offset. */
+@media (max-width: 1599.98px) {
   .gems-field-3,
   .gems-field-4 { grid-column: span 6; }
   .gems-field-8 { grid-column: span 12; }
 }
 
-/* 3-up only on genuinely wide screens */
+/* 3-up (field-4) and 4-wide short fields only on genuinely wide screens */
 @media (min-width: 1600px) {
   .gems-field-4 { grid-column: span 4; }
   .gems-field-3 { grid-column: span 3; }
 }
 
-/* Phone: everything stacks */
+/* Phone: everything stacks. A date pair stays one unit but its children
+   stack so native date controls are not 160px skinny. */
 @media (max-width: 575.98px) {
   .gems-field-3,
   .gems-field-4,
   .gems-field-6,
   .gems-field-8,
-  .gems-field-12 { grid-column: span 12; }
+  .gems-field-12,
+  .gems-field-pair { grid-column: span 12; }
+  .gems-field-pair { grid-template-columns: 1fr; }
 }
 
 /* Section rhythm — replaces ad-hoc mt-4 / mb-4_5 */
@@ -245,6 +265,21 @@ body.gems-tabler {
 .gems-field-actions > .btn {
   height: var(--gems-control-h);
   min-height: var(--gems-control-h);
+}
+
+/* Filter dropdowns are controls, not header buttons. Tabler's .btn
+   min-height is 40px, so a .dropdown-toggle in a field would sit 2px taller
+   than the 38px form-control / form-select beside it. Lock them to the same
+   token. The toggle is a direct child of .gems-field (dropdown class lives
+   on the field) or nested one level in a .dropdown wrapper. */
+.gems-field > .dropdown-toggle,
+.gems-field > .dropdown > .dropdown-toggle {
+  height: var(--gems-control-h);
+  min-height: var(--gems-control-h);
+  padding-block: 0;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
 }
 
 /* --------------------------------------------------------------------------
@@ -324,8 +359,13 @@ body.gems-tabler {
   font-size: 0.75rem;
   color: var(--gems-muted);
 }
+/* .is-invalid is the Bootstrap state class. .invalid is what the app's only
+   validator writes (MzValidate, js/common.js) on every page, so it has to mean
+   the same thing or a failed field shows its message with no red border. */
 .gems-tabler .form-control.is-invalid,
-.gems-tabler .form-select.is-invalid { border-color: var(--gems-danger); }
+.gems-tabler .form-select.is-invalid,
+.gems-tabler .form-control.invalid,
+.gems-tabler .form-select.invalid { border-color: var(--gems-danger); }
 
 .gems-tabler .form-check { min-height: auto; }
 .gems-tabler .form-check-input:checked {
@@ -669,4 +709,82 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   background-color: rgba(var(--gems-primary-rgb), 0.45);
   opacity: 1;
 }
+
+/* --------------------------------------------------------------------------
+   12. LEGACY FRAGMENT BRIDGE — TEMPORARY, DELETE AT P6
+   --------------------------------------------------------------------------
+   A migrated page still includes shared html/modal_*.html fragments that belong
+   to a later wave: modal_change_password.html is on ~100 pages and
+   modal_confirm_delete.html on ~37, so converting them during P2 would break
+   every unmigrated MDB page. Their markup assumes css/mdb.min.css +
+   css/gems2-ui.css, which a Tabler page must never load, so without these rules
+   a shared dialog opens with an INVISIBLE title (.text-white on a white header),
+   an unstyled &times; button, and every .md-form label rendered BELOW its input.
+
+   SCOPE KEY: .gems-modal. Every unconverted fragment's root carries
+   class="modal fade gems-modal"; converted markup drops it. A rule here can
+   therefore never reach contract markup, and a migrator cannot opt in to the
+   bridge without keeping the legacy class they are supposed to be removing.
+
+   This section only NEUTRALISES and REORDERS. No colours, radii, shadows or
+   components are introduced, and wrong-family buttons (btn-info / btn-warning)
+   are deliberately NOT remapped — a silent colour remap would be a second,
+   hidden design vocabulary. They are fixed when the fragment itself converts.
+
+   Delete this whole section once the last html/modal_*.html carrying
+   .gems-modal has been migrated.
+   -------------------------------------------------------------------------- */
+.gems-tabler .gems-modal .modal-header > h3,
+.gems-tabler .gems-modal .modal-header > h4 {
+  margin: 0 !important;                 /* beats the fragments' mt-2 ml-2 */
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+.gems-tabler .gems-modal .modal-header .text-white,
+.gems-tabler .gems-modal .modal-header .text-white > i {
+  color: var(--gems-text) !important;   /* the header is white, not a gradient */
+}
+.gems-tabler .gems-modal .modal-header .heading {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+/* Bootstrap 5 dropped .close in favour of .btn-close. */
+.gems-tabler .gems-modal .close {
+  margin-left: auto;
+  padding: 0 0.25rem !important;        /* beats pt-4 / pr-3 pt-3 */
+  border: 0;
+  background: transparent;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--gems-text);
+  opacity: 0.6;
+}
+.gems-tabler .gems-modal .close:hover { opacity: 1; }
+.gems-tabler .gems-modal .close:focus-visible {
+  box-shadow: var(--gems-focus-ring);
+  outline: none;
+  border-radius: 4px;
+}
+
+/* MDB floating-label blocks put the <input> before its <label>. order:-1 lifts
+   the label above the control without reversing the whole cell, so a trailing
+   error <p> stays under the input. */
+.gems-tabler .gems-modal .md-form,
+.gems-tabler .gems-modal .select-outline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gems-label-gap);
+  margin-bottom: var(--gems-field-gap);
+}
+.gems-tabler .gems-modal .md-form > label,
+.gems-tabler .gems-modal .select-outline > label {
+  order: -1;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--gems-text-soft);
+}
+.gems-tabler .gems-modal p.font-small { font-size: 0.75rem; margin: 0; }
+.gems-tabler .gems-modal p.font-small:empty { display: none; }
 
