@@ -25,6 +25,7 @@ function MainEnergyBei() {
 
     const renderRows = function () {
         const editable = !!(data.canRecord && ec.caps.canRecord);
+        if (window.GemsUI) { GemsUI.disposeTooltips(document.getElementById('tblEbe')); }
         $('#tblEbe tbody').html((data.months || []).map(function (m) {
             const locked = m.beiStatus === 'FINAL' || !editable;
             const override = m.electricityIsOverride
@@ -135,6 +136,8 @@ function MainEnergyBei() {
         tr.find('.bei-target').html(ec.fmtKwh(m.targetBei, 4));
         tr.find('.bei-result').html(resultBadge(m));
         tr.find('.bei-status').html(statusBadge(m.beiStatus));
+        const actionsCell = tr.find('.bei-actions')[0];
+        if (window.GemsUI && actionsCell) { GemsUI.disposeTooltips(actionsCell); }
         tr.find('.bei-actions').html(actions(m, editable));
         const hint = tr.find('td').eq(1).find('.bei-override, span.text-muted').first();
         if (hint.length) {

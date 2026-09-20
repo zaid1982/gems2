@@ -15,6 +15,9 @@
                                    every toastr['error'](...) call throws
     6. common.js                 — declarations only; initiatePages() is called by
                                    each page
+    6b. gems-tabler-ui.js         — window.GemsUI only; side-effect free on load.
+                                   Tabler DataTables chrome / actionBtn / tooltips.
+                                   Do not add to any MDB stack.
     7. page scripts
 
   Do NOT add: js/popper.min.js, js/bootstrap*.js, js/mdb*.js,
@@ -38,3 +41,4 @@
 <script src="js/modules/toastr.js"></script>
 <script src="js/addons/crypto.js"></script>
 <script src="js/common.js"></script>
+<script src="js/gems-tabler-ui.js"></script>

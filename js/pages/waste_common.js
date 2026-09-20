@@ -167,17 +167,19 @@ function WasteCommon() {
         return '<span class="badge gems-badge gems-badge-warning">Pending Collection</span>';
     };
 
-    // Canonical P2 DataTables chrome: hide DT's own filter, scroll ONLY the
-    // table, keep info + pagination in a real .card-footer outside the scroller.
-    this.dtDom = "<'d-none'f>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
-    this.dtDomButtons = "<'d-none'B>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
+    // Canonical P2 DataTables chrome. Presentation helpers delegate to GemsUI
+    // when the Tabler helper file is loaded; local bodies stay as fallback.
+    this.dtDom = window.GemsUI ? GemsUI.dtDom : "<'d-none'f>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
+    this.dtDomButtons = window.GemsUI ? GemsUI.dtDomButtons : "<'d-none'B>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
     this.dtEmpty = function (icon, emptyText, zeroText) {
+        if (window.GemsUI) { return GemsUI.dtEmpty(icon, emptyText, zeroText); }
         return $.extend({}, _DATATABLE_LANGUAGE, {
             emptyTable: '<div class="gems-empty-state"><i class="fas ' + (icon || 'fa-inbox') + '"></i><p>' + emptyText + '</p></div>',
             zeroRecords: '<div class="gems-empty-state"><i class="fas fa-filter"></i><p>' + (zeroText || 'No records match the current filters.') + '</p></div>'
         });
     };
     this.actionBtn = function (opts) {
+        if (window.GemsUI) { return GemsUI.actionBtn(opts); }
         const href = opts.href ? ' href="' + opts.href + '"' : ' type="button"';
         const tag = opts.href ? 'a' : 'button';
         const extra = opts.extra || '';
@@ -240,6 +242,7 @@ function WasteCommon() {
     };
 
     this.dtButtons = function (title) {
+        if (window.GemsUI) { return GemsUI.dtButtons(title); }
         return [
             { extend: 'colvis', columns: ':not(.noVis)', fade: 400, text: '<i class="fas fa-columns"></i>', className: 'btn btn-outline-secondary btn-sm', titleAttr: 'Column visibility' },
             { extend: 'print', className: 'btn btn-outline-secondary btn-sm', text: '<i class="fas fa-print"></i>', title: title, titleAttr: 'Print', exportOptions: typeof mzExportOpt !== 'undefined' ? mzExportOpt : {} },
@@ -249,6 +252,7 @@ function WasteCommon() {
     };
 
     this.bindDtTooltips = function (tableId) {
+        if (window.GemsUI) { return GemsUI.bindDtTooltips(tableId); }
         const $table = $(tableId);
         $table.on('draw.dt', function () {
             if (typeof window.gemsInitTooltips === 'function') {

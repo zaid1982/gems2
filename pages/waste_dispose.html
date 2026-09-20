@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
-  <link rel="stylesheet" href="css/gems-theme.css">
+  <link rel="stylesheet" href="css/gems-theme.css?p3h1">
 </head>
 <body class="gems-tabler">
 <div class="page">
@@ -121,7 +121,7 @@
                   <input type="text" id="txtWdsRemarks" class="form-control" placeholder="Optional notes">
                 </div>
               </div>
-              <div class="waste-note" id="divWdsVariance" style="display:none">
+              <div class="gems-note" id="divWdsVariance" style="display:none">
                 <i class="fas fa-triangle-exclamation"></i>
                 <div id="lblWdsVariance"></div>
               </div>
@@ -158,9 +158,9 @@
         </form>
 
         <div class="card">
-          <div class="card-footer waste-form-footer">
-            <div class="waste-form-footer-note" id="lblWdsFooterNote">Both disposal images are required before you can save.</div>
-            <div class="waste-form-footer-actions">
+          <div class="card-footer gems-form-footer">
+            <div class="gems-form-footer-note" id="lblWdsFooterNote">Both disposal images are required before you can save.</div>
+            <div class="gems-form-footer-actions">
               <a class="btn btn-outline-secondary" href="p_waste_pending">Cancel</a>
               <button type="button" class="btn btn-primary" id="btnWdsSave" disabled><i class="fas fa-check me-2"></i>Save Disposal</button>
             </div>
@@ -192,6 +192,7 @@
 </script>
 <script>
   document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/waste_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/main_waste_dispose.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');

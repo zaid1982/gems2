@@ -130,6 +130,7 @@ function EnergyCommon() {
     };
 
     this.escape = function (value) {
+        if (window.GemsUI) { return GemsUI.escape(value); }
         if (value === null || value === undefined) { return ''; }
         return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     };
@@ -139,6 +140,7 @@ function EnergyCommon() {
     };
 
     this.badge = function (kind, label) {
+        if (window.GemsUI) { return GemsUI.badge(kind, label); }
         if (self.isTabler()) {
             return '<span class="badge gems-badge gems-badge-' + kind + '">' + label + '</span>';
         }
@@ -159,6 +161,7 @@ function EnergyCommon() {
     };
 
     this.actionBtn = function (opts) {
+        if (window.GemsUI) { return GemsUI.actionBtn(opts); }
         const href = opts.href ? ' href="' + opts.href + '"' : ' type="button"';
         const tag = opts.href ? 'a' : 'button';
         const extra = opts.extra || '';
@@ -169,12 +172,14 @@ function EnergyCommon() {
     };
 
     this.initTooltips = function (root) {
+        if (window.GemsUI) { return GemsUI.initTooltips(root); }
         if (typeof window.gemsInitTooltips === 'function') {
             window.gemsInitTooltips(root || document);
         }
     };
 
     this.emptyState = function (icon, text) {
+        if (window.GemsUI) { return GemsUI.emptyState(icon, text); }
         return '<div class="gems-empty-state"><i class="fas ' + (icon || 'fa-inbox') + '"></i><p>' + text + '</p></div>';
     };
 

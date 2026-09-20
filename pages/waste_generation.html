@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
-  <link rel="stylesheet" href="css/gems-theme.css">
+  <link rel="stylesheet" href="css/gems-theme.css?p3h1">
 </head>
 <body class="gems-tabler">
 <div class="page">
@@ -71,7 +71,7 @@
                   <input type="text" id="txtWgnRemarks" class="form-control" placeholder="Optional notes">
                 </div>
               </div>
-              <div class="waste-note">
+              <div class="gems-note">
                 <i class="fas fa-info-circle"></i>
                 <div>
                   <div>Saving adds the weight to the premise balance and puts the record in <strong>Pending Collection</strong>.</div>
@@ -80,9 +80,9 @@
               </div>
             </form>
           </div>
-          <div class="card-footer waste-form-footer">
-            <div class="waste-form-footer-note"><span class="required" aria-hidden="true">*</span> Required fields.</div>
-            <div class="waste-form-footer-actions">
+          <div class="card-footer gems-form-footer">
+            <div class="gems-form-footer-note"><span class="required" aria-hidden="true">*</span> Required fields.</div>
+            <div class="gems-form-footer-actions">
               <button type="button" class="btn btn-outline-secondary" id="btnWgnReset">Clear</button>
               <button type="button" class="btn btn-primary" id="btnWgnSave"><i class="fas fa-save me-2"></i>Save Generation</button>
             </div>
@@ -136,6 +136,7 @@
 </script>
 <script>
   document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/waste_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/main_waste_generation.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');

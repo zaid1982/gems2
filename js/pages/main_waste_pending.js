@@ -138,8 +138,8 @@ function MainWastePending() {
                     let html = wc.actionBtn({ href: 'p_waste_record_form?id=' + r.txnId, tint: 'gems-btn-action-view', cls: 'lnkWpdView', title: 'View', icon: 'fas fa-eye' });
                     if (r.canDispose && wc.caps.canDispose) {
                         html += wc.actionBtn({ href: 'p_waste_dispose?id=' + r.txnId, tint: 'gems-btn-action-edit', title: 'Execute disposal', icon: 'fas fa-truck-ramp-box' });
-                        html += wc.actionBtn({ href: '#', tint: 'gems-btn-action-edit', cls: 'lnkWpdEdit', title: 'Edit', icon: 'fas fa-pen', extra: 'data-id="' + r.txnId + '"' });
-                        html += wc.actionBtn({ href: '#', tint: 'gems-btn-action-delete', cls: 'lnkWpdDel', title: 'Delete', icon: 'fas fa-trash', extra: 'data-id="' + r.txnId + '"' });
+                        html += wc.actionBtn({ tint: 'gems-btn-action-edit', cls: 'lnkWpdEdit', title: 'Edit', icon: 'fas fa-pen', extra: 'data-id="' + r.txnId + '"' });
+                        html += wc.actionBtn({ tint: 'gems-btn-action-delete', cls: 'lnkWpdDel', title: 'Delete', icon: 'fas fa-trash', extra: 'data-id="' + r.txnId + '"' });
                     } else if (r.disposalRef) {
                         html += '<span class="text-muted small">' + r.disposalRef + '</span>';
                     }

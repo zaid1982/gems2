@@ -182,6 +182,7 @@ function MainEnergyDaily() {
 
     const renderMeters = function (rows) {
         const body = $('#tblEmtList tbody');
+        if (window.GemsUI) { GemsUI.disposeTooltips(body[0]); }
         if (!rows || !rows.length) {
             body.html('<tr><td colspan="5" class="gems-empty-cell">' + ec.emptyState('fa-gauge', 'No meters yet') + '</td></tr>');
             return;

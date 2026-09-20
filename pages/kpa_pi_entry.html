@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
-  <link rel="stylesheet" href="css/gems-theme.css">
+  <link rel="stylesheet" href="css/gems-theme.css?p3h1">
 </head>
 <body class="gems-tabler">
 <div class="page">
@@ -100,9 +100,9 @@
               <div id="lblKpeMessage"></div>
             </div>
           </div>
-          <div class="card-footer waste-form-footer">
-            <div class="waste-form-footer-note" id="lblKpeFooterNote">Save a draft as often as you like. Submitting locks the values.</div>
-            <div class="waste-form-footer-actions">
+          <div class="card-footer gems-form-footer">
+            <div class="gems-form-footer-note" id="lblKpeFooterNote">Save a draft as often as you like. Submitting locks the values.</div>
+            <div class="gems-form-footer-actions">
               <button type="button" class="btn btn-outline-secondary" id="btnKpeSave"><i class="fas fa-save me-2"></i>Save Draft</button>
               <button type="button" class="btn btn-outline-secondary" id="btnKpeReopen" style="display:none"><i class="fas fa-lock-open me-2"></i>Reopen</button>
               <button type="button" class="btn btn-primary" id="btnKpeSubmit"><i class="fas fa-check me-2"></i>Submit PI</button>
@@ -135,6 +135,7 @@
 </script>
 <script>
   document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/kpa_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/main_kpa_pi_entry.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');

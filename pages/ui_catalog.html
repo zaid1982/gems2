@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
-  <link rel="stylesheet" href="css/gems-theme.css?p3c">
+  <link rel="stylesheet" href="css/gems-theme.css?p3h1">
 
   <style>
     /* ------------------------------------------------------------------
@@ -121,6 +121,7 @@
             <a href="#sec-badges">Badges</a> &middot;
             <a href="#sec-filter">Demo 1: filter bar</a> &middot;
             <a href="#sec-table">Table + empty state</a> &middot;
+            <a href="#sec-gemsui">Shared helpers (GemsUI)</a> &middot;
             <a href="#sec-workbook">Dense workbook (32px)</a> &middot;
             <a href="#sec-sheet">Demo 3: page sheet</a> &middot;
             <a href="#sec-modals">Demo 2: modals</a> &middot;
@@ -799,6 +800,31 @@
         </section>
 
         <!-- =========================================================
+             SHARED JS HELPERS — window.GemsUI (P3 H1)
+             ========================================================= -->
+        <section class="cat-section" id="sec-gemsui">
+          <h2>6b. Shared JS helpers &mdash; <code>window.GemsUI</code></h2>
+          <p class="cat-note">
+            Tabler pages load <code>js/gems-tabler-ui.js</code> after
+            <code>common.js</code> (see <code>html/scripts_tabler.html</code>).
+            The file assigns <code>window.GemsUI</code> and does nothing else on
+            load. Use it for DataTables chrome, <code>actionBtn</code>, empty
+            states, badges, selects, and tooltip dispose/init. Do not copy
+            <code>waste_common</code> / <code>kpa_common</code> /
+            <code>energy_common</code>. <code>href</code> only when the action
+            changes <code>window.location</code>; otherwise
+            <code>actionBtn</code> emits <code>&lt;button type="button"&gt;</code>.
+            Dispose tooltips before a DataTable redraw or before replacing
+            action HTML. Do not load this file on MDB pages.
+            Canonical CSS: <code>gems-form-footer*</code>, <code>gems-note</code>,
+            <code>gems-chart</code> / <code>-sm</code> / <code>-lg</code>.
+            Leave <code>.bei-chart</code>, <code>.enr-grid*</code>,
+            <code>.bei-table</code>, <code>.autosave-state</code>, and
+            JS-coupled <code>waste-*</code> names alone.
+          </p>
+        </section>
+
+        <!-- =========================================================
              DENSE WORKBOOK — 32px cells (Energy helper, reuse as-is)
              ========================================================= -->
         <section class="cat-section" id="sec-workbook">
@@ -1235,6 +1261,7 @@
 <script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
 <script src="js/modules/toastr.js"></script>
 <script src="js/common.js?p1"></script>
+<script src="js/gems-tabler-ui.js?p3h1b"></script>
 
 <script>
   // The catalog deliberately never calls initiatePages(): that function gates on

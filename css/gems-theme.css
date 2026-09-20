@@ -836,11 +836,19 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
    in gems2-ui.css, which a Tabler page must never load. This section only
    restyles those existing hooks with the P0 tokens — it does not invent a
    second form grid or badge language.
+
+   Canonical shared aliases (P3 H1): .gems-chart / .gems-chart-sm,
+   .gems-form-footer*, .gems-note. Module-prefixed selectors stay one wave
+   as aliases; remove them at P6. Do not rename JS-coupled waste-* hooks.
    -------------------------------------------------------------------------- */
+.gems-tabler .gems-chart,
 .gems-tabler .waste-chart { height: 280px; }
+.gems-tabler .gems-chart-sm,
 .gems-tabler .waste-chart-sm { height: 220px; }
 @media (min-width: 1600px) {
+  .gems-tabler .gems-chart,
   .gems-tabler .waste-chart { height: 320px; }
+  .gems-tabler .gems-chart-sm,
   .gems-tabler .waste-chart-sm { height: 260px; }
 }
 
@@ -996,6 +1004,7 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
 .gems-tabler .waste-history-title { font-weight: 700; font-size: 0.8125rem; }
 .gems-tabler .waste-history-meta { color: var(--gems-muted); font-size: 0.75rem; }
 
+.gems-tabler .gems-form-footer,
 .gems-tabler .waste-form-footer {
   display: flex;
   justify-content: space-between;
@@ -1003,17 +1012,22 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   flex-wrap: wrap;
   gap: 0.75rem;
 }
+.gems-tabler .gems-form-footer-note,
 .gems-tabler .waste-form-footer-note { color: var(--gems-muted); font-size: 0.75rem; }
+.gems-tabler .gems-form-footer-actions,
 .gems-tabler .waste-form-footer-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .gems-tabler .waste-sw-official { font-size: 0.75rem; color: var(--gems-muted); margin: 0.25rem 0 0; }
 .gems-tabler #txtWrfLocText:not(.d-none) { margin-top: 0.4rem; }
 
 @media (max-width: 575.98px) {
+  .gems-tabler .gems-form-footer,
   .gems-tabler .waste-form-footer {
     flex-direction: column;
     align-items: stretch;
   }
+  .gems-tabler .gems-form-footer-actions,
   .gems-tabler .waste-form-footer-actions { justify-content: stretch; }
+  .gems-tabler .gems-form-footer-actions .btn,
   .gems-tabler .waste-form-footer-actions .btn { flex: 1 1 auto; }
 }
 
@@ -1027,11 +1041,17 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
 
    .autosave-state is the shared KPA + Energy hook (same class, same
    saving/saved/error/idle semantics). Do not restyle it per page.
+
+   .kpa-chart* stay as one-wave aliases of .gems-chart* (same heights).
    -------------------------------------------------------------------------- */
+.gems-tabler .gems-chart,
 .gems-tabler .kpa-chart { height: 280px; }
+.gems-tabler .gems-chart-sm,
 .gems-tabler .kpa-chart-sm { height: 220px; }
 @media (min-width: 1600px) {
+  .gems-tabler .gems-chart,
   .gems-tabler .kpa-chart { height: 320px; }
+  .gems-tabler .gems-chart-sm,
   .gems-tabler .kpa-chart-sm { height: 260px; }
 }
 
@@ -1070,8 +1090,19 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
    32px control class. Do not use these selectors on filters, modals, or
    gems-form-grid fields. Empty-state wrap is the shared table exception
    in § empty-state, not a page-specific width hack.
+
+   .gems-chart-lg is the canonical monthly-chart size (320→380 @1600 +
+   overflow). .enr-chart stays a one-wave alias. .bei-chart stays 320→340
+   @1600 — do not fold it into .gems-chart-lg (that would change the wide
+   height).
    -------------------------------------------------------------------------- */
-.gems-tabler .enr-chart,
+.gems-tabler .gems-chart-lg,
+.gems-tabler .enr-chart {
+  height: 320px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
 .gems-tabler .bei-chart {
   height: 320px;
   width: 100%;
@@ -1079,6 +1110,7 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   overflow: hidden;
 }
 @media (min-width: 1600px) {
+  .gems-tabler .gems-chart-lg,
   .gems-tabler .enr-chart { height: 380px; }
   .gems-tabler .bei-chart { height: 340px; }
 }

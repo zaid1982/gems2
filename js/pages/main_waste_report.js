@@ -38,9 +38,9 @@ function MainWasteReport() {
                 { data: 'changedSinceGenerated', render: function (v) { return v ? '<span class="badge gems-badge gems-badge-warning">Changed</span>' : '<span class="badge gems-badge gems-badge-success">Current</span>'; } },
                 { data: null, orderable: false, className: 'text-center text-nowrap', render: function (r) {
                     let html = '';
-                    if (r.pdfUploadId) html += wc.actionBtn({ href: '#', tint: 'gems-btn-action-view', cls: 'lnkFile', title: 'Open PDF', icon: 'fas fa-file-pdf', extra: 'data-id="' + r.pdfUploadId + '"' });
-                    if (r.excelUploadId) html += wc.actionBtn({ href: '#', tint: 'gems-btn-action-view', cls: 'lnkFile', title: 'Open Excel', icon: 'fas fa-file-excel', extra: 'data-id="' + r.excelUploadId + '"' });
-                    if (wc.caps.canReport) html += wc.actionBtn({ href: '#', tint: 'gems-btn-action-edit', cls: 'lnkSubmit', title: 'Record submission', icon: 'fas fa-paper-plane', extra: 'data-id="' + r.reportId + '"' });
+                    if (r.pdfUploadId) html += wc.actionBtn({ tint: 'gems-btn-action-view', cls: 'lnkFile', title: 'Open PDF', icon: 'fas fa-file-pdf', extra: 'data-id="' + r.pdfUploadId + '"' });
+                    if (r.excelUploadId) html += wc.actionBtn({ tint: 'gems-btn-action-view', cls: 'lnkFile', title: 'Open Excel', icon: 'fas fa-file-excel', extra: 'data-id="' + r.excelUploadId + '"' });
+                    if (wc.caps.canReport) html += wc.actionBtn({ tint: 'gems-btn-action-edit', cls: 'lnkSubmit', title: 'Record submission', icon: 'fas fa-paper-plane', extra: 'data-id="' + r.reportId + '"' });
                     return html;
                 } }
             ],

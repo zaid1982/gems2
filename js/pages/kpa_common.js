@@ -132,6 +132,7 @@ function KpaCommon() {
     };
 
     this.badge = function (kind, label) {
+        if (window.GemsUI) { return GemsUI.badge(kind, label); }
         if (self.isTabler()) {
             return '<span class="badge gems-badge gems-badge-' + kind + '">' + label + '</span>';
         }
@@ -190,15 +191,17 @@ function KpaCommon() {
     };
 
     this.escape = function (value) {
+        if (window.GemsUI) { return GemsUI.escape(value); }
         if (value === null || value === undefined) { return ''; }
         return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     };
 
-    // Canonical P2/P3A DataTables chrome: hide DT's own filter, scroll ONLY the
-    // table, keep info + pagination in a real .card-footer outside the scroller.
-    this.dtDom = "<'d-none'f>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
-    this.dtDomButtons = "<'d-none'B>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
+    // Canonical P2/P3A DataTables chrome. Delegate to GemsUI on Tabler;
+    // keep the local bodies so kpi_in.html (MDB) still works without GemsUI.
+    this.dtDom = window.GemsUI ? GemsUI.dtDom : "<'d-none'f>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
+    this.dtDomButtons = window.GemsUI ? GemsUI.dtDomButtons : "<'d-none'B>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
     this.dtEmpty = function (icon, emptyText, zeroText) {
+        if (window.GemsUI) { return GemsUI.dtEmpty(icon, emptyText, zeroText); }
         return $.extend({}, _DATATABLE_LANGUAGE, {
             emptyTable: '<div class="gems-empty-state"><i class="fas ' + (icon || 'fa-inbox') + '"></i><p>' + emptyText + '</p></div>',
             zeroRecords: '<div class="gems-empty-state"><i class="fas fa-filter"></i><p>' + (zeroText || 'No records match the current filters.') + '</p></div>'
@@ -206,6 +209,7 @@ function KpaCommon() {
     };
 
     this.actionBtn = function (opts) {
+        if (window.GemsUI) { return GemsUI.actionBtn(opts); }
         const href = opts.href ? ' href="' + opts.href + '"' : ' type="button"';
         const tag = opts.href ? 'a' : 'button';
         const extra = opts.extra || '';
@@ -216,6 +220,7 @@ function KpaCommon() {
     };
 
     this.bindDtTooltips = function (tableId) {
+        if (window.GemsUI) { return GemsUI.bindDtTooltips(tableId); }
         const $table = $(tableId);
         $table.on('draw.dt', function () {
             if (typeof window.gemsInitTooltips === 'function') {
@@ -225,6 +230,7 @@ function KpaCommon() {
     };
 
     this.dtButtons = function (title) {
+        if (window.GemsUI) { return GemsUI.dtButtons(title); }
         const btnClass = self.isTabler()
             ? 'btn btn-outline-secondary btn-sm'
             : 'btn btn-outline-grey btn-sm px-2 ml-0';
