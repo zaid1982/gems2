@@ -8,8 +8,46 @@ function ModalFcaZone () {
     let fcaZoneId;
     let modalConfirmDeleteClass;
 
+    function siteRows() {
+        const rows = [];
+        $.each(refSite || {}, function (key, site) {
+            if (!site || typeof site !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, site);
+            if (!row['siteId']) {
+                row['siteId'] = key;
+            }
+            if (!row['siteId'] && !row['siteName']) {
+                return true;
+            }
+            if (String(row['siteStatus']) !== '1') {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return (a['siteName'] || '').localeCompare(b['siteName'] || '');
+        });
+        return rows;
+    }
+
+    function fillSiteSelect(selected) {
+        GemsUI.fillSelect(
+            'optMfzSite',
+            siteRows(),
+            'siteId',
+            function (row) {
+                return row['siteName'] || '';
+            },
+            'Select Site *',
+            selected
+        );
+    }
+
     this.init = function () {
-        mzOptionV2('optMfzSite', refSite, 'Select Site *', 'siteName', {siteStatus: 1}, 'required');
+        fillSiteSelect();
 
         const vData = [
             {
@@ -103,9 +141,10 @@ function ModalFcaZone () {
         setTimeout(function () {
             try {
                 formValidate.clearValidation();
+                fillSiteSelect();
                 $('#btnMfzSubmit').show();
                 $('#btnMfzDelete, #btnMfzSave').hide();
-                $('#h4MfzTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add New FCA Zone');
+                $('#h4MfzTitle').html('<i class="fas fa-plus me-2"></i>Add New FCA Zone');
                 $('#modal_fca_zone').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -122,12 +161,13 @@ function ModalFcaZone () {
                 fcaZoneId = _fcaZoneId;
                 formValidate.clearValidation();
                 const data = mzAjaxRequest2('fca_zone/'+fcaZoneId, 'GET');
+                fillSiteSelect(data['siteId']);
                 mzSetFieldValue('MfzSite', data['siteId'], 'select');
                 mzSetFieldValue('MfzName', data['fcaZoneName'], 'text');
                 mzSetFieldValue('MfzStatus', data['fcaZoneStatus'], 'radio');
                 $('#btnMfzSubmit').hide();
                 $('#btnMfzDelete, #btnMfzSave').show();
-                $('#h4MfzTitle').html('<i class="fas fa-edit text-white"></i> &nbsp;Edit FCA Zone');
+                $('#h4MfzTitle').html('<i class="fas fa-edit me-2"></i>Edit FCA Zone');
                 $('#modal_fca_zone').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

@@ -8,6 +8,16 @@ function MainFcaZone () {
     let isAuditor = false;
     let modalFcaZoneClass;
 
+    function siteName(siteId) {
+        const row = refSite && (refSite[siteId] || refSite[String(siteId)]);
+        return row && row['siteName'] ? row['siteName'] : siteId;
+    }
+
+    function statusDesc(statusId) {
+        const row = refStatus && (refStatus[statusId] || refStatus[String(statusId)]);
+        return row && row['statusDesc'] ? row['statusDesc'] : statusId;
+    }
+
     this.init = function () {
         isAuditor = mzIsRoleExist('22');
 
@@ -16,31 +26,28 @@ function MainFcaZone () {
             bFilter: true,
             aaSorting: [[1, 'asc'],[2, 'asc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-map-marked-alt', 'No FCA zones recorded yet.', 'No zones match the current search.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-5 col-sm-7 px-0 pb-2'B><'col-7 col-sm-5 pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [0, 3] },
                 { className: 'noVis', targets: [0] }
             ],
             buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'one-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFczHide', text:'<i class="fas fa-print"></i>', title:'GEMS - FCA Zone List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFczHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Zone List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFczHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Zone List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3 btnFczHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - FCA Zone List', titleAttr: 'PDF', exportOptions: mzExportOpt},
-                { text: '<i class="fas fa-plus mr-2"></i>Add New Zone', className: 'btn btn-outline-red btn-sm px-2 ml-0', attr: { id: 'btnFczAdd' }, titleAttr: 'Add New FCA Zone'}
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'one-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-secondary btn-sm', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-secondary btn-sm btnFczHide', text:'<i class="fas fa-print"></i>', title:'GEMS - FCA Zone List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-secondary btn-sm btnFczHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Zone List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-secondary btn-sm btnFczHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Zone List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-secondary btn-sm btnFczHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - FCA Zone List', titleAttr: 'PDF', exportOptions: mzExportOpt},
+                { text: '<i class="fas fa-plus me-2"></i>Add New Zone', className: 'btn btn-primary btn-sm', attr: { id: 'btnFczAdd' }, titleAttr: 'Add New FCA Zone'}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('#btnFczAdd').off('click').on('click', function () {
                     if (!isAuditor) {
                         toastr['error']('You don\'t have permission as FCA Auditor role to perform this task!', _ALERT_TITLE_ERROR);
@@ -56,13 +63,18 @@ function MainFcaZone () {
             aoColumns: [
                 {mData: null},
                 {mData: 'siteId', mRender: function(data) {
-                        return refSite[data]['siteName'];
+                        return siteName(data);
                     }},
                 {mData: 'fcaZoneName'},
                 {mData: 'fcaZoneStatus', mRender: function(data) {
-                        return refStatus[data]['statusDesc'];
+                        return statusDesc(data);
                     }}
             ]
+        });
+        oTableFcz.buttons().container().appendTo($('#btnDtFczExport'));
+        GemsUI.bindDtTooltips('#dtFczData');
+        $('#txtFczSearch').on('keyup search input', function () {
+            oTableFcz.search(this.value).draw();
         });
         let oTableFczTbody = $('#dtFczData tbody');
         oTableFczTbody.delegate('tr', 'click', function () {
@@ -79,7 +91,7 @@ function MainFcaZone () {
             cell.css('cursor', 'pointer');
             cell.attr('data-toggle', 'tooltip');
             cell.attr('title', 'Click to edit '+data['fcaZoneName']+' details');
-            $('[data-toggle="tooltip"]').tooltip();
+            GemsUI.initTooltips(cell[0]);
         });
 
         self.genTable();
