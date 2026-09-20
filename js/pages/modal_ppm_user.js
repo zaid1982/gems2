@@ -13,6 +13,57 @@ function ModalPpmUser() {
     let refUser;
     let formValidate;
 
+    function rowsFromRef(ref, idKey, labelKey, predicate) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (predicate && !predicate(row)) {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function userHasRole(row, roleCur) {
+        const roles = row['roles'];
+        if (roles === null || roles === undefined || roles === '') {
+            return false;
+        }
+        const parts = String(roles).split(',');
+        for (let i = 0; i < parts.length; i++) {
+            if (parts[i] === String(roleCur)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function fillUserSelect(roleCur, siteKey, placeholder) {
+        GemsUI.fillSelect(
+            'optMpuUserId',
+            rowsFromRef(refUser, 'userId', 'userFullName', function (row) {
+                if (String(row['siteId']) !== String(siteKey)) {
+                    return false;
+                }
+                return userHasRole(row, roleCur);
+            }),
+            'userId',
+            function (row) { return row['userFullName'] || ''; },
+            placeholder
+        );
+    }
+
     this.init = function () {
         const vData = [
             {
@@ -32,7 +83,7 @@ function ModalPpmUser() {
             $('#btnMpuSubmit').attr('disabled', !formValidate.validateForm());
         });
 
-        $('#modal_ppm_user').on('hidden.bs.modal', function(){
+        $('#modal_ppm_user').on('hidden.bs.modal', function () {
             formValidate.clearValidation();
             $('#btnMpuSubmit').attr('disabled', true);
         });
@@ -41,7 +92,7 @@ function ModalPpmUser() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
+                    if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
@@ -90,13 +141,13 @@ function ModalPpmUser() {
                 const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
 
                 if (roleId === '3') {
-                    mzOptionStop('optMpuUserId', refUser, 'Choose Reviewer', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
+                    fillUserSelect(roleId, siteId, 'Choose Reviewer');
                 } else if (roleId === '4') {
-                    mzOptionStop('optMpuUserId', refUser, 'Choose Verifier', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
+                    fillUserSelect(roleId, siteId, 'Choose Verifier');
                 } else if (roleId === '5') {
-                    mzOptionStop('optMpuUserId', refUser, 'Choose Executor', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
+                    fillUserSelect(roleId, siteId, 'Choose Executor');
                 } else if (roleId === '8') {
-                    mzOptionStop('optMpuUserId', refUser, 'Choose WO Executor', 'userId', 'userFullName', {roles: '#'+roleId, siteId: siteId}, 'required');
+                    fillUserSelect(roleId, siteId, 'Choose WO Executor');
                 }
 
                 const clientId = refSite[siteId]['clientId'];

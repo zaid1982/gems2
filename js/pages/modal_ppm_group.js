@@ -12,6 +12,62 @@ function ModalPpmGroup() {
     let refSite;
     let formValidate;
 
+    function rowsFromRef(ref, idKey, labelKey, predicate, selectedId) {
+        const rows = [];
+        let hasSelected = false;
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            const isSelected = selectedId !== undefined && selectedId !== null && selectedId !== ''
+                && String(row[idKey]) === String(selectedId);
+            if (predicate && !predicate(row) && !isSelected) {
+                return true;
+            }
+            if (isSelected) {
+                hasSelected = true;
+            }
+            rows.push(row);
+            return true;
+        });
+        if (selectedId !== undefined && selectedId !== null && selectedId !== '' && !hasSelected && ref && ref[selectedId]) {
+            const extra = $.extend({}, ref[selectedId]);
+            if (extra[idKey] === undefined || extra[idKey] === null || extra[idKey] === '') {
+                extra[idKey] = selectedId;
+            }
+            rows.push(extra);
+        }
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function fillReportToSelect(roleCur, siteKey, placeholder, selected) {
+        const versionLocal = mzGetDataVersion();
+        const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
+        GemsUI.fillSelect(
+            'optMpgReportTo',
+            rowsFromRef(refPpmGroup, 'ppmGroupId', 'ppmGroupName', function (row) {
+                if (String(row['roleId']) !== String(roleCur)) {
+                    return false;
+                }
+                if (String(row['siteId']) !== String(siteKey)) {
+                    return false;
+                }
+                return String(row['ppmGroupStatus']) === '1';
+            }, selected),
+            'ppmGroupId',
+            function (row) { return row['ppmGroupName'] || ''; },
+            placeholder,
+            selected
+        );
+    }
+
     this.init = function () {
         const vData = [
             {
@@ -40,7 +96,7 @@ function ModalPpmGroup() {
             $('#btnMpgSubmit').attr('disabled', !formValidate.validateForm());
         });
 
-        $('#modal_ppm_group').on('hidden.bs.modal', function(){
+        $('#modal_ppm_group').on('hidden.bs.modal', function () {
             formValidate.clearValidation();
             $('#btnMpgSubmit').attr('disabled', true);
         });
@@ -49,7 +105,7 @@ function ModalPpmGroup() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
+                    if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
@@ -96,7 +152,6 @@ function ModalPpmGroup() {
                 roleId = _roleId;
 
                 if (roleId === '5' || roleId === '3') {
-                    const versionLocal = mzGetDataVersion();
                     let roleCur = '';
                     let defaultText = '';
                     if (roleId === '5') {
@@ -106,8 +161,7 @@ function ModalPpmGroup() {
                         roleCur = '4';
                         defaultText = 'Choose Engineer Group';
                     }
-                    const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
-                    mzOptionStop('optMpgReportTo', refPpmGroup, defaultText, 'ppmGroupId', 'ppmGroupName', {roleId:roleCur, siteId:siteId, ppmGroupStatus: '1'}, 'required');
+                    fillReportToSelect(roleCur, siteId, defaultText, '');
                     formValidate.enableField('optMpgReportTo');
                     $('#divMpgReportTo').show();
                 } else {
@@ -141,8 +195,7 @@ function ModalPpmGroup() {
                     classFrom.genTableWoTechnician();
                     classFrom.genTableWoVerifier();
                     if (_ppmGroupId == classFrom.getPpmGroupId()) {
-                        $('#divPgrMain').removeClass('col-md-7').addClass('col-md-12');
-                        $('#divPgrDetails').hide();
+                        classFrom.hideDetails();
                     }
                 }
             } catch (e) {

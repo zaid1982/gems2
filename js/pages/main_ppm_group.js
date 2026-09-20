@@ -40,6 +40,119 @@ function MainPpmGroup() {
     const tableLabelsWoTechnician = ['#', 'Group Name', 'Total User', 'Status', 'Actions'];
     const tableLabelsUser = ['#', 'Name', 'Status', 'Actions'];
 
+
+    function rowsFromRef(ref, idKey, labelKey, predicate, selectedId) {
+        const rows = [];
+        let hasSelected = false;
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            const isSelected = selectedId !== undefined && selectedId !== null && selectedId !== ''
+                && String(row[idKey]) === String(selectedId);
+            if (predicate && !predicate(row) && !isSelected) {
+                return true;
+            }
+            if (isSelected) {
+                hasSelected = true;
+            }
+            rows.push(row);
+            return true;
+        });
+        if (selectedId !== undefined && selectedId !== null && selectedId !== '' && !hasSelected && ref && ref[selectedId]) {
+            const extra = $.extend({}, ref[selectedId]);
+            if (extra[idKey] === undefined || extra[idKey] === null || extra[idKey] === '') {
+                extra[idKey] = selectedId;
+            }
+            rows.push(extra);
+        }
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function fillClientSelect(selected) {
+        GemsUI.fillSelect(
+            'optPgrClientId',
+            rowsFromRef(refClient, 'clientId', 'clientName'),
+            'clientId',
+            function (row) { return row['clientName'] || ''; },
+            'Choose Client',
+            selected
+        );
+    }
+
+    function fillSiteSelect(clientKey, selected) {
+        GemsUI.fillSelect(
+            'optPgrSiteId',
+            rowsFromRef(refSite, 'siteId', 'siteName', function (row) {
+                if (clientKey && String(row['clientId']) !== String(clientKey)) {
+                    return false;
+                }
+                return String(row['siteStatus']) === '1';
+            }),
+            'siteId',
+            function (row) { return row['siteName'] || ''; },
+            'Choose Site',
+            selected
+        );
+    }
+
+    function fillReportToSelect(roleCur, siteKey, placeholder, selected) {
+        const versionLocal = mzGetDataVersion();
+        const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
+        GemsUI.fillSelect(
+            'optPgrInfoReportTo',
+            rowsFromRef(refPpmGroup, 'ppmGroupId', 'ppmGroupName', function (row) {
+                if (String(row['roleId']) !== String(roleCur)) {
+                    return false;
+                }
+                if (String(row['siteId']) !== String(siteKey)) {
+                    return false;
+                }
+                return String(row['ppmGroupStatus']) === '1';
+            }, selected),
+            'ppmGroupId',
+            function (row) { return row['ppmGroupName'] || ''; },
+            placeholder,
+            selected
+        );
+    }
+
+    function statusLabel(statusId, fallback) {
+        if (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc']) {
+            return refStatus[statusId]['statusDesc'];
+        }
+        return fallback || 'Unknown';
+    }
+
+    function statusBadgeKind(status) {
+        switch (String(status)) {
+            case '1':
+                return 'success';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
+
+    function statusBadge(statusId, type) {
+        const label = statusLabel(statusId, 'Unknown');
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
+    const dtPlainDom = "<'d-none'f>r<'table-responsive't>";
+
+
     const toStr = function (value) {
         return value === null || typeof value === 'undefined' ? '' : String(value);
     };
@@ -265,19 +378,13 @@ function MainPpmGroup() {
 
         setDetailsVisible(false);
 
-        mzOption('optPgrClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
-        mzOption('optPgrSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: clientId, siteStatus: '1'}, 'required');
-
-        $('#optPgrClientId').val(clientId);
-        $('#optPgrSiteId').val(siteId);
-        refreshMaterialSelect('#optPgrClientId');
-        refreshMaterialSelect('#optPgrSiteId');
+        fillClientSelect(clientId);
+        fillSiteSelect(clientId, siteId);
 
         $('#optPgrClientId').on('change', function () {
             const selectedClient = toStr($(this).val());
             clientId = selectedClient;
-            mzOptionStop('optPgrSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: selectedClient, siteStatus: '1'}, 'required');
-            refreshMaterialSelect('#optPgrSiteId');
+            fillSiteSelect(selectedClient, '');
             siteId = '';
             if (formValidateSearch) {
                 $('#btnPgrSearch').attr('disabled', !formValidateSearch.validateForm());
@@ -318,8 +425,7 @@ function MainPpmGroup() {
         });
 
         if (!isGlobalAdmin) {
-            mzDisableSelect('optPgrClientId', true);
-            mzDisableSelect('optPgrSiteId', true);
+            $('#optPgrClientId, #optPgrSiteId').prop('disabled', true);
         }
         $('#btnPgrSearch').attr('disabled', !formValidateSearch.validateForm());
 
@@ -335,20 +441,32 @@ function MainPpmGroup() {
                 applyRowLabels(nRow, tableLabelsTechnician);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 updateGroupSummary(oTableTechnician, '#lblPgrTechnicianCount', '#lblPgrTechnicianUpdated', 'group');
             },
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-users', 'No groups loaded.'),
+            dom: dtPlainDom,
             aoColumns: [
                 {mData: null, bSortable: false},
-                {mData: 'ppmGroupName', bSortable: false},
-                {mData: 'reportTo', bSortable: false},
+                {
+                    mData: 'ppmGroupName',
+                    bSortable: false,
+                    mRender: function (data, type) {
+                        return type === 'display' ? GemsUI.escape(data || '') : (data || '');
+                    }
+                },
+                {
+                    mData: 'reportTo',
+                    bSortable: false,
+                    mRender: function (data, type) {
+                        return type === 'display' ? GemsUI.escape(data || '') : (data || '');
+                    }
+                },
                 {mData: 'totalUser', bSortable: false},
                 {
                     mData: null,
                     bSortable: false,
                     mRender: function (data, type, row) {
-                        return '<h6><span class="badge badge-pill ' + refStatus[row['ppmGroupStatus']]['statusColor'] + ' z-depth-2">' + refStatus[row['ppmGroupStatus']]['statusDesc'] + '</span></h6>';
+                        return statusBadge(row['ppmGroupStatus'], type);
                     }
                 },
                 {
@@ -356,16 +474,14 @@ function MainPpmGroup() {
                     bSortable: false,
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        label += '<button type="button" class="btn-action btn-edit lnkPgrTechnicianEdit" id="lnkPgrTechnicianEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
-                        label += '<button type="button" class="btn-action btn-delete lnkPgrTechnicianDelete" id="lnkPgrTechnicianDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                        label += '</div>';
-                        return label;
+                        return GemsUI.actionBtn({id:'lnkPgrTechnicianEdit_' + meta.row, cls:'lnkPgrTechnicianEdit', icon:'fas fa-edit', title:'Edit'})
+                            + GemsUI.actionBtn({id:'lnkPgrTechnicianDelete_' + meta.row, cls:'lnkPgrTechnicianDelete', icon:'fas fa-trash-alt', title:'Delete'});
                     }
                 }
             ]
         });
         $('#dtPgrTechnician_filter').hide();
+        GemsUI.bindDtTooltips('#dtPgrTechnician');
 
         // Event delegation for Technician table
         $('#dtPgrTechnician').on('click', '.lnkPgrTechnicianEdit', function () {
@@ -408,20 +524,32 @@ function MainPpmGroup() {
                 applyRowLabels(nRow, tableLabelsSupervisor);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 updateGroupSummary(oTableSupervisor, '#lblPgrSupervisorCount', '#lblPgrSupervisorUpdated', 'group');
             },
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-users', 'No groups loaded.'),
+            dom: dtPlainDom,
             aoColumns: [
                 {mData: null, bSortable: false},
-                {mData: 'ppmGroupName', bSortable: false},
-                {mData: 'reportTo', bSortable: false},
+                {
+                    mData: 'ppmGroupName',
+                    bSortable: false,
+                    mRender: function (data, type) {
+                        return type === 'display' ? GemsUI.escape(data || '') : (data || '');
+                    }
+                },
+                {
+                    mData: 'reportTo',
+                    bSortable: false,
+                    mRender: function (data, type) {
+                        return type === 'display' ? GemsUI.escape(data || '') : (data || '');
+                    }
+                },
                 {mData: 'totalUser', bSortable: false},
                 {
                     mData: null,
                     bSortable: false,
                     mRender: function (data, type, row) {
-                        return '<h6><span class="badge badge-pill ' + refStatus[row['ppmGroupStatus']]['statusColor'] + ' z-depth-2">' + refStatus[row['ppmGroupStatus']]['statusDesc'] + '</span></h6>';
+                        return statusBadge(row['ppmGroupStatus'], type);
                     }
                 },
                 {
@@ -429,16 +557,14 @@ function MainPpmGroup() {
                     bSortable: false,
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        label += '<button type="button" class="btn-action btn-edit lnkPgrSupervisorEdit" id="lnkPgrSupervisorEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
-                        label += '<button type="button" class="btn-action btn-delete lnkPgrSupervisorDelete" id="lnkPgrSupervisorDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                        label += '</div>';
-                        return label;
+                        return GemsUI.actionBtn({id:'lnkPgrSupervisorEdit_' + meta.row, cls:'lnkPgrSupervisorEdit', icon:'fas fa-edit', title:'Edit'})
+                            + GemsUI.actionBtn({id:'lnkPgrSupervisorDelete_' + meta.row, cls:'lnkPgrSupervisorDelete', icon:'fas fa-trash-alt', title:'Delete'});
                     }
                 }
             ]
         });
         $('#dtPgrSupervisor_filter').hide();
+        GemsUI.bindDtTooltips('#dtPgrSupervisor');
 
         // Event delegation for Supervisor table
         $('#dtPgrSupervisor').on('click', '.lnkPgrSupervisorEdit', function () {
@@ -481,19 +607,25 @@ function MainPpmGroup() {
                 applyRowLabels(nRow, tableLabelsEngineer);
             },
             drawCallback: function () {
-                $('#dtPgrEngineer [data-toggle="tooltip"]').tooltip();
                 updateGroupSummary(oTableEngineer, '#lblPgrEngineerCount', '#lblPgrEngineerUpdated', 'group');
             },
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-users', 'No groups loaded.'),
+            dom: dtPlainDom,
             aoColumns: [
                 {mData: null, bSortable: false},
-                {mData: 'ppmGroupName', bSortable: false},
+                {
+                    mData: 'ppmGroupName',
+                    bSortable: false,
+                    mRender: function (data, type) {
+                        return type === 'display' ? GemsUI.escape(data || '') : (data || '');
+                    }
+                },
                 {mData: 'totalUser', bSortable: false},
                 {
                     mData: null,
                     bSortable: false,
                     mRender: function (data, type, row) {
-                        return '<h6><span class="badge badge-pill ' + refStatus[row['ppmGroupStatus']]['statusColor'] + ' z-depth-2">' + refStatus[row['ppmGroupStatus']]['statusDesc'] + '</span></h6>';
+                        return statusBadge(row['ppmGroupStatus'], type);
                     }
                 },
                 {
@@ -501,16 +633,29 @@ function MainPpmGroup() {
                     bSortable: false,
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        label += '<button type="button" class="btn-action btn-edit" onclick="ppmGroupClass_.handleEngineerEdit(' + meta.row + ')" title="Edit"><i class="fas fa-edit"></i></button>';
-                        label += '<button type="button" class="btn-action btn-delete" onclick="ppmGroupClass_.handleEngineerDelete(' + meta.row + ')" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                        label += '</div>';
-                        return label;
+                        return GemsUI.actionBtn({id:'lnkPgrEngineerEdit_' + meta.row, cls:'lnkPgrEngineerEdit', icon:'fas fa-edit', title:'Edit'})
+                            + GemsUI.actionBtn({id:'lnkPgrEngineerDelete_' + meta.row, cls:'lnkPgrEngineerDelete', icon:'fas fa-trash-alt', title:'Delete'});
                     }
                 }
             ]
         });
         $('#dtPgrEngineer_filter').hide();
+        GemsUI.bindDtTooltips('#dtPgrEngineer');
+
+        $('#dtPgrEngineer').on('click', '.lnkPgrEngineerEdit', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                self.handleEngineerEdit(parseInt(linkId.substr(linkIndex + 1), 10));
+            }
+        });
+        $('#dtPgrEngineer').on('click', '.lnkPgrEngineerDelete', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                self.handleEngineerDelete(parseInt(linkId.substr(linkIndex + 1), 10));
+            }
+        });
 
         $('#btnPgrEngineerAdd').on('click', function () {
             modalPpmGroupClass.add(siteId, '4');
@@ -532,19 +677,25 @@ function MainPpmGroup() {
                 applyRowLabels(nRow, tableLabelsWoTechnician);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 updateGroupSummary(oTableWoTechnician, '#lblPgrWoTechnicianCount', '#lblPgrWoTechnicianUpdated', 'group');
             },
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-users', 'No groups loaded.'),
+            dom: dtPlainDom,
             aoColumns: [
                 {mData: null, bSortable: false},
-                {mData: 'ppmGroupName', bSortable: false},
+                {
+                    mData: 'ppmGroupName',
+                    bSortable: false,
+                    mRender: function (data, type) {
+                        return type === 'display' ? GemsUI.escape(data || '') : (data || '');
+                    }
+                },
                 {mData: 'totalUser', bSortable: false},
                 {
                     mData: null,
                     bSortable: false,
                     mRender: function (data, type, row) {
-                        return '<h6><span class="badge badge-pill ' + refStatus[row['ppmGroupStatus']]['statusColor'] + ' z-depth-2">' + refStatus[row['ppmGroupStatus']]['statusDesc'] + '</span></h6>';
+                        return statusBadge(row['ppmGroupStatus'], type);
                     }
                 },
                 {
@@ -552,16 +703,14 @@ function MainPpmGroup() {
                     bSortable: false,
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        label += '<button type="button" class="btn-action btn-edit lnkPgrWoTechnicianEdit" id="lnkPgrWoTechnicianEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
-                        label += '<button type="button" class="btn-action btn-delete lnkPgrWoTechnicianDelete" id="lnkPgrWoTechnicianDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                        label += '</div>';
-                        return label;
+                        return GemsUI.actionBtn({id:'lnkPgrWoTechnicianEdit_' + meta.row, cls:'lnkPgrWoTechnicianEdit', icon:'fas fa-edit', title:'Edit'})
+                            + GemsUI.actionBtn({id:'lnkPgrWoTechnicianDelete_' + meta.row, cls:'lnkPgrWoTechnicianDelete', icon:'fas fa-trash-alt', title:'Delete'});
                     }
                 }
             ]
         });
         $('#dtPgrWoTechnician_filter').hide();
+        GemsUI.bindDtTooltips('#dtPgrWoTechnician');
 
         // Event delegation for WoTechnician table
         $('#dtPgrWoTechnician').on('click', '.lnkPgrWoTechnicianEdit', function () {
@@ -629,7 +778,7 @@ function MainPpmGroup() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidateInfo.validateForm()) {
+                    if (!formValidateInfo.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     } else {
                         const txtName = $('#txtPgrInfoGroupName').val();
@@ -677,17 +826,18 @@ function MainPpmGroup() {
                 applyRowLabels(nRow, tableLabelsUser);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 updateUserSummary();
             },
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-user', 'No users loaded.'),
+            dom: dtPlainDom,
             aoColumns: [
                 {mData: null, bSortable: false},
                 {
                     mData: 'userId',
                     bSortable: false,
-                    mRender: function (data) {
-                        return refUser[data] ? refUser[data]['userFirstName'] : data;
+                    mRender: function (data, type) {
+                        const name = refUser[data] ? refUser[data]['userFirstName'] : data;
+                        return type === 'display' ? GemsUI.escape(name || '') : (name || '');
                     }
                 },
                 {
@@ -697,9 +847,9 @@ function MainPpmGroup() {
                         const userId = row['userId'];
                         const userStatus = refUser[userId] ? refUser[userId]['userStatus'] : '';
                         if (!refStatus[userStatus]) {
-                            return '-';
+                            return type === 'display' ? '-' : '';
                         }
-                        return '<h6><span class="badge badge-pill ' + refStatus[userStatus]['statusColor'] + ' z-depth-2">' + refStatus[userStatus]['statusDesc'] + '</span></h6>';
+                        return statusBadge(userStatus, type);
                     }
                 },
                 {
@@ -707,12 +857,13 @@ function MainPpmGroup() {
                     bSortable: false,
                     sClass: 'text-center',
                     mRender: function (data, type, row, meta) {
-                        return '<a><i class="fas fa-trash-alt lnkPgrUserDelete" id="lnkPgrUserDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"></i></a>';
+                        return GemsUI.actionBtn({id:'lnkPgrUserDelete_' + meta.row, cls:'lnkPgrUserDelete', icon:'fas fa-trash-alt', title:'Delete'});
                     }
                 }
             ]
         });
         $('#dtPgrUser_filter').hide();
+        GemsUI.bindDtTooltips('#dtPgrUser');
 
         // Event delegation for User table
         $('#dtPgrUser').on('click', '.lnkPgrUserDelete', function () {
@@ -734,6 +885,10 @@ function MainPpmGroup() {
         });
 
         $('#btnPgrSearch').on('click', function () {
+            if (!formValidateSearch.validateNow()) {
+                toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+                return;
+            }
             ShowLoader();
             setTimeout(function () {
                 try {
@@ -770,11 +925,9 @@ function MainPpmGroup() {
                 clientId = toStr(refSite[siteId]['clientId']);
 
                 if (roleId === '5' || roleId === '3') {
-                    const versionLocal = mzGetDataVersion();
                     const roleCur = roleId === '5' ? '3' : '4';
-                    const refPpmGroup = mzGetLocalArray('gems_ppmGroup', versionLocal, 'ppmGroupId', [], 'ppm_group');
                     const defaultText = roleId === '5' ? 'Choose Supervisor Group' : 'Choose Engineer Group';
-                    mzOptionStop('optPgrInfoReportTo', refPpmGroup, defaultText, 'ppmGroupId', 'ppmGroupName', {roleId: roleCur, siteId: siteId, ppmGroupStatus: '1'}, 'required');
+                    fillReportToSelect(roleCur, siteId, defaultText, dataPpmGroup['ppmGroupReportTo']);
                     formValidateInfo.enableField('optPgrInfoReportTo');
                     $('#divPgrInfoReportTo').show();
                 } else {
@@ -866,6 +1019,10 @@ function MainPpmGroup() {
 
     this.getPpmGroupId = function () {
         return ppmGroupId;
+    };
+
+    this.hideDetails = function () {
+        setDetailsVisible(false);
     };
 
     this.setRefStatus = function (_refStatus) {
