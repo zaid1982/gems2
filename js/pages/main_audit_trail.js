@@ -35,19 +35,6 @@ function MainAuditTrail() {
         return new Date().toLocaleString();
     };
 
-    const refreshMaterialSelect = function (selector) {
-        const $element = $(selector);
-        if (!$element.length || typeof $element.materialSelect !== 'function') {
-            return;
-        }
-        try {
-            $element.materialSelect('destroy');
-        } catch (err) {
-            // ignore when component not initialised yet
-        }
-        $element.materialSelect();
-    };
-
     const applyRowLabels = function (nRow) {
         $('td', nRow).each(function (index) {
             if (tableHeaders[index]) {
@@ -170,15 +157,10 @@ function MainAuditTrail() {
         $('#optAdtYear').val(currentYear.toString());
         $('#optAdtMonth').val(currentMonth.toString());
 
-        ['#optAdtYear', '#optAdtMonth', '#optAdtModule', '#optAdtAction'].forEach(function (selector) {
-            refreshMaterialSelect(selector);
-        });
-
         $('#optAdtModule').on('change', function () {
             const moduleVal = toStr($(this).val());
             const filterModule = moduleVal === '' ? '0' : moduleVal;
             mzOptionStop('optAdtAction', refAuditAction, 'All Action', 'auditActionId', 'auditActionDesc', {auditModuleId: filterModule}, '', false);
-            refreshMaterialSelect('#optAdtAction');
             updateScopeSummary();
             bindSearchButtonState();
         });
@@ -208,14 +190,14 @@ function MainAuditTrail() {
             pageLength: 100,
             aaSorting: [[1, 'asc']],
             autoWidth: false,
-            language: _DATATABLE_LANGUAGE,
+            dom: GemsUI.dtDomButtons,
+            language: GemsUI.dtEmpty('fa-clipboard-list', 'No audit entries for the selected filters.'),
             fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 const info = oTableAdt.page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
                 applyRowLabels(nRow);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 updateResultsSummary();
             },
             aoColumns: [
@@ -249,7 +231,7 @@ function MainAuditTrail() {
             ]
         });
 
-        $('#dtAdtList_filter').hide();
+        GemsUI.bindDtTooltips('#dtAdtList');
 
         $('#txtAdtSearch').on('keyup change', function () {
             const term = $(this).val() || '';
@@ -278,14 +260,14 @@ function MainAuditTrail() {
                     text: '<i class="fas fa-print"></i>',
                     title: 'GEMS 2.0 - Audit Trail List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-primary btn-sm btn-rounded waves-effect'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend(true, {}, btnAdtOpt, {
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel"></i>',
                     title: 'GEMS 2.0 - Audit Trail List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-primary btn-sm btn-rounded waves-effect'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend(true, {}, btnAdtOpt, {
                     extend: 'pdfHtml5',
@@ -293,7 +275,7 @@ function MainAuditTrail() {
                     title: 'GEMS 2.0 - Audit Trail List',
                     titleAttr: 'PDF',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-primary btn-sm btn-rounded waves-effect'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnAdtExport'));
