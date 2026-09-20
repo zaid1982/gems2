@@ -1,45 +1,59 @@
-<div class="modal fade gems-modal" id="modal_checklist_qual" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2" id="lblMqlTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_checklist_qual — Tabler/GEMS modal + form contract (P4C-6).
+
+  Loaded by pages/checklist.html ONLY. Copies the P4 modal contract:
+    gems-modal-md (640px) + modal-dialog-scrollable, never modal-dialog-centered.
+    Flat white header, btn-close flex-centred with the title.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close first, primary Submit last. No btn-info.
+
+  JS contract preserved (js/pages/modal_checklist_qual.js):
+    #modal_checklist_qual  #formMql
+    #txtMqlChecklistQualNumb  #lblMqlChecklistQualNumb  #txtMqlChecklistQualNumbErr
+    #txaMqlChecklistQualDesc  #lblMqlChecklistQualDesc  #txaMqlChecklistQualDescErr
+    #optMqlFrequencyId  #lblMqlFrequencyId  #optMqlFrequencyIdErr
+    #chkMqlChecklistQualStatus
+    #btnMqlSubmit  #lblMqlTitle
+-->
+<div class="modal fade" id="modal_checklist_qual" tabindex="-1" aria-labelledby="lblMqlTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMqlTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMql" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMqlChecklistQualNumb" id="lblMqlChecklistQualNumb">Numbering <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMqlChecklistQualNumb" class="form-control" aria-required="true" aria-describedby="txtMqlChecklistQualNumbErr">
+              <div class="gems-field-error" id="txtMqlChecklistQualNumbErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body gems-modal-body">
-                <form id="formMql">
-                    <div class="md-form md-outline">
-                        <input type="text" id="txtMqlChecklistQualNumb" class="form-control">
-                        <label for="txtMqlChecklistQualNumb" id="lblMqlChecklistQualNumb">Numbering *</label>
-                        <p class="font-small text-danger" id="txtMqlChecklistQualNumbErr"></p>
-                    </div>
-                    <div class="md-form md-outline">
-                        <textarea id="txaMqlChecklistQualDesc" class="md-textarea form-control" rows="3"></textarea>
-                        <label for="txaMqlChecklistQualDesc" id="lblMqlChecklistQualDesc" class="text-muted">Description *</label>
-                        <p class="font-small text-danger" id="txaMqlChecklistQualDescErr"></p>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline">
-                            <select id="optMqlFrequencyId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                            <label for="optMqlFrequencyId" id="lblMqlFrequencyId">Frequency *</label>
-                            <p class="font-small text-danger" id="optMqlFrequencyIdErr"></p>
-                        </div>
-                    </div>
-                    <h6 class="font-small">Status:</h6>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMqlChecklistQualStatus" name="chkMqlChecklistQualStatus" value="1">
-                        <label class="form-check-label" for="chkMqlChecklistQualStatus">Active</label>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMqlChecklistQualDesc" id="lblMqlChecklistQualDesc">Description <span class="required" aria-hidden="true">*</span></label>
+              <textarea id="txaMqlChecklistQualDesc" class="form-control" rows="3" aria-required="true" aria-describedby="txaMqlChecklistQualDescErr"></textarea>
+              <div class="gems-field-error" id="txaMqlChecklistQualDescErr" role="alert"></div>
             </div>
-            <div class="modal-footer p-2 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMqlSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optMqlFrequencyId" id="lblMqlFrequencyId">Frequency <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMqlFrequencyId" class="form-select" aria-required="true" aria-describedby="optMqlFrequencyIdErr"></select>
+              <div class="gems-field-error" id="optMqlFrequencyIdErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12">
+              <span class="form-label">Status</span>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="chkMqlChecklistQualStatus" name="chkMqlChecklistQualStatus" value="1">
+                <label class="form-check-label" for="chkMqlChecklistQualStatus">Active</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-undo-alt me-1"></i> Close</button>
+        <button type="button" id="btnMqlSubmit" class="btn btn-primary" disabled><i class="far fa-paper-plane me-1"></i> Submit</button>
+      </div>
     </div>
+  </div>
 </div>

@@ -8,8 +8,56 @@ function ModalChecklistQuan() {
     let refFrequency;
     let checklistId = '';
 
+    function rowsFromRef(ref, idKey, labelKey, predicate, selectedId) {
+        const rows = [];
+        let hasSelected = false;
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            const isSelected = selectedId !== undefined && selectedId !== null && selectedId !== ''
+                && String(row[idKey]) === String(selectedId);
+            if (predicate && !predicate(row) && !isSelected) {
+                return true;
+            }
+            if (isSelected) {
+                hasSelected = true;
+            }
+            rows.push(row);
+            return true;
+        });
+        if (selectedId !== undefined && selectedId !== null && selectedId !== '' && !hasSelected && ref && ref[selectedId]) {
+            const extra = $.extend({}, ref[selectedId]);
+            if (extra[idKey] === undefined || extra[idKey] === null || extra[idKey] === '') {
+                extra[idKey] = selectedId;
+            }
+            rows.push(extra);
+        }
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function fillFrequencySelect(selected) {
+        GemsUI.fillSelect(
+            'optMqnFrequencyId',
+            rowsFromRef(refFrequency, 'frequencyId', 'frequencyName', function (row) {
+                return String(row['frequencyStatus']) === '1';
+            }, selected),
+            'frequencyId',
+            function (row) { return row['frequencyName'] || ''; },
+            'Choose Frequency',
+            selected
+        );
+    }
+
     this.init = function () {
-        mzOption('optMqnFrequencyId', refFrequency, 'Choose Frequency', 'frequencyId', 'frequencyName', {frequencyStatus: '1'}, 'required', false);
+        fillFrequencySelect('');
 
         const vData = [
             {
@@ -79,7 +127,7 @@ function ModalChecklistQuan() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
+                    if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
@@ -125,8 +173,9 @@ function ModalChecklistQuan() {
                 rowRefresh = '';
                 checklistId = _checklistId;
 
+                fillFrequencySelect('');
                 mzSetFieldValue('MqnChecklistQuanStatus', '1', 'checkSingle', '1');
-                $('#lblMqnTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Quanitative Task');
+                $('#lblMqnTitle').html('<i class="fas fa-plus me-2"></i>Add Quanitative Task');
                 $('#modal_checklist_quan').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -149,10 +198,11 @@ function ModalChecklistQuan() {
                 mzSetFieldValue('MqnChecklistQuanDesc', dataMqn['checklistQuanDesc'], 'textarea');
                 mzSetFieldValue('MqnChecklistQuanUnit', dataMqn['checklistQuanUnit'], 'text');
                 mzSetFieldValue('MqnChecklistQuanSetValues', dataMqn['checklistQuanSetValues'], 'text');
-                mzSetFieldValue('MqnFrequencyId', dataMqn['frequencyId'], 'select', 'Frequency *');
+                fillFrequencySelect(dataMqn['frequencyId']);
+                mzSetFieldValue('MqnFrequencyId', dataMqn['frequencyId'], 'select');
                 mzSetFieldValue('MqnChecklistQuanStatus', dataMqn['checklistQuanStatus'], 'checkSingle', '1');
 
-                $('#lblMqnTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Quanitative Task');
+                $('#lblMqnTitle').html('<i class="far fa-edit me-2"></i>Edit Quanitative Task');
                 $('#modal_checklist_quan').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

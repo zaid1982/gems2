@@ -1,66 +1,59 @@
-<div class="modal fade gems-modal" id="modal_checklist_duplicate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-5 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2" id="lblMcxModalTitle"><i class="far fa-copy text-white"></i> &nbsp;Duplicate PPM Checklist</h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_checklist_duplicate — Tabler/GEMS modal + form contract (P4C-6).
+
+  Loaded by pages/checklist.html ONLY. Copies the P4 modal contract:
+    gems-modal-md + modal-dialog-scrollable, never modal-dialog-centered.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close first, primary Submit last.
+
+  JS contract preserved (js/pages/modal_checklist_duplicate.js):
+    #modal_checklist_duplicate  #formMcx  #lblMcxModalTitle
+    #pMcxDocumentNo  #pMcxChecklistName  #pMcxAssetType
+    #txtMcxDocumentNo  #lblMcxDocumentNo  #txtMcxDocumentNoErr
+    #txtMcxChecklistName  #lblMcxChecklistName  #txtMcxChecklistNameErr
+    #btnMcxSubmit  .btnMcxClose
+-->
+<div class="modal fade" id="modal_checklist_duplicate" tabindex="-1" aria-labelledby="lblMcxModalTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMcxModalTitle"><i class="far fa-copy me-2"></i>Duplicate PPM Checklist</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMcx" autocomplete="off" novalidate>
+          <h4 class="mb-2">Duplicate From</h4>
+          <div class="mb-3">
+            <div class="text-secondary" style="font-size:.75rem">Document No</div>
+            <p class="mb-2" id="pMcxDocumentNo"></p>
+            <div class="text-secondary" style="font-size:.75rem">Checklist Name</div>
+            <p class="mb-2" id="pMcxChecklistName"></p>
+            <div class="text-secondary" style="font-size:.75rem">Asset Type</div>
+            <p class="mb-0" id="pMcxAssetType"></p>
+          </div>
+          <h4 class="mb-2">Duplicate To</h4>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMcxDocumentNo" id="lblMcxDocumentNo">Document No <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMcxDocumentNo" class="form-control" aria-required="true" aria-describedby="txtMcxDocumentNoErr">
+              <div class="gems-field-error" id="txtMcxDocumentNoErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body mb-0 gems-modal-body">
-                <form id="formMcx" class="mt-2" autocomplete="off">
-                    <div class="card z-depth-2">
-                        <div class="card-body blue-grey lighten-5 pt-4 pb-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h6 class="mb-3 font-weight-500">Duplicate From :</h6>
-                                </div>
-                                <div class="md-form col-md-12 my-1">
-                                    <label class="active pl-3">Document No</label>
-                                    <p class="pt-2-5 mb-0" id="pMcxDocumentNo"></p>
-                                    <hr class="grey lighten-1 mt-1">
-                                </div>
-                                <div class="md-form col-md-12 my-1">
-                                    <label class="active pl-3">Checklist Name</label>
-                                    <p class="pt-2-5 mb-0" id="pMcxChecklistName"></p>
-                                    <hr class="grey lighten-1 mt-1">
-                                </div>
-                                <div class="md-form col-md-12 my-1">
-                                    <label class="active pl-3">Asset Type</label>
-                                    <p class="pt-2-5 mb-0" id="pMcxAssetType"></p>
-                                    <hr class="grey lighten-1 mt-1">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-4_5">
-                        <div class="col-md-12">
-                            <h6 class="mb-3 font-weight-500">Duplicate To :</h6>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMcxDocumentNo" class="form-control">
-                                <label for="txtMcxDocumentNo" id="lblMcxDocumentNo">Document No *</label>
-                                <p class="font-small text-danger" id="txtMcxDocumentNoErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMcxChecklistName" class="form-control">
-                                <label for="txtMcxChecklistName" id="lblMcxChecklistName">Checklist Name *</label>
-                                <p class="font-small text-danger" id="txtMcxChecklistNameErr"></p>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMcxChecklistName" id="lblMcxChecklistName">Checklist Name <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMcxChecklistName" class="form-control" aria-required="true" aria-describedby="txtMcxChecklistNameErr">
+              <div class="gems-field-error" id="txtMcxChecklistNameErr" role="alert"></div>
             </div>
-            <div class="modal-footer p-2 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect btnMcxClose" data-dismiss="modal" data-toggle="tooltip" title="Close"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMcxSubmit" class="btn btn-info waves-effect" data-toggle="tooltip" title="Submit Item Type"><i class="far fa-paper-plane ml-1"></i> Submit</button>
-            </div>
-        </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btnMcxClose" data-bs-dismiss="modal" data-bs-toggle="tooltip" title="Close">
+          <i class="fas fa-undo-alt me-1"></i> Close
+        </button>
+        <button type="button" id="btnMcxSubmit" class="btn btn-primary" data-bs-toggle="tooltip" title="Submit">
+          <i class="far fa-paper-plane me-1"></i> Submit
+        </button>
+      </div>
     </div>
+  </div>
 </div>

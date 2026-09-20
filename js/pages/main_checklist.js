@@ -20,6 +20,118 @@ function MainChecklist() {
     let lastChecklistGroupUpdatedText = '—';
     let lastChecklistUpdatedText = '—';
 
+    function rowsFromRef(ref, idKey, labelKey, predicate) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (predicate && !predicate(row)) {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function fillGroupSelect(selected) {
+        GemsUI.fillSelect(
+            'optPcmGroupId',
+            rowsFromRef(refAssetGroup, 'assetGroupId', 'assetGroupName'),
+            'assetGroupId',
+            function (row) { return row['assetGroupName'] || ''; },
+            'All Asset Group',
+            selected
+        );
+    }
+
+    function fillCategorySelect(groupId, selected) {
+        const rows = groupId
+            ? rowsFromRef(refAssetCategory, 'assetCategoryId', 'assetCategoryName', function (row) {
+                return String(row['assetGroupId']) === String(groupId);
+            })
+            : [];
+        GemsUI.fillSelect(
+            'optPcmCategoryId',
+            rows,
+            'assetCategoryId',
+            function (row) { return row['assetCategoryName'] || ''; },
+            'All Asset Category',
+            selected
+        );
+    }
+
+    function fillTypeSelect(categoryId, selected) {
+        const rows = categoryId
+            ? rowsFromRef(refAssetType, 'assetTypeId', 'assetTypeName', function (row) {
+                return String(row['assetCategoryId']) === String(categoryId);
+            })
+            : [];
+        GemsUI.fillSelect(
+            'optPcmTypeId',
+            rows,
+            'assetTypeId',
+            function (row) { return row['assetTypeName'] || ''; },
+            'All Asset Type',
+            selected
+        );
+    }
+
+    function statusLabel(statusId, fallback) {
+        if (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc']) {
+            return refStatus[statusId]['statusDesc'];
+        }
+        switch (String(statusId)) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            case '5':
+                return 'Draft';
+            default:
+                return fallback || 'Unknown';
+        }
+    }
+
+    function statusBadgeKind(status) {
+        switch (String(status)) {
+            case '1':
+                return 'success';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
+
+    function statusBadge(statusId, type) {
+        const label = statusLabel(statusId, 'Unknown');
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
+    function displayText(value, type) {
+        const text = value || '';
+        if (type !== 'display') {
+            return text;
+        }
+        return GemsUI.escape(text);
+    }
+
+    function exportPlainText(data) {
+        return $('<div>').html(data).text();
+    }
+
     const applyTableDataLabels = function (tableSelector, headers) {
         $(`${tableSelector} tbody tr`).each(function () {
             $('td', this).each(function (index) {
@@ -77,18 +189,20 @@ function MainChecklist() {
 
     this.init = function () {
         $('#divPcmChecklistSelected').hide();
-        mzOption('optPcmGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
+        fillGroupSelect('');
+        fillCategorySelect('', '');
+        fillTypeSelect('', '');
 
         oTableChecklistGroup =  $('#dtPcmChecklistGroup').DataTable({
             bLengthChange: false,
             bFilter: true,
+            autoWidth: false,
             "aaSorting": [[1, 'asc'], [2, 'asc'], [3, 'asc']],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTableChecklistGroup.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkPcmChecklistGroupExpand').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
@@ -111,32 +225,39 @@ function MainChecklist() {
                 applyTableDataLabels('#dtPcmChecklistGroup', checklistGroupHeaders);
                 refreshChecklistGroupSummary();
             },
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-clipboard-list', 'No checklist types found.'),
+            dom: GemsUI.dtDom,
             aoColumns:
                 [
                     {mData: null, bSortable: false},
-                    {mData: 'checklistType'},
+                    {mData: 'checklistType', mRender: function (data, type) { return displayText(data, type); }},
                     {mData: null, mRender: function (data, type, row){
-                            return row['assetGroupId'] !== '' ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : '';
+                            const name = row['assetGroupId'] !== '' && refAssetGroup[row['assetGroupId']]
+                                ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : '';
+                            return displayText(name, type);
                         }},
                     {mData: null, mRender: function (data, type, row){
-                            return row['assetCategoryId'] !== '' ? refAssetCategory[row['assetCategoryId']]['assetCategoryName'] : '';
+                            const name = row['assetCategoryId'] !== '' && refAssetCategory[row['assetCategoryId']]
+                                ? refAssetCategory[row['assetCategoryId']]['assetCategoryName'] : '';
+                            return displayText(name, type);
                         }},
                     {mData: null, mRender: function (data, type, row){
-                            return row['assetTypeId'] !== '' ? refAssetType[row['assetTypeId']]['assetTypeName'] : '';
+                            const name = row['assetTypeId'] !== '' && refAssetType[row['assetTypeId']]
+                                ? refAssetType[row['assetTypeId']]['assetTypeName'] : '';
+                            return displayText(name, type);
                         }},
                     {mData: 'totalChecklist', sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            const color = data === 0 ? 'red lighten-1' : 'cyan accent-4';
-                            return '<a class="trigger '+color+' text-white lnkPcmChecklistGroupExpand" id="lnkPcmChecklistGroupTotal_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist list">'+mzFormatNumber(data)+'</a>';
+                            if (type !== 'display') {
+                                return data;
+                            }
+                            const kind = parseInt(data, 10) === 0 ? 'danger' : 'info';
+                            return '<a href="javascript:void(0)" class="lnkPcmChecklistGroupExpand" id="lnkPcmChecklistGroupTotal_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist list">' + GemsUI.badge(kind, mzFormatNumber(data)) + '</a>';
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-view lnkPcmChecklistGroupExpand" id="lnkPcmChecklistGroupExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist list"><i class="fas fa-list-ul"></i></button>';
-                            label += '</div>';
-                            return label;
+                            return GemsUI.actionBtn({id:'lnkPcmChecklistGroupExpand_' + meta.row, cls:'lnkPcmChecklistGroupExpand', icon:'fas fa-list-ul', title:'Checklist list'});
                         }
                     },
                     {mData: 'assetGroupId', visible: false},
@@ -145,20 +266,21 @@ function MainChecklist() {
                 ]
         });
         $("#dtPcmChecklistGroup_filter").hide();
+        GemsUI.bindDtTooltips('#dtPcmChecklistGroup');
         $('#txtPcmChecklistGroupSearch').on('keyup change', function () {
             oTableChecklistGroup.search($(this).val()).draw();
         });
 
         $('#optPcmGroupId').on('change', function () {
-            mzOptionStop('optPcmCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
-            mzOptionStopClear('optPcmTypeId', 'All Asset Type');
+            fillCategorySelect($(this).val(), '');
+            fillTypeSelect('', '');
             oTableChecklistGroup.column(7).search($(this).val(), false, true, false).draw();
             oTableChecklistGroup.column(8).search('', false, true, false).draw();
             oTableChecklistGroup.column(9).search('', false, true, false).draw();
         });
 
         $('#optPcmCategoryId').on('change', function () {
-            mzOptionStop('optPcmTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
+            fillTypeSelect($(this).val(), '');
             oTableChecklistGroup.column(8).search($(this).val(), false, true, false).draw();
             oTableChecklistGroup.column(9).search('', false, true, false).draw();
         });
@@ -177,11 +299,9 @@ function MainChecklist() {
                             cntChecklistGroup = 1;
                         }
                         if (column === 5) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</a>','');
+                            return exportPlainText(data);
                         }
-                        return column === 0 ? cntChecklistGroup++ : data;
+                        return column === 0 ? cntChecklistGroup++ : exportPlainText(data);
                     }
                 }
             }
@@ -194,14 +314,14 @@ function MainChecklist() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - Total Checklist by Type',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnChecklistGroupOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - Total Checklist by Type',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnChecklistGroupOpt, {
                     extend:    'pdfHtml5',
@@ -209,7 +329,7 @@ function MainChecklist() {
                     title:     'GEMS 2.0 - Total Checklist by Type',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtPcmChecklistGroupExport'));
@@ -236,7 +356,6 @@ function MainChecklist() {
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkPcmChecklistEdit').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
@@ -308,44 +427,45 @@ function MainChecklist() {
                 applyTableDataLabels('#dtPcmChecklist', checklistHeaders);
                 refreshChecklistSummary();
             },
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-clipboard-check', 'No checklists found for this asset type.'),
+            dom: GemsUI.dtDom,
             aoColumns:
                 [
                     {mData: null, bSortable: false},
-                    {mData: 'checklistName'},
-                    {mData: 'checklistDocumentNo', sClass: 'text-center', width: '10%'},
-                    {mData: 'checklistIssueNo', sClass: 'text-right', width: '8%'},
-                    {mData: 'checklistMinExecTime', sClass: 'text-center', width: '10%'},
-                    {mData: 'checklistMaxExecTime', sClass: 'text-center', width: '10%'},
-                    {mData: 'checklistMaxAssistant', sClass: 'text-right', width: '10%'},
-                    {mData: 'checklistTimeRegistered', sClass: 'text-center', width: '10%'},
+                    {mData: 'checklistName', mRender: function (data, type) { return displayText(data, type); }},
+                    {mData: 'checklistDocumentNo', sClass: 'text-center', width: '10%', mRender: function (data, type) { return displayText(data, type); }},
+                    {mData: 'checklistIssueNo', sClass: 'text-right', width: '8%', mRender: function (data, type) { return displayText(data, type); }},
+                    {mData: 'checklistMinExecTime', sClass: 'text-center', width: '10%', mRender: function (data, type) { return displayText(data, type); }},
+                    {mData: 'checklistMaxExecTime', sClass: 'text-center', width: '10%', mRender: function (data, type) { return displayText(data, type); }},
+                    {mData: 'checklistMaxAssistant', sClass: 'text-right', width: '10%', mRender: function (data, type) { return displayText(data, type); }},
+                    {mData: 'checklistTimeRegistered', sClass: 'text-center', width: '10%', mRender: function (data, type) { return displayText(data, type); }},
                     {mData: null, sClass: 'text-center',
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['checklistStatus']]['statusColor']+' z-depth-2">'+refStatus[row['checklistStatus']]['statusDesc']+'</span></h6>';
+                            return statusBadge(row['checklistStatus'], type);
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-edit lnkPcmChecklistEdit" id="lnkPcmChecklistEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
+                            let label = '';
+                            label += GemsUI.actionBtn({id:'lnkPcmChecklistEdit_' + meta.row, cls:'lnkPcmChecklistEdit', icon:'fas fa-edit', title:'Edit'});
                             if (row['checklistStatus'] === '1') {
-                                label += '<button type="button" class="btn-action btn-deactivate lnkPcmChecklistDeactivate" id="lnkPcmChecklistDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
+                                label += GemsUI.actionBtn({id:'lnkPcmChecklistDeactivate_' + meta.row, cls:'lnkPcmChecklistDeactivate', icon:'fas fa-toggle-off', title:'Deactivate'});
                             } else if (row['checklistStatus'] === '2') {
-                                label += '<button type="button" class="btn-action btn-activate lnkPcmChecklistActivate" id="lnkPcmChecklistActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
+                                label += GemsUI.actionBtn({id:'lnkPcmChecklistActivate_' + meta.row, cls:'lnkPcmChecklistActivate', icon:'fas fa-toggle-on', title:'Activate'});
                             } else if (row['checklistStatus'] === '5') {
-                                label += '<button type="button" class="btn-action btn-delete lnkPcmChecklistDelete" id="lnkPcmChecklistDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+                                label += GemsUI.actionBtn({id:'lnkPcmChecklistDelete_' + meta.row, cls:'lnkPcmChecklistDelete', icon:'fas fa-trash-alt', title:'Delete'});
                             }
                             if (row['pdfId'] != '') {
-                                label += '<button type="button" class="btn-action btn-pdf lnkPcmChecklistPdf" id="lnkPcmChecklistPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Checklist PDF"><i class="far fa-file-pdf"></i></button>';
+                                label += GemsUI.actionBtn({id:'lnkPcmChecklistPdf_' + meta.row, cls:'lnkPcmChecklistPdf', icon:'far fa-file-pdf', title:'Checklist PDF'});
                             }
-                            label += '<button type="button" class="btn-action btn-view lnkPcmChecklistDuplicate" id="lnkPcmChecklistDuplicate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Duplicate Checklist"><i class="far fa-copy"></i></button>';
-                            label += '</div>';
+                            label += GemsUI.actionBtn({id:'lnkPcmChecklistDuplicate_' + meta.row, cls:'lnkPcmChecklistDuplicate', icon:'far fa-copy', title:'Duplicate Checklist'});
                             return label;
                         }
                     }
                 ]
         });
         $("#dtPcmChecklist_filter").hide();
+        GemsUI.bindDtTooltips('#dtPcmChecklist');
 
         let cntChecklist;
         let btnChecklistOpt = {
@@ -357,11 +477,9 @@ function MainChecklist() {
                             cntChecklist = 1;
                         }
                         if (column === 8) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
+                            return exportPlainText(data);
                         }
-                        return column === 0 ? cntChecklist++ : data;
+                        return column === 0 ? cntChecklist++ : exportPlainText(data);
                     }
                 }
             }
@@ -374,14 +492,14 @@ function MainChecklist() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - Total Checklist by Type',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnChecklistOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - Total Checklist by Type',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnChecklistOpt, {
                     extend:    'pdfHtml5',
@@ -389,7 +507,7 @@ function MainChecklist() {
                     title:     'GEMS 2.0 - Total Checklist by Type',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtPcmChecklistExport'));
@@ -435,8 +553,9 @@ function MainChecklist() {
         labelTitle = refAssetGroup[assetGroupId]['assetGroupName'] + ' -> ' +
             refAssetCategory[assetCategoryId]['assetCategoryName'] + ' -> ' +
             refAssetType[_assetTypeId]['assetTypeName'];
-        $('#lblPcmChecklistTitle').html(labelTitle);
+        $('#lblPcmChecklistTitle').html(GemsUI.escape(labelTitle));
         $('#divPcmChecklistSelected').show();
+        oTableChecklist.columns.adjust();
     };
 
     this.genTablePcmChecklistRefresh = function (_dataAdd) {

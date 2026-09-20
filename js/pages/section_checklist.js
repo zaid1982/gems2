@@ -19,6 +19,61 @@ function SectionChecklist() {
     let modalChecklistQuanClass;
     let checklistStatus;
 
+    function statusLabel(statusId, fallback) {
+        if (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc']) {
+            return refStatus[statusId]['statusDesc'];
+        }
+        switch (String(statusId)) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            case '5':
+                return 'Draft';
+            default:
+                return fallback || 'Unknown';
+        }
+    }
+
+    function statusBadgeKind(status) {
+        switch (String(status)) {
+            case '1':
+                return 'success';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
+
+    function statusBadge(statusId, type) {
+        const label = statusLabel(statusId, 'Unknown');
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
+    function exportPlainText(data) {
+        return $('<div>').html(data).text();
+    }
+
+    function frequencyName(frequencyId) {
+        if (frequencyId === '' || frequencyId === null || frequencyId === undefined || !refFrequency[frequencyId]) {
+            return '';
+        }
+        return refFrequency[frequencyId]['frequencyName'] || '';
+    }
+
+    function adjustChildTables() {
+        if (oTableChecklistQual) {
+            oTableChecklistQual.columns.adjust();
+        }
+        if (oTableChecklistQuan) {
+            oTableChecklistQuan.columns.adjust();
+        }
+    }
+
     this.init = function () {
         $('.sectionChecklist').hide();
 
@@ -171,6 +226,8 @@ function SectionChecklist() {
             bPaginate: false,
             bInfo : false,
             ordering: false,
+            language: GemsUI.dtEmpty('fa-list-ul', 'No qualitative tasks yet.'),
+            dom: "<'d-none'f>r<'table-responsive't>",
             //aaSorting: [0, 'asc'],
             drawCallback: function () {
                 $('.lnkSckChecklistQualEdit').off('click').on('click', function () {
@@ -210,36 +267,35 @@ function SectionChecklist() {
                     }
                 });
             },
-            language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
                     {mData: 'checklistQualNumb', bSortable: false},
                     {mData: 'checklistQualDesc', bSortable: false},
-                    {mData: 'frequencyId', bSortable: false, mRender: function (data){
-                            return data !== '' ? refFrequency[data]['frequencyName'] : '';
+                    {mData: 'frequencyId', bSortable: false, mRender: function (data, type){
+                            return type === 'display' ? GemsUI.escape(frequencyName(data)) : frequencyName(data);
                         }},
                     {mData: null, bSortable: false,
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['checklistQualStatus']]['statusColor']+' z-depth-2">'+refStatus[row['checklistQualStatus']]['statusDesc']+'</span></h6>';
+                            return statusBadge(row['checklistQualStatus'], type);
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-edit lnkSckChecklistQualEdit" id="lnkSckChecklistQualEdit_' + meta.row + '" title="Edit"><i class="fas fa-edit"></i></button>';
+                            let label = '';
+                            label += GemsUI.actionBtn({id:'lnkSckChecklistQualEdit_' + meta.row, cls:'lnkSckChecklistQualEdit', icon:'fas fa-edit', title:'Edit'});
                             if (row['checklistQualStatus'] === '1') {
-                                label += '<button type="button" class="btn-action btn-deactivate lnkSckChecklistQualDeactivate" id="lnkSckChecklistQualDeactivate_' + meta.row + '" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
+                                label += GemsUI.actionBtn({id:'lnkSckChecklistQualDeactivate_' + meta.row, cls:'lnkSckChecklistQualDeactivate', icon:'fas fa-toggle-off', title:'Deactivate'});
                             } else {
-                                label += '<button type="button" class="btn-action btn-activate lnkSckChecklistQualActivate" id="lnkSckChecklistQualActivate_' + meta.row + '" title="Activate"><i class="fas fa-toggle-on"></i></button>';
+                                label += GemsUI.actionBtn({id:'lnkSckChecklistQualActivate_' + meta.row, cls:'lnkSckChecklistQualActivate', icon:'fas fa-toggle-on', title:'Activate'});
                             }
-                            label += '<button type="button" class="btn-action btn-delete lnkSckChecklistQualDelete" id="lnkSckChecklistQualDelete_' + meta.row + '" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                            label += '</div>';
+                            label += GemsUI.actionBtn({id:'lnkSckChecklistQualDelete_' + meta.row, cls:'lnkSckChecklistQualDelete', icon:'fas fa-trash-alt', title:'Delete'});
                             return label;
                         }
                     }
                 ]
         });
         $("#dtSckChecklistQual_filter").hide();
+        GemsUI.bindDtTooltips('#dtSckChecklistQual');
 
         let btnChecklistQualOpt = {
             exportOptions: {
@@ -247,11 +303,9 @@ function SectionChecklist() {
                 format: {
                     body: function ( data, row, column ) {
                         if (column === 3) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
+                            return exportPlainText(data);
                         }
-                        return data;
+                        return exportPlainText(data);
                     }
                 }
             }
@@ -264,21 +318,21 @@ function SectionChecklist() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - Qualitative Task List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnChecklistQualOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - Qualitative Task List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnChecklistQualOpt, {
                     extend:    'pdfHtml5',
                     text:      '<i class="fas fa-file-pdf"></i>',
                     title:     'GEMS 2.0 - Qualitative Task List',
                     titleAttr: 'Pdf',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtSckChecklistQualExport'));
@@ -305,6 +359,8 @@ function SectionChecklist() {
             autoWidth: false,
             bPaginate: false,
             bInfo : false,
+            language: GemsUI.dtEmpty('fa-ruler', 'No quantitative tasks yet.'),
+            dom: "<'d-none'f>r<'table-responsive't>",
             //aaSorting: [0, 'asc'],
             drawCallback: function () {
                 $('.lnkSckChecklistQuanEdit').off('click').on('click', function () {
@@ -344,38 +400,37 @@ function SectionChecklist() {
                     }
                 });
             },
-            language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
                     {mData: 'checklistQuanNumb', bSortable: false},
                     {mData: 'checklistQuanDesc', bSortable: false},
                     {mData: 'checklistQuanUnit', bSortable: false},
                     {mData: 'checklistQuanSetValues', bSortable: false},
-                    {mData: 'frequencyId', bSortable: false, mRender: function (data){
-                            return data !== '' ? refFrequency[data]['frequencyName'] : '';
+                    {mData: 'frequencyId', bSortable: false, mRender: function (data, type){
+                            return type === 'display' ? GemsUI.escape(frequencyName(data)) : frequencyName(data);
                         }},
                     {mData: null, bSortable: false,
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['checklistQuanStatus']]['statusColor']+' z-depth-2">'+refStatus[row['checklistQuanStatus']]['statusDesc']+'</span></h6>';
+                            return statusBadge(row['checklistQuanStatus'], type);
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-edit lnkSckChecklistQuanEdit" id="lnkSckChecklistQuanEdit_' + meta.row + '" title="Edit"><i class="fas fa-edit"></i></button>';
+                            let label = '';
+                            label += GemsUI.actionBtn({id:'lnkSckChecklistQuanEdit_' + meta.row, cls:'lnkSckChecklistQuanEdit', icon:'fas fa-edit', title:'Edit'});
                             if (row['checklistQuanStatus'] === '1') {
-                                label += '<button type="button" class="btn-action btn-deactivate lnkSckChecklistQuanDeactivate" id="lnkSckChecklistQuanDeactivate_' + meta.row + '" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
+                                label += GemsUI.actionBtn({id:'lnkSckChecklistQuanDeactivate_' + meta.row, cls:'lnkSckChecklistQuanDeactivate', icon:'fas fa-toggle-off', title:'Deactivate'});
                             } else {
-                                label += '<button type="button" class="btn-action btn-activate lnkSckChecklistQuanActivate" id="lnkSckChecklistQuanActivate_' + meta.row + '" title="Activate"><i class="fas fa-toggle-on"></i></button>';
+                                label += GemsUI.actionBtn({id:'lnkSckChecklistQuanActivate_' + meta.row, cls:'lnkSckChecklistQuanActivate', icon:'fas fa-toggle-on', title:'Activate'});
                             }
-                            label += '<button type="button" class="btn-action btn-delete lnkSckChecklistQuanDelete" id="lnkSckChecklistQuanDelete_' + meta.row + '" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                            label += '</div>';
+                            label += GemsUI.actionBtn({id:'lnkSckChecklistQuanDelete_' + meta.row, cls:'lnkSckChecklistQuanDelete', icon:'fas fa-trash-alt', title:'Delete'});
                             return label;
                         }
                     }
                 ]
         });
         $("#dtSckChecklistQuan_filter").hide();
+        GemsUI.bindDtTooltips('#dtSckChecklistQuan');
 
         let btnChecklistQuanOpt = {
             exportOptions: {
@@ -383,11 +438,9 @@ function SectionChecklist() {
                 format: {
                     body: function ( data, row, column ) {
                         if (column === 5) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
+                            return exportPlainText(data);
                         }
-                        return data;
+                        return exportPlainText(data);
                     }
                 }
             }
@@ -400,21 +453,21 @@ function SectionChecklist() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - Quantitative Task List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnChecklistQuanOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - Quantitative Task List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnChecklistQuanOpt, {
                     extend:    'pdfHtml5',
                     text:      '<i class="fas fa-file-pdf"></i>',
                     title:     'GEMS 2.0 - Quantitative Task List',
                     titleAttr: 'Pdf',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtSckChecklistQuanExport'));
@@ -504,7 +557,7 @@ function SectionChecklist() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
+                    if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     } else if (oTableChecklistQual.data().length === 0) {
                         toastr['error']('Please make sure Qualitative Task not empty', _ALERT_TITLE_ERROR);
@@ -546,7 +599,7 @@ function SectionChecklist() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
+                    if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     } else if (oTableChecklistQual.data().length === 0) {
                         toastr['error']('Please make sure Qualitative Task not empty', _ALERT_TITLE_ERROR);
@@ -687,6 +740,7 @@ function SectionChecklist() {
                 $('#btnSckUpdate').hide();
                 $('.sectionChecklist, #btnSckSubmit, #btnSckSave').show();
                 $('#btnSckSubmit').prop('disabled', true);
+                adjustChildTables();
 
                 if (classFrom.getClassName() === 'MainChecklist') {
                     $('.sectionPcmMain').hide();
@@ -722,6 +776,7 @@ function SectionChecklist() {
                 $('#txtSckChecklistName, #txtSckChecklistDocumentNo, #txtSckChecklistIssueNo, #txaSckChecklistDesc').prop('disabled', false);
                 $('#btnSckUpdate').prop('disabled', true);
                 $('.sectionChecklist').show();
+                adjustChildTables();
 
                 if (classFrom.getClassName() === 'MainChecklist') {
                     $('.sectionPcmMain').hide();
