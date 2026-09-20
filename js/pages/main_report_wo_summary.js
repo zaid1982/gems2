@@ -14,22 +14,37 @@ function MainReportWoSummary() {
     let siteColumns = [];
     let lastUpdated;
 
+    function rowsFromRef(ref, idKey, labelKey) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
     this.init = function () {
-        mzOption('optRwsClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
         //mzOption('optRwsSiteId', refSite, 'Choose Site', 'siteId', 'siteDesc', {clientId: '1', siteStatus: '1'}, 'required');
 
         clientId = '1';
-        $('#optRwsClientId').val(clientId);
+        GemsUI.fillSelect('optRwsClientId', rowsFromRef(refClient, 'clientId', 'clientName'), 'clientId', 'clientName', 'Choose Client', clientId);
 
         let dateCurrent = new Date();
         selectedMonth = dateCurrent.getMonth()+1;
         selectedYear = dateCurrent.getFullYear();
 
-        mzOption('optRwsYearId', yearArr, 'Choose Year', 'yearId', 'yearName', {}, 'required', false);
-        $('#optRwsYearId').val(selectedYear);
-
-        mzOption('optRwsMonthId', monthArr, 'Choose Month', 'monthId', 'monthName', {}, 'required', false);
-        $('#optRwsMonthId').val(selectedMonth);
+        GemsUI.fillSelect('optRwsYearId', yearArr, 'yearId', 'yearName', 'Choose Year', selectedYear);
+        GemsUI.fillSelect('optRwsMonthId', monthArr, 'monthId', 'monthName', 'Choose Month', selectedMonth);
 
         const vData = [
             {
@@ -73,6 +88,8 @@ function MainReportWoSummary() {
             bPaginate: false,
             autoWidth: false,
             ordering: false,
+            language: GemsUI.dtEmpty('fa-chart-bar', 'No work order summary for this period.', 'No work types match the current search.'),
+            dom: "<'d-none'f>rt",
             fnRowCallback: function (nRow) {
                 const columnLabels = getColumnLabels();
                 $('td', nRow).each(function (idx) {
@@ -84,10 +101,8 @@ function MainReportWoSummary() {
                 });
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 updateSummary();
             },
-            language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
                     {mData: 'woTaskType',  mRender: function (data) { return data === 'TOTAL' ? '<strong>'+data+'</strong>' : data}},
@@ -189,7 +204,7 @@ function MainReportWoSummary() {
                         }}
                 ]
         });
-        $("#dtRwsWoSummary_filter").hide();
+        GemsUI.bindDtTooltips('#dtRwsWoSummary');
 
         let cntWoSummary;
         let btnWoSummaryOpt = {
@@ -204,14 +219,14 @@ function MainReportWoSummary() {
                     text:      '<i class="fas fa-print text-dark"></i>',
                     title:     'GEMS 2.0 - Work Order Summary',
                     titleAttr: 'Print',
-                    className: 'btn btn-light btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnWoSummaryOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel text-dark"></i>',
                     title:     'GEMS 2.0 - Work Order Summary',
                     titleAttr: 'Excel',
-                    className: 'btn btn-light btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnWoSummaryOpt, {
                     extend:    'pdfHtml5',
@@ -219,7 +234,7 @@ function MainReportWoSummary() {
                     title:     'GEMS 2.0 - Work Order Summary',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-light btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtRwsWoSummaryExport'));

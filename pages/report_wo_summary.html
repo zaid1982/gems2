@@ -1,224 +1,234 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/report_wo_summary.html — Tabler-migrated (P5-7 WO Summary).
+
+  Page-local. Hardcoded 4 site column pairs. Default clientId=1.
+  Dead stepper include dropped. H3 validator names stay swapped (HEAD).
+  Bridges: modal_change_password.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js, css/addons-pro/steppers.css,
+    js/addons-pro/stepper.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Stepper CSS - minified-->
-    <link href="css/addons-pro/steppers.css" rel="stylesheet">
-    <!-- Shared theme -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!-- JQuery Migrate -->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Work Order Summary</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <div class="includeHtml" id="h-nav_left"></div>
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-
-<main>
-    <div class="container-fluid module-page module-master module-report">
-    <section class="gems-page-header module-page-header">
-            <div class="header-text">
-                <div class="header-subtitle">Work Order Reporting</div>
-                <h2>Work Order Summary</h2>
-                <p>Track open and closed work orders across your portfolio for the selected month.</p>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <div class="text-secondary" style="font-size:.75rem">Work Order Reporting</div>
+              <h1 class="page-title"><i class="fas fa-chart-bar me-2 text-primary"></i>Work Order Summary</h1>
+              <div class="page-subtitle">Track open and closed work orders across your portfolio for the selected month.</div>
             </div>
-            <div class="header-actions">
-                <button type="button" id="btnDtRwsWoSummaryRefresh" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Refresh data">
-                    <i class="fas fa-sync mr-2"></i>Refresh
+            <div class="col-12 col-sm-auto">
+              <button type="button" id="btnDtRwsWoSummaryRefresh" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync me-2"></i>Refresh
+              </button>
+              <div id="btnDtRwsWoSummaryExport" class="d-inline-flex align-items-center"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row row-cards mb-3">
+          <div class="col-sm-6 col-xl-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Open work orders</div>
+                <div class="h2 mb-0" id="metricTotalOpen">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Total open items across visible sites</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Closed work orders</div>
+                <div class="h2 mb-0" id="metricTotalClosed">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Completed within the reporting window</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Reporting window</div>
+                <div class="h2 mb-0" id="metricMonthLabel">-</div>
+                <div class="text-secondary" style="font-size:.75rem">Month and year in focus</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Active sites</div>
+                <div class="h2 mb-0" id="metricSiteCount">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Sites mapped to the chosen client</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Filters</h3>
+              <div class="text-secondary" style="font-size:.75rem">Client scope aligns with your role</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <form id="formRwsSearch" autocomplete="off" novalidate>
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optRwsClientId">Client <span class="required" aria-hidden="true">*</span></label>
+                  <select id="optRwsClientId" class="form-select" aria-required="true" aria-describedby="optRwsClientIdErr"></select>
+                  <div class="gems-field-error" id="optRwsClientIdErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optRwsYearId">Year <span class="required" aria-hidden="true">*</span></label>
+                  <select id="optRwsYearId" class="form-select" aria-required="true" aria-describedby="optRwsYearIdErr"></select>
+                  <div class="gems-field-error" id="optRwsYearIdErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optRwsMonthId">Month <span class="required" aria-hidden="true">*</span></label>
+                  <select id="optRwsMonthId" class="form-select" aria-required="true" aria-describedby="optRwsMonthIdErr"></select>
+                  <div class="gems-field-error" id="optRwsMonthIdErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="txtRwsSearch">Search work type</label>
+                  <input type="text" id="txtRwsSearch" class="form-control" placeholder="Search by work type" autocomplete="off">
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="button" id="btnRwsSearch" class="btn btn-primary" disabled>
+                  <i class="fas fa-search me-2"></i>View report
                 </button>
-                <div id="btnDtRwsWoSummaryExport"></div>
-            </div>
-        </section>
-
-        <section class="metrics-row">
-            <div class="metric-card">
-                <div class="metric-label">Open work orders</div>
-                <div class="metric-value" id="metricTotalOpen">0</div>
-                <div class="metric-subtext">Total open items across visible sites</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Closed work orders</div>
-                <div class="metric-value" id="metricTotalClosed">0</div>
-                <div class="metric-subtext">Completed within the reporting window</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Reporting window</div>
-                <div class="metric-value" id="metricMonthLabel">-</div>
-                <div class="metric-subtext">Month and year in focus</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Active sites</div>
-                <div class="metric-value" id="metricSiteCount">0</div>
-                <div class="metric-subtext">Sites mapped to the chosen client</div>
-            </div>
-        </section>
-
-        <section class="filter-card">
-            <div class="filter-card-header">
-                <h3>Filters</h3>
-                <div class="summary-pill">Client scope aligns with your role</div>
-            </div>
-            <form id="formRwsSearch">
-                <div class="filter-grid">
-                    <div class="select-outline">
-                        <select id="optRwsClientId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                        <label for="optRwsClientId">Client</label>
-                    </div>
-                    <div class="select-outline">
-                        <select id="optRwsYearId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                        <label for="optRwsYearId">Year</label>
-                    </div>
-                    <div class="select-outline">
-                        <select id="optRwsMonthId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                        <label for="optRwsMonthId">Month</label>
-                    </div>
-                    <div class="search-field">
-                        <label for="txtRwsSearch">Search work type</label>
-                        <input type="text" id="txtRwsSearch" placeholder="Search by work type">
-                    </div>
-                </div>
-                <div class="filter-actions">
-                    <button type="button" id="btnRwsSearch" class="btn btn-primary" disabled>
-                        <i class="fas fa-search mr-2"></i>View report
-                    </button>
-                </div>
+              </div>
             </form>
-        </section>
+          </div>
+        </div>
 
-        <section class="module-data-card">
-            <div class="module-card-header">
-                <div>
-                    <h4>Work Order Summary</h4>
-                    <p>Open vs closed work orders per site for the selected criteria.</p>
-                </div>
-                <a tabindex="0" role="button" class="btn btn-link text-muted p-0" data-toggle="popover" data-trigger="focus" title="About this report" data-content="Compare open and closed work orders across sites.">
-                    <i class="fas fa-info-circle"></i>
-                </a>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Work Order Summary</h3>
+              <div class="text-secondary" style="font-size:.75rem">Open vs closed work orders per site for the selected criteria.</div>
             </div>
-            <div class="module-table-wrapper">
-                <div class="table-responsive">
-                    <table id="dtRwsWoSummary" class="table table-hover mb-0 display no-stack" cellspacing="0" width="100%">
-                        <thead>
-                        <tr class="text-center align-middle">
-                            <th rowspan="2">Work Type</th>
-                            <th colspan="2" id="thRwsSiteDesc0"></th>
-                            <th colspan="2" id="thRwsSiteDesc1"></th>
-                            <th colspan="2" id="thRwsSiteDesc2"></th>
-                            <th colspan="2" id="thRwsSiteDesc3"></th>
-                        </tr>
-                        <tr>
-                            <th class="text-center">Open</th>
-                            <th class="text-center">Closed</th>
-                            <th class="text-center">Open</th>
-                            <th class="text-center">Closed</th>
-                            <th class="text-center">Open</th>
-                            <th class="text-center">Closed</th>
-                            <th class="text-center">Open</th>
-                            <th class="text-center">Closed</th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+            <div class="gems-card-toolbar">
+              <a tabindex="0" role="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="popover" data-bs-trigger="focus" title="About this report" data-bs-content="Compare open and closed work orders across sites.">
+                <i class="fas fa-info-circle"></i>
+              </a>
             </div>
-            <div class="results-summary">
-                <span id="lblRwsCount">Showing 0 of 0 work types</span>
-                <span class="summary-pill" id="lblRwsUpdated">Updated —</span>
+          </div>
+          <div class="card-body py-2">
+            <div class="d-flex justify-content-between text-secondary" style="font-size:.75rem">
+              <span id="lblRwsCount">Showing 0 of 0 work types</span>
+              <span id="lblRwsUpdated">Updated —</span>
             </div>
-        </section>
+          </div>
+          <table id="dtRwsWoSummary" class="table table-vcenter card-table table-hover mb-0" width="100%">
+            <thead>
+              <tr class="text-center align-middle">
+                <th rowspan="2">Work Type</th>
+                <th colspan="2" id="thRwsSiteDesc0"></th>
+                <th colspan="2" id="thRwsSiteDesc1"></th>
+                <th colspan="2" id="thRwsSiteDesc2"></th>
+                <th colspan="2" id="thRwsSiteDesc3"></th>
+              </tr>
+              <tr>
+                <th class="text-center">Open</th>
+                <th class="text-center">Closed</th>
+                <th class="text-center">Open</th>
+                <th class="text-center">Closed</th>
+                <th class="text-center">Open</th>
+                <th class="text-center">Closed</th>
+                <th class="text-center">Open</th>
+                <th class="text-center">Closed</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_change_password"></div>
 
-</main>
-
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_report_wo_summary.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- Stepper JavaScript - minified -->
-<script type="text/javascript" src="js/addons-pro/stepper.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let reportWoSummary_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        reportWoSummary_ = new MainReportWoSummary();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let reportWoSummary_;
+        const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+        const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+        const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
 
-    document.addEventListener('DOMContentLoaded', function () {
-
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                reportWoSummary_ = new MainReportWoSummary();
-
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
-
-                reportWoSummary_.setRefStatus(refStatus_);
-                reportWoSummary_.setRefClient(refClient_);
-                reportWoSummary_.setRefSite(refSite_);
-                reportWoSummary_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_report_wo_summary.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+        reportWoSummary_.setRefStatus(refStatus_);
+        reportWoSummary_.setRefClient(refClient_);
+        reportWoSummary_.setRefSite(refSite_);
+        reportWoSummary_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 300);
+  });
 </script>
-
 </body>
 </html>
