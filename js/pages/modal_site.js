@@ -10,6 +10,53 @@ function ModalSite() {
     let oTableProblemType;
     let oTableSiteLocation;
 
+    function clientRows(activeOnly) {
+        const rows = [];
+        $.each(refClient, function (key, client) {
+            if (!client || typeof client !== 'object') {
+                return true;
+            }
+            if (activeOnly && String(client['clientStatus']) !== '1') {
+                return true;
+            }
+            rows.push(client);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return (a['clientName'] || '').localeCompare(b['clientName'] || '');
+        });
+        return rows;
+    }
+
+    function fillClientSelect(activeOnly, selected) {
+        GemsUI.fillSelect(
+            'optMstClientId',
+            clientRows(activeOnly),
+            'clientId',
+            function (row) {
+                return row['clientName'] || '';
+            },
+            'Choose Client',
+            selected
+        );
+    }
+
+    function setClientSelectDisabled(disabled) {
+        $('#optMstClientId').prop('disabled', !!disabled);
+    }
+
+    function statusBadge(statusId) {
+        const status = refStatus && refStatus[statusId] ? refStatus[statusId] : null;
+        const label = status && status['statusDesc'] ? status['statusDesc'] : 'Unknown';
+        let kind = 'secondary';
+        if (String(statusId) === '1') {
+            kind = 'success';
+        } else if (String(statusId) === '5') {
+            kind = 'warning';
+        }
+        return GemsUI.badge(kind, GemsUI.escape(label));
+    }
+
     this.init = function () {
         const vData = [
             {
@@ -76,10 +123,10 @@ function ModalSite() {
             $('#btnMstSubmit').attr('disabled', !formValidate.validateForm());
         });
 
-        $('#modal_site').on('hidden.bs.modal', function(){
+        $('#modal_site').on('hidden.bs.modal', function () {
             formValidate.clearValidation();
             $('#btnMstSubmit').attr('disabled', true);
-            mzDisableSelect('optMstClientId', false);
+            setClientSelectDisabled(false);
         });
 
         $('#btnMstSubmit').on('click', function () {
@@ -94,11 +141,11 @@ function ModalSite() {
                         const txtName = $('#txtMstName').val();
                         const txtCode = $('#txtMstCode').val();
                         const txtDesc = $('#txaMstDesc').val();
-                        const siteIsWr = $("input[name='chkMstWorkRequest']").is(":checked") ? '1' : '0';
-                        const siteIsPublic = $("input[name='chkMstPublic']").is(":checked") ? '1' : '0';
-                        const statusVal = $("input[name='chkMstStatus']").is(":checked") ? '1' : '2';
+                        const siteIsWr = $("input[name='chkMstWorkRequest']").is(':checked') ? '1' : '0';
+                        const siteIsPublic = $("input[name='chkMstPublic']").is(':checked') ? '1' : '0';
+                        const statusVal = $("input[name='chkMstStatus']").is(':checked') ? '1' : '2';
                         const data = {
-                            clientId :clientId,
+                            clientId: clientId,
                             siteName: txtName,
                             siteCode: txtCode,
                             siteDesc: txtDesc,
@@ -123,7 +170,7 @@ function ModalSite() {
                             }
                         } else {
                             data['action'] = 'update';
-                            mzAjaxRequest('site.php?siteId='+siteId, 'PUT', data);
+                            mzAjaxRequest('site.php?siteId=' + siteId, 'PUT', data);
                             if (classFrom.getClassName() === 'MainSite') {
                                 tempRow['siteId'] = siteId;
                                 tempRow['siteName'] = txtName;
@@ -144,79 +191,77 @@ function ModalSite() {
             }, 300);
         });
 
-        oTableProblemType =  $('#dtMstProblemType').DataTable({
+        oTableProblemType = $('#dtMstProblemType').DataTable({
             bLengthChange: false,
             autoWidth: false,
             bFilter: false,
-            aaSorting: [1, 'asc'],
-            language: _DATATABLE_LANGUAGE,
-            dom: "<'row'<'col-sm-12'B>>" +
-                "<'row'<'col-sm-12'tr>>"+
-                "<'row'<'col-sm-12 col-md-5 d-none d-md-block'i><'col-sm-12 col-md-7'p>>",
-            buttons: [
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-print text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Cetak', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-copy text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-file-excel text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Excel', exportOptions: mzExportOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-file-pdf text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'PDF', exportOptions: mzExportOpt}
-            ],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
+            aaSorting: [[1, 'asc']],
+            language: GemsUI.dtEmpty('fa-list', 'No problem types recorded yet.', 'No problem types recorded yet.'),
+            dom: GemsUI.dtDom,
+            pagingType: 'simple_numbers',
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
-            aoColumns:
-                [
-                    {mData: null, bSortable: false, sClass: 'text-center'},
-                    {mData: 'siteProblemTypeName'},
-                    {mData: null, sClass: 'text-center',
-                        mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['siteProblemTypeStatus']]['statusColor']+' z-depth-2">'+refStatus[row['siteProblemTypeStatus']]['statusDesc']+'</span></h6>';
+            aoColumns: [
+                {mData: null, bSortable: false, sClass: 'text-center'},
+                {mData: 'siteProblemTypeName'},
+                {mData: null, sClass: 'text-center',
+                    mRender: function (data, type, row) {
+                        if (type !== 'display') {
+                            return refStatus && refStatus[row['siteProblemTypeStatus']]
+                                ? refStatus[row['siteProblemTypeStatus']]['statusDesc']
+                                : '';
                         }
-                    },
-                    {mData: 'siteProblemTypeStatus', visible: false,
-                        mRender: function (data, type, row) {
-                            return refStatus[row['siteProblemTypeStatus']]['statusDesc'];
-                        }
+                        return statusBadge(row['siteProblemTypeStatus']);
                     }
-                ]
+                },
+                {mData: 'siteProblemTypeStatus', visible: false,
+                    mRender: function (data, type, row) {
+                        return refStatus && refStatus[row['siteProblemTypeStatus']]
+                            ? refStatus[row['siteProblemTypeStatus']]['statusDesc']
+                            : '';
+                    }
+                }
+            ]
         });
 
-        oTableSiteLocation =  $('#dtMstSiteLocation').DataTable({
-            bLengthChange: false,
-            autoWidth: false,
-            bFilter: false,
-            aaSorting: [1, 'asc'],
-            language: _DATATABLE_LANGUAGE,
-            dom: "<'row'<'col-sm-12'B>>" +
-                "<'row'<'col-sm-12'tr>>"+
-                "<'row'<'col-sm-12 col-md-5 d-none d-md-block'i><'col-sm-12 col-md-7'p>>",
-            buttons: [
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-print text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Cetak', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-copy text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-file-excel text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'Excel', exportOptions: mzExportOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 mx-1 mb-1', text:'<i class="fas fa-file-pdf text-dark"></i>', title:'SPDP 2.0 - Senarai Semak Pematuhan - Standard Keselamatan (Para 4 dan 5)', titleAttr: 'PDF', exportOptions: mzExportOpt}
-            ],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
-                const info = oTableSite.page.info();
-                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
-            },
-            aoColumns:
-                [
+        if ($('#dtMstSiteLocation').length) {
+            oTableSiteLocation = $('#dtMstSiteLocation').DataTable({
+                bLengthChange: false,
+                autoWidth: false,
+                bFilter: false,
+                aaSorting: [[1, 'asc']],
+                language: GemsUI.dtEmpty('fa-map-marker-alt', 'No site locations recorded yet.', 'No site locations recorded yet.'),
+                dom: GemsUI.dtDom,
+                pagingType: 'simple_numbers',
+                fnRowCallback: function (nRow, aData, iDisplayIndex) {
+                    const info = oTableSiteLocation.page.info();
+                    $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                },
+                aoColumns: [
                     {mData: null, bSortable: false},
                     {mData: 'siteLocationName'},
                     {mData: null,
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['siteLocationStatus']]['statusColor']+' z-depth-2">'+refStatus[row['siteLocationStatus']]['statusDesc']+'</span></h6>';
+                            if (type !== 'display') {
+                                return refStatus && refStatus[row['siteLocationStatus']]
+                                    ? refStatus[row['siteLocationStatus']]['statusDesc']
+                                    : '';
+                            }
+                            return statusBadge(row['siteLocationStatus']);
                         }
                     },
                     {mData: 'siteLocationStatus', visible: false,
                         mRender: function (data, type, row) {
-                            return refStatus[row['siteLocationStatus']]['statusDesc'];
+                            return refStatus && refStatus[row['siteLocationStatus']]
+                                ? refStatus[row['siteLocationStatus']]['statusDesc']
+                                : '';
                         }
                     }
                 ]
-        });
-
-
+            });
+        }
     };
 
     this.add = function () {
@@ -227,11 +272,11 @@ function ModalSite() {
         setTimeout(function () {
             try {
                 $('.isMstWorkRequest').hide();
-                console.log(refClient);
-                mzOptionStop('optMstClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
+                fillClientSelect(true);
+                setClientSelectDisabled(false);
 
                 mzSetFieldValue('MstStatus', '1', 'checkSingle', '1');
-                $('#lblMstTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Site');
+                $('#lblMstTitle').html('<i class="fas fa-plus me-2"></i>Add Site');
                 $('#modal_site').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -245,13 +290,12 @@ function ModalSite() {
         setTimeout(function () {
             try {
                 $('.isMstWorkRequest').hide();
-                mzOptionStop('optMstClientId', refClient, 'Choose Client', 'clientId', 'clientName');
                 mzCheckFuncParam([_siteId, _rowRefresh]);
                 siteId = _siteId;
                 rowRefresh = _rowRefresh;
 
-                const dataMst = mzAjaxRequest('site.php?siteId='+siteId, 'GET');
-                mzSetFieldValue('MstClientId', dataMst['clientId'], 'select', 'Client *');
+                const dataMst = mzAjaxRequest('site.php?siteId=' + siteId, 'GET');
+                fillClientSelect(false, dataMst['clientId']);
                 mzSetFieldValue('MstName', dataMst['siteName'], 'text');
                 mzSetFieldValue('MstCode', dataMst['siteCode'], 'text');
                 mzSetFieldValue('MstDesc', dataMst['siteDesc'], 'textarea');
@@ -259,13 +303,13 @@ function ModalSite() {
                 mzSetFieldValue('MstPublic', dataMst['siteIsPublic'], 'checkSingle', '1');
                 mzSetFieldValue('MstStatus', dataMst['siteStatus'], 'checkSingle', '1');
 
-                mzDisableSelect('optMstClientId', true);
+                setClientSelectDisabled(true);
                 if (dataMst['siteIsWr'] === '1') {
                     $('.isMstWorkRequest').show();
                     self.genTableProblemType();
                 }
 
-                $('#lblMstTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Site');
+                $('#lblMstTitle').html('<i class="far fa-edit me-2"></i>Edit Site');
                 $('#modal_site').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -279,8 +323,8 @@ function ModalSite() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_siteId, _rowRefresh]);
-                mzAjaxRequest('site.php?siteId='+_siteId, 'PUT', {action: 'deactivate'});
-                const tempRow = {siteStatus:'2'};
+                mzAjaxRequest('site.php?siteId=' + _siteId, 'PUT', {action: 'deactivate'});
+                const tempRow = {siteStatus: '2'};
                 if (classFrom.getClassName() === 'MainSite') {
                     classFrom.updateTableSte(tempRow, _rowRefresh);
                 }
@@ -296,8 +340,8 @@ function ModalSite() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_siteId, _rowRefresh]);
-                mzAjaxRequest('site.php?siteId='+_siteId, 'PUT', {action: 'activate'});
-                const tempRow = {siteStatus:'1'};
+                mzAjaxRequest('site.php?siteId=' + _siteId, 'PUT', {action: 'activate'});
+                const tempRow = {siteStatus: '1'};
                 if (classFrom.getClassName() === 'MainSite') {
                     classFrom.updateTableSte(tempRow, _rowRefresh);
                 }
@@ -313,7 +357,7 @@ function ModalSite() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_siteId]);
-                mzAjaxRequest('site.php?siteId='+_siteId, 'DELETE');
+                mzAjaxRequest('site.php?siteId=' + _siteId, 'DELETE');
                 if (classFrom.getClassName() === 'MainSite') {
                     classFrom.genTableSte(1);
                 }
@@ -325,12 +369,15 @@ function ModalSite() {
     };
 
     this.genTableProblemType = function () {
-        const dataDb = mzAjaxRequest('site_problem_type.php?siteId='+siteId, 'GET');
+        const dataDb = mzAjaxRequest('site_problem_type.php?siteId=' + siteId, 'GET');
         oTableProblemType.clear().rows.add(dataDb).draw();
     };
 
     this.genTableLocation = function () {
-        const dataDb = mzAjaxRequest('site.php?type=problemType&siteId='+siteId, 'GET');
+        if (!oTableSiteLocation) {
+            return;
+        }
+        const dataDb = mzAjaxRequest('site.php?type=problemType&siteId=' + siteId, 'GET');
         oTableSiteLocation.clear().rows.add(dataDb).draw();
     };
 

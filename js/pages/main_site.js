@@ -1,148 +1,450 @@
 function MainSite() {
 
-        const className = 'MainSite';
-        let self = this;
-        let versionLocal;
-        let refStatus;
-        let refClient;
-        let oTableSite;
-        let modalSiteClass;
-        let modalConfirmDeleteClass;
-        let siteDataCache = [];
-        let lastListUpdatedText = '—';
-        let statusFilterValue = '';
-        let clientFilterValue = '';
+    const className = 'MainSite';
+    const momentAvailable = (typeof moment === 'function');
+    let self = this;
+    let versionLocal;
+    let refStatus;
+    let refClient;
+    let oTableSite;
+    let modalSiteClass;
+    let modalConfirmDeleteClass;
+    let siteDataCache = [];
+    let lastListUpdated = null;
+    let statusFilterValue = '';
+    let clientFilterValue = '';
+    let statusFilterFn;
 
-        const statusChipMap = {
-            '': '#linkSteAll',
-            '1': '#linkSteActive',
-            '2': '#linkSteInactive',
-            '5': '#linkSteArchived'
-        };
+    const statusChipMap = {
+        '': '#linkSteAll',
+        '1': '#linkSteActive',
+        '2': '#linkSteInactive',
+        '5': '#linkSteArchived'
+    };
 
-        const tableHeaders = ['#', 'Client', 'Site Name', 'Site Code', 'Work Request', 'Public QR', 'Status', 'Actions'];
+    function formatTimestamp(value) {
+        if (!value) {
+            return '—';
+        }
+        if (momentAvailable) {
+            return 'Updated ' + moment(value).format('DD MMM YYYY, hh:mm A');
+        }
+        return 'Updated ' + new Date(value).toLocaleString();
+    }
 
-        const initMaterialSelect = function (selector) {
-            // const $element = $(selector);
-            // if (!$element.length || typeof $element.materialSelect !== 'function') {
-            //     return;
-            // }
-            // try {
-            //     $element.materialSelect('destroy');
-            // } catch (e) {
-            //     // ignore destroy errors when reinitialising
-            // }
-            // const $wrapper = $element.parent('.select-wrapper');
-            // if ($wrapper.length) {
-            //     $wrapper.before($element);
-            //     $wrapper.remove();
-            // }
-            // $element.siblings('.select-dropdown').remove();
-            // $element.materialSelect();
-        };
+    function displayText(value, type) {
+        const text = value || '';
+        if (type !== 'display') {
+            return text;
+        }
+        return GemsUI.escape(text);
+    }
 
-        const applyTableDataLabels = function (tableSelector, headers) {
-            $(`${tableSelector} tbody tr`).each(function () {
-                $('td', this).each(function (index) {
-                    if (headers[index]) {
-                        $(this).attr('data-label', headers[index]);
-                    }
-                });
+    function clientRows() {
+        const rows = [];
+        if (refClient) {
+            $.each(refClient, function (key, client) {
+                if (!client || typeof client !== 'object') {
+                    return true;
+                }
+                rows.push(client);
+                return true;
             });
-        };
+        }
+        rows.sort(function (a, b) {
+            return (a['clientName'] || '').localeCompare(b['clientName'] || '');
+        });
+        return rows;
+    }
 
-        const getNowStamp = function () {
-            return (typeof moment !== 'undefined' && moment) ? moment().format('MMM D, YYYY h:mm A') : new Date().toLocaleString();
-        };
+    function populateClientFilter() {
+        GemsUI.fillSelect(
+            'optSteClientId',
+            clientRows(),
+            'clientId',
+            function (row) {
+                return row['clientName'] || '';
+            },
+            'All Clients',
+            clientFilterValue
+        );
+    }
 
-        const refreshListSummary = function () {
-            if (!oTableSite) {
+    function getClientName(clientId) {
+        if (refClient && refClient[clientId] && refClient[clientId]['clientName']) {
+            return refClient[clientId]['clientName'];
+        }
+        return 'Unknown Client';
+    }
+
+    function statusLabel(statusId, fallback) {
+        if (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc']) {
+            return refStatus[statusId]['statusDesc'];
+        }
+        switch (String(statusId)) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            case '5':
+                return 'Archived';
+            default:
+                return fallback || '';
+        }
+    }
+
+    function statusBadgeKind(status) {
+        switch (String(status)) {
+            case '1':
+                return 'success';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
+
+    function statusBadge(statusId, type) {
+        const label = statusLabel(statusId, 'Unknown');
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
+    function formatYesNo(value) {
+        return value === '1' || value === 1 ? 'Yes' : 'No';
+    }
+
+    function yesNoBadge(value, type) {
+        const label = formatYesNo(value);
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(label === 'Yes' ? 'success' : 'secondary', label);
+    }
+
+    function refreshListSummary() {
+        if (!oTableSite) {
+            return;
+        }
+        const info = (typeof oTableSite.page === 'function' && typeof oTableSite.page.info === 'function')
+            ? oTableSite.page.info()
+            : null;
+        const showing = info ? (info.end - info.start) : 0;
+        const total = info ? info.recordsDisplay : 0;
+        const summaryText = 'Showing ' + mzFormatNumber(showing, 0) + ' of ' + mzFormatNumber(total, 0);
+        const updatedText = formatTimestamp(lastListUpdated);
+        $('#lblSteFilterCount').text(summaryText);
+        $('#lblSteListCount').text(summaryText + ' results');
+        $('#lblSteFilterUpdated').text(updatedText);
+        $('#lblSteListUpdated').html('<i class="far fa-clock me-1"></i>' + updatedText);
+    }
+
+    function updateStatusChips(counts) {
+        const labelMap = {
+            '': 'All',
+            '1': statusLabel('1', 'Active'),
+            '2': statusLabel('2', 'Inactive'),
+            '5': statusLabel('5', 'Archived')
+        };
+        $.each(statusChipMap, function (status, selector) {
+            const count = typeof counts[status] !== 'undefined' ? counts[status] : 0;
+            $(selector).html(GemsUI.escape(labelMap[status]) + ' <span class="badge bg-secondary-lt ms-1">' + mzFormatNumber(count, 0) + '</span>');
+        });
+        setActiveStatusChip(statusFilterValue);
+    }
+
+    function updateSiteMetrics(dataSet) {
+        let total = 0;
+        let active = 0;
+        let inactive = 0;
+        let archived = 0;
+        let wrEnabled = 0;
+        let publicEnabled = 0;
+
+        (dataSet || []).forEach(function (item) {
+            if (!item) {
                 return;
             }
-            const info = oTableSite.page.info();
-            const showing = info ? (info.end - info.start) : 0;
-            const total = info ? info.recordsDisplay : 0;
-            const summaryText = `Showing ${mzFormatNumber(showing, 0)} of ${mzFormatNumber(total, 0)}`;
-            $('#lblSteFilterCount').text(summaryText);
-            $('#lblSteListCount').text(summaryText);
-            $('#lblSteFilterUpdated').text(lastListUpdatedText);
-            $('#lblSteListUpdated').text(lastListUpdatedText);
-        };
+            total += 1;
+            const status = String(item['siteStatus']);
+            switch (status) {
+                case '1':
+                    active += 1;
+                    break;
+                case '2':
+                    inactive += 1;
+                    break;
+                case '5':
+                    archived += 1;
+                    break;
+                default:
+                    break;
+            }
+            if (item['siteIsWr'] === '1' || item['siteIsWr'] === 1) {
+                wrEnabled += 1;
+            }
+            if (item['siteIsPublic'] === '1' || item['siteIsPublic'] === 1) {
+                publicEnabled += 1;
+            }
+        });
 
-        const updateStatusChips = function (counts) {
-            const labelMap = {
-                '': 'All',
-                '1': refStatus && refStatus[1] ? refStatus[1]['statusDesc'] : 'Active',
-                '2': refStatus && refStatus[2] ? refStatus[2]['statusDesc'] : 'Inactive',
-                '5': refStatus && refStatus[5] ? refStatus[5]['statusDesc'] : 'Archived'
-            };
-            $.each(statusChipMap, function (status, selector) {
-                const count = typeof counts[status] !== 'undefined' ? counts[status] : 0;
-                $(selector).html(`${labelMap[status]} <span class="chip-count">${mzFormatNumber(count, 0)}</span>`);
-            });
-        };
+        $('#metricSteTotal').text(mzFormatNumber(total, 0));
+        $('#metricSteActive').text(mzFormatNumber(active, 0));
+        $('#metricSteWr').text(mzFormatNumber(wrEnabled, 0)).toggleClass('text-success', wrEnabled > 0);
+        $('#metricStePublic').text(mzFormatNumber(publicEnabled, 0)).toggleClass('text-success', publicEnabled > 0);
 
-        const formatYesNo = function (value) {
-            return value === '1' || value === 1 ? 'Yes' : 'No';
-        };
+        updateStatusChips({
+            '': total,
+            '1': active,
+            '2': inactive,
+            '5': archived
+        });
+    }
 
-        const updateSiteMetrics = function (dataSet) {
-            let total = 0;
-            let active = 0;
-            let inactive = 0;
-            let archived = 0;
-            let wrEnabled = 0;
-            let publicEnabled = 0;
+    function setActiveStatusChip(value) {
+        $.each(statusChipMap, function (status, selector) {
+            if (status === value) {
+                $(selector).addClass('active btn-primary').removeClass('btn-outline-secondary');
+            } else {
+                $(selector).removeClass('active btn-primary').addClass('btn-outline-secondary');
+            }
+        });
+    }
 
-            dataSet.forEach(function (item) {
-                total += 1;
-                const status = String(item['siteStatus']);
-                switch (status) {
-                    case '1':
-                        active += 1;
-                        break;
-                    case '2':
-                        inactive += 1;
-                        break;
-                    case '5':
-                        archived += 1;
-                        break;
-                    default:
-                        break;
+    function setStatusFilter(value, fromSelect) {
+        statusFilterValue = value || '';
+        if (oTableSite) {
+            oTableSite.draw();
+            refreshListSummary();
+        }
+        setActiveStatusChip(statusFilterValue);
+        if (!fromSelect) {
+            $('#optSteStatus').val(statusFilterValue);
+        }
+    }
+
+    function setClientFilter(value, skipSelect) {
+        clientFilterValue = value || '';
+        if (oTableSite) {
+            if (clientFilterValue) {
+                oTableSite.column(8).search('^' + clientFilterValue + '$', true, false, true);
+            } else {
+                oTableSite.column(8).search('');
+            }
+            oTableSite.draw();
+            refreshListSummary();
+        }
+        if (!skipSelect) {
+            $('#optSteClientId').val(clientFilterValue);
+        }
+    }
+
+    function handleStatusSelectChange() {
+        setStatusFilter($(this).val() || '', true);
+    }
+
+    function handleClientSelectChange() {
+        setClientFilter($(this).val() || '', true);
+    }
+
+    function rowIdFromLink(el) {
+        const linkId = $(el).attr('id') || '';
+        const linkIndex = linkId.indexOf('_');
+        return linkIndex > 0 ? linkId.substr(linkIndex + 1) : '';
+    }
+
+    function rowDataFromLink(el) {
+        const rowId = rowIdFromLink(el);
+        if (!rowId || !oTableSite) {
+            return null;
+        }
+        return { rowId: rowId, data: oTableSite.row(parseInt(rowId, 10)).data() };
+    }
+
+    this.init = function () {
+        populateClientFilter();
+
+        let exportCounter = 1;
+        const exportOpt = {
+            columns: [0, 1, 2, 3, 4, 5, 6],
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        exportCounter = 1;
+                    }
+                    if (column === 0) {
+                        return exportCounter++;
+                    }
+                    return data;
                 }
-                if (item['siteIsWr'] === '1' || item['siteIsWr'] === 1) {
-                    wrEnabled += 1;
-                }
-                if (item['siteIsPublic'] === '1' || item['siteIsPublic'] === 1) {
-                    publicEnabled += 1;
-                }
-            });
-
-            $('#metricSteTotal').text(mzFormatNumber(total, 0));
-            $('#metricSteActive').text(mzFormatNumber(active, 0));
-            $('#metricSteWr').text(mzFormatNumber(wrEnabled, 0)).toggleClass('text-success', wrEnabled > 0);
-            $('#metricStePublic').text(mzFormatNumber(publicEnabled, 0)).toggleClass('text-success', publicEnabled > 0);
-
-            updateStatusChips({
-                '': total,
-                '1': active,
-                '2': inactive,
-                '5': archived
-            });
+            }
         };
+        const dtButtons = GemsUI.dtButtons('GEMS 2.0 - Site List').map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
+            }
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
+        });
 
-        const setActiveStatusChip = function (value) {
-            $.each(statusChipMap, function (status, selector) {
-                if (status === value) {
-                    $(selector).addClass('active');
-                } else {
-                    $(selector).removeClass('active');
-                }
-            });
-        };
+        oTableSite = $('#dtSteSite').DataTable({
+            bLengthChange: false,
+            searching: true,
+            autoWidth: false,
+            aaSorting: [[1, 'asc'], [2, 'asc']],
+            dom: GemsUI.dtDomButtons,
+            buttons: dtButtons,
+            language: GemsUI.dtEmpty('fa-map-marker-alt', 'No sites recorded yet.', 'No sites match the current search or filter.'),
+            pagingType: 'simple_numbers',
+            columnDefs: [
+                {targets: [0, 4, 5, 6, 7], orderable: false, className: 'text-center'},
+                {targets: [1, 2, 3], className: 'text-nowrap'}
+            ],
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
+                const info = (oTableSite && oTableSite.page && typeof oTableSite.page.info === 'function')
+                    ? oTableSite.page.info()
+                    : null;
+                const rowNumber = info ? (info.start + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
+                $('td', nRow).eq(0).html(rowNumber);
+            },
+            drawCallback: function () {
+                refreshListSummary();
+            },
+            aoColumns: [
+                {mData: null, bSortable: false},
+                {mData: 'clientId',
+                    mRender: function (data, type) {
+                        return displayText(getClientName(data), type);
+                    }
+                },
+                {mData: 'siteName',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
+                    }
+                },
+                {mData: 'siteCode',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
+                    }
+                },
+                {mData: 'siteIsWr',
+                    mRender: function (data, type) {
+                        return yesNoBadge(data, type);
+                    }
+                },
+                {mData: 'siteIsPublic',
+                    mRender: function (data, type) {
+                        return yesNoBadge(data, type);
+                    }
+                },
+                {mData: null, bSortable: false,
+                    mRender: function (data, type, row) {
+                        return statusBadge(row['siteStatus'], type);
+                    }
+                },
+                {mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
+                    mRender: function (data, type, row, meta) {
+                        let html = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-view',
+                            cls: 'lnkSteSiteVisitorPublic',
+                            id: 'lnkSteSiteVisitorPublic_' + meta.row,
+                            title: 'Visitor Public Link / QR',
+                            icon: 'fas fa-qrcode'
+                        });
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-view',
+                            cls: 'lnkSteSitePtwPublic',
+                            id: 'lnkSteSitePtwPublic_' + meta.row,
+                            title: 'PTW Public Link / QR',
+                            icon: 'fas fa-qrcode'
+                        });
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkSteSiteEdit',
+                            id: 'lnkSteSiteEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
+                        if (row['siteStatus'] === '1') {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkSteSiteDeactivate',
+                                id: 'lnkSteSiteDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
+                        } else {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkSteSiteActivate',
+                                id: 'lnkSteSiteActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
+                        }
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkSteSiteDelete',
+                            id: 'lnkSteSiteDelete_' + meta.row,
+                            title: 'Delete',
+                            icon: 'fas fa-trash-alt'
+                        });
+                        return html;
+                    }
+                },
+                {mData: 'clientId', visible: false, sClass: 'noVis'},
+                {mData: 'siteStatus', visible: false, sClass: 'noVis'},
+                {mData: 'siteId', visible: false, sClass: 'noVis'}
+            ]
+        });
 
-        const statusFilterFn = function (settings, data, dataIndex) {
-            if (!oTableSite || settings.nTable.id !== 'dtSteSite') {
+        oTableSite.buttons().container().appendTo($('#btnDtSteSiteExport'));
+        GemsUI.bindDtTooltips('#dtSteSite');
+
+        const tbody = $('#dtSteSite tbody');
+        tbody.on('click', '.lnkSteSiteEdit', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalSiteClass.edit(current.data['siteId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkSteSiteDeactivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalSiteClass.deactivate(current.data['siteId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkSteSiteActivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalSiteClass.activate(current.data['siteId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkSteSiteDelete', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalConfirmDeleteClass.delete(current.data['siteId'], modalSiteClass);
+            }
+        });
+        tbody.on('click', '.lnkSteSiteVisitorPublic', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data && typeof window.modalSiteVisitorPublicGlobal !== 'undefined') {
+                window.modalSiteVisitorPublicGlobal.openForSite(current.data['siteId']);
+            }
+        });
+        tbody.on('click', '.lnkSteSitePtwPublic', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data && typeof window.modalSitePtwPublicGlobal !== 'undefined') {
+                window.modalSitePtwPublicGlobal.openForSite(current.data['siteId']);
+            }
+        });
+
+        statusFilterFn = function (settings, data, dataIndex) {
+            if (!settings.nTable || settings.nTable.id !== 'dtSteSite') {
                 return true;
             }
             if (!statusFilterValue) {
@@ -154,402 +456,123 @@ function MainSite() {
             }
             return String(rowData['siteStatus']) === statusFilterValue;
         };
+        $.fn.dataTable.ext.search.push(statusFilterFn);
 
-        const getClientName = function (clientId) {
-            if (refClient && refClient[clientId]) {
-                return refClient[clientId]['clientName'];
-            }
-            return 'Unknown Client';
-        };
+        $('#txtSteSiteSearch').on('keyup change', function () {
+            oTableSite.search($(this).val()).draw();
+        });
 
-        const populateClientFilter = function () {
-            const $select = $('#optSteClientId');
-            if (!$select.length) {
-                return;
-            }
-            const clients = [];
-            if (refClient) {
-                $.each(refClient, function (key, client) {
-                    if (!client || typeof client !== 'object') {
-                        return true;
-                    }
-                    const id = client['clientId'] || key;
-                    const name = client['clientName'] || '';
-                    clients.push({ id: id, name: name });
-                    return true;
-                });
-            }
-            clients.sort(function (a, b) {
-                return (a.name || '').localeCompare(b.name || '');
-            });
-            const options = ['<option value="" selected>All Clients</option>'];
-            clients.forEach(function (client) {
-                options.push(`<option value="${client.id}">${client.name}</option>`);
-            });
-            $select.html(options.join(''));
-            initMaterialSelect('#optSteClientId');
-            if (clientFilterValue) {
+        $('#optSteStatus').on('change', handleStatusSelectChange);
+        $('#optSteClientId').on('change', handleClientSelectChange);
+
+        $('#btnSteSiteAdd').on('click', function () {
+            modalSiteClass.add();
+        });
+
+        $('#btnDtSteSiteRefresh').on('click', function () {
+            ShowLoader();
+            setTimeout(function () {
                 try {
-                    $select.materialSelect('destroy');
+                    self.genTableSte(1);
                 } catch (e) {
-                    // ignore destroy errors
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
-                $select.val(clientFilterValue);
-                $select.materialSelect();
-            }
-            $select.off('change').on('change', handleClientSelectChange);
-        };
+                HideLoader();
+            }, 200);
+        });
 
-        const setStatusFilter = function (value, fromSelect) {
-            statusFilterValue = value || '';
-            if (oTableSite) {
-                oTableSite.draw();
-                refreshListSummary();
-            }
-            setActiveStatusChip(statusFilterValue);
-            if (!fromSelect) {
-                const $statusSelect = $('#optSteStatus');
-                if ($statusSelect.length) {
-                    try {
-                        $statusSelect.materialSelect('destroy');
-                    } catch (e) {
-                        // ignore destroy errors
-                    }
-                    $statusSelect.val(statusFilterValue);
-                    $statusSelect.materialSelect();
-                    $statusSelect.off('change').on('change', handleStatusSelectChange);
-                }
-            }
-        };
-
-        const setClientFilter = function (value, skipSelect) {
-            clientFilterValue = value || '';
-            if (oTableSite) {
-                if (clientFilterValue) {
-                    oTableSite.column(8).search(`^${clientFilterValue}$`, true, false, true);
-                } else {
-                    oTableSite.column(8).search('');
-                }
-                oTableSite.draw();
-                refreshListSummary();
-            }
-            if (!skipSelect) {
-                const $clientSelect = $('#optSteClientId');
-                if ($clientSelect.length) {
-                    try {
-                        $clientSelect.materialSelect('destroy');
-                    } catch (e) {
-                        // ignore destroy errors
-                    }
-                    $clientSelect.val(clientFilterValue);
-                    $clientSelect.materialSelect();
-                    $clientSelect.off('change').on('change', handleClientSelectChange);
-                }
-            }
-        };
-
-        const handleStatusSelectChange = function () {
-            setStatusFilter($(this).val() || '', true);
-        };
-
-        const handleClientSelectChange = function () {
-            setClientFilter($(this).val() || '', true);
-        };
-
-        const bindRowActions = function () {
-            $('.lnkSteSiteEdit').off('click').on('click', function () {
-                const row = oTableSite.row($(this).closest('tr'));
-                const rowData = row.data();
-                if (!rowData) {
-                    return;
-                }
-                modalSiteClass.edit(rowData['siteId'], row.index());
+        $.each(statusChipMap, function (status, selector) {
+            $(selector).off('click').on('click', function () {
+                setStatusFilter(status, false);
             });
-            $('.lnkSteSiteDeactivate').off('click').on('click', function () {
-                const row = oTableSite.row($(this).closest('tr'));
-                const rowData = row.data();
-                if (!rowData) {
-                    return;
-                }
-                modalSiteClass.deactivate(rowData['siteId'], row.index());
-            });
-            $('.lnkSteSiteActivate').off('click').on('click', function () {
-                const row = oTableSite.row($(this).closest('tr'));
-                const rowData = row.data();
-                if (!rowData) {
-                    return;
-                }
-                modalSiteClass.activate(rowData['siteId'], row.index());
-            });
-            $('.lnkSteSiteDelete').off('click').on('click', function () {
-                const row = oTableSite.row($(this).closest('tr'));
-                const rowData = row.data();
-                if (!rowData) {
-                    return;
-                }
-                modalConfirmDeleteClass.delete(rowData['siteId'], modalSiteClass);
-            });
-            $('.lnkSteSiteVisitorPublic').off('click').on('click', function () {
-                const row = oTableSite.row($(this).closest('tr'));
-                const rowData = row.data();
-                if (!rowData || typeof window.modalSiteVisitorPublicGlobal === 'undefined') {
-                    return;
-                }
-                window.modalSiteVisitorPublicGlobal.openForSite(rowData['siteId']);
-            });
-            $('.lnkSteSitePtwPublic').off('click').on('click', function () {
-                const row = oTableSite.row($(this).closest('tr'));
-                const rowData = row.data();
-                if (!rowData || typeof window.modalSitePtwPublicGlobal === 'undefined') {
-                    return;
-                }
-                window.modalSitePtwPublicGlobal.openForSite(rowData['siteId']);
-            });
-        };
+        });
 
-        this.init = function () {
-            $.fn.dataTable.ext.search.push(statusFilterFn);
+        setStatusFilter('', true);
+        setClientFilter('', true);
 
-            initMaterialSelect('#optSteStatus');
-            populateClientFilter();
+        self.genTableSte(0);
+    };
 
-            oTableSite = $('#dtSteSite').DataTable({
-                bLengthChange: false,
-                bFilter: true,
-                aaSorting: [[1, 'asc'], [2, 'asc']],
-                language: _DATATABLE_LANGUAGE,
-                dom: 't<"dt-pagination-wrapper d-flex justify-content-center"p>',
-                pagingType: 'simple_numbers',
-                autoWidth: false,
-                columnDefs: [
-                    { targets: [0, 4, 5, 6, 7], orderable: false, className: 'text-center' },
-                    { targets: [1, 2, 3], className: 'text-nowrap' }
-                ],
-                fnRowCallback: function (nRow, aData, iDisplayIndex) {
-                    const info = oTableSite.page.info();
-                    $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
-                },
-                drawCallback: function () {
-                    $('[data-toggle="tooltip"]').tooltip();
-                    applyTableDataLabels('#dtSteSite', tableHeaders);
-                    bindRowActions();
-                    refreshListSummary();
-                },
-                aoColumns: [
-                    { mData: null },
-                    { mData: 'clientId', mRender: function (data, type) {
-                            const clientName = getClientName(data);
-                            return type !== 'display' ? clientName : clientName;
-                        } },
-                    { mData: 'siteName' },
-                    { mData: 'siteCode' },
-                    { mData: 'siteIsWr', mRender: function (data, type) {
-                            const yesNo = formatYesNo(data);
-                            if (type !== 'display') {
-                                return yesNo;
-                            }
-                            return mzRowYesNo(data);
-                        } },
-                    { mData: 'siteIsPublic', mRender: function (data, type) {
-                            const yesNo = formatYesNo(data);
-                            if (type !== 'display') {
-                                return yesNo;
-                            }
-                            return mzRowYesNo(data);
-                        } },
-                    { mData: null, mRender: function (data, type, row) {
-                            const status = row['siteStatus'];
-                            if (type !== 'display') {
-                                if (!status || !refStatus[status]) {
-                                    return 'Unknown';
-                                }
-                                return refStatus[status]['statusDesc'];
-                            }
-                            if (!status || !refStatus[status]) {
-                                return '<span class="badge badge-pill badge-secondary">Unknown</span>';
-                            }
-                            return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
-                        } },
-                    { mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += `<button type="button" class="btn-action btn-view lnkSteSiteVisitorPublic" id="lnkSteSiteVisitorPublic_${meta.row}" data-toggle="tooltip" title="Visitor Public Link / QR"><i class="fas fa-qrcode"></i></button>`;
-                            label += `<button type="button" class="btn-action btn-view lnkSteSitePtwPublic" id="lnkSteSitePtwPublic_${meta.row}" data-toggle="tooltip" title="PTW Public Link / QR"><i class="fas fa-qrcode"></i></button>`;
-                            label += `<button type="button" class="btn-action btn-edit lnkSteSiteEdit" id="lnkSteSiteEdit_${meta.row}" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>`;
-                            if (row['siteStatus'] === '1') {
-                                label += `<button type="button" class="btn-action btn-delete lnkSteSiteDeactivate" id="lnkSteSiteDeactivate_${meta.row}" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>`;
-                            } else {
-                                label += `<button type="button" class="btn-action btn-edit lnkSteSiteActivate" id="lnkSteSiteActivate_${meta.row}" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>`;
-                            }
-                            label += `<button type="button" class="btn-action btn-delete lnkSteSiteDelete" id="lnkSteSiteDelete_${meta.row}" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>`;
-                            label += '</div>';
-                            return label;
-                        } },
-                    { mData: 'clientId', visible: false },
-                    { mData: 'siteStatus', visible: false },
-                    { mData: 'siteId', visible: false }
-                ]
-            });
-            $('#dtSteSite_filter').hide();
+    this.genTableSte = function (_type) {
+        if (_type === 1) {
+            versionLocal = mzGetDataVersion();
+        }
+        const refSite = mzGetLocalRaw('gems_site', versionLocal, [], 'site');
+        siteDataCache = Array.isArray(refSite) ? refSite : [];
+        lastListUpdated = new Date();
+        oTableSite.clear().rows.add(siteDataCache).draw();
+        updateSiteMetrics(siteDataCache);
+        refreshListSummary();
+        setStatusFilter(statusFilterValue || '', true);
+        setClientFilter(clientFilterValue || '', true);
+    };
 
-            $('#txtSteSiteSearch').on('keyup change', function () {
-                oTableSite.search($(this).val()).draw();
-            });
+    this.addTableSte = function (_dataAdd) {
+        oTableSite.row.add(_dataAdd).draw();
+        siteDataCache = oTableSite.rows().data().toArray();
+        lastListUpdated = new Date();
+        updateSiteMetrics(siteDataCache);
+        refreshListSummary();
+        setStatusFilter(statusFilterValue || '', true);
+        setClientFilter(clientFilterValue || '', true);
+    };
 
-            $('#optSteStatus').on('change', handleStatusSelectChange);
-            $('#optSteClientId').on('change', handleClientSelectChange);
+    this.updateTableSte = function (_dataEdit, _rowEdit) {
+        const currentRow = oTableSite.row(_rowEdit).data();
+        if (!currentRow) {
+            return;
+        }
+        if (typeof _dataEdit['siteName'] !== 'undefined') {
+            currentRow['siteName'] = _dataEdit['siteName'];
+        }
+        if (typeof _dataEdit['siteCode'] !== 'undefined') {
+            currentRow['siteCode'] = _dataEdit['siteCode'];
+        }
+        if (typeof _dataEdit['siteDesc'] !== 'undefined') {
+            currentRow['siteDesc'] = _dataEdit['siteDesc'];
+        }
+        if (typeof _dataEdit['siteIsWr'] !== 'undefined') {
+            currentRow['siteIsWr'] = _dataEdit['siteIsWr'];
+        }
+        if (typeof _dataEdit['siteIsPublic'] !== 'undefined') {
+            currentRow['siteIsPublic'] = _dataEdit['siteIsPublic'];
+        }
+        if (typeof _dataEdit['siteStatus'] !== 'undefined') {
+            currentRow['siteStatus'] = _dataEdit['siteStatus'];
+        }
+        if (typeof _dataEdit['clientId'] !== 'undefined') {
+            currentRow['clientId'] = _dataEdit['clientId'];
+        }
+        lastListUpdated = new Date();
+        oTableSite.row(_rowEdit).data(currentRow).draw();
+        siteDataCache = oTableSite.rows().data().toArray();
+        updateSiteMetrics(siteDataCache);
+        refreshListSummary();
+        setStatusFilter(statusFilterValue || '', true);
+        setClientFilter(clientFilterValue || '', true);
+    };
 
-            let exportCounter = 1;
-            const btnSiteOpt = {
-                exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6],
-                    format: {
-                        body: function (data, row, column) {
-                            if (column === 0) {
-                                if (row === 0) {
-                                    exportCounter = 1;
-                                }
-                                return exportCounter++;
-                            }
-                            return data;
-                        }
-                    }
-                }
-            };
+    this.getClassName = function () {
+        return className;
+    };
 
-            new $.fn.dataTable.Buttons(oTableSite, {
-                buttons: [
-                    $.extend(true, {}, btnSiteOpt, {
-                        extend: 'print',
-                        text: '<i class="fas fa-print"></i>',
-                        title: 'GEMS 2.0 - Site List',
-                        titleAttr: 'Print',
-                        className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                    }),
-                    $.extend(true, {}, btnSiteOpt, {
-                        extend: 'excelHtml5',
-                        text: '<i class="fas fa-file-excel"></i>',
-                        title: 'GEMS 2.0 - Site List',
-                        titleAttr: 'Excel',
-                        className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                    }),
-                    $.extend(true, {}, btnSiteOpt, {
-                        extend: 'pdfHtml5',
-                        text: '<i class="fas fa-file-pdf"></i>',
-                        title: 'GEMS 2.0 - Site List',
-                        titleAttr: 'Pdf',
-                        className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                    })
-                ]
-            }).container().appendTo($('#btnDtSteSiteExport'));
+    this.setVersionLocal = function (_versionLocal) {
+        versionLocal = _versionLocal;
+    };
 
-            $('#btnSteSiteAdd').on('click', function () {
-                modalSiteClass.add();
-            });
+    this.setRefStatus = function (_refStatus) {
+        refStatus = _refStatus;
+    };
 
-            $('#btnDtSteSiteRefresh').on('click', function () {
-                ShowLoader();
-                setTimeout(function () {
-                    try {
-                        self.genTableSte(1);
-                    } catch (e) {
-                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                    }
-                    HideLoader();
-                }, 200);
-            });
+    this.setRefClient = function (_refClient) {
+        refClient = _refClient;
+    };
 
-            $.each(statusChipMap, function (status, selector) {
-                $(selector).off('click').on('click', function () {
-                    setStatusFilter(status, false);
-                });
-            });
+    this.setModalSiteClass = function (_modalSiteClass) {
+        modalSiteClass = _modalSiteClass;
+    };
 
-            setStatusFilter('', true);
-            setClientFilter('', true);
-
-            self.genTableSte(0);
-        };
-
-        this.genTableSte = function (_type) {
-            if (_type === 1) {
-                versionLocal = mzGetDataVersion();
-            }
-            const refSite = mzGetLocalRaw('gems_site', versionLocal, [], 'site');
-            siteDataCache = Array.isArray(refSite) ? refSite : [];
-            oTableSite.clear().rows.add(siteDataCache).draw();
-            lastListUpdatedText = getNowStamp();
-            updateSiteMetrics(siteDataCache);
-            refreshListSummary();
-            setStatusFilter(statusFilterValue || '', true);
-            setClientFilter(clientFilterValue || '', true);
-        };
-
-        this.addTableSte = function (_dataAdd) {
-            oTableSite.row.add(_dataAdd).draw();
-            siteDataCache = oTableSite.rows().data().toArray();
-            lastListUpdatedText = getNowStamp();
-            updateSiteMetrics(siteDataCache);
-            refreshListSummary();
-            setStatusFilter(statusFilterValue || '', true);
-            setClientFilter(clientFilterValue || '', true);
-        };
-
-        this.updateTableSte = function (_dataEdit, _rowEdit) {
-            const currentRow = oTableSite.row(_rowEdit).data();
-            if (!currentRow) {
-                return;
-            }
-            if (typeof _dataEdit['siteName'] !== 'undefined') {
-                currentRow['siteName'] = _dataEdit['siteName'];
-            }
-            if (typeof _dataEdit['siteCode'] !== 'undefined') {
-                currentRow['siteCode'] = _dataEdit['siteCode'];
-            }
-            if (typeof _dataEdit['siteDesc'] !== 'undefined') {
-                currentRow['siteDesc'] = _dataEdit['siteDesc'];
-            }
-            if (typeof _dataEdit['siteIsWr'] !== 'undefined') {
-                currentRow['siteIsWr'] = _dataEdit['siteIsWr'];
-            }
-            if (typeof _dataEdit['siteIsPublic'] !== 'undefined') {
-                currentRow['siteIsPublic'] = _dataEdit['siteIsPublic'];
-            }
-            if (typeof _dataEdit['siteStatus'] !== 'undefined') {
-                currentRow['siteStatus'] = _dataEdit['siteStatus'];
-            }
-            if (typeof _dataEdit['clientId'] !== 'undefined') {
-                currentRow['clientId'] = _dataEdit['clientId'];
-            }
-            oTableSite.row(_rowEdit).data(currentRow).draw();
-            siteDataCache = oTableSite.rows().data().toArray();
-            lastListUpdatedText = getNowStamp();
-            updateSiteMetrics(siteDataCache);
-            refreshListSummary();
-            setStatusFilter(statusFilterValue || '', true);
-            setClientFilter(clientFilterValue || '', true);
-        };
-
-        this.getClassName = function () {
-            return className;
-        };
-
-        this.setVersionLocal = function (_versionLocal) {
-            versionLocal = _versionLocal;
-        };
-
-        this.setRefStatus = function (_refStatus) {
-            refStatus = _refStatus;
-        };
-
-        this.setRefClient = function (_refClient) {
-            refClient = _refClient;
-        };
-
-        this.setModalSiteClass = function (_modalSiteClass) {
-            modalSiteClass = _modalSiteClass;
-        };
-
-        this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
-            modalConfirmDeleteClass = _modalConfirmDeleteClass;
-        };
-    }
+    this.setModalConfirmDeleteClass = function (_modalConfirmDeleteClass) {
+        modalConfirmDeleteClass = _modalConfirmDeleteClass;
+    };
+}
