@@ -1,6 +1,7 @@
-function MainZone () {
+function MainZone() {
 
     const className = 'MainZone';
+    const momentAvailable = (typeof moment === 'function');
     let self = this;
     let oTableZne;
     let refStatus;
@@ -9,10 +10,11 @@ function MainZone () {
     let urlLinkBase;
     let baseAppPath;
     let zoneDataCache = [];
-    let lastListUpdatedText = '—';
+    let lastListUpdated = null;
     let statusFilterValue = '';
     let siteFilterValue = '';
     let typeFilterValue = '';
+    let zoneFilterFn;
 
     const statusChipMap = {
         '': '#linkZneAll',
@@ -21,38 +23,100 @@ function MainZone () {
         '5': '#linkZneArchived'
     };
 
-    const tableHeaders = ['#', 'Site', 'Zone Type', 'Zone Code', 'Zone Name', 'Public QR Link', 'Status'];
+    function formatTimestamp(value) {
+        if (!value) {
+            return '—';
+        }
+        if (momentAvailable) {
+            return 'Updated ' + moment(value).format('DD MMM YYYY, hh:mm A');
+        }
+        return 'Updated ' + new Date(value).toLocaleString();
+    }
 
-    const initMaterialSelect = function (selector) {
-        // const $element = $(selector);
-        // if (!$element.length || typeof $element.materialSelect !== 'function') {
-        //     return;
-        // }
-        // try {
-        //     $element.materialSelect('destroy');
-        // } catch (e) {
-        //     // ignore destroy errors when reinitialising
-        // }
-        // const $wrapper = $element.parent('.select-wrapper');
-        // if ($wrapper.length) {
-        //     $wrapper.before($element);
-        //     $wrapper.remove();
-        // }
-        // $element.siblings('.select-dropdown').remove();
-        // $element.materialSelect();
-    };
+    function displayText(value, type, emptyDisplay) {
+        const text = value || '';
+        if (type !== 'display') {
+            return text;
+        }
+        if (!text) {
+            return emptyDisplay || '';
+        }
+        return GemsUI.escape(text);
+    }
 
-    const applyTableDataLabels = function (tableSelector, headers) {
-        $(`${tableSelector} tbody tr`).each(function () {
-            $('td', this).each(function (index) {
-                if (headers[index]) {
-                    $(this).attr('data-label', headers[index]);
-                }
-            });
+    function siteRows() {
+        const rows = [];
+        $.each(refSite, function (key, site) {
+            if (!site || typeof site !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, site);
+            if (!row['siteId']) {
+                row['siteId'] = key;
+            }
+            if (!row['siteId'] && !row['siteName']) {
+                return true;
+            }
+            rows.push(row);
+            return true;
         });
-    };
+        rows.sort(function (a, b) {
+            return (a['siteName'] || '').localeCompare(b['siteName'] || '');
+        });
+        return rows;
+    }
 
-    const stripHtml = function (value) {
+    function getSiteName(siteId) {
+        if (refSite && refSite[siteId] && refSite[siteId]['siteName']) {
+            return refSite[siteId]['siteName'];
+        }
+        let name = 'Unknown Site';
+        $.each(refSite, function (key, site) {
+            if (site && String(site['siteId']) === String(siteId) && site['siteName']) {
+                name = site['siteName'];
+                return false;
+            }
+            return true;
+        });
+        return name;
+    }
+
+    function statusLabel(statusId, fallback) {
+        if (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc']) {
+            return refStatus[statusId]['statusDesc'];
+        }
+        switch (String(statusId)) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            case '5':
+                return 'Archived';
+            default:
+                return fallback || 'Unknown';
+        }
+    }
+
+    function statusBadgeKind(status) {
+        switch (String(status)) {
+            case '1':
+                return 'success';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
+
+    function statusBadge(statusId, type) {
+        const label = statusLabel(statusId, 'Unknown');
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
+    function stripHtml(value) {
         if (value === null || value === undefined) {
             return '';
         }
@@ -60,94 +124,75 @@ function MainZone () {
             return value;
         }
         return value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-    };
+    }
 
-    const getNowStamp = function () {
-        return (typeof moment !== 'undefined' && moment) ? moment().format('MMM D, YYYY h:mm A') : new Date().toLocaleString();
-    };
-
-    const refreshListSummary = function () {
+    function refreshListSummary() {
         if (!oTableZne) {
             return;
         }
-        const info = oTableZne.page.info();
+        const info = (typeof oTableZne.page === 'function' && typeof oTableZne.page.info === 'function')
+            ? oTableZne.page.info()
+            : null;
         const showing = info ? (info.end - info.start) : 0;
         const total = info ? info.recordsDisplay : 0;
-        const summaryText = `Showing ${mzFormatNumber(showing, 0)} of ${mzFormatNumber(total, 0)}`;
+        const summaryText = 'Showing ' + mzFormatNumber(showing, 0) + ' of ' + mzFormatNumber(total, 0);
+        const updatedText = formatTimestamp(lastListUpdated);
         $('#lblZneFilterCount').text(summaryText);
-        $('#lblZneListCount').text(summaryText);
-        $('#lblZneFilterUpdated').text(lastListUpdatedText);
-        $('#lblZneListUpdated').text(lastListUpdatedText);
-    };
+        $('#lblZneListCount').text(summaryText + ' results');
+        $('#lblZneFilterUpdated').text(updatedText);
+        $('#lblZneListUpdated').html('<i class="far fa-clock me-1"></i>' + updatedText);
+    }
 
-    const syncSearchInputs = function (value, source) {
+    function syncSearchInputs(value, source) {
         if (source !== '#txtZneZoneSearch' && $('#txtZneZoneSearch').length) {
             $('#txtZneZoneSearch').val(value);
         }
         if (source !== '#txtZneQuickSearch' && $('#txtZneQuickSearch').length) {
             $('#txtZneQuickSearch').val(value);
         }
-    };
+    }
 
-    const applyZoneSearch = function (term, source) {
+    function applyZoneSearch(term, source) {
         const safeTerm = term || '';
         if (oTableZne) {
             oTableZne.search(safeTerm).draw();
         }
         syncSearchInputs(safeTerm, source);
-    };
+    }
 
-    const bindSearchField = function (selector) {
+    function bindSearchField(selector) {
         if (!selector || !$(selector).length) {
             return;
         }
         $(selector).off('input change keyup').on('input change keyup', function () {
             applyZoneSearch($(this).val(), selector);
         });
-    };
+    }
 
-    const getStatusDesc = function (status) {
-        if (!status || !refStatus || !refStatus[status]) {
-            return 'Unknown';
-        }
-        return refStatus[status]['statusDesc'] || 'Unknown';
-    };
-
-    const getStatusBadge = function (status) {
-        if (!status || !refStatus || !refStatus[status]) {
-            return '<span class="badge badge-pill badge-secondary">Unknown</span>';
-        }
-        const statusObj = refStatus[status];
-        return `<span class="badge badge-pill ${statusObj['statusColor']} z-depth-2">${statusObj['statusDesc']}</span>`;
-    };
-
-    const getSiteName = function (siteId) {
-        if (refSite && refSite[siteId]) {
-            return refSite[siteId]['siteName'];
-        }
-        return 'Unknown Site';
-    };
-
-    const updateStatusChips = function (counts) {
+    function updateStatusChips(counts) {
         const labelMap = {
             '': 'All',
-            '1': refStatus && refStatus['1'] ? refStatus['1']['statusDesc'] : 'Active',
-            '2': refStatus && refStatus['2'] ? refStatus['2']['statusDesc'] : 'Inactive',
-            '5': refStatus && refStatus['5'] ? refStatus['5']['statusDesc'] : 'Archived'
+            '1': statusLabel('1', 'Active'),
+            '2': statusLabel('2', 'Inactive'),
+            '5': statusLabel('5', 'Archived')
         };
         $.each(statusChipMap, function (status, selector) {
             const count = typeof counts[status] !== 'undefined' ? counts[status] : 0;
-            $(selector).html(`${labelMap[status]} <span class="chip-count">${mzFormatNumber(count, 0)}</span>`);
+            $(selector).html(GemsUI.escape(labelMap[status]) + ' <span class="badge bg-secondary-lt ms-1">' + mzFormatNumber(count, 0) + '</span>');
         });
-    };
+        setActiveStatusChip(statusFilterValue);
+    }
 
-    const updateZoneMetrics = function (dataSet) {
+    function updateZoneMetrics(dataSet) {
         let total = 0;
         let active = 0;
         let inactive = 0;
         const typeSet = {};
 
-        dataSet.forEach(function (item) {
+        (dataSet || []).forEach(function (item) {
+            if (!item) {
+                return;
+            }
             total += 1;
             const status = String(item['zoneStatus']);
             if (status === '1') {
@@ -160,7 +205,7 @@ function MainZone () {
             }
         });
 
-        const archived = dataSet.filter(function (item) {
+        const archived = (dataSet || []).filter(function (item) {
             return String(item['zoneStatus']) === '5';
         }).length;
 
@@ -175,98 +220,88 @@ function MainZone () {
             '2': inactive,
             '5': archived
         });
-    };
+    }
 
-    const populateStatusFilter = function () {
-        const $select = $('#optZneStatus');
-        if (!$select.length) {
-            return;
-        }
-        const options = ['<option value="" selected>All Status</option>'];
+    function populateStatusFilter() {
+        const rows = [];
         ['1', '2', '5'].forEach(function (statusId) {
             if (refStatus && refStatus[statusId]) {
-                options.push(`<option value="${statusId}">${refStatus[statusId]['statusDesc']}</option>`);
+                const row = $.extend({}, refStatus[statusId]);
+                if (!row['statusId']) {
+                    row['statusId'] = statusId;
+                }
+                rows.push(row);
+            } else {
+                rows.push({
+                    statusId: statusId,
+                    statusDesc: statusLabel(statusId)
+                });
             }
         });
-        $select.html(options.join(''));
-        initMaterialSelect('#optZneStatus');
-        $select.off('change').on('change', handleStatusSelectChange);
-    };
+        GemsUI.fillSelect(
+            'optZneStatus',
+            rows,
+            'statusId',
+            function (row) {
+                return row['statusDesc'] || '';
+            },
+            'All Status',
+            statusFilterValue
+        );
+    }
 
-    const populateSiteFilter = function () {
-        const $select = $('#optZneSiteId');
-        if (!$select.length) {
-            return;
-        }
-        const sites = [];
-        if (refSite) {
-            $.each(refSite, function (key, site) {
-                if (!site || typeof site !== 'object') {
-                    return true;
-                }
-                const siteId = site['siteId'] || key;
-                const siteName = site['siteName'] || '';
-                sites.push({ id: siteId, name: siteName });
-                return true;
-            });
-        }
-        sites.sort(function (a, b) {
-            return (a.name || '').localeCompare(b.name || '');
-        });
-        const options = ['<option value="" selected>All Sites</option>'];
-        sites.forEach(function (site) {
-            options.push(`<option value="${site.id}">${site.name}</option>`);
-        });
-        $select.html(options.join(''));
-        initMaterialSelect('#optZneSiteId');
-        if (siteFilterValue) {
-            $select.val(siteFilterValue);
-            $select.materialSelect();
-        }
-        $select.off('change').on('change', handleSiteSelectChange);
-    };
+    function populateSiteFilter() {
+        GemsUI.fillSelect(
+            'optZneSiteId',
+            siteRows(),
+            'siteId',
+            function (row) {
+                return row['siteName'] || '';
+            },
+            'All Sites',
+            siteFilterValue
+        );
+    }
 
-    const populateTypeFilter = function (dataSet) {
-        const $select = $('#optZneType');
-        if (!$select.length) {
-            return;
-        }
+    function populateTypeFilter(dataSet) {
         const typeSet = {};
         (dataSet || []).forEach(function (item) {
-            if (item['zoneType']) {
+            if (item && item['zoneType']) {
                 typeSet[item['zoneType']] = true;
             }
         });
         const types = Object.keys(typeSet).sort(function (a, b) {
             return a.localeCompare(b);
         });
-        const options = ['<option value="" selected>All Types</option>'];
-        types.forEach(function (type) {
-            options.push(`<option value="${type}">${type}</option>`);
-        });
         if (typeFilterValue && types.indexOf(typeFilterValue) === -1) {
             typeFilterValue = '';
         }
-        $select.html(options.join(''));
-        initMaterialSelect('#optZneType');
-        if (typeFilterValue) {
-            $select.val(typeFilterValue);
-            $select.materialSelect();
-        }
-        $select.off('change').on('change', handleTypeSelectChange);
-    };
+        const rows = types.map(function (type) {
+            return { zoneType: type };
+        });
+        GemsUI.fillSelect(
+            'optZneType',
+            rows,
+            'zoneType',
+            function (row) {
+                return row['zoneType'] || '';
+            },
+            'All Types',
+            typeFilterValue
+        );
+    }
 
-    const setActiveStatusChip = function (value) {
+    function setActiveStatusChip(value) {
         $.each(statusChipMap, function (status, selector) {
             if (status === value) {
-                $(selector).addClass('active');
+                $(selector).addClass('active btn-primary').removeClass('btn-outline-secondary');
             } else {
-                $(selector).removeClass('active');
+                $(selector).removeClass('active btn-primary').addClass('btn-outline-secondary');
             }
         });
-    };
+    }
 
-    const setStatusFilter = function (value, fromSelect) {
+    function setStatusFilter(value, fromSelect) {
         statusFilterValue = value || '';
         if (oTableZne) {
             oTableZne.draw();
@@ -274,248 +309,186 @@ function MainZone () {
         }
         setActiveStatusChip(statusFilterValue);
         if (!fromSelect) {
-            const $statusSelect = $('#optZneStatus');
-            if ($statusSelect.length) {
-                try {
-                    $statusSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy errors
-                }
-                $statusSelect.val(statusFilterValue);
-                $statusSelect.materialSelect();
-                $statusSelect.off('change').on('change', handleStatusSelectChange);
-            }
+            $('#optZneStatus').val(statusFilterValue);
         }
-    };
+    }
 
-    const setSiteFilter = function (value, skipSelect) {
+    function setSiteFilter(value, skipSelect) {
         siteFilterValue = value || '';
         if (oTableZne) {
             oTableZne.draw();
             refreshListSummary();
         }
         if (!skipSelect) {
-            const $siteSelect = $('#optZneSiteId');
-            if ($siteSelect.length) {
-                try {
-                    $siteSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy errors
-                }
-                $siteSelect.val(siteFilterValue);
-                $siteSelect.materialSelect();
-                $siteSelect.off('change').on('change', handleSiteSelectChange);
-            }
+            $('#optZneSiteId').val(siteFilterValue);
         }
-    };
+    }
 
-    const setTypeFilter = function (value, skipSelect) {
+    function setTypeFilter(value, skipSelect) {
         typeFilterValue = value || '';
         if (oTableZne) {
             oTableZne.draw();
             refreshListSummary();
         }
         if (!skipSelect) {
-            const $typeSelect = $('#optZneType');
-            if ($typeSelect.length) {
-                try {
-                    $typeSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy errors
-                }
-                $typeSelect.val(typeFilterValue);
-                $typeSelect.materialSelect();
-                $typeSelect.off('change').on('change', handleTypeSelectChange);
-            }
+            $('#optZneType').val(typeFilterValue);
         }
-    };
+    }
 
-    const handleStatusSelectChange = function () {
+    function handleStatusSelectChange() {
         setStatusFilter($(this).val() || '', true);
-    };
+    }
 
-    const handleSiteSelectChange = function () {
+    function handleSiteSelectChange() {
         setSiteFilter($(this).val() || '', true);
-    };
+    }
 
-    const handleTypeSelectChange = function () {
+    function handleTypeSelectChange() {
         setTypeFilter($(this).val() || '', true);
-    };
-
-    const zoneFilterFn = function (settings, data, dataIndex) {
-        if (!oTableZne || settings.nTable.id !== 'dtZneData') {
-            return true;
-        }
-        const rowData = oTableZne.row(dataIndex).data();
-        if (!rowData) {
-            return true;
-        }
-        if (statusFilterValue && String(rowData['zoneStatus']) !== statusFilterValue) {
-            return false;
-        }
-        if (siteFilterValue && String(rowData['siteId']) !== siteFilterValue) {
-            return false;
-        }
-        if (typeFilterValue && String(rowData['zoneType']) !== typeFilterValue) {
-            return false;
-        }
-        return true;
-    };
-
-    const bindRowInteractions = function () {
-        $('#dtZneData tbody tr').off('click').on('click', function (evt) {
-            const rowData = oTableZne.row(this).data();
-            if (!rowData) {
-                return;
-            }
-            modalZoneClass.edit(rowData['zoneId']);
-        }).off('mouseenter').on('mouseenter', function (evt) {
-            const rowData = oTableZne.row(this).data();
-            const zoneName = rowData && rowData['zoneName'] ? rowData['zoneName'] : '';
-            const cell = $(evt.target).closest('td');
-            cell.css('cursor', 'pointer');
-            cell.attr('data-toggle', 'tooltip');
-            cell.attr('title', zoneName ? `Click to edit ${zoneName}` : 'Click to edit zone');
-            $('[data-toggle="tooltip"]').tooltip();
-        });
-    };
+    }
 
     this.init = function () {
         const urlParams = window.location.href.split('/p_');
         baseAppPath = urlParams[0];
         urlLinkBase = baseAppPath + '/p_complaint?z=';
 
-        $.fn.dataTable.ext.search.push(zoneFilterFn);
-
         populateStatusFilter();
         populateSiteFilter();
         populateTypeFilter([]);
 
+        let exportCounter = 1;
+        const exportOpt = {
+            columns: [0, 1, 2, 3, 4, 5, 6],
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        exportCounter = 1;
+                    }
+                    if (column === 0) {
+                        return exportCounter++;
+                    }
+                    if (column === 5) {
+                        return stripHtml(data);
+                    }
+                    if (column === 6) {
+                        const rowData = oTableZne.row(row).data();
+                        return rowData ? statusLabel(rowData['zoneStatus']) : stripHtml(data);
+                    }
+                    return stripHtml(data);
+                }
+            }
+        };
+        const dtButtons = GemsUI.dtButtons('GEMS 2.0 - Zone List').map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
+            }
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
+        });
+
         oTableZne = $('#dtZneData').DataTable({
             bLengthChange: false,
-            bFilter: true,
-            aaSorting: [[1, 'asc'], [2, 'asc'], [3, 'asc']],
-            language: _DATATABLE_LANGUAGE,
-            dom: 't<"dt-pagination-wrapper d-flex justify-content-center"p>',
-            pagingType: 'simple_numbers',
+            searching: true,
             autoWidth: false,
+            aaSorting: [[1, 'asc'], [2, 'asc'], [3, 'asc']],
+            dom: GemsUI.dtDomButtons,
+            buttons: dtButtons,
+            language: GemsUI.dtEmpty('fa-vector-square', 'No zones recorded yet.', 'No zones match the current search or filter.'),
+            pagingType: 'simple_numbers',
             columnDefs: [
-                { targets: [0], orderable: false, className: 'text-center' },
-                { targets: [1, 2, 3], className: 'text-nowrap' },
-                { targets: [4, 5, 6], className: 'align-middle' }
+                {targets: [0], orderable: false, className: 'text-center'},
+                {targets: [1, 2, 3], className: 'text-nowrap'}
             ],
             fnRowCallback: function (nRow, aData, iDisplayIndex) {
-                const info = oTableZne.page.info();
-                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                const info = (oTableZne && oTableZne.page && typeof oTableZne.page.info === 'function')
+                    ? oTableZne.page.info()
+                    : null;
+                const rowNumber = info ? (info.start + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
+                $('td', nRow).eq(0).html(rowNumber);
             },
             drawCallback: function () {
-                applyTableDataLabels('#dtZneData', tableHeaders);
                 refreshListSummary();
-                bindRowInteractions();
             },
             aoColumns: [
-                { mData: null },
-                { mData: 'siteId', mRender: function (data, type) {
-                        const name = getSiteName(data);
-                        return type !== 'display' ? name : name;
-                    } },
-                { mData: 'zoneType', mRender: function (data, type) {
-                        if (type !== 'display') {
-                            return data || '';
-                        }
-                        return data || '<span class="text-muted">—</span>';
-                    } },
-                { mData: 'zoneCode', mRender: function (data, type) {
-                        if (type !== 'display') {
-                            return data || '';
-                        }
-                        return data || '<span class="text-muted">—</span>';
-                    } },
-                { mData: 'zoneName', mRender: function (data, type) {
-                        if (type !== 'display') {
-                            return data || '';
-                        }
-                        return data || '<span class="text-muted">No name</span>';
-                    } },
-                { mData: null, mRender: function (data, type, row) {
-                        const zoneId = row['zoneId'];
-                        const complaintLink = urlLinkBase + zoneId;
+                {mData: null, bSortable: false},
+                {mData: 'siteId',
+                    mRender: function (data, type) {
+                        return displayText(getSiteName(data), type);
+                    }
+                },
+                {mData: 'zoneType',
+                    mRender: function (data, type) {
+                        return displayText(data, type, '<span class="text-muted">—</span>');
+                    }
+                },
+                {mData: 'zoneCode',
+                    mRender: function (data, type) {
+                        return displayText(data, type, '<span class="text-muted">—</span>');
+                    }
+                },
+                {mData: 'zoneName',
+                    mRender: function (data, type) {
+                        return displayText(data, type, '<span class="text-muted">No name</span>');
+                    }
+                },
+                {mData: null,
+                    mRender: function (data, type, row) {
+                        const complaintLink = urlLinkBase + row['zoneId'];
                         if (type !== 'display') {
                             return complaintLink;
                         }
-                        return `<div class="small zone-link-text">${complaintLink}</div>`;
-                    } },
-                { mData: 'zoneStatus', mRender: function (data, type) {
-                        if (type !== 'display') {
-                            return getStatusDesc(data);
-                        }
-                        return `<h6 class="mb-0">${getStatusBadge(data)}</h6>`;
-                    } }
+                        return '<div class="small">' + GemsUI.escape(complaintLink) + '</div>';
+                    }
+                },
+                {mData: 'zoneStatus',
+                    mRender: function (data, type) {
+                        return statusBadge(data, type);
+                    }
+                }
             ]
         });
-        $('#dtZneData_filter').hide();
+
+        oTableZne.buttons().container().appendTo($('#btnDtZneZoneExport'));
+        GemsUI.bindDtTooltips('#dtZneData');
+
+        zoneFilterFn = function (settings, data, dataIndex) {
+            if (!settings.nTable || settings.nTable.id !== 'dtZneData') {
+                return true;
+            }
+            const rowData = oTableZne.row(dataIndex).data();
+            if (!rowData) {
+                return true;
+            }
+            if (statusFilterValue && String(rowData['zoneStatus']) !== statusFilterValue) {
+                return false;
+            }
+            if (siteFilterValue && String(rowData['siteId']) !== siteFilterValue) {
+                return false;
+            }
+            if (typeFilterValue && String(rowData['zoneType']) !== typeFilterValue) {
+                return false;
+            }
+            return true;
+        };
+        $.fn.dataTable.ext.search.push(zoneFilterFn);
+
+        $('#dtZneData tbody').on('click', 'tr', function () {
+            const rowData = oTableZne.row(this).data();
+            if (!rowData) {
+                return;
+            }
+            modalZoneClass.edit(rowData['zoneId']);
+        });
 
         bindSearchField('#txtZneZoneSearch');
         bindSearchField('#txtZneQuickSearch');
         syncSearchInputs(oTableZne.search() || '', null);
 
-        let exportCounter = 1;
-        const btnZoneOpt = {
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6],
-                format: {
-                    body: function (data, row, column) {
-                        if (column === 0) {
-                            if (row === 0) {
-                                exportCounter = 1;
-                            }
-                            return exportCounter++;
-                        }
-                        if (column === 5) {
-                            return stripHtml(data);
-                        }
-                        if (column === 6) {
-                            const rowData = oTableZne.row(row).data();
-                            const statusVal = rowData ? rowData['zoneStatus'] : '';
-                            return getStatusDesc(statusVal);
-                        }
-                        return stripHtml(data);
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableZne, {
-            buttons: [
-                $.extend(true, {}, btnZoneOpt, {
-                    extend: 'colvis',
-                    text: '<i class="fas fa-columns"></i>',
-                    titleAttr: 'Column Visibility',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend(true, {}, btnZoneOpt, {
-                    extend: 'print',
-                    text: '<i class="fas fa-print"></i>',
-                    title: 'GEMS 2.0 - Zone List',
-                    titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend(true, {}, btnZoneOpt, {
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i>',
-                    title: 'GEMS 2.0 - Zone List',
-                    titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend(true, {}, btnZoneOpt, {
-                    extend: 'pdfHtml5',
-                    text: '<i class="fas fa-file-pdf"></i>',
-                    title: 'GEMS 2.0 - Zone List',
-                    titleAttr: 'Pdf',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                })
-            ]
-        }).container().appendTo($('#btnDtZneZoneExport'));
+        $('#optZneStatus').on('change', handleStatusSelectChange);
+        $('#optZneSiteId').on('change', handleSiteSelectChange);
+        $('#optZneType').on('change', handleTypeSelectChange);
 
         $('#btnDtZneZoneRefresh').on('click', function () {
             ShowLoader();
@@ -562,7 +535,7 @@ function MainZone () {
         zoneDataCache = Array.isArray(dataDb) ? dataDb : [];
         oTableZne.clear().rows.add(zoneDataCache).draw();
         zoneDataCache = oTableZne.rows().data().toArray();
-        lastListUpdatedText = getNowStamp();
+        lastListUpdated = new Date();
         updateZoneMetrics(zoneDataCache);
         populateTypeFilter(zoneDataCache);
         refreshListSummary();
@@ -587,7 +560,7 @@ function MainZone () {
     this.setModalZoneClass = function (_modalZoneClass) {
         modalZoneClass = _modalZoneClass;
     };
-    
+
     this.getUrlLinkBase = function () {
         return urlLinkBase;
     };
@@ -611,18 +584,18 @@ function MainZone () {
                     method: 'GET',
                     headers: header
                 })
-                .then(response => {
+                .then(function (response) {
                     if (!response.ok) {
                         throw new Error('Failed to download template');
                     }
                     return response.blob();
                 })
-                .then(blob => {
+                .then(function (blob) {
                     const url = window.URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
                     const now = new Date();
-                    const pad = n => n.toString().padStart(2, '0');
+                    const pad = function (n) { return n.toString().padStart(2, '0'); };
                     const formattedDate = now.getFullYear().toString() +
                         pad(now.getMonth() + 1) +
                         pad(now.getDate()) + '_' +
@@ -637,7 +610,7 @@ function MainZone () {
                     HideLoader();
                     toastr['success']('Template downloaded successfully', _ALERT_TITLE_SUCCESS);
                 })
-                .catch(error => {
+                .catch(function (error) {
                     HideLoader();
                     toastr['error'](error.message, _ALERT_TITLE_ERROR);
                 });
@@ -683,24 +656,26 @@ function MainZone () {
                     headers: header,
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
                     HideLoader();
                     if (data.success) {
                         const stats = data.result;
-                        let message = `Import completed:\n`;
-                        message += `✓ ${stats.success} zones added\n`;
+                        let message = 'Import completed:\n';
+                        message += '✓ ' + stats.success + ' zones added\n';
                         if (stats.failed > 0) {
-                            message += `✗ ${stats.failed} failed\n`;
+                            message += '✗ ' + stats.failed + ' failed\n';
                         }
                         if (stats.skipped > 0) {
-                            message += `⊘ ${stats.skipped} skipped\n`;
+                            message += '⊘ ' + stats.skipped + ' skipped\n';
                         }
 
                         if (stats.errors && stats.errors.length > 0) {
-                            message += `\nErrors:\n${stats.errors.slice(0, 5).join('\n')}`;
+                            message += '\nErrors:\n' + stats.errors.slice(0, 5).join('\n');
                             if (stats.errors.length > 5) {
-                                message += `\n... and ${stats.errors.length - 5} more`;
+                                message += '\n... and ' + (stats.errors.length - 5) + ' more';
                             }
                         }
 
@@ -710,7 +685,7 @@ function MainZone () {
                         throw new Error(data.errmsg || 'Import failed');
                     }
                 })
-                .catch(error => {
+                .catch(function (error) {
                     HideLoader();
                     toastr['error'](error.message, _ALERT_TITLE_ERROR);
                 });

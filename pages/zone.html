@@ -1,263 +1,260 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/zone.html — Tabler-migrated (P4C-2 Zone).
+
+  Mechanical copy of Site / Client for shell, toolbar, DataTable, GemsUI,
+  dependent parent select, and modal chrome.
+
+  Zone extras stay: four metric cards (Total / Active / Inactive / Zone
+  Types), Site + Zone Type filters, hardcoded status whitelist 1 / 2 / 5,
+  Quick Status chips, row-click Edit, complaint QR (p_complaint?z=),
+  Excel template download, and hidden-file import via zone/import.
+
+  Do not migrate p_complaint. Do not redesign import.
+
+  Asset stack follows the established P3/P4 dynamic/cache-busted approach:
+  static Tabler/DataTables/toastr/crypto, then document.write for common.js,
+  gems-tabler-ui.js (exactly once), and page scripts. GemsUI is not also
+  loaded via scripts_tabler.html.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <!-- Browser icon -->
-    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?5">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Custom styles -->
-    <link href="css/style.css?6" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!--JQuery Migrate-->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Zone</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid" id="divZnePageWidth">
-        <section class="mb-5  sectionZneMain">
-            <div class="card card-cascade narrower gems-card-shell zone-shell">
-                <section class="gems-page-header zone-header">
-                    <div class="header-text">
-                        <h2>Zone Management</h2>
-                        <p>Manage facility zones, QR access points, and zone assignments.</p>
-                    </div>
-                    <div class="header-actions">
-                        <button type="button" id="btnDtZneZoneRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                        <button type="button" id="btnZneDownloadTemplate" class="btn btn-light btn-icon" aria-label="Download template" data-toggle="tooltip" data-placement="top" title="Download template"><i class="fas fa-download"></i></button>
-                        <button type="button" id="btnZneImport" class="btn btn-light btn-icon" aria-label="Import zones" data-toggle="tooltip" data-placement="top" title="Import zones"><i class="fas fa-upload"></i></button>
-                        <button type="button" id="btnZneAdd" class="btn btn-primary btn-icon" aria-label="Add zone" data-toggle="tooltip" data-placement="top" title="Add Zone"><i class="fas fa-plus"></i></button>
-                    </div>
-                </section>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-            <section class="mt-4">
-                <div class="row">
-                    <div class="col-sm-6 col-xl-3 mb-4">
-                        <div class="metric-card">
-                            <span class="metric-label">Total Zones</span>
-                            <span class="metric-value" id="metricZneTotal">0</span>
-                            <span class="metric-subtext">Overall zone coverage</span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xl-3 mb-4">
-                        <div class="metric-card">
-                            <span class="metric-label">Active</span>
-                            <span class="metric-value" id="metricZneActive">0</span>
-                            <span class="metric-subtext">Currently enabled zones</span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xl-3 mb-4">
-                        <div class="metric-card">
-                            <span class="metric-label">Inactive</span>
-                            <span class="metric-value" id="metricZneInactive">0</span>
-                            <span class="metric-subtext">Temporarily offline zones</span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-xl-3 mb-4">
-                        <div class="metric-card">
-                            <span class="metric-label">Zone Types</span>
-                            <span class="metric-value" id="metricZneTypes">0</span>
-                            <span class="metric-subtext">Distinct zone categories</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-                <section class="mt-2">
-                    <div class="filter-card zone-filter">
-                        <div class="filter-grid">
-                            <div>
-                                <label class="filter-label" for="optZneStatus">Status</label>
-                                <div class="select-outline">
-                                    <select id="optZneStatus" class="mdb-select md-form md-outline colorful-select mt-0">
-                                        <option value="" selected>All Status</option>
-                                    </select>
-                                    <label for="optZneStatus">Status</label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optZneSiteId">Site</label>
-                                <div class="select-outline">
-                                    <select id="optZneSiteId" class="mdb-select md-form md-outline colorful-select mt-0">
-                                        <option value="" selected>All Sites</option>
-                                    </select>
-                                    <label for="optZneSiteId">Site</label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optZneType">Zone Type</label>
-                                <div class="select-outline">
-                                    <select id="optZneType" class="mdb-select md-form md-outline colorful-select mt-0">
-                                        <option value="" selected>All Types</option>
-                                    </select>
-                                    <label for="optZneType">Zone Type</label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="txtZneZoneSearch">Keyword Search</label>
-                                <div class="md-form md-outline mt-0 mb-0">
-                                    <input type="text" id="txtZneZoneSearch" class="form-control">
-                                    <label for="txtZneZoneSearch" class="active">Keyword Search</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
-                            <span id="lblZneFilterCount">Showing 0 of 0</span>
-                            <span id="lblZneFilterUpdated">—</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mb-4 mt-4">
-                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
-                        <label class="filter-label mb-2">Quick Status</label>
-                        <div class="gems-status-scroll">
-                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkZneAll">All</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkZneActive">Active</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkZneInactive">Inactive</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkZneArchived">Archived</a>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Zone List" data-content="All zones with site mapping and QR access links."><i class="fas fa-info mt-0 mx-1"></i></a>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Zone List</a>
-                            <div class="dt-btn-slot">
-                                <div id="btnDtZneZoneExport"></div>
-                            </div>
-                        </div>
-                        <div class="px-4 pb-3">
-                            <div class="summary-pill d-flex justify-content-between align-items-center" style="margin: 1rem 0;">
-                                <span id="lblZneListCount">Showing 0 of 0</span>
-                                <span id="lblZneListUpdated">—</span>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <table id="dtZneData" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                <thead>
-                                <tr class="th-strong">
-                                    <th>#</th>
-                                    <th>Site</th>
-                                    <th>Zone Type</th>
-                                    <th>Zone Code</th>
-                                    <th>Zone Name</th>
-                                    <th>Public QR Link</th>
-                                    <th>Status</th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-vector-square me-2 text-primary"></i>Zone Management</h1>
+              <div class="page-subtitle">Manage facility zones, QR access points, and zone assignments.</div>
             </div>
-        </section>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnDtZneZoneRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="btnZneDownloadTemplate"
+                      data-bs-toggle="tooltip" title="Download template" aria-label="Download template">
+                <i class="fas fa-download me-2"></i>Template
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="btnZneImport"
+                      data-bs-toggle="tooltip" title="Import zones" aria-label="Import zones">
+                <i class="fas fa-upload me-2"></i>Import
+              </button>
+              <button type="button" class="btn btn-primary" id="btnZneAdd"
+                      data-bs-toggle="tooltip" title="Add Zone" aria-label="Add zone">
+                <i class="fas fa-plus me-2"></i>New Zone
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row row-cards mb-3">
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Total Zones</div>
+                <div class="h2 mb-0" id="metricZneTotal">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Overall zone coverage</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Active</div>
+                <div class="h2 mb-0" id="metricZneActive">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Currently enabled zones</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Inactive</div>
+                <div class="h2 mb-0" id="metricZneInactive">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Temporarily offline zones</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Zone Types</div>
+                <div class="h2 mb-0" id="metricZneTypes">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Distinct zone categories</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-3">
+                <label class="form-label" for="optZneStatus">Status</label>
+                <select id="optZneStatus" class="form-select">
+                  <option value="" selected>All Status</option>
+                </select>
+              </div>
+              <div class="gems-field gems-field-3">
+                <label class="form-label" for="optZneSiteId">Site</label>
+                <select id="optZneSiteId" class="form-select">
+                  <option value="" selected>All Sites</option>
+                </select>
+              </div>
+              <div class="gems-field gems-field-3">
+                <label class="form-label" for="optZneType">Zone Type</label>
+                <select id="optZneType" class="form-select">
+                  <option value="" selected>All Types</option>
+                </select>
+              </div>
+              <div class="gems-field gems-field-3">
+                <label class="form-label" for="txtZneZoneSearch">Keyword Search</label>
+                <input type="search" id="txtZneZoneSearch" class="form-control" placeholder="Search zone" autocomplete="off">
+              </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
+              <div>
+                <div class="form-label mb-1">Quick Status</div>
+                <div class="btn-group" role="group" aria-label="Quick Status">
+                  <button type="button" class="btn btn-sm btn-primary active" id="linkZneAll">All</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" id="linkZneActive">Active</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" id="linkZneInactive">Inactive</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" id="linkZneArchived">Archived</button>
+                </div>
+              </div>
+              <div class="d-flex flex-wrap align-items-center gap-2 text-secondary" style="font-size:.75rem">
+                <span id="lblZneFilterCount">Showing 0 of 0</span>
+                <span id="lblZneFilterUpdated">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0"><i class="fas fa-vector-square me-2 text-primary"></i>Zone List</h3>
+              <div class="text-secondary" style="font-size:.75rem">All zones with site mapping and QR access links</div>
+            </div>
+            <div class="gems-card-toolbar text-secondary" style="font-size:.75rem">
+              <span id="lblZneListCount">Showing 0 of 0 results</span>
+              <span id="lblZneListUpdated" class="text-nowrap"><i class="far fa-clock me-1"></i>—</span>
+              <div id="btnDtZneZoneExport" class="d-inline-flex align-items-center"></div>
+            </div>
+          </div>
+          <table id="dtZneData" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th style="width:6%">#</th>
+                <th>Site</th>
+                <th>Zone Type</th>
+                <th>Zone Code</th>
+                <th>Zone Name</th>
+                <th>Public QR Link</th>
+                <th style="width:15%">Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_zone"></div>
-</main>
+  </div>
+</div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
+<!-- Shared fragments. modal_change_password and modal_confirm_delete stay on
+     the existing MDB/Tabler compatibility bridge; they are not converted here. -->
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
+<div class="includeHtml" id="h-modal_zone"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/qrCode/qrcode.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_zone.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_zone.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  let versionLocal_;
+  let changePasswordClass_;
+  let modalConfirmDelete_;
+  let modalZoneClass_;
+  let zoneClass_;
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        modalConfirmDelete_ = new ModalConfirmDelete();
+        modalZoneClass_ = new ModalZone();
+        zoneClass_ = new MainZone();
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- QR Code -->
-<script type="text/javascript" src="js/vendor/qrCode/qrcode.min.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+        const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
+        const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        modalZoneClass_.setRefSite(refSite_);
+        modalZoneClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+        modalZoneClass_.setClassFrom(zoneClass_);
+        modalZoneClass_.init();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let modalConfirmDelete_;
-    let modalZoneClass_;
-    let zoneClass_;
-
-    document.addEventListener('DOMContentLoaded', function () {
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                modalConfirmDelete_ = new ModalConfirmDelete();
-                modalZoneClass_ = new ModalZone();
-                zoneClass_ = new MainZone();
-
-                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
-                const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
-
-                modalZoneClass_.setRefSite(refSite_);
-                modalZoneClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                modalZoneClass_.setClassFrom(zoneClass_);
-                modalZoneClass_.init();
-
-                zoneClass_.setRefStatus(refStatus_);
-                zoneClass_.setRefSite(refSite_);
-                zoneClass_.setModalZoneClass(modalZoneClass_);
-                zoneClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_zone.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_zone.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        zoneClass_.setRefStatus(refStatus_);
+        zoneClass_.setRefSite(refSite_);
+        zoneClass_.setModalZoneClass(modalZoneClass_);
+        zoneClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 200);
+  });
 </script>
 </body>
 </html>

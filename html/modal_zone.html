@@ -1,79 +1,106 @@
-<div class="modal fade gems-modal" id="modal_zone" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-5 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header pb-2 gems-modal-header">
-                <h4 class="text-white mt-2 ml-2" id="h4MznTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_zone — Tabler/GEMS modal + form contract (P4C-2).
+
+  Loaded by pages/zone.html ONLY. Copies the P4 modal contract:
+    gems-modal-md (640px) + modal-dialog-scrollable, never modal-dialog-centered.
+    Flat white header, btn-close flex-centred with the title.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close, outline-danger Delete (Edit), primary Save/Submit.
+
+  Zone extras: required Site parent select (GemsUI.fillSelect), zone type /
+  code / name, Edit-only complaint QR (p_complaint?z=), and status radios
+  (1 Active / 2 Disabled). Add shows Submit; Edit shows Save + Delete + QR.
+
+  Legacy Add / Edit contract (preserve):
+    Add filters sites to siteStatus === '1'.
+    Edit loads every site (including inactive/archived) so an existing
+    zone whose parent is no longer active remains displayable, then
+    disables the select so the parent cannot be changed.
+
+  JS contract preserved (js/pages/modal_zone.js, js/pages/main_zone.js):
+    #modal_zone  #formMzn  #h4MznTitle
+    #optMznSite  #lblMznSite  #optMznSiteErr
+    #txtMznType  #lblMznType  #txtMznTypeErr
+    #txtMznCode  #lblMznCode  #txtMznCodeErr
+    #txtMznName  #lblMznName  #txtMznNameErr
+    #txtMznLink  #lblMznLink  #divMznQrCodeImg  .divMznQr
+    #radMznStatus1  #radMznStatus2  #radMznStatusErr
+    #btnMznSubmit  #btnMznSave  #btnMznDelete
+-->
+<div class="modal fade" id="modal_zone" tabindex="-1" aria-labelledby="h4MznTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="h4MznTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMzn" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12" id="optMznSite_">
+              <label class="form-label" for="optMznSite" id="lblMznSite">Site <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMznSite" class="form-select" aria-required="true" aria-describedby="optMznSiteErr"></select>
+              <div class="gems-field-error" id="optMznSiteErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body pb-2 gems-modal-body">
-                <form id="formMzn" class="mt-3">
-                    <div class="row">
-                        <div class="col-12 select-outline mb-2" id="optMznSite_">
-                            <select id="optMznSite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
-                            <label for="optMznSite" id="lblMznSite">Site *</label>
-                            <p class="font-small text-danger" id="optMznSiteErr"></p>
-                        </div>
-                        <div class="col-12">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMznType" class="form-control">
-                                <label for="txtMznType" id="lblMznType">Zone Type *</label>
-                                <p class="font-small text-danger" id="txtMznTypeErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMznCode" class="form-control">
-                                <label for="txtMznCode" id="lblMznCode">Zone Code *</label>
-                                <p class="font-small text-danger" id="txtMznCodeErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMznName" class="form-control">
-                                <label for="txtMznName" id="lblMznName">Zone Name *</label>
-                                <p class="font-small text-danger" id="txtMznNameErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-12 divMznQr">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMznLink" class="form-control font-small" disabled="disabled">
-                                <label for="txtMznName" id="lblMznLink">Public Complaint Link</label>
-                            </div>
-                        </div>
-                        <div class="col-12 mb-3 divMznQr">
-                            <p class="mb-0">Public Complaint QR Code :</p>
-                            <div class="flex-center flex-column">
-                                <div id="divMznQrCodeImg" style="margin:5px;"></div>
-                            </div>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <p class="mb-0">Status :</p>
-                            <div class="md-form mt-0 mb-3 ml-3">
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="radMznStatus" id="radMznStatus1" value="1">
-                                    <label class="form-check-label" for="radMznStatus1">Active</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" name="radMznStatus" id="radMznStatus2" value="2">
-                                    <label class="form-check-label" for="radMznStatus2">Disabled</label>
-                                </div>
-                            </div>
-                            <p class="font-small text-danger mt-0" id="radMznStatusErr"></p>
-                        </div>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMznType" id="lblMznType">Zone Type <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMznType" class="form-control" aria-required="true" aria-describedby="txtMznTypeErr">
+              <div class="gems-field-error" id="txtMznTypeErr" role="alert"></div>
             </div>
-            <div class="modal-footer p-2 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
-                <button id="btnMznDelete" class="btn btn-outline-danger waves-effect"><i class="fas fa-trash-alt text-danger mr-1"></i> Delete</button>
-                <button id="btnMznSave" class="btn btn-info waves-effect"><i class="far fa-save mr-1"></i> Save</button>
-                <button id="btnMznSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMznCode" id="lblMznCode">Zone Code <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMznCode" class="form-control" aria-required="true" aria-describedby="txtMznCodeErr">
+              <div class="gems-field-error" id="txtMznCodeErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMznName" id="lblMznName">Zone Name <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMznName" class="form-control" aria-required="true" aria-describedby="txtMznNameErr">
+              <div class="gems-field-error" id="txtMznNameErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12 divMznQr">
+              <label class="form-label" for="txtMznLink" id="lblMznLink">Public Complaint Link</label>
+              <input type="text" id="txtMznLink" class="form-control" disabled>
+            </div>
+            <div class="gems-field gems-field-12 divMznQr">
+              <span class="form-label">Public Complaint QR Code</span>
+              <div class="d-flex justify-content-center">
+                <div id="divMznQrCodeImg"></div>
+              </div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <span class="form-label">Status <span class="required" aria-hidden="true">*</span></span>
+              <div class="d-flex flex-wrap gap-3">
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="radMznStatus" id="radMznStatus1" value="1" aria-describedby="radMznStatusErr">
+                  <label class="form-check-label" for="radMznStatus1">Active</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="radMznStatus" id="radMznStatus2" value="2" aria-describedby="radMznStatusErr">
+                  <label class="form-check-label" for="radMznStatus2">Disabled</label>
+                </div>
+              </div>
+              <div class="gems-field-error" id="radMznStatusErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMznDelete" class="btn btn-outline-danger">
+          <i class="fas fa-trash-alt me-2"></i>Delete
+        </button>
+        <button type="button" id="btnMznSave" class="btn btn-primary">
+          <i class="far fa-save me-2"></i>Save
+        </button>
+        <button type="button" id="btnMznSubmit" class="btn btn-primary">
+          <i class="far fa-paper-plane me-2"></i>Submit
+        </button>
+      </div>
     </div>
+  </div>
 </div>
