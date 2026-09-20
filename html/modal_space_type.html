@@ -1,39 +1,65 @@
-<div class="modal fade gems-modal" id="modal_space_type" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
-    <div class="modal-content gems-modal-card">
-      <div class="modal-header gems-modal-header">
-        <h4 class="text-white mt-2 ml-2" id="lblMstTitle"></h4>
-        <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+<!--
+  Modal: modal_space_type — Tabler/GEMS modal + form contract (P5-6).
+
+  Loaded by pages/space_type.html ONLY.
+    gems-modal-sm + modal-dialog-scrollable, never modal-dialog-centered.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close first, primary Submit last.
+
+  JS contract preserved (js/pages/modal_space_type.js):
+    #modal_space_type  #formMst
+    #optMstCategoryId  #lblMstCategoryId  #optMstCategoryIdErr
+    #txtMstName  #lblMstName  #txtMstNameErr
+    #txaMstDesc  #lblMstDesc  #txaMstDescErr
+    #chkMstStatus  #chkMstStatusErr
+    #btnMstSubmit  #lblMstTitle
+-->
+<div class="modal fade" id="modal_space_type" tabindex="-1" aria-labelledby="lblMstTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-sm modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMstTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body gems-modal-body">
-        <form id="formMst">
-          <div class="select-outline mt-2">
-            <select id="optMstCategoryId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-            <label for="optMstCategoryId" id="lblMstCategoryId">Category *</label>
-            <p class="font-small text-danger" id="optMstCategoryIdErr"></p>
-          </div>
-          <div class="md-form md-outline mt-0">
-            <input type="text" id="txtMstName" class="form-control">
-            <label for="txtMstName" id="lblMstName">Type Name *</label>
-            <p class="font-small text-danger" id="txtMstNameErr"></p>
-          </div>
-          <div class="md-form md-outline">
-            <textarea id="txaMstDesc" class="md-textarea form-control" rows="3"></textarea>
-            <label for="txaMstDesc" id="lblMstDesc" class="text-muted">Description</label>
-            <p class="font-small text-danger" id="txaMstDescErr"></p>
-          </div>
-          <h6 class="font-small">Status:</h6>
-          <div class="form-check pl-0 ml-3">
-            <input type="checkbox" class="form-check-input" id="chkMstStatus" name="chkMstStatus" value="1">
-            <label class="form-check-label" for="chkMstStatus">Active</label>
+      <div class="modal-body">
+        <form id="formMst" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optMstCategoryId" id="lblMstCategoryId">Category <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMstCategoryId" class="form-select" aria-required="true" aria-describedby="optMstCategoryIdErr"></select>
+              <div class="gems-field-error" id="optMstCategoryIdErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMstName" id="lblMstName">Type Name <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMstName" class="form-control" aria-required="true" aria-describedby="txtMstNameErr">
+              <div class="gems-field-error" id="txtMstNameErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMstDesc" id="lblMstDesc">Description</label>
+              <textarea id="txaMstDesc" class="form-control" rows="3" aria-describedby="txaMstDescErr"></textarea>
+              <div class="gems-field-error" id="txaMstDescErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <span class="form-label">Status</span>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="chkMstStatus" name="chkMstStatus" value="1" aria-describedby="chkMstStatusErr">
+                <label class="form-check-label" for="chkMstStatus">Active</label>
+              </div>
+              <div class="gems-field-error" id="chkMstStatusErr" role="alert"></div>
+            </div>
           </div>
         </form>
       </div>
-      <div class="modal-footer p-2 gems-modal-footer">
-        <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-        <button id="btnMstSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMstSubmit" class="btn btn-primary" disabled>
+          <i class="far fa-paper-plane me-2"></i>Submit
+        </button>
       </div>
     </div>
   </div>
