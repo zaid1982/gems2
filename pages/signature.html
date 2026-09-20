@@ -1,356 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/signature.html — Tabler-migrated (P5-11 Digital Signature).
+
+  Category A authenticated. Page-local canvas/upload. JS unchanged.
+  APIs: GET/POST user_signature/{userId} via mzAjaxRequest2.
+  PTW dashboards only link here; they are not consumers of this markup.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>My Digital Signature - GEMS 2.0</title>
-    <!-- Browser icon -->
-    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- Your custom styles -->
-    <link href="css/style.css?4" rel="stylesheet">
-    <!-- Shared modern chrome -->
-    <link rel="stylesheet" href="css/gems2-ui.css">
-    <style>
-
-        main.signature-main {
-            /* padding: 2rem 0 3.5rem; */
-        }
-
-        .signature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 28px;
-        }
-
-        .signature-card {
-            background: #fff;
-            border-radius: var(--gems-radius-lg);
-            box-shadow: var(--gems-shadow-lg);
-            padding: 26px 28px;
-            display: flex;
-            flex-direction: column;
-            gap: 22px;
-        }
-
-        .signature-card-header {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-
-        .signature-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.95), rgba(var(--gems-secondary-rgb), 0.9));
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 1.45rem;
-            box-shadow: 0 20px 40px -22px rgba(var(--gems-primary-rgb), 0.5);
-        }
-
-        .signature-card-header h3 {
-            margin: 0;
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: var(--gems-text);
-        }
-
-        .signature-card-header p {
-            margin: 4px 0 0;
-            color: var(--gems-muted);
-            font-size: 0.92rem;
-        }
-
-        .signature-preview-wrapper {
-            background: rgba(15, 23, 42, 0.02);
-            border: 2px dashed rgba(var(--gems-primary-rgb), 0.2);
-            border-radius: 18px;
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 210px;
-        }
-
-        .signature-preview { max-width: 100%; max-height: 180px; background: #fff; padding: 10px 14px; border-radius: 16px; box-shadow: 0 16px 32px -24px rgba(15,23,42,0.25); }
-        .signature-preview.fallback { box-shadow: none; padding: 0; }
-
-        .signature-empty { color: var(--gems-muted); font-size: 0.94rem; text-align: center; }
-
-        .signature-tabs .nav-tabs {
-            border: none;
-            display: inline-flex;
-            background: rgba(var(--gems-primary-rgb), 0.08);
-            padding: 6px;
-            border-radius: 16px;
-            gap: 6px;
-        }
-
-        .signature-tabs .nav-tabs .nav-link {
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            color: var(--gems-muted);
-            padding: 0.55rem 1.4rem;
-            transition: all 0.2s ease;
-        }
-
-        .signature-tabs .nav-tabs .nav-link.active {
-            background: #fff;
-            box-shadow: 0 14px 26px -18px rgba(var(--gems-primary-rgb), 0.45);
-            color: var(--gems-primary);
-        }
-
-        .sig-pad-wrapper {
-            position: relative;
-            border-radius: 18px;
-            background: #fff;
-            border: 2px dashed var(--gems-border);
-            padding: 12px;
-            min-height: 200px;
-        }
-
-        .sig-pad-wrapper canvas {
-            width: 100%;
-            height: 176px;
-            touch-action: none;
-            cursor: crosshair;
-            border-radius: 12px;
-            background: rgba(15,23,42,0.02);
-        }
-
-        .signature-pad-actions {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .signature-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .toolbar-btn {
-            min-width: 130px;
-            border-radius: 14px;
-            font-weight: 600;
-        }
-
-        .toolbar-btn i { margin-right: 6px; }
-
-        .signature-upload-note { font-size: 0.82rem; color: var(--gems-muted); }
-
-        .signature-info {
-            margin-top: 34px;
-            background: rgba(var(--gems-secondary-rgb), 0.12);
-            border-radius: 20px;
-            padding: 18px 22px;
-            color: var(--gems-text);
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            box-shadow: 0 20px 40px -28px rgba(13, 148, 136, 0.35);
-            font-size: 0.9rem;
-        }
-
-        .signature-info i { color: var(--gems-primary); font-size: 1.25rem; }
-
-        .signature-guidelines {
-            list-style: none;
-            display: grid;
-            gap: 10px;
-            margin: 18px 0 0;
-            padding: 0;
-            color: rgba(255,255,255,0.92);
-            font-size: 0.94rem;
-        }
-
-        .signature-guidelines li {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .signature-guidelines i {
-            font-size: 1rem;
-            color: rgba(255,255,255,0.9);
-        }
-
-        @media (max-width: 991.98px) {
-        }
-
-        @media (max-width: 767.98px) {
-            main.signature-main { padding: 1.5rem 0 3rem; }
-            .signature-grid { gap: 22px; }
-            .signature-card { padding: 22px; }
-            .signature-card-header { align-items: flex-start; }
-            .signature-card-header h3 { font-size: 1.25rem; }
-            .sig-pad-wrapper { padding: 10px; }
-            .sig-pad-wrapper canvas { height: 160px; }
-            .signature-pad-actions { flex-direction: column; align-items: stretch; }
-            .toolbar-btn { width: 100%; }
-        }
-    </style>
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!--JQuery Migrate-->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-    <!-- Crypto JS (needed before common.js decrypts userInfo) -->
-    <script type="text/javascript" src="js/addons/crypto.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Digital Signature - GEMS 2.0</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .signature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; }
+    .signature-preview { max-width: 100%; max-height: 180px; background: #fff; padding: 10px 14px; }
+    .signature-empty { color: var(--tblr-secondary, #6c7a91); }
+    .sig-pad-wrapper { position: relative; border: 1px dashed var(--tblr-border-color, #e5e7eb); border-radius: 8px; padding: 12px; min-height: 200px; background: var(--tblr-bg-surface, #fff); }
+    .sig-pad-wrapper canvas { width: 100%; height: 176px; touch-action: none; cursor: crosshair; background: var(--tblr-bg-surface-secondary, #f8fafc); }
+    .signature-pad-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .signature-upload-note { font-size: .82rem; color: var(--tblr-secondary, #6c7a91); }
+    @media (max-width: 767.98px) {
+      .sig-pad-wrapper canvas { height: 160px; }
+      .signature-pad-actions { flex-direction: column; align-items: stretch; }
+    }
+  </style>
 </head>
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main class="signature-main">
-    <div class="container-fluid module-page">
-        <section class="gems-page-header module-page-header">
-            <div class="header-text">
-                <span class="signature-chip"><i class="fas fa-shield-check"></i> Secure approvals</span>
-                <h2>My Digital Signature</h2>
-                <p>Saved signatures appear automatically across PTW approvals, PDFs, and verification workflows. Update yours in a few clicks.</p>
-                <ul class="signature-guidelines">
-                    <li><i class="fas fa-check-circle"></i>Use a dark stroke on transparent background for best print clarity.</li>
-                    <li><i class="fas fa-check-circle"></i>Draw horizontally in the provided space to avoid clipping.</li>
-                </ul>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12">
+              <div class="text-secondary" style="font-size:.75rem">Secure approvals</div>
+              <h1 class="page-title"><i class="fas fa-signature me-2 text-primary"></i>My Digital Signature</h1>
+              <div class="page-subtitle">Saved signatures appear automatically across PTW approvals, PDFs, and verification workflows. Update yours in a few clicks.</div>
+              <ul class="text-secondary mt-2 mb-0" style="font-size:.85rem; padding-left:1.1rem">
+                <li>Use a dark stroke on a transparent background for best print clarity.</li>
+                <li>Draw horizontally in the provided space to avoid clipping.</li>
+              </ul>
             </div>
-        </section>
-
-        <section class="signature-grid">
-            <article class="signature-card">
-                <div class="signature-card-header">
-                    <span class="signature-icon"><i class="fas fa-badge-check"></i></span>
-                    <div>
-                        <h3>Current saved signature</h3>
-                        <p>Used for Supervisor, SHE, and FM approvals. Refresh anytime.</p>
-                    </div>
-                </div>
-                <div class="signature-preview-wrapper">
-                    <div id="divCurrentSignature" class="w-100 text-center">
-                        <p class="signature-empty mb-0" id="pNoSignature">No signature saved yet.</p>
-                        <img id="imgSignature" class="signature-preview d-none" alt="Signature preview">
-                    </div>
-                </div>
-            </article>
-
-            <article class="signature-card">
-                <div class="signature-card-header">
-                    <span class="signature-icon"><i class="fas fa-pen-nib"></i></span>
-                    <div>
-                        <h3>Create or replace signature</h3>
-                        <p>Choose to draw on screen or upload an existing transparent image.</p>
-                    </div>
-                </div>
-                <div class="signature-tabs">
-                    <ul class="nav nav-tabs" id="sigTab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#tabDraw" role="tab">Draw</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabUpload" role="tab">Upload</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="tab-content pt-3">
-                    <div class="tab-pane fade show active" id="tabDraw" role="tabpanel">
-                        <div class="sig-pad-wrapper mb-3">
-                            <canvas id="sigCanvas"></canvas>
-                            <div class="position-absolute" style="top:16px; right:16px;">
-                                <button id="btnClearCanvas" class="btn btn-outline-secondary btn-sm toolbar-btn"><i class="fas fa-eraser"></i>Clear</button>
-                            </div>
-                        </div>
-                        <div class="signature-pad-actions">
-                            <div class="custom-control custom-switch signature-toggle">
-                                <input type="checkbox" class="custom-control-input" id="chkTrim" checked>
-                                <label class="custom-control-label" for="chkTrim">Auto-trim whitespace</label>
-                            </div>
-                            <button id="btnSaveCanvas" class="btn btn-info btn-sm toolbar-btn" disabled><i class="fas fa-floppy-disk"></i>Save drawing</button>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="tabUpload" role="tabpanel">
-                        <div class="md-form mt-0">
-                            <input type="file" id="fileSignature" accept="image/png,image/jpeg" class="form-control">
-                            <small class="signature-upload-note">PNG recommended. Images wider than 400px are auto-scaled.</small>
-                        </div>
-                        <button id="btnSaveFile" class="btn btn-info btn-sm toolbar-btn" disabled><i class="fas fa-cloud-arrow-up"></i>Save upload</button>
-                    </div>
-                </div>
-            </article>
-        </section>
-
-        <div class="signature-info mb-5">
-            <i class="fas fa-info-circle"></i>
-            <span>Your signature is encrypted, stored securely, and snapshotted with every approval. Updating it keeps history intact for past submissions.</span>
+          </div>
         </div>
+
+        <div class="signature-grid mb-3">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title mb-0">Current saved signature</h3>
+                <div class="text-secondary" style="font-size:.75rem">Used for Supervisor, SHE, and FM approvals. Refresh anytime.</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="divCurrentSignature" class="w-100 text-center">
+                <p class="signature-empty mb-0" id="pNoSignature">No signature saved yet.</p>
+                <img id="imgSignature" class="signature-preview d-none" alt="Signature preview">
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title mb-0">Create or replace signature</h3>
+                <div class="text-secondary" style="font-size:.75rem">Choose to draw on screen or upload an existing transparent image.</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <ul class="nav nav-tabs" id="sigTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link active" id="tabDrawLink" data-bs-toggle="tab" href="#tabDraw" role="tab" aria-controls="tabDraw" aria-selected="true">Draw</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" id="tabUploadLink" data-bs-toggle="tab" href="#tabUpload" role="tab" aria-controls="tabUpload" aria-selected="false">Upload</a>
+                </li>
+              </ul>
+              <div class="tab-content pt-3">
+                <div class="tab-pane fade show active" id="tabDraw" role="tabpanel" aria-labelledby="tabDrawLink">
+                  <div class="sig-pad-wrapper mb-3">
+                    <canvas id="sigCanvas"></canvas>
+                    <div class="position-absolute" style="top:16px; right:16px;">
+                      <button type="button" id="btnClearCanvas" class="btn btn-outline-secondary btn-sm"><i class="fas fa-eraser me-1"></i>Clear</button>
+                    </div>
+                  </div>
+                  <div class="signature-pad-actions">
+                    <div class="form-check form-switch">
+                      <input type="checkbox" class="form-check-input" id="chkTrim" checked>
+                      <label class="form-check-label" for="chkTrim">Auto-trim whitespace</label>
+                    </div>
+                    <button type="button" id="btnSaveCanvas" class="btn btn-primary" disabled><i class="fas fa-save me-1"></i>Save drawing</button>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="tabUpload" role="tabpanel" aria-labelledby="tabUploadLink">
+                  <div class="gems-form-grid">
+                    <div class="gems-field gems-field-12">
+                      <label class="form-label" for="fileSignature">Signature image</label>
+                      <input type="file" id="fileSignature" accept="image/png,image/jpeg" class="form-control">
+                      <div class="form-hint">PNG recommended. Images wider than 400px are auto-scaled.</div>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <button type="button" id="btnSaveFile" class="btn btn-primary" disabled><i class="fas fa-cloud-upload-alt me-1"></i>Save upload</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info" role="alert">
+          <i class="fas fa-info-circle me-2"></i>
+          Your signature is encrypted, stored securely, and snapshotted with every approval. Updating it keeps history intact for past submissions.
+        </div>
+
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
+  </div>
+</div>
 
-<!-- Load nav fragments sequentially, then load common.js to build menus, then page script -->
-<script type="text/javascript">
-    (function initSignaturePage(){
-        var ts = Date.now();
-        function loadTopNav(){
-            $('#h-nav_top').load('html/nav_top.html?'+ts, function(){
-                $('#h-modal_change_password').load('html/modal_change_password.html?'+ts, function(){
-                    $.getScript('js/common.js?'+ts).done(function(){
-                        if (typeof initiatePages === 'function') {
-                            try { initiatePages(); } catch(e){ console.error('initiatePages error', e); }
-                        } else {
-                            console.warn('initiatePages not available after common.js load');
-                        }
-                        // Fallback: if nav not populated, retry once after 150ms
-                        setTimeout(function(){
-                            if ($('#ulNavLeft').length && $('#ulNavLeft').children().length === 0 && typeof initiatePages === 'function') {
-                                try { initiatePages(); } catch(e){ console.error('initiatePages retry error', e); }
-                            }
-                        },150);
-                        $.getScript('js/pages/main_signature.js?'+ts);
-                    }).fail(function(){ console.error('Failed loading common.js'); });
-                });
-            });
-        }
-        $('#h-nav_left').load('html/nav_left.html?'+ts, loadTopNav);
-    })();
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/toastr-safe.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_signature.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-    <!-- Moment JS (required by common.js utilities that use moment()) -->
-    <script type="text/javascript" src="js/addons/moment.min.js"></script>
-<!-- Toastr for notifications -->
-<script type="text/javascript" src="js/modules/toastr.js"></script>
-<!-- Safe Toastr wrapper -->
-<script type="text/javascript" src="js/toastr-safe.js"></script>
+  let changePasswordClass_;
 
-<script type="text/javascript">
-// Safe toastr wrapper (common + page scripts loaded dynamically above)
-function safeToast(type, message, title) {
-    try { if (typeof toastr !== 'undefined' && toastr && toastr[type]) { toastr[type](message, title); } else { console.warn('Toastr not available'); if(message) alert((title?title+': ':'')+message); } }
-    catch(e){ console.error('Error showing toast:', e); if(message) alert((title?title+': ':'')+message); }
-}
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        changePasswordClass_ = new ModalChangePassword();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 200);
+  });
 </script>
 </body>
 </html>
