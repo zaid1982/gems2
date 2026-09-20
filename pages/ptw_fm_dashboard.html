@@ -1,26 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/ptw_fm_dashboard.html — Tabler-migrated (P5-5 PTW Facility Manager).
+
+  Authenticated dashboard. Page-local #ptwModal iframe to ptw_form.html.
+  Do not extract a shared review modal. Keep inline DataTables/actions.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>PTW Facility Manager Dashboard - GEMS2</title>
-    
-    <!-- Browser icon -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GEMS 2.0 - PTW Facility Manager</title>
     <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Shared navigation + chrome -->
-    <link href="css/gems2-ui.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+    <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="css/gems-theme.css">
     
     <style>
         /* Standardized PTW Dashboard Styling (Aligned with Supervisor) */
@@ -96,25 +91,15 @@
         }
     </style>
 
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!--JQuery Migrate-->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    <script src="js/jquery-3.7.0.min.js"></script>
 </head>
-
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main Navigation-->
-
-<!--Main layout-->
-<main>
-    <div class="container-fluid">
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
         <div class="gems-page-header module-page-header ptw-fm-header">
             <div class="header-text">
@@ -469,39 +454,31 @@
                 </div>
             </div>
         </div>
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
-<!--Main layout-->
-
-<!-- SCRIPTS -->
-<script type="text/javascript">
+  </div>
+</div>
+<div class="includeHtml" id="h-modal_change_password"></div>
+<script>
     $('.includeHtml').each(function () {
         const divId = $(this).attr('id');
         $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
     });
 </script>
-
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
 
 <!--Custom scripts-->
 
