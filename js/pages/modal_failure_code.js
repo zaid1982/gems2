@@ -87,7 +87,7 @@ function ModalFailureCode() {
         rowRefresh = '';
 
         mzSetFieldValue('MfcStatus', '1', 'checkSingle', '1');
-        $('#lblMfcTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Failure Code');
+        $('#lblMfcTitle').html('<i class="fas fa-plus me-2"></i>Add Failure Code');
         $('#modal_failure_code').modal({backdrop: 'static', keyboard: false});
     };
 
@@ -103,7 +103,7 @@ function ModalFailureCode() {
                 mzSetFieldValue('MfcName', dataMfc['failureCodeName'], 'text');
                 mzSetFieldValue('MfcStatus', dataMfc['failureCodeStatus'], 'checkSingle', '1');
 
-                $('#lblMfcTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Failure Code');
+                $('#lblMfcTitle').html('<i class="far fa-edit me-2"></i>Edit Failure Code');
                 $('#modal_failure_code').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

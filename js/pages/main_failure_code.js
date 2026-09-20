@@ -87,90 +87,155 @@ function MainFailureCode() {
         $select.val(currentValue);
     }
 
+    function statusLabel(row) {
+        const status = refStatus && refStatus[row['failureCodeStatus']];
+        return status ? status['statusDesc'] : '';
+    }
+
+    function statusBadge(row, type) {
+        const label = statusLabel(row);
+        if (type !== 'display') {
+            return label;
+        }
+        const kind = row['failureCodeStatus'] === '1' ? 'success' : 'secondary';
+        return GemsUI.badge(kind, GemsUI.escape(label));
+    }
+
+    function rowIdFromLink(el) {
+        const linkId = $(el).attr('id') || '';
+        const linkIndex = linkId.indexOf('_');
+        return linkIndex > 0 ? linkId.substr(linkIndex + 1) : '';
+    }
+
+    function rowDataFromLink(el) {
+        const rowId = rowIdFromLink(el);
+        if (!rowId || !oTableFailureCode) {
+            return null;
+        }
+        return { rowId: rowId, data: oTableFailureCode.row(parseInt(rowId, 10)).data() };
+    }
+
     this.init = function () {
-        oTableFailureCode =  $('#dtFlcFailureCode').DataTable({
+        let cntFailureCode;
+        const exportOpt = {
+            columns: [0, 1, 2],
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        cntFailureCode = 1;
+                    }
+                    if (column === 0) {
+                        return cntFailureCode++;
+                    }
+                    return data;
+                }
+            }
+        };
+        const dtButtons = GemsUI.dtButtons('GEMS 2.0 - Failure Code List').map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
+            }
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
+        });
+
+        oTableFailureCode = $('#dtFlcFailureCode').DataTable({
             bLengthChange: false,
-            bFilter: false,
-            "aaSorting": [1, 'asc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
+            searching: true,
+            autoWidth: false,
+            aaSorting: [1, 'asc'],
+            dom: GemsUI.dtDomButtons,
+            buttons: dtButtons,
+            language: GemsUI.dtEmpty('fa-circle-exclamation', 'No failure codes recorded yet.', 'No failure codes match the current search or status filter.'),
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 const info = (oTableFailureCode && oTableFailureCode.page && typeof oTableFailureCode.page.info === 'function')
                     ? oTableFailureCode.page.info()
                     : null;
                 const rowNumber = info ? (info.page * info.length + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
-                $('td', nRow).eq(0).html(rowNumber).attr('data-label', '#');
-                $('td', nRow).eq(1).attr('data-label', 'Failure Code');
-                $('td', nRow).eq(2).attr('data-label', 'Status');
-                $('td', nRow).eq(3).attr('data-label', 'Actions');
+                $('td', nRow).eq(0).html(rowNumber);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkFlcFailureCodeEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableFailureCode.row(parseInt(rowId)).data();
-                        modalFailureCodeClass.edit(currentRow['failureCodeId'], rowId);
-                    }
-                });
-                $('.lnkFlcFailureCodeDeactivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableFailureCode.row(parseInt(rowId)).data();
-                        modalFailureCodeClass.deactivate(currentRow['failureCodeId'], rowId);
-                    }
-                });
-                $('.lnkFlcFailureCodeActivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableFailureCode.row(parseInt(rowId)).data();
-                        modalFailureCodeClass.activate(currentRow['failureCodeId'], rowId);
-                    }
-                });
-                $('.lnkFlcFailureCodeDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableFailureCode.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['failureCodeId'], modalFailureCodeClass);
-                    }
-                });
                 updateMetrics();
                 updateSummary();
             },
-            language: _DATATABLE_LANGUAGE,
-            aoColumns:
-                [
-                    {mData: null, bSortable: false},
-                    {mData: 'failureCodeName'},
-                    {mData: null,
-                        mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill ' + refStatus[row['failureCodeStatus']]['statusColor'] + ' z-depth-2">' + refStatus[row['failureCodeStatus']]['statusDesc'] + '</span></h6>';
+            aoColumns: [
+                {mData: null, bSortable: false},
+                {mData: 'failureCodeName'},
+                {mData: null,
+                    mRender: function (data, type, row) {
+                        return statusBadge(row, type);
+                    }
+                },
+                {mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
+                    mRender: function (data, type, row, meta) {
+                        let html = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkFlcFailureCodeEdit',
+                            id: 'lnkFlcFailureCodeEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
+                        if (row['failureCodeStatus'] === '1') {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkFlcFailureCodeDeactivate',
+                                id: 'lnkFlcFailureCodeDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
+                        } else {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkFlcFailureCodeActivate',
+                                id: 'lnkFlcFailureCodeActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
                         }
-                    },
-                    {mData: null, bSortable: false, sClass: 'text-center',
-                        mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-edit lnkFlcFailureCodeEdit" id="lnkFlcFailureCodeEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
-                            if (row['failureCodeStatus'] === '1') {
-                                label += '<button type="button" class="btn-action btn-deactivate lnkFlcFailureCodeDeactivate" id="lnkFlcFailureCodeDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
-                            } else {
-                                label += '<button type="button" class="btn-action btn-activate lnkFlcFailureCodeActivate" id="lnkFlcFailureCodeActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
-                            }
-                            label += '<button type="button" class="btn-action btn-delete lnkFlcFailureCodeDelete" id="lnkFlcFailureCodeDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                            label += '</div>';
-                            return label;
-                        }
-                    },
-                    {mData: 'failureCodeId', visible: false}
-                ]
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkFlcFailureCodeDelete',
+                            id: 'lnkFlcFailureCodeDelete_' + meta.row,
+                            title: 'Delete',
+                            icon: 'fas fa-trash-alt'
+                        });
+                        return html;
+                    }
+                },
+                {mData: 'failureCodeId', visible: false, sClass: 'noVis'}
+            ]
         });
-        $('#dtFlcFailureCode_filter').hide();
+
+        oTableFailureCode.buttons().container().appendTo($('#btnDtFlcFailureCodeExport'));
+        GemsUI.bindDtTooltips('#dtFlcFailureCode');
+
+        const tbody = $('#dtFlcFailureCode tbody');
+        tbody.on('click', '.lnkFlcFailureCodeEdit', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalFailureCodeClass.edit(current.data['failureCodeId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkFlcFailureCodeDeactivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalFailureCodeClass.deactivate(current.data['failureCodeId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkFlcFailureCodeActivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalFailureCodeClass.activate(current.data['failureCodeId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkFlcFailureCodeDelete', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalConfirmDeleteClass.delete(current.data['failureCodeId'], modalFailureCodeClass);
+            }
+        });
 
         statusFilterFn = function (settings, data, dataIndex) {
             if (!settings.nTable || settings.nTable.id !== 'dtFlcFailureCode') {
@@ -184,56 +249,9 @@ function MainFailureCode() {
             return rowData && rowData['failureCodeStatus'] === statusVal;
         };
         $.fn.dataTable.ext.search.push(statusFilterFn);
-
         $('#txtFlcFailureCodeSearch').on('keyup change', function () {
             oTableFailureCode.search($(this).val()).draw();
         });
-
-        let cntFailureCode;
-        let btnFailureCodeOpt = {
-            exportOptions: {
-                columns: [ 0, 1, 2],
-                format: {
-                    body: function ( data, row, column ) {
-                        if (row === 0 && column === 0) {
-                            cntFailureCode = 1;
-                        }
-                        if (column === 2) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
-                        }
-                        return column === 0 ? cntFailureCode++ : data;
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableFailureCode, {
-            buttons: [
-                $.extend( true, {}, btnFailureCodeOpt, {
-                    extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - Failure Code List',
-                    titleAttr: 'Print',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnFailureCodeOpt, {
-                    extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - Failure Code List',
-                    titleAttr: 'Excel',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnFailureCodeOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Failure Code List',
-                    titleAttr: 'Pdf',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                })
-            ]
-        }).container().appendTo($('#btnDtFlcFailureCodeExport'));
 
         $('#btnFlcFailureCodeAdd').on('click', function () {
             modalFailureCodeClass.add();
@@ -256,7 +274,7 @@ function MainFailureCode() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 200);
+            }, 300);
         });
         self.genTableFlc(0);
     };
