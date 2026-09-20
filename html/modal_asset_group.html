@@ -1,38 +1,64 @@
-<div class="modal fade gems-modal" id="modal_asset_group" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2" id="lblMzgTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_asset_group — Tabler/GEMS modal + form contract (P4A-5).
+
+  Loaded by pages/asset_group.html ONLY. Copies the P4A-1 Designation / P4A-2
+  Severity / P4A-3 Failure Code / P4A-4 Asset Brand / P2 License contract:
+    gems-modal-md (640px) + modal-dialog-scrollable, never modal-dialog-centered.
+    Flat white header, btn-close flex-centred with the title.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close first, primary Save last. No btn-info.
+
+  Asset Group extras vs other P4 simple masters: description textarea
+  (maxLength 255) and status values 1 / 2 / 5 (archived is display-only;
+  the checkbox still writes 1 or 2).
+
+  JS contract preserved (js/pages/modal_asset_group.js, js/pages/main_asset_group.js):
+    #modal_asset_group  #formMzg  #txtMzgName  #lblMzgName  #txtMzgNameErr
+    #txaMzgDesc  #lblMzgDesc  #txaMzgDescErr
+    #chkMzgStatus  #chkMzgStatusErr  #btnMzgSubmit  #lblMzgTitle
+-->
+<div class="modal fade" id="modal_asset_group" tabindex="-1" aria-labelledby="lblMzgTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMzgTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMzg" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMzgName" id="lblMzgName">Asset Group <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMzgName" class="form-control" aria-required="true" aria-describedby="txtMzgNameErr">
+              <div class="gems-field-error" id="txtMzgNameErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body gems-modal-body">
-                <form id="formMzg">
-                    <div class="md-form md-outline mt-4">
-                        <input type="text" id="txtMzgName" class="form-control">
-                        <label for="txtMzgName" id="lblMzgName">Asset Group *</label>
-                        <p class="font-small text-danger" id="txtMzgNameErr"></p>
-                    </div>
-                    <div class="md-form md-outline">
-                        <textarea id="txaMzgDesc" class="md-textarea form-control" rows="3"></textarea>
-                        <label for="txaMzgDesc" id="lblMzgDesc" class="text-muted">Description</label>
-                        <p class="font-small text-danger" id="txaMzgDescErr"></p>
-                    </div>
-                    <h6 class="font-small">Status:</h6>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMzgStatus" name="chkMzgStatus" value="1">
-                        <label class="form-check-label" for="chkMzgStatus">Active</label>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMzgDesc" id="lblMzgDesc">Description</label>
+              <textarea id="txaMzgDesc" class="form-control" rows="3" aria-describedby="txaMzgDescErr"></textarea>
+              <div class="gems-field-error" id="txaMzgDescErr" role="alert"></div>
             </div>
-            <div class="modal-footer p-2 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMzgSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-field gems-field-12">
+              <span class="form-label">Status</span>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="chkMzgStatus" name="chkMzgStatus" value="1" aria-describedby="chkMzgStatusErr">
+                <label class="form-check-label" for="chkMzgStatus">Active</label>
+              </div>
+              <div class="gems-field-error" id="chkMzgStatusErr" role="alert"></div>
             </div>
-        </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMzgSubmit" class="btn btn-primary" disabled>
+          <i class="far fa-save me-2"></i>Save
+        </button>
+      </div>
     </div>
+  </div>
 </div>

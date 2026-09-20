@@ -99,7 +99,7 @@ function ModalAssetGroup() {
         rowRefresh = '';
 
         mzSetFieldValue('MzgStatus', '1', 'checkSingle', '1');
-        $('#lblMzgTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Group');
+        $('#lblMzgTitle').html('<i class="fas fa-plus me-2"></i>Add Asset Group');
         $('#modal_asset_group').modal({backdrop: 'static', keyboard: false});
     };
 
@@ -116,7 +116,7 @@ function ModalAssetGroup() {
                 mzSetFieldValue('MzgDesc', dataMzg['assetGroupDesc'], 'textarea');
                 mzSetFieldValue('MzgStatus', dataMzg['assetGroupStatus'], 'checkSingle', '1');
 
-                $('#lblMzgTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Group');
+                $('#lblMzgTitle').html('<i class="far fa-edit me-2"></i>Edit Asset Group');
                 $('#modal_asset_group').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

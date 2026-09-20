@@ -1,331 +1,292 @@
 function MainAssetGroup() {
 
     const className = 'MainAssetGroup';
+    const momentAvailable = (typeof moment === 'function');
     let self = this;
     let versionLocal;
     let modalConfirmDeleteClass;
     let refStatus;
     let oTableAssetGroup;
     let modalAssetGroupClass;
-    let assetGroupDataCache = [];
-    let lastListUpdatedText = '—';
-    let statusFilterValue = '';
+    let lastUpdated = null;
+    let statusFilterFn;
 
-    const handleStatusSelectChange = function () {
-        setStatusFilter($(this).val() || '', true);
-    };
+    function formatTimestamp(value) {
+        if (!value) {
+            return '—';
+        }
+        if (momentAvailable) {
+            return 'Updated ' + moment(value).format('DD MMM YYYY, hh:mm A');
+        }
+        return 'Updated ' + new Date(value).toLocaleString();
+    }
 
-    const statusChipMap = {
-        '': '#linkAgrAll',
-        '1': '#linkAgrActive',
-        '2': '#linkAgrInactive',
-        '5': '#linkAgrArchived'
-    };
-
-    const applyTableDataLabels = function (tableSelector, headers) {
-        $(`${tableSelector} tbody tr`).each(function () {
-            $('td', this).each(function (index) {
-                if (headers[index]) {
-                    $(this).attr('data-label', headers[index]);
-                }
-            });
-        });
-    };
-
-    const getNowStamp = function () {
-        return (typeof moment !== 'undefined' && moment) ? moment().format('MMM D, YYYY h:mm A') : new Date().toLocaleString();
-    };
-
-    const refreshListSummary = function () {
+    function updateMetrics() {
         if (!oTableAssetGroup) {
             return;
         }
-        const info = oTableAssetGroup.page.info();
-        const showing = info ? info.recordsDisplay : 0;
-        const total = info ? info.recordsTotal : 0;
-        const summaryText = `Showing ${mzFormatNumber(showing, 0)} of ${mzFormatNumber(total, 0)}`;
-        $('#lblAgrFilterCount').text(summaryText);
-        $('#lblAgrListCount').text(summaryText);
-        $('#lblAgrFilterUpdated').text(lastListUpdatedText);
-        $('#lblAgrListUpdated').text(lastListUpdatedText);
-    };
-
-    const updateStatusChips = function (counts) {
-        const labelMap = {
-            '': 'All',
-            '1': refStatus && refStatus[1] ? refStatus[1]['statusDesc'] : 'Active',
-            '2': refStatus && refStatus[2] ? refStatus[2]['statusDesc'] : 'Inactive',
-            '5': refStatus && refStatus[5] ? refStatus[5]['statusDesc'] : 'Archived'
-        };
-        $.each(statusChipMap, function (status, selector) {
-            const count = typeof counts[status] !== 'undefined' ? counts[status] : 0;
-            $(selector).html(`${labelMap[status]} <span class="chip-count">${mzFormatNumber(count, 0)}</span>`);
-        });
-    };
-
-    const updateAssetGroupMetrics = function (dataSet) {
+        const data = oTableAssetGroup.rows().data();
         let total = 0;
         let active = 0;
         let inactive = 0;
         let archived = 0;
-
-        dataSet.forEach(function (item) {
-            total += 1;
-            switch (String(item['assetGroupStatus'])) {
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            if (!row) {
+                continue;
+            }
+            total++;
+            switch (String(row['assetGroupStatus'])) {
                 case '1':
-                    active += 1;
+                    active++;
                     break;
                 case '2':
-                    inactive += 1;
+                    inactive++;
                     break;
                 case '5':
-                    archived += 1;
+                    archived++;
                     break;
                 default:
                     break;
             }
-        });
+        }
+        $('#metricAgrTotal').text(total.toLocaleString());
+        $('#metricAgrActive').text(active.toLocaleString());
+        $('#metricAgrInactive').text(inactive.toLocaleString());
+        $('#metricAgrArchived').text(archived.toLocaleString());
+    }
 
-        $('#metricAgrTotal').text(mzFormatNumber(total, 0));
-        $('#metricAgrActive').text(mzFormatNumber(active, 0));
-        $('#metricAgrInactive').text(mzFormatNumber(inactive, 0)).toggleClass('text-warning', inactive > 0);
-        $('#metricAgrArchived').text(mzFormatNumber(archived, 0)).toggleClass('text-danger', archived > 0);
-
-        updateStatusChips({
-            '': total,
-            '1': active,
-            '2': inactive,
-            '5': archived
-        });
-    };
-
-    const setActiveStatusChip = function (value) {
-        $.each(statusChipMap, function (status, selector) {
-            if (status === value) {
-                $(selector).addClass('active');
-            } else {
-                $(selector).removeClass('active');
-            }
-        });
-    };
-
-    const initMaterialSelect = function (selector) {
-        const $element = $(selector);
-        if (!$element.length || typeof $element.materialSelect !== 'function') {
+    function updateSummary() {
+        if (!oTableAssetGroup) {
             return;
         }
-        
-        // Only initialize if not yet wrapped (prevents double initialization like in initiatePages())
-        if (!$element.parent().hasClass('select-wrapper')) {
-            try {
-                $element.materialSelect();
-            } catch (e) {
-                // ignore initialization errors
-            }
-        }
-        
-        // BRUTE FORCE FIX: If we have nested wrappers, unwrap the outer one
-        setTimeout(function() {
-            const $outline = $element.closest('.select-outline');
-            if ($outline.length) {
-                const $outerWrapper = $outline.children('.select-wrapper');
-                if ($outerWrapper.length) {
-                    const $innerWrapper = $outerWrapper.children('.select-wrapper.initialized');
-                    if ($innerWrapper.length) {
-                        // Move inner wrapper directly under select-outline and remove outer wrapper
-                        $innerWrapper.appendTo($outline);
-                        $outerWrapper.remove();
-                    }
-                }
-            }
-        }, 50);
-    };
+        const info = (oTableAssetGroup && typeof oTableAssetGroup.page === 'function' && typeof oTableAssetGroup.page.info === 'function')
+            ? oTableAssetGroup.page.info()
+            : null;
+        const summaryText = info
+            ? ('Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal)
+            : 'Showing 0 of 0';
+        $('#lblAgrFilterCount').text(summaryText);
+        $('#lblAgrListCount').text(summaryText + ' records');
+        const updatedText = formatTimestamp(lastUpdated);
+        $('#lblAgrFilterUpdated').text(updatedText);
+        $('#lblAgrListUpdated').html('<i class="far fa-clock me-1"></i>' + updatedText);
+    }
 
-    const setStatusFilter = function (value, fromSelect) {
-        statusFilterValue = value || '';
-        if (oTableAssetGroup) {
-            oTableAssetGroup.draw();
-            refreshListSummary();
+    function updateFilterSummary() {
+        const statusVal = $('#optAgrStatus').val();
+        let label = 'Status: All';
+        if (statusVal && refStatus && refStatus[statusVal]) {
+            label = 'Status: ' + refStatus[statusVal]['statusDesc'];
+        } else if (statusVal === '1') {
+            label = 'Status: Active';
+        } else if (statusVal === '2') {
+            label = 'Status: Inactive';
+        } else if (statusVal === '5') {
+            label = 'Status: Archived';
         }
-        setActiveStatusChip(statusFilterValue);
-        if (!fromSelect) {
-            const $statusSelect = $('#optAgrStatus');
-            if ($statusSelect.length) {
-                // Just update the value - don't reinitialize materialSelect!
-                $statusSelect.val(statusFilterValue);
-                // Update the display text manually
-                const $dropdown = $statusSelect.siblings('input.select-dropdown');
-                if ($dropdown.length) {
-                    const selectedOption = $statusSelect.find('option:selected');
-                    $dropdown.val(selectedOption.text());
-                }
-            }
-        }
-    };
+        $('#lblAgrAssetGroupFilter').text(label);
+    }
 
-    const statusFilterFn = function (settings, data, dataIndex) {
-        if (!oTableAssetGroup || settings.nTable.id !== 'dtAgrAssetGroup') {
-            return true;
+    function statusLabel(row) {
+        const status = refStatus && refStatus[row['assetGroupStatus']];
+        if (status) {
+            return status['statusDesc'];
         }
-        if (!statusFilterValue) {
-            return true;
+        switch (String(row['assetGroupStatus'])) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            case '5':
+                return 'Archived';
+            default:
+                return '';
         }
-        const rowData = oTableAssetGroup.row(dataIndex).data();
-        if (!rowData) {
-            return true;
-        }
-        return String(rowData['assetGroupStatus']) === statusFilterValue;
-    };
+    }
 
-    const toArray = function (raw) {
-        const result = [];
-        $.each(raw, function (idx, item) {
-            if (typeof item !== 'undefined' && item !== null) {
-                result.push(item);
-            }
-        });
-        return result;
-    };
+    function statusBadgeKind(status) {
+        switch (String(status)) {
+            case '1':
+                return 'success';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
+
+    function statusBadge(row, type) {
+        const label = statusLabel(row);
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(row['assetGroupStatus']), GemsUI.escape(label));
+    }
+
+    function rowIdFromLink(el) {
+        const linkId = $(el).attr('id') || '';
+        const linkIndex = linkId.indexOf('_');
+        return linkIndex > 0 ? linkId.substr(linkIndex + 1) : '';
+    }
+
+    function rowDataFromLink(el) {
+        const rowId = rowIdFromLink(el);
+        if (!rowId || !oTableAssetGroup) {
+            return null;
+        }
+        return { rowId: rowId, data: oTableAssetGroup.row(parseInt(rowId, 10)).data() };
+    }
 
     this.init = function () {
-        $.fn.dataTable.ext.search.push(statusFilterFn);
-
-        initMaterialSelect('#optAgrStatus');
+        let cntAssetGroup;
+        const exportOpt = {
+            columns: [0, 1, 2, 3],
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        cntAssetGroup = 1;
+                    }
+                    if (column === 0) {
+                        return cntAssetGroup++;
+                    }
+                    return data;
+                }
+            }
+        };
+        const dtButtons = GemsUI.dtButtons('GEMS 2.0 - Asset Group List').map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
+            }
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
+        });
 
         oTableAssetGroup = $('#dtAgrAssetGroup').DataTable({
             bLengthChange: false,
-            bFilter: true,
-            aaSorting: [[1, 'asc']],
-            language: _DATATABLE_LANGUAGE,
+            searching: true,
+            autoWidth: false,
             pageLength: 25,
-            dom: "<'row d-none'<'col-sm-12'f>>" +
-                 "<'row'<'col-sm-12'tr>>" +
-                 "<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
-            columnDefs: [
-                {targets: [0, 4], orderable: false, className: 'text-center'},
-                {targets: [3], className: 'text-center'},
-                {targets: [1, 2], className: 'text-nowrap'}
-            ],
+            aaSorting: [[1, 'asc']],
+            dom: GemsUI.dtDomButtons,
+            buttons: dtButtons,
+            language: GemsUI.dtEmpty('fa-object-group', 'No asset groups recorded yet.', 'No asset groups match the current search or status filter.'),
             fnRowCallback: function (nRow, aData, iDisplayIndex) {
-                const info = oTableAssetGroup.page.info();
-                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                const info = (oTableAssetGroup && oTableAssetGroup.page && typeof oTableAssetGroup.page.info === 'function')
+                    ? oTableAssetGroup.page.info()
+                    : null;
+                const rowNumber = info ? (info.page * info.length + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
+                $('td', nRow).eq(0).html(rowNumber);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkAgrAssetGroupEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableAssetGroup.row(parseInt(rowId, 10)).data();
-                        modalAssetGroupClass.edit(currentRow['assetGroupId'], rowId);
-                    }
-                });
-                $('.lnkAgrAssetGroupDeactivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableAssetGroup.row(parseInt(rowId, 10)).data();
-                        modalAssetGroupClass.deactivate(currentRow['assetGroupId'], rowId);
-                    }
-                });
-                $('.lnkAgrAssetGroupActivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableAssetGroup.row(parseInt(rowId, 10)).data();
-                        modalAssetGroupClass.activate(currentRow['assetGroupId'], rowId);
-                    }
-                });
-                $('.lnkAgrAssetGroupDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableAssetGroup.row(parseInt(rowId, 10)).data();
-                        modalConfirmDeleteClass.delete(currentRow['assetGroupId'], modalAssetGroupClass);
-                    }
-                });
-                applyTableDataLabels('#dtAgrAssetGroup', ['#', 'Asset Group', 'Description', 'Status', 'Actions']);
-                refreshListSummary();
+                updateMetrics();
+                updateSummary();
             },
             aoColumns: [
-                {mData: null},
-                {mData: 'assetGroupName'},
+                {mData: null, bSortable: false},
+                {mData: 'assetGroupName', sClass: 'text-nowrap'},
                 {mData: 'assetGroupDesc'},
-                {mData: null, mRender: function (data, type, row) {
-                        const status = row['assetGroupStatus'];
-                        if (!status || typeof refStatus[status] === 'undefined') {
-                            return '<span class="badge badge-pill badge-secondary">Unknown</span>';
-                        }
-                        return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
-                    }},
-                {mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
-                        let label = `<div class="action-btn-group">`;
-                        label += `<button type="button" class="btn-action btn-edit lnkAgrAssetGroupEdit" id="lnkAgrAssetGroupEdit_${meta.row}" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>`;
+                {mData: null, bSortable: false,
+                    mRender: function (data, type, row) {
+                        return statusBadge(row, type);
+                    }
+                },
+                {mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
+                    mRender: function (data, type, row, meta) {
+                        let html = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkAgrAssetGroupEdit',
+                            id: 'lnkAgrAssetGroupEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
                         if (row['assetGroupStatus'] === '1') {
-                            label += `<button type="button" class="btn-action btn-deactivate lnkAgrAssetGroupDeactivate" id="lnkAgrAssetGroupDeactivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>`;
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkAgrAssetGroupDeactivate',
+                                id: 'lnkAgrAssetGroupDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
                         } else {
-                            label += `<button type="button" class="btn-action btn-activate lnkAgrAssetGroupActivate" id="lnkAgrAssetGroupActivate_${meta.row}" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>`;
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkAgrAssetGroupActivate',
+                                id: 'lnkAgrAssetGroupActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
                         }
-                        label += `<button type="button" class="btn-action btn-delete lnkAgrAssetGroupDelete" id="lnkAgrAssetGroupDelete_${meta.row}" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>`;
-                        label += `</div>`;
-                        return label;
-                    }},
-                {mData: 'assetGroupId', visible: false}
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkAgrAssetGroupDelete',
+                            id: 'lnkAgrAssetGroupDelete_' + meta.row,
+                            title: 'Delete',
+                            icon: 'fas fa-trash-alt'
+                        });
+                        return html;
+                    }
+                },
+                {mData: 'assetGroupId', visible: false, sClass: 'noVis'}
             ]
         });
-        $('#dtAgrAssetGroup_filter').hide();
 
+        oTableAssetGroup.buttons().container().appendTo($('#btnDtAgrAssetGroupExport'));
+        GemsUI.bindDtTooltips('#dtAgrAssetGroup');
+
+        const tbody = $('#dtAgrAssetGroup tbody');
+        tbody.on('click', '.lnkAgrAssetGroupEdit', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalAssetGroupClass.edit(current.data['assetGroupId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkAgrAssetGroupDeactivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalAssetGroupClass.deactivate(current.data['assetGroupId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkAgrAssetGroupActivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalAssetGroupClass.activate(current.data['assetGroupId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkAgrAssetGroupDelete', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalConfirmDeleteClass.delete(current.data['assetGroupId'], modalAssetGroupClass);
+            }
+        });
+
+        statusFilterFn = function (settings, data, dataIndex) {
+            if (!settings.nTable || settings.nTable.id !== 'dtAgrAssetGroup') {
+                return true;
+            }
+            const statusVal = $('#optAgrStatus').val();
+            if (!statusVal) {
+                return true;
+            }
+            const rowData = oTableAssetGroup.row(dataIndex).data();
+            return rowData && String(rowData['assetGroupStatus']) === String(statusVal);
+        };
+        $.fn.dataTable.ext.search.push(statusFilterFn);
         $('#txtAgrAssetGroupSearch').on('keyup change', function () {
             oTableAssetGroup.search($(this).val()).draw();
         });
 
-        $('#optAgrStatus').on('change', handleStatusSelectChange);
-
-        $.each(statusChipMap, function (status, selector) {
-            $(selector).off('click').on('click', function () {
-                setStatusFilter(status, false);
-            });
-        });
-
-        let exportCount = 1;
-        const btnAssetGroupOpt = {
-            exportOptions: {
-                columns: [0, 1, 2, 3],
-                format: {
-                    body: function (data, row, column) {
-                        if (column === 0) {
-                            if (row === 0) {
-                                exportCount = 1;
-                            }
-                            return exportCount++;
-                        }
-                        if (column === 3) {
-                            const idx = data.indexOf('">');
-                            if (idx >= 0) {
-                                const content = data.substr(idx + 2);
-                                return content.replace('</span></h6>', '');
-                            }
-                        }
-                        return data;
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableAssetGroup, {
-            buttons: [
-                $.extend(true, {}, btnAssetGroupOpt, { extend: 'print', text: '<i class="fas fa-print"></i>', title: 'GEMS 2.0 - Asset Group List', titleAttr: 'Print', className: 'btn btn-outline-white btn-rounded btn-sm px-2' }),
-                $.extend(true, {}, btnAssetGroupOpt, { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i>', title: 'GEMS 2.0 - Asset Group List', titleAttr: 'Excel', className: 'btn btn-outline-white btn-rounded btn-sm px-2' }),
-                $.extend(true, {}, btnAssetGroupOpt, { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i>', title: 'GEMS 2.0 - Asset Group List', titleAttr: 'PDF', className: 'btn btn-outline-white btn-rounded btn-sm px-2' })
-            ]
-        }).container().appendTo($('#btnDtAgrAssetGroupExport'));
-
         $('#btnAgrAssetGroupAdd').on('click', function () {
             modalAssetGroupClass.add();
+        });
+
+        updateFilterSummary();
+
+        $('#optAgrStatus').on('change', function () {
+            oTableAssetGroup.draw();
+            updateFilterSummary();
         });
 
         $('#btnDtAgrAssetGroupRefresh').on('click', function () {
@@ -337,9 +298,8 @@ function MainAssetGroup() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 200);
+            }, 300);
         });
-
         self.genTableAgr(0);
     };
 
@@ -347,21 +307,14 @@ function MainAssetGroup() {
         if (_type === 1) {
             versionLocal = mzGetDataVersion();
         }
-        const rawAssetGroup = mzGetLocalRaw('gems_assetGroup', versionLocal, [], 'asset_group');
-        assetGroupDataCache = toArray(rawAssetGroup);
-        oTableAssetGroup.clear().rows.add(assetGroupDataCache).draw();
-        lastListUpdatedText = getNowStamp();
-        updateAssetGroupMetrics(assetGroupDataCache);
-        refreshListSummary();
-        setStatusFilter(statusFilterValue || '', true);
+        const refAssetGroup = mzGetLocalRaw('gems_assetGroup', versionLocal, [], 'asset_group');
+        lastUpdated = new Date();
+        oTableAssetGroup.clear().rows.add(Array.isArray(refAssetGroup) ? refAssetGroup : []).draw();
     };
 
     this.addTableAgr = function (_dataAdd) {
+        lastUpdated = new Date();
         oTableAssetGroup.row.add(_dataAdd).draw();
-        assetGroupDataCache = oTableAssetGroup.rows().data().toArray();
-        lastListUpdatedText = getNowStamp();
-        updateAssetGroupMetrics(assetGroupDataCache);
-        refreshListSummary();
     };
 
     this.updateTableAgr = function (_dataEdit, _rowEdit) {
@@ -375,11 +328,8 @@ function MainAssetGroup() {
         if (typeof _dataEdit['assetGroupStatus'] !== 'undefined') {
             currentRow['assetGroupStatus'] = _dataEdit['assetGroupStatus'];
         }
+        lastUpdated = new Date();
         oTableAssetGroup.row(_rowEdit).data(currentRow).draw();
-        assetGroupDataCache = oTableAssetGroup.rows().data().toArray();
-        lastListUpdatedText = getNowStamp();
-        updateAssetGroupMetrics(assetGroupDataCache);
-        refreshListSummary();
     };
 
     this.getClassName = function () {
@@ -392,6 +342,11 @@ function MainAssetGroup() {
 
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
+        updateFilterSummary();
+        if (oTableAssetGroup) {
+            oTableAssetGroup.rows().invalidate();
+            oTableAssetGroup.draw(false);
+        }
     };
 
     this.setModalAssetGroupClass = function (_modalAssetGroupClass) {
