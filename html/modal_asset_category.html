@@ -1,45 +1,77 @@
-<div class="modal fade gems-modal" id="modal_asset_category" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2" id="lblMzcTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_asset_category — Tabler/GEMS modal + form contract (P4B-1).
+
+  Loaded by pages/asset_category.html ONLY. Copies the P4A-1 Designation /
+  P4A-2 Severity / P4A-3 Failure Code / P2 License contract:
+    gems-modal-md (640px) + modal-dialog-scrollable, never modal-dialog-centered.
+    Flat white header, btn-close flex-centred with the title.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close first, primary Save last. No btn-info.
+
+  Asset Category extras vs simple masters: required Asset Group parent select
+  (GemsUI.fillSelect), description textarea (maxLength 255), and status values
+  1 / 2 / 5 (archived is display-only; the checkbox still writes 1 or 2).
+
+  Legacy Edit contract (preserve):
+    Add filters parent groups to assetGroupStatus === '1'.
+    Edit loads every group (including inactive/archived) so an existing
+    category whose parent is no longer active remains displayable, then
+    disables the select so the parent cannot be changed.
+
+  JS contract preserved (js/pages/modal_asset_category.js, js/pages/main_asset_category.js):
+    #modal_asset_category  #formMzc
+    #optMzcAssetGroupId  #lblMzcAssetGroupId  #optMzcAssetGroupIdErr
+    #txtMzcName  #lblMzcName  #txtMzcNameErr
+    #txaMzcDesc  #lblMzcDesc  #txaMzcDescErr
+    #chkMzcStatus  #chkMzcStatusErr  #btnMzcSubmit  #lblMzcTitle
+-->
+<div class="modal fade" id="modal_asset_category" tabindex="-1" aria-labelledby="lblMzcTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMzcTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMzc" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMzcAssetGroupId" id="lblMzcAssetGroupId">Asset Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMzcAssetGroupId" class="form-select" aria-required="true" aria-describedby="optMzcAssetGroupIdErr"></select>
+              <div class="gems-field-error" id="optMzcAssetGroupIdErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body gems-modal-body">
-                <form id="formMzc">
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-4">
-                            <select id="optMzcAssetGroupId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
-                            <label for="optMzcAssetGroupId" id="lblMzcAssetGroupId">Asset Group *</label>
-                            <p class="font-small text-danger" id="optMzcAssetGroupIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMzcName" class="form-control">
-                        <label for="txtMzcName" id="lblMzcName">Asset Category *</label>
-                        <p class="font-small text-danger" id="txtMzcNameErr"></p>
-                    </div>
-                    <div class="md-form md-outline">
-                        <textarea id="txaMzcDesc" class="md-textarea form-control" rows="3"></textarea>
-                        <label for="txaMzcDesc" id="lblMzcDesc" class="text-muted">Description</label>
-                        <p class="font-small text-danger" id="txaMzcDescErr"></p>
-                    </div>
-                    <h6 class="font-small">Status:</h6>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMzcStatus" name="chkMzcStatus" value="1">
-                        <label class="form-check-label" for="chkMzcStatus">Active</label>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMzcName" id="lblMzcName">Asset Category <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMzcName" class="form-control" aria-required="true" aria-describedby="txtMzcNameErr">
+              <div class="gems-field-error" id="txtMzcNameErr" role="alert"></div>
             </div>
-            <div class="modal-footer p-2 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMzcSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMzcDesc" id="lblMzcDesc">Description</label>
+              <textarea id="txaMzcDesc" class="form-control" rows="3" aria-describedby="txaMzcDescErr"></textarea>
+              <div class="gems-field-error" id="txaMzcDescErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12">
+              <span class="form-label">Status</span>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="chkMzcStatus" name="chkMzcStatus" value="1" aria-describedby="chkMzcStatusErr">
+                <label class="form-check-label" for="chkMzcStatus">Active</label>
+              </div>
+              <div class="gems-field-error" id="chkMzcStatusErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMzcSubmit" class="btn btn-primary" disabled>
+          <i class="far fa-save me-2"></i>Save
+        </button>
+      </div>
     </div>
+  </div>
 </div>

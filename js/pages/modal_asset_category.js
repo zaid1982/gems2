@@ -7,6 +7,41 @@ function ModalAssetCategory() {
     let classFrom;
     let refAssetGroup;
 
+    function assetGroupRows(activeOnly) {
+        const rows = [];
+        $.each(refAssetGroup, function (key, group) {
+            if (!group || typeof group !== 'object') {
+                return true;
+            }
+            if (activeOnly && String(group['assetGroupStatus']) !== '1') {
+                return true;
+            }
+            rows.push(group);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return (a['assetGroupName'] || '').localeCompare(b['assetGroupName'] || '');
+        });
+        return rows;
+    }
+
+    function fillAssetGroupSelect(activeOnly, selected) {
+        GemsUI.fillSelect(
+            'optMzcAssetGroupId',
+            assetGroupRows(activeOnly),
+            'assetGroupId',
+            function (row) {
+                return row['assetGroupName'] || '';
+            },
+            'Choose Asset Group',
+            selected
+        );
+    }
+
+    function setAssetGroupDisabled(disabled) {
+        $('#optMzcAssetGroupId').prop('disabled', !!disabled);
+    }
+
     this.init = function () {
         const vData = [
             {
@@ -53,7 +88,7 @@ function ModalAssetCategory() {
         $('#modal_asset_category').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
             $('#btnMzcSubmit').attr('disabled', true);
-            mzDisableSelect('optMzcAssetGroupId', false);
+            setAssetGroupDisabled(false);
         });
 
         $('#btnMzcSubmit').on('click', function () {
@@ -115,10 +150,11 @@ function ModalAssetCategory() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOptionStop('optMzcAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+                fillAssetGroupSelect(true);
+                setAssetGroupDisabled(false);
 
                 mzSetFieldValue('MzcStatus', '1', 'checkSingle', '1');
-                $('#lblMzcTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Category');
+                $('#lblMzcTitle').html('<i class="fas fa-plus me-2"></i>Add Asset Category');
                 $('#modal_asset_category').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -131,20 +167,19 @@ function ModalAssetCategory() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOptionStop('optMzcAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName');
                 mzCheckFuncParam([_assetCategoryId, _rowRefresh]);
                 assetCategoryId = _assetCategoryId;
                 rowRefresh = _rowRefresh;
 
                 const dataMzc = mzAjaxRequest('asset_category.php?assetCategoryId='+assetCategoryId, 'GET');
-                mzSetFieldValue('MzcAssetGroupId', dataMzc['assetGroupId'], 'select', 'Asset Group *');
+                fillAssetGroupSelect(false, dataMzc['assetGroupId']);
                 mzSetFieldValue('MzcName', dataMzc['assetCategoryName'], 'text');
                 mzSetFieldValue('MzcDesc', dataMzc['assetCategoryDesc'], 'textarea');
                 mzSetFieldValue('MzcStatus', dataMzc['assetCategoryStatus'], 'checkSingle', '1');
 
-                mzDisableSelect('optMzcAssetGroupId', true);
+                setAssetGroupDisabled(true);
 
-                $('#lblMzcTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Category');
+                $('#lblMzcTitle').html('<i class="far fa-edit me-2"></i>Edit Asset Category');
                 $('#modal_asset_category').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
