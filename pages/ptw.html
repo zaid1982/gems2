@@ -1,24 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/ptw.html — Tabler-migrated (P5-5 PTW dashboard).
+
+  Standalone no-nav dashboard. Keep #ptwTabs + data-toggle="tab"
+  (shim + $('#expiring-soon-tab').tab('show')). Keep common.js,
+  Highcharts, page-local CSS. Do not invent sidebar/nav includes.
+-->
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>PTW Dashboard - GEMS2</title>
-    
-    <!-- Browser icon -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GEMS 2.0 - PTW Dashboard</title>
     <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+    <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="css/gems-theme.css">
     
     <style>
         .dashboard-card {
@@ -108,13 +105,9 @@
         }
     </style>
     
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!-- JQuery Migrate -->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+    <script src="js/jquery-3.7.0.min.js"></script>
 </head>
-
-<body>
+<body class="gems-tabler">
 <main class="ptw-dashboard-container">
     <!-- Dashboard Header -->
     <div class="dashboard-header">
@@ -452,21 +445,16 @@
                 </div>
 
 <!-- SCRIPTS -->
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
 <!-- Highchart -->
 <script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
 <script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
