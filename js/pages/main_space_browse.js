@@ -277,7 +277,7 @@
       const $title = $('<div class="space-card__title"></div>');
       $title.append($('<span></span>').text(space.spaceName || 'Untitled space'));
       if (space.siteName) {
-        const $sitePill = $('<span class="badge badge-light text-uppercase"></span>').text(space.siteName);
+        const $sitePill = $('<span class="badge gems-badge gems-badge-secondary text-uppercase"></span>').text(space.siteName);
         $title.append($sitePill);
       }
       $body.append($title);
@@ -310,14 +310,14 @@
       }
 
       const $stats = $('<div class="space-card__stats"></div>');
-      $stats.append($('<div><i class="far fa-calendar-check mr-1"></i>' + space.activeReservationCount + ' upcoming reservations</div>'));
+      $stats.append($('<div><i class="far fa-calendar-check me-1"></i>' + space.activeReservationCount + ' upcoming reservations</div>'));
       $body.append($stats);
 
       const $actions = $('<div class="space-card__actions"></div>');
       const previewUrl = 'space_preview.html?id=' + encodeURIComponent(space.spaceId);
       const calendarUrl = 'space_calendar.html?id=' + encodeURIComponent(space.spaceId);
-      const $previewBtn = $('<a class="btn btn-outline-primary btn-sm"><i class="far fa-eye mr-1"></i>View details</a>').attr('href', previewUrl);
-      const $calendarBtn = $('<a class="btn btn-primary btn-sm"><i class="far fa-calendar-alt mr-1"></i>Check availability</a>').attr('href', calendarUrl);
+      const $previewBtn = $('<a class="btn btn-outline-primary btn-sm"><i class="far fa-eye me-1"></i>View details</a>').attr('href', previewUrl);
+      const $calendarBtn = $('<a class="btn btn-primary btn-sm"><i class="far fa-calendar-alt me-1"></i>Check availability</a>').attr('href', calendarUrl);
       $actions.append($previewBtn, $calendarBtn);
 
       $card.append($media, $body, $actions);
@@ -366,17 +366,6 @@
   }
 
   $(document).ready(function(){
-    let pending = $('.includeHtml').length;
-    if (pending === 0) {
-      boot();
-    } else {
-      $('.includeHtml').each(function(){
-        const id = $(this).attr('id');
-        $('#' + id).load('html/' + id.substr(2) + '.html?' + (new Date().valueOf()), function(){
-          pending--;
-          if (pending === 0) { boot(); }
-        });
-      });
-    }
+    boot();
   });
 })();
