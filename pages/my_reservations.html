@@ -1,408 +1,405 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/my_reservations.html — Tabler-migrated (P5-6 My Reservations).
+
+  Nav page. List + homemade calendar/timeline/week (not FullCalendar).
+  HEAD Site/Status filter markup is commented out — do not invent it.
+  Keep camelCase + snake_case accessors. Do not "normalize" API rows.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>GEMS 2.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - My Reservations</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
   <style>
-    :root {
-      --primary-color: var(--gems-primary);
-      --primary-dark: var(--gems-primary-dark);
-      --success-color: #10b981;
-      --warning-color: #f59e0b;
-      --light-bg: var(--gems-bg-page);
-      --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: #fff; border: 1px solid #e5e7eb; color: #374151;
+      display: inline-flex; align-items: center; justify-content: center;
     }
-    .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
-    .main-content-card .card-header { background: var(--gems-bg-page); color:#000; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
-    .main-content-card .card-body { padding: 1rem 1.25rem; }
-    .header-actions .btn { margin-left:.25rem; }
-    .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
-    /* Badges for status */
-    .badge-modern { padding: 6px 10px; border-radius: 16px; font-size: .75rem; font-weight: 600; display:inline-block; }
-    .badge-success-dark { background: rgba(16, 185, 129, 1); color: #fff; }
-    .badge-warning { background: rgba(245, 158, 11, 0.9); color: #fff; }
-    .badge-danger-dark { background: rgb(184, 51, 51); color: #fff; }
-    .detail-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-    .detail-item { padding:8px 10px; background:var(--gems-bg-page); border-radius:8px; }
-    .detail-item .label { font-size:.75rem; color:#6b7280; text-transform:uppercase; letter-spacing:.04em; }
-    .detail-item .value { font-size:.95rem; color:#111827; }
-    /* Filter chips */
+    .icon-btn:hover { background: var(--gems-bg-page); color: var(--gems-primary); }
     .chip-group { display:flex; flex-wrap:wrap; gap:8px; }
-    .chip { border:1px solid var(--primary-color); color:var(--primary-color); background:#fff; border-radius:16px; font-size:.8rem; cursor:pointer; }
-    .chip.chip-active { background:var(--primary-color); color:#fff; }
-    /* Totals summary */
+    .chip {
+      border:1px solid var(--gems-primary); color:var(--gems-primary); background:#fff;
+      border-radius:16px; font-size:.8rem; cursor:pointer; padding:6px 12px;
+    }
+    .chip.chip-active { background:var(--gems-primary); color:#fff; }
     .stat-pill { display:inline-flex; align-items:center; gap:6px; background:var(--gems-bg-page); border-radius:999px; padding:6px 10px; margin-right:8px; font-size:.8rem; }
     .stat-pill .icon { width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border-radius:50%; }
     .stat-upcoming .icon { background:#10b981; color:#fff; }
     .stat-past .icon { background:var(--gems-muted); color:#fff; }
     .stat-canceled .icon { background:#ef4444; color:#fff; }
     .stat-hours .icon { background:var(--gems-primary); color:#fff; }
-    /* Segmented buttons */
-    .segmented-group{ display:inline-flex; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06); }
-    .segmented-btn{ background:#fff; color:#374151; padding:8px 12px; border:none; border-right:1px solid #e5e7eb; font-weight:600; letter-spacing:.2px; }
-    .segmented-btn:last-child{ border-right:none; }
-    .segmented-btn:hover{ background:var(--gems-bg-page); }
-    .segmented-btn:active{ background:#eef2ff; }
-    /* Table polish */
-    #dtMyResv thead th{ font-weight:700; color:#374151; border-bottom:2px solid #e5e7eb; }
-    #dtMyResv tbody tr:hover{ background:#f9fafb; }
-    /* Icon buttons (row actions) */
-    .icon-btn{ border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
-    .icon-btn:hover{ background:#f3f4f6; }
-    /* Skeleton loading overlay */
+    .segmented-group { display:inline-flex; border:1px solid rgba(0,85,184,0.2); border-radius:8px; overflow:hidden; }
+    .segmented-btn {
+      background:#fff; color:var(--gems-text); padding:8px 14px; border:none;
+      border-right:1px solid rgba(0,85,184,0.1); font-weight:600; font-size:0.85rem;
+    }
+    .segmented-btn:last-child { border-right:none; }
+    .segmented-btn.chip-active { background:rgba(0,85,184,0.1); color:var(--gems-primary); font-weight:700; }
+    .detail-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .detail-item { padding:8px 10px; background:var(--gems-bg-page); border-radius:8px; }
+    .detail-item .label { font-size:.75rem; color:#6b7280; text-transform:uppercase; letter-spacing:.04em; }
+    .detail-item .value { font-size:.95rem; color:#111827; }
     .skeleton-overlay{ position:relative; width:100%; }
     .skeleton-line{ height:34px; margin:6px 0; border-radius:8px; background:linear-gradient(90deg,#f3f4f6 25%,#e5e7eb 37%,#f3f4f6 63%); background-size:400% 100%; animation:skeletonShimmer 1.4s ease infinite; }
     @keyframes skeletonShimmer{ 0%{ background-position:100% 0 } 100%{ background-position:-100% 0 } }
-    /* Mobile bottom sheet for details modal */
-    @media (max-width: 768px){
-      #modalMyResvDetails .modal-dialog{ margin:0; position:fixed; bottom:0; left:0; right:0; }
-      #modalMyResvDetails .modal-content{ border-top-left-radius:16px; border-top-right-radius:16px; }
+    .calendar-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:10px; }
+    .cal-cell { background:#fff; border:1px solid var(--tblr-border-color, #e6e7e9); border-radius:12px; padding:10px; min-height:90px; position:relative; }
+    .cal-cell .date { font-weight:700; color:var(--gems-text); }
+    .cal-cell .badge {
+      position:absolute; bottom:8px; left:8px; right:8px; padding:6px 10px; border-radius:999px;
+      font-size:.78rem; background:linear-gradient(135deg, var(--gems-primary), var(--gems-secondary));
+      color:#fff; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    /* Calendar grid */
-    .calendar-grid{ display:grid; grid-template-columns: repeat(7, 1fr); gap:8px; }
-    .cal-cell{ background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:8px; min-height:80px; position:relative; }
-    .cal-cell .date{ font-weight:700; color:#374151; }
-  .cal-cell .badge{ position:absolute; bottom:8px; left:8px; right:8px; padding:6px 10px; border-radius:999px; font-size:.78rem; background:var(--gems-primary); color:#fff; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; box-shadow:0 2px 6px rgba(0,0,0,.12); }
-  .cal-cell .badge:hover{ background:#1d4ed8; }
-    /* Day timeline */
-  .day-timeline{ position:relative; width:100%; height:48px; background:var(--gems-bg-page); border:1px solid #e5e7eb; border-radius:8px; }
-  .tl-ticks{ position:absolute; top:4px; left:0; right:0; height:14px; }
-  .tl-tick{ position:absolute; font-size:.7rem; color:var(--gems-muted); transform:translateX(-50%); }
-  .tl-block{ position:absolute; top:20px; height:24px; border-radius:6px; background:#c7d2fe; color:#111827; font-size:.75rem; line-height:24px; text-align:center; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; box-shadow:0 1px 2px rgba(0,0,0,.06); }
-    .tl-block.conflict{ background:#fecaca; }
-    /* Range timeline */
-    #rangeTimeline{ position:relative; width:100%; }
-    .range-day{ display:flex; align-items:center; gap:8px; margin:8px 0; }
-    .range-label{ width:100px; color:#374151; font-weight:600; }
-    .range-bar{ position:relative; flex:1; height:24px; background:var(--gems-bg-page); border:1px solid #e5e7eb; border-radius:8px; }
-    .range-block{ position:absolute; height:20px; top:2px; background:#c7d2fe; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
-  /* Week view */
-  .week-grid{ display:grid; grid-template-columns: 80px 1fr; gap:12px; }
-  .week-time-col{ position:relative; }
-  .week-time-slot{ height:40px; border-bottom:1px dashed #e5e7eb; font-size:.75rem; color:var(--gems-muted); display:flex; align-items:flex-start; justify-content:flex-end; padding-right:6px; }
-  .week-days{ display:grid; grid-template-columns: repeat(7, 1fr); gap:8px; }
-  .week-day-col{ position:relative; min-height:640px; background:var(--gems-bg-page); border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; }
-  .week-day-header{ position:sticky; top:0; background:#fff; border-bottom:1px solid #e5e7eb; padding:6px 8px; font-weight:700; color:#374151; z-index:2; }
-  .week-slot{ position:relative; height:40px; border-bottom:1px dashed #e5e7eb; }
-  .wk-block{ position:absolute; left:6px; right:6px; border-radius:8px; background:#c7d2fe; color:#111827; font-size:.75rem; padding:4px 6px; box-shadow:0 1px 2px rgba(0,0,0,.08); }
-  .wk-block.conflict{ background:#fecaca; }
+    .day-timeline { position:relative; width:100%; height:48px; background:rgba(0,85,184,0.02); border:1px solid var(--tblr-border-color, #e6e7e9); border-radius:10px; }
+    .tl-ticks { position:absolute; top:4px; left:0; right:0; height:14px; }
+    .tl-tick { position:absolute; font-size:.7rem; color:var(--gems-muted); transform:translateX(-50%); }
+    .tl-block {
+      position:absolute; top:20px; height:24px; border-radius:8px;
+      background:linear-gradient(135deg, rgba(0,85,184,0.25), rgba(0,173,168,0.25));
+      color:var(--gems-text); font-size:.75rem; line-height:24px; text-align:center;
+      overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-weight:600;
+    }
+    .tl-block.conflict { background:#fecaca; }
+    #rangeTimeline { position:relative; width:100%; }
+    .range-day { display:flex; align-items:center; gap:8px; margin:8px 0; }
+    .range-label { width:100px; color:#374151; font-weight:600; }
+    .range-bar { position:relative; flex:1; height:24px; background:var(--gems-bg-page); border:1px solid #e5e7eb; border-radius:8px; }
+    .range-block { position:absolute; height:20px; top:2px; background:#c7d2fe; border-radius:6px; }
+    .week-grid { display:grid; grid-template-columns: 80px 1fr; gap:14px; }
+    .week-time-slot {
+      height:40px; border-bottom:1px dashed var(--tblr-border-color, #e6e7e9);
+      font-size:.75rem; color:var(--gems-muted); display:flex; align-items:flex-start; justify-content:flex-end; padding-right:6px;
+    }
+    .week-days { display:grid; grid-template-columns: repeat(7, 1fr); gap:10px; }
+    .week-day-col { position:relative; min-height:640px; background:rgba(0,85,184,0.02); border:1px solid var(--tblr-border-color, #e6e7e9); border-radius:12px; overflow:hidden; }
+    .week-day-header { position:sticky; top:0; background:#fff; border-bottom:1px solid var(--tblr-border-color, #e6e7e9); padding:8px; font-weight:700; color:var(--gems-text); z-index:2; }
+    .week-slot { position:relative; height:40px; border-bottom:1px dashed var(--tblr-border-color, #e6e7e9); }
+    .wk-block {
+      position:absolute; left:6px; right:6px; border-radius:8px;
+      background:linear-gradient(135deg, rgba(0,85,184,0.25), rgba(0,173,168,0.25));
+      color:var(--gems-text); font-size:.75rem; padding:4px 6px; font-weight:600;
+    }
+    .wk-block.conflict { background:#fecaca; }
+    @media (max-width: 768px) {
+      #modalMyResvDetails .modal-dialog { margin:0; position:fixed; bottom:0; left:0; right:0; }
+      #modalMyResvDetails .modal-content { border-top-left-radius:16px; border-top-right-radius:16px; }
+      .segmented-group { width:100%; }
+      .segmented-btn { flex:1; text-align:center; }
+      .calendar-grid { gap:6px; }
+      .detail-grid { grid-template-columns: 1fr; }
+    }
   </style>
-  <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-  <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
 </head>
-<body class="fixed-sn light-blue-skin">
-<header>
-  <div class="includeHtml" id="h-nav_left"></div>
-  <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<main>
-  <div class="container-fluid">
-    <section class="mb-5 mt-lg-5">
-      <div class="gems-page-header module-page-header">
-        <div class="header-text">
-          <h2><i class="fas fa-clipboard-list mr-3"></i>My Reservations</h2>
-          <p>Review and manage your space reservations</p>
-        </div>
-      </div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-      <div class="main-content-card mb-4">
-        <div class="card-header">
-          <div class="header-title">Filters</div>
-          <div class="d-flex align-items-center header-actions">
-            <button id="btnMyResvRefresh" class="btn btn-outline-dark btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-clipboard-list me-2 text-primary"></i>My Reservations</h1>
+              <div class="page-subtitle">Review and manage your space reservations</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" id="btnMyResvRefresh" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync"></i>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="card-body">
-          <div class="row pt-5">
-            <!-- <div class="col-md-4 select-outline">
-              <select id="optMyResvSite" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-              <label for="optMyResvSite">Site</label>
-            </div>
-            <div class="col-md-4 select-outline">
-              <select id="optMyResvStatus" class="mdb-select md-form md-outline colorful-select mt-0">
-                <option value="">All Status</option>
-                <option value="RESERVED">Reserved</option>
-                <option value="CANCELED">Canceled</option>
-              </select>
-              <label for="optMyResvStatus">Status</label>
-            </div> -->
-            <div class="col-md-4">
-              <div class="md-form md-outline mt-0 d-flex align-items-center justify-content-md-end">
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-4">
+                <label class="form-label" for="dtMyResvFrom">From</label>
                 <input type="date" id="dtMyResvFrom" class="form-control">
-                <label for="dtMyResvFrom" class="active">From</label>
               </div>
-            </div>
-            <div class="col-md-4">
-              <div class="md-form md-outline mt-0 d-flex align-items-center justify-content-md-end">
+              <div class="gems-field gems-field-4">
+                <label class="form-label" for="dtMyResvTo">To</label>
                 <input type="date" id="dtMyResvTo" class="form-control">
-                <label for="dtMyResvTo" class="active">To</label>
               </div>
-            </div>
-            <div class="col-md-4 d-flex align-items-start justify-content-md-end">
-              <div class="segmented-group" role="group" aria-label="Date presets">
-                <button id="btnPresetToday" class="segmented-btn" aria-label="Preset Today">TODAY</button>
-                <button id="btnPresetNext7" class="segmented-btn" aria-label="Preset next 7 days">NEXT 7 DAYS</button>
-                <button id="btnPresetThisWeek" class="segmented-btn" aria-label="Preset this week">THIS WEEK</button>
-              </div>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-12">
-              <div id="myResvStatusChips" class="chip-group">
-                <button class="chip chip-active" data-filter="all">All</button>
-                <button class="chip" data-filter="upcoming">Upcoming</button>
-                <button class="chip" data-filter="past">Past</button>
-                <button class="chip" data-filter="canceled">Canceled</button>
-              </div>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-12">
-              <div id="myResvTotals" class="d-flex align-items-center flex-wrap"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="home-table-card">
-        <div class="table-header">
-          <h5>
-            <i class="fas fa-calendar-check"></i>
-            Reservations
-          </h5>
-          <div class="table-header-actions">
-            <div class="segmented-group mr-2" id="myResvViewToggle" role="group" aria-label="View toggle">
-              <button class="segmented-btn" data-view="table" aria-label="Table view">TABLE</button>
-              <button class="segmented-btn" data-view="calendar" aria-label="Calendar view">CALENDAR</button>
-              <button class="segmented-btn" data-view="timeline" aria-label="Timeline view">TIMELINE</button>
-              <button class="segmented-btn" data-view="week" aria-label="Week view">WEEK</button>
-            </div>
-            <!-- <button type="button" class="btn-action" data-toggle="tooltip" data-placement="top" title="All reservations">
-              <i class="fas fa-info-circle"></i>
-            </button> -->
-            <button type="button" id="btnMyResvRefreshTable" class="btn-action" data-toggle="tooltip" data-placement="top" title="Refresh data">
-              <i class="fas fa-sync"></i>
-            </button>
-            <button type="button" class="btn-action" id="btnMyResvExportCsv" data-toggle="tooltip" data-placement="top" title="Export CSV">
-              <i class="fas fa-file-csv"></i>
-            </button>
-            <button type="button" class="btn-action" id="btnMyResvExportExcel" data-toggle="tooltip" data-placement="top" title="Export Excel">
-              <i class="fas fa-file-excel"></i>
-            </button>
-            <button type="button" class="btn-action" id="btnMyResvExportPrint" data-toggle="tooltip" data-placement="top" title="Print">
-              <i class="fas fa-print"></i>
-            </button>
-            <div id="dtMyResvButtons" class="d-none"></div>
-          </div>
-        </div>
-        <div class="table-controls">
-          <div class="table-search-box">
-            <form class="form-inline md-form form-sm mt-0 mb-0 pb-0">
-              <div class="">
-                <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                <input type="text" id="txtMyResvSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                <label for="txtMyResvSearch" class="ml-4">Search</label>
-              </div>
-            </form>
-          </div>
-        </div>
-        <div class="table-body">
-          <div id="myResvLoading" class="skeleton-overlay d-none" aria-hidden="true">
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-          </div>
-          <div class="table-responsive">
-            <table id="dtMyResv" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-              <thead>
-                <tr class="th-strong">
-                  <th style="width:4%">#</th>
-                  <th>Space</th>
-                  <th style="width:18%">Start</th>
-                  <th style="width:18%">End</th>
-                  <th style="width:12%">Status</th>
-                  <th style="width:100px"></th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <!-- Calendar View -->
-          <div id="calendarView" class="mt-3 d-none">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <div class="d-flex align-items-center">
-                <button id="calPrev" class="icon-btn" aria-label="Previous month"><i class="fas fa-chevron-left"></i></button>
-                <div id="calMonthLabel" class="ml-2 font-weight-bold"></div>
-              </div>
-              <button id="calNext" class="icon-btn" aria-label="Next month"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div id="calGrid" class="calendar-grid"></div>
-            <div class="mt-3">
-              <div class="label">Day Timeline</div>
-              <div id="calDayTimeline" class="day-timeline"></div>
-            </div>
-          </div>
-          <!-- Timeline View -->
-          <div id="timelineView" class="mt-3 d-none">
-            <div class="label mb-2">Timeline</div>
-            <div id="rangeTimeline"></div>
-          </div>
-          <!-- Week Day View -->
-          <div id="weekView" class="mt-3 d-none">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-              <div class="d-flex align-items-center">
-                <button id="wkPrev" class="icon-btn" aria-label="Previous week"><i class="fas fa-chevron-left"></i></button>
-                <div id="wkLabel" class="ml-2 font-weight-bold"></div>
-              </div>
-              <button id="wkNext" class="icon-btn" aria-label="Next week"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div id="wkGrid" class="week-grid">
-              <div class="week-time-col" id="wkTimeCol"></div>
-              <div class="week-days" id="wkDays"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Cancel Modal -->
-    <div class="modal fade" id="modalMyResvCancel" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header warning-color white-text"><h5 class="modal-title"><i class="fas fa-ban"></i> Cancel Reservation</h5><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button></div>
-          <div class="modal-body">
-            <p>Provide an optional reason for cancellation:</p>
-            <div class="md-form md-outline mt-0"><textarea id="txaMyResvReason" class="md-textarea form-control" rows="3"></textarea><label for="txaMyResvReason" class="active">Reason</label></div>
-          </div>
-          <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button><button type="button" id="btnMyResvConfirmCancel" class="btn btn-warning btn-sm">Cancel Reservation</button></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Details Modal -->
-    <div class="modal fade" id="modalMyResvDetails" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header primary-color white-text">
-            <h5 class="modal-title"><i class="fas fa-calendar-check"></i> Reservation Details</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-2">
-              <div class="d-flex align-items-center justify-content-between">
-                <div>
-                  <strong>Space:</strong> <a id="lnkMyResvSpace" href="#" target="_blank"><span id="lblMyResvSpaceName">-</span></a>
+              <div class="gems-field gems-field-4">
+                <label class="form-label">Date presets</label>
+                <div class="segmented-group" role="group" aria-label="Date presets">
+                  <button type="button" id="btnPresetToday" class="segmented-btn" aria-label="Preset Today">TODAY</button>
+                  <button type="button" id="btnPresetNext7" class="segmented-btn" aria-label="Preset next 7 days">NEXT 7 DAYS</button>
+                  <button type="button" id="btnPresetThisWeek" class="segmented-btn" aria-label="Preset this week">THIS WEEK</button>
                 </div>
-                <div id="lblMyResvStatus" class="badge-modern badge-success-dark">RESERVED</div>
               </div>
             </div>
-            <div class="detail-grid">
-              <div class="detail-item"><div class="label">Start</div><div id="lblMyResvStart" class="value">-</div></div>
-              <div class="detail-item"><div class="label">End</div><div id="lblMyResvEnd" class="value">-</div></div>
-              <div class="detail-item"><div class="label">Reservation #</div><div id="lblMyResvId" class="value">-</div></div>
-              <div class="detail-item"><div class="label">Requester</div><div id="lblMyResvRequester" class="value">-</div></div>
-              <div class="detail-item"><div class="label">Contact</div><div id="lblMyResvContact" class="value">-</div></div>
+            <div class="mt-3" id="myResvStatusChips">
+              <div class="chip-group">
+                <button type="button" class="chip chip-active" data-filter="all">All</button>
+                <button type="button" class="chip" data-filter="upcoming">Upcoming</button>
+                <button type="button" class="chip" data-filter="past">Past</button>
+                <button type="button" class="chip" data-filter="canceled">Canceled</button>
+              </div>
             </div>
-            <div class="mt-3">
-              <div class="label">Notes</div>
-              <div id="lblMyResvNotes" class="value">-</div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-            <button type="button" id="btnMyResvDetailsCancel" class="btn btn-warning btn-sm"><i class="fas fa-ban mr-1"></i>Cancel Reservation</button>
+            <div class="mt-3" id="myResvTotals"></div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Reschedule Modal -->
-    <div class="modal fade" id="modalMyResvReschedule" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document" style="max-width: 900px;">
-        <div class="modal-content">
-          <div class="modal-header primary-color white-text">
-            <h5 class="modal-title"><i class="fas fa-clock-rotate-left"></i> Reschedule Reservation</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0"><i class="fas fa-calendar-check me-2 text-primary"></i>Reservations</h3>
+            </div>
+            <div class="gems-card-toolbar">
+              <div class="segmented-group" id="myResvViewToggle" role="group" aria-label="View toggle">
+                <button type="button" class="segmented-btn chip-active" data-view="table" aria-label="Table view">TABLE</button>
+                <button type="button" class="segmented-btn" data-view="calendar" aria-label="Calendar view">CALENDAR</button>
+                <button type="button" class="segmented-btn" data-view="timeline" aria-label="Timeline view">TIMELINE</button>
+                <button type="button" class="segmented-btn" data-view="week" aria-label="Week view">WEEK</button>
+              </div>
+              <button type="button" id="btnMyResvRefreshTable" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync"></i>
+              </button>
+              <button type="button" id="btnMyResvExportCsv" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Export CSV" aria-label="Export CSV">
+                <i class="fas fa-file-csv"></i>
+              </button>
+              <button type="button" id="btnMyResvExportExcel" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Export Excel" aria-label="Export Excel">
+                <i class="fas fa-file-excel"></i>
+              </button>
+              <button type="button" id="btnMyResvExportPrint" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Print" aria-label="Print">
+                <i class="fas fa-print"></i>
+              </button>
+              <div id="dtMyResvButtons" class="d-none"></div>
+            </div>
           </div>
-          <div class="modal-body">
-            <div class="detail-grid">
-              <div class="detail-item">
-                <div class="label">Date</div>
-                <input type="date" id="reschDate" class="form-control">
-              </div>
-              <div class="detail-item">
-                <div class="label">Space</div>
-                <div id="reschSpaceName" class="value">-</div>
-              </div>
-              <div class="detail-item">
-                <div class="label">Start Time</div>
-                <input type="time" id="reschStart" class="form-control">
-              </div>
-              <div class="detail-item">
-                <div class="label">End Time</div>
-                <input type="time" id="reschEnd" class="form-control">
+          <div class="card-body">
+            <div class="gems-form-grid mb-3">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtMyResvSearch">Search</label>
+                <input type="text" id="txtMyResvSearch" class="form-control" autocomplete="off">
               </div>
             </div>
-            <div class="mt-3">
-              <div id="reschConflict" class="alert alert-warning d-none" role="alert"></div>
-              <div id="reschSuggestion" class="alert alert-info d-none" role="alert"></div>
+            <div id="myResvLoading" class="skeleton-overlay d-none" aria-hidden="true">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line"></div>
             </div>
-            <div class="mt-3">
+            <div id="myResvTableWrap">
+              <table id="dtMyResv" class="table table-vcenter card-table table-hover mb-0" width="100%">
+                <thead>
+                  <tr>
+                    <th style="width:4%">#</th>
+                    <th>Space</th>
+                    <th style="width:18%">Start</th>
+                    <th style="width:18%">End</th>
+                    <th style="width:12%">Status</th>
+                    <th style="width:160px" class="noVis text-center"></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div id="calendarView" class="mt-3 d-none">
               <div class="d-flex align-items-center justify-content-between mb-2">
-                <div class="segmented-group" id="reschModeToggle" role="group" aria-label="Reschedule mode">
-                  <button class="segmented-btn chip-active" data-mode="inputs">INPUTS</button>
-                  <button class="segmented-btn" data-mode="calendar">CALENDAR</button>
+                <div class="d-flex align-items-center">
+                  <button type="button" id="calPrev" class="icon-btn" aria-label="Previous month"><i class="fas fa-chevron-left"></i></button>
+                  <div id="calMonthLabel" class="ms-2 fw-bold"></div>
                 </div>
-                <div class="d-flex align-items-center" id="reschWkNav" style="display:none;">
-                  <button id="reschWkPrev" class="icon-btn" aria-label="Previous week"><i class="fas fa-chevron-left"></i></button>
-                  <div id="reschWkLabel" class="ml-2 font-weight-bold"></div>
-                  <button id="reschWkNext" class="icon-btn ml-2" aria-label="Next week"><i class="fas fa-chevron-right"></i></button>
-                </div>
+                <button type="button" id="calNext" class="icon-btn" aria-label="Next month"><i class="fas fa-chevron-right"></i></button>
               </div>
-              <div id="reschWeekView" class="week-grid d-none">
-                <div class="week-time-col" id="reschWkTimeCol"></div>
-                <div class="week-days" id="reschWkDays"></div>
+              <div id="calGrid" class="calendar-grid"></div>
+              <div class="mt-3">
+                <div class="form-label">Day Timeline</div>
+                <div id="calDayTimeline" class="day-timeline"></div>
+              </div>
+            </div>
+            <div id="timelineView" class="mt-3 d-none">
+              <div class="form-label mb-2">Timeline</div>
+              <div id="rangeTimeline"></div>
+            </div>
+            <div id="weekView" class="mt-3 d-none">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center">
+                  <button type="button" id="wkPrev" class="icon-btn" aria-label="Previous week"><i class="fas fa-chevron-left"></i></button>
+                  <div id="wkLabel" class="ms-2 fw-bold"></div>
+                </div>
+                <button type="button" id="wkNext" class="icon-btn" aria-label="Next week"><i class="fas fa-chevron-right"></i></button>
+              </div>
+              <div id="wkGrid" class="week-grid">
+                <div class="week-time-col" id="wkTimeCol"></div>
+                <div class="week-days" id="wkDays"></div>
               </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-            <button type="button" id="btnMyResvConfirmReschedule" class="btn btn-primary btn-sm">Save</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<div class="modal fade" id="modalMyResvCancel" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog gems-modal-sm modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-ban me-2"></i>Cancel Reservation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Provide an optional reason for cancellation:</p>
+        <div class="gems-field" id="divMyResvReason">
+          <label class="form-label" for="txaMyResvReason">Reason</label>
+          <textarea id="txaMyResvReason" class="form-control" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMyResvConfirmCancel" class="btn btn-warning">Cancel Reservation</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalMyResvDetails" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-calendar-check me-2"></i>Reservation Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <strong>Space:</strong> <a id="lnkMyResvSpace" href="#" target="_blank"><span id="lblMyResvSpaceName">-</span></a>
+            </div>
+            <div id="lblMyResvStatus"></div>
+          </div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item"><div class="label">Start</div><div id="lblMyResvStart" class="value">-</div></div>
+          <div class="detail-item"><div class="label">End</div><div id="lblMyResvEnd" class="value">-</div></div>
+          <div class="detail-item"><div class="label">Reservation #</div><div id="lblMyResvId" class="value">-</div></div>
+          <div class="detail-item"><div class="label">Requester</div><div id="lblMyResvRequester" class="value">-</div></div>
+          <div class="detail-item"><div class="label">Contact</div><div id="lblMyResvContact" class="value">-</div></div>
+        </div>
+        <div class="mt-3">
+          <div class="form-label">Notes</div>
+          <div id="lblMyResvNotes" class="value">-</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMyResvDetailsCancel" class="btn btn-warning">
+          <i class="fas fa-ban me-1"></i>Cancel Reservation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalMyResvReschedule" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-clock-rotate-left me-2"></i>Reschedule Reservation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label class="form-label" for="reschDate">Date</label>
+            <input type="date" id="reschDate" class="form-control">
+          </div>
+          <div class="detail-item">
+            <div class="form-label">Space</div>
+            <div id="reschSpaceName" class="value">-</div>
+          </div>
+          <div class="detail-item">
+            <label class="form-label" for="reschStart">Start Time</label>
+            <input type="time" id="reschStart" class="form-control">
+          </div>
+          <div class="detail-item">
+            <label class="form-label" for="reschEnd">End Time</label>
+            <input type="time" id="reschEnd" class="form-control">
+          </div>
+        </div>
+        <div class="mt-3">
+          <div id="reschConflict" class="alert alert-warning d-none" role="alert"></div>
+          <div id="reschSuggestion" class="alert alert-info d-none" role="alert"></div>
+        </div>
+        <div class="mt-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="segmented-group" id="reschModeToggle" role="group" aria-label="Reschedule mode">
+              <button type="button" class="segmented-btn chip-active" data-mode="inputs">INPUTS</button>
+              <button type="button" class="segmented-btn" data-mode="calendar">CALENDAR</button>
+            </div>
+            <div class="d-flex align-items-center" id="reschWkNav" style="display:none;">
+              <button type="button" id="reschWkPrev" class="icon-btn" aria-label="Previous week"><i class="fas fa-chevron-left"></i></button>
+              <div id="reschWkLabel" class="ms-2 fw-bold"></div>
+              <button type="button" id="reschWkNext" class="icon-btn ms-2" aria-label="Next week"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div id="reschWeekView" class="week-grid d-none">
+            <div class="week-time-col" id="reschWkTimeCol"></div>
+            <div class="week-days" id="reschWkDays"></div>
           </div>
         </div>
       </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMyResvConfirmReschedule" class="btn btn-primary">
+          <i class="far fa-save me-2"></i>Save
+        </button>
+      </div>
     </div>
-
-    <div class="includeHtml" id="h-modal_change_password"></div>
   </div>
-</main>
+</div>
 
-<script type="text/javascript">$('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf()); });</script>
-<script type="text/javascript" src="js/popper.min.js"></script>
-<script type="text/javascript" src="js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
-<script type="text/javascript" src="js/modules/toastr.js"></script>
-<script type="text/javascript" src="js/common.js"></script>
-<script type="text/javascript" src="js/pages/main_my_reservations.js"></script>
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_my_reservations.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
 </body>
 </html>

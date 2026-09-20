@@ -11,7 +11,7 @@
   function initFilters(){
     const isAdmin = mzIsRoleExist('1,10');
     const userSiteId = mzGetUserInfoByParam('siteId');
-    try { $('#optMyResvSite').materialSelect('destroy'); } catch(e){}
+    // HEAD leftover: Site/Status markup is commented out — keep the binds, do not invent the selects.
     $('#optMyResvSite').empty();
     if(!isAdmin && userSiteId){
       $('#optMyResvSite').append('<option value="'+userSiteId+'" selected>'+ (mzGetUserInfoByParam('siteName')||('Site #'+userSiteId)) +'</option>');
@@ -19,9 +19,6 @@
     } else {
       $('#optMyResvSite').append('<option value="">All Sites</option>');
     }
-    $('#optMyResvSite').materialSelect();
-    try { $('#optMyResvStatus').materialSelect('destroy'); } catch(e){}
-    $('#optMyResvStatus').materialSelect();
     $('#optMyResvSite, #optMyResvStatus, #dtMyResvFrom, #dtMyResvTo').on('change', loadData);
     // Date presets
     $('#btnPresetToday').on('click', function(){ const today=moment().format('YYYY-MM-DD'); $('#dtMyResvFrom').val(today); $('#dtMyResvTo').val(today); loadData(); });
@@ -32,12 +29,13 @@
   }
 
   function initTable(){
-    dt = $('#dtMyResv').DataTable({ bLengthChange:false,bFilter:true,aaSorting:[[2,'desc']], language:_DATATABLE_LANGUAGE,
-      dom: 'Bfrtip',
+    dt = $('#dtMyResv').DataTable({ bLengthChange:false,bFilter:true,aaSorting:[[2,'desc']],
+      language: GemsUI.dtEmpty('fa-calendar-check', 'No reservations recorded.', 'No reservations match the current search.'),
+      dom: GemsUI.dtDomButtons,
       buttons: [
-        { extend:'csv', text:'CSV', className:'btn btn-sm btn-outline-white', exportOptions:{ columns:[0,1,2,3,4] } },
-        { extend:'excel', text:'Excel', className:'btn btn-sm btn-outline-white', exportOptions:{ columns:[0,1,2,3,4] } },
-        { extend:'print', text:'Print', className:'btn btn-sm btn-outline-white', exportOptions:{ columns:[0,1,2,3,4] } }
+        { extend:'csv', text:'CSV', className:'btn btn-sm btn-outline-secondary', exportOptions:{ columns:[0,1,2,3,4] } },
+        { extend:'excel', text:'Excel', className:'btn btn-sm btn-outline-secondary', exportOptions:{ columns:[0,1,2,3,4] } },
+        { extend:'print', text:'Print', className:'btn btn-sm btn-outline-secondary', exportOptions:{ columns:[0,1,2,3,4] } }
       ],
       fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=dt.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)); },
       aoColumns:[
@@ -45,22 +43,17 @@
         { mData:null, mRender:function(d,type,row,meta){ const id=(row.spaceId??row.space_id); const sn=row.spaceName||('Space #'+(id||'')); if(type==='export' || type==='print'){ return sn; } return '<a href="space_preview.html?id='+(id||'')+'">'+sn+'</a>'; } },
         { mData:function(row){ return row.reservationStart||row.reservation_start||null; }, mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; } },
         { mData:function(row){ return row.reservationEnd||row.reservation_end||null; }, mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; } },
-        { mData:function(row){ return row.reservationStatus||row.reservation_status||''; }, mRender:function(d,type){ const status=(d||'').toUpperCase(); if(type==='export' || type==='print'){ return status; } const cls=(status==='RESERVED'?'badge-success-dark':(status==='CANCELED'?'badge-danger-dark':'badge-warning')); return '<span class="badge-modern '+cls+'" title="'+status+'">'+status+'</span>'; } },
-        { mData:null, bSortable:false, sClass:'text-center', mRender:function(d,type,row){ if(type==='export' || type==='print'){ return ''; } const status=(row.reservationStatus||row.reservation_status||''); const disabled=status==='CANCELED'; const rid=(row.reservationId??row.reservation_id); const addCalBtn='<button class="btn-action btn-view btnMyResvAddCal" data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Add to calendar"><i class="fas fa-calendar-plus"></i></button>'; const detailsBtn='<button class="btn-action btn-view btnMyResvDetails" data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Details"><i class="fas fa-eye"></i></button>'; const reschBtn='<button class="btn-action btn-edit btnMyResvReschedule" '+(disabled?'disabled':'')+' data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Reschedule"><i class="fas fa-clock-rotate-left"></i></button>'; const cancelBtn='<button class="btn-action btn-delete btnMyResvCancel" '+(disabled?'disabled':'')+' data-id="'+(rid||'')+'" data-toggle="tooltip" data-placement="top" title="Cancel"><i class="fas fa-ban"></i></button>'; return addCalBtn+' '+detailsBtn+' '+reschBtn+' '+cancelBtn; } }
+        { mData:function(row){ return row.reservationStatus||row.reservation_status||''; }, mRender:function(d,type){ const status=(d||'').toUpperCase(); if(type==='export' || type==='print'){ return status; } const kind=(status==='RESERVED'?'success':(status==='CANCELED'?'danger':'warning')); return GemsUI.badge(kind, status); } },
+        { mData:null, bSortable:false, sClass:'text-center', mRender:function(d,type,row){ if(type==='export' || type==='print'){ return ''; } const status=(row.reservationStatus||row.reservation_status||''); const disabled=status==='CANCELED'; const rid=(row.reservationId??row.reservation_id); const addCalBtn='<button type="button" class="btn gems-btn-action btnMyResvAddCal" data-id="'+(rid||'')+'" data-toggle="tooltip" title="Add to calendar" aria-label="Add to calendar"><i class="fas fa-calendar-plus"></i></button>'; const detailsBtn='<button type="button" class="btn gems-btn-action btnMyResvDetails" data-id="'+(rid||'')+'" data-toggle="tooltip" title="Details" aria-label="Details"><i class="fas fa-eye"></i></button>'; const reschBtn='<button type="button" class="btn gems-btn-action btnMyResvReschedule" '+(disabled?'disabled':'')+' data-id="'+(rid||'')+'" data-toggle="tooltip" title="Reschedule" aria-label="Reschedule"><i class="fas fa-clock-rotate-left"></i></button>'; const cancelBtn='<button type="button" class="btn gems-btn-action btnMyResvCancel" '+(disabled?'disabled':'')+' data-id="'+(rid||'')+'" data-toggle="tooltip" title="Cancel" aria-label="Cancel"><i class="fas fa-ban"></i></button>'; return addCalBtn+' '+detailsBtn+' '+reschBtn+' '+cancelBtn; } }
       ]
     });
-    // Hide DataTables built-in filter
-    $("#dtMyResv_filter").hide();
-    // Place export buttons in header actions
-  // Keep default buttons hidden; wire icon buttons
   dt.buttons().container().appendTo('#dtMyResvButtons');
   $('#dtMyResvButtons').addClass('d-none');
   $('#btnMyResvExportCsv').off('click').on('click', function(){ dt.button(0).trigger(); });
   $('#btnMyResvExportExcel').off('click').on('click', function(){ dt.button(1).trigger(); });
   $('#btnMyResvExportPrint').off('click').on('click', function(){ dt.button(2).trigger(); });
-  // Wire custom search box
   $('#txtMyResvSearch').on('keyup change', function(){ dt.search($(this).val()).draw(); });
-  dt.on('draw.dt', function(){ $('[data-toggle="tooltip"]').tooltip(); });
+  GemsUI.bindDtTooltips('#dtMyResv');
   // View toggle
   $('#myResvViewToggle .segmented-btn').on('click', function(){ const v=$(this).data('view'); toggleView(v); });
     $('#dtMyResv').on('click','.btnMyResvCancel', function(e){ e.stopPropagation(); toCancelId=parseInt($(this).data('id')); $('#txaMyResvReason').val(''); $('#modalMyResvCancel').modal('show'); });
@@ -99,14 +92,17 @@
     // restore modal to cancel mode
     $('#modalMyResvCancel .modal-title').html('<i class="fas fa-ban"></i> Cancel Reservation');
     $('#modalMyResvCancel .primary-color').removeClass('primary-color').addClass('warning-color');
-    $('#txaMyResvReason').closest('.md-form').show();
+    $('#divMyResvReason').show();
     $('#btnMyResvConfirmCancel').show();
   }
 
   $(document).ready(function(){
-    let pending=$('.includeHtml').length;
-    function boot(){ try{ if (typeof initiatePages === 'function') { initiatePages(); } initFilters(); initTable(); loadData(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} }
-    if(pending===0){ boot(); } else { $('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf(), function(){ pending--; if(pending===0){ boot(); } }); }); }
+    try{
+      if (typeof initiatePages === 'function') { initiatePages(); }
+      initFilters();
+      initTable();
+      loadData();
+    } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR); }
     $('#btnMyResvRefresh, #btnMyResvRefreshTable').on('click', loadData);
   });
 
@@ -133,8 +129,8 @@
 
     $('#lblMyResvSpaceName').text(spaceName);
     $('#lnkMyResvSpace').attr('href', 'space_preview.html?id=' + spaceId);
-    $('#lblMyResvStatus').text(status).removeClass('badge-success-dark badge-warning badge-danger-dark')
-      .addClass(status==='RESERVED'?'badge-success-dark':(status==='CANCELED'?'badge-danger-dark':'badge-warning'));
+    const statusKind=(status==='RESERVED'?'success':(status==='CANCELED'?'danger':'warning'));
+    $('#lblMyResvStatus').html(GemsUI.badge(statusKind, status||'-'));
     $('#lblMyResvStart').text(start?moment(start).format('YYYY-MM-DD HH:mm'):'-');
     $('#lblMyResvEnd').text(end?moment(end).format('YYYY-MM-DD HH:mm'):'-');
     $('#lblMyResvId').text(rid||'-');
@@ -210,14 +206,14 @@
   function toggleView(view){
     $('#myResvViewToggle .segmented-btn').removeClass('chip-active');
     $('#myResvViewToggle .segmented-btn[data-view="'+view+'"]').addClass('chip-active');
-    if(view==='table'){ $('#dtMyResv').closest('.table-responsive').removeClass('d-none'); $('#calendarView, #timelineView, #weekView').addClass('d-none'); }
-    else if(view==='calendar'){ $('#dtMyResv').closest('.table-responsive').addClass('d-none'); $('#timelineView, #weekView').addClass('d-none'); $('#calendarView').removeClass('d-none'); renderCalendar(); }
-    else if(view==='timeline'){ $('#dtMyResv').closest('.table-responsive').addClass('d-none'); $('#calendarView, #weekView').addClass('d-none'); $('#timelineView').removeClass('d-none');
+    if(view==='table'){ $('#myResvTableWrap').removeClass('d-none'); $('#calendarView, #timelineView, #weekView').addClass('d-none'); }
+    else if(view==='calendar'){ $('#myResvTableWrap').addClass('d-none'); $('#timelineView, #weekView').addClass('d-none'); $('#calendarView').removeClass('d-none'); renderCalendar(); }
+    else if(view==='timeline'){ $('#myResvTableWrap').addClass('d-none'); $('#calendarView, #weekView').addClass('d-none'); $('#timelineView').removeClass('d-none');
       // Default to this week if no date range is selected
       const from=$('#dtMyResvFrom').val(); const to=$('#dtMyResvTo').val();
       if(!from||!to){ $('#dtMyResvFrom').val(moment().startOf('week').format('YYYY-MM-DD')); $('#dtMyResvTo').val(moment().endOf('week').format('YYYY-MM-DD')); }
       renderRangeTimeline(); }
-    else if(view==='week'){ $('#dtMyResv').closest('.table-responsive').addClass('d-none'); $('#calendarView, #timelineView').addClass('d-none'); $('#weekView').removeClass('d-none'); renderWeekView(); }
+    else if(view==='week'){ $('#myResvTableWrap').addClass('d-none'); $('#calendarView, #timelineView').addClass('d-none'); $('#weekView').removeClass('d-none'); renderWeekView(); }
   }
 
   function renderCalendar(){ try{
@@ -391,7 +387,7 @@
       $('#reschConflict').removeClass('d-none').text('Conflict detected with '+conflicts.length+' reservation'+(conflicts.length>1?'s':'')+'.');
       // Suggest alternative slots by scanning 30-min increments
       const suggestions=[]; for(let i=0;i<48;i++){ const s2 = s.clone().startOf('day').add(i*30,'minutes'); const e2 = s2.clone().add(e.diff(s,'minutes'),'minutes'); const has = dataset.some(r=> rangesOverlap(s2,e2, moment(r.reservationStart||r.reservation_start), moment(r.reservationEnd||r.reservation_end) )); if(!has){ suggestions.push(s2.format('HH:mm')+'-'+e2.format('HH:mm')); if(suggestions.length>=3) break; } }
-      $('#reschSuggestion').removeClass('d-none').html('Try: '+ suggestions.map(x=> '<span class="badge badge-info mr-1">'+x+'</span>').join(''));
+      $('#reschSuggestion').removeClass('d-none').html('Try: '+ suggestions.map(x=> GemsUI.badge('info', x)).join(' '));
     } else {
       $('#reschConflict').addClass('d-none'); $('#reschSuggestion').addClass('d-none');
     }
