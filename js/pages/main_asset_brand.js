@@ -1,316 +1,292 @@
 function MainAssetBrand() {
 
     const className = 'MainAssetBrand';
+    const momentAvailable = (typeof moment === 'function');
     let self = this;
     let versionLocal;
     let modalConfirmDeleteClass;
     let refStatus;
     let oTableAssetBrand;
     let modalAssetBrandClass;
-    let assetBrandDataCache = [];
-    let lastListUpdatedText = '—';
-    let statusFilterValue = '';
+    let lastUpdated = null;
+    let statusFilterFn;
 
-    const statusChipMap = {
-        '': '#linkAbrAll',
-        '1': '#linkAbrActive',
-        '2': '#linkAbrInactive',
-        '5': '#linkAbrArchived'
-    };
-
-    const tableHeaders = ['#', 'Asset Brand', 'Description', 'Status', 'Actions'];
-
-    const initMaterialSelect = function (selector) {
-        const $element = $(selector);
-        if (!$element.length || typeof $element.materialSelect !== 'function') {
-            return;
+    function formatTimestamp(value) {
+        if (!value) {
+            return '—';
         }
-        
-        // Only initialize if not yet wrapped (prevents double initialization like in initiatePages())
-        if (!$element.parent().hasClass('select-wrapper')) {
-            try {
-                $element.materialSelect();
-            } catch (e) {
-                // ignore initialization errors
-            }
+        if (momentAvailable) {
+            return 'Updated ' + moment(value).format('DD MMM YYYY, hh:mm A');
         }
-        
-        // BRUTE FORCE FIX: If we have nested wrappers, unwrap the outer one
-        setTimeout(function() {
-            const $outline = $element.closest('.select-outline');
-            if ($outline.length) {
-                const $outerWrapper = $outline.children('.select-wrapper');
-                if ($outerWrapper.length) {
-                    const $innerWrapper = $outerWrapper.children('.select-wrapper.initialized');
-                    if ($innerWrapper.length) {
-                        // Move inner wrapper directly under select-outline and remove outer wrapper
-                        $innerWrapper.appendTo($outline);
-                        $outerWrapper.remove();
-                    }
-                }
-            }
-        }, 50);
-    };
+        return 'Updated ' + new Date(value).toLocaleString();
+    }
 
-    const applyTableDataLabels = function (tableSelector, headers) {
-        $(`${tableSelector} tbody tr`).each(function () {
-            $('td', this).each(function (index) {
-                if (headers[index]) {
-                    $(this).attr('data-label', headers[index]);
-                }
-            });
-        });
-    };
-
-    const getNowStamp = function () {
-        return (typeof moment !== 'undefined' && moment) ? moment().format('MMM D, YYYY h:mm A') : new Date().toLocaleString();
-    };
-
-    const refreshListSummary = function () {
+    function updateMetrics() {
         if (!oTableAssetBrand) {
             return;
         }
-        const info = oTableAssetBrand.page.info();
-        const showing = info ? info.recordsDisplay : 0;
-        const total = info ? info.recordsTotal : 0;
-        const summaryText = `Showing ${mzFormatNumber(showing, 0)} of ${mzFormatNumber(total, 0)}`;
-        $('#lblAbrFilterCount').text(summaryText);
-        $('#lblAbrListCount').text(summaryText);
-        $('#lblAbrFilterUpdated').text(lastListUpdatedText);
-        $('#lblAbrListUpdated').text(lastListUpdatedText);
-    };
-
-    const updateStatusChips = function (counts) {
-        const labelMap = {
-            '': 'All',
-            '1': refStatus && refStatus[1] ? refStatus[1]['statusDesc'] : 'Active',
-            '2': refStatus && refStatus[2] ? refStatus[2]['statusDesc'] : 'Inactive',
-            '5': refStatus && refStatus[5] ? refStatus[5]['statusDesc'] : 'Archived'
-        };
-        $.each(statusChipMap, function (status, selector) {
-            const count = typeof counts[status] !== 'undefined' ? counts[status] : 0;
-            $(selector).html(`${labelMap[status]} <span class="chip-count">${mzFormatNumber(count, 0)}</span>`);
-        });
-    };
-
-    const updateAssetBrandMetrics = function (dataSet) {
+        const data = oTableAssetBrand.rows().data();
         let total = 0;
         let active = 0;
         let inactive = 0;
         let archived = 0;
-
-        dataSet.forEach(function (item) {
-            total += 1;
-            switch (String(item['assetBrandStatus'])) {
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            if (!row) {
+                continue;
+            }
+            total++;
+            switch (String(row['assetBrandStatus'])) {
                 case '1':
-                    active += 1;
+                    active++;
                     break;
                 case '2':
-                    inactive += 1;
+                    inactive++;
                     break;
                 case '5':
-                    archived += 1;
+                    archived++;
                     break;
                 default:
                     break;
             }
-        });
-
-        $('#metricAbrTotal').text(mzFormatNumber(total, 0));
-        $('#metricAbrActive').text(mzFormatNumber(active, 0));
-        $('#metricAbrInactive').text(mzFormatNumber(inactive, 0)).toggleClass('text-warning', inactive > 0);
-        $('#metricAbrArchived').text(mzFormatNumber(archived, 0)).toggleClass('text-danger', archived > 0);
-
-        updateStatusChips({
-            '': total,
-            '1': active,
-            '2': inactive,
-            '5': archived
-        });
-    };
-
-    const setActiveStatusChip = function (value) {
-        $.each(statusChipMap, function (status, selector) {
-            if (status === value) {
-                $(selector).addClass('active');
-            } else {
-                $(selector).removeClass('active');
-            }
-        });
-    };
-
-    const setStatusFilter = function (value, fromSelect) {
-        statusFilterValue = value || '';
-        if (oTableAssetBrand) {
-            oTableAssetBrand.draw();
-            refreshListSummary();
         }
-        setActiveStatusChip(statusFilterValue);
-        if (!fromSelect) {
-            const $statusSelect = $('#optAbrStatus');
-            if ($statusSelect.length) {
-                // Just update the value - don't reinitialize materialSelect!
-                $statusSelect.val(statusFilterValue);
-                // Update the display text manually
-                const $dropdown = $statusSelect.siblings('input.select-dropdown');
-                if ($dropdown.length) {
-                    const selectedOption = $statusSelect.find('option:selected');
-                    $dropdown.val(selectedOption.text());
-                }
-            }
-        }
-    };
-
-    const statusFilterFn = function (settings, data, dataIndex) {
-        if (!oTableAssetBrand || settings.nTable.id !== 'dtAbrAssetBrand') {
-            return true;
-        }
-        if (!statusFilterValue) {
-            return true;
-        }
-        const rowData = oTableAssetBrand.row(dataIndex).data();
-        if (!rowData) {
-            return true;
+        $('#metricAbrTotal').text(total.toLocaleString());
+        $('#metricAbrActive').text(active.toLocaleString());
+        $('#metricAbrInactive').text(inactive.toLocaleString());
+        $('#metricAbrArchived').text(archived.toLocaleString());
     }
-        return String(rowData['assetBrandStatus']) === statusFilterValue;
-    };
 
-    const handleStatusSelectChange = function () {
-        setStatusFilter($(this).val() || '', true);
-    };
+    function updateSummary() {
+        if (!oTableAssetBrand) {
+            return;
+        }
+        const info = (oTableAssetBrand && typeof oTableAssetBrand.page === 'function' && typeof oTableAssetBrand.page.info === 'function')
+            ? oTableAssetBrand.page.info()
+            : null;
+        const summaryText = info
+            ? ('Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal)
+            : 'Showing 0 of 0';
+        $('#lblAbrFilterCount').text(summaryText);
+        $('#lblAbrListCount').text(summaryText + ' records');
+        const updatedText = formatTimestamp(lastUpdated);
+        $('#lblAbrFilterUpdated').text(updatedText);
+        $('#lblAbrListUpdated').html('<i class="far fa-clock me-1"></i>' + updatedText);
+    }
+
+    function updateFilterSummary() {
+        const statusVal = $('#optAbrStatus').val();
+        let label = 'Status: All';
+        if (statusVal && refStatus && refStatus[statusVal]) {
+            label = 'Status: ' + refStatus[statusVal]['statusDesc'];
+        } else if (statusVal === '1') {
+            label = 'Status: Active';
+        } else if (statusVal === '2') {
+            label = 'Status: Inactive';
+        } else if (statusVal === '5') {
+            label = 'Status: Archived';
+        }
+        $('#lblAbrAssetBrandFilter').text(label);
+    }
+
+    function statusLabel(row) {
+        const status = refStatus && refStatus[row['assetBrandStatus']];
+        if (status) {
+            return status['statusDesc'];
+        }
+        switch (String(row['assetBrandStatus'])) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            case '5':
+                return 'Archived';
+            default:
+                return '';
+        }
+    }
+
+    function statusBadgeKind(status) {
+        switch (String(status)) {
+            case '1':
+                return 'success';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
+
+    function statusBadge(row, type) {
+        const label = statusLabel(row);
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(row['assetBrandStatus']), GemsUI.escape(label));
+    }
+
+    function rowIdFromLink(el) {
+        const linkId = $(el).attr('id') || '';
+        const linkIndex = linkId.indexOf('_');
+        return linkIndex > 0 ? linkId.substr(linkIndex + 1) : '';
+    }
+
+    function rowDataFromLink(el) {
+        const rowId = rowIdFromLink(el);
+        if (!rowId || !oTableAssetBrand) {
+            return null;
+        }
+        return { rowId: rowId, data: oTableAssetBrand.row(parseInt(rowId, 10)).data() };
+    }
 
     this.init = function () {
-        $.fn.dataTable.ext.search.push(statusFilterFn);
-
-        initMaterialSelect('#optAbrStatus');
+        let cntAssetBrand;
+        const exportOpt = {
+            columns: [0, 1, 2, 3],
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        cntAssetBrand = 1;
+                    }
+                    if (column === 0) {
+                        return cntAssetBrand++;
+                    }
+                    return data;
+                }
+            }
+        };
+        const dtButtons = GemsUI.dtButtons('GEMS 2.0 - Asset Brand List').map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
+            }
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
+        });
 
         oTableAssetBrand = $('#dtAbrAssetBrand').DataTable({
             bLengthChange: false,
-            bFilter: true,
-            aaSorting: [[1, 'asc']],
-            language: _DATATABLE_LANGUAGE,
+            searching: true,
+            autoWidth: false,
             pageLength: 25,
-            dom: "<'row d-none'<'col-sm-12'f>>" +
-                 "<'row'<'col-sm-12'tr>>" +
-                 "<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
-            columnDefs: [
-                {targets: [0, 3, 4], orderable: false, className: 'text-center'},
-                {targets: [1], className: 'text-nowrap'}
-            ],
+            aaSorting: [[1, 'asc']],
+            dom: GemsUI.dtDomButtons,
+            buttons: dtButtons,
+            language: GemsUI.dtEmpty('fa-copyright', 'No asset brands recorded yet.', 'No asset brands match the current search or status filter.'),
             fnRowCallback: function (nRow, aData, iDisplayIndex) {
-                const info = oTableAssetBrand.page.info();
-                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                const info = (oTableAssetBrand && oTableAssetBrand.page && typeof oTableAssetBrand.page.info === 'function')
+                    ? oTableAssetBrand.page.info()
+                    : null;
+                const rowNumber = info ? (info.page * info.length + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
+                $('td', nRow).eq(0).html(rowNumber);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkAbrAssetBrandEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableAssetBrand.row(parseInt(rowId, 10)).data();
-                        modalAssetBrandClass.edit(currentRow['assetBrandId'], rowId);
-                    }
-                });
-                $('.lnkAbrAssetBrandDeactivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableAssetBrand.row(parseInt(rowId, 10)).data();
-                        modalAssetBrandClass.deactivate(currentRow['assetBrandId'], rowId);
-                    }
-                });
-                $('.lnkAbrAssetBrandActivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableAssetBrand.row(parseInt(rowId, 10)).data();
-                        modalAssetBrandClass.activate(currentRow['assetBrandId'], rowId);
-                    }
-                });
-                $('.lnkAbrAssetBrandDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex + 1);
-                        const currentRow = oTableAssetBrand.row(parseInt(rowId, 10)).data();
-                        modalConfirmDeleteClass.delete(currentRow['assetBrandId'], modalAssetBrandClass);
-                    }
-                });
-                applyTableDataLabels('#dtAbrAssetBrand', tableHeaders);
-                refreshListSummary();
+                updateMetrics();
+                updateSummary();
             },
             aoColumns: [
-                {mData: null},
-                {mData: 'assetBrandName'},
+                {mData: null, bSortable: false},
+                {mData: 'assetBrandName', sClass: 'text-nowrap'},
                 {mData: 'assetBrandDesc'},
-                {mData: null, mRender: function (data, type, row) {
-                        const status = row['assetBrandStatus'];
-                        if (!status || !refStatus[status]) {
-                            return '<span class="badge badge-pill badge-secondary">Unknown</span>';
-                        }
-                        return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
-                    }},
-                {mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        label += `<button type="button" class="btn-action btn-edit lnkAbrAssetBrandEdit" id="lnkAbrAssetBrandEdit_${meta.row}" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>`;
+                {mData: null, bSortable: false,
+                    mRender: function (data, type, row) {
+                        return statusBadge(row, type);
+                    }
+                },
+                {mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
+                    mRender: function (data, type, row, meta) {
+                        let html = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkAbrAssetBrandEdit',
+                            id: 'lnkAbrAssetBrandEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
                         if (row['assetBrandStatus'] === '1') {
-                            label += `<button type="button" class="btn-action btn-delete lnkAbrAssetBrandDeactivate" id="lnkAbrAssetBrandDeactivate_${meta.row}" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>`;
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkAbrAssetBrandDeactivate',
+                                id: 'lnkAbrAssetBrandDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
                         } else {
-                            label += `<button type="button" class="btn-action btn-edit lnkAbrAssetBrandActivate" id="lnkAbrAssetBrandActivate_${meta.row}" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>`;
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkAbrAssetBrandActivate',
+                                id: 'lnkAbrAssetBrandActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
                         }
-                        label += `<button type="button" class="btn-action btn-delete lnkAbrAssetBrandDelete" id="lnkAbrAssetBrandDelete_${meta.row}" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>`;
-                        label += '</div>';
-                        return label;
-                    }},
-                {mData: 'assetBrandId', visible: false}
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkAbrAssetBrandDelete',
+                            id: 'lnkAbrAssetBrandDelete_' + meta.row,
+                            title: 'Delete',
+                            icon: 'fas fa-trash-alt'
+                        });
+                        return html;
+                    }
+                },
+                {mData: 'assetBrandId', visible: false, sClass: 'noVis'}
             ]
         });
-        $('#dtAbrAssetBrand_filter').hide();
 
+        oTableAssetBrand.buttons().container().appendTo($('#btnDtAbrAssetBrandExport'));
+        GemsUI.bindDtTooltips('#dtAbrAssetBrand');
+
+        const tbody = $('#dtAbrAssetBrand tbody');
+        tbody.on('click', '.lnkAbrAssetBrandEdit', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalAssetBrandClass.edit(current.data['assetBrandId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkAbrAssetBrandDeactivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalAssetBrandClass.deactivate(current.data['assetBrandId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkAbrAssetBrandActivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalAssetBrandClass.activate(current.data['assetBrandId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkAbrAssetBrandDelete', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalConfirmDeleteClass.delete(current.data['assetBrandId'], modalAssetBrandClass);
+            }
+        });
+
+        statusFilterFn = function (settings, data, dataIndex) {
+            if (!settings.nTable || settings.nTable.id !== 'dtAbrAssetBrand') {
+                return true;
+            }
+            const statusVal = $('#optAbrStatus').val();
+            if (!statusVal) {
+                return true;
+            }
+            const rowData = oTableAssetBrand.row(dataIndex).data();
+            return rowData && String(rowData['assetBrandStatus']) === String(statusVal);
+        };
+        $.fn.dataTable.ext.search.push(statusFilterFn);
         $('#txtAbrAssetBrandSearch').on('keyup change', function () {
             oTableAssetBrand.search($(this).val()).draw();
         });
 
-        $('#optAbrStatus').on('change', handleStatusSelectChange);
-
-        let exportCounter = 1;
-        const btnAssetBrandOpt = {
-            exportOptions: {
-                columns: [0, 1, 2, 3],
-                format: {
-                    body: function (data, row, column) {
-                        if (column === 0) {
-                            if (row === 0) {
-                                exportCounter = 1;
-                            }
-                            return exportCounter++;
-                        }
-                        if (column === 3) {
-                            const idx = data.indexOf('">');
-                            if (idx >= 0) {
-                                const content = data.substr(idx + 2);
-                                return content.replace('</span></h6>', '');
-                            }
-                        }
-                        return data;
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableAssetBrand, {
-            buttons: [
-                $.extend(true, {}, btnAssetBrandOpt, { extend: 'print', text: '<i class="fas fa-print"></i>', title: 'GEMS 2.0 - Asset Brand List', titleAttr: 'Print', className: 'btn btn-outline-white btn-rounded btn-sm px-2' }),
-                $.extend(true, {}, btnAssetBrandOpt, { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i>', title: 'GEMS 2.0 - Asset Brand List', titleAttr: 'Excel', className: 'btn btn-outline-white btn-rounded btn-sm px-2' }),
-                $.extend(true, {}, btnAssetBrandOpt, { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i>', title: 'GEMS 2.0 - Asset Brand List', titleAttr: 'PDF', className: 'btn btn-outline-white btn-rounded btn-sm px-2' })
-            ]
-        }).container().appendTo($('#btnDtAbrAssetBrandExport'));
-
         $('#btnAbrAssetBrandAdd').on('click', function () {
             modalAssetBrandClass.add();
+        });
+
+        updateFilterSummary();
+
+        $('#optAbrStatus').on('change', function () {
+            oTableAssetBrand.draw();
+            updateFilterSummary();
         });
 
         $('#btnDtAbrAssetBrandRefresh').on('click', function () {
@@ -322,17 +298,8 @@ function MainAssetBrand() {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
                 HideLoader();
-            }, 200);
+            }, 300);
         });
-
-        $.each(statusChipMap, function (status, selector) {
-            $(selector).off('click').on('click', function () {
-                setStatusFilter(status, false);
-            });
-        });
-
-        setStatusFilter('', true);
-
         self.genTableAbr(0);
     };
 
@@ -341,20 +308,13 @@ function MainAssetBrand() {
             versionLocal = mzGetDataVersion();
         }
         const refAssetBrand = mzGetLocalRaw('gems_assetBrand', versionLocal, [], 'asset_brand');
-        assetBrandDataCache = Array.isArray(refAssetBrand) ? refAssetBrand : [];
-        oTableAssetBrand.clear().rows.add(assetBrandDataCache).draw();
-        lastListUpdatedText = getNowStamp();
-        updateAssetBrandMetrics(assetBrandDataCache);
-        refreshListSummary();
-        setStatusFilter(statusFilterValue || '', true);
+        lastUpdated = new Date();
+        oTableAssetBrand.clear().rows.add(Array.isArray(refAssetBrand) ? refAssetBrand : []).draw();
     };
 
     this.addTableAbr = function (_dataAdd) {
+        lastUpdated = new Date();
         oTableAssetBrand.row.add(_dataAdd).draw();
-        assetBrandDataCache = oTableAssetBrand.rows().data().toArray();
-        lastListUpdatedText = getNowStamp();
-        updateAssetBrandMetrics(assetBrandDataCache);
-        refreshListSummary();
     };
 
     this.updateTableAbr = function (_dataEdit, _rowEdit) {
@@ -368,11 +328,8 @@ function MainAssetBrand() {
         if (typeof _dataEdit['assetBrandStatus'] !== 'undefined') {
             currentRow['assetBrandStatus'] = _dataEdit['assetBrandStatus'];
         }
+        lastUpdated = new Date();
         oTableAssetBrand.row(_rowEdit).data(currentRow).draw();
-        assetBrandDataCache = oTableAssetBrand.rows().data().toArray();
-        lastListUpdatedText = getNowStamp();
-        updateAssetBrandMetrics(assetBrandDataCache);
-        refreshListSummary();
     };
 
     this.getClassName = function () {
@@ -385,6 +342,11 @@ function MainAssetBrand() {
 
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
+        updateFilterSummary();
+        if (oTableAssetBrand) {
+            oTableAssetBrand.rows().invalidate();
+            oTableAssetBrand.draw(false);
+        }
     };
 
     this.setModalAssetBrandClass = function (_modalAssetBrandClass) {

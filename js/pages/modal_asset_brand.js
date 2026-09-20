@@ -99,7 +99,7 @@ function ModalAssetBrand() {
         rowRefresh = '';
 
         mzSetFieldValue('MzbStatus', '1', 'checkSingle', '1');
-        $('#lblMzbTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Brand');
+        $('#lblMzbTitle').html('<i class="fas fa-plus me-2"></i>Add Asset Brand');
         $('#modal_asset_brand').modal({backdrop: 'static', keyboard: false});
     };
 
@@ -116,7 +116,7 @@ function ModalAssetBrand() {
                 mzSetFieldValue('MzbDesc', dataMzb['assetBrandDesc'], 'textarea');
                 mzSetFieldValue('MzbStatus', dataMzb['assetBrandStatus'], 'checkSingle', '1');
 
-                $('#lblMzbTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Brand');
+                $('#lblMzbTitle').html('<i class="far fa-edit me-2"></i>Edit Asset Brand');
                 $('#modal_asset_brand').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

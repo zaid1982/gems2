@@ -1,243 +1,221 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/asset_brand.html — Tabler-migrated (P4A-4 Asset Brand).
+
+  Canonical P4 simple-master copy of Designation/Severity/Failure Code, with
+  Asset Brand-specific extras preserved: description column, archived status
+  (5), and four metric cards. Asset stack follows the established P3/P4
+  dynamic/cache-busted approach: static Tabler/DataTables/toastr/crypto, then
+  document.write for common.js, gems-tabler-ui.js (exactly once), and page
+  scripts. GemsUI is not also loaded via scripts_tabler.html.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?5">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css?6" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Asset Brand</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid" id="divWssPageWidth">
-        <section class="mb-5  sectionAbrMain">
-            <div class="card card-cascade narrower gems-card-shell asset-brand-shell">
-                <section class="gems-page-header asset-brand-header">
-                    <div class="header-text">
-                        <h2>Asset Brand Management</h2>
-                        <p>Maintain the master list of brands referenced across asset models.</p>
-                    </div>
-                    <div class="header-actions">
-                        <button type="button" id="btnDtAbrAssetBrandRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                        <button type="button" id="btnAbrAssetBrandAdd" class="btn btn-primary btn-icon" aria-label="Add asset brand" data-toggle="tooltip" data-placement="top" title="Add Asset Brand"><i class="fas fa-plus"></i></button>
-                    </div>
-                </section>
-
-                <section class="mt-4">
-                    <div class="row">
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Total Brands</span>
-                                <span class="metric-value" id="metricAbrTotal">0</span>
-                                <span class="metric-subtext">Overall brand catalogue</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Active</span>
-                                <span class="metric-value" id="metricAbrActive">0</span>
-                                <span class="metric-subtext">Ready for asset linking</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Inactive</span>
-                                <span class="metric-value" id="metricAbrInactive">0</span>
-                                <span class="metric-subtext">Temporarily hidden brands</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Archived</span>
-                                <span class="metric-value" id="metricAbrArchived">0</span>
-                                <span class="metric-subtext">Retired brands kept historically</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mt-2">
-                    <div class="filter-card asset-brand-filter">
-                        <div class="filter-grid">
-                            <div>
-                                <label class="filter-label" for="optAbrStatus">Status</label>
-                                <div class="select-outline">
-                                    <select id="optAbrStatus" class="mdb-select md-form md-outline colorful-select mt-0" data-mdb-skip="true">
-                                        <option value="" selected>All Status</option>
-                                        <option value="1">Active</option>
-                                        <option value="2">Inactive</option>
-                                        <option value="5">Archived</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="txtAbrAssetBrandSearch">Keyword Search</label>
-                                <div class="md-form md-outline mt-0 mb-0">
-                                    <input type="text" id="txtAbrAssetBrandSearch" class="form-control">
-                                    <label for="txtAbrAssetBrandSearch" class="active">Keyword Search</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
-                            <span id="lblAbrFilterCount">Showing 0 of 0</span>
-                            <span id="lblAbrFilterUpdated">—</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mb-4 mt-4">
-                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
-                        <label class="filter-label mb-2">Quick Status</label>
-                        <div class="gems-status-scroll">
-                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkAbrAll">All</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAbrActive">Active</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAbrInactive">Inactive</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAbrArchived">Archived</a>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset Brand List" data-content="Reference brands available for asset models."><i class="fas fa-info mt-0 mx-1"></i></a>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Asset Brand List</a>
-                            <div class="dt-btn-slot">
-                                <div id="btnDtAbrAssetBrandExport"></div>
-                            </div>
-                        </div>
-                        <div class="px-4 pb-3">
-                            <div class="summary-pill d-flex justify-content-between align-items-center" style="margin: 1rem 0;">
-                                <span id="lblAbrListCount">Showing 0 of 0</span>
-                                <span id="lblAbrListUpdated">—</span>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <table id="dtAbrAssetBrand" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                <thead>
-                                <tr class="th-strong">
-                                    <th>#</th>
-                                    <th>Asset Brand</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th>&nbsp;</th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-copyright me-2 text-primary"></i>Asset Brand Management</h1>
+              <div class="page-subtitle">Maintain the master list of brands referenced across asset models.</div>
             </div>
-        </section>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnDtAbrAssetBrandRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-primary" id="btnAbrAssetBrandAdd"
+                      data-bs-toggle="tooltip" title="Add Asset Brand" aria-label="Add asset brand">
+                <i class="fas fa-plus me-2"></i>New Asset Brand
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row row-cards mb-3">
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Total Brands</div>
+                <div class="h2 mb-0" id="metricAbrTotal">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Overall brand catalogue</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Active</div>
+                <div class="h2 mb-0" id="metricAbrActive">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Ready for asset linking</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Inactive</div>
+                <div class="h2 mb-0" id="metricAbrInactive">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Temporarily hidden brands</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Archived</div>
+                <div class="h2 mb-0" id="metricAbrArchived">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Retired brands kept historically</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtAbrAssetBrandSearch">Search</label>
+                <input type="search" id="txtAbrAssetBrandSearch" class="form-control" placeholder="Search asset brand" autocomplete="off">
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optAbrStatus">Status</label>
+                <select id="optAbrStatus" class="form-select">
+                  <option value="" selected>All Status</option>
+                  <option value="1">Active</option>
+                  <option value="2">Inactive</option>
+                  <option value="5">Archived</option>
+                </select>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2 text-secondary" style="font-size:.75rem">
+              <div id="lblAbrAssetBrandFilter">Status: All</div>
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <span id="lblAbrFilterCount">Showing 0 of 0</span>
+                <span id="lblAbrFilterUpdated">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0"><i class="fas fa-layer-group me-2 text-primary"></i>Asset Brand List</h3>
+              <div class="text-secondary" style="font-size:.75rem">Reference brands available for asset models.</div>
+            </div>
+            <div class="gems-card-toolbar text-secondary" style="font-size:.75rem">
+              <span id="lblAbrListCount">Showing 0 of 0</span>
+              <span id="lblAbrListUpdated" class="text-nowrap"><i class="far fa-clock me-1"></i>—</span>
+              <div id="btnDtAbrAssetBrandExport" class="d-inline-flex align-items-center"></div>
+            </div>
+          </div>
+          <table id="dtAbrAssetBrand" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th style="width:6%">#</th>
+                <th>Asset Brand</th>
+                <th>Description</th>
+                <th style="width:15%">Status</th>
+                <th style="width:120px" class="noVis text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_asset_brand"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+<!-- Shared fragments. modal_change_password and modal_confirm_delete stay on
+     the existing MDB/Tabler compatibility bridge; they are not converted here. -->
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_asset_brand"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
 
-</main>
-
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_asset_brand.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_asset_brand.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  let versionLocal_;
+  let assetBrandClass_;
+  let changePasswordClass_;
+  let modalAssetBrandClass_;
+  let modalConfirmDelete_;
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        assetBrandClass_ = new MainAssetBrand();
+        modalAssetBrandClass_ = new ModalAssetBrand();
+        modalConfirmDelete_ = new ModalConfirmDelete();
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+        const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
-    let versionLocal_;
-    let assetBrandClass_;
-    let changePasswordClass_;
-    let modalAssetBrandClass_;
-    let modalConfirmDelete_;
-
-    document.addEventListener('DOMContentLoaded', function () {
-
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                assetBrandClass_ = new MainAssetBrand();
-                modalAssetBrandClass_ = new ModalAssetBrand();
-                modalConfirmDelete_ = new ModalConfirmDelete();
-
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-
-                modalAssetBrandClass_.setClassFrom(assetBrandClass_);
-                modalAssetBrandClass_.init();
-                assetBrandClass_.setVersionLocal(versionLocal_);
-                assetBrandClass_.setRefStatus(refStatus_);
-                assetBrandClass_.setModalAssetBrandClass(modalAssetBrandClass_);
-                assetBrandClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                assetBrandClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_asset_brand.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_asset_brand.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+        modalAssetBrandClass_.setClassFrom(assetBrandClass_);
+        modalAssetBrandClass_.init();
+        assetBrandClass_.setVersionLocal(versionLocal_);
+        assetBrandClass_.setRefStatus(refStatus_);
+        assetBrandClass_.setModalAssetBrandClass(modalAssetBrandClass_);
+        assetBrandClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+        assetBrandClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 300);
+  });
 </script>
-
 </body>
 </html>
