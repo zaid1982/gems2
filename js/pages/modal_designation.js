@@ -87,7 +87,7 @@ function ModalDesignation() {
         rowRefresh = '';
 
         mzSetFieldValue('MdgStatus', '1', 'checkSingle', '1');
-        $('#lblMdgTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Designation');
+        $('#lblMdgTitle').html('<i class="fas fa-plus me-2"></i>Add Designation');
         $('#modal_designation').modal({backdrop: 'static', keyboard: false});
     };
 
@@ -103,7 +103,7 @@ function ModalDesignation() {
                 mzSetFieldValue('MdgDesc', dataMdg['designationDesc'], 'text');
                 mzSetFieldValue('MdgStatus', dataMdg['designationStatus'], 'checkSingle', '1');
 
-                $('#lblMdgTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Designation');
+                $('#lblMdgTitle').html('<i class="far fa-edit me-2"></i>Edit Designation');
                 $('#modal_designation').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

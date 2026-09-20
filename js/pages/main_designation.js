@@ -87,89 +87,155 @@ function MainDesignation() {
         $select.val(currentValue);
     }
 
+    function statusLabel(row) {
+        const status = refStatus && refStatus[row['designationStatus']];
+        return status ? status['statusDesc'] : '';
+    }
+
+    function statusBadge(row, type) {
+        const label = statusLabel(row);
+        if (type !== 'display') {
+            return label;
+        }
+        const kind = row['designationStatus'] === '1' ? 'success' : 'secondary';
+        return GemsUI.badge(kind, GemsUI.escape(label));
+    }
+
+    function rowIdFromLink(el) {
+        const linkId = $(el).attr('id') || '';
+        const linkIndex = linkId.indexOf('_');
+        return linkIndex > 0 ? linkId.substr(linkIndex + 1) : '';
+    }
+
+    function rowDataFromLink(el) {
+        const rowId = rowIdFromLink(el);
+        if (!rowId || !oTableDesignation) {
+            return null;
+        }
+        return { rowId: rowId, data: oTableDesignation.row(parseInt(rowId, 10)).data() };
+    }
+
     this.init = function () {
-        oTableDesignation =  $('#dtDsgDesignation').DataTable({
+        let cntDesignation;
+        const exportOpt = {
+            columns: [0, 1, 2],
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        cntDesignation = 1;
+                    }
+                    if (column === 0) {
+                        return cntDesignation++;
+                    }
+                    return data;
+                }
+            }
+        };
+        const dtButtons = GemsUI.dtButtons('GEMS 2.0 - Designation List').map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
+            }
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
+        });
+
+        oTableDesignation = $('#dtDsgDesignation').DataTable({
             bLengthChange: false,
-            bFilter: false,
-            "aaSorting": [1, 'asc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
+            searching: true,
+            autoWidth: false,
+            aaSorting: [1, 'asc'],
+            dom: GemsUI.dtDomButtons,
+            buttons: dtButtons,
+            language: GemsUI.dtEmpty('fa-id-card-clip', 'No designations recorded yet.', 'No designations match the current search or status filter.'),
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 const info = (oTableDesignation && oTableDesignation.page && typeof oTableDesignation.page.info === 'function')
                     ? oTableDesignation.page.info()
                     : null;
                 const rowNumber = info ? (info.page * info.length + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
-                $('td', nRow).eq(0).html(rowNumber).attr('data-label', '#');
-                $('td', nRow).eq(1).attr('data-label', 'Designation');
-                $('td', nRow).eq(2).attr('data-label', 'Status');
-                $('td', nRow).eq(3).attr('data-label', 'Actions');
+                $('td', nRow).eq(0).html(rowNumber);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkDsgDesignationEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableDesignation.row(parseInt(rowId)).data();
-                        modalDesignationClass.edit(currentRow['designationId'], rowId);
-                    }
-                });
-                $('.lnkDsgDesignationDeactivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableDesignation.row(parseInt(rowId)).data();
-                        modalDesignationClass.deactivate(currentRow['designationId'], rowId);
-                    }
-                });
-                $('.lnkDsgDesignationActivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableDesignation.row(parseInt(rowId)).data();
-                        modalDesignationClass.activate(currentRow['designationId'], rowId);
-                    }
-                });
-                $('.lnkDsgDesignationDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableDesignation.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['designationId'], modalDesignationClass);
-                    }
-                });
                 updateMetrics();
                 updateSummary();
             },
-            language: _DATATABLE_LANGUAGE,
             aoColumns: [
                 {mData: null, bSortable: false},
                 {mData: 'designationDesc'},
                 {mData: null,
                     mRender: function (data, type, row) {
-                        return '<h6><span class="badge badge-pill ' + refStatus[row['designationStatus']]['statusColor'] + ' z-depth-2">' + refStatus[row['designationStatus']]['statusDesc'] + '</span></h6>';
+                        return statusBadge(row, type);
                     }
                 },
-                {mData: null, bSortable: false, sClass: 'text-center',
+                {mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
                     mRender: function (data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        label += '<button type="button" class="btn-action btn-edit lnkDsgDesignationEdit" id="lnkDsgDesignationEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
+                        let html = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkDsgDesignationEdit',
+                            id: 'lnkDsgDesignationEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
                         if (row['designationStatus'] === '1') {
-                            label += '<button type="button" class="btn-action btn-deactivate lnkDsgDesignationDeactivate" id="lnkDsgDesignationDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkDsgDesignationDeactivate',
+                                id: 'lnkDsgDesignationDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
                         } else {
-                            label += '<button type="button" class="btn-action btn-activate lnkDsgDesignationActivate" id="lnkDsgDesignationActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkDsgDesignationActivate',
+                                id: 'lnkDsgDesignationActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
                         }
-                        label += '<button type="button" class="btn-action btn-delete lnkDsgDesignationDelete" id="lnkDsgDesignationDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                        label += '</div>';
-                        return label;
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkDsgDesignationDelete',
+                            id: 'lnkDsgDesignationDelete_' + meta.row,
+                            title: 'Delete',
+                            icon: 'fas fa-trash-alt'
+                        });
+                        return html;
                     }
                 },
-                {mData: 'designationId', visible: false}
+                {mData: 'designationId', visible: false, sClass: 'noVis'}
             ]
         });
-        $('#dtDsgDesignation_filter').hide();
+
+        oTableDesignation.buttons().container().appendTo($('#btnDtDsgDesignationExport'));
+        GemsUI.bindDtTooltips('#dtDsgDesignation');
+
+        const tbody = $('#dtDsgDesignation tbody');
+        tbody.on('click', '.lnkDsgDesignationEdit', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalDesignationClass.edit(current.data['designationId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkDsgDesignationDeactivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalDesignationClass.deactivate(current.data['designationId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkDsgDesignationActivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalDesignationClass.activate(current.data['designationId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkDsgDesignationDelete', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalConfirmDeleteClass.delete(current.data['designationId'], modalDesignationClass);
+            }
+        });
 
         statusFilterFn = function (settings, data, dataIndex) {
             if (!settings.nTable || settings.nTable.id !== 'dtDsgDesignation') {
@@ -186,52 +252,6 @@ function MainDesignation() {
         $('#txtDsgDesignationSearch').on('keyup change', function () {
             oTableDesignation.search($(this).val()).draw();
         });
-
-        let cntDesignation;
-        let btnDesignationOpt = {
-            exportOptions: {
-                columns: [ 0, 1, 2],
-                format: {
-                    body: function ( data, row, column ) {
-                        if (row === 0 && column === 0) {
-                            cntDesignation = 1;
-                        }
-                        if (column === 2) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
-                        }
-                        return column === 0 ? cntDesignation++ : data;
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableDesignation, {
-            buttons: [
-                $.extend( true, {}, btnDesignationOpt, {
-                    extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - Designation List',
-                    titleAttr: 'Print',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnDesignationOpt, {
-                    extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - Designation List',
-                    titleAttr: 'Excel',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnDesignationOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Designation List',
-                    titleAttr: 'Pdf',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                })
-            ]
-        }).container().appendTo($('#btnDtDsgDesignationExport'));
 
         $('#btnDsgDesignationAdd').on('click', function () {
             modalDesignationClass.add();
