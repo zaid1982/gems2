@@ -1,141 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/space_calendar.html — Tabler-migrated (P5-6 Space Calendar).
+
+  FullCalendar 5.9.0 stays page-local. from=preview is unused (HEAD).
+  Create + cancel modals are this page only. Do not replace with homemade grids.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>GEMS 2.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Space Calendar</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
   <link rel="stylesheet" href="js/vendor/full-calendar-5.9.0/lib/main.min.css">
-  <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-  <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <link rel="stylesheet" href="css/gems-theme.css">
   <style>
-    :root {
-      --primary-color: var(--gems-primary);
-      --primary-dark: var(--gems-primary-dark);
-      --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      --border-radius-lg: 16px;
-    }
-    .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
-    .main-content-card .card-header { background: linear-gradient(60deg,#26c6da,#00acc1); color:#fff; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
-    .main-content-card .card-body { padding: 1rem 1.25rem; }
     .fc .fc-toolbar-title { font-size: 1.1rem; }
+    .fc .fc-button-primary { background-color: var(--gems-primary); border-color: var(--gems-primary); }
+    .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .fc .fc-button-primary:not(:disabled):active { background-color: #004494; border-color: #004494; }
   </style>
-  <script>
-    // Load shared nav fragments early
-    $(function(){ $('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf()); }); });
-  </script>
-  <script type="text/javascript" src="js/addons/moment.min.js"></script>
 </head>
-<body class="fixed-sn light-blue-skin">
-<header>
-  <div class="includeHtml" id="h-nav_left"></div>
-  <div class="includeHtml" id="h-nav_top"></div>
-</header>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-<main>
-  <div class="container-fluid">
-    <section class="mb-5 mt-lg-4">
-    <div class="gems-page-header module-page-header">
-          <div class="header-text">
-            <h2><i class="fas fa-calendar-alt mr-3"></i><span id="lblSpcCalTitle">Space Calendar</span></h2>
-            <p id="lblSpcCalSubtitle">View and manage reservations</p>
-          </div>
-      </div>
-
-      <div class="main-content-card mb-4">
-        <div class="card-header">
-          <div class="header-title">Reservations Calendar</div>
-          <div class="d-flex align-items-center header-actions">
-            <button id="btnSpcCalManage" class="btn btn-outline-white btn-rounded btn-sm px-2" title="Back to Manage"><i class="fas fa-tools mr-1"></i>Manage</button>
-            <button id="btnSpcCalToday" class="btn btn-outline-white btn-rounded btn-sm px-2 ml-2" title="Today"><i class="fas fa-calendar-day"></i></button>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-calendar-alt me-2 text-primary"></i><span id="lblSpcCalTitle">Space Calendar</span></h1>
+              <div class="page-subtitle" id="lblSpcCalSubtitle">View and manage reservations</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" id="btnSpcCalManage" class="btn btn-outline-secondary" title="Back to Manage">
+                <i class="fas fa-tools me-1"></i>Manage
+              </button>
+              <button type="button" id="btnSpcCalToday" class="btn btn-outline-secondary" title="Today" aria-label="Today">
+                <i class="fas fa-calendar-day"></i>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="card-body">
-          <div id="spcCalendar"></div>
-          <small class="text-muted d-block mt-2">Tip: Drag or select a date/time range to create a reservation. Click an event to view details or cancel.</small>
-        </div>
-      </div>
-    </section>
 
-    <!-- Create Reservation Modal -->
-    <div class="modal fade" id="modalSpcCreateResv" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header primary-color white-text">
-            <h5 class="modal-title"><i class="fas fa-plus-circle"></i> New Reservation</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title mb-0">Reservations Calendar</h3>
           </div>
-          <div class="modal-body">
-            <div class="md-form md-outline mt-0">
-              <input id="dtSpcStart" type="datetime-local" class="form-control">
-              <label for="dtSpcStart" class="active">Start</label>
-            </div>
-            <div class="md-form md-outline mt-0">
-              <input id="dtSpcEnd" type="datetime-local" class="form-control">
-              <label for="dtSpcEnd" class="active">End</label>
-            </div>
-            <div class="md-form md-outline mt-0">
-              <input id="txtSpcReqName" type="text" class="form-control" placeholder="Optional">
-              <label for="txtSpcReqName" class="active">Requester Name</label>
-            </div>
-            <div class="md-form md-outline mt-0">
-              <input id="txtSpcReqContact" type="text" class="form-control" placeholder="Optional">
-              <label for="txtSpcReqContact" class="active">Requester Email</label>
-            </div>
-            <div class="md-form md-outline mt-0">
-              <textarea id="txaSpcReqNotes" class="md-textarea form-control" rows="3" placeholder="Optional"></textarea>
-              <label for="txaSpcReqNotes" class="active">Special Request / Notes</label>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-            <button type="button" id="btnSpcCreateSubmit" class="btn btn-primary btn-sm">Create</button>
+          <div class="card-body">
+            <div id="spcCalendar"></div>
+            <small class="text-secondary d-block mt-2">Tip: Drag or select a date/time range to create a reservation. Click an event to view details or cancel.</small>
           </div>
         </div>
+
       </div>
     </div>
-
-    <!-- Event Details / Cancel Modal -->
-    <div class="modal fade" id="modalSpcEvent" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header warning-color white-text">
-            <h5 class="modal-title"><i class="fas fa-calendar-check"></i> Reservation</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" class="white-text">&times;</span></button>
-          </div>
-          <div class="modal-body">
-            <div id="spcEvtSummary" class="mb-2"></div>
-            <div class="md-form md-outline mt-0">
-              <textarea id="txaSpcCancelReason" class="md-textarea form-control" rows="3" placeholder="Optional"></textarea>
-              <label for="txaSpcCancelReason" class="active">Cancel Reason</label>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-            <button type="button" id="btnSpcCancelEvt" class="btn btn-warning btn-sm"><i class="fas fa-ban mr-1"></i>Cancel Reservation</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="includeHtml" id="h-modal_change_password"></div>
   </div>
-</main>
+</div>
 
-<script type="text/javascript" src="js/popper.min.js"></script>
-<script type="text/javascript" src="js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<script type="text/javascript" src="js/modules/toastr.js"></script>
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<script type="text/javascript" src="js/common.js"></script>
-<script type="text/javascript" src="js/vendor/full-calendar-5.9.0/lib/main.min.js"></script>
-<script type="text/javascript" src="js/vendor/full-calendar-5.9.0/lib/locales-all.min.js"></script>
-<script type="text/javascript" src="js/pages/main_space_calendar.js"></script>
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<div class="modal fade" id="modalSpcCreateResv" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Reservation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="frmSpcCreateResv" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="dtSpcStart">Start <span class="required" aria-hidden="true">*</span></label>
+              <input id="dtSpcStart" type="datetime-local" class="form-control" aria-required="true" aria-describedby="dtSpcStartErr">
+              <div class="gems-field-error" id="dtSpcStartErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="dtSpcEnd">End <span class="required" aria-hidden="true">*</span></label>
+              <input id="dtSpcEnd" type="datetime-local" class="form-control" aria-required="true" aria-describedby="dtSpcEndErr">
+              <div class="gems-field-error" id="dtSpcEndErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtSpcReqName">Requester Name</label>
+              <input id="txtSpcReqName" type="text" class="form-control" placeholder="Optional">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtSpcReqContact">Requester Email</label>
+              <input id="txtSpcReqContact" type="text" class="form-control" placeholder="Optional">
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaSpcReqNotes">Special Request / Notes</label>
+              <textarea id="txaSpcReqNotes" class="form-control" rows="3" placeholder="Optional"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" class="btn btn-primary" id="btnSpcCreateSubmit">
+          <i class="far fa-save me-2"></i>Create
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalSpcEvent" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Reservation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="spcEvtSummary" class="mb-2"></div>
+        <div id="divSpcCancelReason" class="gems-form-grid">
+          <div class="gems-field gems-field-12">
+            <label class="form-label" for="txaSpcCancelReason">Cancel Reason</label>
+            <textarea id="txaSpcCancelReason" class="form-control" rows="3" placeholder="Optional"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnSpcCancelEvt" class="btn btn-warning">
+          <i class="fas fa-ban me-1"></i>Cancel Reservation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/full-calendar-5.9.0/lib/main.min.js"></script>
+<script src="js/vendor/full-calendar-5.9.0/lib/locales-all.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_space_calendar.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
 </body>
 </html>

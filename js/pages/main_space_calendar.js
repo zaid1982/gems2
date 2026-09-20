@@ -6,6 +6,7 @@
   let pendingRange = null; // { startStr, endStr }
   let currentSpace = null;
   let cancelResvId = null;
+  let formValidate;
 
   function headers(){ const t=sessionStorage.getItem('token'); return t?{'Authorization':'Bearer '+t}:{ }; }
   function getQueryInt(key){ const urlParams=new URLSearchParams(window.location.search); const v=parseInt(urlParams.get(key)); return isNaN(v)?0:v; }
@@ -72,7 +73,7 @@
       eventOverlap: false,
       select: function(info){
         pendingRange = { startStr: info.startStr, endStr: info.endStr };
-        // preset modal fields
+        if (formValidate) { formValidate.clearValidation(); }
         $('#dtSpcStart').val(info.startStr.substring(0,16));
         $('#dtSpcEnd').val(info.endStr.substring(0,16));
         // prefill requester name/email from current user
@@ -125,7 +126,7 @@
           + '<div class="mt-1">'+name+(contact?(' <small class="text-muted">'+contact+'</small>'):'')+'</div>';
         $('#spcEvtSummary').html(html);
         const $cancelBtn = $('#btnSpcCancelEvt');
-        const $cancelBlock = $('#txaSpcCancelReason').closest('.md-form');
+        const $cancelBlock = $('#divSpcCancelReason');
         if ($cancelBlock.length){ $cancelBlock.toggle(canCancel); }
         $cancelBtn.toggle(canCancel).prop('disabled', !canCancel);
         $('#txaSpcCancelReason').val('');
@@ -154,6 +155,10 @@
     $('#btnSpcCalManage').on('click', function(){ window.location.href = 'space_manage.html?id='+spaceId; });
     $('#btnSpcCreateSubmit').on('click', function(){
       if(!pendingRange){ $('#modalSpcCreateResv').modal('hide'); return; }
+      if (formValidate && !formValidate.validateNow()) {
+        toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
+        return;
+      }
       const start = $('#dtSpcStart').val();
       const end = $('#dtSpcEnd').val();
       if(!start || !end){ toastr['warning']('Start/End required'); return; }
@@ -179,18 +184,15 @@
   $(document).ready(function(){
     spaceId = getQueryInt('id');
     if(!spaceId){ toastr['error']('Missing space id','Error'); return; }
-    // Load shared includes then boot
-    let pending = $('.includeHtml').length;
-    function boot(){
-      try { if (typeof initiatePages === 'function') { initiatePages(); } }
-      catch(e) { console && console.warn && console.warn('initiatePages failed', e); }
-      fetchSpace()
-        .done(function(resp){ if(resp&&resp.success){ currentSpace = resp.result||{}; loadTitle(); initCalendar(); wireButtons(); } else { toastr['error']((resp&&resp.errmsg)||'Failed to load space'); } })
-        .fail(function(){ toastr['error']('Failed to load space'); });
-    }
-    if(pending===0){ boot(); }
-    else {
-      $('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf(), function(){ pending--; if(pending===0){ boot(); } }); });
-    }
+    formValidate = new MzValidate('frmSpcCreateResv');
+    formValidate.registerFields([
+      { field_id: 'dtSpcStart', type: 'text', name: 'Start', validator: { notEmpty: true } },
+      { field_id: 'dtSpcEnd', type: 'text', name: 'End', validator: { notEmpty: true } }
+    ]);
+    try { if (typeof initiatePages === 'function') { initiatePages(); } }
+    catch(e) { console && console.warn && console.warn('initiatePages failed', e); }
+    fetchSpace()
+      .done(function(resp){ if(resp&&resp.success){ currentSpace = resp.result||{}; loadTitle(); initCalendar(); wireButtons(); } else { toastr['error']((resp&&resp.errmsg)||'Failed to load space'); } })
+      .fail(function(){ toastr['error']('Failed to load space'); });
   });
 })();
