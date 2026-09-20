@@ -83,12 +83,10 @@ function MainFcaTask () {
             bFilter: true,
             aaSorting: [[17, 'desc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-clipboard-list', 'No FCA tasks found.', 'No tasks match the current search.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [0, 17, 18] },
@@ -109,7 +107,6 @@ function MainFcaTask () {
                 setDataLabels(nRow, oTableFctObserve);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('#btnFctAddNew').off('click').on('click', handleAddNew);
                 if ($('#divFctPageWidth').width() < 546) {
                     $(this).DataTable().column(1).visible(false);
@@ -161,6 +158,11 @@ function MainFcaTask () {
                     }}
             ]
         });
+        oTableFctObserve.buttons().container().appendTo($('#btnDtFctObserveExport'));
+        GemsUI.bindDtTooltips('#dtFctObserve');
+        $('#txtFctObserveSearch').on('keyup search input', function () {
+            oTableFctObserve.search(this.value).draw();
+        });
         let oTableFctObserveTbody = $('#dtFctObserve tbody');
         oTableFctObserveTbody.delegate('tr', 'click', function () {
             const data = $('#dtFctObserve').DataTable().row(this).data();
@@ -180,12 +182,10 @@ function MainFcaTask () {
             bFilter: true,
             aaSorting: [[11, 'desc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-clipboard-list', 'No FCA tasks found.', 'No tasks match the current search.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [0, 11] },
@@ -205,7 +205,6 @@ function MainFcaTask () {
                 setDataLabels(nRow, oTableFctRecommend);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 if ($('#divFctPageWidth').width() < 546) {
                     $(this).DataTable().column(1).visible(false);
                     $(this).DataTable().column(2).visible(false);
@@ -239,6 +238,11 @@ function MainFcaTask () {
                 {mData: 'taskTimeCreated'}
             ]
         });
+        oTableFctRecommend.buttons().container().appendTo($('#btnDtFctRecommendExport'));
+        GemsUI.bindDtTooltips('#dtFctRecommend');
+        $('#txtFctRecommendSearch').on('keyup search input', function () {
+            oTableFctRecommend.search(this.value).draw();
+        });
         let oTableFctRecommendTbody = $('#dtFctRecommend tbody');
         oTableFctRecommendTbody.delegate('tr', 'click', function () {
             const data = $('#dtFctRecommend').DataTable().row(this).data();
@@ -258,12 +262,10 @@ function MainFcaTask () {
             bFilter: true,
             aaSorting: [[11, 'desc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-clipboard-list', 'No FCA tasks found.', 'No tasks match the current search.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [0, 15] },
@@ -283,7 +285,6 @@ function MainFcaTask () {
                 setDataLabels(nRow, oTableFctValidate);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 if ($('#divFctPageWidth').width() < 546) {
                     $(this).DataTable().column(1).visible(false);
                     $(this).DataTable().column(2).visible(false);
@@ -328,6 +329,11 @@ function MainFcaTask () {
                 {mData: 'taskTimeCreated'}
             ]
         });
+        oTableFctValidate.buttons().container().appendTo($('#btnDtFctValidateExport'));
+        GemsUI.bindDtTooltips('#dtFctValidate');
+        $('#txtFctValidateSearch').on('keyup search input', function () {
+            oTableFctValidate.search(this.value).draw();
+        });
         let oTableFctValidateTbody = $('#dtFctValidate tbody');
         oTableFctValidateTbody.delegate('tr', 'click', function () {
             const data = $('#dtFctValidate').DataTable().row(this).data();
@@ -347,12 +353,10 @@ function MainFcaTask () {
             bFilter: true,
             aaSorting: [[16, 'desc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-clipboard-list', 'No FCA tasks found.', 'No tasks match the current search.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [0, 16] },
@@ -372,7 +376,6 @@ function MainFcaTask () {
                 setDataLabels(nRow, oTableFctCorrection);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 if ($('#divFctPageWidth').width() < 546) {
                     $(this).DataTable().column(1).visible(false);
                     $(this).DataTable().column(2).visible(false);
@@ -417,6 +420,11 @@ function MainFcaTask () {
                     }},
                 {mData: 'taskTimeCreated'}
             ]
+        });
+        oTableFctCorrection.buttons().container().appendTo($('#btnDtFctCorrectionExport'));
+        GemsUI.bindDtTooltips('#dtFctCorrection');
+        $('#txtFctCorrectionSearch').on('keyup search input', function () {
+            oTableFctCorrection.search(this.value).draw();
         });
         let oTableFctCorrectionTbody = $('#dtFctCorrection tbody');
         oTableFctCorrectionTbody.delegate('tr', 'click', function () {

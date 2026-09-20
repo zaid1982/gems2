@@ -1,130 +1,97 @@
-<div class="modal fade gems-modal" id="modal_fca_add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header pb-2 gems-modal-header">
-                <h4 class="text-white mt-2 ml-2"><i class="fas fa-eye text-white"></i> &nbsp;<span id="spanMfaTitle">Create New FCA Audit</span></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_fca_add — Tabler (P5-8 FCA Task/All). Shared by fca_task + fca_all.
+  JS IDs preserved. mzOptionV2 still fills the selects.
+-->
+<div class="modal fade" id="modal_fca_add" tabindex="-1" aria-labelledby="spanMfaTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-eye me-2"></i><span id="spanMfaTitle">Create New FCA Audit</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMfa" autocomplete="off" novalidate>
+          <div class="card mb-3" id="divMfaValidationInfo">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="txtMfaConditionScale" id="lblMfaConditionScale">Condition Scale</label>
+                  <input type="text" id="txtMfaConditionScale" class="form-control" disabled>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="txtMfaEvaluationType" id="lblMfaEvaluationType">Evaluation Scale</label>
+                  <input type="text" id="txtMfaEvaluationType" class="form-control" disabled>
+                </div>
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txaMfaValidation" id="lblMfaValidation">Validation Remark</label>
+                  <textarea id="txaMfaValidation" class="form-control" rows="2"></textarea>
+                </div>
+              </div>
             </div>
-            <!--Body-->
-            <div class="modal-body pb-2 gems-modal-body">
-                <form id="formMfa">
-                    <div class="card z-depth-1 mb-4_5" id="divMfaValidationInfo">
-                        <div class="card-body blue-grey lighten-5 pt-4 pb-0">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="md-form mt-0">
-                                        <input type="text" id="txtMfaConditionScale" class="form-control" disabled>
-                                        <label for="txtMfaConditionScale" id="lblMfaConditionScale" class="active">Condition Scale</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="md-form mt-0">
-                                        <input type="text" id="txtMfaEvaluationType" class="form-control" disabled>
-                                        <label for="txtMfaEvaluationType" id="lblMfaEvaluationType" class="active">Evaluation Scale</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="md-form mt-0">
-                                        <textarea id="txaMfaValidation" class="md-textarea form-control" rows="1"></textarea>
-                                        <label for="txaMfaValidation" id="lblMfaValidation" class="text-muted">Validation Remark</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-md-6 select-outline mb-2" id="optMfaSite_">
-                            <select id="optMfaSite" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" searchable="Filter Site"></select>
-                            <label for="optMfaSite" id="lblMfaSite">Site *</label>
-                            <p class="font-small text-danger" id="optMfaSiteErr"></p>
-                        </div>
-                        <div class="col-md-6 select-outline mb-2" id="optMfaZone_">
-                            <select id="optMfaZone" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
-                            <label for="optMfaZone" id="lblMfaZone">Zone</label>
-                            <p class="font-small text-danger" id="optMfaZoneErr"></p>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMfaArea" class="form-control">
-                                <label for="txtMfaArea" id="lblMfaArea">Area *</label>
-                                <p class="font-small text-danger" id="txtMfaAreaErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 select-outline mb-2" id="optMfaAssetGroup_">
-                            <select id="optMfaAssetGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
-                            <label for="optMfaAssetGroup" id="lblMfaAssetGroup">Asset Group *</label>
-                            <p class="font-small text-danger" id="optMfaAssetGroupErr"></p>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMfaEvaluated" class="form-control">
-                                <label for="txtMfaEvaluated" id="lblMfaEvaluated">Evaluated Asset</label>
-                                <p class="font-small text-danger" id="txtMfaEvaluatedErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMfaDefectItem" class="form-control">
-                                <label for="txtMfaDefectItem" id="lblMfaDefectItem">Defect Item *</label>
-                                <p class="font-small text-danger" id="txtMfaDefectItemErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 select-outline mb-2" id="optMfaDefectCategory_">
-                            <select id="optMfaDefectCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0"></select>
-                            <label for="optMfaDefectCategory" id="lblMfaDefectCategory">Defect Category</label>
-                            <p class="font-small text-danger" id="optMfaDefectCategoryErr"></p>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="md-form md-outline mt-0">
-                                <textarea id="txaMfaObservation" class="md-textarea form-control" rows="4"></textarea>
-                                <label for="txaMfaObservation" id="lblMfaObservation" class="text-muted">Observation *</label>
-                                <p class="font-small text-danger" id="txaMfaObservationErr"></p>
-                            </div>
-                        </div>
-                    </div>
-                    <h6 class="mb-3">Audit Images * :</h6>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="file-field">
-                                <div class="z-depth-1-half mb-2">
-                                    <img src="img/background/upload_placeholder.png" id="imgMfaImage1" class="img-fluid" alt="example placeholder">
-                                </div>
-                                <div class="d-flex justify-content-center">
-                                    <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
-                                        <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
-                                        <input type="file" id="txfMfaImage1">
-                                        <input type="hidden" id="txfMfaImage1Blob">
-                                    </div>
-                                </div>
-                                <p class="font-small text-danger text-center" id="txfMfaImage1Err"></p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="file-field">
-                                <div class="z-depth-1-half mb-2">
-                                    <img src="img/background/upload_placeholder.png" id="imgMfaImage2" class="img-fluid" alt="example placeholder">
-                                </div>
-                                <div class="d-flex justify-content-center">
-                                    <div class="btn btn-blue-grey btn-sm btn-rounded float-left">
-                                        <span>Choose image file<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
-                                        <input type="file" id="txfMfaImage2">
-                                        <input type="hidden" id="txfMfaImage2Blob">
-                                    </div>
-                                </div>
-                                <p class="font-small text-danger text-center" id="txfMfaImage2Err"></p>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+          </div>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6" id="optMfaSite_">
+              <label class="form-label" for="optMfaSite" id="lblMfaSite">Site <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMfaSite" class="form-select" aria-required="true" aria-describedby="optMfaSiteErr"></select>
+              <div class="gems-field-error" id="optMfaSiteErr" role="alert"></div>
             </div>
-            <div class="modal-footer p-2 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
-                <button id="btnMfaSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            <div class="gems-field gems-field-6" id="optMfaZone_">
+              <label class="form-label" for="optMfaZone" id="lblMfaZone">Zone</label>
+              <select id="optMfaZone" class="form-select" aria-describedby="optMfaZoneErr"></select>
+              <div class="gems-field-error" id="optMfaZoneErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMfaArea" id="lblMfaArea">Area <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMfaArea" class="form-control" aria-required="true" aria-describedby="txtMfaAreaErr">
+              <div class="gems-field-error" id="txtMfaAreaErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6" id="optMfaAssetGroup_">
+              <label class="form-label" for="optMfaAssetGroup" id="lblMfaAssetGroup">Asset Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMfaAssetGroup" class="form-select" aria-required="true" aria-describedby="optMfaAssetGroupErr"></select>
+              <div class="gems-field-error" id="optMfaAssetGroupErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMfaEvaluated" id="lblMfaEvaluated">Evaluated Asset</label>
+              <input type="text" id="txtMfaEvaluated" class="form-control" aria-describedby="txtMfaEvaluatedErr">
+              <div class="gems-field-error" id="txtMfaEvaluatedErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMfaDefectItem" id="lblMfaDefectItem">Defect Item <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMfaDefectItem" class="form-control" aria-required="true" aria-describedby="txtMfaDefectItemErr">
+              <div class="gems-field-error" id="txtMfaDefectItemErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6" id="optMfaDefectCategory_">
+              <label class="form-label" for="optMfaDefectCategory" id="lblMfaDefectCategory">Defect Category</label>
+              <select id="optMfaDefectCategory" class="form-select" aria-describedby="optMfaDefectCategoryErr"></select>
+              <div class="gems-field-error" id="optMfaDefectCategoryErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMfaObservation" id="lblMfaObservation">Observation <span class="required" aria-hidden="true">*</span></label>
+              <textarea id="txaMfaObservation" class="form-control" rows="4" aria-required="true" aria-describedby="txaMfaObservationErr"></textarea>
+              <div class="gems-field-error" id="txaMfaObservationErr" role="alert"></div>
+            </div>
+          </div>
+          <h4 class="mt-3">Audit Images <span class="required" aria-hidden="true">*</span></h4>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <img src="img/background/upload_placeholder.png" id="imgMfaImage1" class="img-fluid mb-2" alt="">
+              <input type="file" id="txfMfaImage1" class="form-control" accept="image/*">
+              <input type="hidden" id="txfMfaImage1Blob">
+              <div class="gems-field-error" id="txfMfaImage1Err" role="alert"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <img src="img/background/upload_placeholder.png" id="imgMfaImage2" class="img-fluid mb-2" alt="">
+              <input type="file" id="txfMfaImage2" class="form-control" accept="image/*">
+              <input type="hidden" id="txfMfaImage2Blob">
+              <div class="gems-field-error" id="txfMfaImage2Err" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-undo-alt me-2"></i>Close</button>
+        <button type="button" id="btnMfaSubmit" class="btn btn-primary"><i class="far fa-paper-plane me-2"></i>Submit</button>
+      </div>
     </div>
+  </div>
 </div>

@@ -187,10 +187,10 @@ function MainFcaAll () {
             bFilter: false,
             aaSorting: [[17, 'desc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-clipboard-list', 'No FCA records found.', 'No records match the current filters.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "Brt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [0] },
@@ -211,7 +211,6 @@ function MainFcaAll () {
                 setDataLabels(nRow, api);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 const api = $(this).DataTable();
                 if ($('#divFcaPageWidth').width() < 546) {
                     api.column(1).visible(false);
@@ -270,7 +269,8 @@ function MainFcaAll () {
             ]
         });
 
-        oTable.buttons().container().appendTo('#btnDtFcaAllExport');
+        oTable.buttons().container().appendTo($('#btnDtFcaAllExport'));
+        GemsUI.bindDtTooltips('#dtFcaData');
 
         $.fn.dataTable.ext.search.push(function (settings, dataArr, dataIndex) {
             if (!oTable || settings.nTable !== $('#dtFcaData')[0]) {

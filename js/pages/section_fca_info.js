@@ -134,7 +134,7 @@ function SectionFcaInfo () {
                     const image1 = mzAjaxRequest2('document/upload/'+dataDb['fcaTaskImage1'], 'GET');
                     if (image1['fileExist'] && image1['uploadFileWidth'] !== null && image1['uploadFileHeight'] !== null) {
                         divImageAudit.append('<figure class="col-md-6">\n' +
-                            '   <a href="'+image1['src']+'" data-size="'+image1['uploadFileWidth']+'x'+image1['uploadFileHeight']+'">\n' +
+                            '   <a href="'+image1['src']+'" target="_blank" rel="noopener">\n' +
                             '     <img src="'+image1['src']+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
                             '   </a>\n' +
                             '   <p class="mb-0 font-small text-center">Audit Image 1</p>\n' +
@@ -149,7 +149,7 @@ function SectionFcaInfo () {
                     const image2 = mzAjaxRequest2('document/upload/'+dataDb['fcaTaskImage2'], 'GET');
                     if (image2['fileExist'] && image2['uploadFileWidth'] !== null && image2['uploadFileHeight'] !== null) {
                         divImageAudit.append('<figure class="col-md-6">\n' +
-                            '   <a href="'+image2['src']+'" data-size="'+image2['uploadFileWidth']+'x'+image2['uploadFileHeight']+'">\n' +
+                            '   <a href="'+image2['src']+'" target="_blank" rel="noopener">\n' +
                             '     <img src="'+image2['src']+'" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
                             '   </a>\n' +
                             '   <p class="mb-0 font-small text-center">Audit Image 2</p>\n' +
@@ -169,7 +169,7 @@ function SectionFcaInfo () {
                     const imageRectify1 = mzAjaxRequest2('document/upload/' + dataDb['fcaTaskImageRectify1'], 'GET');
                     if (imageRectify1['fileExist'] && imageRectify1['uploadFileWidth'] !== null && imageRectify1['uploadFileHeight'] !== null) {
                         divImageRectify.append('<figure class="col-md-6">\n' +
-                            '   <a href="' + imageRectify1['src'] + '" data-size="' + imageRectify1['uploadFileWidth'] + 'x' + imageRectify1['uploadFileHeight'] + '">\n' +
+                            '   <a href="' + imageRectify1['src'] + '" target="_blank" rel="noopener">\n' +
                             '     <img src="' + imageRectify1['src'] + '" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
                             '   </a>\n' +
                             '   <p class="mb-0 font-small text-center">Rectify Image 1</p>\n' +
@@ -184,7 +184,7 @@ function SectionFcaInfo () {
                     const imageRectify2 = mzAjaxRequest2('document/upload/' + dataDb['fcaTaskImageRectify1'], 'GET');
                     if (imageRectify2['fileExist'] && imageRectify2['uploadFileWidth'] !== null && imageRectify2['uploadFileHeight'] !== null) {
                         divImageRectify.append('<figure class="col-md-6">\n' +
-                            '   <a href="' + imageRectify2['src'] + '" data-size="' + imageRectify2['uploadFileWidth'] + 'x' + imageRectify2['uploadFileHeight'] + '">\n' +
+                            '   <a href="' + imageRectify2['src'] + '" target="_blank" rel="noopener">\n' +
                             '     <img src="' + imageRectify2['src'] + '" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
                             '   </a>\n' +
                             '   <p class="mb-0 font-small text-center">Rectify Image 2</p>\n' +
@@ -245,7 +245,7 @@ function SectionFcaInfo () {
 
     this.getNoImageHtml = function (_description) {
         return '<figure class="col-md-6">\n' +
-            '   <a href="img/background/no-image.png" data-size="284x177">\n' +
+            '   <a href="img/background/no-image.png" target="_blank" rel="noopener">\n' +
             '       <img src="img/background/no-image.png" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
             '   </a>\n' +
             '   <p class="mb-0 font-small text-center">'+_description+'</p>\n' +

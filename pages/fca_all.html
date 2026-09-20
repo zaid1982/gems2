@@ -1,291 +1,272 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/fca_all.html — Tabler-migrated (P5-8 FCA All).
+
+  Shares section_fca_info + modal_fca_add/recommend/validate with fca_task.
+  Converted together in place (no _tabler fork).
+  Bridges: modal_change_password, modal_confirm_delete.
+  Role 22 gates New FCA. PhotoSwipe/mdb-lightbox dropped; images open in a new tab.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css, css/mdb.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?4">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS - FCA Records Overview</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    @media (max-width: 768px) {
+      #dtFcaData thead { display: none; }
+      #dtFcaData, #dtFcaData tbody, #dtFcaData tr, #dtFcaData td { display: block; width: 100%; }
+      #dtFcaData tr { border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; }
+      #dtFcaData td { border: 0; border-bottom: 1px dashed var(--tblr-border-color, #e5e7eb); padding: 8px 0; }
+      #dtFcaData td::before { content: attr(data-label); display: block; color: var(--tblr-secondary, #6c7a91); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    }
+  </style>
 </head>
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid module-page module-master module-fca-all" id="divFcaPageWidth">
-        <div id="mdb-lightbox-ui"></div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl" id="divFcaPageWidth">
 
-        <section class="gems-page-header module-page-header sectionFcaMain">
-            <div class="header-text">
-                <div class="header-subtitle">Facility Condition Appraisal</div>
-                <h2>FCA Records Overview</h2>
-                <p>Audit every FCA submission and track its progress from observation through validation.</p>
+        <div class="page-header sectionFcaMain">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <div class="text-secondary" style="font-size:.75rem">Facility Condition Appraisal</div>
+              <h1 class="page-title">FCA Records Overview</h1>
+              <div class="page-subtitle">Audit every FCA submission and track its progress from observation through validation.</div>
             </div>
-            <div class="header-actions">
-                <button type="button" id="btnFcaAllRefresh" class="btn btn-outline-light" data-toggle="tooltip" data-placement="top" title="Refresh data">
-                    <i class="fas fa-sync mr-2"></i>Refresh
-                </button>
-                <button type="button" id="btnFcaAllAddNew" class="btn btn-white">
-                    <i class="fas fa-plus mr-2"></i>New FCA
-                </button>
+            <div class="col-12 col-sm-auto">
+              <button type="button" id="btnFcaAllRefresh" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Refresh data">
+                <i class="fas fa-sync me-2"></i>Refresh
+              </button>
+              <button type="button" id="btnFcaAllAddNew" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>New FCA
+              </button>
             </div>
-        </section>
+          </div>
+        </div>
 
-        <section class="metrics-row sectionFcaMain">
-            <div class="metric-card">
-                <div class="metric-label">Total records</div>
-                <div class="metric-value" id="metricFcaAllTotal">0</div>
-                <div class="metric-subtext">All FCA submissions in the system</div>
+        <div class="row row-deck sectionFcaMain">
+          <div class="col-sm-6 col-lg-3">
+            <div class="card">
+              <div class="card-body">
+                <div class="subheader">Total records</div>
+                <div class="h1 mb-0" id="metricFcaAllTotal">0</div>
+                <div class="text-secondary" style="font-size:.75rem">All FCA submissions in the system</div>
+              </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-label">Needs recommendation</div>
-                <div class="metric-value" id="metricFcaAllPendingRecommendation">0</div>
-                <div class="metric-subtext">Observations awaiting recommendation input</div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="card">
+              <div class="card-body">
+                <div class="subheader">Needs recommendation</div>
+                <div class="h1 mb-0" id="metricFcaAllPendingRecommendation">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Observations awaiting recommendation input</div>
+              </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-label">Needs validation</div>
-                <div class="metric-value" id="metricFcaAllPendingValidation">0</div>
-                <div class="metric-subtext">Recommended tasks pending validation</div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="card">
+              <div class="card-body">
+                <div class="subheader">Needs validation</div>
+                <div class="h1 mb-0" id="metricFcaAllPendingValidation">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Recommended tasks pending validation</div>
+              </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-label">Validated</div>
-                <div class="metric-value" id="metricFcaAllValidated">0</div>
-                <div class="metric-subtext">Records closed with validation notes</div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="card">
+              <div class="card-body">
+                <div class="subheader">Validated</div>
+                <div class="h1 mb-0" id="metricFcaAllValidated">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Records closed with validation notes</div>
+              </div>
             </div>
-        </section>
+          </div>
+        </div>
 
-        <section class="filter-card sectionFcaMain">
-            <div class="filter-card-header">
-                <h3>Filters</h3>
-                <div class="summary-pill">Status filter reflects workflow stages</div>
+        <div class="card gems-filter-card mb-3 sectionFcaMain">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-4">
+                <label class="form-label" for="optFcaAllStatus">Status</label>
+                <select id="optFcaAllStatus" class="form-select"></select>
+              </div>
+              <div class="gems-field gems-field-8">
+                <label class="form-label" for="txtFcaAllSearch">Search FCA record</label>
+                <input type="search" id="txtFcaAllSearch" class="form-control" placeholder="Search by audit no., asset, or keyword" autocomplete="off">
+              </div>
             </div>
-            <div class="filter-grid">
-                <div class="select-outline">
-                    <select id="optFcaAllStatus" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                    <label for="optFcaAllStatus">Status</label>
-                </div>
-                <div class="search-field">
-                    <label for="txtFcaAllSearch">Search FCA record</label>
-                    <input type="text" id="txtFcaAllSearch" placeholder="Search by audit no., asset, or keyword">
-                </div>
-            </div>
-        </section>
+          </div>
+        </div>
 
-        <section class="modern-table-card sectionFcaMain">
-            <div class="table-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="mb-1 font-weight-600">FCA Records</h4>
-                        <p class="mb-0">Tap a row to open the detailed drawer with full observation, recommendation, and validation history</p>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div id="btnDtFcaAllExport"></div>
-                        <a tabindex="0" role="button" class="btn btn-link text-muted p-0" data-toggle="popover" data-trigger="focus" title="About this list" data-content="Use the status filter or search field to narrow FCA records. Exports respect the current filters.">
-                            <i class="fas fa-info-circle"></i>
-                        </a>
-                    </div>
-                </div>
+        <div class="card sectionFcaMain">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">FCA Records</h3>
+              <div class="text-secondary" style="font-size:.75rem">
+                <span id="lblFcaAllCount">Showing 0 of 0 results</span>
+                · <span id="lblFcaAllUpdated">Last updated: —</span>
+              </div>
             </div>
-            <div class="table-body">
-                <div class="results-info mb-3">
-                    <span class="results-count" id="lblFcaAllCount">Showing 0 of 0 results</span>
-                    <span class="separator mx-2">•</span>
-                    <span class="last-updated" id="lblFcaAllUpdated">Last updated: —</span>
-                </div>
-                <div class="table-responsive">
-                    <table id="dtFcaData" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                        <thead>
-                        <tr class="th-strong">
-                            <th>#</th>
-                            <th>Audit No.</th>
-                            <th>Site</th>
-                            <th>Asset Group</th>
-                            <th>Asset No.</th>
-                            <th>Evaluated Asset</th>
-                            <th>Defect Item</th>
-                            <th>Defect Category</th>
-                            <th>Zone</th>
-                            <th>Area</th>
-                            <th>Condition Scale</th>
-                            <th>Evaluation Scale</th>
-                            <th>Observation</th>
-                            <th>Recommendation</th>
-                            <th>Validation</th>
-                            <th>Auditor</th>
-                            <th>Validator</th>
-                            <th>Submitted Time</th>
-                            <th>Recommend Time</th>
-                            <th>Validate Time</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+            <div class="gems-card-toolbar">
+              <div id="btnDtFcaAllExport" class="d-inline-flex"></div>
             </div>
-        </section>
+          </div>
+          <table id="dtFcaData" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>#</th><th>Audit No.</th><th>Site</th><th>Asset Group</th><th>Asset No.</th>
+                <th>Evaluated Asset</th><th>Defect Item</th><th>Defect Category</th><th>Zone</th><th>Area</th>
+                <th>Condition Scale</th><th>Evaluation Scale</th><th>Observation</th><th>Recommendation</th>
+                <th>Validation</th><th>Auditor</th><th>Validator</th><th>Submitted Time</th>
+                <th>Recommend Time</th><th>Validate Time</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
 
         <div class="includeHtml" id="h-section_fca_info"></div>
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_fca_add"></div>
-    <div class="includeHtml" id="h-modal_fca_recommend"></div>
-    <div class="includeHtml" id="h-modal_fca_validate"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
-</main>
+  </div>
+</div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_fca_add"></div>
+<div class="includeHtml" id="h-modal_fca_recommend"></div>
+<div class="includeHtml" id="h-modal_fca_validate"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_fca_add.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_fca_recommend.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_fca_validate.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_fca_info.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_fca_all.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let modalFcaAddClass_;
+  let modalFcaRecommendClass_;
+  let modalFcaValidateClass_;
+  let modalConfirmDelete_;
+  let sectionFcaInfoClass_;
+  let fcaAllClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    $(function () {
-        $("#mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
-    });
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        modalFcaAddClass_ = new ModalFcaAdd();
+        modalFcaRecommendClass_ = new ModalFcaRecommend();
+        modalFcaValidateClass_ = new ModalFcaValidate();
+        modalConfirmDelete_ = new ModalConfirmDelete();
+        sectionFcaInfoClass_ = new SectionFcaInfo();
+        fcaAllClass_ = new MainFcaAll();
 
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
+        const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
+        const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
+        const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group/ref');
+        const refDefectCategory_ = mzGetLocalArrayV2('gems_defectCategory', versionLocal_, 'fca_defect_category/ref');
+        const refDefectCategorySite_ = mzAjaxRequest2('fca_defect_category_site/ref', 'GET');
+        const refFcaZone_ = mzGetLocalArrayV2('gems_zone', versionLocal_, 'fca_zone/ref');
+        const refConditionScale = ['', 'Very Good', 'Good', 'Average', 'Critical', 'Very Critical'];
+        const refEvaluationType = ['', 'Normal', 'Routine', 'Repair', 'Recovery', 'Replacement'];
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let modalFcaAddClass_;
-    let modalFcaRecommendClass_;
-    let modalFcaValidateClass_;
-    let modalConfirmDelete_;
-    let sectionFcaInfoClass_;
-    let fcaAllClass_;
+        modalFcaAddClass_.setRefSite(refSite_);
+        modalFcaAddClass_.setRefAssetGroup(refAssetGroup_);
+        modalFcaAddClass_.setRefDefectCategory(refDefectCategory_);
+        modalFcaAddClass_.setRefDefectCategorySite(refDefectCategorySite_);
+        modalFcaAddClass_.setRefFcaZone(refFcaZone_);
+        modalFcaAddClass_.setRefConditionScale(refConditionScale);
+        modalFcaAddClass_.setRefEvaluationType(refEvaluationType);
+        modalFcaAddClass_.init();
 
-    document.addEventListener('DOMContentLoaded', function () {
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                initPhotoSwipeFromDOM('.mdb-lightbox');
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                modalFcaAddClass_ = new ModalFcaAdd();
-                modalFcaRecommendClass_ = new ModalFcaRecommend();
-                modalFcaValidateClass_ = new ModalFcaValidate();
-                modalConfirmDelete_ = new ModalConfirmDelete();
-                sectionFcaInfoClass_ = new SectionFcaInfo();
-                fcaAllClass_ = new MainFcaAll();
+        modalFcaRecommendClass_.setClassFrom(sectionFcaInfoClass_);
+        modalFcaRecommendClass_.init();
 
-                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
-                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
-                const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
-                const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group/ref');
-                const refDefectCategory_ = mzGetLocalArrayV2('gems_defectCategory', versionLocal_, 'fca_defect_category/ref');
-                const refDefectCategorySite_ = mzAjaxRequest2('fca_defect_category_site/ref', 'GET');
-                const refFcaZone_ = mzGetLocalArrayV2('gems_zone', versionLocal_, 'fca_zone/ref');
-                const refConditionScale = ['', 'Very Good', 'Good', 'Average', 'Critical', 'Very Critical'];
-                const refEvaluationType = ['', 'Normal', 'Routine', 'Repair', 'Recovery', 'Replacement'];
+        modalFcaValidateClass_.setClassFrom(sectionFcaInfoClass_);
+        modalFcaValidateClass_.setRefConditionScale(refConditionScale);
+        modalFcaValidateClass_.setRefEvaluationType(refEvaluationType);
+        modalFcaValidateClass_.init();
 
-                modalFcaAddClass_.setRefSite(refSite_);
-                modalFcaAddClass_.setRefAssetGroup(refAssetGroup_);
-                modalFcaAddClass_.setRefDefectCategory(refDefectCategory_);
-                modalFcaAddClass_.setRefDefectCategorySite(refDefectCategorySite_);
-                modalFcaAddClass_.setRefFcaZone(refFcaZone_);
-                modalFcaAddClass_.setRefConditionScale(refConditionScale);
-                modalFcaAddClass_.setRefEvaluationType(refEvaluationType);
-                modalFcaAddClass_.init();
+        sectionFcaInfoClass_.setRefStatus(refStatus_);
+        sectionFcaInfoClass_.setRefUser(refUser_);
+        sectionFcaInfoClass_.setRefSite(refSite_);
+        sectionFcaInfoClass_.setRefAssetGroup(refAssetGroup_);
+        sectionFcaInfoClass_.setRefDefectCategory(refDefectCategory_);
+        sectionFcaInfoClass_.setRefFcaZone(refFcaZone_);
+        sectionFcaInfoClass_.setRefConditionScale(refConditionScale);
+        sectionFcaInfoClass_.setRefEvaluationType(refEvaluationType);
+        sectionFcaInfoClass_.setModalFcaRecommendClass(modalFcaRecommendClass_);
+        sectionFcaInfoClass_.setModalFcaValidateClass(modalFcaValidateClass_);
+        sectionFcaInfoClass_.setModalFcaAddClass(modalFcaAddClass_);
+        sectionFcaInfoClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+        sectionFcaInfoClass_.setClassFrom(fcaAllClass_);
+        sectionFcaInfoClass_.init()
 
-                modalFcaRecommendClass_.setClassFrom(sectionFcaInfoClass_);
-                modalFcaRecommendClass_.init();
-
-                modalFcaValidateClass_.setClassFrom(sectionFcaInfoClass_);
-                modalFcaValidateClass_.setRefConditionScale(refConditionScale);
-                modalFcaValidateClass_.setRefEvaluationType(refEvaluationType);
-                modalFcaValidateClass_.init();
-
-                sectionFcaInfoClass_.setRefStatus(refStatus_);
-                sectionFcaInfoClass_.setRefUser(refUser_);
-                sectionFcaInfoClass_.setRefSite(refSite_);
-                sectionFcaInfoClass_.setRefAssetGroup(refAssetGroup_);
-                sectionFcaInfoClass_.setRefDefectCategory(refDefectCategory_);
-                sectionFcaInfoClass_.setRefFcaZone(refFcaZone_);
-                sectionFcaInfoClass_.setRefConditionScale(refConditionScale);
-                sectionFcaInfoClass_.setRefEvaluationType(refEvaluationType);
-                sectionFcaInfoClass_.setModalFcaRecommendClass(modalFcaRecommendClass_);
-                sectionFcaInfoClass_.setModalFcaValidateClass(modalFcaValidateClass_);
-                sectionFcaInfoClass_.setModalFcaAddClass(modalFcaAddClass_);
-                sectionFcaInfoClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                sectionFcaInfoClass_.setClassFrom(fcaAllClass_);
-                sectionFcaInfoClass_.init()
-
-                fcaAllClass_.setRefStatus(refStatus_);
-                fcaAllClass_.setRefUser(refUser_);
-                fcaAllClass_.setRefSite(refSite_);
-                fcaAllClass_.setRefAssetGroup(refAssetGroup_);
-                fcaAllClass_.setRefDefectCategory(refDefectCategory_);
-                fcaAllClass_.setRefFcaZone(refFcaZone_);
-                fcaAllClass_.setRefConditionScale(refConditionScale);
-                fcaAllClass_.setRefEvaluationType(refEvaluationType);
-                fcaAllClass_.setModalFcaAddClass(modalFcaAddClass_);
-                fcaAllClass_.setSectionFcaInfoClass(sectionFcaInfoClass_);
-                fcaAllClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_fca_add.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_fca_recommend.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_fca_validate.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_fca_info.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_fca_all.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        fcaAllClass_.setRefStatus(refStatus_);
+        fcaAllClass_.setRefUser(refUser_);
+        fcaAllClass_.setRefSite(refSite_);
+        fcaAllClass_.setRefAssetGroup(refAssetGroup_);
+        fcaAllClass_.setRefDefectCategory(refDefectCategory_);
+        fcaAllClass_.setRefFcaZone(refFcaZone_);
+        fcaAllClass_.setRefConditionScale(refConditionScale);
+        fcaAllClass_.setRefEvaluationType(refEvaluationType);
+        fcaAllClass_.setModalFcaAddClass(modalFcaAddClass_);
+        fcaAllClass_.setSectionFcaInfoClass(sectionFcaInfoClass_);
+        fcaAllClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 200);
+  });
 </script>
 </body>
 </html>
-    
