@@ -8,17 +8,105 @@ function ModalUser() {
     let refDesignation;
     let refClient;
     let refSite;
-    // New: hold reference role map
     let refRole;
     let formValidate;
 
-    // Helper: map role description to roleId from refRole
+    function rowsFromRef(ref, idKey, labelKey, predicate, selectedId) {
+        const rows = [];
+        let hasSelected = false;
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (!row[labelKey] && (row[idKey] === undefined || row[idKey] === '')) {
+                return true;
+            }
+            const isSelected = selectedId !== undefined && selectedId !== null && selectedId !== ''
+                && String(row[idKey]) === String(selectedId);
+            if (predicate && !predicate(row) && !isSelected) {
+                return true;
+            }
+            if (isSelected) {
+                hasSelected = true;
+            }
+            rows.push(row);
+            return true;
+        });
+        if (selectedId !== undefined && selectedId !== null && selectedId !== '' && !hasSelected && ref && ref[selectedId]) {
+            const extra = $.extend({}, ref[selectedId]);
+            if (extra[idKey] === undefined || extra[idKey] === null || extra[idKey] === '') {
+                extra[idKey] = selectedId;
+            }
+            rows.push(extra);
+        }
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''));
+        });
+        return rows;
+    }
+
+    function fillDesignationSelect(selected) {
+        GemsUI.fillSelect(
+            'optMusDesignationId',
+            rowsFromRef(refDesignation, 'designationId', 'designationDesc', function (row) {
+                return String(row['designationStatus']) === '1';
+            }, selected),
+            'designationId',
+            function (row) {
+                return row['designationDesc'] || '';
+            },
+            'Choose Designation',
+            selected
+        );
+    }
+
+    function fillClientSelect(selected) {
+        GemsUI.fillSelect(
+            'optMusClientId',
+            rowsFromRef(refClient, 'clientId', 'clientName', function (row) {
+                return String(row['clientStatus']) === '1';
+            }, selected),
+            'clientId',
+            function (row) {
+                return row['clientName'] || '';
+            },
+            'Choose Client',
+            selected
+        );
+    }
+
+    function fillSiteSelect(clientId, selected) {
+        GemsUI.fillSelect(
+            'optMusSiteId',
+            rowsFromRef(refSite, 'siteId', 'siteName', function (row) {
+                if (clientId !== undefined && clientId !== null && clientId !== ''
+                    && String(row['clientId']) !== String(clientId)) {
+                    return false;
+                }
+                return String(row['siteStatus']) === '1';
+            }, selected),
+            'siteId',
+            function (row) {
+                return row['siteName'] || '';
+            },
+            'Choose Site',
+            selected
+        );
+    }
+
+    function clearSiteSelect() {
+        GemsUI.fillSelect('optMusSiteId', [], 'siteId', 'siteName', 'Choose Site', '');
+    }
+
     function getRoleIdByDesc(desc) {
         if (!refRole) return '';
-        // refRole is expected as array or object keyed by roleId
         if (Array.isArray(refRole)) {
             for (const r of refRole) {
-                if (!r) continue; // skip holes/undefined
+                if (!r) continue;
                 const d = (r.roleDesc || '').toLowerCase();
                 if (d === desc.toLowerCase()) return String(r.roleId);
             }
@@ -34,7 +122,6 @@ function ModalUser() {
         return '';
     }
 
-    // Helper: set PTW checkbox values from refRole (fallback IDs match sql/add_ptw_roles.sql)
     function applyPtwRoleIds() {
         console.log('[modal_user] applyPtwRoleIds called, refRole:', refRole);
         let rSup = getRoleIdByDesc('PTW Supervisor');
@@ -54,8 +141,6 @@ function ModalUser() {
         $('#chkMusRolePTWSHE').val(rShe).attr('data-role-id', rShe);
         $('#chkMusRolePTWFM').val(rFm).attr('data-role-id', rFm);
 
-        // MR Reviewer is a workflow role that may not exist in older local caches.
-        // Always ensure the checkbox has a usable roleId so it gets included in payload.
         let rMrReviewer = getRoleIdByDesc('MR Reviewer');
         if (!rMrReviewer) {
             const existing = String($('#chkMusRoleMRReviewer').attr('data-role-id') || $('#chkMusRoleMRReviewer').val() || '').trim();
@@ -64,11 +149,8 @@ function ModalUser() {
         $('#chkMusRoleMRReviewer').val(rMrReviewer).attr('data-role-id', rMrReviewer);
     }
 
-    // Helper: check dynamic role checkboxes by their value attribute (for roles with non-standard IDs)
-    // This is needed because mzSetFieldValue looks for #chkMusRole{id} but dynamic roles have custom IDs
     function checkDynamicRolesByValue(roleIds) {
         if (!roleIds || !Array.isArray(roleIds)) return;
-        // List of dynamic role checkbox selectors
         const dynamicRoleCheckboxes = [
             '#chkMusRoleMRReviewer',
             '#chkMusRolePTWSUP',
@@ -186,7 +268,6 @@ function ModalUser() {
 
         self.defaultPageSetup();
 
-        // map PTW role IDs once modal HTML is ready
         applyPtwRoleIds();
 
         $('#modal_user').on('hidden.bs.modal', function(){
@@ -211,14 +292,14 @@ function ModalUser() {
         });
 
         $('#optMusClientId').on('change', function () {
-            mzOptionStop('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: $(this).val(), siteStatus: '1'}, 'required');
+            fillSiteSelect($(this).val(), '');
         });
 
         $('#btnMusSubmit').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
+                    if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
@@ -227,7 +308,6 @@ function ModalUser() {
                         let isInternalComplainer = false;
                         let isWoAssigner = false;
                         let isWoHelpdesk = false;
-                        // Debug: log all checked checkboxes and their values
                         console.log('[modal_user] Collecting checked roles:');
                         $("input[name='chkMusRole[]']:checked").map(function(){
                             const val = ($(this).val() || '').trim();
@@ -298,10 +378,9 @@ function ModalUser() {
     this.defaultPageSetup = function () {
         $('.divMusAddOnly, .divMusRoles, #divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
         $('#chkMusUserType1, #chkMusUserType2').prop('disabled', false);
-        // Ensure PTW roles are hidden until user type selection
+        $("input[name='chkMusRole[]']:checkbox").prop('checked', false);
         $('#divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
         $('#divMusRoleMRReviewer').hide();
-        // Clear PTW checkbox values until refRole is set
         $('#chkMusRolePTWSUP, #chkMusRolePTWSHE, #chkMusRolePTWFM').val('');
         $('#chkMusRoleMRReviewer').val('');
     };
@@ -313,18 +392,18 @@ function ModalUser() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOptionStop('optMusDesignationId', refDesignation, 'Choose Designation', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
-                mzOptionStop('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
-                mzOptionStopClear('optMusSiteId','Choose Site', 'required');
+                fillDesignationSelect();
+                fillClientSelect();
+                clearSiteSelect();
 
                 formValidate.enableField('txtMusUserName');
                 formValidate.enableField('txtMusUserPassword');
 
-                // Re-apply PTW role ids (in case refRole loaded later)
                 applyPtwRoleIds();
+                $("input[name='chkMusRole[]']:checkbox").prop('checked', false);
 
                 $('.divMusAddOnly').show();
-                $('#lblMusTitle').html('<i class="fas fa-user-plus text-white"></i> &nbsp;Register New User');
+                $('#lblMusTitle').html('<i class="fas fa-user-plus me-2"></i>Register New User');
                 $('#txtMusUserName').prop('disabled', false);
                 $('#modal_user').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
@@ -343,17 +422,19 @@ function ModalUser() {
             try {
                 mzCheckFuncParam([_userId, _rowRefresh]);
                 $('#chkMusUserType1, #chkMusUserType2').prop('disabled', true);
-                mzOptionStop('optMusDesignationId', refDesignation, 'Choose Designation *', 'designationId', 'designationDesc', {designationStatus: '1'}, 'required');
-                mzOptionStop('optMusClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
-                mzOptionStopClear('optMusSiteId','Choose Site', 'required');
 
-                // Ensure PTW role ids are set before setting checked values
                 applyPtwRoleIds();
+                $("input[name='chkMusRole[]']:checkbox").prop('checked', false);
 
                 const dataUser = mzAjaxRequest('profile.php?userId='+userId, 'GET');
                 const roles = dataUser['roles'];
                 const rolesArray = roles ? roles.split(',') : [];
                 const userType = dataUser['userType'];
+
+                fillDesignationSelect(dataUser['designationId']);
+                fillClientSelect(dataUser['clientId']);
+                fillSiteSelect(dataUser['clientId'], dataUser['siteId']);
+
                 formValidate.disableField('txtMusUserName');
                 formValidate.disableField('txtMusUserPassword');
                 mzSetFieldValue('MusUserName', dataUser['userName'], 'text');
@@ -361,14 +442,8 @@ function ModalUser() {
                 mzSetFieldValue('MusUserFirstName', dataUser['userFirstName'], 'text');
                 mzSetFieldValue('MusUserContactNo', dataUser['userContactNo'], 'text');
                 mzSetFieldValue('MusUserEmail', dataUser['userEmail'], 'text');
-                mzSetFieldValue('MusDesignationId', dataUser['designationId'], 'select', 'Designation *');
                 mzSetFieldValue('MusRole', rolesArray, 'check');
-                // Also check dynamic roles by their value attribute
                 checkDynamicRolesByValue(rolesArray);
-
-                mzOptionStop('optMusSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: dataUser['clientId'], siteStatus: '1'}, 'required');
-                mzSetFieldValue('MusClientId', dataUser['clientId'], 'select', 'Client *');
-                mzSetFieldValue('MusSiteId', dataUser['siteId'], 'select', 'Site *');
 
                 if (userType === '1') {
                     $('.divMusRoles').show();
@@ -382,7 +457,7 @@ function ModalUser() {
                 }
                 formValidate.validateForm();
 
-                $('#lblMusTitle').html('<i class="fas fa-user-edit text-white"></i> &nbsp;Edit User Profile');
+                $('#lblMusTitle').html('<i class="fas fa-user-edit me-2"></i>Edit User Profile');
                 $('#txtMusUserName').prop('disabled', true);
                 $('#modal_user').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
@@ -446,7 +521,6 @@ function ModalUser() {
         refSite = _refSite;
     };
 
-    // New: accept refRole from page
     this.setRefRole = function (_refRole) {
         refRole = _refRole;
         applyPtwRoleIds();

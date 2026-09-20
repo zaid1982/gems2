@@ -24,6 +24,138 @@ function MainUserManagement() {
         return 'Updated ' + new Date(value).toLocaleString();
     }
 
+    function displayText(value, type) {
+        const text = value || '';
+        if (type !== 'display') {
+            return text;
+        }
+        return GemsUI.escape(text);
+    }
+
+    function stripHtml(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        if (typeof value !== 'string') {
+            return value;
+        }
+        return value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    function siteRows() {
+        const rows = [];
+        $.each(refSite || {}, function (key, site) {
+            if (!site || typeof site !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, site);
+            if (row['siteId'] === undefined || row['siteId'] === null || row['siteId'] === '') {
+                row['siteId'] = key;
+            }
+            if (String(row['siteStatus']) !== '1') {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return (a['siteName'] || '').localeCompare(b['siteName'] || '');
+        });
+        return rows;
+    }
+
+    function getSiteName(siteId) {
+        if (siteId === '' || siteId === null || typeof siteId === 'undefined') {
+            return '';
+        }
+        if (refSite && refSite[siteId] && refSite[siteId]['siteName']) {
+            return refSite[siteId]['siteName'];
+        }
+        let name = '';
+        $.each(refSite || {}, function (key, site) {
+            if (site && String(site['siteId'] || key) === String(siteId) && site['siteName']) {
+                name = site['siteName'];
+                return false;
+            }
+            return true;
+        });
+        return name;
+    }
+
+    function statusLabel(statusId, fallback) {
+        if (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc']) {
+            return refStatus[statusId]['statusDesc'];
+        }
+        switch (String(statusId)) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            default:
+                return fallback || 'Unknown';
+        }
+    }
+
+    function statusBadgeKind(status) {
+        return String(status) === '1' ? 'success' : 'secondary';
+    }
+
+    function statusBadge(statusId, type) {
+        const label = statusLabel(statusId, 'Unknown');
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
+    function roleListHtml(roles, type) {
+        if (!roles) {
+            return '';
+        }
+        const dataSplit = String(roles).split(',');
+        const names = [];
+        for (let j = 0; j < dataSplit.length; j++) {
+            const roleId = (dataSplit[j] || '').toString().trim();
+            if (!roleId) {
+                continue;
+            }
+            let label = '';
+            if (refRole && refRole[roleId] && (refRole[roleId]['roleName'] || refRole[roleId]['roleDesc'])) {
+                label = refRole[roleId]['roleName'] || refRole[roleId]['roleDesc'];
+            } else if (roleId === '27') {
+                label = 'MR Reviewer';
+            } else {
+                label = 'Role ' + roleId;
+            }
+            names.push(label);
+        }
+        if (type !== 'display') {
+            return names.join(', ');
+        }
+        if (!names.length) {
+            return '';
+        }
+        let html = '<ul class="mb-0 ps-3">';
+        names.forEach(function (name) {
+            html += '<li>' + GemsUI.escape(name) + '</li>';
+        });
+        html += '</ul>';
+        return html;
+    }
+
+    function rowDataFromLink(el) {
+        const linkId = $(el).attr('id') || '';
+        const linkIndex = linkId.indexOf('_');
+        if (linkIndex <= 0) {
+            return null;
+        }
+        const rowId = linkId.substr(linkIndex + 1);
+        return {
+            rowId: rowId,
+            data: oTableUser.row(parseInt(rowId, 10)).data()
+        };
+    }
+
     function updateMetrics() {
         if (!oTableUser) {
             return;
@@ -85,142 +217,189 @@ function MainUserManagement() {
         $('#lblUmnUserFilter').text(label);
     }
 
-    this.init = function () {
-        mzOption('optUmnGroupId', refSite, 'All Sites', 'siteId', 'siteName', {siteStatus: '1'}, '', false);
+    function populateSiteFilter() {
+        GemsUI.fillSelect(
+            'optUmnGroupId',
+            siteRows(),
+            'siteId',
+            function (row) {
+                return row['siteName'] || '';
+            },
+            'All Sites',
+            ''
+        );
         updateFilterSummary();
+    }
+
+    this.init = function () {
+        populateSiteFilter();
 
         refUserType = ['', 'GFM Internal', 'Client', 'Public User'];
+
+        let exportCounter = 1;
+        const exportOpt = {
+            columns: [0, 1, 2, 3, 4, 5, 6, 7],
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        exportCounter = 1;
+                    }
+                    if (column === 0) {
+                        return exportCounter++;
+                    }
+                    return stripHtml(data);
+                }
+            }
+        };
+        const dtButtons = GemsUI.dtButtons('GEMS 2.0 - System User List').map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
+            }
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
+        });
+
         oTableUser = $('#dtUmnUser').DataTable({
             bLengthChange: false,
             bFilter: true,
+            searching: true,
+            autoWidth: false,
             aaSorting: [9, 'desc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
+            dom: GemsUI.dtDomButtons,
+            buttons: dtButtons,
+            language: GemsUI.dtEmpty('fa-users', 'No users recorded yet.', 'No users match the current search or filter.'),
+            pagingType: 'simple_numbers',
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 const info = (oTableUser && oTableUser.page && typeof oTableUser.page.info === 'function')
                     ? oTableUser.page.info()
                     : null;
-                const rowNumber = info ? (info.page * info.length + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
-                $('td', nRow).eq(0).html(rowNumber).attr('data-label', '#');
-                $('td', nRow).eq(1).attr('data-label', 'Name');
-                $('td', nRow).eq(2).attr('data-label', 'Site');
-                $('td', nRow).eq(3).attr('data-label', 'Type');
-                $('td', nRow).eq(4).attr('data-label', 'Contact No.');
-                $('td', nRow).eq(5).attr('data-label', 'Email');
-                $('td', nRow).eq(6).attr('data-label', 'Roles');
-                $('td', nRow).eq(7).attr('data-label', 'Status');
-                $('td', nRow).eq(8).attr('data-label', 'Actions');
+                const rowNumber = info ? (info.start + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
+                $('td', nRow).eq(0).html(rowNumber);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkUmnUserEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableUser.row(parseInt(rowId)).data();
-                        modalUserClass.edit(currentRow['userId'], rowId);
-                    }
-                });
-                $('.lnkUmnUserPassword').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableUser.row(parseInt(rowId)).data();
-                        modalEditPasswordClass.edit(currentRow['userId'], rowId);
-                    }
-                });
-                $('.lnkUmnUserDeactivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableUser.row(parseInt(rowId)).data();
-                        modalUserClass.deactivate(currentRow['userId'], rowId);
-                    }
-                });
-                $('.lnkUmnUserActivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableUser.row(parseInt(rowId)).data();
-                        modalUserClass.activate(currentRow['userId'], rowId);
-                    }
-                });
                 updateMetrics();
                 updateSummary();
             },
-            language: _DATATABLE_LANGUAGE,
-            aoColumns:
-                [
-                    {mData: null, bSortable: false},
-                    {mData: 'userFullName'},
-                    {mData: null, mRender: function (data, type, row){
-                            return row['siteId'] !== '' ? refSite[row['siteId']]['siteName'] : '';
-                        }},
-                    {mData: 'userType', mRender: function (data){
-                            return refUserType[data];
-                        }},
-                    {mData: 'userContactNo'},
-                    {mData: 'userEmail', mRender: function (data){
-                            return mzEmailShort(data, 20);
-                        }},
-                    {mData: null,
-                        mRender: function (data, type, row) {
-                            let label = '';
-                            let rowData = row['roles'];
-                            if (rowData != '') {
-                                label = '<ul style="padding-left: 0px; margin-bottom: 0px !important;">';
-                                const dataSplit = rowData.split(',');
-                                for (let j=0; j<dataSplit.length; j++) {
-                                    const roleId = (dataSplit[j] || '').toString().trim();
-                                    // Add null checks to prevent errors when refRole is not loaded yet
-                                    if (refRole && refRole[roleId] && (refRole[roleId]['roleName'] || refRole[roleId]['roleDesc'])) {
-                                        label += '<li>' + (refRole[roleId]['roleName'] || refRole[roleId]['roleDesc']) + '</li>';
-                                    } else {
-                                        // Fallback label when local role reference is stale/missing.
-                                        // Keep this minimal and only patch known roles that must display cleanly.
-                                        if (roleId === '27') {
-                                            label += '<li>MR Reviewer</li>';
-                                        } else {
-                                            label += '<li>Role ' + roleId + '</li>';
-                                        }
-                                    }
-                                }
-                                label += '</ul>';
-                            }
-                            return label;
+            aoColumns: [
+                {mData: null, bSortable: false, sClass: 'text-center'},
+                {mData: 'userFullName',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
+                    }
+                },
+                {mData: null,
+                    mRender: function (data, type, row) {
+                        return displayText(getSiteName(row['siteId']), type);
+                    }
+                },
+                {mData: 'userType',
+                    mRender: function (data, type) {
+                        return displayText(refUserType[data] || '', type);
+                    }
+                },
+                {mData: 'userContactNo',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
+                    }
+                },
+                {mData: 'userEmail',
+                    mRender: function (data, type) {
+                        if (type !== 'display') {
+                            return data || '';
                         }
-                    },
-                    {mData: null,
-                        mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['userStatus']]['statusColor']+' z-depth-2">'+refStatus[row['userStatus']]['statusDesc']+'</span></h6>';
+                        const parts = String(mzEmailShort(data || '', 20)).split('<br>');
+                        return parts.map(function (part) {
+                            return GemsUI.escape(part);
+                        }).join('<br>');
+                    }
+                },
+                {mData: null,
+                    mRender: function (data, type, row) {
+                        return roleListHtml(row['roles'], type);
+                    }
+                },
+                {mData: null,
+                    mRender: function (data, type, row) {
+                        return statusBadge(row['userStatus'], type);
+                    }
+                },
+                {mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
+                    mRender: function (data, type, row, meta) {
+                        let html = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkUmnUserEdit',
+                            id: 'lnkUmnUserEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-view',
+                            cls: 'lnkUmnUserPassword',
+                            id: 'lnkUmnUserPassword_' + meta.row,
+                            title: 'Edit Password',
+                            icon: 'fas fa-unlock-alt'
+                        });
+                        if (row['userStatus'] === '1') {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkUmnUserDeactivate',
+                                id: 'lnkUmnUserDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
+                        } else {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkUmnUserActivate',
+                                id: 'lnkUmnUserActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
                         }
-                    },
-                    {mData: null, bSortable: false, sClass: 'text-center',
-                        mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-edit lnkUmnUserEdit" id="lnkUmnUserEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
-                            label += '<button type="button" class="btn-action btn-edit lnkUmnUserPassword" id="lnkUmnUserPassword_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit Password"><i class="fas fa-unlock-alt"></i></button>';
-                            if (row['userStatus'] === '1') {
-                                label += '<button type="button" class="btn-action btn-deactivate lnkUmnUserDeactivate" id="lnkUmnUserDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
-                            } else {
-                                label += '<button type="button" class="btn-action btn-activate lnkUmnUserActivate" id="lnkUmnUserActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
-                            }
-                            label += '</div>';
-                            return label;
-                        }
-                    },
-                    {mData: 'userId', visible: false},
-                    {mData: 'userStatus', visible: false},
-                    {mData: 'roles', visible: false},
-                    {mData: 'groupId', visible: false},
-                    {mData: 'designationId', visible: false},
-                    {mData: 'siteId', visible: false},
-                ]
+                        return html;
+                    }
+                },
+                {mData: 'userId', visible: false, sClass: 'noVis'},
+                {mData: 'userStatus', visible: false, sClass: 'noVis'},
+                {mData: 'roles', visible: false, sClass: 'noVis'},
+                {mData: 'groupId', visible: false, sClass: 'noVis'},
+                {mData: 'designationId', visible: false, sClass: 'noVis'},
+                {mData: 'siteId', visible: false, sClass: 'noVis'}
+            ]
         });
-        $("#dtUmnUser_filter").hide();
-        $('#txtUmnUserSearch').on('keyup change', function () {
+
+        oTableUser.buttons().container().appendTo($('#btnDtUmnUserExport'));
+        GemsUI.bindDtTooltips('#dtUmnUser');
+
+        const tbody = $('#dtUmnUser tbody');
+        tbody.on('click', '.lnkUmnUserEdit', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalUserClass.edit(current.data['userId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkUmnUserPassword', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalEditPasswordClass.edit(current.data['userId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkUmnUserDeactivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalUserClass.deactivate(current.data['userId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkUmnUserActivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalUserClass.activate(current.data['userId'], current.rowId);
+            }
+        });
+
+        $('#txtUmnUserSearch').on('keyup change input', function () {
             oTableUser.search($(this).val()).draw();
         });
         $('#optUmnGroupId').on('change', function () {
@@ -232,76 +411,6 @@ function MainUserManagement() {
             }
             updateFilterSummary();
         });
-        /*$('#linkUmn0').on('click', function () {
-            oTableUser.column(11).search('').draw();
-        });
-        $('#linkUmn1').on('click', function () {
-            oTableUser.column(11).search('1', false, true, false).draw();
-        });
-        $('#linkUmn2').on('click', function () {
-            oTableUser.column(11).search('2', false, true, false).draw();
-        });
-        $('#linkUmn3').on('click', function () {
-            oTableUser.column(11).search('3', false, true, false).draw();
-        });
-        $('#linkUmn4').on('click', function () {
-            oTableUser.column(11).search('4', false, true, false).draw();
-        });
-        $('#linkUmn5').on('click', function () {
-            oTableUser.column(11).search('5', false, true, false).draw();
-        });*/
-
-        let cntUser;
-        let btnUserOpt = {
-            exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7],
-                format: {
-                    body: function ( data, row, column ) {
-                        if (row === 0 && column === 0) {
-                            cntUser = 1;
-                        }
-                        if (column === 6) {
-                            const m = data.replace('<ul style="padding-left: 0px; margin-bottom: 0px !important;"><li>','');
-                            const p = m.replace('</li></ul>', '');
-                            const q = p.split('</li><li>').join(', ');
-                            return q;
-                        } else if (column === 7) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
-                        }
-                        return column === 0 ? cntUser++ : data;
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableUser, {
-            buttons: [
-                $.extend( true, {}, btnUserOpt, {
-                    extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - System User List',
-                    titleAttr: 'Print',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnUserOpt, {
-                    extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - System User List',
-                    titleAttr: 'Excel',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnUserOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - System User List',
-                    titleAttr: 'Pdf',
-                    orientation: 'landscape',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                })
-            ]
-        }).container().appendTo($('#btnDtUmnUserExport'));
 
         $('#btnDtUmnUserRefresh').on('click', function () {
             ShowLoader();
@@ -326,13 +435,12 @@ function MainUserManagement() {
 
     this.genTableUser = function () {
         console.log('genTableUser called, refRole:', refRole);
-        // Ensure refRole is loaded before proceeding
         if (!refRole || Object.keys(refRole).length === 0) {
             console.warn('Role data not loaded yet, retrying in 500ms...');
             setTimeout(() => this.genTableUser(), 500);
             return;
         }
-        
+
         mzAjaxRequest('profile.php', 'GET', {Reportid: '1', 'Cache-Control': 'no-cache, no-transform'}, 'userManagementClass_.displayChart()');
         const dataUser = mzAjaxRequest('profile.php', 'GET');
         lastUpdated = new Date();
@@ -354,61 +462,22 @@ function MainUserManagement() {
             return;
         }
 
-        // Ensure refRole is loaded before proceeding
         if (!refRole || Object.keys(refRole).length === 0) {
             console.warn('Role data not loaded yet, chart will be updated when data is available');
             console.log('refRole:', refRole);
             return;
         }
-        
+
         console.log('Processing chart data with refRole:', refRole);
 
         let chartData = [];
-        /*let total0 = 0;
-        let total1 = 0;
-        let total2 = 0;
-        let total3 = 0;
-        let total4 = 0;
-        let total5 = 0;
-        let total6 = 0;
-        let total7 = 0;
-        let total8 = 0;
-        let total9 = 0;
-        let total10 = 0;
-        let total11 = 0;*/
 
         $.each(result, function (n, u) {
-            // Add null checks to prevent errors when refRole is not loaded yet
             if (refRole && refRole[u['roleId']] && refRole[u['roleId']]['roleDesc']) {
-                chartData.push({name:refRole[u['roleId']]['roleDesc'], y:parseInt(u['total'])});
+                chartData.push({name: refRole[u['roleId']]['roleDesc'], y: parseInt(u['total'])});
             } else {
-                // Fallback to roleId if roleDesc is not available
-                chartData.push({name:'Role ' + u['roleId'], y:parseInt(u['total'])});
+                chartData.push({name: 'Role ' + u['roleId'], y: parseInt(u['total'])});
             }
-            /*if (u['roleId'] === '1') {
-                total1 = parseInt(u['total']);
-            } else if (u['roleId'] === '2') {
-                total2 = parseInt(u['total']);
-            } else if (u['roleId'] === '3') {
-                total3 = parseInt(u['total']);
-            } else if (u['roleId'] === '4') {
-                total4 = parseInt(u['total']);
-            } else if (u['roleId'] === '5') {
-                total5 = parseInt(u['total']);
-            } else if (u['roleId'] === '6') {
-                total6 = parseInt(u['total']);
-            } else if (u['roleId'] === '7') {
-                total7 = parseInt(u['total']);
-            } else if (u['roleId'] === '8') {
-                total8 = parseInt(u['total']);
-            } else if (u['roleId'] === '9') {
-                total9 = parseInt(u['total']);
-            } else if (u['roleId'] === '10') {
-                total10 = parseInt(u['total']);
-            } else if (u['roleId'] === '11') {
-                total11 = parseInt(u['total']);
-            }
-            total0 += parseInt(u['total']);*/
         });
 
         const categories = chartData.map(function (item) {

@@ -1,192 +1,222 @@
-<div class="modal fade gems-modal" id="modal_user" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2" id="lblMusTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_user — Tabler/GEMS modal + form contract (P4C-3).
+
+  Loaded by pages/user_management.html ONLY. Copies the P4 modal contract:
+    gems-modal-lg (800px) + modal-dialog-scrollable, never modal-dialog-centered.
+    Flat white header, btn-close flex-centred with the title.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close first, primary Submit last.
+
+  User extras stay: Add-only password, Client → Site cascade, user-type
+  radios, and the hardcoded role matrix including PTW / MR dynamic IDs.
+  Checkbox name/id/value attributes are the business contract.
+
+  Legacy parent selects (preserve, do not apply Site "edit all + disable"):
+    Add and Edit both filter designationStatus === '1' and clientStatus === '1'.
+    Site is {clientId, siteStatus: '1'}. Client and Site stay editable on Edit.
+
+  JS contract preserved (js/pages/modal_user.js, js/pages/main_user_management.js):
+    #modal_user  #formMus  #lblMusTitle  #btnMusSubmit
+    #txtMusUserFirstName  #txtMusUserName  #txtMusUserPassword
+    #optMusDesignationId  #txtMusUserContactNo  #txtMusUserEmail
+    #optMusClientId  #optMusSiteId
+    #chkMusUserType1  #chkMusUserType2  #chkMusUserType3
+    input[name="chkMusRole[]"]  #chkMusRoleErr
+    .divMusAddOnly  .divMusRoles
+    #divMusRole{1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22}
+    #divMusRoleMRReviewer  #divMusRolePTWSUP  #divMusRolePTWSHE  #divMusRolePTWFM
+    #chkMusRoleMRReviewer  #chkMusRolePTWSUP  #chkMusRolePTWSHE  #chkMusRolePTWFM
+-->
+<div class="modal fade" id="modal_user" tabindex="-1" aria-labelledby="lblMusTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMusTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMus" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMusUserFirstName" id="lblMusUserFirstName">Name <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMusUserFirstName" class="form-control" aria-required="true" aria-describedby="txtMusUserFirstNameErr">
+              <div class="gems-field-error" id="txtMusUserFirstNameErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body gems-modal-body">
-                <form id="formMus">
-                    <div class="md-form md-outline mt-4">
-                        <input type="text" id="txtMusUserFirstName" class="form-control">
-                        <label for="txtMusUserFirstName" id="lblMusUserFirstName">Name *</label>
-                        <p class="font-small text-danger" id="txtMusUserFirstNameErr"></p>
-                    </div>
-                    <div class="md-form md-outline">
-                        <input type="text" id="txtMusUserName" class="form-control">
-                        <label for="txtMusUserName" id="lblMusUserName">Login ID *</label>
-                        <p class="font-small text-danger" id="txtMusUserNameErr"></p>
-                    </div>
-                    <div class="md-form md-outline divMusAddOnly">
-                        <input type="password" id="txtMusUserPassword" class="form-control" autocomplete="new-password">
-                        <label for="txtMusUserPassword" id="lblMusUserPassword">Password *</label>
-                        <p class="font-small text-danger" id="txtMusUserPasswordErr"></p>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline">
-                            <select id="optMusDesignationId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
-                            <label for="optMusDesignationId" id="lblMusDesignationId">Designation *</label>
-                            <p class="font-small text-danger" id="optMusDesignationIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMusUserContactNo" class="form-control">
-                        <label for="txtMusUserContactNo" id="lblMusUserContactNo">Contact No. *</label>
-                        <p class="font-small text-danger" id="txtMusUserContactNoErr"></p>
-                    </div>
-                    <div class="md-form md-outline">
-                        <input type="text" id="txtMusUserEmail" class="form-control">
-                        <label for="txtMusUserEmail" id="lblMusUserEmail">Email *</label>
-                        <p class="font-small text-danger" id="txtMusUserEmailErr"></p>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline">
-                            <select id="optMusClientId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
-                            <label for="optMusClientId" id="lblMusClientId">Client *</label>
-                            <p class="font-small text-danger" id="optMusClientIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline">
-                            <select id="optMusSiteId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                <option value="" disabled selected>Choose Site</option>
-                            </select>
-                            <label for="optMusSiteId" id="lblMusSiteId">Site *</label>
-                            <p class="font-small text-danger" id="optMusSiteIdErr"></p>
-                        </div>
-                    </div>
-                    <h6 class="font-small mb-0">User Type:</h6>
-                    <div class="md-form mt-0 ml-2">
-                        <div class="form-check form-check-inline">
-                            <input type="radio" class="form-check-input" name="chkMusUserType" id="chkMusUserType1" value="1">
-                            <label class="form-check-label" for="chkMusUserType1">Internal</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input type="radio" class="form-check-input" name="chkMusUserType" id="chkMusUserType2" value="2">
-                            <label class="form-check-label" for="chkMusUserType2">Client</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input type="radio" class="form-check-input" name="chkMusUserType" id="chkMusUserType3" value="3" disabled>
-                            <label class="form-check-label" for="chkMusUserType3">Public</label>
-                        </div>
-                    </div>
-                    <h6 class="font-small mb-0 divMusRoles">Roles:</h6>
-                    <div class="md-form mt-0 ml-2 divMusRoles">
-                        <div class="form-check form-check-inline" id="divMusRole1">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole1" value="1">
-                            <label class="form-check-label" for="chkMusRole1">Administrator</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole10">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole10" value="10">
-                            <label class="form-check-label" for="chkMusRole10">GFM Management</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole19">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole19" value="19">
-                            <label class="form-check-label" for="chkMusRole19">Site Admin</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole2">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole2" value="2">
-                            <label class="form-check-label" for="chkMusRole2">Site Manager</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole5">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole5" value="5">
-                            <label class="form-check-label" for="chkMusRole5">PPM Executor</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole3">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole3" value="3">
-                            <label class="form-check-label" for="chkMusRole3">PPM Reviewer</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole4">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole4" value="4">
-                            <label class="form-check-label" for="chkMusRole4">PPM Verifier</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole6">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole6" value="6">
-                            <label class="form-check-label" for="chkMusRole6">Client / Complainer</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole9">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole9" value="9">
-                            <label class="form-check-label" for="chkMusRole9">WO Complainer</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole7">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole7" value="7">
-                            <label class="form-check-label" for="chkMusRole7">WO Assigner</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole8">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole8" value="8">
-                            <label class="form-check-label" for="chkMusRole8">WO Executor</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole11">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole11" value="11">
-                            <label class="form-check-label" for="chkMusRole11">WO Helpdesk</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole12">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole12" value="12">
-                            <label class="form-check-label" for="chkMusRole12">Drawing Admin</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole13">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole13" value="13">
-                            <label class="form-check-label" for="chkMusRole13">Drawing High Access</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole14">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole14" value="14">
-                            <label class="form-check-label" for="chkMusRole14">Inventory Admin</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole16">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole16" value="16">
-                            <label class="form-check-label" for="chkMusRole16">Storekeeper</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole17">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole17" value="17">
-                            <label class="form-check-label" for="chkMusRole17">WO Supervisor</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole18">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole18" value="18">
-                            <label class="form-check-label" for="chkMusRole18">Utility Officer</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole20">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole20" value="20">
-                            <label class="form-check-label" for="chkMusRole20">Attendance Supervisor</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRole21">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole21" value="21">
-                            <label class="form-check-label" for="chkMusRole21">Attendance OT Approver</label>
-                        </div>
-						<div class="form-check form-check-inline" id="divMusRole22">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole22" value="22">
-                            <label class="form-check-label" for="chkMusRole22">FCA Auditor</label>
-                        </div>
-						<!-- Inventory workflow role (ID will be mapped dynamically from refRole) -->
-						<div class="form-check form-check-inline" id="divMusRoleMRReviewer">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRoleMRReviewer" value="27">
-							<label class="form-check-label" for="chkMusRoleMRReviewer">MR Reviewer</label>
-						</div>
-                        <!-- PTW Roles -->
-                        <div class="form-check form-check-inline" id="divMusRolePTWSUP">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRolePTWSUP" value="24">
-                            <label class="form-check-label" for="chkMusRolePTWSUP">PTW Supervisor</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRolePTWSHE">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRolePTWSHE" value="25">
-                            <label class="form-check-label" for="chkMusRolePTWSHE">PTW SHE</label>
-                        </div>
-                        <div class="form-check form-check-inline" id="divMusRolePTWFM">
-                            <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRolePTWFM" value="26">
-                            <label class="form-check-label" for="chkMusRolePTWFM">PTW Facility Manager</label>
-                        </div>
-                        <p class="font-small text-danger mt-3" id="chkMusRoleErr"></p>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMusUserName" id="lblMusUserName">Login ID <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMusUserName" class="form-control" aria-required="true" aria-describedby="txtMusUserNameErr">
+              <div class="gems-field-error" id="txtMusUserNameErr" role="alert"></div>
             </div>
-            <div class="modal-footer gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMusSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-field gems-field-6 divMusAddOnly">
+              <label class="form-label" for="txtMusUserPassword" id="lblMusUserPassword">Password <span class="required" aria-hidden="true">*</span></label>
+              <input type="password" id="txtMusUserPassword" class="form-control" autocomplete="new-password" aria-required="true" aria-describedby="txtMusUserPasswordErr">
+              <div class="gems-field-error" id="txtMusUserPasswordErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optMusDesignationId" id="lblMusDesignationId">Designation <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMusDesignationId" class="form-select" aria-required="true" aria-describedby="optMusDesignationIdErr"></select>
+              <div class="gems-field-error" id="optMusDesignationIdErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMusUserContactNo" id="lblMusUserContactNo">Contact No. <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMusUserContactNo" class="form-control" aria-required="true" aria-describedby="txtMusUserContactNoErr">
+              <div class="gems-field-error" id="txtMusUserContactNoErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMusUserEmail" id="lblMusUserEmail">Email <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMusUserEmail" class="form-control" aria-required="true" aria-describedby="txtMusUserEmailErr">
+              <div class="gems-field-error" id="txtMusUserEmailErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMusClientId" id="lblMusClientId">Client <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMusClientId" class="form-select" aria-required="true" aria-describedby="optMusClientIdErr"></select>
+              <div class="gems-field-error" id="optMusClientIdErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMusSiteId" id="lblMusSiteId">Site <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMusSiteId" class="form-select" aria-required="true" aria-describedby="optMusSiteIdErr">
+                <option value="">Choose Site</option>
+              </select>
+              <div class="gems-field-error" id="optMusSiteIdErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <span class="form-label">User Type <span class="required" aria-hidden="true">*</span></span>
+              <div class="d-flex flex-wrap gap-3">
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="chkMusUserType" id="chkMusUserType1" value="1" aria-describedby="chkMusUserTypeErr">
+                  <label class="form-check-label" for="chkMusUserType1">Internal</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="chkMusUserType" id="chkMusUserType2" value="2" aria-describedby="chkMusUserTypeErr">
+                  <label class="form-check-label" for="chkMusUserType2">Client</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" name="chkMusUserType" id="chkMusUserType3" value="3" disabled aria-describedby="chkMusUserTypeErr">
+                  <label class="form-check-label" for="chkMusUserType3">Public</label>
+                </div>
+              </div>
+              <div class="gems-field-error" id="chkMusUserTypeErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12 divMusRoles">
+              <span class="form-label">Roles <span class="required" aria-hidden="true">*</span></span>
+              <div class="d-flex flex-wrap gap-2" role="group" aria-label="Roles">
+                <div class="form-check" id="divMusRole1">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole1" value="1" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole1">Administrator</label>
+                </div>
+                <div class="form-check" id="divMusRole10">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole10" value="10" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole10">GFM Management</label>
+                </div>
+                <div class="form-check" id="divMusRole19">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole19" value="19" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole19">Site Admin</label>
+                </div>
+                <div class="form-check" id="divMusRole2">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole2" value="2" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole2">Site Manager</label>
+                </div>
+                <div class="form-check" id="divMusRole5">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole5" value="5" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole5">PPM Executor</label>
+                </div>
+                <div class="form-check" id="divMusRole3">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole3" value="3" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole3">PPM Reviewer</label>
+                </div>
+                <div class="form-check" id="divMusRole4">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole4" value="4" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole4">PPM Verifier</label>
+                </div>
+                <div class="form-check" id="divMusRole6">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole6" value="6" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole6">Client / Complainer</label>
+                </div>
+                <div class="form-check" id="divMusRole9">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole9" value="9" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole9">WO Complainer</label>
+                </div>
+                <div class="form-check" id="divMusRole7">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole7" value="7" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole7">WO Assigner</label>
+                </div>
+                <div class="form-check" id="divMusRole8">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole8" value="8" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole8">WO Executor</label>
+                </div>
+                <div class="form-check" id="divMusRole11">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole11" value="11" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole11">WO Helpdesk</label>
+                </div>
+                <div class="form-check" id="divMusRole12">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole12" value="12" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole12">Drawing Admin</label>
+                </div>
+                <div class="form-check" id="divMusRole13">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole13" value="13" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole13">Drawing High Access</label>
+                </div>
+                <div class="form-check" id="divMusRole14">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole14" value="14" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole14">Inventory Admin</label>
+                </div>
+                <div class="form-check" id="divMusRole16">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole16" value="16" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole16">Storekeeper</label>
+                </div>
+                <div class="form-check" id="divMusRole17">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole17" value="17" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole17">WO Supervisor</label>
+                </div>
+                <div class="form-check" id="divMusRole18">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole18" value="18" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole18">Utility Officer</label>
+                </div>
+                <div class="form-check" id="divMusRole20">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole20" value="20" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole20">Attendance Supervisor</label>
+                </div>
+                <div class="form-check" id="divMusRole21">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole21" value="21" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole21">Attendance OT Approver</label>
+                </div>
+                <div class="form-check" id="divMusRole22">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole22" value="22" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRole22">FCA Auditor</label>
+                </div>
+                <div class="form-check" id="divMusRoleMRReviewer">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRoleMRReviewer" value="27" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRoleMRReviewer">MR Reviewer</label>
+                </div>
+                <div class="form-check" id="divMusRolePTWSUP">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRolePTWSUP" value="24" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRolePTWSUP">PTW Supervisor</label>
+                </div>
+                <div class="form-check" id="divMusRolePTWSHE">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRolePTWSHE" value="25" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRolePTWSHE">PTW SHE</label>
+                </div>
+                <div class="form-check" id="divMusRolePTWFM">
+                  <input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRolePTWFM" value="26" aria-describedby="chkMusRoleErr">
+                  <label class="form-check-label" for="chkMusRolePTWFM">PTW Facility Manager</label>
+                </div>
+              </div>
+              <div class="gems-field-error" id="chkMusRoleErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMusSubmit" class="btn btn-primary" disabled>
+          <i class="far fa-paper-plane me-2"></i>Submit
+        </button>
+      </div>
     </div>
+  </div>
 </div>
