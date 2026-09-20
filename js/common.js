@@ -2291,9 +2291,6 @@ function mzCheckFuncParam (arrParam) {
 }
 
 function mzDateSetMin(fieldId, dateStr) {
-    const dateInput = $('#'+fieldId).pickadate();
-    const datePicker = dateInput.pickadate('picker');
-
     let dateSplit = dateStr.split("-");
     if (dateSplit.length !== 3) {
         dateSplit = dateStr.split("/");
@@ -2304,13 +2301,16 @@ function mzDateSetMin(fieldId, dateStr) {
     const day = parseInt(dateSplit[2]);
     const month = parseInt(dateSplit[1]);
     const year = parseInt(dateSplit[0]);
+    if (!mzHasPickadate()) {
+        $('#'+fieldId).attr('min', year + '-' + mzPad2(month) + '-' + mzPad2(day));
+        return;
+    }
+    const dateInput = $('#'+fieldId).pickadate();
+    const datePicker = dateInput.pickadate('picker');
     datePicker.set('min', new Date(year,month-1, day));
 }
 
 function mzDateSetMax(fieldId, dateStr) {
-    const dateInput = $('#'+fieldId).pickadate();
-    const datePicker = dateInput.pickadate('picker');
-
     let dateSplit = dateStr.split("-");
     if (dateSplit.length !== 3) {
         dateSplit = dateStr.split("/");
@@ -2321,6 +2321,12 @@ function mzDateSetMax(fieldId, dateStr) {
     const day = parseInt(dateSplit[2]);
     const month = parseInt(dateSplit[1]);
     const year = parseInt(dateSplit[0]);
+    if (!mzHasPickadate()) {
+        $('#'+fieldId).attr('max', year + '-' + mzPad2(month) + '-' + mzPad2(day));
+        return;
+    }
+    const dateInput = $('#'+fieldId).pickadate();
+    const datePicker = dateInput.pickadate('picker');
     datePicker.set('max', new Date(year,month-1, day));
 }
 

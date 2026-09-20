@@ -1,4 +1,4 @@
-<section class="section sectionAttendanceGroup mb-4">
+<section class="section sectionAttendanceGroup mb-4" style="display:none">
 	<style>
 		.attendance-group-shell .header-text h2 {
 			margin-bottom: 0.35rem;
@@ -22,12 +22,12 @@
 		.attendance-group-shell .attendance-group-info .info-item i {
 			font-size: 1rem;
 			margin-right: 0.75rem;
-			color: var(--gems-primary);
+			color: var(--tblr-primary, #206bc4);
 			margin-top: 0.2rem;
 		}
 		.attendance-group-shell .attendance-group-info .info-item .info-label {
 			font-weight: 600;
-			color: var(--gems-text);
+			color: var(--tblr-body-color, #1e293b);
 			display: block;
 		}
 		.attendance-group-shell .attendance-group-info .info-item .info-value {
@@ -60,7 +60,7 @@
 		.attendance-group-shell .table-grid-small-text th {
 			font-size: 12px;
 			text-align: center;
-			background-color: var(--gems-bg-page);
+			background-color: var(--tblr-bg-surface-secondary, #f1f5f9);
 		}
 		.attendance-group-shell .table-grid-small-text td {
 			font-size: 12px;
@@ -79,6 +79,21 @@
 			font-weight: 600;
 			margin-right: 0.25rem;
 		}
+		.attendance-group-shell .metric-card, .attendance-group-shell .filter-card, .attendance-group-shell .module-data-card {
+			background: var(--tblr-bg-surface, #fff);
+			border: 1px solid var(--tblr-border-color, #e5e7eb);
+			border-radius: 12px;
+			padding: 16px;
+		}
+		.attendance-group-shell .metric-label, .attendance-group-shell .filter-label {
+			font-size: .7rem;
+			font-weight: 600;
+			letter-spacing: .06em;
+			text-transform: uppercase;
+			color: var(--tblr-secondary, #6c7a91);
+		}
+		.attendance-group-shell .metric-value { font-size: 1.4rem; font-weight: 700; }
+		.attendance-group-shell .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 	</style>
 	<form id="formSag" autocomplete="off">
 		<div class="card card-cascade narrower gems-card-shell attendance-group-shell">
@@ -90,7 +105,7 @@
 				</div>
 				<div class="header-actions">
 					<div id="divSagBack" class="mr-2 d-none">
-						<button type="button" id="btnSagBack" class="btn btn-light btn-icon" data-toggle="tooltip" title="Back to attendance overview" aria-label="Back to attendance overview">
+						<button type="button" id="btnSagBack" class="btn btn-outline-secondary btn-icon" data-toggle="tooltip" title="Back to attendance overview" aria-label="Back to attendance overview">
 							<i class="fas fa-arrow-left"></i>
 						</button>
 					</div>
@@ -141,45 +156,36 @@
 				<div class="filter-card attendance-group-filter">
 					<div class="filter-grid">
 						<div id="wrapperSagGroup">
-							<label class="filter-label" for="optSagGroup">Attendance Group</label>
-							<div class="select-outline">
-								<select id="optSagGroup" class="mdb-select md-form md-outline colorful-select mt-0">
-									<option value="">Select attendance group</option>
-								</select>
-								<label for="optSagGroup">Attendance Group</label>
-							</div>
+							<label class="form-label filter-label" for="optSagGroup">Attendance Group</label>
+							<select id="optSagGroup" class="form-select">
+								<option value="">Select attendance group</option>
+							</select>
 						</div>
 						<div id="wrapperSagYear">
-							<label class="filter-label" for="optSagYear">Year</label>
-							<div class="select-outline">
-								<select id="optSagYear" class="mdb-select md-form md-outline colorful-select mt-0">
-									<option value="2022">2022</option>
-									<option value="2023">2023</option>
-									<option value="2024">2024</option>
-									<option value="2025">2025</option>
-								</select>
-								<label for="optSagYear">Year</label>
-							</div>
+							<label class="form-label filter-label" for="optSagYear">Year</label>
+							<select id="optSagYear" class="form-select">
+								<option value="2022">2022</option>
+								<option value="2023">2023</option>
+								<option value="2024">2024</option>
+								<option value="2025">2025</option>
+							</select>
 						</div>
 						<div id="wrapperSagMonth">
-							<label class="filter-label" for="optSagMonth">Month</label>
-							<div class="select-outline">
-								<select id="optSagMonth" class="mdb-select md-form md-outline colorful-select mt-0">
-									<option value="1">January</option>
-									<option value="2">February</option>
-									<option value="3">March</option>
-									<option value="4">April</option>
-									<option value="5">May</option>
-									<option value="6">June</option>
-									<option value="7">July</option>
-									<option value="8">August</option>
-									<option value="9">September</option>
-									<option value="10">October</option>
-									<option value="11">November</option>
-									<option value="12">December</option>
-								</select>
-								<label for="optSagMonth">Month</label>
-							</div>
+							<label class="form-label filter-label" for="optSagMonth">Month</label>
+							<select id="optSagMonth" class="form-select">
+								<option value="1">January</option>
+								<option value="2">February</option>
+								<option value="3">March</option>
+								<option value="4">April</option>
+								<option value="5">May</option>
+								<option value="6">June</option>
+								<option value="7">July</option>
+								<option value="8">August</option>
+								<option value="9">September</option>
+								<option value="10">October</option>
+								<option value="11">November</option>
+								<option value="12">December</option>
+							</select>
 						</div>
 					</div>
 					<div class="summary-pill d-flex justify-content-between align-items-center mt-4">
@@ -305,10 +311,10 @@
 							<div class="card-body">
 								<div class="row align-items-end">
 									<div class="col-md-6 col-lg-5 mb-3 mb-md-0">
-										<div class="md-form md-outline mt-0 mb-0">
-											<input type="text" id="txtSagDailyDate" class="form-control datepicker">
-											<label for="txtSagDailyDate" id="lblSagDailyDate">Attendance Date *</label>
-											<p class="font-small text-danger" id="txtSagDailyDateErr"></p>
+										<div class="gems-field">
+											<label class="form-label" for="txtSagDailyDate" id="lblSagDailyDate">Attendance Date <span class="required" aria-hidden="true">*</span></label>
+											<input type="date" id="txtSagDailyDate" class="form-control" aria-describedby="txtSagDailyDateErr">
+											<div class="gems-field-error" id="txtSagDailyDateErr" role="alert"></div>
 										</div>
 									</div>
 								</div>
@@ -479,4 +485,3 @@
 		</div>
 	</form>
 </section>
-Wait

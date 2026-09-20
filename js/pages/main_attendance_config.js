@@ -21,24 +21,8 @@ function MainAttendance () {
 
     const tableHeaders = ['#', 'Client', 'Site Name', 'Site Code', 'Description', 'Status', 'Total Groups', 'Total Participants', 'Attendance', 'Actions'];
 
-    const initMaterialSelect = function (selector) {
-        // Disabled to prevent double rendering - using plain select instead
-        // const $element = $(selector);
-        // if (!$element.length || typeof $element.materialSelect !== 'function') {
-        //     return;
-        // }
-        // try {
-        //     $element.materialSelect('destroy');
-        // } catch (e) {
-        //     // ignore destroy warnings
-        // }
-        // const $wrapper = $element.parent('.select-wrapper');
-        // if ($wrapper.length) {
-        //     $wrapper.before($element);
-        //     $wrapper.remove();
-        // }
-        // $element.siblings('.select-dropdown').remove();
-        // $element.materialSelect();
+    const initMaterialSelect = function () {
+        /* Tabler uses native <select class="form-select">. No MDB materialSelect. */
     };
 
     const applyTableDataLabels = function () {
@@ -301,13 +285,7 @@ function MainAttendance () {
         if (!fromSelect) {
             const $statusSelect = $('#optAttendanceStatus');
             if ($statusSelect.length) {
-                try {
-                    $statusSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy warnings
-                }
                 $statusSelect.val(statusFilterValue);
-                $statusSelect.materialSelect();
                 $statusSelect.off('change').on('change', handleStatusChange);
             }
         }
@@ -322,13 +300,7 @@ function MainAttendance () {
         if (!fromSelect) {
             const $featureSelect = $('#optAttendanceFeature');
             if ($featureSelect.length) {
-                try {
-                    $featureSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy warnings
-                }
                 $featureSelect.val(attendanceFeatureValue);
-                $featureSelect.materialSelect();
                 $featureSelect.off('change').on('change', handleAttendanceFeatureChange);
             }
         }

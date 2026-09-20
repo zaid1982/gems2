@@ -1,4 +1,4 @@
-<section class="section sectionAttendanceParticipant attendance-participant-shell mb-5">
+<section class="section sectionAttendanceParticipant attendance-participant-shell mb-5" style="display:none">
     <style>
         .attendance-participant-shell .participant-header h2 { margin-bottom: 0.35rem; }
         .attendance-participant-shell .participant-header p { margin-bottom: 0; }
@@ -6,8 +6,8 @@
         .attendance-participant-shell .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .attendance-participant-shell .info-list { list-style: none; padding-left: 0; margin-bottom: 0; }
         .attendance-participant-shell .info-list li { display: flex; align-items: flex-start; margin-bottom: 0.75rem; }
-        .attendance-participant-shell .info-list li i { font-size: 1rem; margin-right: 0.75rem; color: var(--gems-primary); margin-top: 0.2rem; }
-        .attendance-participant-shell .info-label { display: block; font-weight: 600; color: var(--gems-text); }
+        .attendance-participant-shell .info-list li i { font-size: 1rem; margin-right: 0.75rem; color: var(--tblr-primary, #206bc4); margin-top: 0.2rem; }
+        .attendance-participant-shell .info-label { display: block; font-weight: 600; color: var(--tblr-body-color, #1e293b); }
         .attendance-participant-shell .info-value { display: block; color: #475569; }
         .attendance-participant-shell .chart-card div[id^="chartSap"] { width: 100%; margin: 0 auto; }
         .attendance-participant-shell .chart-card #chartSapStatus,
@@ -25,7 +25,7 @@
             </div>
             <div class="header-actions">
                 <div id="divSapBack">
-                    <button type="button" class="btn btn-outline-light btn-icon" id="btnSapBack" data-toggle="tooltip" title="Back to groups" aria-label="Back to groups"><i class="fas fa-arrow-left"></i></button>
+                    <button type="button" class="btn btn-outline-secondary btn-icon" id="btnSapBack" data-toggle="tooltip" title="Back to groups" aria-label="Back to groups"><i class="fas fa-arrow-left"></i></button>
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@
                 <div class="card module-data-card text-center mb-4" id="cardSapPicture">
                     <div class="card-body px-4 pt-4 pb-3">
                         <div class="profile-avatar">
-                            <img src="https://mdbootstrap.com/img/Photos/Avatars/img%20(2).jpg" alt="Employee avatar" id="imgSapProfile">
+                            <img src="img/background/no-image.png" alt="Employee avatar" id="imgSapProfile">
                         </div>
                         <h5 class="font-weight-bold mb-1" id="h6SapFullName">-</h5>
                         <p class="text-muted mb-3" id="smallSapDesignation">-</p>

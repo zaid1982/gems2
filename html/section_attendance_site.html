@@ -1,19 +1,30 @@
-<section class="attendance-site-section sectionAttendanceSite">
+<section class="attendance-site-section sectionAttendanceSite" style="display:none">
+    <style>
+      .sectionAttendanceSite .metrics-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 1rem; }
+      .sectionAttendanceSite .metric-card, .sectionAttendanceSite .filter-card, .sectionAttendanceSite .chart-card, .sectionAttendanceSite .module-data-card { background: var(--tblr-bg-surface, #fff); border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 12px; padding: 16px; }
+      .sectionAttendanceSite .metric-label, .sectionAttendanceSite .filter-label { font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--tblr-secondary, #6c7a91); }
+      .sectionAttendanceSite .metric-value { font-size: 1.4rem; font-weight: 700; }
+      .sectionAttendanceSite .metric-subtext { font-size: .75rem; color: var(--tblr-secondary, #6c7a91); }
+      .sectionAttendanceSite .gems-page-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 1rem; }
+      .sectionAttendanceSite .header-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+      .sectionAttendanceSite .filter-grid { display: grid; gap: 12px; }
+      .sectionAttendanceSite .results-summary { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; font-size: .8rem; }
+    </style>
     <div class="gems-page-header module-page-header">
         <div class="header-text">
-            <span class="badge badge-pill badge-light text-primary mb-2"><i class="fas fa-map-marker-alt mr-2"></i>Site Attendance</span>
-            <h2>Attendance Site Oversight</h2>
-            <p>Monitor group readiness, workforce participation, and geo-validity for each managed location.</p>
+            <span class="badge bg-azure-lt text-azure mb-2"><i class="fas fa-map-marker-alt me-2"></i>Site Attendance</span>
+            <h2 class="page-title">Attendance Site Oversight</h2>
+            <p class="page-subtitle mb-0">Monitor group readiness, workforce participation, and geo-validity for each managed location.</p>
         </div>
         <div class="header-actions attendance-header-actions">
             <div id="divSacBack">
-                <button type="button" class="btn btn-outline-light" id="btnSacBack"><i class="fas fa-arrow-left mr-2"></i>Back to Listing</button>
+                <button type="button" class="btn btn-outline-secondary" id="btnSacBack"><i class="fas fa-arrow-left me-2"></i>Back to Listing</button>
             </div>
             <div id="divSacActivate">
-                <button type="button" class="btn btn-outline-light" id="btnSacActivate"><i class="fas fa-toggle-off mr-2"></i>Activate</button>
+                <button type="button" class="btn btn-outline-secondary" id="btnSacActivate"><i class="fas fa-toggle-off me-2"></i>Activate</button>
             </div>
             <div id="divSacDeactivate">
-                <button type="button" class="btn btn-outline-light" id="btnSacDeactivate"><i class="fas fa-toggle-on mr-2"></i>Deactivate</button>
+                <button type="button" class="btn btn-outline-secondary" id="btnSacDeactivate"><i class="fas fa-toggle-on me-2"></i>Deactivate</button>
             </div>
         </div>
     </div>
@@ -41,7 +52,7 @@
         </div>
     </div>
 
-    <div class="filter-card">
+    <div class="filter-card mb-3">
         <div class="filter-grid">
             <div>
                 <div class="filter-label">Year</div>

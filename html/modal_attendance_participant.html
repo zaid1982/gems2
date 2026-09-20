@@ -5,7 +5,7 @@
             <!--Header-->
             <div class="modal-header gems-modal-header">
                 <h4 class="text-white mt-2 ml-2" id="lblMtpModalTitle"><i class="fas fa-user-edit text-white mr-2"></i> Edit Attendance Participant</h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -36,47 +36,47 @@
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMtpGfId" class="form-control">
                                 <label for="txtMtpGfId" id="lblMtpGfId">GF ID</label>
-                                <p class="font-small text-danger" id="txtMtpGfIdErr"></p>
+                                <div class="gems-field-error" id="txtMtpGfIdErr" role="alert"></div>
                             </div>
                         </div>
                         <div class="col-lg-8 select-outline mb-2" id="optMtpDesignation_">
-                            <select id="optMtpDesignation" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+                            <select id="optMtpDesignation" class="form-select" data-stop-refresh="true" data-visible-options="-1"></select>
                             <label for="optMtpDesignation" id="lblMtpDesignation">Designation *</label>
-                            <p class="font-small text-danger" id="optMtpDesignationErr"></p>
+                            <div class="gems-field-error" id="optMtpDesignationErr" role="alert"></div>
                         </div>
                         <div class="col-lg-4">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMtpContactNo" class="form-control">
                                 <label for="txtMtpContactNo" id="lblMtpContactNo">Contact No. *</label>
-                                <p class="font-small text-danger" id="txtMtpContactNoErr"></p>
+                                <div class="gems-field-error" id="txtMtpContactNoErr" role="alert"></div>
                             </div>
                         </div>
                         <div class="col-lg-8">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMtpEmail" class="form-control">
                                 <label for="txtMtpEmail" id="lblMtpEmail">Email *</label>
-                                <p class="font-small text-danger" id="txtMtpEmailErr"></p>
+                                <div class="gems-field-error" id="txtMtpEmailErr" role="alert"></div>
                             </div>
                         </div>
                         <div class="col-lg-4">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMtpYearStartService" class="form-control">
                                 <label for="txtMtpYearStartService" id="lblMtpYearStartService">Year Start Service</label>
-                                <p class="font-small text-danger" id="txtMtpYearStartServiceErr"></p>
+                                <div class="gems-field-error" id="txtMtpYearStartServiceErr" role="alert"></div>
                             </div>
                         </div>
                         <div class="col-lg-8">
                             <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMtpCidbExpiry" class="form-control datepicker">
+                                <input type="date" id="txtMtpCidbExpiry" class="form-control">
                                 <label for="txtMtpCidbExpiry" id="lblMtpCidbExpiry">CIDB Card Expiry</label>
-                                <p class="font-small text-danger" id="txtMtpCidbExpiryErr"></p>
+                                <div class="gems-field-error" id="txtMtpCidbExpiryErr" role="alert"></div>
                             </div>
                         </div>
                         <div class="col-lg-12">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMtpCompetency" class="form-control">
                                 <label for="txtMtpCompetency" id="lblMtpCompetency">Competency</label>
-                                <p class="font-small text-danger" id="txtMtpCompetencyErr"></p>
+                                <div class="gems-field-error" id="txtMtpCompetencyErr" role="alert"></div>
                             </div>
                         </div>
                     </div>
@@ -84,45 +84,45 @@
                     <p class="mb-4 font-weight-500">Attendance Setting :</p>
                     <div class="row">
                         <div class="col-lg-12 select-outline mb-2" id="optMtpGroup_">
-                            <select id="optMtpGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+                            <select id="optMtpGroup" class="form-select" data-stop-refresh="true" data-visible-options="-1"></select>
                             <label for="optMtpGroup" id="lblMtpGroup">Attendance Group *</label>
-                            <p class="font-small text-danger" id="optMtpGroupErr"></p>
+                            <div class="gems-field-error" id="optMtpGroupErr" role="alert"></div>
                         </div>
                         <div class="col-lg-12 select-outline mb-2 divMtpGroupSelected" id="optMtpCategory_">
-                            <select id="optMtpCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+                            <select id="optMtpCategory" class="form-select" data-stop-refresh="true" data-visible-options="-1"></select>
                             <label for="optMtpCategory" id="lblMtpCategory">Category *</label>
-                            <p class="font-small text-danger" id="optMtpCategoryErr"></p>
+                            <div class="gems-field-error" id="optMtpCategoryErr" role="alert"></div>
                         </div>
                         <div class="col-lg-6 select-outline mb-2 divMtpGroupSelected" id="optMtpShiftMode_">
-                            <select id="optMtpShiftMode" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+                            <select id="optMtpShiftMode" class="form-select" data-stop-refresh="true" data-visible-options="-1">
                                 <option selected value="" disabled>Please Select</option>
                                 <option value="Normal">Normal</option>
                                 <option value="2 Shifts">2 Shifts</option>
                                 <option value="3 Shifts">3 Shifts</option>
                             </select>
                             <label for="optMtpShiftMode" id="lblMtpShiftMode">Shift Mode *</label>
-                            <p class="font-small text-danger" id="optMtpShiftModeErr"></p>
+                            <div class="gems-field-error" id="optMtpShiftModeErr" role="alert"></div>
                         </div>
                         <div class="col-lg-6 select-outline mb-2 divMtpGroupSelected" id="optMtpShift_">
-                            <select id="optMtpShift" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+                            <select id="optMtpShift" class="form-select" data-stop-refresh="true" data-visible-options="-1"></select>
                             <label for="optMtpShift" id="lblMtpShift">Initial Shift *</label>
-                            <p class="font-small text-danger" id="optMtpShiftErr"></p>
+                            <div class="gems-field-error" id="optMtpShiftErr" role="alert"></div>
                         </div>
                         <div class="col-lg-6 divMtpGroupSelected">
                             <div class="md-form md-outline mt-0">
                                 <input type="text" id="txtMtpReqWeekHours" class="form-control">
                                 <label for="txtMtpReqWeekHours" id="lblMtpReqWeekHours">Required Weekly Hours *</label>
-                                <p class="font-small text-danger" id="txtMtpReqWeekHoursErr"></p>
+                                <div class="gems-field-error" id="txtMtpReqWeekHoursErr" role="alert"></div>
                             </div>
                         </div>
                         <div class="col-lg-6 select-outline mb-0 divMtpGroupSelected" id="optMtpHoliday_">
-                            <select id="optMtpHoliday" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1">
+                            <select id="optMtpHoliday" class="form-select" data-stop-refresh="true" data-visible-options="-1">
                                 <option selected value="" disabled>Please Select</option>
                                 <option value="Saturday & Sunday">Saturday & Sunday</option>
                                 <option value="Sunday">Sunday</option>
                             </select>
                             <label for="optMtpHoliday" id="lblMtpHoliday">Weekly Holiday *</label>
-                            <p class="font-small text-danger" id="optMtpHolidayErr"></p>
+                            <div class="gems-field-error" id="optMtpHolidayErr" role="alert"></div>
                         </div>
                     </div>
                     <div class="row">
@@ -138,7 +138,7 @@
                                     <label class="form-check-label" for="radMtpStatus2">Disabled</label>
                                 </div>
                             </div>
-                            <p class="font-small text-danger mt-0" id="radMtpStatusErr"></p>
+                            <div class="gems-field-error" id="radMtpStatusErr" role="alert"></div>
                         </div>
                         <div class="col-lg-6 divMtpGroupSelected">
                             <p class="mb-0 font-radio">Generate Schedule starting from :</p>
@@ -152,13 +152,13 @@
                                     <label class="form-check-label" for="radMtpGenerateType2">1st day of current month</label>
                                 </div>
                             </div>
-                            <p class="font-small text-danger mt-0" id="radMtpGenerateTypeErr"></p>
+                            <div class="gems-field-error" id="radMtpGenerateTypeErr" role="alert"></div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer p-2 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect btnMtpClose" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
+                <button class="btn btn-outline-info waves-effect btnMtpClose" data-bs-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
                 <button id="btnMtpSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
                 <button id="btnMtpSave" class="btn btn-info waves-effect"><i class="far fa-save ml-1"></i> Save</button>
             </div>

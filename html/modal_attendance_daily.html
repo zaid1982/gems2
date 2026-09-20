@@ -5,7 +5,7 @@
             <!--Header-->
             <div class="modal-header gems-modal-header">
                 <h4 class="text-white mt-2 ml-2" id="lblMtdModalTitle"><i class="fas fa-business-time text-white mr-2"></i> Daily Attendance Record</h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -142,9 +142,9 @@
                                     <hr class="grey lighten-1 mt-1 ml-4_5" style="margin-left: 40px">
                                 </div>
                                 <div class="col-12 select-outline mt-3 divMtdUpdate" id="optMtdAttType_">
-                                    <select id="optMtdAttType" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true" data-visible-options="-1"></select>
+                                    <select id="optMtdAttType" class="form-select" data-stop-refresh="true" data-visible-options="-1"></select>
                                     <label for="optMtdAttType" id="lblMtdAttType">Change Daily Status</label>
-                                    <p class="font-small text-danger" id="optMtdAttTypeErr"></p>
+                                    <div class="gems-field-error" id="optMtdAttTypeErr" role="alert"></div>
                                 </div>
                                 <div class="col-12 divMtdUpdate mt-0 mb-3" id="divMtdStatus">
                                     <div class="form-check pl-0 ml-1">
