@@ -12,9 +12,20 @@ function MainSpacePreview(){
     if(!spaceId){ toastr['error']('Missing space id','Error'); return; }
     // Hide Reserve button if space not bookable? Keep always visible for normal users; admins also can use it.
     // Assets table
-  oAssetTable=$('#dtSpcAssets').DataTable({ bLengthChange:false,bFilter:true,aaSorting:[[2,'asc']], language:_DATATABLE_LANGUAGE, fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=oAssetTable.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)); }, aoColumns:[ {mData:null,bSortable:false}, {mData:'assetNo'}, {mData:null, mRender:function(d,t,row){ const name=row.assetName||''; const id=row.assetId; return id?('<a href="asset.html?assetId='+id+'" title="Open asset">'+name+'</a>'):name; }}, {mData:'assetSerialNo'}, {mData:'linkedAt', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }} ] });
-  // Upcoming reservations table
-  oResvTable=$('#dtSpcResv').DataTable({ bLengthChange:false,bFilter:false,aaSorting:[[1,'asc']], language:_DATATABLE_LANGUAGE, fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=oResvTable.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)); }, aoColumns:[ {mData:null,bSortable:false}, {mData:'reservationStart', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }}, {mData:'reservationEnd', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }}, {mData:'reservationStatus'} ] });
+  oAssetTable=$('#dtSpcAssets').DataTable({
+    lengthChange:false, searching:true, autoWidth:false, paging:true, order:[[2,'asc']],
+    language: GemsUI.dtEmpty('fa-cubes', 'No assets linked.', 'No assets match the current search.'),
+    dom: GemsUI.dtDom,
+    fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=oAssetTable.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)); },
+    aoColumns:[ {mData:null,bSortable:false}, {mData:'assetNo'}, {mData:null, mRender:function(d,t,row){ const name=row.assetName||''; const id=row.assetId; return id?('<a href="asset.html?assetId='+id+'" title="Open asset">'+name+'</a>'):name; }}, {mData:'assetSerialNo'}, {mData:'linkedAt', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }} ]
+  });
+  oResvTable=$('#dtSpcResv').DataTable({
+    lengthChange:false, searching:false, autoWidth:false, paging:true, order:[[1,'asc']],
+    language: GemsUI.dtEmpty('fa-calendar-alt', 'No upcoming reservations.', 'No reservations match the current search.'),
+    dom: GemsUI.dtDom,
+    fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=oResvTable.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)); },
+    aoColumns:[ {mData:null,bSortable:false}, {mData:'reservationStart', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }}, {mData:'reservationEnd', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }}, {mData:'reservationStatus'} ]
+  });
     $('#btnSpcPrevRefresh').on('click', function(){ self.load(); });
   $('#btnSpcPrevReserve').on('click', function(){ self.openReserveModal(); });
     $('#btnSpcPrevCreate').on('click', function(){ self.createReservation(); });
@@ -51,8 +62,8 @@ function MainSpacePreview(){
     $('#spcName').text(d.spaceName||'-');
   const rawStatus=(d.spaceStatus||'').toUpperCase();
   const badgeText = (rawStatus==='DISABLED' || rawStatus==='INACTIVE' || rawStatus==='DECOMMISSIONED') ? 'DISABLED' : 'AVAILABLE';
-  const cls = badgeText==='AVAILABLE' ? 'badge-modern badge-success-dark' : 'badge-modern badge-danger-dark';
-  $('#spcStatusBadge').html('<span class="'+cls+'">'+badgeText+'</span>');
+  const cls = badgeText==='AVAILABLE' ? 'success' : 'danger';
+  $('#spcStatusBadge').html(GemsUI.badge(cls, GemsUI.escape(badgeText)));
   $('#spcSite').text(d.siteName||d.siteId||'-');
     $('#spcLocation').text(d.locationName||'-');
     $('#spcCategory').text(d.categoryName||'-');
@@ -114,10 +125,10 @@ function MainSpacePreview(){
       const url=m.downloadUrl; const caption = (m.mediaType||'').toUpperCase();
       const $col = $('<div class="col-6 col-md-4 col-lg-3 mb-3"></div>');
       const $a = $('<a>', { href: url, target: '_blank', class: 'd-block' });
-      const $view = $('<div>', { class: 'view overlay z-depth-1 rounded' });
-      const $img = $('<img>', { src: url, class: 'img-fluid', alt: 'media' });
+      const $view = $('<div>', { class: 'space-media-thumb' });
+      const $img = $('<img>', { src: url, alt: 'media' });
       $img.on('error', function(){ $(this).attr('src', 'img/background/no-image.png'); });
-      const $mask = $('<div>', { class: 'mask flex-center rgba-black-strong text-white-50', style: 'font-size:12px;' }).text(caption);
+      const $mask = $('<div>', { class: 'space-media-cap' }).text(caption);
       $view.append($img).append($mask);
       $a.append($view);
       $col.append($a);
@@ -199,17 +210,12 @@ function MainSpacePreview(){
   this.getClassName=function(){ return className; };
 }
 
-document.addEventListener('DOMContentLoaded', function(){
-  ShowLoader();
-  let pending = $('.includeHtml').length;
-  function boot(){
-    try{ if (typeof initiatePages === 'function') { initiatePages(); } const main=new MainSpacePreview(); main.init(); }catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader();
-  }
-  if (pending === 0) { setTimeout(boot, 100); }
-  else {
-    $('.includeHtml').each(function(){
-      const id=$(this).attr('id');
-      $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf(), function(){ pending--; if (pending===0) { setTimeout(boot, 50); } });
-    });
+$(document).ready(function(){
+  try {
+    if (typeof initiatePages === 'function') { initiatePages(); }
+    const main = new MainSpacePreview();
+    main.init();
+  } catch (e) {
+    toastr['error'](e.message, _ALERT_TITLE_ERROR);
   }
 });

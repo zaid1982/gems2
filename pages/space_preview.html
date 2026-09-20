@@ -1,614 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/space_preview.html — Tabler-migrated (P5-6 Space Preview).
+
+  Read-only profile. Live Reserve navigates to space_calendar.html?id=&from=preview.
+  #modalSpcPrevReserve + createReservation() stay as HEAD leftovers (not the live path).
+  Homemade table/calendar/timeline/week views stay page-local.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Shared navigation + chrome -->
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <style>
-      /* Space Preview - Minimal Page-Specific Overrides */
-      main { padding: 1.5rem 0 3rem; }
-
-      /* Use gems-page-header pattern but customize for space preview */
-      .space-preview-header {
-        background: linear-gradient(135deg, rgba(0,77,255,1) 0%, rgba(13,255,153,0.9) 100%) !important;
-        color: #fff;
-        padding: 36px 32px;
-        border-radius: var(--gems-radius-lg);
-        margin-bottom: 28px;
-        position: relative;
-        overflow: hidden;
-        box-shadow: var(--gems-shadow-lg);
-      }
-
-      .space-preview-header::after {
-        content: '';
-        position: absolute;
-        right: -70px;
-        top: -70px;
-        width: 240px;
-        height: 240px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.12);
-      }
-
-      .space-preview-header h2 { font-size: 2.25rem; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; }
-      .space-preview-header p { margin: 0; font-size: 1.05rem; opacity: 0.95; position: relative; z-index: 1; }
-      .header-actions { position: relative; z-index: 1; display: flex; gap: 10px; align-items: center; }
-
-      /* Header icon buttons on gradient */
-      .icon-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        background: rgba(255,255,255,0.15);
-        border: 1px solid rgba(255,255,255,0.3);
-        color: #fff;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all .2s ease;
-      }
-      .icon-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); color: #fff; }
-
-      /* Space cards - similar to module-data-card */
-      .space-preview-card {
-        background: #fff;
-        border-radius: var(--gems-radius-lg);
-        box-shadow: var(--gems-card-shadow);
-        margin-bottom: 28px;
-      }
-
-      .space-card-header {
-        padding: 22px 28px;
-        border-bottom: 1px solid var(--gems-border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-
-      .space-card-title {
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--gems-text);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .space-card-title i { color: var(--gems-primary); }
-      .space-card-body { padding: 28px; }
-
-      /* Nested info cards */
-      .info-card {
-        background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 4px 12px -8px rgba(15,23,42,.15);
-        overflow: hidden;
-      }
-
-      .info-card-header {
-        padding: 16px 20px;
-        background: rgba(0,85,184,0.04);
-        border-bottom: 1px solid var(--gems-border);
-        font-weight: 700;
-        color: var(--gems-text);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .info-card-header i { color: var(--gems-primary); }
-      .info-card-body { padding: 18px 20px; }
-
-      /* View segmented buttons */
-      .segmented-group {
-        display: inline-flex;
-        border: 1px solid rgba(0,85,184,0.2);
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px -8px rgba(0,85,184,.15);
-      }
-
-      .segmented-btn {
-        background: #fff;
-        color: var(--gems-text-soft);
-        padding: 8px 14px;
-        border: none;
-        border-right: 1px solid rgba(0,85,184,0.1);
-        font-weight: 600;
-        letter-spacing: .3px;
-        font-size: 0.85rem;
-        transition: all .2s ease;
-      }
-
-      .segmented-btn:last-child { border-right: none; }
-      .segmented-btn:hover { background: rgba(0,85,184,0.05); }
-            .segmented-btn.chip-active {
-        background: linear-gradient(135deg, rgba(0,85,184,0.12), rgba(0,173,168,0.12));
-        color: var(--gems-primary);
-        font-weight: 700;
-      }
-
-      /* Calendar/Timeline/Week views - space-specific reservation visualizations */
-      .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-      .cal-cell {
-        background: #fff;
-        border: 1px solid var(--gems-border);
-        border-radius: 10px;
-        padding: 6px;
-        text-align: center;
-        cursor: pointer;
-        transition: all .2s ease;
-      }
-      .cal-cell:hover { box-shadow: 0 2px 8px rgba(0,85,184,.12); border-color: var(--gems-primary); }
-      .cal-cell .day-num { font-size: .9rem; font-weight: 700; color: var(--gems-text); display: block; }
-      .cal-cell .badge {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        border-radius: 999px;
-        background: linear-gradient(135deg, var(--gems-primary), var(--gems-secondary));
-        margin-top: 4px;
-      }
-
-      .day-timeline {
-        position: relative;
-        height: 60px;
-        background: rgba(0,85,184,0.02);
-        border: 1px solid var(--gems-border);
-        border-radius: 10px;
-      }
-      .tl-ticks { position: absolute; top: 4px; left: 0; right: 0; height: 14px; }
-      .tl-tick { position: absolute; font-size: .7rem; color: var(--gems-muted); transform: translateX(-50%); }
-      .tl-block {
-        position: absolute;
-        top: 20px;
-        height: 24px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, rgba(0,85,184,0.25), rgba(0,173,168,0.25));
-        color: var(--gems-text);
-        font-size: .75rem;
-        line-height: 24px;
-        text-align: center;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        box-shadow: 0 2px 6px rgba(0,85,184,.15);
-        font-weight: 600;
-      }
-
-      .week-grid { display: grid; grid-template-columns: 80px 1fr; gap: 14px; }
-      .week-time-col { position: relative; }
-      .week-time-slot {
-        height: 40px;
-        border-bottom: 1px dashed var(--gems-border);
-        font-size: .75rem;
-        color: var(--gems-muted);
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-end;
-        padding-right: 6px;
-      }
-      .week-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-      .week-day-col {
-        position: relative;
-        min-height: 640px;
-        background: rgba(0,85,184,0.02);
-        border: 1px solid var(--gems-border);
-        border-radius: 12px;
-        overflow: hidden;
-      }
-      .week-day-header {
-        position: sticky;
-        top: 0;
-        background: #fff;
-        border-bottom: 1px solid var(--gems-border);
-        padding: 8px;
-        font-weight: 700;
-        color: var(--gems-text);
-        z-index: 2;
-      }
-      .week-slot { position: relative; height: 40px; border-bottom: 1px dashed var(--gems-border); }
-      .wk-block {
-        position: absolute;
-        left: 6px;
-        right: 6px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, rgba(0,85,184,0.25), rgba(0,173,168,0.25));
-        color: var(--gems-text);
-        font-size: .75rem;
-        padding: 4px 6px;
-        box-shadow: 0 2px 6px rgba(0,85,184,.15);
-        font-weight: 600;
-      }
-
-      /* Use badge-soft patterns from gems2-ui.css */
-      .badge-modern { padding: 6px 12px; border-radius: 999px; font-size: .75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
-      .badge-success-dark { background: rgba(34, 197, 94, 0.15); color: #166534; }
-      .badge-warning { background: rgba(250, 204, 21, 0.15); color: #854d0e; }
-      .badge-danger-dark { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
-
-      /* Mobile responsiveness */
-      @media (max-width: 768px) {
-        .space-preview-header h2 { font-size: 1.75rem; }
-        .header-actions { width: 100%; justify-content: flex-end; }
-        .space-card-header { flex-direction: column; align-items: flex-start; }
-        .segmented-group { width: 100%; }
-        .segmented-btn { flex: 1; text-align: center; }
-        .calendar-grid { gap: 6px; }
-      }
-
-      @media (max-width: 576px) {
-        .space-preview-header { padding: 24px 20px; }
-        .space-preview-header h2 { font-size: 1.5rem; }
-        .space-card-body { padding: 20px; }
-        .info-card-body { padding: 14px 16px; }
-      }
-      /* Calendar & timeline styles for reservations */
-      .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 10px;
-      }
-
-      .cal-cell {
-        background: #fff;
-        border: 1px solid var(--gems-border);
-        border-radius: 12px;
-        padding: 10px;
-        min-height: 90px;
-        position: relative;
-        transition: all .2s ease;
-      }
-
-      .cal-cell:hover {
-        box-shadow: 0 4px 12px -8px rgba(0,85,184,.25);
-        border-color: rgba(0,85,184,0.3);
-      }
-
-      .cal-cell .date {
-        font-weight: 700;
-        color: var(--gems-text);
-      }
-
-      .cal-cell .badge {
-        position: absolute;
-        bottom: 8px;
-        left: 8px;
-        right: 8px;
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: .78rem;
-        background: linear-gradient(135deg, var(--gems-primary), var(--gems-secondary));
-        color: #fff;
-        font-weight: 600;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        box-shadow: 0 4px 12px -8px rgba(0,85,184,.35);
-      }
-
-      .day-timeline {
-        position: relative;
-        width: 100%;
-        height: 48px;
-        background: rgba(0,85,184,0.02);
-        border: 1px solid var(--gems-border);
-        border-radius: 10px;
-      }
-
-      .tl-ticks {
-        position: absolute;
-        top: 4px;
-        left: 0;
-        right: 0;
-        height: 14px;
-      }
-
-      .tl-tick {
-        position: absolute;
-        font-size: .7rem;
-        color: var(--gems-muted);
-        transform: translateX(-50%);
-      }
-
-      .tl-block {
-        position: absolute;
-        top: 20px;
-        height: 24px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, rgba(0,85,184,0.25), rgba(0,173,168,0.25));
-        color: var(--gems-text);
-        font-size: .75rem;
-        line-height: 24px;
-        text-align: center;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        box-shadow: 0 2px 6px rgba(0,85,184,.15);
-        font-weight: 600;
-      }
-      /* Week view */
-      .week-grid {
-        display: grid;
-        grid-template-columns: 80px 1fr;
-        gap: 14px;
-      }
-
-      .week-time-col {
-        position: relative;
-      }
-
-      .week-time-slot {
-        height: 40px;
-        border-bottom: 1px dashed var(--gems-border);
-        font-size: .75rem;
-        color: var(--gems-muted);
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-end;
-        padding-right: 6px;
-      }
-
-      .week-days {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 10px;
-      }
-
-      .week-day-col {
-        position: relative;
-        min-height: 640px;
-        background: rgba(0,85,184,0.02);
-        border: 1px solid var(--gems-border);
-        border-radius: 12px;
-        overflow: hidden;
-      }
-
-      .week-day-header {
-        position: sticky;
-        top: 0;
-        background: #fff;
-        border-bottom: 1px solid var(--gems-border);
-        padding: 8px;
-        font-weight: 700;
-        color: var(--gems-text);
-        z-index: 2;
-      }
-
-      .week-slot {
-        position: relative;
-        height: 40px;
-        border-bottom: 1px dashed var(--gems-border);
-      }
-
-      .wk-block {
-        position: absolute;
-        left: 6px;
-        right: 6px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, rgba(0,85,184,0.25), rgba(0,173,168,0.25));
-        color: var(--gems-text);
-        font-size: .75rem;
-        padding: 4px 6px;
-        box-shadow: 0 2px 6px rgba(0,85,184,.15);
-        font-weight: 600;
-      }
-
-      /* Status Badges */
-      .badge-modern {
-        padding: 6px 12px;
-        border-radius: 999px;
-        font-size: .75rem;
-        font-weight: 700;
-        display: inline-block;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-      }
-
-      .badge-success-dark {
-        background: rgba(34, 197, 94, 0.15);
-        color: #166534;
-      }
-
-      .badge-warning {
-        background: rgba(250, 204, 21, 0.15);
-        color: #854d0e;
-      }
-
-      .badge-danger-dark {
-        background: rgba(239, 68, 68, 0.15);
-        color: #dc2626;
-      }
-
-      /* Modern table styling - high specificity to override DataTables */
-      .table.dataTable { 
-        margin-bottom: 0 !important; 
-        border-collapse: separate !important; 
-        border-spacing: 0 !important; 
-      }
-      .table.dataTable thead th,
-      table.dataTable thead th { 
-        background: var(--gems-bg-page) !important; 
-        color: var(--gems-muted) !important; 
-        font-weight: 700 !important; 
-        font-size: 11px !important; 
-        text-transform: uppercase !important; 
-        letter-spacing: 0.08em !important; 
-        padding: 14px 16px !important; 
-        border: none !important; 
-        border-bottom: 2px solid #E2E8F0 !important;
-        border-top: none !important;
-        white-space: nowrap !important;
-      }
-      .table.dataTable tbody tr,
-      table.dataTable tbody tr { 
-        background: #fff !important; 
-        transition: all 0.15s ease !important; 
-        border-bottom: 1px solid var(--gems-bg-page) !important;
-      }
-      .table.dataTable tbody tr:hover,
-      table.dataTable tbody tr:hover { 
-        background: #FAFBFC !important; 
-        box-shadow: 0 2px 8px rgba(2,6,23,.04) !important; 
-        position: relative !important; 
-        z-index: 1 !important;
-      }
-      .table.dataTable tbody td,
-      table.dataTable tbody td { 
-        padding: 16px !important; 
-        vertical-align: middle !important; 
-        color: var(--gems-text) !important; 
-        border: none !important;
-        border-top: none !important;
-        font-size: 14px !important;
-      }
-
-      /* Mobile responsiveness */
-
-      /* Mobile Responsiveness */
-      @media (max-width: 768px) {
-        .space-preview-header h2 {
-          font-size: 1.75rem;
-        }
-
-        .header-actions {
-          width: 100%;
-          justify-content: flex-end;
-        }
-
-        .space-card-header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        .segmented-group {
-          width: 100%;
-        }
-
-        .segmented-btn {
-          flex: 1;
-          text-align: center;
-        }
-
-        .calendar-grid {
-          gap: 6px;
-        }
-
-        .info-label {
-          flex: 0 0 100px;
-          font-size: 0.85rem;
-        }
-      }
-
-      @media (max-width: 576px) {
-        .space-preview-header {
-          padding: 24px 20px;
-        }
-
-        .space-preview-header h2 {
-          font-size: 1.5rem;
-        }
-
-        .space-card-body {
-          padding: 20px;
-        }
-
-        .info-card-body {
-          padding: 14px 16px;
-        }
-      }
-    
-    </style>
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Space Preview</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: #fff; border: 1px solid #e5e7eb; color: #374151;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .icon-btn:hover { background: var(--gems-bg-page); color: var(--gems-primary); }
+    .space-preview-card { background: #fff; }
+    .space-card-header {
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--tblr-border-color, #e6e7e9);
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    .space-card-title { font-size: 1.05rem; font-weight: 700; color: var(--gems-text); display: flex; align-items: center; gap: 10px; }
+    .space-card-title i { color: var(--gems-primary); }
+    .space-card-body { padding: 1.25rem; }
+    .info-card { background: #fff; border: 1px solid rgba(148,163,184,0.25); border-radius: 8px; overflow: hidden; height: 100%; }
+    .info-card-header {
+      padding: 12px 16px; background: rgba(0,85,184,0.04); border-bottom: 1px solid var(--tblr-border-color, #e6e7e9);
+      font-weight: 700; color: var(--gems-text); display: flex; align-items: center; gap: 8px;
+    }
+    .info-card-header i { color: var(--gems-primary); }
+    .info-card-body { padding: 16px; }
+    .segmented-group {
+      display: inline-flex; border: 1px solid rgba(0,85,184,0.2); border-radius: 8px; overflow: hidden;
+    }
+    .segmented-btn {
+      background: #fff; color: var(--gems-text); padding: 8px 14px; border: none;
+      border-right: 1px solid rgba(0,85,184,0.1); font-weight: 600; font-size: 0.85rem;
+    }
+    .segmented-btn:last-child { border-right: none; }
+    .segmented-btn.chip-active { background: rgba(0,85,184,0.1); color: var(--gems-primary); font-weight: 700; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+    .cal-cell {
+      background: #fff; border: 1px solid var(--tblr-border-color, #e6e7e9); border-radius: 12px;
+      padding: 10px; min-height: 90px; position: relative;
+    }
+    .cal-cell .date { font-weight: 700; color: var(--gems-text); }
+    .cal-cell .badge {
+      position: absolute; bottom: 8px; left: 8px; right: 8px; padding: 6px 10px; border-radius: 999px;
+      font-size: .78rem; background: linear-gradient(135deg, var(--gems-primary), var(--gems-secondary));
+      color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .day-timeline { position: relative; width: 100%; height: 48px; background: rgba(0,85,184,0.02); border: 1px solid var(--tblr-border-color, #e6e7e9); border-radius: 10px; }
+    .tl-ticks { position: absolute; top: 4px; left: 0; right: 0; height: 14px; }
+    .tl-tick { position: absolute; font-size: .7rem; color: var(--gems-muted); transform: translateX(-50%); }
+    .tl-block {
+      position: absolute; top: 20px; height: 24px; border-radius: 8px;
+      background: linear-gradient(135deg, rgba(0,85,184,0.25), rgba(0,173,168,0.25));
+      color: var(--gems-text); font-size: .75rem; line-height: 24px; text-align: center;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600;
+    }
+    .week-grid { display: grid; grid-template-columns: 80px 1fr; gap: 14px; }
+    .week-time-slot {
+      height: 40px; border-bottom: 1px dashed var(--tblr-border-color, #e6e7e9);
+      font-size: .75rem; color: var(--gems-muted); display: flex; align-items: flex-start; justify-content: flex-end; padding-right: 6px;
+    }
+    .week-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+    .week-day-col { position: relative; min-height: 640px; background: rgba(0,85,184,0.02); border: 1px solid var(--tblr-border-color, #e6e7e9); border-radius: 12px; overflow: hidden; }
+    .week-day-header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--tblr-border-color, #e6e7e9); padding: 8px; font-weight: 700; color: var(--gems-text); z-index: 2; }
+    .week-slot { position: relative; height: 40px; border-bottom: 1px dashed var(--tblr-border-color, #e6e7e9); }
+    .wk-block {
+      position: absolute; left: 6px; right: 6px; border-radius: 8px;
+      background: linear-gradient(135deg, rgba(0,85,184,0.25), rgba(0,173,168,0.25));
+      color: var(--gems-text); font-size: .75rem; padding: 4px 6px; font-weight: 600;
+    }
+    .space-media-thumb { position: relative; border-radius: 8px; overflow: hidden; background: var(--gems-bg-page); }
+    .space-media-thumb img { width: 100%; height: 120px; object-fit: cover; display: block; }
+    .space-media-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 8px; background: rgba(15,23,42,0.65); color: #fff; font-size: 12px; }
+    @media (max-width: 768px) {
+      .space-card-header { flex-direction: column; align-items: flex-start; }
+      .segmented-group { width: 100%; }
+      .segmented-btn { flex: 1; text-align: center; }
+      .calendar-grid { gap: 6px; }
+    }
+  </style>
 </head>
-<body class="fixed-sn light-blue-skin">
-<header>
-  <div class="includeHtml" id="h-nav_left"></div>
-  <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<main>
-  <div class="container-fluid">
-    <section class="mb-5 mt-lg-5">
-      <div class="space-preview-header">
-        <div class="d-flex align-items-center justify-content-between">
-          <div>
-            <h2 id="lblSpcTitle"><i class="fas fa-cube mr-3"></i>Space Preview</h2>
-            <p class="mb-0">Details, assets, media, and upcoming reservations</p>
-          </div>
-          <div class="d-flex align-items-center">
-            <a href="space.html" class="icon-btn" data-toggle="tooltip" title="Back to Spaces"><i class="fas fa-arrow-left"></i></a>
-            <button type="button" id="btnSpcPrevRefresh" class="icon-btn ml-2" data-toggle="tooltip" title="Refresh"><i class="fas fa-sync"></i></button>
-            <a href="javascript:void(0);" id="btnSpcPrevReserve" class="btn btn-warning btn-sm ml-2"><i class="fas fa-calendar-plus mr-1"></i>Reserve</a>
-          </div>
-        </div>
-      </div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-      <div class="space-preview-card mb-4">
-        <div class="space-card-header">
-          <div class="space-card-title">Space Information</div>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title" id="lblSpcTitle"><i class="fas fa-cube me-2 text-primary"></i>Space Preview</h1>
+              <div class="page-subtitle">Details, assets, media, and upcoming reservations</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <a href="space.html" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Back to Spaces" aria-label="Back to Spaces">
+                <i class="fas fa-arrow-left me-2"></i>Back
+              </a>
+              <button type="button" id="btnSpcPrevRefresh" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Refresh" aria-label="Refresh">
+                <i class="fas fa-sync"></i>
+              </button>
+              <a href="javascript:void(0);" id="btnSpcPrevReserve" class="btn btn-primary">
+                <i class="fas fa-calendar-plus me-1"></i>Reserve
+              </a>
+            </div>
+          </div>
         </div>
-        <div class="space-card-body">
-          <div class="row mb-3">
-            <div class="col-lg-8">
-              <h4 class="font-weight-bold mb-0" id="spcName">-</h4>
-              <div class="mt-2">
-                <span id="spcStatusBadge"></span>
+
+        <div class="card space-preview-card mb-3">
+          <div class="space-card-header">
+            <div class="space-card-title">Space Information</div>
+          </div>
+          <div class="space-card-body">
+            <div class="row mb-3">
+              <div class="col-lg-8">
+                <h3 class="mb-0" id="spcName">-</h3>
+                <div class="mt-2"><span id="spcStatusBadge"></span></div>
+              </div>
+              <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <small class="text-secondary d-block">Created: <span id="spcCreatedAt">-</span></small>
+                <small class="text-secondary d-block">Updated: <span id="spcUpdatedAt">-</span></small>
               </div>
             </div>
-            <div class="col-lg-4 text-lg-right mt-3 mt-lg-0">
-              <small class="text-muted d-block">Created: <span id="spcCreatedAt">-</span></small>
-              <small class="text-muted d-block">Updated: <span id="spcUpdatedAt">-</span></small>
-            </div>
-          </div>
 
-          <div class="row">
-            <div class="col-lg-6 mb-4">
-              <div class="info-card">
-                <div class="info-card-header"><i class="fas fa-info-circle mr-2"></i>Details</div>
-                <div class="info-card-body">
-                  <div class="row mb-2"><div class="col-5 text-muted">Site</div><div class="col-7" id="spcSite">-</div></div>
-                  <div class="row mb-2"><div class="col-5 text-muted">Location</div><div class="col-7" id="spcLocation">-</div></div>
-                  <div class="row mb-2"><div class="col-5 text-muted">Category</div><div class="col-7" id="spcCategory">-</div></div>
-                  <div class="row mb-2"><div class="col-5 text-muted">Type</div><div class="col-7" id="spcType">-</div></div>
-                  <div class="row mb-2"><div class="col-5 text-muted">Area</div><div class="col-7" id="spcArea">-</div></div>
-                  <div class="row mb-2"><div class="col-5 text-muted">Capacity</div><div class="col-7" id="spcCapacity">-</div></div>
-                  <div class="row mb-0"><div class="col-5 text-muted">Description</div><div class="col-7" id="spcDesc">-</div></div>
+            <div class="row">
+              <div class="col-lg-6 mb-4">
+                <div class="info-card">
+                  <div class="info-card-header"><i class="fas fa-info-circle me-2"></i>Details</div>
+                  <div class="info-card-body">
+                    <div class="row mb-2"><div class="col-5 text-secondary">Site</div><div class="col-7" id="spcSite">-</div></div>
+                    <div class="row mb-2"><div class="col-5 text-secondary">Location</div><div class="col-7" id="spcLocation">-</div></div>
+                    <div class="row mb-2"><div class="col-5 text-secondary">Category</div><div class="col-7" id="spcCategory">-</div></div>
+                    <div class="row mb-2"><div class="col-5 text-secondary">Type</div><div class="col-7" id="spcType">-</div></div>
+                    <div class="row mb-2"><div class="col-5 text-secondary">Area</div><div class="col-7" id="spcArea">-</div></div>
+                    <div class="row mb-2"><div class="col-5 text-secondary">Capacity</div><div class="col-7" id="spcCapacity">-</div></div>
+                    <div class="row mb-0"><div class="col-5 text-secondary">Description</div><div class="col-7" id="spcDesc">-</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6 mb-4">
+                <div class="info-card">
+                  <div class="info-card-header"><i class="fas fa-images me-2"></i>Media</div>
+                  <div class="info-card-body">
+                    <div id="spcMediaEmpty" class="text-secondary" style="display:none;">No media uploaded.</div>
+                    <div class="row" id="spcMediaGrid"></div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="col-lg-6 mb-4">
-              <div class="info-card">
-                <div class="info-card-header"><i class="fas fa-images mr-2"></i>Media</div>
-                <div class="info-card-body">
-                  <div id="spcMediaEmpty" class="text-muted" style="display:none;">No media uploaded.</div>
-                  <div class="row" id="spcMediaGrid"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Assets on its own row -->
-          <div class="row">
-            <div class="col-12 mb-4">
-              <div class="info-card">
-                <div class="info-card-header"><i class="fas fa-cubes mr-2"></i>Assets Linked</div>
-                <div class="info-card-body">
-                  <div class="table-responsive">
-                    <table id="dtSpcAssets" class="table table-hover mb-0 display responsive mobile-stack" width="100%">
+
+            <div class="row">
+              <div class="col-12 mb-4">
+                <div class="info-card">
+                  <div class="info-card-header"><i class="fas fa-cubes me-2"></i>Assets Linked</div>
+                  <div class="info-card-body p-0">
+                    <table id="dtSpcAssets" class="table table-vcenter card-table table-hover mb-0" width="100%">
                       <thead>
-                        <tr class="th-strong">
+                        <tr>
                           <th style="width:4%">#</th>
                           <th style="width:18%">Asset No</th>
                           <th>Name</th>
@@ -622,133 +188,143 @@
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Reservations on its own row -->
-          <div class="row">
-            <div class="col-12 mb-4">
-              <div class="space-preview-card">
-                <div class="space-card-header">
-                  <div class="space-card-title"><i class="fas fa-calendar-alt mr-2"></i>Reservations</div>
-                  <div class="segmented-group" id="spcResvViewToggle" role="group" aria-label="Reservations view">
-                    <button class="segmented-btn chip-active" data-view="table">TABLE</button>
-                    <button class="segmented-btn" data-view="calendar">CALENDAR</button>
-                    <button class="segmented-btn" data-view="timeline">TIMELINE</button>
-                    <button class="segmented-btn" data-view="week">WEEK</button>
+            <div class="row">
+              <div class="col-12">
+                <div class="space-preview-card">
+                  <div class="space-card-header">
+                    <div class="space-card-title"><i class="fas fa-calendar-alt me-2"></i>Reservations</div>
+                    <div class="segmented-group" id="spcResvViewToggle" role="group" aria-label="Reservations view">
+                      <button type="button" class="segmented-btn chip-active" data-view="table">TABLE</button>
+                      <button type="button" class="segmented-btn" data-view="calendar">CALENDAR</button>
+                      <button type="button" class="segmented-btn" data-view="timeline">TIMELINE</button>
+                      <button type="button" class="segmented-btn" data-view="week">WEEK</button>
+                    </div>
                   </div>
-                </div>
-                <div class="space-card-body">
-                  <div class="table-responsive" id="spcResvTableWrap">
-                    <table id="dtSpcResv" class="table table-hover mb-0 display responsive mobile-stack" width="100%">
-                      <thead>
-                        <tr class="th-strong">
-                          <th style="width:4%">#</th>
-                          <th style="width:30%">Start</th>
-                          <th style="width:30%">End</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody></tbody>
-                    </table>
-                  </div>
-                  <div id="spcCalendarView" class="mt-3 d-none">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                      <div class="d-flex align-items-center">
-                        <button id="spcCalPrev" class="icon-btn" aria-label="Previous month"><i class="fas fa-chevron-left"></i></button>
-                        <div id="spcCalMonthLabel" class="ml-2 font-weight-bold"></div>
+                  <div class="space-card-body">
+                    <div id="spcResvTableWrap">
+                      <table id="dtSpcResv" class="table table-vcenter card-table table-hover mb-0" width="100%">
+                        <thead>
+                          <tr>
+                            <th style="width:4%">#</th>
+                            <th style="width:30%">Start</th>
+                            <th style="width:30%">End</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                    </div>
+                    <div id="spcCalendarView" class="mt-3 d-none">
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center">
+                          <button type="button" id="spcCalPrev" class="icon-btn" aria-label="Previous month"><i class="fas fa-chevron-left"></i></button>
+                          <div id="spcCalMonthLabel" class="ms-2 fw-bold"></div>
+                        </div>
+                        <button type="button" id="spcCalNext" class="icon-btn" aria-label="Next month"><i class="fas fa-chevron-right"></i></button>
                       </div>
-                      <button id="spcCalNext" class="icon-btn" aria-label="Next month"><i class="fas fa-chevron-right"></i></button>
-                    </div>
-                    <div id="spcCalGrid" class="calendar-grid"></div>
-                    <div class="mt-3">
-                      <div class="label">Day Timeline</div>
-                      <div id="spcCalDayTimeline" class="day-timeline"></div>
-                    </div>
-                  </div>
-                  <div id="spcTimelineView" class="mt-3 d-none">
-                    <div class="label mb-2">Timeline</div>
-                    <div id="spcRangeTimeline"></div>
-                  </div>
-                  <div id="spcWeekView" class="mt-3 d-none">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                      <div class="d-flex align-items-center">
-                        <button id="spcWkPrev" class="icon-btn" aria-label="Previous week"><i class="fas fa-chevron-left"></i></button>
-                        <div id="spcWkLabel" class="ml-2 font-weight-bold"></div>
+                      <div id="spcCalGrid" class="calendar-grid"></div>
+                      <div class="mt-3">
+                        <div class="form-label">Day Timeline</div>
+                        <div id="spcCalDayTimeline" class="day-timeline"></div>
                       </div>
-                      <button id="spcWkNext" class="icon-btn" aria-label="Next week"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                    <div id="spcWkGrid" class="week-grid">
-                      <div class="week-time-col" id="spcWkTimeCol"></div>
-                      <div class="week-days" id="spcWkDays"></div>
+                    <div id="spcTimelineView" class="mt-3 d-none">
+                      <div class="form-label mb-2">Timeline</div>
+                      <div id="spcRangeTimeline"></div>
+                    </div>
+                    <div id="spcWeekView" class="mt-3 d-none">
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center">
+                          <button type="button" id="spcWkPrev" class="icon-btn" aria-label="Previous week"><i class="fas fa-chevron-left"></i></button>
+                          <div id="spcWkLabel" class="ms-2 fw-bold"></div>
+                        </div>
+                        <button type="button" id="spcWkNext" class="icon-btn" aria-label="Next week"><i class="fas fa-chevron-right"></i></button>
+                      </div>
+                      <div id="spcWkGrid" class="week-grid">
+                        <div class="week-time-col" id="spcWkTimeCol"></div>
+                        <div class="week-days" id="spcWkDays"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
+        </div>
 
-        </div>
-      </div>
-    </section>
-
-    <div class="includeHtml" id="h-modal_change_password"></div>
-  </div>
-</main>
-
-<!-- Reserve Modal -->
-<div class="modal fade" id="modalSpcPrevReserve" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content gems-modal-card">
-      <div class="modal-header gems-modal-header">
-        <h5 class="modal-title"><i class="fas fa-calendar-plus mr-2"></i>New Reservation</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      </div>
-      <div class="modal-body gems-modal-body">
-        <div class="md-form md-outline mt-0">
-          <input id="dtSpcPrevStart" type="datetime-local" class="form-control">
-          <label for="dtSpcPrevStart" class="active">Start</label>
-        </div>
-        <div class="md-form md-outline mt-0">
-          <input id="dtSpcPrevEnd" type="datetime-local" class="form-control">
-          <label for="dtSpcPrevEnd" class="active">End</label>
-        </div>
-        <div class="md-form md-outline mt-0">
-          <input id="txtSpcPrevName" type="text" class="form-control" placeholder="Optional">
-          <label for="txtSpcPrevName" class="active">Requester Name</label>
-        </div>
-        <div class="md-form md-outline mt-0">
-          <input id="txtSpcPrevEmail" type="text" class="form-control" placeholder="Optional">
-          <label for="txtSpcPrevEmail" class="active">Requester Email</label>
-        </div>
-        <div class="md-form md-outline mt-0">
-          <textarea id="txaSpcPrevNotes" class="md-textarea form-control" rows="3" placeholder="Optional"></textarea>
-          <label for="txaSpcPrevNotes" class="active">Special Request / Notes</label>
-        </div>
-      </div>
-      <div class="modal-footer gems-modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-        <button type="button" id="btnSpcPrevCreate" class="btn btn-primary btn-sm">Create</button>
       </div>
     </div>
   </div>
-  </div>
+</div>
 
-<script type="text/javascript">
-  $('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf()); });
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<div class="modal fade" id="modalSpcPrevReserve" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New Reservation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="frmSpcPrevReserve" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="dtSpcPrevStart">Start</label>
+              <input id="dtSpcPrevStart" type="datetime-local" class="form-control">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="dtSpcPrevEnd">End</label>
+              <input id="dtSpcPrevEnd" type="datetime-local" class="form-control">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtSpcPrevName">Requester Name</label>
+              <input id="txtSpcPrevName" type="text" class="form-control" placeholder="Optional">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtSpcPrevEmail">Requester Email</label>
+              <input id="txtSpcPrevEmail" type="text" class="form-control" placeholder="Optional">
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaSpcPrevNotes">Special Request / Notes</label>
+              <textarea id="txaSpcPrevNotes" class="form-control" rows="3" placeholder="Optional"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" class="btn btn-primary" id="btnSpcPrevCreate">
+          <i class="far fa-save me-2"></i>Create
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
-<script type="text/javascript" src="js/popper.min.js"></script>
-<script type="text/javascript" src="js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
-<script type="text/javascript" src="js/modules/toastr.js"></script>
-<script type="text/javascript" src="js/common.js"></script>
-<script type="text/javascript" src="js/pages/main_space_preview.js"></script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_space_preview.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
 </body>
 </html>
