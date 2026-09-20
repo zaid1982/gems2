@@ -310,7 +310,7 @@
                   <!-- aria-invalid, not just .is-invalid: without it assistive tech
                        never announces the state (WCAG 4.1.2). Page scripts must set
                        and clear it in step with the class. -->
-                  <input type="text" class="form-control is-invalid" id="catInvalid" value="" aria-required="true" aria-invalid="true" aria-describedby="catInvalidErr">
+                  <input type="text" class="form-control invalid is-invalid" id="catInvalid" value="" aria-required="true" aria-invalid="true" aria-describedby="catInvalidErr">
                   <div class="gems-field-error" id="catInvalidErr" role="alert">Site is required.</div>
                 </div>
                 <div class="gems-field gems-field-4">
@@ -338,7 +338,7 @@
                 </div>
                 <div class="gems-field gems-field-6">
                   <label class="form-label" for="catError2">Two-line error grows the row, never shifts the neighbour</label>
-                  <input type="text" class="form-control is-invalid" id="catError2" aria-invalid="true" aria-describedby="catError2Err">
+                  <input type="text" class="form-control invalid is-invalid" id="catError2" aria-invalid="true" aria-describedby="catError2Err">
                   <div class="gems-field-error" id="catError2Err" role="alert">
                     This reference number is already recorded against another license at this site.
                     Enter a unique reference.
@@ -358,15 +358,38 @@
                   </div>
                 </div>
               </div>
-              <p class="cat-note mt-2 mb-0">
+              <p class="cat-note mt-2 mb-2">
                 The error element is empty until it is needed (<code>.gems-field-error:empty</code>
                 is <code>display:none</code>), so no permanent blank paragraph reserves space the
                 way the old <code>&lt;p id="txtXErr"&gt;</code> pattern did.
-                An invalid control carries <strong>both</strong> <code>.is-invalid</code> and
-                <code>aria-invalid="true"</code>, plus <code>aria-describedby</code> pointing at
-                its error element; page scripts must set and clear all three together, or the
-                field looks wrong to sighted users and reads as valid to everyone else.
               </p>
+              <p class="cat-note mb-2">
+                <strong>P4 MzValidate contract.</strong> Migrated forms that use
+                <code>MzValidate</code> must ship this markup: a visible
+                <code>&lt;label&gt;</code>, <code>aria-describedby="&lt;fieldId&gt;Err"</code>
+                on the control, and an empty
+                <code>&lt;div id="&lt;fieldId&gt;Err" class="gems-field-error" role="alert"&gt;</code>
+                slot. Do not invent a second validator or a second error component.
+                Runtime on a Tabler page: existing <code>.invalid</code>, plus
+                <code>.is-invalid</code> and <code>aria-invalid="true"</code>.
+                Cleared/valid: those classes and <code>aria-invalid</code> come off
+                and the error slot is emptied. MDB pages keep <code>.invalid</code>
+                only. Submit-time toastr summaries may remain &mdash; they are not
+                a substitute for the inline slot. Existing P3 toastr/business-precondition
+                validation is <em>not</em> retrofitted in H3; new P4 forms follow
+                this contract (see also <code>modal_license.html</code>).
+              </p>
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="catMzTitle">MzValidate live title <span class="required" aria-hidden="true">*</span></label>
+                  <input type="text" class="form-control" id="catMzTitle" aria-describedby="catMzTitleErr" placeholder="Leave empty, then Validate">
+                  <div class="gems-field-error" id="catMzTitleErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-6" style="display:flex;align-items:flex-end;gap:.5rem;flex-wrap:wrap">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCatMzFail">Validate empty</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCatMzClear">Clear validation</button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1122,7 +1145,7 @@
               <ol style="font-size:.8125rem;margin-bottom:0">
                 <li>Open every modal: title, close, first label, first input and footer buttons aligned and one family. Header and footer stay visible; only the body scrolls.</li>
                 <li>Select versus text input versus filter dropdown toggle: same height and border.</li>
-                <li>Trigger a validation error: the message sits under its field and does not overlap or shove the next row off-grid.</li>
+                <li>Trigger a validation error: the message sits under its field and does not overlap or shove the next row off-grid. P4 <code>MzValidate</code> forms must use the catalog/P2 slot contract (<code>#fieldIdErr.gems-field-error</code>); Tabler runtime adds <code>.is-invalid</code> and <code>aria-invalid</code> beside existing <code>.invalid</code>.</li>
                 <li>Table: header, first-row actions, pagination, empty state. Filter the table to
                     zero rows &mdash; DataTables must render the card empty state, never its raw
                     &ldquo;No matching records found&rdquo;. Set <code>language.zeroRecords</code>
@@ -1260,7 +1283,7 @@
 <script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
 <script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
 <script src="js/modules/toastr.js"></script>
-<script src="js/common.js?p1"></script>
+<script src="js/common.js?p3h3b"></script>
 <script src="js/gems-tabler-ui.js?p3h1b"></script>
 
 <script>
@@ -1276,6 +1299,21 @@
     }
     ruler();
     $(window).on('resize', ruler);
+
+    // P4 MzValidate contract demo — Tabler runtime adds .is-invalid + aria-invalid.
+    if (typeof MzValidate === 'function') {
+      var catMz = new MzValidate('formCatMz');
+      catMz.registerFields([
+        { field_id: 'catMzTitle', type: 'text', name: 'MzValidate live title', validator: { notEmpty: true } }
+      ]);
+      $('#btnCatMzFail').on('click', function () {
+        $('#catMzTitle').val('');
+        catMz.validateNow();
+      });
+      $('#btnCatMzClear').on('click', function () {
+        catMz.clearInvalid('catMzTitle');
+      });
+    }
 
     // P1 chrome: load the real fragments, then the real menu builder with a fixture.
     var chromeFixture = [

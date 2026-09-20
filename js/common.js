@@ -128,10 +128,30 @@ function mzValidNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+/* Shared H3 clear: always drop .invalid. On Tabler also drop .is-invalid
+   and aria-invalid. Used by MzValidate and mzOptionStop*. */
+function mzClearFieldInvalid(fieldSelector) {
+    fieldSelector.removeClass('invalid');
+    if (mzIsTablerPage()) {
+        fieldSelector.removeClass('is-invalid').removeAttr('aria-invalid');
+    }
+}
+
 function MzValidate(name) {
     let obj = {};
     obj.form_id = name;
     obj.fields = [];
+
+    /* Tabler pages also get Bootstrap's .is-invalid + aria-invalid.
+       MDB/BS4 pages keep .invalid only. Gated on body.gems-tabler. */
+    const markFieldInvalid = function (fieldSelector) {
+        fieldSelector.addClass('invalid');
+        if (mzIsTablerPage()) {
+            fieldSelector.addClass('is-invalid').attr('aria-invalid', 'true');
+        }
+    };
+
+    const clearFieldInvalid = mzClearFieldInvalid;
 
     const checkField = function (field_id, type, val) {
         const fieldSelector = type === 'notEmptyCheck' ? $("[name='"+field_id+"']:checked") : $('#' + field_id);
@@ -245,9 +265,9 @@ function MzValidate(name) {
             fieldErrSelector = $('#' +field_id + 'Err');
         }
         if (type === 'select') {
-            $('#' + field_id + '_ .select-wrapper.md-form.md-outline input.select-dropdown').removeClass('invalid');
+            clearFieldInvalid($('#' + field_id + '_ .select-wrapper.md-form.md-outline input.select-dropdown'));
         }
-        fieldSelector.removeClass('invalid');
+        clearFieldInvalid(fieldSelector);
         fieldErrSelector.html('');
 
         /*const keys = Object.keys(validator);
@@ -327,9 +347,9 @@ function MzValidate(name) {
         });
         if (msg !== '') {
             if (type === 'select') {
-                $('#' + field_id + '_ .select-wrapper.md-form.md-outline input.select-dropdown').addClass('invalid');
+                markFieldInvalid($('#' + field_id + '_ .select-wrapper.md-form.md-outline input.select-dropdown'));
             }
-            fieldSelector.addClass('invalid');
+            markFieldInvalid(fieldSelector);
             fieldErrSelector.html(msg.substring(4));
             return false;
         }
@@ -365,9 +385,9 @@ function MzValidate(name) {
                 fieldErrSelector = $('#' + u.field_id + 'Err');
             }
             if (u.type === 'select') {
-                $('#' + u.field_id + '_ .select-wrapper.md-form.md-outline input.select-dropdown').removeClass('invalid');
+                clearFieldInvalid($('#' + u.field_id + '_ .select-wrapper.md-form.md-outline input.select-dropdown'));
             }
-            fieldSelector.removeClass('invalid');
+            clearFieldInvalid(fieldSelector);
             fieldErrSelector.html('');
             fieldSelector.on('keyup change', function () {
                 if (u.enabled) {
@@ -418,7 +438,7 @@ function MzValidate(name) {
     };
 
     this.clearInvalid = function (field_id) {
-        $('#' + field_id).removeClass('invalid');
+        clearFieldInvalid($('#' + field_id));
         $('#' + field_id + 'Err').html('');
     };
 
@@ -484,7 +504,7 @@ function MzValidate(name) {
             else if (u.type === 'summernote') {
                 fieldSelector.summernote('code', '');
             }
-            fieldSelector.removeClass('invalid');
+            clearFieldInvalid(fieldSelector);
             fieldErrSelector.html('');
         });
     };
@@ -521,7 +541,7 @@ function MzValidate(name) {
                     fieldSelector = $('#' + fieldId);
                     fieldErrSelector = $('#' + fieldId + 'Err');
                 }
-                fieldSelector.removeClass('invalid');
+                clearFieldInvalid(fieldSelector);
                 fieldErrSelector.html('');
                 return false;
             }
@@ -1735,7 +1755,7 @@ function mzOptionStopClear(name, defaultText, type) {
             $select.materialSelect();
         }
     }
-    $select.removeClass('invalid');
+    mzClearFieldInvalid($select);
     $('#'+name+'Err').html('');
     $('#lbl' + name.substr(3)).removeClass('active');
     $('#lbl' + name.substr(3)).addClass('active');
@@ -1751,7 +1771,7 @@ function mzOptionStop(name, data, defaultText, keyIndex, valIndex, filters, type
     if (!isPlain && typeof $select.materialSelect === 'function') {
         $select.materialSelect();
     }
-    $select.removeClass('invalid');
+    mzClearFieldInvalid($select);
     $('#'+name+'Err').html('');
 }
 
@@ -1868,7 +1888,7 @@ function mzOptionStopV2(name, data, defaultText, valIndex, filters, type, isSort
     if (!isPlain && typeof $select.materialSelect === 'function') {
         $select.materialSelect();
     }
-    $select.removeClass('invalid');
+    mzClearFieldInvalid($select);
     $('#'+name+'Err').html('');
 }
 
