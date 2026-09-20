@@ -62,9 +62,10 @@ function WasteRecordForm() {
         if (!$('#hidWrfId').val() || !status) {
             $('#lblWrfStatusBadge').hide().empty();
         } else {
+            const kind = status === 'FINAL' ? 'success' : (status === 'DRAFT' ? 'warning' : 'secondary');
             $('#lblWrfStatusBadge')
                 .show()
-                .attr('class', 'waste-status-badge is-' + status.toLowerCase())
+                .attr('class', 'badge gems-badge gems-badge-' + kind)
                 .html('<i class="fas ' + (icons[status] || 'fa-circle') + '"></i>' + (labels[status] || status));
         }
         $('#formWrf').toggleClass('is-disposed', $('input[name="txnType"]:checked').val() === 'D')

@@ -139,10 +139,11 @@
   document.write('<scr' + 'ipt src="js/pages/kpa_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/main_kpa_pi_entry.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  let changePasswordClass_;
   document.addEventListener('DOMContentLoaded', function () {
     ShowLoader();
     setTimeout(function () {
-      try { initiatePages(); new ModalChangePassword(); new MainKpaPiEntry().init(); }
+      try { initiatePages(); changePasswordClass_ = new ModalChangePassword(); new MainKpaPiEntry().init(); }
       catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
       HideLoader();
     }, 250);

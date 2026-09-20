@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
-  <link rel="stylesheet" href="css/gems-theme.css?p3h1">
+  <link rel="stylesheet" href="css/gems-theme.css?p3h2">
 </head>
 <body class="gems-tabler">
 <div class="page">
@@ -36,8 +36,8 @@
               <h1 class="page-title">Waste Record</h1>
               <div class="page-subtitle" id="pWrfSubtitle">Fifth Schedule (Regulation 11)</div>
               <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
-                <span id="lblWrfRefChip" class="waste-header-chip">New record</span>
-                <span id="lblWrfStatusBadge" class="waste-status-badge is-draft" style="display:none"></span>
+                <span id="lblWrfRefChip" class="badge gems-badge gems-badge-secondary">New record</span>
+                <span id="lblWrfStatusBadge" class="badge gems-badge" style="display:none"></span>
               </div>
             </div>
             <div class="col-12 col-sm-auto">
@@ -253,10 +253,11 @@
   document.write('<scr' + 'ipt src="js/pages/waste_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/waste_record_form.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  let changePasswordClass_;
   document.addEventListener('DOMContentLoaded', function () {
     ShowLoader();
     setTimeout(function () {
-      try { initiatePages(); new ModalChangePassword(); new WasteRecordForm().init(); }
+      try { initiatePages(); changePasswordClass_ = new ModalChangePassword(); new WasteRecordForm().init(); }
       catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
       HideLoader();
     }, 300);

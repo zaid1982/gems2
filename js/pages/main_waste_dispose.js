@@ -89,11 +89,11 @@ function MainWasteDispose() {
 
         const badge = $('#lblWdsStatusBadge');
         if (row.collectionStatus === 'DISPOSED') {
-            badge.removeClass('is-draft').addClass('is-final').text('Disposed').show();
+            badge.attr('class', 'badge gems-badge gems-badge-success').text('Disposed').show();
             $('#formWds :input').prop('disabled', true);
             $('#pWdsSubtitle').text('This waste record has already been disposed.');
         } else {
-            badge.addClass('is-draft').text('Pending Collection').show();
+            badge.attr('class', 'badge gems-badge gems-badge-warning').text('Pending Collection').show();
         }
         refreshSaveState();
     };

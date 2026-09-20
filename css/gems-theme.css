@@ -553,6 +553,7 @@ body.gems-tabler .card:has(> table.table) {
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
 }
+.gems-tabler .gems-badge i { margin-right: 0.3rem; }
 .gems-tabler .gems-badge-success   { background: #e7f7ee; color: #1a7f4b; }
 .gems-tabler .gems-badge-warning   { background: #fdf3e2; color: #9a6206; }
 .gems-tabler .gems-badge-danger    { background: #fdeaea; color: #b21f1f; }
@@ -866,6 +867,7 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
 .gems-tabler .metric-card[data-kpi] { cursor: pointer; }
 .gems-tabler .metric-card[data-kpi]:hover { background: #f5f7f9; }
 
+/* deprecated alias — remove at P6. Header chips now use badge gems-badge gems-badge-*. */
 .gems-tabler .waste-header-chip,
 .gems-tabler .waste-status-badge {
   display: inline-flex;

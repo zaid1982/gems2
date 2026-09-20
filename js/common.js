@@ -1096,6 +1096,10 @@ function initiatePages() {
     }
 
     $('#btnChangePassword').on('click', function () {
+        if (typeof changePasswordClass_ === 'undefined' || !changePasswordClass_) {
+            toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+            return;
+        }
         changePasswordClass_.edit('Top', userInfo['userId']);
     });
 

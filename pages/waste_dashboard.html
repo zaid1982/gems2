@@ -361,10 +361,11 @@
   document.write('<scr' + 'ipt src="js/pages/waste_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/main_waste_dashboard.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  let changePasswordClass_;
   document.addEventListener('DOMContentLoaded', function () {
     ShowLoader();
     setTimeout(function () {
-      try { initiatePages(); new ModalChangePassword(); new MainWasteDashboard().init(); }
+      try { initiatePages(); changePasswordClass_ = new ModalChangePassword(); new MainWasteDashboard().init(); }
       catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
       HideLoader();
     }, 300);
