@@ -1,26 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/ptw_form.html — Tabler-migrated (P5-5 PTW Form).
+
+  Public Site QR target. Login asset stack, no sidebar.
+  Do not load common.js. Do not call initiatePages().
+  Four ptwTabs panes; keep data-toggle tab attributes
+  (shim + shown.bs.tab signature-pad resize). Page-local CSS and
+  .global-header stay. Drop unused steppers, DataTables, empty
+  mdb lightbox host. Do not invent a shared public chrome.
+-->
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <!-- Browser icon -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GEMS 2.0 - Permit to Work</title>
     <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Stepper CSS - minified-->
-    <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+    <link rel="stylesheet" href="css/gems-theme.css">
     <style>
         /* Form container centering and width control */
         #divPtwPageWidth {
@@ -1346,18 +1343,15 @@
             }
         }
     </style>
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!--JQuery Migrate-->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-    <!-- PTW Form Classes - Load early to ensure availability -->
+    <script src="js/jquery-3.7.0.min.js"></script>
+    <script src="js/vendor/tabler/tabler.min.js"></script>
+    <script src="js/gems-bs5-jquery.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
-    <!-- Use local QRCode library for consistency with other pages (e.g., PPM, Zone, Asset) -->
-    <script type="text/javascript" src="js/vendor/qrCode/qrcode.min.js"></script>
-    <script type="text/javascript" src="js/pages/ptw_form.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="js/vendor/qrCode/qrcode.min.js"></script>
+    <script src="js/pages/ptw_form.js"></script>
 </head>
-<body class="fixed-sn light-blue-skin">
+<body class="gems-tabler">
 
 <!-- Global Header with Logo -->
 <header class="global-header">
@@ -1368,12 +1362,10 @@
 
 <main style="padding: 0px; padding-top: 3rem;">
     <div class="container-fluid" id="divPtwPageWidth">
-        <div id="mdb-lightbox-ui"></div>
-
         <!-- Page Title -->
         <div class="row mt-3">
             <div class="col-12">
-                <h2 class="h2-responsive font-weight-bold" id="h5PtwFormTitle" style="display: flex; align-items: center;">
+                <h2 class="h2-responsive fw-bold" id="h5PtwFormTitle" style="display: flex; align-items: center;">
                     <i class="fas fa-shield-alt mr-3"></i><span id="formTitleText">Public PTW Permit Application</span>
                     <span id="formTitleText"> - </span>
                     <span id="formTitleSiteText">-</span>
@@ -1381,15 +1373,15 @@
                 </h2>
                 <p class="text-muted" id="formSubtitle">Submit your Permit to Work application - No login required</p>
                 <div class="alert alert-info mb-4">
-                    <i class="fas fa-info-circle mr-2"></i>
+                    <i class="fas fa-info-circle me-2"></i>
                     <strong>Need help?</strong> Click the <span class="help-icon" style="display: inline-block; vertical-align: middle; margin: 0 5px;">?</span> icons next to field labels for examples and guidance.
                     
                     <!-- Debug: Test Help Button -->
                     <!-- <div style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
                         <small><strong>Debug:</strong> Test help system 
                         <button type="button" class="btn btn-sm btn-info" onclick="testAllHelpButtons()">Test All Help Buttons</button>
-                        <button type="button" class="btn btn-sm btn-warning ml-2" onclick="validatePTWForm()">Test Validation</button>
-                        <button type="button" class="btn btn-sm btn-secondary ml-2" onclick="clearValidationErrors()">Clear Errors</button>
+                        <button type="button" class="btn btn-sm btn-warning ms-2" onclick="validatePTWForm()">Test Validation</button>
+                        <button type="button" class="btn btn-sm btn-secondary ms-2" onclick="clearValidationErrors()">Clear Errors</button>
                         </small>
                     </div> -->
                 </div>
@@ -1400,16 +1392,16 @@
         <div class="row mt-4">
             <div class="col-12">
                 <div id="alertSuccess" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
-                    <i class="fas fa-check-circle mr-2"></i>
+                    <i class="fas fa-check-circle me-2"></i>
                     <span id="successMessage">PTW saved successfully!</span>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div id="alertError" class="alert alert-danger alert-dismissible fade" role="alert" style="display: none;">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <i class="fas fa-exclamation-triangle me-2"></i>
                     <span id="errorMessage">An error occurred while saving PTW.</span>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -1425,25 +1417,25 @@
                         <li class="nav-item">
                             <a class="nav-link active" id="section1-tab" data-toggle="tab" href="#section1" role="tab" 
                                aria-controls="section1" aria-selected="true">
-                                <i class="fas fa-file-alt mr-2"></i>Section 1: Requisition
+                                <i class="fas fa-file-alt me-2"></i>Section 1: Requisition
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="section2-tab" data-toggle="tab" href="#section2" role="tab" 
                                aria-controls="section2" aria-selected="false">
-                                <i class="fas fa-paperclip mr-2"></i>Section 2: Supporting Documents
+                                <i class="fas fa-paperclip me-2"></i>Section 2: Supporting Documents
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="section3-tab" data-toggle="tab" href="#section3" role="tab" 
                                aria-controls="section3" aria-selected="false">
-                                <i class="fas fa-exclamation-triangle mr-2"></i>Section 3: Hazardous Activities
+                                <i class="fas fa-exclamation-triangle me-2"></i>Section 3: Hazardous Activities
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="section4-tab" data-toggle="tab" href="#section4" role="tab" 
                                aria-controls="section4" aria-selected="false">
-                                <i class="fas fa-clipboard-check mr-2"></i>Section 4: Contractor Declaration
+                                <i class="fas fa-clipboard-check me-2"></i>Section 4: Contractor Declaration
                             </a>
                         </li>
                     </ul>
@@ -1740,7 +1732,7 @@
                                                             <div class="form-check"><input type="checkbox" class="form-check-input" id="cw_el_fireExtinguisher"><label class="form-check-label" for="cw_el_fireExtinguisher">Fire Extinguisher</label></div>
                                                             <div class="form-check"><input type="checkbox" class="form-check-input" id="cw_el_mainSupplyCutOff"><label class="form-check-label" for="cw_el_mainSupplyCutOff">Main Supply Cut Off</label></div>
                                                             <div class="form-inline mt-1">
-                                                                <div class="form-check mr-2"><input type="checkbox" class="form-check-input" id="cw_el_others"><label class="form-check-label" for="cw_el_others">Others</label></div>
+                                                                <div class="form-check me-2"><input type="checkbox" class="form-check-input" id="cw_el_others"><label class="form-check-label" for="cw_el_others">Others</label></div>
                                                                 <input type="text" id="cw_el_othersText" class="form-control form-control-sm" placeholder="Specify others" style="max-width: 60%;">
                                                             </div>
                                                         </div>
@@ -1758,11 +1750,11 @@
                                                             <div class="form-check"><input type="checkbox" class="form-check-input" id="cw_wh_gondola"><label class="form-check-label" for="cw_wh_gondola">Gondola</label></div>
                                                             <div class="form-check"><input type="checkbox" class="form-check-input" id="cw_wh_workingAtRooftop"><label class="form-check-label" for="cw_wh_workingAtRooftop">Working at Rooftop</label></div>
                                                             <div class="form-inline mt-1">
-                                                                <div class="form-check mr-2"><input type="checkbox" class="form-check-input" id="cw_wh_usingA"><label class="form-check-label" for="cw_wh_usingA">Using a</label></div>
+                                                                <div class="form-check me-2"><input type="checkbox" class="form-check-input" id="cw_wh_usingA"><label class="form-check-label" for="cw_wh_usingA">Using a</label></div>
                                                                 <input type="text" id="cw_wh_usingAText" class="form-control form-control-sm" placeholder="Specify equipment" style="max-width: 60%;">
                                                             </div>
                                                             <div class="form-inline mt-1">
-                                                                <div class="form-check mr-2"><input type="checkbox" class="form-check-input" id="cw_wh_others"><label class="form-check-label" for="cw_wh_others">Others</label></div>
+                                                                <div class="form-check me-2"><input type="checkbox" class="form-check-input" id="cw_wh_others"><label class="form-check-label" for="cw_wh_others">Others</label></div>
                                                                 <input type="text" id="cw_wh_othersText" class="form-control form-control-sm" placeholder="Specify others" style="max-width: 60%;">
                                                             </div>
                                                         </div>
@@ -1783,7 +1775,7 @@
                                                             <div class="form-check"><input type="checkbox" class="form-check-input" id="cw_ex_protectionFromFallingMaterial"><label class="form-check-label" for="cw_ex_protectionFromFallingMaterial">Protection from falling material</label></div>
                                                             <div class="form-check"><input type="checkbox" class="form-check-input" id="cw_ex_protectionFromEngulfment"><label class="form-check-label" for="cw_ex_protectionFromEngulfment">Protection from engulfment</label></div>
                                                             <div class="form-inline mt-1">
-                                                                <div class="form-check mr-2"><input type="checkbox" class="form-check-input" id="cw_ex_others"><label class="form-check-label" for="cw_ex_others">Others</label></div>
+                                                                <div class="form-check me-2"><input type="checkbox" class="form-check-input" id="cw_ex_others"><label class="form-check-label" for="cw_ex_others">Others</label></div>
                                                                 <input type="text" id="cw_ex_othersText" class="form-control form-control-sm" placeholder="Specify others" style="max-width: 60%;">
                                                             </div>
                                                         </div>
@@ -1852,7 +1844,7 @@
                                                             <label class="form-check-label" for="hotPhrophoricMaterial">Use of phrophoric material</label>
                                                         </div>
                                                         <div class="form-inline form-check mt-1">
-                                                            <div class="form-check mr-2">
+                                                            <div class="form-check me-2">
                                                                 <input type="checkbox" class="form-check-input" id="hotOthers" data-others-field="hotOthersText">
                                                                 <label class="form-check-label" for="hotOthers">Others</label>
                                                             </div>
@@ -1880,7 +1872,7 @@
                                                                 <label class="form-check-label" for="hotGasContinuous">Continuous</label>
                                                             </div>
                                                             <div class="form-inline form-check mt-1">
-                                                                <div class="form-check mr-2">
+                                                                <div class="form-check me-2">
                                                                     <input type="checkbox" class="form-check-input" id="hotGasEveryHours" data-parent-section="hot_gas_section" data-others-field="hotGasEveryHoursValue">
                                                                     <label class="form-check-label" for="hotGasEveryHours">Every</label>
                                                                 </div>
@@ -1890,7 +1882,7 @@
 
                                                         <!-- Firewatch with name text -->
                                                         <div class="form-inline form-check mt-1">
-                                                            <div class="form-check mr-2">
+                                                            <div class="form-check me-2">
                                                                 <input type="checkbox" class="form-check-input" id="hotFirewatch" data-others-field="hotFirewatchName">
                                                                 <label class="form-check-label" for="hotFirewatch">Firewatch name</label>
                                                             </div>
@@ -1899,7 +1891,7 @@
 
                                                         <!-- Fire Extinguisher with text -->
                                                         <div class="form-inline form-check mt-1">
-                                                            <div class="form-check mr-2">
+                                                            <div class="form-check me-2">
                                                                 <input type="checkbox" class="form-check-input" id="hotFireExtinguisher" data-others-field="hotFireExtinguisherText">
                                                                 <label class="form-check-label" for="hotFireExtinguisher">Fire Extinguisher</label>
                                                             </div>
@@ -1927,7 +1919,7 @@
                                                             <label class="form-check-label" for="hotRemoveFlammables">Remove flammable/highly combustible materials</label>
                                                         </div>
                                                         <div class="form-inline form-check mt-1">
-                                                            <div class="form-check mr-2">
+                                                            <div class="form-check me-2">
                                                                 <input type="checkbox" class="form-check-input" id="hotControlsOthers" data-others-field="hotControlsOthersText">
                                                                 <label class="form-check-label" for="hotControlsOthers">Others</label>
                                                             </div>
@@ -2096,7 +2088,7 @@
                                 <h5 class="mb-3"><strong>SECTION 2: SUPPORTING DOCUMENTS</strong></h5>
                                 
                                 <div class="alert alert-info">
-                                    <i class="fas fa-info-circle mr-2"></i>
+                                    <i class="fas fa-info-circle me-2"></i>
                                     <strong>Document Requirements:</strong> Please ensure all relevant supporting documents are prepared and uploaded before work commencement.
                                 </div>
 
@@ -2303,7 +2295,7 @@
                                 <h5 class="mb-3"><strong>SECTION 3: HAZARDOUS ACTIVITIES</strong></h5>
                                 
                                 <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
                                     <strong>Instructions:</strong> Check all hazardous activities that may be present at the work site.
                                 </div>
 
@@ -2448,7 +2440,7 @@
                                 <h5 class="mb-3"><strong>SECTION 4: CONTRACTOR DECLARATION</strong></h5>
                                 
                                 <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
                                     <strong>Important:</strong> Contractor must confirm compliance with all safety requirements and procedures
                                 </div>
                                 
@@ -2656,7 +2648,7 @@
                                                     <label class="form-check-label" for="ppe_life_jacket">Life jacket/vest</label>
                                                 </div>
                                                 <div class="form-inline">
-                                                    <div class="form-check mr-2">
+                                                    <div class="form-check me-2">
                                                         <input type="checkbox" class="form-check-input" id="ppe_others_checkbox">
                                                         <label class="form-check-label" for="ppe_others_checkbox">Others (pls specify):</label>
                                                     </div>
@@ -2696,7 +2688,7 @@
                                                             <canvas id="contractorSignatureCanvas"></canvas>
                                                         </div>
                                                         <div class="signature-image" id="contractorSignatureImage" aria-live="polite">
-                                                            <div class="text-muted small mb-1"><i class="fas fa-check text-success mr-1"></i>Saved signature</div>
+                                                            <div class="text-muted small mb-1"><i class="fas fa-check text-success me-1"></i>Saved signature</div>
                                                             <img id="contractorSignatureImgTag" alt="Contractor signature" />
                                                             <div id="contractorSignatureActions" class="mt-2">
                                                                 <a id="contractorSignatureViewLink" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">View full</a>
@@ -2704,7 +2696,7 @@
                                                         </div>
                                                         <div class="signature-actions">
                                                             <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClearContractorSignature">
-                                                                <i class="fas fa-eraser mr-1"></i>Clear
+                                                                <i class="fas fa-eraser me-1"></i>Clear
                                                             </button>
                                                         </div>
                                                         <div class="signature-hint">
@@ -2718,7 +2710,7 @@
                                         </div>
                                         
                                         <div class="alert alert-info mt-3">
-                                            <i class="fas fa-info-circle mr-2"></i>
+                                            <i class="fas fa-info-circle me-2"></i>
                                             <strong>Declaration:</strong> I hereby declare that all information provided is accurate and complete. I understand that any false declaration may result in permit cancellation and legal consequences.
                                         </div>
                                         
@@ -2726,7 +2718,7 @@
                                         <div class="alert alert-warning mt-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="contractorConfirmation" required>
-                                                <label class="form-check-label font-weight-bold" for="contractorConfirmation">
+                                                <label class="form-check-label fw-bold" for="contractorConfirmation">
                                                     <strong>
 I/ We confirm that we have read and fully understood the terms and conditions above and hereby agree to strictly comply with rules and regulations as well as safety requirements set by
 the building owners and GFM. I / We shall brief all my workers involved in this work and ensure that they are carry out work safely at all times.</strong>
@@ -2745,18 +2737,18 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                     <div class="row">
                         <div class="col-6">
                             <button type="button" class="btn btn-outline-secondary" id="btnPrevious" style="display: none;">
-                                <i class="fas fa-arrow-left mr-2"></i>Previous
+                                <i class="fas fa-arrow-left me-2"></i>Previous
                             </button>
                         </div>
-                        <div class="col-6 text-right">
-                            <!-- <button type="button" class="btn btn-warning mr-2" id="btnTestDataCollection">
-                                <i class="fas fa-bug mr-2"></i>Test Data Collection
+                        <div class="col-6 text-end">
+                            <!-- <button type="button" class="btn btn-warning me-2" id="btnTestDataCollection">
+                                <i class="fas fa-bug me-2"></i>Test Data Collection
                             </button> -->
                             <button type="button" class="btn btn-primary" id="btnNext">
-                                Next<i class="fas fa-arrow-right ml-2"></i>
+                                Next<i class="fas fa-arrow-right ms-2"></i>
                             </button>
                             <button type="button" class="btn btn-success btn-lg" id="btnSubmitApproval" style="display: none;">
-                                <i class="fas fa-paper-plane mr-2"></i>Submit PTW Application
+                                <i class="fas fa-paper-plane me-2"></i>Submit PTW Application
                             </button>
                         </div>
                     </div>
@@ -2766,7 +2758,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                 <div id="approvalSections" style="display: none;">
                     <!-- Supervisor Approval -->
                     <div class="approval-section supervisor" id="supervisorApprovalSection" style="display: none;">
-                        <h5><i class="fas fa-user-tie mr-2"></i>PTW Supervisor Approval</h5>
+                        <h5><i class="fas fa-user-tie me-2"></i>PTW Supervisor Approval</h5>
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="form-group">
@@ -2779,10 +2771,10 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                                 <label><strong>Decision</strong></label>
                                 <div class="approval-actions">
                                     <button type="button" class="btn btn-success approval-btn" id="btnSupervisorApprove">
-                                        <i class="fas fa-check mr-2"></i>Approve
+                                        <i class="fas fa-check me-2"></i>Approve
                                     </button>
                                     <button type="button" class="btn btn-danger approval-btn" id="btnSupervisorReject">
-                                        <i class="fas fa-times mr-2"></i>Reject
+                                        <i class="fas fa-times me-2"></i>Reject
                                     </button>
                                 </div>
                             </div>
@@ -2801,7 +2793,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
 
                     <!-- SHE Approval -->
                     <div class="approval-section she" id="sheApprovalSection" style="display: none;">
-                        <h5><i class="fas fa-hard-hat mr-2"></i>Safety, Health & Environment (SHE) Approval</h5>
+                        <h5><i class="fas fa-hard-hat me-2"></i>Safety, Health & Environment (SHE) Approval</h5>
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="form-group">
@@ -2814,10 +2806,10 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                                 <label><strong>Decision</strong></label>
                                 <div class="approval-actions">
                                     <button type="button" class="btn btn-success approval-btn" id="btnSheApprove">
-                                        <i class="fas fa-check mr-2"></i>Approve
+                                        <i class="fas fa-check me-2"></i>Approve
                                     </button>
                                     <button type="button" class="btn btn-danger approval-btn" id="btnSheReject">
-                                        <i class="fas fa-times mr-2"></i>Reject
+                                        <i class="fas fa-times me-2"></i>Reject
                                     </button>
                                 </div>
                             </div>
@@ -2836,7 +2828,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
 
                     <!-- Facility Manager Approval -->
                     <div class="approval-section facility-manager" id="facilityManagerApprovalSection" style="display: none;">
-                        <h5><i class="fas fa-building mr-2"></i>Facility Manager Final Approval</h5>
+                        <h5><i class="fas fa-building me-2"></i>Facility Manager Final Approval</h5>
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="form-group">
@@ -2849,10 +2841,10 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                                 <label><strong>Decision</strong></label>
                                 <div class="approval-actions">
                                     <button type="button" class="btn btn-success approval-btn" id="btnFacilityManagerApprove">
-                                        <i class="fas fa-check mr-2"></i>Approve
+                                        <i class="fas fa-check me-2"></i>Approve
                                     </button>
                                     <button type="button" class="btn btn-danger approval-btn" id="btnFacilityManagerReject">
-                                        <i class="fas fa-times mr-2"></i>Reject
+                                        <i class="fas fa-times me-2"></i>Reject
                                     </button>
                                 </div>
                             </div>
@@ -2878,28 +2870,15 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
 </main>
 
 <!-- SCRIPTS -->
-<script type="text/javascript">
+<script>
     $('.includeHtml').each(function () {
         const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
     });
 </script>
-
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
-<!-- Toastr -->
-<script type="text/javascript" src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/modules/toastr.js"></script>
 
 <!--Custom scripts-->
 <script type="text/javascript">

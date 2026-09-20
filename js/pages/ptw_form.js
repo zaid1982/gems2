@@ -1,6 +1,9 @@
 /**
  * PTW Form Management Class
- * Handles PTW form creation, validation, and submission
+ * Handles PTW form creation, validation, and submission.
+ *
+ * P5-5: page-local public form. Do not add common.js / initiatePages().
+ * Keep the defensive mdb-select class strip. Do not invent a stepper.
  */
 class PtwForm {
     constructor() {
