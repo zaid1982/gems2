@@ -1,68 +1,94 @@
-<div class="modal fade gems-modal" id="modal_asset_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2" id="lblMzmTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_asset_model — Tabler/GEMS modal + form contract (P4B-2).
+
+  Loaded by pages/asset_type.html ONLY. Same P4 modal chrome as Type, but
+  fields follow the Model workflow (not a Type clone):
+    Type context (Group / Category / Type) is always disabled.
+    Brand is required and editable on Add, disabled on Edit.
+    Model name maxLength 150, description maxLength 255.
+    Status checkbox writes 1 or 2 only. Model UI has no Archived (5) filter.
+
+  Legacy Add / Edit contract (preserve):
+    Add populates Brand with assetBrandStatus === '1'.
+    Edit loads every Brand (including inactive/archived) so a saved Brand
+    that is no longer active remains displayable, then disables Brand.
+    Group / Category / Type are derived from the selected Type context
+    (refAssetType[assetTypeId].assetCategoryId -> refAssetCategory.assetGroupId).
+
+  JS contract preserved (js/pages/modal_asset_model.js, js/pages/main_asset_type.js):
+    #modal_asset_model  #formMzm
+    #optMzmAssetGroupId  #lblMzmAssetGroupId  #optMzmAssetGroupIdErr
+    #optMzmAssetCategoryId  #lblMzmAssetCategoryId  #optMzmAssetCategoryIdErr
+    #optMzmAssetTypeId  #lblMzmAssetTypeId  #optMzmAssetTypeIdErr
+    #optMzmAssetBrandId  #lblMzmAssetBrandId  #optMzmAssetBrandIdErr
+    #txtMzmName  #lblMzmName  #txtMzmNameErr
+    #txaMzmDesc  #lblMzmDesc  #txaMzmDescErr
+    #chkMzmStatus  #chkMzmStatusErr  #btnMzmSubmit  #lblMzmTitle
+-->
+<div class="modal fade" id="modal_asset_model" tabindex="-1" aria-labelledby="lblMzmTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMzmTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMzm" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMzmAssetGroupId" id="lblMzmAssetGroupId">Asset Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMzmAssetGroupId" class="form-select" disabled aria-required="true" aria-describedby="optMzmAssetGroupIdErr"></select>
+              <div class="gems-field-error" id="optMzmAssetGroupIdErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body gems-modal-body">
-                <form id="formMzm">
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-4">
-                            <select id="optMzmAssetGroupId" class="mdb-select md-form md-outline colorful-select mt-0" disabled></select>
-                            <label for="optMzmAssetGroupId" id="lblMzmAssetGroupId">Asset Group *</label>
-                            <p class="font-small text-danger" id="optMzmAssetGroupIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-0">
-                            <select id="optMzmAssetCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" disabled></select>
-                            <label for="optMzmAssetCategoryId" id="lblMzmAssetCategoryId">Asset Category *</label>
-                            <p class="font-small text-danger" id="optMzmAssetCategoryIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-0">
-                            <select id="optMzmAssetTypeId" class="mdb-select md-form md-outline colorful-select mt-0" disabled></select>
-                            <label for="optMzmAssetTypeId" id="lblMzmAssetTypeId">Asset Type *</label>
-                            <p class="font-small text-danger" id="optMzmAssetTypeIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-0">
-                            <select id="optMzmAssetBrandId" class="mdb-select md-form md-outline colorful-select mt-0">
-                                <option value="" disabled selected>Choose Asset Brand</option>
-                            </select>
-                            <label for="optMzmAssetBrandId" id="lblMzmAssetBrandId">Asset Brand *</label>
-                            <p class="font-small text-danger" id="optMzmAssetBrandIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMzmName" class="form-control">
-                        <label for="txtMzmName" id="lblMzmName">Asset Model *</label>
-                        <p class="font-small text-danger" id="txtMzmNameErr"></p>
-                    </div>
-                    <div class="md-form md-outline">
-                        <textarea id="txaMzmDesc" class="md-textarea form-control" rows="3"></textarea>
-                        <label for="txaMzmDesc" id="lblMzmDesc" class="text-muted">Description</label>
-                        <p class="font-small text-danger" id="txaMzmDescErr"></p>
-                    </div>
-                    <h6 class="font-small">Status:</h6>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMzmStatus" name="chkMzmStatus" value="1">
-                        <label class="form-check-label" for="chkMzmStatus">Active</label>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMzmAssetCategoryId" id="lblMzmAssetCategoryId">Asset Category <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMzmAssetCategoryId" class="form-select" disabled aria-required="true" aria-describedby="optMzmAssetCategoryIdErr"></select>
+              <div class="gems-field-error" id="optMzmAssetCategoryIdErr" role="alert"></div>
             </div>
-            <div class="modal-footer p-2 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMzmSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMzmAssetTypeId" id="lblMzmAssetTypeId">Asset Type <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMzmAssetTypeId" class="form-select" disabled aria-required="true" aria-describedby="optMzmAssetTypeIdErr"></select>
+              <div class="gems-field-error" id="optMzmAssetTypeIdErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMzmAssetBrandId" id="lblMzmAssetBrandId">Asset Brand <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMzmAssetBrandId" class="form-select" aria-required="true" aria-describedby="optMzmAssetBrandIdErr">
+                <option value="" selected>Choose Asset Brand</option>
+              </select>
+              <div class="gems-field-error" id="optMzmAssetBrandIdErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMzmName" id="lblMzmName">Asset Model <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMzmName" class="form-control" aria-required="true" aria-describedby="txtMzmNameErr">
+              <div class="gems-field-error" id="txtMzmNameErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMzmDesc" id="lblMzmDesc">Description</label>
+              <textarea id="txaMzmDesc" class="form-control" rows="3" aria-describedby="txaMzmDescErr"></textarea>
+              <div class="gems-field-error" id="txaMzmDescErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <span class="form-label">Status</span>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="chkMzmStatus" name="chkMzmStatus" value="1" aria-describedby="chkMzmStatusErr">
+                <label class="form-check-label" for="chkMzmStatus">Active</label>
+              </div>
+              <div class="gems-field-error" id="chkMzmStatusErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMzmSubmit" class="btn btn-primary" disabled>
+          <i class="far fa-save me-2"></i>Save
+        </button>
+      </div>
     </div>
+  </div>
 </div>

@@ -8,9 +8,82 @@ function ModalAssetType() {
     let refAssetCategory;
     let refAssetGroup;
 
+    function assetGroupRows(activeOnly) {
+        const rows = [];
+        $.each(refAssetGroup, function (key, group) {
+            if (!group || typeof group !== 'object') {
+                return true;
+            }
+            if (activeOnly && String(group['assetGroupStatus']) !== '1') {
+                return true;
+            }
+            rows.push(group);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return (a['assetGroupName'] || '').localeCompare(b['assetGroupName'] || '');
+        });
+        return rows;
+    }
+
+    function assetCategoryRows(activeOnly, groupId) {
+        const rows = [];
+        $.each(refAssetCategory, function (key, category) {
+            if (!category || typeof category !== 'object') {
+                return true;
+            }
+            if (groupId && String(category['assetGroupId']) !== String(groupId)) {
+                return true;
+            }
+            if (activeOnly && String(category['assetCategoryStatus']) !== '1') {
+                return true;
+            }
+            rows.push(category);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return (a['assetCategoryName'] || '').localeCompare(b['assetCategoryName'] || '');
+        });
+        return rows;
+    }
+
+    function fillAssetGroupSelect(activeOnly, selected) {
+        GemsUI.fillSelect(
+            'optMztAssetGroupId',
+            assetGroupRows(activeOnly),
+            'assetGroupId',
+            function (row) {
+                return row['assetGroupName'] || '';
+            },
+            'Choose Asset Group',
+            selected
+        );
+    }
+
+    function fillAssetCategorySelect(activeOnly, groupId, selected) {
+        const rows = groupId || !activeOnly
+            ? assetCategoryRows(activeOnly, activeOnly ? groupId : null)
+            : [];
+        GemsUI.fillSelect(
+            'optMztAssetCategoryId',
+            rows,
+            'assetCategoryId',
+            function (row) {
+                return row['assetCategoryName'] || '';
+            },
+            'Choose Asset Category',
+            selected
+        );
+    }
+
+    function setParentSelectsDisabled(disabled) {
+        $('#optMztAssetGroupId').prop('disabled', !!disabled);
+        $('#optMztAssetCategoryId').prop('disabled', !!disabled);
+    }
+
     this.init = function () {
         $('#optMztAssetGroupId').on('change', function () {
-            mzOptionStop('optMztAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val(), assetCategoryStatus: '1'}, 'required');
+            fillAssetCategorySelect(true, $(this).val(), '');
         });
 
         const vData = [
@@ -66,8 +139,7 @@ function ModalAssetType() {
         $('#modal_asset_type').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
             $('#btnMztSubmit').attr('disabled', true);
-            mzDisableSelect('optMztAssetGroupId', false);
-            mzDisableSelect('optMztAssetCategoryId', false);
+            setParentSelectsDisabled(false);
         });
 
         $('#btnMztSubmit').on('click', function () {
@@ -131,10 +203,12 @@ function ModalAssetType() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOptionStop('optMztAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+                fillAssetGroupSelect(true);
+                fillAssetCategorySelect(true, '', '');
+                setParentSelectsDisabled(false);
 
                 mzSetFieldValue('MztStatus', '1', 'checkSingle', '1');
-                $('#lblMztTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Type');
+                $('#lblMztTitle').html('<i class="fas fa-plus me-2"></i>Add Asset Type');
                 $('#modal_asset_type').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -147,24 +221,22 @@ function ModalAssetType() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOptionStop('optMztAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName');
-                mzOptionStop('optMztAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName');
                 mzCheckFuncParam([_assetTypeId, _rowRefresh]);
                 assetTypeId = _assetTypeId;
                 rowRefresh = _rowRefresh;
 
                 const dataMzt = mzAjaxRequest('asset_type.php?assetTypeId='+assetTypeId, 'GET');
                 const assetCategoryId = dataMzt['assetCategoryId'];
-                mzSetFieldValue('MztAssetGroupId', refAssetCategory[assetCategoryId]['assetGroupId'], 'select', 'Asset Group *');
-                mzSetFieldValue('MztAssetCategoryId', assetCategoryId, 'select', 'Asset Category *');
+                const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
+                fillAssetGroupSelect(false, assetGroupId);
+                fillAssetCategorySelect(false, null, assetCategoryId);
                 mzSetFieldValue('MztName', dataMzt['assetTypeName'], 'text');
                 mzSetFieldValue('MztDesc', dataMzt['assetTypeDesc'], 'textarea');
                 mzSetFieldValue('MztStatus', dataMzt['assetTypeStatus'], 'checkSingle', '1');
 
-                mzDisableSelect('optMztAssetGroupId', true);
-                mzDisableSelect('optMztAssetCategoryId', true);
+                setParentSelectsDisabled(true);
 
-                $('#lblMztTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Type');
+                $('#lblMztTitle').html('<i class="far fa-edit me-2"></i>Edit Asset Type');
                 $('#modal_asset_type').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

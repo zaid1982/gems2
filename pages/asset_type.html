@@ -1,346 +1,317 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/asset_type.html — Tabler-migrated (P4B-2 Asset Type + Asset Model).
+
+  Mechanical copy of Designation / Severity / Failure Code for shell,
+  toolbar, DataTable, GemsUI, row actions, and modal chrome.
+  Asset Category for dependent-select / Add vs Edit parent handling.
+  Asset Type extras stay: description, archived status (5), four metric
+  cards (Total / Active / Inactive / Total Models), pageLength 25,
+  Group -> Category filter cascade, Quick Status chips, and the child
+  Asset Model list on this same page.
+
+  Brand participates at Model only, not Type.
+
+  Asset stack follows the established P3/P4 dynamic/cache-busted approach:
+  static Tabler/DataTables/toastr/crypto, then document.write for common.js,
+  gems-tabler-ui.js (exactly once), and page scripts. GemsUI is not also
+  loaded via scripts_tabler.html.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?5">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css?6" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Asset Type</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid" id="divWssPageWidth">
-        <section class="mb-5  sectionAtyMain">
-            <div class="card card-cascade narrower gems-card-shell asset-type-shell">
-                <section class="gems-page-header asset-type-header">
-                    <div class="header-text">
-                        <h2>Asset Type &amp; Model Management</h2>
-                        <p>Control hierarchical asset types and expose related models for assignments.</p>
-                    </div>
-                    <div class="header-actions">
-                        <button type="button" id="btnDtAtyAssetTypeRefresh" class="btn btn-light btn-icon" aria-label="Refresh asset types" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                        <button type="button" id="btnAtyAssetTypeAdd" class="btn btn-primary btn-icon" aria-label="Add asset type" data-toggle="tooltip" data-placement="top" title="Add Asset Type"><i class="fas fa-plus"></i></button>
-                    </div>
-                </section>
-
-                <section class="mt-4">
-                    <div class="row">
-                        <div class="col-lg-3 col-sm-6 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Total Types</span>
-                                <span class="metric-value" id="metricAtyTotal">0</span>
-                                <span class="metric-subtext">All configured asset types</span>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Active</span>
-                                <span class="metric-value" id="metricAtyActive">0</span>
-                                <span class="metric-subtext">Types available for mapping</span>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Inactive</span>
-                                <span class="metric-value" id="metricAtyInactive">0</span>
-                                <span class="metric-subtext">Temporarily hidden entries</span>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-sm-6 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Total Models</span>
-                                <span class="metric-value" id="metricAtyModels">0</span>
-                                <span class="metric-subtext">Models linked to active types</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mt-2">
-                    <div class="filter-card asset-type-filter">
-                        <div class="filter-grid">
-                            <div>
-                                <label class="filter-label" for="optAtyGroupId">Asset Group</label>
-                                <div class="select-outline">
-                                    <select id="optAtyGroupId" class="mdb-select md-form md-outline colorful-select mt-0" data-mdb-skip="true">
-                                        <option value="" selected>All Groups</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optAtyCategoryId">Asset Category</label>
-                                <div class="select-outline">
-                                    <select id="optAtyCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-mdb-skip="true">
-                                        <option value="" selected>All Categories</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optAtyStatus">Status</label>
-                                <div class="select-outline">
-                                    <select id="optAtyStatus" class="mdb-select md-form md-outline colorful-select mt-0" data-mdb-skip="true">
-                                        <option value="" selected>All Status</option>
-                                        <option value="1">Active</option>
-                                        <option value="2">Inactive</option>
-                                        <option value="5">Archived</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="txtAtyAssetTypeSearch">Keyword Search</label>
-                                <div class="md-form md-outline mt-0 mb-0">
-                                    <input type="text" id="txtAtyAssetTypeSearch" class="form-control">
-                                    <label for="txtAtyAssetTypeSearch" class="active">Keyword Search</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
-                            <span id="lblAtyFilterCount">Showing 0 of 0</span>
-                            <span id="lblAtyFilterUpdated">—</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mb-4 mt-4">
-                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
-                        <label class="filter-label mb-2">Quick Status</label>
-                        <div class="gems-status-scroll">
-                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkAtyAll">All</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAtyActive">Active</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAtyInactive">Inactive</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAtyArchived">Archived</a>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset Type List" data-content="Browse asset types, drill into models, and manage availability."><i class="fas fa-info mt-0 mx-1"></i></a>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Asset Type List</a>
-                            <div class="dt-btn-slot">
-                                <div id="btnDtAtyAssetTypeExport"></div>
-                            </div>
-                        </div>
-                        <div class="px-4 pb-3">
-                            <div class="summary-pill d-flex justify-content-between align-items-center" style="margin: 1rem 0;">
-                                <span id="lblAtyListCount">Showing 0 of 0</span>
-                                <span id="lblAtyListUpdated">—</span>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <table id="dtAtyAssetType" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                <thead>
-                                <tr class="th-strong">
-                                    <th>#</th>
-                                    <th>Asset Group</th>
-                                    <th>Asset Category</th>
-                                    <th>Asset Type</th>
-                                    <th>Description</th>
-                                    <th>Total Models</th>
-                                    <th>Status</th>
-                                    <th>&nbsp;</th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-sitemap me-2 text-primary"></i>Asset Type &amp; Model Management</h1>
+              <div class="page-subtitle">Control hierarchical asset types and expose related models for assignments.</div>
             </div>
-        </section>
-
-        <section class="mb-5 mt-lg-4" id="sectionAtyModel">
-            <div class="card card-cascade narrower gems-card-shell asset-model-shell">
-                <section class="gems-page-header asset-model-header ripe-malinka-gradient">
-                    <div class="header-text">
-                        <h2>Asset Model List</h2>
-                        <p>Linked models for <span id="lblAtyAssetModelTitle" class="font-italic">—</span></p>
-                    </div>
-                    <div class="header-actions">
-                        <button type="button" id="btnDtAtyAssetModelRefresh" class="btn btn-light btn-icon" aria-label="Refresh asset models" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                        <button type="button" id="btnAtyAssetModelAdd" class="btn btn-primary btn-icon" aria-label="Add asset model" data-toggle="tooltip" data-placement="top" title="Add Asset Model"><i class="fas fa-plus"></i></button>
-                    </div>
-                </section>
-
-                <section class="mt-2">
-                    <div class="filter-card asset-model-filter">
-                        <div class="filter-grid">
-                            <div>
-                                <label class="filter-label" for="txtAtyAssetModelSearch">Keyword Search</label>
-                                <div class="md-form md-outline mt-0 mb-0">
-                                    <input type="text" id="txtAtyAssetModelSearch" class="form-control">
-                                    <label for="txtAtyAssetModelSearch" class="active">Keyword Search</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
-                            <span id="lblAtyModelCount">Showing 0 of 0</span>
-                            <span id="lblAtyModelUpdated">—</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <div class="modern-table-card">
-                        <div class="table-header ripe-malinka-gradient">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset Model List" data-content="Models maintained under the selected asset type."><i class="fas fa-info mt-0 mx-1"></i></a>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Asset Model List</a>
-                            <div class="dt-btn-slot">
-                                <div id="btnDtAtyAssetModelExport"></div>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <table id="dtAtyAssetModel" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                <thead>
-                                <tr class="th-strong">
-                                    <th>#</th>
-                                    <th>Asset Brand</th>
-                                    <th>Asset Model</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th>&nbsp;</th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnDtAtyAssetTypeRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh asset types">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-primary" id="btnAtyAssetTypeAdd"
+                      data-bs-toggle="tooltip" title="Add Asset Type" aria-label="Add asset type">
+                <i class="fas fa-plus me-2"></i>New Asset Type
+              </button>
             </div>
-        </section>
+          </div>
+        </div>
+
+        <div class="row row-cards mb-3">
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Total Types</div>
+                <div class="h2 mb-0" id="metricAtyTotal">0</div>
+                <div class="text-secondary" style="font-size:.75rem">All configured asset types</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Active</div>
+                <div class="h2 mb-0" id="metricAtyActive">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Types available for mapping</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Inactive</div>
+                <div class="h2 mb-0" id="metricAtyInactive">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Temporarily hidden entries</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Total Models</div>
+                <div class="h2 mb-0" id="metricAtyModels">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Models linked to active types</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-3">
+                <label class="form-label" for="optAtyGroupId">Asset Group</label>
+                <select id="optAtyGroupId" class="form-select">
+                  <option value="" selected>All Groups</option>
+                </select>
+              </div>
+              <div class="gems-field gems-field-3">
+                <label class="form-label" for="optAtyCategoryId">Asset Category</label>
+                <select id="optAtyCategoryId" class="form-select">
+                  <option value="" selected>All Categories</option>
+                </select>
+              </div>
+              <div class="gems-field gems-field-3">
+                <label class="form-label" for="optAtyStatus">Status</label>
+                <select id="optAtyStatus" class="form-select">
+                  <option value="" selected>All Status</option>
+                  <option value="1">Active</option>
+                  <option value="2">Inactive</option>
+                  <option value="5">Archived</option>
+                </select>
+              </div>
+              <div class="gems-field gems-field-3">
+                <label class="form-label" for="txtAtyAssetTypeSearch">Keyword Search</label>
+                <input type="search" id="txtAtyAssetTypeSearch" class="form-control" placeholder="Search asset type" autocomplete="off">
+              </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
+              <div>
+                <div class="form-label mb-1">Quick Status</div>
+                <div class="btn-group" role="group" aria-label="Quick Status">
+                  <button type="button" class="btn btn-sm btn-primary active" id="linkAtyAll">All</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" id="linkAtyActive">Active</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" id="linkAtyInactive">Inactive</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" id="linkAtyArchived">Archived</button>
+                </div>
+              </div>
+              <div class="d-flex flex-wrap align-items-center gap-2 text-secondary" style="font-size:.75rem">
+                <span id="lblAtyFilterCount">Showing 0 of 0</span>
+                <span id="lblAtyFilterUpdated">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0"><i class="fas fa-sitemap me-2 text-primary"></i>Asset Type List</h3>
+              <div class="text-secondary" style="font-size:.75rem">Browse asset types, drill into models, and manage availability.</div>
+            </div>
+            <div class="gems-card-toolbar text-secondary" style="font-size:.75rem">
+              <span id="lblAtyListCount">Showing 0 of 0</span>
+              <span id="lblAtyListUpdated" class="text-nowrap"><i class="far fa-clock me-1"></i>—</span>
+              <div id="btnDtAtyAssetTypeExport" class="d-inline-flex align-items-center"></div>
+            </div>
+          </div>
+          <table id="dtAtyAssetType" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th style="width:6%">#</th>
+                <th>Asset Group</th>
+                <th>Asset Category</th>
+                <th>Asset Type</th>
+                <th>Description</th>
+                <th>Total Models</th>
+                <th style="width:15%">Status</th>
+                <th style="width:160px" class="noVis text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="card" id="sectionAtyModel">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0"><i class="fas fa-cubes me-2 text-primary"></i>Asset Model List</h3>
+              <div class="text-secondary" style="font-size:.75rem">Linked models for <span id="lblAtyAssetModelTitle">—</span></div>
+            </div>
+            <div class="gems-card-toolbar text-secondary" style="font-size:.75rem">
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="btnDtAtyAssetModelRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh asset models">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" id="btnAtyAssetModelAdd"
+                      data-bs-toggle="tooltip" title="Add Asset Model" aria-label="Add asset model">
+                <i class="fas fa-plus me-2"></i>New Asset Model
+              </button>
+              <span id="lblAtyModelCount">Showing 0 of 0</span>
+              <span id="lblAtyModelUpdated" class="text-nowrap"><i class="far fa-clock me-1"></i>—</span>
+              <div id="btnDtAtyAssetModelExport" class="d-inline-flex align-items-center"></div>
+            </div>
+          </div>
+          <div class="card-body py-2">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtAtyAssetModelSearch">Keyword Search</label>
+                <input type="search" id="txtAtyAssetModelSearch" class="form-control" placeholder="Search asset model" autocomplete="off">
+              </div>
+            </div>
+          </div>
+          <table id="dtAtyAssetModel" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th style="width:6%">#</th>
+                <th>Asset Brand</th>
+                <th>Asset Model</th>
+                <th>Description</th>
+                <th style="width:15%">Status</th>
+                <th style="width:140px" class="noVis text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_asset_type"></div>
-    <div class="includeHtml" id="h-modal_asset_model"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
+<!-- Shared fragments. modal_change_password and modal_confirm_delete stay on
+     the existing MDB/Tabler compatibility bridge; they are not converted here. -->
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_asset_type"></div>
+<div class="includeHtml" id="h-modal_asset_model"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
 
-</main>
-
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_asset_type.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_asset_model.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_asset_type.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  let versionLocal_;
+  let assetTypeClass_;
+  let changePasswordClass_;
+  let modalAssetTypeClass_;
+  let modalAssetModelClass_;
+  let modalConfirmDelete_;
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        assetTypeClass_ = new MainAssetType();
+        modalAssetTypeClass_ = new ModalAssetType();
+        modalAssetModelClass_ = new ModalAssetModel();
+        modalConfirmDelete_ = new ModalConfirmDelete();
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+        const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+        const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+        const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
+        const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
+        const refAssetBrand_ = mzGetLocalArray('gems_assetBrand', versionLocal_, 'assetBrandId', [], 'asset_brand');
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        modalAssetTypeClass_.setRefAssetGroup(refAssetGroup_);
+        modalAssetTypeClass_.setRefAssetCategory(refAssetCategory_);
+        modalAssetTypeClass_.setClassFrom(assetTypeClass_);
+        modalAssetTypeClass_.init();
 
-    let versionLocal_;
-    let assetTypeClass_;
-    let changePasswordClass_;
-    let modalAssetTypeClass_;
-    let modalAssetModelClass_;
-    let modalConfirmDelete_;
+        modalAssetModelClass_.setRefAssetGroup(refAssetGroup_);
+        modalAssetModelClass_.setRefAssetCategory(refAssetCategory_);
+        modalAssetModelClass_.setRefAssetBrand(refAssetBrand_);
+        modalAssetModelClass_.setRefAssetType(refAssetType_);
+        modalAssetModelClass_.setClassFrom(assetTypeClass_);
+        modalAssetModelClass_.init();
 
-    document.addEventListener('DOMContentLoaded', function () {
-
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                assetTypeClass_ = new MainAssetType();
-                modalAssetTypeClass_ = new ModalAssetType();
-                modalAssetModelClass_ = new ModalAssetModel();
-                modalConfirmDelete_ = new ModalConfirmDelete();
-
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
-                const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
-                const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
-                const refAssetBrand_ = mzGetLocalArray('gems_assetBrand', versionLocal_, 'assetBrandId', [], 'asset_brand');
-
-                modalAssetTypeClass_.setRefAssetGroup(refAssetGroup_);
-                modalAssetTypeClass_.setRefAssetCategory(refAssetCategory_);
-                modalAssetTypeClass_.setClassFrom(assetTypeClass_);
-                modalAssetTypeClass_.init();
-
-                modalAssetModelClass_.setRefAssetGroup(refAssetGroup_);
-                modalAssetModelClass_.setRefAssetCategory(refAssetCategory_);
-                modalAssetModelClass_.setRefAssetBrand(refAssetBrand_);
-                modalAssetModelClass_.setRefAssetType(refAssetType_);
-                modalAssetModelClass_.setClassFrom(assetTypeClass_);
-                modalAssetModelClass_.init();
-
-                assetTypeClass_.setVersionLocal(versionLocal_);
-                assetTypeClass_.setRefStatus(refStatus_);
-                assetTypeClass_.setRefAssetCategory(refAssetCategory_);
-                assetTypeClass_.setRefAssetGroup(refAssetGroup_);
-                assetTypeClass_.setRefAssetBrand(refAssetBrand_);
-                assetTypeClass_.setModalAssetTypeClass(modalAssetTypeClass_);
-                assetTypeClass_.setModalAssetModelClass(modalAssetModelClass_);
-                assetTypeClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                assetTypeClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_asset_type.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_asset_model.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_asset_type.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+        assetTypeClass_.setVersionLocal(versionLocal_);
+        assetTypeClass_.setRefStatus(refStatus_);
+        assetTypeClass_.setRefAssetCategory(refAssetCategory_);
+        assetTypeClass_.setRefAssetGroup(refAssetGroup_);
+        assetTypeClass_.setRefAssetBrand(refAssetBrand_);
+        assetTypeClass_.setModalAssetTypeClass(modalAssetTypeClass_);
+        assetTypeClass_.setModalAssetModelClass(modalAssetModelClass_);
+        assetTypeClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+        assetTypeClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 300);
+  });
 </script>
-
 </body>
 </html>

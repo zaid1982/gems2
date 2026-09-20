@@ -11,10 +11,97 @@ function ModalAssetModel() {
     let refAssetBrand;
     let assetTypeId;
 
+    function objectRows(ref, nameKey) {
+        const rows = [];
+        $.each(ref, function (key, row) {
+            if (!row || typeof row !== 'object') {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return (a[nameKey] || '').localeCompare(b[nameKey] || '');
+        });
+        return rows;
+    }
+
+    function assetBrandRows(activeOnly) {
+        const rows = [];
+        $.each(refAssetBrand, function (key, brand) {
+            if (!brand || typeof brand !== 'object') {
+                return true;
+            }
+            if (activeOnly && String(brand['assetBrandStatus']) !== '1') {
+                return true;
+            }
+            rows.push(brand);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return (a['assetBrandName'] || '').localeCompare(b['assetBrandName'] || '');
+        });
+        return rows;
+    }
+
+    function fillContextSelects(groupId, categoryId, typeId) {
+        GemsUI.fillSelect(
+            'optMzmAssetGroupId',
+            objectRows(refAssetGroup, 'assetGroupName'),
+            'assetGroupId',
+            function (row) {
+                return row['assetGroupName'] || '';
+            },
+            'Choose Asset Group',
+            groupId
+        );
+        GemsUI.fillSelect(
+            'optMzmAssetCategoryId',
+            objectRows(refAssetCategory, 'assetCategoryName'),
+            'assetCategoryId',
+            function (row) {
+                return row['assetCategoryName'] || '';
+            },
+            'Choose Asset Category',
+            categoryId
+        );
+        GemsUI.fillSelect(
+            'optMzmAssetTypeId',
+            objectRows(refAssetType, 'assetTypeName'),
+            'assetTypeId',
+            function (row) {
+                return row['assetTypeName'] || '';
+            },
+            'Choose Asset Type',
+            typeId
+        );
+    }
+
+    function fillAssetBrandSelect(activeOnly, selected) {
+        GemsUI.fillSelect(
+            'optMzmAssetBrandId',
+            assetBrandRows(activeOnly),
+            'assetBrandId',
+            function (row) {
+                return row['assetBrandName'] || '';
+            },
+            'Choose Asset Brand',
+            selected
+        );
+    }
+
+    function setBrandDisabled(disabled) {
+        $('#optMzmAssetBrandId').prop('disabled', !!disabled);
+    }
+
+    function typeContextIds() {
+        const assetCategoryId = refAssetType[assetTypeId]['assetCategoryId'];
+        const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
+        return { assetGroupId: assetGroupId, assetCategoryId: assetCategoryId };
+    }
+
     this.init = function () {
-        mzOption('optMzmAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName');
-        mzOption('optMzmAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName');
-        mzOption('optMzmAssetTypeId', refAssetType, 'Choose Asset Type', 'assetTypeId', 'assetTypeName');
+        fillContextSelects('', '', '');
 
         const vData = [
             {
@@ -85,7 +172,7 @@ function ModalAssetModel() {
         $('#modal_asset_model').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
             $('#btnMzmSubmit').attr('disabled', true);
-            mzDisableSelect('optMzmAssetBrandId', false);
+            setBrandDisabled(false);
         });
 
         $('#btnMzmSubmit').on('click', function () {
@@ -145,18 +232,16 @@ function ModalAssetModel() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMzmAssetBrandId', refAssetBrand, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName', {assetBrandStatus: '1'}, 'required');
+                fillAssetBrandSelect(true);
                 assetModelId = '';
                 rowRefresh = '';
 
-                const assetCategoryId = refAssetType[assetTypeId]['assetCategoryId'];
-                const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
-                mzSetFieldValue('MzmAssetGroupId', assetGroupId, 'select', 'Asset Group *');
-                mzSetFieldValue('MzmAssetCategoryId', assetCategoryId, 'select', 'Asset Category *');
-                mzSetFieldValue('MzmAssetTypeId', assetTypeId, 'select', 'Asset Type *');
+                const context = typeContextIds();
+                fillContextSelects(context.assetGroupId, context.assetCategoryId, assetTypeId);
+                setBrandDisabled(false);
                 mzSetFieldValue('MzmStatus', '1', 'checkSingle', '1');
 
-                $('#lblMzmTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Asset Model');
+                $('#lblMzmTitle').html('<i class="fas fa-plus me-2"></i>Add Asset Model');
                 $('#modal_asset_model').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -169,7 +254,6 @@ function ModalAssetModel() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOption('optMzmAssetBrandId', refAssetBrand, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName');
                 mzCheckFuncParam([_assetModelId, _rowRefresh]);
                 assetModelId = _assetModelId;
                 rowRefresh = _rowRefresh;
@@ -179,19 +263,16 @@ function ModalAssetModel() {
                     toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
                 }
                 else {
-                    const assetCategoryId = refAssetType[assetTypeId]['assetCategoryId'];
-                    const assetGroupId = refAssetCategory[assetCategoryId]['assetGroupId'];
-                    mzSetFieldValue('MzmAssetGroupId', assetGroupId, 'select', 'Asset Group *');
-                    mzSetFieldValue('MzmAssetCategoryId', assetCategoryId, 'select', 'Asset Category *');
-                    mzSetFieldValue('MzmAssetTypeId', assetTypeId, 'select', 'Asset Type *');
-                    mzSetFieldValue('MzmAssetBrandId', dataMzm['assetBrandId'], 'select', 'Asset Brand *');
+                    const context = typeContextIds();
+                    fillContextSelects(context.assetGroupId, context.assetCategoryId, assetTypeId);
+                    fillAssetBrandSelect(false, dataMzm['assetBrandId']);
                     mzSetFieldValue('MzmName', dataMzm['assetModelName'], 'text');
                     mzSetFieldValue('MzmDesc', dataMzm['assetModelDesc'], 'textarea');
                     mzSetFieldValue('MzmStatus', dataMzm['assetModelStatus'], 'checkSingle', '1');
 
-                    mzDisableSelect('optMzmAssetBrandId', true);
+                    setBrandDisabled(true);
 
-                    $('#lblMzmTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Asset Model');
+                    $('#lblMzmTitle').html('<i class="far fa-edit me-2"></i>Edit Asset Model');
                     $('#modal_asset_model').modal({backdrop: 'static', keyboard: false});
                 }
             } catch (e) {
