@@ -44,7 +44,6 @@ function ModalSeverityHour() {
         $('#modal_severity_hour').on('hidden.bs.modal', function () {
             $('#btnMvhSubmit').attr('disabled', true);
             formValidate.clearValidation();
-            mzDateEnable('txtMvhNewDate', ppmTaskStartDate);
         });
 
         $('#btnMvhSubmit').on('click', function () {
