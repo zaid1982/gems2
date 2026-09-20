@@ -7,9 +7,8 @@
 
   Asset extras stay: server-side DataTable (api/asset.php?type=datatable),
   custom server export (xlsx/pdf), Highcharts drilldown by
-  Group → Category → Type, Excel import modal, and the details section
-  fork html/section_asset_details_tabler.html (MDB original stays for
-  ppm_management.html).
+  Group → Category → Type, Excel import modal, and shared
+  html/section_asset_details.html (collapsed in P5-4 Commit 6).
 
   NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
   css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
@@ -206,7 +205,7 @@
           </div>
         </section>
 
-        <div class="includeHtml" id="h-section_asset_details_tabler"></div>
+        <div class="includeHtml" id="h-section_asset_details"></div>
       </div>
     </div>
   </div>
@@ -251,7 +250,7 @@
   document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-  document.write('<scr' + 'ipt src="js/pages/section_asset_details_tabler.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_asset_details.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_asset_import.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/main_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');

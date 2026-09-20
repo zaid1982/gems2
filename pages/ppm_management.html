@@ -2,10 +2,10 @@
 <!--
   pages/ppm_management.html — Tabler-migrated (P5-4 Commit 5 PPM Management).
 
-  SWAP: consumes html/section_asset_details_tabler.html +
-  js/pages/section_asset_details_tabler.js via include id
-  h-section_asset_details_tabler (same pattern as pages/asset.html).
-  Class stays SectionAssetDetails. Do not edit the shared section files.
+  Shared section: html/section_asset_details.html +
+  js/pages/section_asset_details.js via include id
+  h-section_asset_details (collapsed in P5-4 Commit 6).
+  Class stays SectionAssetDetails.
 
   Page-local: modal_ppm is this page only (converted here).
 
@@ -219,7 +219,7 @@
           </section>
         </section>
 
-        <div class="includeHtml" id="h-section_asset_details_tabler"></div>
+        <div class="includeHtml" id="h-section_asset_details"></div>
       </div>
     </div>
   </div>
@@ -262,7 +262,7 @@
   document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-  document.write('<scr' + 'ipt src="js/pages/section_asset_details_tabler.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_asset_details.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_ppm.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/main_ppm_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');

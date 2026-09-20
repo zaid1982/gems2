@@ -1,3 +1,18 @@
+/**
+ * section_asset_details.js — Tabler Asset Details (P5-4 Commit 6).
+ *
+ * Shared by pages/asset.html and pages/ppm_management.html.
+ * The _tabler fork was collapsed after both consumers were Tabler-verified.
+ *
+ * function SectionAssetDetails() and className stay unchanged so
+ * modal_confirm_delete.js case 'SectionAssetDetails' still works.
+ *
+ * Dates: native <input type="date">. Read lifespan/disposal via
+ * dateInputOrNull (NOT mzConvertDate2 — that returns null for YYYY-MM-DD).
+ * Warranty still uses mzConvertDate, which already accepts YYYY-MM-DD.
+ * DataTables: GemsUI.dtDomButtons / dtButtons (no copy button, same as
+ * Contract/User). Status cells use GemsUI.badge, not DB statusColor.
+ */
 function SectionAssetDetails() {
 
     const className = 'SectionAssetDetails';
@@ -40,6 +55,200 @@ function SectionAssetDetails() {
     let contractId;
     let woTaskHistory;
     let lifespanStartDate;
+
+
+    function rowsFromRef(ref, idKey, labelKey, predicate) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (predicate && !predicate(row)) {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function dateInputOrNull(id) {
+        const value = $('#' + id).val();
+        if (value === undefined || value === null || String(value).trim() === '') {
+            return null;
+        }
+        return String(value).trim();
+    }
+
+    function setDateInput(id, value) {
+        if (value === undefined || value === null || value === '') {
+            $('#' + id).val('');
+            return;
+        }
+        $('#' + id).val(String(value).substr(0, 10).replace(/\//g, '-'));
+    }
+
+    function setSelectDisabled(id, disabled) {
+        $('#' + id).prop('disabled', !!disabled);
+    }
+
+    function statusBadgeKind(statusId) {
+        switch (String(statusId)) {
+            case '1':
+                return 'success';
+            case '2':
+                return 'secondary';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
+
+    function statusBadge(statusId) {
+        const label = (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc'])
+            ? refStatus[statusId]['statusDesc']
+            : 'Unknown';
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
+    function fillGroupSelect(selected) {
+        GemsUI.fillSelect(
+            'optSszAssetGroupId',
+            rowsFromRef(refAssetGroup, 'assetGroupId', 'assetGroupName', function (row) {
+                return String(row['assetGroupStatus']) === '1';
+            }),
+            'assetGroupId',
+            function (row) { return row['assetGroupName'] || ''; },
+            'Choose Asset Group',
+            selected
+        );
+    }
+
+    function fillCategorySelect(groupId, selected) {
+        const rows = groupId
+            ? rowsFromRef(refAssetCategory, 'assetCategoryId', 'assetCategoryName', function (row) {
+                return String(row['assetGroupId']) === String(groupId) && String(row['assetCategoryStatus']) === '1';
+            })
+            : [];
+        GemsUI.fillSelect(
+            'optSszAssetCategoryId',
+            rows,
+            'assetCategoryId',
+            function (row) { return row['assetCategoryName'] || ''; },
+            'Choose Asset Category',
+            selected
+        );
+    }
+
+    function fillTypeSelect(categoryId, selected) {
+        const rows = categoryId
+            ? rowsFromRef(refAssetType, 'assetTypeId', 'assetTypeName', function (row) {
+                return String(row['assetCategoryId']) === String(categoryId) && String(row['assetTypeStatus']) === '1';
+            })
+            : [];
+        GemsUI.fillSelect(
+            'optSszAssetTypeId',
+            rows,
+            'assetTypeId',
+            function (row) { return row['assetTypeName'] || ''; },
+            'Choose Asset Type',
+            selected
+        );
+    }
+
+    function fillBrandSelect(typeId, selected) {
+        let rows = [];
+        if (typeId) {
+            const refAssetBrandGroup = mzGetLocalArray('gems_assetBrandGroup', versionLocal, 'assetBrandId', {assetTypeId: typeId});
+            rows = rowsFromRef(refAssetBrandGroup, 'assetBrandId', 'assetBrandName', function (row) {
+                return String(row['assetBrandStatus']) === '1';
+            });
+        }
+        GemsUI.fillSelect(
+            'optSszAssetBrandId',
+            rows,
+            'assetBrandId',
+            function (row) { return row['assetBrandName'] || ''; },
+            'Choose Asset Brand',
+            selected
+        );
+    }
+
+    function fillModelSelect(brandId, typeId, selected) {
+        const rows = (brandId && typeId)
+            ? rowsFromRef(refAssetModel, 'assetModelId', 'assetModelName', function (row) {
+                return String(row['assetBrandId']) === String(brandId)
+                    && String(row['assetTypeId']) === String(typeId)
+                    && String(row['assetModelStatus']) === '1';
+            })
+            : [];
+        GemsUI.fillSelect(
+            'optSszAssetModelId',
+            rows,
+            'assetModelId',
+            function (row) { return row['assetModelName'] || ''; },
+            'Choose Asset Model',
+            selected
+        );
+    }
+
+    function fillPpmGroupSelect(siteId, selected) {
+        const rows = siteId
+            ? rowsFromRef(refPpmGroup, 'ppmGroupId', 'ppmGroupName', function (row) {
+                return String(row['siteId']) === String(siteId)
+                    && String(row['roleId']) === '5'
+                    && String(row['ppmGroupStatus']) === '1';
+            })
+            : [];
+        GemsUI.fillSelect(
+            'optSszPpmGroupId',
+            rows,
+            'ppmGroupId',
+            function (row) { return row['ppmGroupName'] || ''; },
+            'Choose PPM Group',
+            selected
+        );
+    }
+
+    function fillZoneSelect(siteId, selected) {
+        const rows = [];
+        const siteKey = parseInt(siteId, 10);
+        $.each(refZone || {}, function (key, zone) {
+            if (!zone || typeof zone !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, zone);
+            row['zoneId'] = key;
+            if (parseInt(row['siteId'], 10) !== siteKey) {
+                return true;
+            }
+            if (parseInt(row['zoneStatus'], 10) !== 1) {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return String(a['zoneCode'] || '').localeCompare(String(b['zoneCode'] || ''), 'en', {numeric: true});
+        });
+        GemsUI.fillSelect(
+            'optSszZoneId',
+            rows,
+            'zoneId',
+            function (row) { return row['zoneCode'] || ''; },
+            'Choose Zone',
+            selected
+        );
+    }
+
 
     this.init = function () {
         $('.sectionAssetDetails').hide();
@@ -590,32 +799,31 @@ function SectionAssetDetails() {
         });
 
         $('#optSszAssetGroupId').on('change', function () {
-            mzOptionStop('optSszAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val(), assetCategoryStatus: '1'}, 'required');
-            mzOptionStopClear('optSszAssetTypeId','Choose Asset Type', 'required');
-            mzOptionStopClear('optSszAssetBrandId','Choose Asset Brand');
-            mzOptionStopClear('optSszAssetModelId','Choose Asset Model');
+            fillCategorySelect($(this).val(), '');
+            fillTypeSelect('', '');
+            fillBrandSelect('', '');
+            fillModelSelect('', '', '');
         });
 
         $('#optSszAssetCategoryId').on('change', function () {
-            mzOptionStop('optSszAssetTypeId', refAssetType, 'Choose Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val(), assetTypeStatus: '1'}, 'required');
-            mzOptionStopClear('optSszAssetBrandId','Choose Asset Brand');
-            mzOptionStopClear('optSszAssetModelId','Choose Asset Model');
+            fillTypeSelect($(this).val(), '');
+            fillBrandSelect('', '');
+            fillModelSelect('', '', '');
         });
 
         $('#optSszAssetTypeId').on('change', function () {
-            const refAssetBrandGroup = mzGetLocalArray('gems_assetBrandGroup', versionLocal, 'assetBrandId', {assetTypeId: $(this).val()});
-            mzOptionStop('optSszAssetBrandId', refAssetBrandGroup, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName', {assetBrandStatus: '1'});
-            mzOptionStopClear('optSszAssetModelId','Choose Asset Model');
+            fillBrandSelect($(this).val(), '');
+            fillModelSelect('', '', '');
         });
 
         $('#optSszAssetBrandId').on('change', function () {
-            mzOptionStop('optSszAssetModelId', refAssetModel, 'Choose Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: $(this).val(), assetTypeId: $('#optSszAssetTypeId').val(), assetModelStatus: '1'});
+            fillModelSelect($(this).val(), $('#optSszAssetTypeId').val(), '');
         });
 
-        qrCodeImg = new QRCode(document.getElementById("divSszQrCodeImg"), {
-            //width : 100,
-            //height : 100
-        });
+        const qrHost = document.getElementById("divSszQrCodeImg");
+        if (qrHost) {
+            qrCodeImg = new QRCode(qrHost, {});
+        }
 
         $('#btnSszSave').on('click', function () {
             ShowLoader();
@@ -641,7 +849,7 @@ function SectionAssetDetails() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
+                    if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
@@ -698,14 +906,14 @@ function SectionAssetDetails() {
                     const data = {
                         assetLifespanYear: mzNullInt('txtSszLifespanYear'),
                         assetLifespanAlert: mzNullInt('txtSszLifespanAlert'),
-                        assetLifespanStartDate: mzConvertDate2('txtSszLifespanStartDate'),
+                        assetLifespanStartDate: dateInputOrNull('txtSszLifespanStartDate'),
                         assetPurchasePrice: mzNullFloat('txtSszValuePurchasePrice'),
                         assetValueDepreciation: mzNullInt('txtSszValueDepreciation'),
                         assetValueAlert: mzNullFloat('txtSszValueAlert'),
                         assetRepairAlert: mzNullFloat('txtSszRepairAlert'),
                         assetRunningHours: mzNullInt('txtSszRunningHours'),
                         assetDisposalStatus: $("input[name='chkSszDisposalStatus']:checkbox").is(":checked") ? 1 : null,
-                        assetDisposalDate: mzConvertDate2('txtSszDisposalDate'),
+                        assetDisposalDate: dateInputOrNull('txtSszDisposalDate'),
                         assetDisposalItemCost: mzNullFloat('txtSszDisposalItemCost'),
                         assetDisposalServiceCost: mzNullFloat('txtSszDisposalServiceCost'),
                         assetMtbfAlert: mzNullInt('txtSszMtbfAlert'),
@@ -775,30 +983,22 @@ function SectionAssetDetails() {
             bFilter: true,
             aaSorting: [[5, 'desc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-clipboard-list', 'No work orders recorded yet.', 'No work orders match the current search.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            pagingType: 'simple_numbers',
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0, 7] },
                 { className: 'text-center', targets: [0, 1, 5, 6, 7] },
                 { className: 'noVis', targets: [0, 7] }
             ],
-            buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0', text:'<i class="fas fa-print"></i>', title:'GEMS - Work Order List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0', text:'<i class="fas fa-copy"></i>', title:'GEMS - Work Order List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Work Order List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Work Order List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
-            ],
+            buttons: GemsUI.dtButtons('GEMS - Work Order List'),
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkSszWoPdf').off('click').on('click', function () {
                     const woTask = mzGetLinkRow($(this), oTableSszWo);
                     ShowLoader(); setTimeout(function () {
@@ -852,17 +1052,16 @@ function SectionAssetDetails() {
                     }},
                 { mData: 'woTaskTimeCreated'},
                 { mData: 'woTaskStatus', mRender: function (data) {
-                        return '<h6><span class="badge badge-pill z-depth-2 '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                        return statusBadge(data);
                     }},
                 { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
                         let label = '';
                         if (row['woTaskIsWr'] === 1) {
-                            label += '<a><i class="far fa-file-alt lnkSszWoPdfWr" id="lnkSszWoPdfWr_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Request PDF"></i></a>&nbsp;';
+                            label += GemsUI.actionBtn({id:'lnkSszWoPdfWr_'+meta.row, cls:'lnkSszWoPdfWr', icon:'far fa-file-alt', title:'Work Request PDF'});
                         }
                         if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
-                            label += '<a><i class="far fa-file-pdf lnkSszWoPdf" id="lnkSszWoPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Work Order PDF"></i></a>';
+                            label += GemsUI.actionBtn({id:'lnkSszWoPdf_'+meta.row, cls:'lnkSszWoPdf', icon:'far fa-file-pdf', title:'Work Order PDF'});
                         }
-                        //label += '&nbsp;<a><i class="far fa-edit lnkSszWoEdit" id="lnkSszWoEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign"></i></a>';
                         return label;
                     }}
             ]
@@ -873,30 +1072,22 @@ function SectionAssetDetails() {
             bFilter: true,
             aaSorting: [[2, 'asc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-calendar-check', 'No PPM tasks recorded yet.', 'No PPM tasks match the current search.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            pagingType: 'simple_numbers',
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0, 6] },
                 { className: 'text-center', targets: [0, 1, 2, 4, 5, 6] },
                 { className: 'noVis', targets: [0, 6] }
             ],
-            buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0', text:'<i class="fas fa-print"></i>', title:'GEMS - PPM Task List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0', text:'<i class="fas fa-copy"></i>', title:'GEMS - PPM Task List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - PPM Task List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - PPM Task List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
-            ],
+            buttons: GemsUI.dtButtons('GEMS - PPM Task List'),
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkSszPpmPdf').off('click').on('click', function () {
                     const row = mzGetLinkRow($(this), oTableSszPpm);
                     ShowLoader();
@@ -924,13 +1115,18 @@ function SectionAssetDetails() {
                 { mData: 'ppmTaskAssignedTo'},
                 { mData: 'ppmTaskTimeServiced'},
                 { mData: 'ppmTaskStatus', mRender: function (data) {
-                        return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                        return statusBadge(data);
                     }},
                 { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
-                        return '<a><i class="far fa-file-pdf lnkSszPpmPdf" id="lnkSszPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"></i></a>';
+                        return GemsUI.actionBtn({id:'lnkSszPpmPdf_'+meta.row, cls:'lnkSszPpmPdf', icon:'far fa-file-pdf', title:'PPM PDF'});
                     }}
             ]
         });
+
+        oTableSszWo.buttons().container().appendTo($('#btnDtSszWoExport'));
+        oTableSszPpm.buttons().container().appendTo($('#btnDtSszPpmExport'));
+        GemsUI.bindDtTooltips('#dtSszWo');
+        GemsUI.bindDtTooltips('#dtSszPpm');
     };
 
     this.setFieldData = function () {
@@ -1009,20 +1205,19 @@ function SectionAssetDetails() {
         const clientId = refSite[siteId]['clientId'];
         const zoneId = dataSsz['zoneId'];
 
-        mzOptionStop('optSszAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
-        mzOptionStop('optSszAssetCategoryId', refAssetCategory, 'Choose Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: assetGroupId, assetCategoryStatus: '1'}, 'required');
-        mzOptionStop('optSszAssetTypeId', refAssetType, 'Choose Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: assetCategoryId, assetTypeStatus: '1'}, 'required');
-        const refAssetBrandGroup = mzGetLocalArray('gems_assetBrandGroup', versionLocal, 'assetBrandId', {assetTypeId: assetTypeId});
-        mzOptionStop('optSszAssetBrandId', refAssetBrandGroup, 'Choose Asset Brand', 'assetBrandId', 'assetBrandName', {assetBrandStatus: '1'});
-        mzOptionStop('optSszAssetModelId', refAssetModel, 'Choose Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: assetBrandId, assetTypeId: assetTypeId, assetModelStatus: '1'});
-        mzOptionStop('optSszPpmGroupId', refPpmGroup, 'Choose PPM Group', 'ppmGroupId', 'ppmGroupName', {siteId: siteId, roleId: '5', ppmGroupStatus: '1'});
-        mzOptionStopV2('optSszZoneId', refZone, 'Choose Zone', 'zoneCode', {siteId: parseInt(siteId), zoneStatus: 1});
-        mzDisableSelect('optSszAssetGroupId', false);
-        mzDisableSelect('optSszAssetCategoryId', false);
-        mzDisableSelect('optSszAssetTypeId', false);
-        mzDisableSelect('optSszAssetBrandId', false);
-        mzDisableSelect('optSszAssetModelId', false);
-        mzDisableSelect('optSszZoneId', false);
+        fillGroupSelect(assetGroupId);
+        fillCategorySelect(assetGroupId, assetCategoryId);
+        fillTypeSelect(assetCategoryId, assetTypeId);
+        fillBrandSelect(assetTypeId, assetBrandId);
+        fillModelSelect(assetBrandId, assetTypeId, assetModelId);
+        fillPpmGroupSelect(siteId, ppmGroupId);
+        fillZoneSelect(siteId, zoneId);
+        setSelectDisabled('optSszAssetGroupId', false);
+        setSelectDisabled('optSszAssetCategoryId', false);
+        setSelectDisabled('optSszAssetTypeId', false);
+        setSelectDisabled('optSszAssetBrandId', false);
+        setSelectDisabled('optSszAssetModelId', false);
+        setSelectDisabled('optSszZoneId', false);
 
         formValidate.enableField('optSszAssetGroupId');
         formValidate.enableField('optSszAssetCategoryId');
@@ -1036,16 +1231,9 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetSerialNo', dataSsz['assetSerialNo'], 'text');
         mzSetFieldValue('SszAssetDesc', dataSsz['assetDesc'], 'text');
         mzSetFieldValue('SszAssetCapacity', dataSsz['assetCapacity'], 'text');
-        mzSetFieldValue('SszAssetGroupId', assetGroupId, 'select', 'Asset Group *');
-        mzSetFieldValue('SszAssetCategoryId', assetCategoryId, 'select', 'Asset Category *');
-        mzSetFieldValue('SszAssetTypeId', assetTypeId, 'select', 'Asset Type *');
-        mzSetFieldValue('SszAssetBrandId', assetBrandId, 'select', 'Asset Brand *');
-        mzSetFieldValue('SszAssetModelId', assetModelId, 'select', 'Asset Model *');
-        mzSetFieldValue('SszPpmGroupId', ppmGroupId, 'select', 'PPM Group');
         mzSetFieldValue('SszAssetRegisteredBy', registeredBy, 'text');
         mzSetFieldValue('SszAssetTimeRegistered', mzConvertDateDisplay(dataSsz['assetTimeRegistered']), 'text');
         mzSetFieldValue('SszAssetStatus', refStatus[assetStatus]['statusDesc'], 'text');
-        mzSetFieldValue('SszZoneId', zoneId, 'select', 'Zone');
         mzSetFieldValue('SszAssetLocationCode', dataSsz['assetLocationCode'], 'text');
         mzSetFieldValue('SszAssetLocationDesc', dataSsz['assetLocationDesc'], 'text');
         mzSetFieldValue('SszAssetManufacturer', dataSsz['assetManufacturer'], 'text');
@@ -1060,7 +1248,7 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszAssetCriticality', dataSsz['assetCriticality'], 'text');
         mzSetFieldValue('SszAssetContractor', dataSsz['assetContractor'], 'text');
         mzSetFieldValue('SszAssetWarranty', dataSsz['assetWarranty'], 'text');
-        mzSetFieldValue('SszAssetWarrantyExpDate', mzConvertDateDisplay(dataSsz['assetWarrantyExpDate']), 'text');
+        setDateInput('txtSszAssetWarrantyExpDate', dataSsz['assetWarrantyExpDate']);
         //mzSetFieldValue('SszAssetLifeCycle', dataSsz['assetLifeCycle'], 'text');
         mzSetFieldValue('SszAssetWarrantyNotes', dataSsz['assetWarrantyNotes'], 'text');
         mzSetFieldValue('SszAssetTechnicianNotes', dataSsz['assetTechnicianNotes'], 'text');
@@ -1074,7 +1262,15 @@ function SectionAssetDetails() {
         mzSetFieldValue('SszSiteName', refSite[siteId]['siteName'], 'text');
         mzSetFieldValue('SszClientName', refClient[clientId]['clientName'], 'text');
 
-        qrCodeImg.makeCode(dataSsz['assetNo']);
+        if (!qrCodeImg) {
+            const qrHost = document.getElementById("divSszQrCodeImg");
+            if (qrHost) {
+                qrCodeImg = new QRCode(qrHost, {});
+            }
+        }
+        if (qrCodeImg) {
+            qrCodeImg.makeCode(dataSsz['assetNo']);
+        }
 
         cntLifeCycleCost = 0;
         cntMeanTime = 0;
@@ -1082,7 +1278,7 @@ function SectionAssetDetails() {
         mzFetch('ast_asset/'+assetId).then(res => {
             mzSetFieldValue('txtSszLifespanYear', res['assetLifespanYear']);
             mzSetFieldValue('txtSszLifespanAlert', res['assetLifespanAlert']);
-            mzSetFieldValue('txtSszLifespanStartDate', mzConvertDateDisplay(res['assetLifespanStartDate']));
+            setDateInput('txtSszLifespanStartDate', res['assetLifespanStartDate']);
             lifespanStartDate = res['assetLifespanStartDate'];
             self.calculateLifespan();
             mzSetFieldValue('txtSszValuePurchasePrice', res['assetPurchasePrice']);
@@ -1092,7 +1288,7 @@ function SectionAssetDetails() {
             mzSetFieldValue('txtSszRepairAlert', res['assetRepairAlert']);
             mzSetFieldValue('txtSszRunningHours', res['assetRunningHours']);
             mzSetFieldValue('SszDisposalStatus', res['assetDisposalStatus'], 'checkSingle', 1);
-            mzSetFieldValue('txtSszDisposalDate', mzConvertDateDisplay(res['assetDisposalDate']));
+            setDateInput('txtSszDisposalDate', res['assetDisposalDate']);
             mzSetFieldValue('txtSszDisposalItemCost', res['assetDisposalItemCost']);
             mzSetFieldValue('txtSszDisposalServiceCost', res['assetDisposalServiceCost']);
             self.checkDisposal(res['assetDisposalStatus'] === 1);
@@ -1122,10 +1318,10 @@ function SectionAssetDetails() {
             $('#spanSszLifespanAlert').hide();
             if (formValidateLifespan.validateNow()) {
                 const years = mzNullInt('txtSszLifespanYear');
-                const start = mzConvertDate2('txtSszLifespanStartDate');
+                const start = dateInputOrNull('txtSszLifespanStartDate');
                 const alert = mzNullInt('txtSszLifespanAlert');
                 if (start !== null && years !== null) {
-                    const dateStart = moment(mzConvertDate2('txtSszLifespanStartDate'));
+                    const dateStart = moment(dateInputOrNull('txtSszLifespanStartDate'));
                     const dateCurrent = moment();
                     const lifespanYear = years - dateCurrent.diff(dateStart, 'year');
                     value = lifespanYear.toString();
@@ -1146,11 +1342,11 @@ function SectionAssetDetails() {
                 const purchase = mzNullFloat('txtSszValuePurchasePrice', true);
                 const alert = mzNullInt('txtSszValueAlert');
                 const depreciation = mzNullFloat('txtSszValueDepreciation', true);
-                const start = mzConvertDate2('txtSszLifespanStartDate');
+                const start = dateInputOrNull('txtSszLifespanStartDate');
                 if (purchase > 0) {
                     let remaining = 0;
                     if (start !== null) {
-                        const dateStart = moment(mzConvertDate2('txtSszLifespanStartDate'));
+                        const dateStart = moment(dateInputOrNull('txtSszLifespanStartDate'));
                         const dateCurrent = moment();
                         const totalYear = dateCurrent.diff(dateStart, 'year') + 1;
                         remaining = purchase - (purchase*totalYear*depreciation/100);
@@ -1194,7 +1390,7 @@ function SectionAssetDetails() {
             $('#txtSszDisposalItemCost').prop('disabled', !isChecked);
             $('#txtSszDisposalServiceCost').prop('disabled', !isChecked);
             if (!isChecked) {
-                mzSetFieldValue('txtSszDisposalDate', '');
+                setDateInput('txtSszDisposalDate', '');
                 mzSetFieldValue('txtSszDisposalItemCost', '');
                 mzSetFieldValue('txtSszDisposalServiceCost', '');
             }
@@ -1292,6 +1488,8 @@ function SectionAssetDetails() {
                 $('#btnSszSubmit').prop('disabled', true);
                 $('.divSszRegisterInfo, #btnSszUpdate, #btnSszQr, #btnSszPrint').hide();
                 $('.sectionAssetDetails, #btnSszSubmit, #btnSszSave').show();
+                if (oTableSszWo) { oTableSszWo.columns.adjust(); }
+                if (oTableSszPpm) { oTableSszPpm.columns.adjust(); }
 
                 if (classFrom.getClassName() === 'MainAsset') {
                     $('.sectionAszMain').hide();
@@ -1324,9 +1522,9 @@ function SectionAssetDetails() {
                     $('#divSszQrCode, #btnSszUpdate, #btnSszQr, #btnSszPrint, .divSszRegisterInfo').show();
                     $('#btnSszSave, #btnSszSubmit').hide();
 
-                    mzDisableSelect('optSszAssetGroupId', true);
-                    mzDisableSelect('optSszAssetCategoryId', true);
-                    mzDisableSelect('optSszAssetTypeId', true);
+                    setSelectDisabled('optSszAssetGroupId', true);
+                    setSelectDisabled('optSszAssetCategoryId', true);
+                    setSelectDisabled('optSszAssetTypeId', true);
 
                     formValidate.disableField('optSszAssetGroupId');
                     formValidate.disableField('optSszAssetCategoryId');
@@ -1338,6 +1536,8 @@ function SectionAssetDetails() {
                 $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', false);
                 $('#btnSszUpdate').prop('disabled', true);
                 $('.sectionAssetDetails').show();
+                if (oTableSszWo) { oTableSszWo.columns.adjust(); }
+                if (oTableSszPpm) { oTableSszPpm.columns.adjust(); }
 
                 if (classFrom.getClassName() === 'MainAsset') {
                     $('.sectionAszMain').hide();
@@ -1362,16 +1562,18 @@ function SectionAssetDetails() {
                 $('#divSszQrCode').show();
                 $('#txtSszAssetName, #txtSszAssetNo, #txtSszSerialNo, #txtSszAssetSerialNo, #txtSszAssetDesc, #txtSszAssetCapacity, #txtSszAssetBlock, #txtSszAssetLevel').prop('disabled', true);
 
-                mzDisableSelect('optSszAssetGroupId', true);
-                mzDisableSelect('optSszAssetCategoryId', true);
-                mzDisableSelect('optSszAssetTypeId', true);
-                mzDisableSelect('optSszAssetBrandId', true);
-                mzDisableSelect('optSszAssetModelId', true);
+                setSelectDisabled('optSszAssetGroupId', true);
+                setSelectDisabled('optSszAssetCategoryId', true);
+                setSelectDisabled('optSszAssetTypeId', true);
+                setSelectDisabled('optSszAssetBrandId', true);
+                setSelectDisabled('optSszAssetModelId', true);
                 self.genTableWo();
                 self.genTablePpm();
 
                 $('#btnSszSubmit, #btnSszSave, #btnSszUpdate').hide();
                 $('.sectionAssetDetails, .divSszRegisterInfo, #btnSszQr, #btnSszPrint').show();
+                if (oTableSszWo) { oTableSszWo.columns.adjust(); }
+                if (oTableSszPpm) { oTableSszPpm.columns.adjust(); }
 
                 if (classFrom.getClassName() === 'MainAsset') {
                     $('.sectionAszMain').hide();
