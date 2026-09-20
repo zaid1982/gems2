@@ -1,390 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/space.html — Tabler-migrated (P5-6 Space Management).
+
+  Page-local list + card directory. Create modal is inline (#modalSpcForm).
+  HEAD filter card (site/status) is commented out — do not invent it.
+  Bridges: modal_change_password, modal_confirm_delete (delete still uses confirm()).
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: var(--gems-primary);
-            --primary-dark: var(--gems-primary-dark);
-            --secondary-color: var(--gems-muted);
-            --success-color: #10b981;
-            --success-dark: #047857;
-            --success-light: #6ee7b7;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --danger-dark: #991b1b;
-            --danger-light: #fecaca;
-            --info-color: var(--gems-primary);
-            --light-bg: var(--gems-bg-page);
-            --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --border-radius: 12px;
-            --border-radius-lg: 16px;
-        }
-        .title-box { border: lightgray 1px solid; border-radius: 5px; font-size: 13px; }
-        .title-box-title { position: relative; top: -0.7em; margin-left: 1em; display: inline; background-color: white; }
-        .title-box-content { padding-top: 0.3rem; padding-left: 1rem; padding-right: 1rem; }
-    /* Modern card styling */
-    .main-content-card { background:#fff; border-radius:.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.08); overflow: visible; }
-    .main-content-card .card-header { background: var(--gems-bg-page); color:#000; border-top-left-radius:.5rem; border-top-right-radius:.5rem; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
-        .main-content-card .card-body { padding: 1rem 1.25rem; }
-        .header-actions .btn { margin-left:.25rem; }
-        .header-title { font-weight:600; font-size:1.1rem; letter-spacing:.2px; }
-        /* Ensure ancestor containers do not hide overflowed dropdowns */
-        .main-content-card .dropdown, .dataTables_wrapper .dropdown { position: relative; }
-        /* Wider dropdown for action items */
-        .action-split .dropdown-menu { min-width: 240px; z-index: 3000; }
-        /* Compact status select to avoid truncation */
-        .status-filter { min-width: 140px; }
-        /* Helpers */
-        .d-none { display: none !important; }
-
-
-
-        /* Badge Styling */
-        .badge-modern {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-
-        .badge-success-dark {
-            background: rgba(16, 185, 129, 1);
-            color: var(--success-dark);
-        }
-
-        .badge-success-light {
-            background: rgba(16, 185, 129, 0.3);
-            color: var(--success-light);
-        }
-
-        .badge-warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning-color);
-        }
-
-        .badge-danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
-        }
-
-        .badge-danger-dark {
-            background: rgb(184, 51, 51);
-            color: var(--danger-dark);
-        }
-            .icon-btn{ border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
-            .view-toggle .icon-btn { border-top-right-radius:0; border-bottom-right-radius:0; }
-            .view-toggle .icon-btn + .icon-btn { margin-left:0; border-left:0; }
-            .view-toggle .icon-btn:last-child { border-top-right-radius:8px; border-bottom-right-radius:8px; }
-            .icon-btn.is-active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); box-shadow: 0 4px 6px rgba(79,70,229,0.25); }
-            .icon-btn.is-active:hover { background: var(--primary-dark); color:#fff; }
-            .space-card-grid { display: flex; flex-wrap: wrap; margin-left: -0.75rem; margin-right: -0.75rem; }
-            .space-card-grid__col { padding: 0.75rem; width: 100%; }
-            @media (min-width: 576px) { .space-card-grid__col { width: 50%; } }
-            @media (min-width: 1200px) { .space-card-grid__col { width: 33.333%; } }
-            .space-card { background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); overflow: hidden; display: flex; flex-direction: column; height: 100%; transition: transform .25s ease, box-shadow .25s ease; border: 1px solid rgba(148, 163, 184, 0.25); }
-            .space-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12); }
-            .space-card__media { position: relative; aspect-ratio: 16/9; background: var(--gems-bg-page); overflow: hidden; }
-            .space-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
-            .space-card__badge { position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: #fff; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 10px; border-radius: 999px; font-weight: 600; }
-            .space-card__badge--available { background: rgba(16, 185, 129, 0.9); }
-            .space-card__badge--reserved { background: rgba(245, 158, 11, 0.9); }
-            .space-card__badge--disabled { background: rgba(248, 113, 113, 0.95); }
-            .space-card__body { padding: 18px 20px; flex: 1 1 auto; display: flex; flex-direction: column; gap: 10px; }
-            .space-card__title { font-size: 1.05rem; font-weight: 700; color: var(--gems-text); display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
-            .space-card__subtitle { color: #475569; font-size: 0.9rem; display:flex; align-items:center; gap:0.35rem; }
-            .space-card__meta { display: flex; align-items: center; color: var(--gems-muted); font-size: 0.82rem; gap: 0.4rem; }
-            .space-card__meta i { color: #94a3b8; }
-            .space-card__stats { margin-top: auto; color: #475569; font-size: 0.8rem; display:flex; gap:0.5rem; }
-            .space-card__stats i { color: var(--gems-primary); }
-            .space-card__actions { padding: 16px 20px 20px; display: flex; flex-wrap: wrap; gap: 10px; }
-            .space-card__actions .btn { flex: 1 1 auto; }
-            .space-card__actions .btn-secondary { background:#e2e8f0; color:var(--gems-text); border:none; }
-            #spcCardEmpty { border:1px dashed #cbd5f5; border-radius:12px; padding:2.5rem; text-align:center; color:#475569; margin-top:1rem; }
-        .badge-danger-light {
-            background: rgba(239, 68, 68, 0.3);
-            color: var(--danger-light);
-        }
-
-        .badge-info {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--info-color);
-        }
-
-        .badge-dark {
-            background: rgba(31, 41, 55, 0.1);
-            color: #1f2937;
-        }
-
-        /* Dark green for Closed status */
-        .badge-closed {
-            background: rgba(6, 95, 70, 0.15); /* #065f46 with transparency */
-            color: #065f46;
-        }
-        /* Segmented buttons + icon buttons */
-        .segmented-group{ display:inline-flex; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,.06); }
-        .segmented-btn{ background:#fff; color:#374151; padding:8px 12px; border:none; border-right:1px solid #e5e7eb; font-weight:600; letter-spacing:.2px; }
-        .segmented-btn:last-child{ border-right:none; }
-        .segmented-btn:hover{ background:var(--gems-bg-page); }
-        .icon-btn{ border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
-        .icon-btn:hover{ background:#f3f4f6; }
-        
-        /* Modern table styling - high specificity to override DataTables */
-        .table.dataTable { 
-          margin-bottom: 0 !important; 
-          border-collapse: separate !important; 
-          border-spacing: 0 !important; 
-        }
-        .table.dataTable thead th,
-        table.dataTable thead th { 
-          background: var(--gems-bg-page) !important; 
-          color: var(--gems-muted) !important; 
-          font-weight: 700 !important; 
-          font-size: 11px !important; 
-          text-transform: uppercase !important; 
-          letter-spacing: 0.08em !important; 
-          padding: 14px 16px !important; 
-          border: none !important; 
-          border-bottom: 2px solid #E2E8F0 !important;
-          border-top: none !important;
-          white-space: nowrap !important;
-        }
-        .table.dataTable tbody tr,
-        table.dataTable tbody tr { 
-          background: #fff !important; 
-          transition: all 0.15s ease !important; 
-          border-bottom: 1px solid var(--gems-bg-page) !important;
-        }
-        .table.dataTable tbody tr:hover,
-        table.dataTable tbody tr:hover { 
-          background: #FAFBFC !important; 
-          box-shadow: 0 2px 8px rgba(2,6,23,.04) !important; 
-          position: relative !important; 
-          z-index: 1 !important;
-        }
-        .table.dataTable tbody td,
-        table.dataTable tbody td { 
-          padding: 16px !important; 
-          vertical-align: middle !important; 
-          color: var(--gems-text) !important; 
-          border: none !important;
-          border-top: none !important;
-          font-size: 14px !important;
-        }
-    </style>
-	<script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Space Management</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .view-toggle .icon-btn { border:1px solid #e5e7eb; background:#fff; color:#374151; padding:6px 8px; border-radius:8px; }
+    .view-toggle .icon-btn + .icon-btn { margin-left:0; border-left:0; border-top-left-radius:0; border-bottom-left-radius:0; }
+    .view-toggle .icon-btn:first-child { border-top-right-radius:0; border-bottom-right-radius:0; }
+    .view-toggle .icon-btn.is-active { background: var(--gems-primary); color:#fff; border-color: var(--gems-primary); }
+    .space-card-grid { display:flex; flex-wrap:wrap; margin-left:-0.75rem; margin-right:-0.75rem; }
+    .space-card-grid__col { padding:0.75rem; width:100%; }
+    @media (min-width: 576px) { .space-card-grid__col { width:50%; } }
+    @media (min-width: 1200px) { .space-card-grid__col { width:33.333%; } }
+    .space-card { background:#fff; border-radius:16px; box-shadow:0 10px 30px rgba(15,23,42,0.08); overflow:hidden; display:flex; flex-direction:column; height:100%; transition:transform .25s ease, box-shadow .25s ease; border:1px solid rgba(148,163,184,0.25); }
+    .space-card:hover { transform:translateY(-4px); box-shadow:0 16px 40px rgba(15,23,42,0.12); }
+    .space-card__media { position:relative; aspect-ratio:16/9; background:var(--gems-bg-page); overflow:hidden; }
+    .space-card__media img { width:100%; height:100%; object-fit:cover; display:block; }
+    .space-card__badge { position:absolute; top:12px; left:12px; background:rgba(15,23,42,0.85); color:#fff; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; padding:6px 10px; border-radius:999px; font-weight:600; }
+    .space-card__badge--available { background:rgba(16,185,129,0.9); }
+    .space-card__badge--reserved { background:rgba(245,158,11,0.9); }
+    .space-card__badge--disabled { background:rgba(248,113,113,0.95); }
+    .space-card__body { padding:18px 20px; flex:1 1 auto; display:flex; flex-direction:column; gap:10px; }
+    .space-card__title { font-size:1.05rem; font-weight:700; color:var(--gems-text); display:flex; flex-wrap:wrap; gap:0.35rem; align-items:center; }
+    .space-card__subtitle { color:#475569; font-size:0.9rem; display:flex; align-items:center; gap:0.35rem; }
+    .space-card__meta { display:flex; align-items:center; color:var(--gems-muted); font-size:0.82rem; gap:0.4rem; }
+    .space-card__stats { margin-top:auto; color:#475569; font-size:0.8rem; }
+    .space-card__actions { padding:16px 20px 20px; display:flex; flex-wrap:wrap; gap:10px; }
+    .space-card__actions .btn { flex:1 1 auto; }
+    #spcCardEmpty { border:1px dashed #cbd5f5; border-radius:12px; padding:2.5rem; text-align:center; color:#475569; margin-top:1rem; }
+  </style>
 </head>
-<body class="fixed-sn light-blue-skin">
-<header>
-    <div class="includeHtml" id="h-nav_left"></div>
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<main>
-    <div class="container-fluid">
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-        <div class="gems-page-header module-page-header">
-            <div class="header-text">
-                <h2 class="mb-0"><i class="fas fa-door-open mr-3"></i>Space Management</h2>
-                <p class="mb-0">Review and manage spaces within the organization</p>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-door-open me-2 text-primary"></i>Space Management</h1>
+              <div class="page-subtitle">Review and manage spaces within the organization</div>
             </div>
-            <div class="header-actions align-items-center">
-                <button type="button" id="btnSpcAdd" class="icon-btn" data-toggle="tooltip" title="Add Space"><i class="fas fa-plus"></i></button>
-                <a tabindex="0" role="button" class="icon-btn ml-2" data-toggle="popover" data-trigger="focus" title="Space List" data-content="Space directory with booking."><i class="fas fa-info"></i></a>
-                <button type="button" id="btnDtSpcRefresh" class="icon-btn ml-2" data-toggle="tooltip" title="Refresh"><i class="fas fa-sync"></i></button>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnDtSpcRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-primary" id="btnSpcAdd"
+                      data-bs-toggle="tooltip" title="Add Space" aria-label="Add Space">
+                <i class="fas fa-plus me-2"></i>New Space
+              </button>
             </div>
+          </div>
         </div>
 
-        <section class="mb-5 mt-lg-5 sectionSpaceMain">
-            <!-- Filters Card (modern concept) -->
-            <!-- <div class="main-content-card mb-4">
-                <div class="card-header">
-                    <div class="header-title">Filters</div>
-                    
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 select-outline">
-                            <select id="optSpcSiteId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                            <label for="optSpcSiteId">Site</label>
-                        </div>
-                        
-                        <div class="col-md-8 d-flex align-items-center justify-content-end">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtSpcSearch" class="form-control">
-                                <label for="txtSpcSearch" class="active">Search</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-
-            <!-- List Card (modern concept) -->
-            <div class="home-table-card">
-                <div class="table-header">
-                    <h5>
-                        <i class="fas fa-door-open"></i>
-                        Spaces
-                    </h5>
-                    <div class="table-header-actions">
-                        <div class="d-flex align-items-center view-toggle mr-2">
-                            <button type="button" id="btnSpcViewList" class="icon-btn is-active" title="List view"><i class="fas fa-list"></i></button>
-                            <button type="button" id="btnSpcViewCard" class="icon-btn" title="Card view"><i class="fas fa-th-large"></i></button>
-                        </div>
-                        <button type="button" class="btn-header" data-toggle="tooltip" data-placement="top" title="All spaces">
-                            <i class="fas fa-info-circle"></i>
-                        </button>
-                        <button type="button" id="btnSpcRefreshTable" class="btn-header" data-toggle="tooltip" data-placement="top" title="Refresh data">
-                            <i class="fas fa-sync"></i>
-                        </button>
-                        <div id="dtSpcButtons"></div>
-                    </div>
-                </div>
-                <div class="table-controls">
-                    <div class="table-search-box">
-                        <form class="form-inline md-form form-sm mt-0 mb-0 pb-0">
-                            <div class="">
-                                <i class="fas fa-search mt-2" aria-hidden="true"></i>
-                                <input type="text" id="txtSpcSearch" class="form-control form-control-sm" style="width: 250px; max-width:250px">
-                                <label for="txtSpcSearch" class="ml-4">Search</label>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="table-body">
-                    <div id="spcTableWrapper" class="table-responsive">
-                        <table id="dtSpc" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                            <thead>
-                                <tr class="th-strong">
-                                    <th style="max-width:30px">#</th>
-                                    <th style="min-width:120px">Space Name</th>
-                                    <th style="min-width:100px">Location</th>
-                                    <th style="min-width:120px">Category</th>
-                                    <th style="min-width:120px">Type</th>
-                                    <th style="min-width:60px">Area</th>
-                                    <th style="min-width:60px">Capacity</th>
-                                    <th style="max-width:55px">Status</th>
-                                    <th style="min-width:42px"></th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                    <div id="spcCardWrapper" class="d-none">
-                        <div class="space-card-grid" id="spcCardGrid"></div>
-                        <div id="spcCardEmpty" class="d-none">
-                            <h5 class="font-weight-bold mb-2">No spaces match the current filters</h5>
-                            <p class="mb-0">Try selecting a different status or adjust your filters to explore more spaces.</p>
-                        </div>
-                    </div>
-                </div>
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtSpcSearch">Search</label>
+                <input type="search" id="txtSpcSearch" class="form-control" placeholder="Search spaces" autocomplete="off">
+              </div>
             </div>
-        </section>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    </div>
-</main>
-<!-- Create Space Modal -->
-<div class="modal fade" id="modalSpcForm" tabindex="-1" role="dialog" aria-labelledby="modalSpcFormLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalSpcFormLabel">Create Space</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="frmSpc">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtSpcName" class="form-control" required>
-                                <label for="txtSpcName" class="active">Space Name *</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6 select-outline">
-                            <select id="optSpcStatusForm" class="mdb-select md-form md-outline colorful-select mt-0">
-                                <option value="AVAILABLE" selected>Available</option>
-                                <option value="DISABLED">Disabled</option>
-                            </select>
-                            <label for="optSpcStatusForm">Status *</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4 select-outline">
-                            <select id="optSpcLocation" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                            <label for="optSpcLocation">Location</label>
-                        </div>
-                        <div class="col-md-4 select-outline">
-                            <select id="optSpcCategory" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                            <label for="optSpcCategory">Category</label>
-                        </div>
-                        <div class="col-md-4 select-outline">
-                            <select id="optSpcType" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                            <label for="optSpcType">Type</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="md-form md-outline mt-0">
-                                <input type="number" id="txtSpcArea" class="form-control" min="0" step="0.01">
-                                <label for="txtSpcArea" class="active">Area (m²)</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="md-form md-outline mt-0">
-                                <input type="number" id="txtSpcCapacity" class="form-control" min="0" step="1">
-                                <label for="txtSpcCapacity" class="active">Capacity</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtSpcDesc" class="form-control">
-                                <label for="txtSpcDesc" class="active">Description</label>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="btnSpcSave">Save</button>
-            </div>
+          </div>
         </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0"><i class="fas fa-door-open me-2 text-primary"></i>Spaces</h3>
+              <div class="text-secondary" style="font-size:.75rem">Space directory with booking</div>
+            </div>
+            <div class="gems-card-toolbar">
+              <div class="view-toggle d-inline-flex" role="group" aria-label="View">
+                <button type="button" id="btnSpcViewList" class="icon-btn is-active" title="List view" aria-label="List view"><i class="fas fa-list"></i></button>
+                <button type="button" id="btnSpcViewCard" class="icon-btn" title="Card view" aria-label="Card view"><i class="fas fa-th-large"></i></button>
+              </div>
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSpcRefreshTable"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+              <div id="dtSpcButtons" class="d-inline-flex align-items-center"></div>
+            </div>
+          </div>
+          <div id="spcTableWrapper">
+            <table id="dtSpc" class="table table-vcenter card-table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th style="width:6%">#</th>
+                  <th>Space Name</th>
+                  <th>Location</th>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th>Area</th>
+                  <th>Capacity</th>
+                  <th style="width:12%">Status</th>
+                  <th style="width:140px" class="noVis text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="spcCardWrapper" class="d-none p-3">
+            <div class="space-card-grid" id="spcCardGrid"></div>
+            <div id="spcCardEmpty" class="d-none">
+              <h5 class="mb-2">No spaces match the current filters</h5>
+              <p class="mb-0">Try selecting a different status or adjust your filters to explore more spaces.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
+  </div>
 </div>
-<script type="text/javascript" src="js/popper.min.js"></script>
-<script type="text/javascript" src="js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
-<script type="text/javascript" src="js/modules/toastr.js"></script>
-<script type="text/javascript" src="js/common.js"></script>
-<script type="text/javascript" src="js/pages/main_space.js"></script>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
+
+<div class="modal fade" id="modalSpcForm" tabindex="-1" aria-labelledby="modalSpcFormLabel" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalSpcFormLabel">Create Space</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="frmSpc" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtSpcName">Space Name <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtSpcName" class="form-control" aria-required="true" aria-describedby="txtSpcNameErr">
+              <div class="gems-field-error" id="txtSpcNameErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optSpcStatusForm">Status <span class="required" aria-hidden="true">*</span></label>
+              <select id="optSpcStatusForm" class="form-select" aria-required="true" aria-describedby="optSpcStatusFormErr">
+                <option value="AVAILABLE" selected>Available</option>
+                <option value="DISABLED">Disabled</option>
+              </select>
+              <div class="gems-field-error" id="optSpcStatusFormErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-4">
+              <label class="form-label" for="optSpcLocation">Location</label>
+              <select id="optSpcLocation" class="form-select" aria-describedby="optSpcLocationErr"></select>
+              <div class="gems-field-error" id="optSpcLocationErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-4">
+              <label class="form-label" for="optSpcCategory">Category</label>
+              <select id="optSpcCategory" class="form-select" aria-describedby="optSpcCategoryErr"></select>
+              <div class="gems-field-error" id="optSpcCategoryErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-4">
+              <label class="form-label" for="optSpcType">Type</label>
+              <select id="optSpcType" class="form-select" aria-describedby="optSpcTypeErr"></select>
+              <div class="gems-field-error" id="optSpcTypeErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-4">
+              <label class="form-label" for="txtSpcArea">Area (m²)</label>
+              <input type="number" id="txtSpcArea" class="form-control" min="0" step="0.01" aria-describedby="txtSpcAreaErr">
+              <div class="gems-field-error" id="txtSpcAreaErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-4">
+              <label class="form-label" for="txtSpcCapacity">Capacity</label>
+              <input type="number" id="txtSpcCapacity" class="form-control" min="0" step="1" aria-describedby="txtSpcCapacityErr">
+              <div class="gems-field-error" id="txtSpcCapacityErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-4">
+              <label class="form-label" for="txtSpcDesc">Description</label>
+              <input type="text" id="txtSpcDesc" class="form-control" aria-describedby="txtSpcDescErr">
+              <div class="gems-field-error" id="txtSpcDescErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" class="btn btn-primary" id="btnSpcSave">
+          <i class="far fa-save me-2"></i>Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_space.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
 </body>
 </html>
