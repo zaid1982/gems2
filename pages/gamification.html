@@ -1,36 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/gamification.html — Tabler-migrated (P5-14 Gamification).
+
+  Category A authenticated. Page-local JS unchanged: main_gamification.js,
+  section_user_game.js. Shared fragment section_user_game is exclusive to this page.
+
+  APIs: GET/PUT gamification/{runType}/{year}/{month+1} (JS month is 0-indexed).
+  Settings → gamification_config.html. Import WO/PPM → existing Tabler pages.
+  Highcharts CDN + bullet.js kept (local vendor has no bullet module).
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-	
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Shared UI chrome -->
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-        body {
-            background: var(--gems-bg-page);
-        }
-
-        main.gamification-main {
-            /* padding: 1.75rem 0 3.5rem; */
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Gamification</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
 
         .gamification-highlights {
             list-style: none;
@@ -53,20 +48,23 @@
             color: rgba(255,255,255,0.92);
         }
 
+        .page-body, .page-body .container-xl { min-width: 0; }
         .gamification-filters {
             background: #fff;
-            border-radius: var(--gems-radius-lg);
-            box-shadow: var(--gems-card-shadow);
+            border-radius: 16px;
+            box-shadow: 0 12px 24px -16px rgba(15, 23, 42, .25);
             padding: 26px 28px;
             margin-bottom: 32px;
             display: flex;
             flex-direction: column;
             gap: 24px;
+            min-width: 0;
+            max-width: 100%;
         }
 
         .gamification-filters .filter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
             gap: 18px;
         }
 
@@ -75,7 +73,7 @@
             letter-spacing: 0.08em;
             text-transform: uppercase;
             font-weight: 700;
-            color: var(--gems-muted);
+            color: var(--tblr-secondary, #6c7a91);
             margin-bottom: 8px;
         }
 
@@ -83,11 +81,11 @@
         .gamification-filters .btn-filter-action {
             width: 100%;
             border-radius: 16px;
-            border: 2px solid rgba(var(--gems-primary-rgb), 0.18);
+            border: 2px solid rgba(32, 107, 196, 0.18);
             padding: 0.65rem 1rem;
             font-weight: 600;
-            color: var(--gems-text);
-            background: rgba(var(--gems-primary-rgb), 0.06);
+            color: var(--tblr-body-color, #1e293b);
+            background: rgba(32, 107, 196, 0.06);
             transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
         }
 
@@ -95,10 +93,10 @@
         .gamification-filters .dropdown-toggle:hover,
         .gamification-filters .btn-filter-action:focus,
         .gamification-filters .btn-filter-action:hover {
-            border-color: rgba(var(--gems-secondary-rgb), 0.45);
-            box-shadow: 0 0 0 0.2rem rgba(var(--gems-secondary-rgb), 0.15);
-            background: rgba(var(--gems-primary-rgb), 0.12);
-            color: var(--gems-text);
+            border-color: rgba(66, 153, 225, 0.45);
+            box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.15);
+            background: rgba(32, 107, 196, 0.12);
+            color: var(--tblr-body-color, #1e293b);
         }
 
         .gamification-filters .filter-actions {
@@ -120,32 +118,35 @@
         .gamification-filters .dropdown-menu {
             border-radius: 16px;
             padding: 8px 0;
-            box-shadow: var(--gems-card-shadow);
+            box-shadow: 0 12px 24px -16px rgba(15, 23, 42, .25);
         }
 
         .gamification-filters .dropdown-item {
             font-weight: 600;
             border-radius: 12px;
             margin: 4px 10px;
-            color: var(--gems-text);
+            color: var(--tblr-body-color, #1e293b);
         }
 
         .gamification-filters .dropdown-item.active,
         .gamification-filters .dropdown-item:active {
-            background: rgba(var(--gems-primary-rgb), 0.18);
-            color: var(--gems-primary);
+            background: rgba(32, 107, 196, 0.18);
+            color: var(--tblr-primary, #206bc4);
         }
 
         .gamification-section {
             display: grid;
             gap: 28px;
+            min-width: 0;
         }
 
         .gamification-card {
             background: #fff;
-            border-radius: var(--gems-radius-lg);
-            box-shadow: var(--gems-card-shadow);
+            border-radius: 16px;
+            box-shadow: 0 12px 24px -16px rgba(15, 23, 42, .25);
             padding: 26px 28px;
+            min-width: 0;
+            max-width: 100%;
         }
 
         .gamification-card-header {
@@ -161,24 +162,25 @@
             margin: 0;
             font-size: 1.35rem;
             font-weight: 700;
-            color: var(--gems-text);
+            color: var(--tblr-body-color, #1e293b);
         }
 
         .gamification-card-header span {
-            color: var(--gems-muted);
+            color: var(--tblr-secondary, #6c7a91);
             font-size: 0.95rem;
         }
 
         .gamification-table-wrapper {
             border-radius: 22px;
-            overflow: hidden;
+            overflow-x: auto;
+            max-width: 100%;
             border: 1px solid rgba(148,163,184,0.15);
         }
 
         .gamification-table-wrapper table { width: 100% !important; }
 
         .gamification-table-wrapper thead th {
-            background: rgba(var(--gems-primary-rgb), 0.12);
+            background: rgba(32, 107, 196, 0.12);
             color: rgba(15,23,42,0.78);
             font-weight: 700;
             text-transform: uppercase;
@@ -190,7 +192,7 @@
 
         .gamification-table-wrapper tbody td {
             border-bottom: 1px solid rgba(226,232,240,0.6);
-            color: var(--gems-text);
+            color: var(--tblr-body-color, #1e293b);
             font-size: 0.95rem;
             padding: 0.8rem 0.75rem;
         }
@@ -205,7 +207,7 @@
             font-weight: 600;
         }
 
-        .dataTables_wrapper .dataTables_info { padding-top: 1rem; color: var(--gems-muted); font-size: 0.85rem; }
+        .dataTables_wrapper .dataTables_info { padding-top: 1rem; color: var(--tblr-secondary, #6c7a91); font-size: 0.85rem; }
         .dataTables_wrapper .dataTables_paginate { padding-top: 0.85rem; }
         .dataTables_wrapper .dataTables_paginate .paginate_button {
             border-radius: 12px !important;
@@ -216,8 +218,8 @@
             color: #1e293b !important;
         }
         .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background: rgba(var(--gems-primary-rgb), 0.18) !important;
-            color: var(--gems-primary) !important;
+            background: rgba(32, 107, 196, 0.18) !important;
+            color: var(--tblr-primary, #206bc4) !important;
         }
         .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
             background: #e2e8f0 !important;
@@ -264,246 +266,223 @@
             .gamification-table-wrapper tbody td::before {
                 content: attr(data-label);
                 font-weight: 600;
-                color: var(--gems-muted);
+                color: var(--tblr-secondary, #6c7a91);
                 margin-right: 12px;
                 text-align: left;
             }
         }
-    </style>
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  </style>
 </head>
-
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main class="gamification-main">
-    <div class="container-fluid module-page">
-        <section class="gems-page-header module-page-header sectionGmiMain">
-            <div class="header-text">
-                <span class="gamification-chip"><i class="fas fa-trophy"></i> Gamification</span>
-                <h2>Gamification Leaderboard</h2>
-                <p>Track monthly and weekly performance across work orders and PPM tasks. Filter by period, sync fresh data, and keep teams motivated.</p>
-                <ul class="gamification-highlights">
-                    <li><i class="fas fa-check-circle"></i>Unified view of WO and PPM productivity</li>
-                    <li><i class="fas fa-check-circle"></i>Sync data from latest imports with one click</li>
-                </ul>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="page-header d-print-none">
+          <div class="row align-items-center g-2">
+            <div class="col">
+              <div class="page-pretitle">Operations</div>
+              <h1 class="page-title">Gamification Leaderboard</h1>
+              <div class="page-subtitle">Track monthly and weekly performance across work orders and PPM tasks.</div>
             </div>
-        </section>
-
-        <section class="gamification-filters filter-card sectionGmiMain">
-            <div class="filter-grid">
-                <div class="filter-group dropdown">
-                    <span class="filter-label">Type</span>
-                    <button class="dropdown-toggle text-left" id="navGmiType" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Type</button>
-                    <div class="dropdown-menu" aria-labelledby="navGmiType" id="divGmiType">
-                        <a class="dropdown-item lnkGmiType active" href="#" id="lnkGmiType_1">Monthly</a>
-                        <a class="dropdown-item lnkGmiType" href="#" id="lnkGmiType_2">Weekly</a>
+          </div>
+        </div>
+          <section class="gamification-filters filter-card sectionGmiMain">
+              <div class="filter-grid">
+                    <div class="filter-group dropdown">
+                        <span class="filter-label">Type</span>
+                        <button class="dropdown-toggle text-start" id="navGmiType" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Type</button>
+                        <div class="dropdown-menu" aria-labelledby="navGmiType" id="divGmiType">
+                              <a class="dropdown-item lnkGmiType active" href="#" id="lnkGmiType_1">Monthly</a>
+                              <a class="dropdown-item lnkGmiType" href="#" id="lnkGmiType_2">Weekly</a>
+                        </div>
                     </div>
-                </div>
-                <div class="filter-group dropdown">
-                    <span class="filter-label">Year</span>
-                    <button class="dropdown-toggle text-left" id="navGmiYear" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Year</button>
-                    <div class="dropdown-menu" aria-labelledby="navGmiYear" id="divGmiYear"></div>
-                </div>
-                <div class="filter-group dropdown">
-                    <span class="filter-label">Month</span>
-                    <button class="dropdown-toggle text-left" id="navGmiMonth" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Month</button>
-                    <div class="dropdown-menu" aria-labelledby="navGmiMonth" id="divGmiMonth"></div>
-                </div>
-                <div class="filter-group">
-                    <span class="filter-label d-none d-md-block">Apply filters</span>
-                    <button class="btn btn-info btn-filter-action" id="btnGmiFilter" type="button"><i class="fas fa-filter"></i>Go</button>
-                </div>
-            </div>
-            <div class="filter-actions">
-                <button class="btn btn-outline-primary" id="btnGmiSyncData" type="button"><i class="fas fa-sync"></i>Sync Data</button>
-                <button class="btn btn-outline-primary" id="btnGmiSettings" type="button"><i class="fas fa-cog"></i>Settings</button>
-                <button class="btn btn-outline-primary" id="btnImportWO" type="button"><i class="fas fa-file-import"></i>Import WO</button>
-                <button class="btn btn-outline-primary" id="btnImportPPM" type="button"><i class="fas fa-file-import"></i>Import PPM</button>
-            </div>
-        </section>
+                    <div class="filter-group dropdown">
+                        <span class="filter-label">Year</span>
+                        <button class="dropdown-toggle text-start" id="navGmiYear" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Year</button>
+                        <div class="dropdown-menu" aria-labelledby="navGmiYear" id="divGmiYear"></div>
+                    </div>
+                    <div class="filter-group dropdown">
+                        <span class="filter-label">Month</span>
+                        <button class="dropdown-toggle text-start" id="navGmiMonth" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Month</button>
+                        <div class="dropdown-menu" aria-labelledby="navGmiMonth" id="divGmiMonth"></div>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label d-none d-md-block">Apply filters</span>
+                        <button class="btn btn-info btn-filter-action" id="btnGmiFilter" type="button"><i class="fas fa-filter"></i>Go</button>
+                    </div>
+              </div>
+              <div class="filter-actions">
+                    <button class="btn btn-outline-primary" id="btnGmiSyncData" type="button"><i class="fas fa-sync"></i>Sync Data</button>
+                    <button class="btn btn-outline-primary" id="btnGmiSettings" type="button"><i class="fas fa-cog"></i>Settings</button>
+                    <button class="btn btn-outline-primary" id="btnImportWO" type="button"><i class="fas fa-file-import"></i>Import WO</button>
+                    <button class="btn btn-outline-primary" id="btnImportPPM" type="button"><i class="fas fa-file-import"></i>Import PPM</button>
+              </div>
+          </section>
 
-        <section class="gamification-section sectionGmiMain">
-            <article class="gamification-card">
-                <div class="gamification-card-header">
-                    <h3>Top 5 Leaderboard</h3>
-                    <span class="lblGmiSelectedTitle"></span>
-                </div>
-                <div class="gamification-table-wrapper">
-                    <table id="dtGmiTop5" class="table table-hover mb-0 display responsive mobile-stack">
-                        <thead>
-                        <tr>
-                            <th>Top Performer</th>
-                            <th>Site</th>
-                            <th>Tier WO</th>
-                            <th>Tier PPM</th>
-                            <th>Total Work</th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </article>
+          <section class="gamification-section sectionGmiMain">
+              <article class="gamification-card">
+                    <div class="gamification-card-header">
+                        <h3>Top 5 Leaderboard</h3>
+                        <span class="lblGmiSelectedTitle"></span>
+                    </div>
+                    <div class="gamification-table-wrapper">
+                        <table id="dtGmiTop5" class="table table-hover mb-0 display responsive mobile-stack">
+                              <thead>
+                              <tr>
+                                  <th>Top Performer</th>
+                                  <th>Site</th>
+                                  <th>Tier WO</th>
+                                  <th>Tier PPM</th>
+                                  <th>Total Work</th>
+                              </tr>
+                              </thead>
+                              <tbody></tbody>
+                        </table>
+                    </div>
+              </article>
 
-            <article class="gamification-card">
-                <div class="gamification-card-header">
-                    <h3>Gamification Stats</h3>
-                    <span class="lblGmiSelectedTitle"></span>
-                </div>
-                <div class="gamification-table-wrapper">
-                    <table id="dtGmiStats" class="table table-hover table-sm mb-0 display responsive mobile-stack">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Site</th>
-                            <th>Designation</th>
-                            <th>Tier WO</th>
-                            <th>Tier PPM</th>
-                            <th>Tier Points WO</th>
-                            <th>Tier Points PPM</th>
-                            <th>PPM Total</th>
-                            <th>PPM Done</th>
-                            <th>PPM On-Time</th>
-                            <th>PPM Within</th>
-                            <th>PPM Late</th>
-                            <th>PPM Assist</th>
-                            <th>WO Total</th>
-                            <th>WO Done</th>
-                            <th>WO On-Time</th>
-                            <th>WO Late</th>
-                            <th>WO Assist</th>
-                            <th>WO Self-Finding</th>
-                            <th>Total Tasks</th>
-                            <th>Total Done</th>
-                            <th>Total On-Time</th>
-                            <th>Total Late</th>
-                            <th>Completed Points</th>
-                            <th>On-Time Points</th>
-                            <th>Deduction Points</th>
-                            <th>Bonus Points</th>
-                            <th>Total Points</th>
-                            <th>Productivity Level</th>
-                            <th>Productivity Deduction</th>
-                            <th>Less Productivity Points</th>
-                            <th>Points After Minus</th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </article>
-        </section>
-        <div class="includeHtml" id="h-section_user_game"></div>
+              <article class="gamification-card">
+                    <div class="gamification-card-header">
+                        <h3>Gamification Stats</h3>
+                        <span class="lblGmiSelectedTitle"></span>
+                    </div>
+                    <div class="gamification-table-wrapper">
+                        <table id="dtGmiStats" class="table table-hover table-sm mb-0 display responsive mobile-stack">
+                              <thead>
+                              <tr>
+                                  <th>#</th>
+                                  <th>Name</th>
+                                  <th>Site</th>
+                                  <th>Designation</th>
+                                  <th>Tier WO</th>
+                                  <th>Tier PPM</th>
+                                  <th>Tier Points WO</th>
+                                  <th>Tier Points PPM</th>
+                                  <th>PPM Total</th>
+                                  <th>PPM Done</th>
+                                  <th>PPM On-Time</th>
+                                  <th>PPM Within</th>
+                                  <th>PPM Late</th>
+                                  <th>PPM Assist</th>
+                                  <th>WO Total</th>
+                                  <th>WO Done</th>
+                                  <th>WO On-Time</th>
+                                  <th>WO Late</th>
+                                  <th>WO Assist</th>
+                                  <th>WO Self-Finding</th>
+                                  <th>Total Tasks</th>
+                                  <th>Total Done</th>
+                                  <th>Total On-Time</th>
+                                  <th>Total Late</th>
+                                  <th>Completed Points</th>
+                                  <th>On-Time Points</th>
+                                  <th>Deduction Points</th>
+                                  <th>Bonus Points</th>
+                                  <th>Total Points</th>
+                                  <th>Productivity Level</th>
+                                  <th>Productivity Deduction</th>
+                                  <th>Less Productivity Points</th>
+                                  <th>Points After Minus</th>
+                              </tr>
+                              </thead>
+                              <tbody></tbody>
+                        </table>
+                    </div>
+              </article>
+          </section>
+          <div class="includeHtml" id="h-section_user_game"></div>
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
+  </div>
+</div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
-</script>
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true"></div>
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Highchart -->
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/bullet.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
-
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
-    let versionLocal_;
-    let changePasswordClass_;
-    let sectionUserGameClass_;
-    let gamificationClass_;
-
-    document.addEventListener('DOMContentLoaded', function () {
-
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                sectionUserGameClass_ = new SectionUserGame();
-                gamificationClass_ = new MainGamification();
-
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
-                const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId');
-
-                sectionUserGameClass_.setRefDesignation(refDesignation_);
-                sectionUserGameClass_.setRefSite(refSite_);
-                sectionUserGameClass_.setRefUser(refUser_);
-                sectionUserGameClass_.setClassFrom(gamificationClass_);
-                sectionUserGameClass_.init();
-
-                gamificationClass_.setRefUser(refUser_);
-                gamificationClass_.setRefSite(refSite_);
-                gamificationClass_.setRefDesignation(refDesignation_);
-                gamificationClass_.setSectionUserGameClass(sectionUserGameClass_);
-                gamificationClass_.init();
-
-                // Add Settings button click handler
-                document.getElementById('btnGmiSettings').addEventListener('click', function() {
-                    window.location.href = 'gamification_config.html';
-                });
-
-                // Add Import WO button click handler
-                document.getElementById('btnImportWO').addEventListener('click', function()
-                {
-                    window.location.href = 'wo_import.html';
-                });
-
-                // Add Import PPM button click handler
-                document.getElementById('btnImportPPM').addEventListener('click', function()
-                {
-                    window.location.href = 'ppm_import.html';
-                });
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_user_game.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_gamification.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+<script src="js/modules/toastr.js"></script>
+<script src="js/toastr-safe.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_user_game.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_gamification.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+  let versionLocal_;
+  let changePasswordClass_;
+  let sectionUserGameClass_;
+  let gamificationClass_;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        sectionUserGameClass_ = new SectionUserGame();
+        gamificationClass_ = new MainGamification();
+
+        const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+        const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+        const refDesignation_ = mzGetLocalArray('gems_designation', versionLocal_, 'designationId');
+
+        sectionUserGameClass_.setRefDesignation(refDesignation_);
+        sectionUserGameClass_.setRefSite(refSite_);
+        sectionUserGameClass_.setRefUser(refUser_);
+        sectionUserGameClass_.setClassFrom(gamificationClass_);
+        sectionUserGameClass_.init();
+
+        gamificationClass_.setRefUser(refUser_);
+        gamificationClass_.setRefSite(refSite_);
+        gamificationClass_.setRefDesignation(refDesignation_);
+        gamificationClass_.setSectionUserGameClass(sectionUserGameClass_);
+        gamificationClass_.init();
+
+        document.getElementById('btnGmiSettings').addEventListener('click', function() {
+          window.location.href = 'gamification_config.html';
+        });
+        document.getElementById('btnImportWO').addEventListener('click', function() {
+          window.location.href = 'wo_import.html';
+        });
+        document.getElementById('btnImportPPM').addEventListener('click', function() {
+          window.location.href = 'ppm_import.html';
+        });
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 200);
+  });
+</script>
+</body>
+</html>

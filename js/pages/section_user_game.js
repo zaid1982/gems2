@@ -10,7 +10,7 @@ function SectionUserGame () {
     let refUser;
     let oTableSugHistory;
     let monthArray;
-    const defaultPictureUrl = 'https://mdbootstrap.com/img/Photos/Avatars/img%20(2).jpg';
+    const defaultPictureUrl = 'img/background/no-image.png';
 
     this.init = function () {
         $('.sectionUserGame').hide();
