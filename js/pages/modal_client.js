@@ -9,29 +9,28 @@ function ModalClient() {
     let refFailureCode;
 
     this.init = function () {
-        for (let i=0; i<refSeverity.length; i++) {
+        for (let i = 0; i < refSeverity.length; i++) {
             if (typeof refSeverity[i] !== 'undefined') {
                 const severityId = refSeverity[i]['severityId'];
                 const severityName = refSeverity[i]['severityName'];
                 if (refSeverity[i]['severityStatus'] === '1') {
-                    let severityHtml = '<div class="form-check pl-0 ml-3">';
-                    severityHtml += '<input type="checkbox" class="form-check-input" id="chkMclSeverity'+severityId+'" name="chkMclSeverity[]" value="'+severityId+'">';
-                    severityHtml += '<label class="form-check-label" for="chkMclSeverity'+severityId+'">'+severityName+'</label>';
+                    let severityHtml = '<div class="form-check">';
+                    severityHtml += '<input type="checkbox" class="form-check-input" id="chkMclSeverity' + severityId + '" name="chkMclSeverity[]" value="' + severityId + '" aria-describedby="chkMclSeverityErr">';
+                    severityHtml += '<label class="form-check-label" for="chkMclSeverity' + severityId + '">' + GemsUI.escape(severityName) + '</label>';
                     severityHtml += '</div>';
                     $('#divMclSeverity').append(severityHtml);
                 }
             }
         }
 
-
-        for (let i=0; i<refFailureCode.length; i++) {
+        for (let i = 0; i < refFailureCode.length; i++) {
             if (typeof refFailureCode[i] !== 'undefined') {
                 const failureCodeId = refFailureCode[i]['failureCodeId'];
                 const failureCodeName = refFailureCode[i]['failureCodeName'];
                 if (refFailureCode[i]['failureCodeStatus'] === '1') {
-                    let failureCodeHtml = '<div class="form-check pl-0 ml-3">';
-                    failureCodeHtml += '<input type="checkbox" class="form-check-input" id="chkMclFailureCode'+failureCodeId+'" name="chkMclFailureCode[]" value="'+failureCodeId+'">';
-                    failureCodeHtml += '<label class="form-check-label" for="chkMclFailureCode'+failureCodeId+'">'+failureCodeName+'</label>';
+                    let failureCodeHtml = '<div class="form-check">';
+                    failureCodeHtml += '<input type="checkbox" class="form-check-input" id="chkMclFailureCode' + failureCodeId + '" name="chkMclFailureCode[]" value="' + failureCodeId + '" aria-describedby="chkMclFailureCodeErr">';
+                    failureCodeHtml += '<label class="form-check-label" for="chkMclFailureCode' + failureCodeId + '">' + GemsUI.escape(failureCodeName) + '</label>';
                     failureCodeHtml += '</div>';
                     $('#divMclFailureCode').append(failureCodeHtml);
                 }
@@ -88,7 +87,7 @@ function ModalClient() {
             $('#btnMclSubmit').attr('disabled', !formValidate.validateForm());
         });
 
-        $('#modal_client').on('hidden.bs.modal', function(){
+        $('#modal_client').on('hidden.bs.modal', function () {
             formValidate.clearValidation();
             $('#btnMclSubmit').attr('disabled', true);
         });
@@ -102,15 +101,14 @@ function ModalClient() {
                     }
                     else {
                         let severityStr = '';
-                        $("input[name='chkMclSeverity[]']:checked").map(function(){
-                            severityStr += ','+$(this).val();
+                        $("input[name='chkMclSeverity[]']:checked").map(function () {
+                            severityStr += ',' + $(this).val();
                         });
                         severityStr = severityStr.substr(1);
 
-
                         let failureCodeStr = '';
-                        $("input[name='chkMclFailureCode[]']:checked").map(function(){
-                            failureCodeStr += ','+$(this).val();
+                        $("input[name='chkMclFailureCode[]']:checked").map(function () {
+                            failureCodeStr += ',' + $(this).val();
                         });
                         failureCodeStr = failureCodeStr.substr(1);
 
@@ -152,7 +150,7 @@ function ModalClient() {
         rowRefresh = '';
 
         mzSetFieldValue('MclStatus', '1', 'checkSingle', '1');
-        $('#lblMclTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Client');
+        $('#lblMclTitle').html('<i class="fas fa-plus me-2"></i>Add Client');
         $('#modal_client').modal({backdrop: 'static', keyboard: false});
     };
 
@@ -164,7 +162,7 @@ function ModalClient() {
                 clientId = _clientId;
                 rowRefresh = _rowRefresh;
 
-                const dataMcl = mzAjaxRequest('client.php?clientId='+clientId, 'GET');
+                const dataMcl = mzAjaxRequest('client.php?clientId=' + clientId, 'GET');
                 const severities = dataMcl['severities'];
                 const failureCodes = dataMcl['failureCodes'];
                 mzSetFieldValue('MclName', dataMcl['clientName'], 'text');
@@ -173,7 +171,7 @@ function ModalClient() {
                 mzSetFieldValue('MclSeverity', severities.split(','), 'check');
                 mzSetFieldValue('MclFailureCode', failureCodes.split(','), 'check');
 
-                $('#lblMclTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Client');
+                $('#lblMclTitle').html('<i class="far fa-edit me-2"></i>Edit Client');
                 $('#modal_client').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -187,8 +185,8 @@ function ModalClient() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_clientId, _rowRefresh]);
-                mzAjaxRequest('client.php?clientId='+_clientId, 'PUT', {action: 'deactivate'});
-                const tempRow = {clientStatus:'2'};
+                mzAjaxRequest('client.php?clientId=' + _clientId, 'PUT', {action: 'deactivate'});
+                const tempRow = {clientStatus: '2'};
                 if (classFrom.getClassName() === 'MainClient') {
                     classFrom.updateTableCln(tempRow, _rowRefresh);
                 }
@@ -204,8 +202,8 @@ function ModalClient() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_clientId, _rowRefresh]);
-                mzAjaxRequest('client.php?clientId='+_clientId, 'PUT', {action: 'activate'});
-                const tempRow = {clientStatus:'1'};
+                mzAjaxRequest('client.php?clientId=' + _clientId, 'PUT', {action: 'activate'});
+                const tempRow = {clientStatus: '1'};
                 if (classFrom.getClassName() === 'MainClient') {
                     classFrom.updateTableCln(tempRow, _rowRefresh);
                 }
@@ -221,7 +219,7 @@ function ModalClient() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_clientId]);
-                mzAjaxRequest('client.php?clientId='+_clientId, 'DELETE');
+                mzAjaxRequest('client.php?clientId=' + _clientId, 'DELETE');
                 if (classFrom.getClassName() === 'MainClient') {
                     classFrom.genTableCln();
                 }

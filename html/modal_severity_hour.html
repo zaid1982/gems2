@@ -1,41 +1,67 @@
-<div class="modal fade gems-modal" id="modal_severity_hour" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2"><i class="far fa-edit text-white"></i> &nbsp;Edit Severity KPI Hour</h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_severity_hour — Tabler/GEMS modal + form contract (P4B-3).
+
+  Loaded by pages/client.html ONLY. Child of Client: edits one
+  cli_client_severity row keyed by clientId + severityId. Not a matrix
+  rewrite. Copies the P4 modal contract:
+    gems-modal-sm (480px) + modal-dialog-scrollable, never modal-dialog-centered.
+    Flat white header, btn-close flex-centred with the title.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close first, primary Save last. No btn-info.
+
+  Units stay: respond time = minutes, completed = hours.
+  Validation stays: notEmpty, min 1, max 3000, digit.
+
+  JS contract preserved (js/pages/modal_severity_hour.js, js/pages/main_client.js):
+    #modal_severity_hour  #formMvh
+    #txtMvhClient  #lblMvhClient
+    #txtMvhSeverity  #lblMvhSeverity
+    #txtMvhRespondTime  #lblMvhRespondTime  #txtMvhRespondTimeErr
+    #txtMvhHour  #lblMvhHour  #txtMvhHourErr
+    #btnMvhSubmit
+-->
+<div class="modal fade" id="modal_severity_hour" tabindex="-1" aria-labelledby="lblMvhTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-sm modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMvhTitle"><i class="far fa-edit me-2"></i>Edit Severity KPI Hour</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMvh" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMvhClient" id="lblMvhClient">Client</label>
+              <input type="text" id="txtMvhClient" class="form-control" disabled>
             </div>
-            <!--Body-->
-            <div class="modal-body gems-modal-body">
-                <form id="formMvh">
-                    <div class="md-form md-outline mt-4">
-                        <input type="text" id="txtMvhClient" class="form-control" disabled>
-                        <label for="txtMvhClient" id="lblMvhClient">Client</label>
-                    </div>
-                    <div class="md-form md-outline">
-                        <input type="text" id="txtMvhSeverity" class="form-control" disabled>
-                        <label for="txtMvhSeverity" id="lblMvhSeverity">Severity</label>
-                    </div>
-                    <div class="md-form md-outline">
-                        <input type="number" id="txtMvhRespondTime" class="form-control">
-                        <label for="txtMvhRespondTime" id="lblMvhRespondTime">KPI Respond Time (minutes) *</label>
-                        <p class="font-small text-danger" id="txtMvhRespondTimeErr"></p>
-                    </div>
-                    <div class="md-form md-outline">
-                        <input type="number" id="txtMvhHour" class="form-control">
-                        <label for="txtMvhHour" id="lblMvhHour">KPI Completed Hours *</label>
-                        <p class="font-small text-danger" id="txtMvhHourErr"></p>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMvhSeverity" id="lblMvhSeverity">Severity</label>
+              <input type="text" id="txtMvhSeverity" class="form-control" disabled>
             </div>
-            <div class="modal-footer p-2 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMvhSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMvhRespondTime" id="lblMvhRespondTime">KPI Respond Time (minutes) <span class="required" aria-hidden="true">*</span></label>
+              <input type="number" id="txtMvhRespondTime" class="form-control" aria-required="true" aria-describedby="txtMvhRespondTimeErr">
+              <div class="gems-field-error" id="txtMvhRespondTimeErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMvhHour" id="lblMvhHour">KPI Completed Hours <span class="required" aria-hidden="true">*</span></label>
+              <input type="number" id="txtMvhHour" class="form-control" aria-required="true" aria-describedby="txtMvhHourErr">
+              <div class="gems-field-error" id="txtMvhHourErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMvhSubmit" class="btn btn-primary" disabled>
+          <i class="far fa-save me-2"></i>Save
+        </button>
+      </div>
     </div>
+  </div>
 </div>

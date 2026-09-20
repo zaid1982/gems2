@@ -1,6 +1,7 @@
 function MainClient() {
 
     const className = 'MainClient';
+    const momentAvailable = (typeof moment === 'function');
     let self = this;
     let versionLocal;
     let modalConfirmDeleteClass;
@@ -11,8 +12,9 @@ function MainClient() {
     let modalClientClass;
     let modalSeverityHourClass;
     let clientDataCache = [];
-    let lastListUpdatedText = '—';
+    let lastListUpdated = null;
     let statusFilterValue = '';
+    let statusFilterFn;
 
     const statusChipMap = {
         '': '#linkClnAll',
@@ -21,77 +23,101 @@ function MainClient() {
         '5': '#linkClnArchived'
     };
 
-    const tableHeaders = ['#', 'Client Name', 'Description', 'Severity KPI', 'Failure Codes', 'Status', 'Actions'];
+    function formatTimestamp(value) {
+        if (!value) {
+            return '—';
+        }
+        if (momentAvailable) {
+            return 'Updated ' + moment(value).format('DD MMM YYYY, hh:mm A');
+        }
+        return 'Updated ' + new Date(value).toLocaleString();
+    }
 
-    const initMaterialSelect = function (selector) {
-        // Disabled to prevent double rendering - using plain select instead
-        // const $element = $(selector);
-        // if (!$element.length || typeof $element.materialSelect !== 'function') {
-        //     return;
-        // }
-        // try {
-        //     $element.materialSelect('destroy');
-        // } catch (e) {
-        //     // ignore destroy errors
-        // }
-        // const $wrapper = $element.parent('.select-wrapper');
-        // if ($wrapper.length) {
-        //     $wrapper.before($element);
-        //     $wrapper.remove();
-        // }
-        // $element.siblings('.select-dropdown').remove();
-        // $element.materialSelect();
-    };
+    function displayText(value, type) {
+        const text = value || '';
+        if (type !== 'display') {
+            return text;
+        }
+        return GemsUI.escape(text);
+    }
 
-    const applyTableDataLabels = function (tableSelector, headers) {
-        $(`${tableSelector} tbody tr`).each(function () {
-            $('td', this).each(function (index) {
-                if (headers[index]) {
-                    $(this).attr('data-label', headers[index]);
-                }
-            });
-        });
-    };
+    function statusLabel(statusId, fallback) {
+        if (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc']) {
+            return refStatus[statusId]['statusDesc'];
+        }
+        switch (String(statusId)) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            case '5':
+                return 'Archived';
+            default:
+                return fallback || '';
+        }
+    }
 
-    const getNowStamp = function () {
-        return (typeof moment !== 'undefined' && moment) ? moment().format('MMM D, YYYY h:mm A') : new Date().toLocaleString();
-    };
+    function statusBadgeKind(status) {
+        switch (String(status)) {
+            case '1':
+                return 'success';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
 
-    const refreshListSummary = function () {
+    function statusBadge(statusId, type) {
+        const label = statusLabel(statusId, 'Unknown');
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
+    function refreshListSummary() {
         if (!oTableClient) {
             return;
         }
-        const info = oTableClient.page.info();
+        const info = (typeof oTableClient.page === 'function' && typeof oTableClient.page.info === 'function')
+            ? oTableClient.page.info()
+            : null;
         const showing = info ? (info.end - info.start) : 0;
         const total = info ? info.recordsDisplay : 0;
-        const summaryText = `Showing ${mzFormatNumber(showing, 0)} of ${mzFormatNumber(total, 0)}`;
+        const summaryText = 'Showing ' + mzFormatNumber(showing, 0) + ' of ' + mzFormatNumber(total, 0);
+        const updatedText = formatTimestamp(lastListUpdated);
         $('#lblClnFilterCount').text(summaryText);
-        $('#lblClnListCount').text(summaryText);
-        $('#lblClnFilterUpdated').text(lastListUpdatedText);
-        $('#lblClnListUpdated').text(lastListUpdatedText);
-    };
+        $('#lblClnListCount').text(summaryText + ' results');
+        $('#lblClnFilterUpdated').text(updatedText);
+        $('#lblClnListUpdated').html('<i class="far fa-clock me-1"></i>' + updatedText);
+    }
 
-    const updateStatusChips = function (counts) {
+    function updateStatusChips(counts) {
         const labelMap = {
             '': 'All',
-            '1': refStatus && refStatus[1] ? refStatus[1]['statusDesc'] : 'Active',
-            '2': refStatus && refStatus[2] ? refStatus[2]['statusDesc'] : 'Inactive',
-            '5': refStatus && refStatus[5] ? refStatus[5]['statusDesc'] : 'Archived'
+            '1': statusLabel('1', 'Active'),
+            '2': statusLabel('2', 'Inactive'),
+            '5': statusLabel('5', 'Archived')
         };
         $.each(statusChipMap, function (status, selector) {
             const count = typeof counts[status] !== 'undefined' ? counts[status] : 0;
-            $(selector).html(`${labelMap[status]} <span class="chip-count">${mzFormatNumber(count, 0)}</span>`);
+            $(selector).html(GemsUI.escape(labelMap[status]) + ' <span class="badge bg-secondary-lt ms-1">' + mzFormatNumber(count, 0) + '</span>');
         });
-    };
+        setActiveStatusChip(statusFilterValue);
+    }
 
-    const updateClientMetrics = function (dataSet) {
+    function updateClientMetrics(dataSet) {
         let total = 0;
         let active = 0;
         let inactive = 0;
         let archived = 0;
         let configuredKpi = 0;
 
-        dataSet.forEach(function (item) {
+        (dataSet || []).forEach(function (item) {
+            if (!item) {
+                return;
+            }
             total += 1;
             const status = String(item['clientStatus']);
             switch (status) {
@@ -123,19 +149,19 @@ function MainClient() {
             '2': inactive,
             '5': archived
         });
-    };
+    }
 
-    const setActiveStatusChip = function (value) {
+    function setActiveStatusChip(value) {
         $.each(statusChipMap, function (status, selector) {
             if (status === value) {
-                $(selector).addClass('active');
+                $(selector).addClass('active btn-primary').removeClass('btn-outline-secondary');
             } else {
-                $(selector).removeClass('active');
+                $(selector).removeClass('active btn-primary').addClass('btn-outline-secondary');
             }
         });
-    };
+    }
 
-    const setStatusFilter = function (value, fromSelect) {
+    function setStatusFilter(value, fromSelect) {
         statusFilterValue = value || '';
         if (oTableClient) {
             oTableClient.draw();
@@ -143,39 +169,29 @@ function MainClient() {
         }
         setActiveStatusChip(statusFilterValue);
         if (!fromSelect) {
-            const $statusSelect = $('#optClnStatus');
-            if ($statusSelect.length) {
-                try {
-                    $statusSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy errors
-                }
-                $statusSelect.val(statusFilterValue);
-                $statusSelect.materialSelect();
-                $statusSelect.off('change').on('change', handleStatusSelectChange);
-            }
+            $('#optClnStatus').val(statusFilterValue);
         }
-    };
+    }
 
-    const statusFilterFn = function (settings, data, dataIndex) {
-        if (!oTableClient || settings.nTable.id !== 'dtClnClient') {
-            return true;
-        }
-        if (!statusFilterValue) {
-            return true;
-        }
-        const rowData = oTableClient.row(dataIndex).data();
-        if (!rowData) {
-            return true;
-        }
-        return String(rowData['clientStatus']) === statusFilterValue;
-    };
-
-    const handleStatusSelectChange = function () {
+    function handleStatusSelectChange() {
         setStatusFilter($(this).val() || '', true);
-    };
+    }
 
-    const renderSeverityColumn = function (row, metaRow) {
+    function severityName(severityId) {
+        if (refSeverity && refSeverity[severityId] && refSeverity[severityId]['severityName']) {
+            return refSeverity[severityId]['severityName'];
+        }
+        return 'Severity ' + severityId;
+    }
+
+    function failureCodeName(failureCodeId) {
+        if (refFailureCode && refFailureCode[failureCodeId] && refFailureCode[failureCodeId]['failureCodeName']) {
+            return refFailureCode[failureCodeId]['failureCodeName'];
+        }
+        return 'Failure Code ' + failureCodeId;
+    }
+
+    function renderSeverityColumn(row, metaRow) {
         const severity = row['severities'] || '';
         const severityHour = row['severityHours'] || '';
         const severityRespondTime = row['severityRespondTime'] || '';
@@ -188,16 +204,26 @@ function MainClient() {
         const listItems = [];
         for (let j = 0; j < severitySplit.length; j++) {
             const severityId = severitySplit[j];
-            const severityName = refSeverity && refSeverity[severityId] ? refSeverity[severityId]['severityName'] : `Severity ${severityId}`;
             const hourValue = hourSplit[j] || '0';
             const respondValue = respondSplit[j] || '0';
-            const linkId = `lnkClnClientHourEdit_${metaRow}_${severityId}__${hourValue}___${respondValue}`;
-            listItems.push(`<li>${severityName} - ${respondValue}-minute/${hourValue}-hour <button type="button" class="btn-action btn-edit lnkClnClientHourEdit" id="${linkId}" data-severity-id="${severityId}" data-severity-hour="${hourValue}" data-severity-respond="${respondValue}" data-toggle="tooltip" data-placement="top" title="Edit KPI hours"><i class="fas fa-pen-alt"></i></button></li>`);
+            const linkId = 'lnkClnClientHourEdit_' + metaRow + '_' + severityId + '__' + hourValue + '___' + respondValue;
+            listItems.push(
+                '<li>' + GemsUI.escape(severityName(severityId)) + ' - ' + GemsUI.escape(respondValue) + '-minute/' + GemsUI.escape(hourValue) + '-hour ' +
+                GemsUI.actionBtn({
+                    tint: 'gems-btn-action-edit',
+                    cls: 'lnkClnClientHourEdit',
+                    id: linkId,
+                    title: 'Edit KPI hours',
+                    icon: 'fas fa-pen-alt',
+                    extra: 'data-severity-id="' + severityId + '" data-severity-hour="' + hourValue + '" data-severity-respond="' + respondValue + '"'
+                }) +
+                '</li>'
+            );
         }
-        return `<ul class="list-unstyled mb-0">${listItems.join('')}</ul>`;
-    };
+        return '<ul class="list-unstyled mb-0">' + listItems.join('') + '</ul>';
+    }
 
-    const getSeverityText = function (row) {
+    function getSeverityText(row) {
         const severity = row['severities'] || '';
         const severityHour = row['severityHours'] || '';
         const severityRespondTime = row['severityRespondTime'] || '';
@@ -210,15 +236,14 @@ function MainClient() {
         const parts = [];
         for (let j = 0; j < severitySplit.length; j++) {
             const severityId = severitySplit[j];
-            const severityName = refSeverity && refSeverity[severityId] ? refSeverity[severityId]['severityName'] : `Severity ${severityId}`;
             const hourValue = hourSplit[j] || '0';
             const respondValue = respondSplit[j] || '0';
-            parts.push(`${severityName}: ${respondValue} min / ${hourValue} hr`);
+            parts.push(severityName(severityId) + ': ' + respondValue + ' min / ' + hourValue + ' hr');
         }
         return parts.join('; ');
-    };
+    }
 
-    const renderFailureCodesColumn = function (row) {
+    function renderFailureCodesColumn(row) {
         const failureCode = row['failureCodes'] || '';
         if (!failureCode) {
             return '<span class="text-muted">No failure codes</span>';
@@ -226,14 +251,12 @@ function MainClient() {
         const failureCodeSplit = failureCode.split(',');
         const listItems = [];
         for (let j = 0; j < failureCodeSplit.length; j++) {
-            const failureCodeId = failureCodeSplit[j];
-            const failureCodeName = refFailureCode && refFailureCode[failureCodeId] ? refFailureCode[failureCodeId]['failureCodeName'] : `Failure Code ${failureCodeId}`;
-            listItems.push(`<li>${failureCodeName}</li>`);
+            listItems.push('<li>' + GemsUI.escape(failureCodeName(failureCodeSplit[j])) + '</li>');
         }
-        return `<ul class="list-unstyled mb-0">${listItems.join('')}</ul>`;
-    };
+        return '<ul class="list-unstyled mb-0">' + listItems.join('') + '</ul>';
+    }
 
-    const getFailureCodesText = function (row) {
+    function getFailureCodesText(row) {
         const failureCode = row['failureCodes'] || '';
         if (!failureCode) {
             return 'No failure codes';
@@ -241,47 +264,177 @@ function MainClient() {
         const failureCodeSplit = failureCode.split(',');
         const names = [];
         for (let j = 0; j < failureCodeSplit.length; j++) {
-            const failureCodeId = failureCodeSplit[j];
-            const failureCodeName = refFailureCode && refFailureCode[failureCodeId] ? refFailureCode[failureCodeId]['failureCodeName'] : `Failure Code ${failureCodeId}`;
-            names.push(failureCodeName);
+            names.push(failureCodeName(failureCodeSplit[j]));
         }
         return names.join(', ');
-    };
+    }
 
-    const bindRowActions = function () {
-        $('.lnkClnClientEdit').off('click').on('click', function () {
-            const row = oTableClient.row($(this).closest('tr'));
-            const rowData = row.data();
-            if (!rowData) {
-                return;
+    function rowIdFromLink(el) {
+        const linkId = $(el).attr('id') || '';
+        const linkIndex = linkId.indexOf('_');
+        return linkIndex > 0 ? linkId.substr(linkIndex + 1) : '';
+    }
+
+    function rowDataFromLink(el) {
+        const rowId = rowIdFromLink(el);
+        if (!rowId || !oTableClient) {
+            return null;
+        }
+        return { rowId: rowId, data: oTableClient.row(parseInt(rowId, 10)).data() };
+    }
+
+    this.init = function () {
+        let exportCounter = 1;
+        const exportOpt = {
+            columns: [0, 1, 2, 3, 4, 5],
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        exportCounter = 1;
+                    }
+                    if (column === 0) {
+                        return exportCounter++;
+                    }
+                    return data;
+                }
             }
-            modalClientClass.edit(rowData['clientId'], row.index());
-        });
-        $('.lnkClnClientDeactivate').off('click').on('click', function () {
-            const row = oTableClient.row($(this).closest('tr'));
-            const rowData = row.data();
-            if (!rowData) {
-                return;
+        };
+        const dtButtons = GemsUI.dtButtons('GEMS 2.0 - Client List').map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
             }
-            modalClientClass.deactivate(rowData['clientId'], row.index());
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
         });
-        $('.lnkClnClientActivate').off('click').on('click', function () {
-            const row = oTableClient.row($(this).closest('tr'));
-            const rowData = row.data();
-            if (!rowData) {
-                return;
+
+        oTableClient = $('#dtClnClient').DataTable({
+            bLengthChange: false,
+            searching: true,
+            autoWidth: false,
+            aaSorting: [[1, 'asc']],
+            dom: GemsUI.dtDomButtons,
+            buttons: dtButtons,
+            language: GemsUI.dtEmpty('fa-building', 'No clients recorded yet.', 'No clients match the current search or status filter.'),
+            pagingType: 'simple_numbers',
+            columnDefs: [
+                {targets: [0, 5, 6], orderable: false, className: 'text-center'},
+                {targets: [1], className: 'text-nowrap'}
+            ],
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
+                const info = (oTableClient && oTableClient.page && typeof oTableClient.page.info === 'function')
+                    ? oTableClient.page.info()
+                    : null;
+                const rowNumber = info ? (info.start + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
+                $('td', nRow).eq(0).html(rowNumber);
+            },
+            drawCallback: function () {
+                refreshListSummary();
+            },
+            aoColumns: [
+                {mData: null, bSortable: false},
+                {mData: 'clientName', sClass: 'text-nowrap',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
+                    }
+                },
+                {mData: 'clientDesc',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
+                    }
+                },
+                {mData: null,
+                    mRender: function (data, type, row, meta) {
+                        if (type !== 'display') {
+                            return getSeverityText(row);
+                        }
+                        return renderSeverityColumn(row, meta.row);
+                    }
+                },
+                {mData: null,
+                    mRender: function (data, type, row) {
+                        if (type !== 'display') {
+                            return getFailureCodesText(row);
+                        }
+                        return renderFailureCodesColumn(row);
+                    }
+                },
+                {mData: null, bSortable: false,
+                    mRender: function (data, type, row) {
+                        return statusBadge(row['clientStatus'], type);
+                    }
+                },
+                {mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
+                    mRender: function (data, type, row, meta) {
+                        let html = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkClnClientEdit',
+                            id: 'lnkClnClientEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
+                        if (row['clientStatus'] === '1') {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkClnClientDeactivate',
+                                id: 'lnkClnClientDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
+                        } else {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkClnClientActivate',
+                                id: 'lnkClnClientActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
+                        }
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkClnClientDelete',
+                            id: 'lnkClnClientDelete_' + meta.row,
+                            title: 'Delete',
+                            icon: 'fas fa-trash-alt'
+                        });
+                        return html;
+                    }
+                },
+                {mData: 'clientStatus', visible: false, sClass: 'noVis'},
+                {mData: 'clientId', visible: false, sClass: 'noVis'}
+            ]
+        });
+
+        oTableClient.buttons().container().appendTo($('#btnDtClnClientExport'));
+        GemsUI.bindDtTooltips('#dtClnClient');
+
+        const tbody = $('#dtClnClient tbody');
+        tbody.on('click', '.lnkClnClientEdit', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalClientClass.edit(current.data['clientId'], current.rowId);
             }
-            modalClientClass.activate(rowData['clientId'], row.index());
         });
-        $('.lnkClnClientDelete').off('click').on('click', function () {
-            const row = oTableClient.row($(this).closest('tr'));
-            const rowData = row.data();
-            if (!rowData) {
-                return;
+        tbody.on('click', '.lnkClnClientDeactivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalClientClass.deactivate(current.data['clientId'], current.rowId);
             }
-            modalConfirmDeleteClass.delete(rowData['clientId'], modalClientClass);
         });
-        $('.lnkClnClientHourEdit').off('click').on('click', function () {
+        tbody.on('click', '.lnkClnClientActivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalClientClass.activate(current.data['clientId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkClnClientDelete', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalConfirmDeleteClass.delete(current.data['clientId'], modalClientClass);
+            }
+        });
+        tbody.on('click', '.lnkClnClientHourEdit', function () {
             const row = oTableClient.row($(this).closest('tr'));
             const rowData = row.data();
             if (!rowData) {
@@ -295,131 +448,27 @@ function MainClient() {
             };
             modalSeverityHourClass.edit(rowData['clientId'], row.index(), passParam);
         });
-    };
 
-    this.init = function () {
+        statusFilterFn = function (settings, data, dataIndex) {
+            if (!settings.nTable || settings.nTable.id !== 'dtClnClient') {
+                return true;
+            }
+            if (!statusFilterValue) {
+                return true;
+            }
+            const rowData = oTableClient.row(dataIndex).data();
+            if (!rowData) {
+                return true;
+            }
+            return String(rowData['clientStatus']) === statusFilterValue;
+        };
         $.fn.dataTable.ext.search.push(statusFilterFn);
-
-        initMaterialSelect('#optClnStatus');
-
-        oTableClient = $('#dtClnClient').DataTable({
-            bLengthChange: false,
-            bFilter: true,
-            aaSorting: [[1, 'asc']],
-            language: _DATATABLE_LANGUAGE,
-            dom: 't<"dt-pagination-wrapper d-flex justify-content-center"p>',
-            pagingType: 'simple_numbers',
-            autoWidth: false,
-            columnDefs: [
-                {targets: [0, 5, 6], orderable: false, className: 'text-center'},
-                {targets: [1], className: 'text-nowrap'}
-            ],
-            fnRowCallback: function (nRow, aData, iDisplayIndex) {
-                const info = oTableClient.page.info();
-                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
-            },
-            drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                applyTableDataLabels('#dtClnClient', tableHeaders);
-                bindRowActions();
-                refreshListSummary();
-            },
-            aoColumns: [
-                {mData: null},
-                {mData: 'clientName'},
-                {mData: 'clientDesc'},
-                {mData: null, mRender: function (data, type, row, meta) {
-                        if (type !== 'display') {
-                            return getSeverityText(row);
-                        }
-                        return renderSeverityColumn(row, meta.row);
-                    }},
-                {mData: null, mRender: function (data, type, row) {
-                        if (type !== 'display') {
-                            return getFailureCodesText(row);
-                        }
-                        return renderFailureCodesColumn(row);
-                    }},
-                {mData: null, mRender: function (data, type, row) {
-                        const status = row['clientStatus'];
-                        if (type !== 'display') {
-                            if (!status || !refStatus[status]) {
-                                return 'Unknown';
-                            }
-                            return refStatus[status]['statusDesc'];
-                        }
-                        if (!status || !refStatus[status]) {
-                            return '<span class="badge badge-pill badge-secondary">Unknown</span>';
-                        }
-                        return `<h6 class="mb-0"><span class="badge badge-pill ${refStatus[status]['statusColor']} z-depth-2">${refStatus[status]['statusDesc']}</span></h6>`;
-                    }},
-                {mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        label += '<button type="button" class="btn-action btn-edit lnkClnClientEdit" id="lnkClnClientEdit_' + meta.row + '" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>';
-                        if (row['clientStatus'] === '1') {
-                            label += '<button type="button" class="btn-action btn-delete lnkClnClientDeactivate" id="lnkClnClientDeactivate_' + meta.row + '" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
-                        } else {
-                            label += '<button type="button" class="btn-action btn-edit lnkClnClientActivate" id="lnkClnClientActivate_' + meta.row + '" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>';
-                        }
-                        label += '<button type="button" class="btn-action btn-delete lnkClnClientDelete" id="lnkClnClientDelete_' + meta.row + '" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                        label += '</div>';
-                        return label;
-                    }},
-                {mData: 'clientStatus', visible: false},
-                {mData: 'clientId', visible: false}
-            ]
-        });
-        $('#dtClnClient_filter').hide();
 
         $('#txtClnClientSearch').on('keyup change', function () {
             oTableClient.search($(this).val()).draw();
         });
 
         $('#optClnStatus').on('change', handleStatusSelectChange);
-
-        let exportCounter = 1;
-        const btnClientOpt = {
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5],
-                format: {
-                    body: function (data, row, column) {
-                        if (column === 0) {
-                            if (row === 0) {
-                                exportCounter = 1;
-                            }
-                            return exportCounter++;
-                        }
-                        return data;
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableClient, {
-            buttons: [
-                $.extend(true, {}, btnClientOpt, {
-                    extend: 'print',
-                    text: '<i class="fas fa-print"></i>',
-                    title: 'GEMS 2.0 - Client List',
-                    titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend(true, {}, btnClientOpt, {
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i>',
-                    title: 'GEMS 2.0 - Client List',
-                    titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend(true, {}, btnClientOpt, {
-                    extend: 'pdfHtml5',
-                    text: '<i class="fas fa-file-pdf"></i>',
-                    title: 'GEMS 2.0 - Client List',
-                    titleAttr: 'Pdf',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                })
-            ]
-        }).container().appendTo($('#btnDtClnClientExport'));
 
         $('#btnClnClientAdd').on('click', function () {
             modalClientClass.add();
@@ -451,8 +500,8 @@ function MainClient() {
     this.genTableCln = function () {
         const refClient = mzAjaxRequest('client.php?type=with_severity', 'GET');
         clientDataCache = Array.isArray(refClient) ? refClient : [];
+        lastListUpdated = new Date();
         oTableClient.clear().rows.add(clientDataCache).draw();
-        lastListUpdatedText = getNowStamp();
         updateClientMetrics(clientDataCache);
         refreshListSummary();
         setStatusFilter(statusFilterValue || '', true);
@@ -461,7 +510,7 @@ function MainClient() {
     this.addTableCln = function (_dataAdd) {
         oTableClient.row.add(_dataAdd).draw();
         clientDataCache = oTableClient.rows().data().toArray();
-        lastListUpdatedText = getNowStamp();
+        lastListUpdated = new Date();
         updateClientMetrics(clientDataCache);
         refreshListSummary();
         setStatusFilter(statusFilterValue || '', true);
@@ -493,9 +542,9 @@ function MainClient() {
         if (typeof _dataEdit['failureCodes'] !== 'undefined') {
             currentRow['failureCodes'] = _dataEdit['failureCodes'];
         }
+        lastListUpdated = new Date();
         oTableClient.row(_rowEdit).data(currentRow).draw();
         clientDataCache = oTableClient.rows().data().toArray();
-        lastListUpdatedText = getNowStamp();
         updateClientMetrics(clientDataCache);
         refreshListSummary();
         setStatusFilter(statusFilterValue || '', true);
