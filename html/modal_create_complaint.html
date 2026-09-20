@@ -1,214 +1,175 @@
-<div class="modal fade gems-modal" id="modal_create_complaint" tabindex="-1" role="dialog" aria-labelledby="mccTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg mcc-dialog" role="document">
-        <div class="modal-content mcc-modal gems-modal-card">
-            <button type="button" class="mcc-close gems-modal-close" data-dismiss="modal" aria-label="Close">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="modal-body p-0 gems-modal-body">
-                <div class="mcc-header">
-                    <div class="mcc-header-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <div>
-                        <h4 id="mccTitle" class="mcc-title">Create New Complaint</h4>
-                        <p class="mcc-subtitle">Provide the complaint details so we can route it to the right team.</p>
-                    </div>
-                </div>
-                <form id="formMcc" class="mcc-form">
-                    <div class="mcc-section">
-                        <h6 class="mcc-section-title">Complaint Information</h6>
-                        <div class="row mcc-grid">
-                            <div class="col-md-6 divMccView">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtMccClient" class="form-control" disabled>
-                                    <label for="txtMccClient" id="lblMccClient">Request No</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 divMccView">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtMccRole" class="form-control" disabled>
-                                    <label for="txtMccRole" id="lblMccRole">Work Order No</label>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtMccSiteName" class="form-control" disabled>
-                                    <label for="txtMccSiteName" id="lblMccSiteName">Site</label>
-                                </div>
-                            </div>
-                            <div class="col-md-12 select-outline mt-0">
-                                <select id="optMccCreatedBy" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" searchable="Filter Complainer"></select>
-                                <label for="optMccCreatedBy" id="lblMccCreatedBy">Complainer *</label>
-                                <p class="font-small text-danger" id="optMccCreatedByErr"></p>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtMccLocation" class="form-control">
-                                    <label for="txtMccLocation" id="lblMccLocation">Location *</label>
-                                    <p class="font-small text-danger" id="txtMccLocationErr"></p>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <textarea id="txaMccComplaint" class="md-textarea form-control" rows="3"></textarea>
-                                    <label for="txaMccComplaint" id="lblMccComplaint" class="text-muted">Complaint Details</label>
-                                    <p class="font-small text-danger" id="txaMccComplaintErr"></p>
-                                </div>
-                            </div>
-                            <div class="col-md-6 select-outline mt-0">
-                                <select id="optMccType" class="mdb-select md-form md-outline colorful-select mt-0 mb-0">
-                                    <option value="" selected disabled>Select Category *</option>
-                                    <option value="1">Client Complaint</option>
-                                    <option value="3">Request</option>
-                                    <option value="4">Breakdown</option>
-                                    <option value="5">Defect</option>
-                                    <option value="6">Public Complaint</option>
-                                </select>
-                                <label for="optMccType" id="lblMccType">Category *</label>
-                                <p class="font-small text-danger" id="optMccTypeErr"></p>
-                            </div>
-                            <div class="col-md-6 select-outline mt-0">
-                                <select id="optMccSeverity" class="mdb-select md-form md-outline colorful-select mt-0 mb-0"></select>
-                                <label for="optMccSeverity" id="lblMccSeverity">Severity *</label>
-                                <p class="font-small text-danger" id="optMccSeverityErr"></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mcc-section">
-                        <h6 class="mcc-section-title">Complaint Images</h6>
-                        <div class="row mcc-grid">
-                            <div class="col-md-4">
-                                <div class="mcc-image-tile">
-                                    <div class="mcc-image-preview">
-                                        <img src="img/background/upload_placeholder.png" id="imgMccImage1" alt="Complaint reference image 1">
-                                    </div>
-                                    <div class="mcc-upload-control">
-                                        <input type="file" id="txfMccImage1" class="mcc-file-input" accept="image/*">
-                                        <label class="mcc-upload-button" for="txfMccImage1">
-                                            <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
-                                            <span>Choose Image</span>
-                                        </label>
-                                        <span class="mcc-upload-note" id="lblMccFile1">No file chosen</span>
-                                        <input type="hidden" id="txfMccImage1Blob">
-                                    </div>
-                                    <p class="font-small text-danger text-center mb-0" id="txfMccImage1Err"></p>
-                                    <div class="md-form md-outline mt-2" id="divMccImgDesc1">
-                                        <textarea id="txaMccImgDesc1" class="md-textarea form-control" rows="3"></textarea>
-                                        <label for="txaMccImgDesc1" id="lblMccImgDesc1" class="text-muted">Image Description</label>
-                                        <p class="font-small text-danger" id="txaMccImgDesc1Err"></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mcc-image-tile">
-                                    <div class="mcc-image-preview">
-                                        <img src="img/background/upload_placeholder.png" id="imgMccImage2" alt="Complaint reference image 2">
-                                    </div>
-                                    <div class="mcc-upload-control">
-                                        <input type="file" id="txfMccImage2" class="mcc-file-input" accept="image/*">
-                                        <label class="mcc-upload-button" for="txfMccImage2">
-                                            <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
-                                            <span>Choose Image</span>
-                                        </label>
-                                        <span class="mcc-upload-note" id="lblMccFile2">No file chosen</span>
-                                        <input type="hidden" id="txfMccImage2Blob">
-                                    </div>
-                                    <p class="font-small text-danger text-center mb-0" id="txfMccImage2Err"></p>
-                                    <div class="md-form md-outline mt-2" id="divMccImgDesc2">
-                                        <textarea id="txaMccImgDesc2" class="md-textarea form-control" rows="3"></textarea>
-                                        <label for="txaMccImgDesc2" id="lblMccImgDesc2" class="text-muted">Image Description</label>
-                                        <p class="font-small text-danger" id="txaMccImgDesc2Err"></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mcc-image-tile">
-                                    <div class="mcc-image-preview">
-                                        <img src="img/background/upload_placeholder.png" id="imgMccImage3" alt="Complaint reference image 3">
-                                    </div>
-                                    <div class="mcc-upload-control">
-                                        <input type="file" id="txfMccImage3" class="mcc-file-input" accept="image/*">
-                                        <label class="mcc-upload-button" for="txfMccImage3">
-                                            <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
-                                            <span>Choose Image</span>
-                                        </label>
-                                        <span class="mcc-upload-note" id="lblMccFile3">No file chosen</span>
-                                        <input type="hidden" id="txfMccImage3Blob">
-                                    </div>
-                                    <p class="font-small text-danger text-center mb-0" id="txfMccImage3Err"></p>
-                                    <div class="md-form md-outline mt-2" id="divMccImgDesc3">
-                                        <textarea id="txaMccImgDesc3" class="md-textarea form-control" rows="3"></textarea>
-                                        <label for="txaMccImgDesc3" id="lblMccImgDesc3" class="text-muted">Image Description</label>
-                                        <p class="font-small text-danger" id="txaMccImgDesc3Err"></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mcc-section">
-                        <h6 class="mcc-section-title">Assign Executor</h6>
-                        <div class="row mcc-grid">
-                            <div class="col-md-12 select-outline mt-2">
-                                <select id="optMccPpmGroupId" class="mdb-select md-form md-outline colorful-select mt-0 mb-0"></select>
-                                <label for="optMccPpmGroupId" id="lblMccPpmGroupId">Executor Group *</label>
-                                <p class="font-small text-danger" id="optMccPpmGroupIdErr"></p>
-                            </div>
-                            <div class="col-md-12 select-outline mt-2 divMccHideInitial" id="divMccExecutor">
-                                <select id="optMccAssignedTo" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" data-stop-refresh="true"></select>
-                                <label for="optMccAssignedTo" id="lblMccAssignedTo">Executor *</label>
-                                <p class="font-small text-danger" id="optMccAssignedToErr"></p>
-                            </div>
-                            <div class="col-md-12 select-outline mt-2 divMccHideInitial" id="divMccAssist">
-                                <select id="optMccAssist" class="mdb-select md-form md-outline colorful-select mt-0 mb-0" multiple data-stop-refresh="true"></select>
-                                <label for="optMccAssist" id="lblMccAssist">Technician Assistant</label>
-                                <p class="font-small text-danger" id="optMccAssistErr"></p>
-                            </div>
-                        </div>
-                    </div>
-                    <hr class="mcc-divider divMccHideInitial divMccExecutorDetails">
-                    <div class="mcc-section divMccHideInitial divMccExecutorDetails">
-                        <h6 class="mcc-section-title divMccHideInitial divMccExecutorDetails">Executor Details</h6>
-                        <div class="row mcc-grid divMccHideInitial divMccExecutorDetails">
-                            <div class="col-md-12 divMccHideInitial divMccExecutorDetails">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtMccUserName" class="form-control" disabled>
-                                    <label for="txtMccUserName" id="lblMccUserName">Name</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 divMccHideInitial divMccExecutorDetails">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtMccUserContactNo" class="form-control" disabled>
-                                    <label for="txtMccUserContactNo" id="lblMccUserContactNo">Phone No.</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 divMccHideInitial divMccExecutorDetails">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtMccUserEmail" class="form-control" disabled>
-                                    <label for="txtMccUserEmail" id="lblMccUserEmail">Email</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mcc-table divMccHideInitial divMccExecutorDetails">
-                            <div class="table-responsive">
-                                <table id="dtMccCurrentTask" class="table table-hover table-sm table-bordered mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong blue-grey lighten-1 text-white">
-                                        <th style="width: 4%">#</th>
-                                        <th>Current Task in Hands</th>
-                                        <th>Date Received</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mcc-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal"><i class="fas fa-undo-alt mr-2"></i>Close</button>
-                        <button type="button" id="btnMccSubmit" class="btn btn-primary"><i class="far fa-paper-plane mr-2"></i>Submit</button>
-                    </div>
-                </form>
+<!--
+  Modal: modal_create_complaint — Tabler/GEMS modal + form contract (P5-2).
+
+  Loaded by pages/helpdesk.html ONLY.
+    gems-modal-lg + modal-dialog-scrollable, never modal-dialog-centered.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close first, primary Submit last.
+
+  JS contract preserved (js/pages/modal_create_complaint.js):
+    #modal_create_complaint  #formMcc
+    #txtMccClient  #txtMccRole  #txtMccSiteName
+    #optMccCreatedBy  #txtMccLocation  #txaMccComplaint
+    #optMccType  #optMccSeverity
+    #imgMccImage1/2/3  #txfMccImage1/2/3  #txfMccImage1/2/3Blob
+    #lblMccFile1/2/3  #divMccImgDesc1/2/3  #txaMccImgDesc1/2/3
+    #optMccPpmGroupId  #divMccExecutor  #optMccAssignedTo
+    #divMccAssist  #optMccAssist
+    #txtMccUserName  #txtMccUserContactNo  #txtMccUserEmail
+    #dtMccCurrentTask  #btnMccSubmit
+    .divMccView  .divMccHideInitial  .divMccExecutorDetails
+-->
+<div class="modal fade" id="modal_create_complaint" tabindex="-1" aria-labelledby="mccTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mccTitle"><i class="fas fa-headset me-2"></i>Create New Complaint</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMcc" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6 divMccView">
+              <label class="form-label" for="txtMccClient" id="lblMccClient">Request No</label>
+              <input type="text" id="txtMccClient" class="form-control" disabled>
             </div>
-        </div>
+            <div class="gems-field gems-field-6 divMccView">
+              <label class="form-label" for="txtMccRole" id="lblMccRole">Work Order No</label>
+              <input type="text" id="txtMccRole" class="form-control" disabled>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMccSiteName" id="lblMccSiteName">Site</label>
+              <input type="text" id="txtMccSiteName" class="form-control" disabled>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optMccCreatedBy" id="lblMccCreatedBy">Complainer <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMccCreatedBy" class="form-select" aria-required="true" aria-describedby="optMccCreatedByErr"></select>
+              <div class="gems-field-error" id="optMccCreatedByErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMccLocation" id="lblMccLocation">Location <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMccLocation" class="form-control" aria-required="true" aria-describedby="txtMccLocationErr">
+              <div class="gems-field-error" id="txtMccLocationErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMccComplaint" id="lblMccComplaint">Complaint Details <span class="required" aria-hidden="true">*</span></label>
+              <textarea id="txaMccComplaint" class="form-control" rows="3" aria-required="true" aria-describedby="txaMccComplaintErr"></textarea>
+              <div class="gems-field-error" id="txaMccComplaintErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMccType" id="lblMccType">Category <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMccType" class="form-select" aria-required="true" aria-describedby="optMccTypeErr">
+                <option value="">Select Category</option>
+                <option value="1">Client Complaint</option>
+                <option value="3">Request</option>
+                <option value="4">Breakdown</option>
+                <option value="5">Defect</option>
+                <option value="6">Public Complaint</option>
+              </select>
+              <div class="gems-field-error" id="optMccTypeErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMccSeverity" id="lblMccSeverity">Severity <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMccSeverity" class="form-select" aria-required="true" aria-describedby="optMccSeverityErr"></select>
+              <div class="gems-field-error" id="optMccSeverityErr" role="alert"></div>
+            </div>
+          </div>
+
+          <h3 class="mt-3 mb-2" style="font-size:1rem">Complaint Images</h3>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-4">
+              <img src="img/background/upload_placeholder.png" id="imgMccImage1" class="img-fluid rounded mb-2" alt="Complaint reference image 1">
+              <label class="form-label" for="txfMccImage1">Image 1 <span class="required" aria-hidden="true">*</span></label>
+              <input type="file" id="txfMccImage1" class="form-control" accept="image/*" aria-describedby="txfMccImage1Err">
+              <input type="hidden" id="txfMccImage1Blob">
+              <div class="text-secondary" style="font-size:.75rem" id="lblMccFile1">No file chosen</div>
+              <div class="gems-field-error" id="txfMccImage1Err" role="alert"></div>
+              <div id="divMccImgDesc1">
+                <label class="form-label" for="txaMccImgDesc1" id="lblMccImgDesc1">Image Description <span class="required" aria-hidden="true">*</span></label>
+                <textarea id="txaMccImgDesc1" class="form-control" rows="3" aria-describedby="txaMccImgDesc1Err"></textarea>
+                <div class="gems-field-error" id="txaMccImgDesc1Err" role="alert"></div>
+              </div>
+            </div>
+            <div class="gems-field gems-field-4">
+              <img src="img/background/upload_placeholder.png" id="imgMccImage2" class="img-fluid rounded mb-2" alt="Complaint reference image 2">
+              <label class="form-label" for="txfMccImage2">Image 2</label>
+              <input type="file" id="txfMccImage2" class="form-control" accept="image/*" aria-describedby="txfMccImage2Err">
+              <input type="hidden" id="txfMccImage2Blob">
+              <div class="text-secondary" style="font-size:.75rem" id="lblMccFile2">No file chosen</div>
+              <div class="gems-field-error" id="txfMccImage2Err" role="alert"></div>
+              <div id="divMccImgDesc2">
+                <label class="form-label" for="txaMccImgDesc2" id="lblMccImgDesc2">Image Description</label>
+                <textarea id="txaMccImgDesc2" class="form-control" rows="3" aria-describedby="txaMccImgDesc2Err"></textarea>
+                <div class="gems-field-error" id="txaMccImgDesc2Err" role="alert"></div>
+              </div>
+            </div>
+            <div class="gems-field gems-field-4">
+              <img src="img/background/upload_placeholder.png" id="imgMccImage3" class="img-fluid rounded mb-2" alt="Complaint reference image 3">
+              <label class="form-label" for="txfMccImage3">Image 3</label>
+              <input type="file" id="txfMccImage3" class="form-control" accept="image/*" aria-describedby="txfMccImage3Err">
+              <input type="hidden" id="txfMccImage3Blob">
+              <div class="text-secondary" style="font-size:.75rem" id="lblMccFile3">No file chosen</div>
+              <div class="gems-field-error" id="txfMccImage3Err" role="alert"></div>
+              <div id="divMccImgDesc3">
+                <label class="form-label" for="txaMccImgDesc3" id="lblMccImgDesc3">Image Description</label>
+                <textarea id="txaMccImgDesc3" class="form-control" rows="3" aria-describedby="txaMccImgDesc3Err"></textarea>
+                <div class="gems-field-error" id="txaMccImgDesc3Err" role="alert"></div>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="mt-3 mb-2" style="font-size:1rem">Assign Executor</h3>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optMccPpmGroupId" id="lblMccPpmGroupId">Executor Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMccPpmGroupId" class="form-select" aria-required="true" aria-describedby="optMccPpmGroupIdErr"></select>
+              <div class="gems-field-error" id="optMccPpmGroupIdErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12 divMccHideInitial" id="divMccExecutor">
+              <label class="form-label" for="optMccAssignedTo" id="lblMccAssignedTo">Executor <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMccAssignedTo" class="form-select" data-stop-refresh="true" aria-describedby="optMccAssignedToErr"></select>
+              <div class="gems-field-error" id="optMccAssignedToErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12 divMccHideInitial" id="divMccAssist">
+              <label class="form-label" for="optMccAssist" id="lblMccAssist">Technician Assistant</label>
+              <select id="optMccAssist" class="form-select" multiple data-stop-refresh="true" aria-describedby="optMccAssistErr"></select>
+              <div class="gems-field-error" id="optMccAssistErr" role="alert"></div>
+            </div>
+          </div>
+
+          <div class="divMccHideInitial divMccExecutorDetails">
+            <h3 class="mt-3 mb-2" style="font-size:1rem">Executor Details</h3>
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtMccUserName" id="lblMccUserName">Name</label>
+                <input type="text" id="txtMccUserName" class="form-control" disabled>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtMccUserContactNo" id="lblMccUserContactNo">Phone No.</label>
+                <input type="text" id="txtMccUserContactNo" class="form-control" disabled>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtMccUserEmail" id="lblMccUserEmail">Email</label>
+                <input type="text" id="txtMccUserEmail" class="form-control" disabled>
+              </div>
+            </div>
+            <table id="dtMccCurrentTask" class="table table-vcenter card-table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th style="width:4%">#</th>
+                  <th>Current Task in Hands</th>
+                  <th>Date Received</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-undo-alt me-1"></i> Close</button>
+        <button type="button" id="btnMccSubmit" class="btn btn-primary"><i class="far fa-paper-plane me-1"></i> Submit</button>
+      </div>
     </div>
+  </div>
 </div>

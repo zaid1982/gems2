@@ -13,23 +13,78 @@ function ModalCreateComplaint() {
     let arrPpmGroupUser;
     let oTableCurrentTask;
 
+    function rowsFromRef(ref, idKey, labelKey, predicate) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (predicate && !predicate(row)) {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function userHasRole(row, roleCur) {
+        const roles = row['roles'];
+        if (roles === null || roles === undefined || roles === '') {
+            return false;
+        }
+        const parts = String(roles).split(',');
+        return jQuery.inArray(String(roleCur), parts) >= 0;
+    }
+
     this.init = function () {
         $('.divMccHideInitial').hide();
-        const arrSeverity = mzAjaxRequest('wo.php?type=severity_list_by_site&siteId='+siteId, 'GET');
-        let arrComplainer = [];
-        $.each(refUser, function (n, user) {
-            if (typeof user !== 'undefined') {
-                const roles = user['roles'];
-                const arrRoles = roles.split(',');
-                if (jQuery.inArray('6', arrRoles) >= 0) {
-                    arrComplainer.push(user);
-                }
-            }
-        });
+        const arrSeverity = mzAjaxRequest('wo.php?type=severity_list_by_site&siteId=' + siteId, 'GET');
 
-        mzOption('optMccCreatedBy', arrComplainer, 'Select Complainer *', 'userId', 'userFirstName', {userStatus: '1', siteId: siteId}, 'required');
-        mzOption('optMccSeverity', arrSeverity, 'Select Severity *', 'severityId', 'severityName', {}, 'required');
-        mzOption('optMccPpmGroupId', refPpmGroup, 'Select Executor Group *', 'ppmGroupId', 'ppmGroupName', {ppmGroupStatus: '1', siteId: siteId, roleId:'8'}, 'required');
+        GemsUI.fillSelect(
+            'optMccCreatedBy',
+            rowsFromRef(refUser, 'userId', 'userFirstName', function (row) {
+                if (String(row['userStatus']) !== '1') {
+                    return false;
+                }
+                if (String(row['siteId']) !== String(siteId)) {
+                    return false;
+                }
+                return userHasRole(row, '6');
+            }),
+            'userId',
+            function (row) { return row['userFirstName'] || ''; },
+            'Select Complainer'
+        );
+        GemsUI.fillSelect(
+            'optMccSeverity',
+            rowsFromRef(arrSeverity, 'severityId', 'severityName'),
+            'severityId',
+            function (row) { return row['severityName'] || ''; },
+            'Select Severity'
+        );
+        GemsUI.fillSelect(
+            'optMccPpmGroupId',
+            rowsFromRef(refPpmGroup, 'ppmGroupId', 'ppmGroupName', function (row) {
+                if (String(row['ppmGroupStatus']) !== '1') {
+                    return false;
+                }
+                if (String(row['siteId']) !== String(siteId)) {
+                    return false;
+                }
+                return String(row['roleId']) === '8';
+            }),
+            'ppmGroupId',
+            function (row) { return row['ppmGroupName'] || ''; },
+            'Select Executor Group'
+        );
 
         const vData = [
             {
@@ -151,7 +206,7 @@ function ModalCreateComplaint() {
         formValidate = new MzValidate('formMcc');
         formValidate.registerFields(vData);
 
-        $('#modal_create_complaint').on('hidden.bs.modal', function(){
+        $('#modal_create_complaint').on('hidden.bs.modal', function () {
             formValidate.clearValidation();
             $('.divMccHideInitial').hide();
             $('#imgMccImage1, #imgMccImage2, #imgMccImage3').attr('src', 'img/background/upload_placeholder.png');
@@ -162,8 +217,14 @@ function ModalCreateComplaint() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    arrPpmGroupUser = mzAjaxRequest('wo.php?type=ppm_group_user_list&ppmGroupId='+$('#optMccPpmGroupId').val(), 'GET');
-                    mzOptionStop('optMccAssignedTo', arrPpmGroupUser, 'Select Executor *', 'userId', 'userFirstName', {}, 'required');
+                    arrPpmGroupUser = mzAjaxRequest('wo.php?type=ppm_group_user_list&ppmGroupId=' + $('#optMccPpmGroupId').val(), 'GET');
+                    GemsUI.fillSelect(
+                        'optMccAssignedTo',
+                        rowsFromRef(arrPpmGroupUser, 'userId', 'userFirstName'),
+                        'userId',
+                        function (row) { return row['userFirstName'] || ''; },
+                        'Select Executor'
+                    );
                     $('#divMccExecutor').show();
                     $('#divMccAssist, .divMccExecutorDetails').hide();
                 } catch (e) {
@@ -179,17 +240,23 @@ function ModalCreateComplaint() {
                 try {
                     const assignedTo = $('#optMccAssignedTo').val();
                     let arrAssistant = [];
-                    for (let i=0; i<arrPpmGroupUser.length; i++) {
+                    for (let i = 0; i < arrPpmGroupUser.length; i++) {
                         if (arrPpmGroupUser[i]['userId'] !== assignedTo) {
                             arrAssistant.push(arrPpmGroupUser[i]);
                         }
                     }
-                    mzOptionStop('optMccAssist', arrAssistant, 'Select Technician Assistant', 'userId', 'userFirstName', {}, 'required');
+                    GemsUI.fillSelect(
+                        'optMccAssist',
+                        rowsFromRef(arrAssistant, 'userId', 'userFirstName'),
+                        'userId',
+                        function (row) { return row['userFirstName'] || ''; },
+                        null
+                    );
                     mzSetFieldValue('MccUserName', refUser[assignedTo]['userFirstName'], 'text');
                     mzSetFieldValue('MccUserContactNo', refUser[assignedTo]['userContactNo'], 'text');
                     mzSetFieldValue('MccUserEmail', refUser[assignedTo]['userEmail'], 'text');
 
-                    const dataResult = mzAjaxRequest('wo.php?type=technician_current_task&userId='+$('#optMccAssignedTo').val(), 'GET');
+                    const dataResult = mzAjaxRequest('wo.php?type=technician_current_task&userId=' + $('#optMccAssignedTo').val(), 'GET');
                     oTableCurrentTask.clear().rows.add(dataResult).draw();
                     $('#divMccAssist, .divMccExecutorDetails').show();
                 } catch (e) {
@@ -208,7 +275,7 @@ function ModalCreateComplaint() {
                 $('#divMccImgDesc1').show();
             } else {
                 formValidate.disableField('txaMccImgDesc1');
-                $('#txaMccImgDesc1').val('').removeClass('invalid');
+                $('#txaMccImgDesc1').val('').removeClass('invalid is-invalid');
                 $('#lblMccImgDesc1').removeClass('active');
                 $('#txaMccImgDesc1Err').html('');
                 $('#divMccImgDesc1').hide();
@@ -225,7 +292,7 @@ function ModalCreateComplaint() {
                 $('#divMccImgDesc2').show();
             } else {
                 formValidate.disableField('txaMccImgDesc2');
-                $('#txaMccImgDesc2').val('').removeClass('invalid');
+                $('#txaMccImgDesc2').val('').removeClass('invalid is-invalid');
                 $('#lblMccImgDesc2').removeClass('active');
                 $('#txaMccImgDesc2Err').html('');
                 $('#divMccImgDesc2').hide();
@@ -242,7 +309,7 @@ function ModalCreateComplaint() {
                 $('#divMccImgDesc3').show();
             } else {
                 formValidate.disableField('txaMccImgDesc3');
-                $('#txaMccImgDesc3').val('').removeClass('invalid');
+                $('#txaMccImgDesc3').val('').removeClass('invalid is-invalid');
                 $('#lblMccImgDesc3').removeClass('active');
                 $('#txaMccImgDesc3Err').html('');
                 $('#divMccImgDesc3').hide();
@@ -320,26 +387,25 @@ function ModalCreateComplaint() {
             }, 300);
         });
 
-        oTableCurrentTask =  $('#dtMccCurrentTask').DataTable({
+        oTableCurrentTask = $('#dtMccCurrentTask').DataTable({
             bLengthChange: false,
             bFilter: true,
             bInfo: false,
             ordering: false,
             bPaginate: false,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-tasks', 'No current tasks.'),
+            dom: "<'d-none'f>r<'table-responsive't>",
             aaSorting: [2, 'asc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 $('td', nRow).eq(0).html(iDisplayIndex + 1);
             },
-            aoColumns:
-                [
-                    {mData: null, sClass: 'text-center'},
-                    {mData: 'woTaskNo', sClass: 'text-center'},
-                    {mData: 'dateReceived', sClass: 'text-center'}
-                ]
+            aoColumns: [
+                {mData: null, sClass: 'text-center'},
+                {mData: 'woTaskNo', sClass: 'text-center'},
+                {mData: 'dateReceived', sClass: 'text-center'}
+            ]
         });
-        $("#dtMccCurrentTask_filter").hide();
-
+        $('#dtMccCurrentTask_filter').hide();
     };
 
     this.add = function () {

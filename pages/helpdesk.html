@@ -1,381 +1,317 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/helpdesk.html — Tabler-migrated (P5-2 Helpdesk).
+
+  Mechanical copy of Checklist / Energy for shell, toolbar, DataTable,
+  GemsUI, Highcharts card, and modal chrome.
+
+  Helpdesk extras stay: pending complaint list, status chips, column
+  visibility, print/excel export, pie chart, create-complaint modal
+  (images + executor cascade). Role 11 shows Add; role 1 shows Delete.
+
+  Page-local: modal_create_complaint is not shared with an MDB consumer.
+  modal_change_password / modal_pdf stay on the compatibility bridge.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js, css/addons-pro/steppers*.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Stepper CSS - minified-->
-    <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Shared Design System stylesheet -->
-    <link href="css/gems2-ui.css" rel="stylesheet">
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Helpdesk</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-
-<main>
-    <div class="container-fluid">
-        <!--Section: Main panel-->
-        <section class="mb-5 sectionHdkMain">
-            <div class="card card-cascade narrower gems-card-shell">
-                <!-- Modern Header -->
-                <section class="gems-page-header helpdesk-page-header">
-                    <div class="header-text">
-                        <h2>Helpdesk</h2>
-                        <p>Track and manage complaints, assignments, and verifications.</p>
-                    </div>
-                    <div class="header-actions">
-                        <button type="button" id="btnDtHdkWoRefresh" class="btn btn-light btn-icon" aria-label="Refresh list" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                        <button type="button" id="btnHdkWoAdd" class="btn btn-primary btn-icon" aria-label="Add complaint" data-toggle="tooltip" data-placement="top" title="Add New Complaint"><i class="fas fa-plus"></i></button>
-                    </div>
-                </section>
-
-                <!-- Filters -->
-                <!-- <section class="filter-card">
-                    <div class="filter-grid">
-                        <div>
-                            <label class="filter-label">Site</label>
-                            <div id="lblHdkSiteName" class="font-weight-bold"></div>
-                        </div>
-                        <div>
-                            <label class="filter-label" for="txtHdkWoSearch">Search</label>
-                            <input type="text" id="txtHdkWoSearch" class="form-control" placeholder="Search complaints..." />
-                        </div>
-                    </div>
-                </section> -->
-
-                <!-- Chart + Column Visibility -->
-                <section class="mt-4">
-                    <div class="row">
-                        <div class="col-lg-6 mb-4">
-                            <div class="gems-chart-card h-100">
-                                <div class="gems-chart-overlay" id="overlayChartHdk">
-                                    <div class="spinner-border text-primary" role="status" aria-label="Loading chart"></div>
-                                </div>
-                                <div class="gems-chart-container">
-                                    <div id="chartHdkWoByStatus" style="height: 100%; margin: 0"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 mb-4">
-                            <div class="filter-card helpdesk-controls h-100 d-flex flex-column pt-2">
-                                <div class="mb-3">
-                                    <label class="filter-label">Site</label>
-                                    <div id="lblHdkSiteName" class="font-weight-bold"></div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="filter-label" for="txtHdkWoSearch">Search</label>
-                                    <input type="text" id="txtHdkWoSearch" class="form-control" placeholder="Search complaints..." />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="filter-label" for="optHdkColumns">Columns Visibility</label>
-                                    <div class="select-outline">
-                                        <select id="optHdkColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
-                                            <option value="" disabled>Choose Column Visibility</option>
-                                            <option value="1" selected>Date</option>
-                                            <option value="2" selected>Request No.</option>
-                                            <option value="3" selected>Work Order No.</option>
-                                            <option value="4">Site</option>
-                                            <option value="5">Location</option>
-                                            <option value="6" selected>Complaint Type</option>
-                                            <option value="7" selected>Complainant</option>
-                                            <option value="8">Complaint Description</option>
-                                            <option value="9" selected>Severity</option>
-                                            <option value="10" selected>Trade</option>
-                                            <option value="11" selected>PIC Name</option>
-                                            <option value="12">Repair Description</option>
-                                            <option value="13">Rating</option>
-                                            <option value="14" selected>Progress</option>
-                                            <option value="21">Fixed By</option>
-                                            <option value="22">Assigned By</option>
-                                            <option value="23">Verified By</option>
-                                            <option value="24">Responded Time</option>
-                                            <option value="25">Assigned Time</option>
-                                            <option value="26">Executed Time</option>
-                                            <option value="27">Verified Time</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="mt-auto pt-3">
-                                    <div class="summary-pill d-flex justify-content-between align-items-center w-100">
-                                        <span id="lblHelpdeskCount">Showing 0 of 0</span>
-                                        <span id="lblHelpdeskUpdated">—</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <div class="filter-card helpdesk-controls gems-status-legend h-100 d-flex flex-column justify-content-center align-items-center">
-                                <label class="filter-label">Status</label>
-                                    <div class="gems-status-scroll">
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdkAll"></a>
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk24"></a>
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk27"></a>
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk28"></a>
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk29"></a>
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk13"></a>
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk15"></a>
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk26"></a>
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk16"></a>
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk25"></a>
-                                        <a href="javascript:void(0);" class="linkHdkStatus gems-status-chip" id="linkHdk30"></a>
-                                    </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <!--Section: Table-->
-                <section>
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <div>
-                                <i class="fas fa-comment"></i>
-                                <h5>Complaint List</h5>
-                            </div>
-                            <div class="table-header-actions">
-                                <div id="btnDtHdkWoExport"></div>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-responsive">
-                                <table id="dtHdkWo" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th style="width: 4%">#</th>
-                                        <th>Complaint Time</th>
-                                        <th>Request No.</th>
-                                        <th>Work Order No.</th>
-                                        <th>Site</th>
-                                        <th>Location</th>
-                                        <th>Complaint Type</th>
-                                        <th>Complainant</th>
-                                        <th>Complaint Description</th>
-                                        <th>Severity</th>
-                                        <th>Trade</th>
-                                        <th>PIC Name</th>
-                                        <th>Repair Description</th>
-                                        <th>Rating</th>
-                                        <th style="width: 8%">Progress</th>
-                                        <th style="width: 90px; min-width: 90px"></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th>Fixed By</th>
-                                        <th>Assigned By</th>
-                                        <th>Verified By</th>
-                                        <th>Responded Time</th>
-                                        <th>Assigned Time</th>
-                                        <th>Executed Time</th>
-                                        <th>Verified Time</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-headset me-2 text-primary"></i>Helpdesk</h1>
+              <div class="page-subtitle">Track and manage complaints, assignments, and verifications.</div>
             </div>
-        </section>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnDtHdkWoRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-primary" id="btnHdkWoAdd"
+                      data-bs-toggle="tooltip" title="Add New Complaint" aria-label="Add complaint">
+                <i class="fas fa-plus me-2"></i>New Complaint
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-7 mb-3">
+            <div class="card h-100">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">Pending complaint status</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Open work orders still waiting on a team.</div>
+                </div>
+              </div>
+              <div class="card-body position-relative">
+                <div class="position-absolute top-50 start-50 translate-middle" id="overlayChartHdk">
+                  <div class="spinner-border text-primary" role="status" aria-label="Loading chart"></div>
+                </div>
+                <div id="chartHdkWoByStatus" class="gems-chart"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5 mb-3">
+            <div class="card h-100">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">Filters</h3>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="gems-form-grid">
+                  <div class="gems-field gems-field-12">
+                    <span class="form-label">Site</span>
+                    <div id="lblHdkSiteName" class="fw-semibold">—</div>
+                  </div>
+                  <div class="gems-field gems-field-12">
+                    <label class="form-label" for="txtHdkWoSearch">Search</label>
+                    <input type="text" id="txtHdkWoSearch" class="form-control" placeholder="Search complaints...">
+                  </div>
+                  <div class="gems-field gems-field-12">
+                    <label class="form-label" for="optHdkWoColumns">Column visibility</label>
+                    <select id="optHdkWoColumns" class="form-select" multiple size="8">
+                      <option value="1" selected>Date</option>
+                      <option value="2" selected>Request No.</option>
+                      <option value="3" selected>Work Order No.</option>
+                      <option value="4">Site</option>
+                      <option value="5">Location</option>
+                      <option value="6" selected>Complaint Type</option>
+                      <option value="7" selected>Complainant</option>
+                      <option value="8">Complaint Description</option>
+                      <option value="9" selected>Severity</option>
+                      <option value="10" selected>Trade</option>
+                      <option value="11" selected>PIC Name</option>
+                      <option value="12">Repair Description</option>
+                      <option value="13">Rating</option>
+                      <option value="14" selected>Progress</option>
+                      <option value="21">Fixed By</option>
+                      <option value="22">Assigned By</option>
+                      <option value="23">Verified By</option>
+                      <option value="24">Responded Time</option>
+                      <option value="25">Assigned Time</option>
+                      <option value="26">Executed Time</option>
+                      <option value="27">Verified Time</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between text-secondary mt-3" style="font-size:.75rem">
+                  <span id="lblHelpdeskCount">Showing 0 of 0</span>
+                  <span id="lblHelpdeskUpdated">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Status</h3>
+              <div class="text-secondary" style="font-size:.75rem">Filter the list by current progress.</div>
+            </div>
+          </div>
+          <div class="card-body d-flex flex-wrap gap-2" id="divHdkStatusChips">
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdkAll"></a>
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdk24"></a>
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdk27"></a>
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdk28"></a>
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdk29"></a>
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdk13"></a>
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdk15"></a>
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdk26"></a>
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdk16"></a>
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdk25"></a>
+            <a href="javascript:void(0);" class="linkHdkStatus btn btn-outline-secondary btn-sm" id="linkHdk30"></a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0"><i class="fas fa-comment me-2 text-primary"></i>Complaint List</h3>
+            </div>
+            <div class="gems-card-toolbar">
+              <div id="btnDtHdkWoExport"></div>
+            </div>
+          </div>
+          <table id="dtHdkWo" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th style="width:4%">#</th>
+                <th>Complaint Time</th>
+                <th>Request No.</th>
+                <th>Work Order No.</th>
+                <th>Site</th>
+                <th>Location</th>
+                <th>Complaint Type</th>
+                <th>Complainant</th>
+                <th>Complaint Description</th>
+                <th>Severity</th>
+                <th>Trade</th>
+                <th>PIC Name</th>
+                <th>Repair Description</th>
+                <th>Rating</th>
+                <th style="width:8%">Progress</th>
+                <th style="width:90px" class="noVis text-center"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>Fixed By</th>
+                <th>Assigned By</th>
+                <th>Verified By</th>
+                <th>Responded Time</th>
+                <th>Assigned Time</th>
+                <th>Executed Time</th>
+                <th>Verified Time</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
-    <div class="includeHtml" id="h-modal_create_complaint"></div>
-</main>
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
+<div class="includeHtml" id="h-modal_create_complaint"></div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/highcharts/highcharts.js"></script>
+<script src="js/vendor/highcharts/modules/data.js"></script>
+<script src="js/vendor/highcharts/modules/drilldown.js"></script>
+<script src="js/vendor/highcharts/modules/exporting.js"></script>
+<script src="js/vendor/highcharts/modules/export-data.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_create_complaint.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_helpdesk.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+  let versionLocal_;
+  let changePasswordClass;
+  let helpdeskClass_;
+  let modalCreateComplaint_;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass = new ModalChangePassword();
+        helpdeskClass_ = new MainHelpdesk();
+        modalCreateComplaint_ = new ModalCreateComplaint();
+
+        const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+        const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+        const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
+        const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+        const userSite = mzGetUserInfoByParam('siteId');
+
+        modalCreateComplaint_.setClassFrom(helpdeskClass_);
+        modalCreateComplaint_.setSiteId(userSite);
+        modalCreateComplaint_.setRefSite(refSite_);
+        modalCreateComplaint_.setRefUser(refUser_);
+        modalCreateComplaint_.setRefPpmGroup(refPpmGroup_);
+        modalCreateComplaint_.init();
+
+        helpdeskClass_.setUserSite(userSite);
+        helpdeskClass_.setRefSite(refSite_);
+        helpdeskClass_.setRefUser(refUser_);
+        helpdeskClass_.setRefPpmGroup(refPpmGroup_);
+        helpdeskClass_.setRefStatus(refStatus_);
+        helpdeskClass_.setModalCreateComplaint(modalCreateComplaint_);
+        helpdeskClass_.init();
+
+        $('#overlayChartHdk').show();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 300);
+  });
+</script>
+<script>
+  if (window.Highcharts) {
+    var rootStyles = getComputedStyle(document.documentElement);
+    var colorText = (rootStyles.getPropertyValue('--gems-text') || '#152A46').trim();
+    var colorMuted = (rootStyles.getPropertyValue('--gems-muted') || '#4B5A72').trim();
+    var colorBg = (rootStyles.getPropertyValue('--gems-bg') || '#F2F6FA').trim();
+
+    Highcharts.setOptions({
+      chart: {
+        backgroundColor: '#FFFFFF',
+        style: { fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif', color: colorText }
+      },
+      title: { style: { color: colorText, fontWeight: '600' } },
+      xAxis: { gridLineColor: colorBg, labels: { style: { color: colorMuted } } },
+      yAxis: { gridLineColor: '#DEE6F2', labels: { style: { color: colorMuted } }, title: { style: { color: colorMuted } } },
+      legend: { itemStyle: { color: colorMuted } },
+      exporting: { chartOptions: { chart: { backgroundColor: '#FFFFFF' } } }
     });
-</script>
+  }
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Highchart -->
-<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
-<!-- Enforce light theme (remove dark-unica) -->
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
-
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
-    let versionLocal;
-    let changePasswordClass;
-    let helpdeskClass_;
-    let modalCreateComplaint_;
-
-    $('.divHmeTopStats_ppm').hide();
-
-    document.addEventListener('DOMContentLoaded', function () {
-
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass = new ModalChangePassword();
-                helpdeskClass_ = new MainHelpdesk();
-                modalCreateComplaint_= new ModalCreateComplaint();
-
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
-                const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const userSite = mzGetUserInfoByParam('siteId');
-
-                modalCreateComplaint_.setClassFrom(helpdeskClass_);
-                modalCreateComplaint_.setSiteId(userSite);
-                modalCreateComplaint_.setRefSite(refSite_);
-                modalCreateComplaint_.setRefUser(refUser_);
-                modalCreateComplaint_.setRefPpmGroup(refPpmGroup_);
-                modalCreateComplaint_.init();
-
-                helpdeskClass_.setUserSite(userSite);
-                helpdeskClass_.setRefSite(refSite_);
-                helpdeskClass_.setRefUser(refUser_);
-                helpdeskClass_.setRefPpmGroup(refPpmGroup_);
-                helpdeskClass_.setRefStatus(refStatus_);
-                helpdeskClass_.setModalCreateComplaint(modalCreateComplaint_);
-                helpdeskClass_.init();
-
-                // Show overlay until the chart is drawn
-                $('#overlayChartHdk').show();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
+  (function handleChartOverlay() {
+    var target = document.getElementById('chartHdkWoByStatus');
+    if (!target) return;
+    var overlay = document.getElementById('overlayChartHdk');
+    var obs = new MutationObserver(function () {
+      if (target.querySelector('svg')) {
+        if (overlay) overlay.style.display = 'none';
+      }
     });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_create_complaint.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_helpdesk.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+    obs.observe(target, { childList: true, subtree: true });
+  })();
 </script>
-
-<!-- Page-specific helpers: Highcharts light options, overlay + table summary/mobiles labels -->
-<script type="text/javascript">
-    // Force white backgrounds for charts and exports
-    if (window.Highcharts) {
-        var rootStyles = getComputedStyle(document.documentElement);
-        var colorText = (rootStyles.getPropertyValue('--gems-text') || '#152A46').trim();
-        var colorMuted = (rootStyles.getPropertyValue('--gems-muted') || '#4B5A72').trim();
-        var colorBg = (rootStyles.getPropertyValue('--gems-bg') || '#F2F6FA').trim();
-
-        Highcharts.setOptions({
-            chart: {
-                backgroundColor: '#FFFFFF',
-                style: { fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif', color: colorText }
-            },
-            title: { style: { color: colorText, fontWeight: '600' } },
-            xAxis: { gridLineColor: colorBg, labels: { style: { color: colorMuted } } },
-            yAxis: { gridLineColor: '#DEE6F2', labels: { style: { color: colorMuted } }, title: { style: { color: colorMuted } } },
-            legend: { itemStyle: { color: colorMuted } },
-            exporting: { chartOptions: { chart: { backgroundColor: '#FFFFFF' } } }
-        });
-    }
-
-    // Hide overlay when chart renders for the first time
-    (function handleChartOverlay() {
-        var target = document.getElementById('chartHdkWoByStatus');
-        if (!target) return;
-        var overlay = document.getElementById('overlayChartHdk');
-        var obs = new MutationObserver(function (mut) {
-            // Once Highcharts injects an <svg>, hide overlay
-            if (target.querySelector('svg')) {
-                if (overlay) overlay.style.display = 'none';
-            }
-        });
-        obs.observe(target, { childList: true, subtree: true });
-    })();
-
-    // Update results summary and add mobile data-labels each draw
-    (function hookTableDraw() {
-        function updateSummary(table) {
-            try {
-                var info = table.page.info();
-                document.getElementById('lblHelpdeskCount').textContent = 'Showing ' + info.recordsDisplay + ' of ' + info.recordsTotal;
-                document.getElementById('lblHelpdeskUpdated').textContent = new Date().toLocaleString();
-            } catch (e) { /* noop */ }
-        }
-        function setDataLabels($table) {
-            var headers = [];
-            $table.find('thead th').each(function(){ headers.push($(this).text().trim()); });
-            $table.find('tbody tr').each(function(){
-                $('td', this).each(function(i){
-                    // Guard undefined headers
-                    var label = headers[i] || '';
-                    $(this).attr('data-label', label);
-                });
-            });
-        }
-        var attachInterval = setInterval(function(){
-            if ($.fn.dataTable && $.fn.dataTable.isDataTable('#dtHdkWo')) {
-                clearInterval(attachInterval);
-                var dt = $('#dtHdkWo').DataTable();
-                $('#dtHdkWo').on('draw.dt', function(){
-                    updateSummary(dt);
-                    setDataLabels($('#dtHdkWo'));
-                });
-                // Initial run if already drawn
-                updateSummary(dt);
-                setDataLabels($('#dtHdkWo'));
-            }
-        }, 300);
-    })();
-</script>
-
 </body>
 </html>
