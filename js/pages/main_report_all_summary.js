@@ -21,16 +21,8 @@ function MainReportWoTotal() {
     const momentAvailable = (typeof moment === 'function');
 
     function refreshMaterialSelect(selector) {
-        const el = $(selector);
-        if (!el.length) {
-            return;
-        }
-        try {
-            el.materialSelect('destroy');
-        } catch (err) {
-            // ignore when component not initialised yet
-        }
-        el.materialSelect();
+        // HEAD leftover: MDB materialSelect no-op on Tabler.
+        void selector;
     }
 
     function updatePeriodLabel() {
@@ -133,11 +125,8 @@ function MainReportWoTotal() {
         selectedMonth = dateCurrent.getMonth()+1;
         selectedYear = dateCurrent.getFullYear();
 
-        mzOption('optRwtYearId', yearArr, 'Choose Year', 'yearId', 'yearName', {}, 'required', false);
-        $('#optRwtYearId').val(selectedYear);
-
-        mzOption('optRwtMonthId', monthArr, 'Choose Month', 'monthId', 'monthName', {}, 'required', false);
-        $('#optRwtMonthId').val(selectedMonth);
+        GemsUI.fillSelect('optRwtYearId', yearArr, 'yearId', 'yearName', 'Choose Year', selectedYear);
+        GemsUI.fillSelect('optRwtMonthId', monthArr, 'monthId', 'monthName', 'Choose Month', selectedMonth);
 
         refreshMaterialSelect('#optRwtYearId');
         refreshMaterialSelect('#optRwtMonthId');
@@ -177,8 +166,9 @@ function MainReportWoTotal() {
             bPaginate: false,
             autoWidth: false,
             ordering: false,
+            language: GemsUI.dtEmpty('fa-chart-pie', 'No work order totals for this period.', 'No rows match the current search.'),
+            dom: "<'d-none'f>rt",
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkRwtDailyView').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
@@ -191,7 +181,6 @@ function MainReportWoTotal() {
                 setDataLabelsForTable('#dtRwtWoTotal', totalColumnLabels);
                 updateTotalSummary();
             },
-            language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
                     {mData: 'siteName',
@@ -199,7 +188,7 @@ function MainReportWoTotal() {
                             if (data === 'TOTAL' || data === 'PENDING') {
                                 return '<strong>'+data+'</strong>';
                             } else {
-                                return data + ' <button type="button" class="btn-action btn-view lnkRwtDailyView" id="lnkRwtDailyView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Daily Summary"><i class="fas fa-folder-open"></i></button>';
+                                return data + ' <button type="button" class="btn gems-btn-action lnkRwtDailyView" id="lnkRwtDailyView_' + meta.row + '" data-toggle="tooltip" title="Daily Summary" aria-label="Daily Summary"><i class="fas fa-folder-open"></i></button>';
                             }
                         }},
                     {mData: 'open0', sClass: 'text-right',
@@ -312,7 +301,7 @@ function MainReportWoTotal() {
                     {mData: 'siteId', visible: false}
                 ]
         });
-        $("#dtRwtWoTotal_filter").hide();
+        GemsUI.bindDtTooltips('#dtRwtWoTotal');
 
         let btnWoTotalOpt = {
             exportOptions: {
@@ -327,14 +316,14 @@ function MainReportWoTotal() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - Work Order Total',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnWoTotalOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - Total Work Order Summary',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnWoTotalOpt, {
                     extend:    'pdfHtml5',
@@ -342,7 +331,7 @@ function MainReportWoTotal() {
                     title:     'GEMS 2.0 - Total Work Order Summary',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtRwtWoTotalExport'));
@@ -372,8 +361,9 @@ function MainReportWoTotal() {
             bPaginate: false,
             autoWidth: false,
             ordering: false,
+            language: GemsUI.dtEmpty('fa-calendar-day', 'No daily work orders for this site.', 'No rows match the current search.'),
+            dom: "<'d-none'f>rt",
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkRwtManualEdit').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
@@ -391,15 +381,14 @@ function MainReportWoTotal() {
                 setDataLabelsForTable('#dtRwtWoDaily', dailyColumnLabels);
                 updateDailySummary();
             },
-            language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
-                    {mData: 'siteManualDate', sClass: 'pl-2',
+                    {mData: 'siteManualDate', sClass: 'ps-2',
                         mRender: function (data, type, row, meta) {
                             if (data === 'TOTAL' || data === 'PENDING') {
                                 return '<strong>'+data+'</strong>';
                             } else if (isManual) {
-                                return data + ' <button type="button" class="btn-action btn-edit lnkRwtManualEdit" id="lnkRwtManualEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
+                                return data + ' <button type="button" class="btn gems-btn-action lnkRwtManualEdit" id="lnkRwtManualEdit_' + meta.row + '" data-toggle="tooltip" title="Edit" aria-label="Edit"><i class="fas fa-edit"></i></button>';
                             }
                             return data;
                         }},
@@ -513,7 +502,7 @@ function MainReportWoTotal() {
                     {mData: 'siteManualId', visible: false}
                 ]
         });
-        $("#dtRwtWoDaily_filter").hide();
+        GemsUI.bindDtTooltips('#dtRwtWoDaily');
 
         let btnWoDailyOpt = {
             exportOptions: {
@@ -528,14 +517,14 @@ function MainReportWoTotal() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - Work Order Daily',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnWoDailyOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - Daily Work Order Summary',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnWoDailyOpt, {
                     extend:    'pdfHtml5',
@@ -543,7 +532,7 @@ function MainReportWoTotal() {
                     title:     'GEMS 2.0 - Daily Work Order Summary',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtRwtWoDailyExport'));

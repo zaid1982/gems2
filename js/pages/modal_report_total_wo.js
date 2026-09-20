@@ -266,7 +266,7 @@ function ModalReportTotalWo() {
                 $('#txtMmtDate').prop('disabled', false);
                 formValidate.enableField('txtMmtDate');
 
-                $('#lblMmtTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Daily Manual WO Report');
+                $('#lblMmtTitle').html('<i class="fas fa-plus me-2"></i>Add Daily Manual WO Report');
                 $('#modal_report_total_wo').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -308,7 +308,7 @@ function ModalReportTotalWo() {
                 $('#txtMmtDate').prop('disabled', true);
                 formValidate.disableField('txtMmtDate');
 
-                $('#lblMmtTitle').html('<i class="fas fa-edit text-white"></i> &nbsp;Edit Manual WO Report');
+                $('#lblMmtTitle').html('<i class="fas fa-edit me-2"></i>Edit Manual WO Report');
                 $('#modal_report_total_wo').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

@@ -1,305 +1,283 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/report_all_summary.html — Tabler-migrated (P5-7 All Summary).
+
+  Page-local plus html/modal_report_total_wo (this page only).
+  H3 Year/Month validator names stay swapped (HEAD).
+  Dead stepper dropped. Bridges: modal_change_password.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js, css/addons-pro/steppers.css,
+    js/addons-pro/stepper.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    	<!-- Browser icon -->
-    	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-        <!-- Bootstrap core CSS -->
-        <link rel="stylesheet" href="css/bootstrap.min.css">
-        <!-- Material Design Bootstrap -->
-        <link rel="stylesheet" href="css/mdb.min.css">
-        <!-- DataTables.net -->
-        <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-        <!-- Your custom styles (optional) -->
-        <link href="css/style.css" rel="stylesheet">
-        <link href="css/gems2-ui.css" rel="stylesheet">
-        <!-- Stepper CSS - minified-->
-        <link href="css/addons-pro/steppers.css" rel="stylesheet">
-    	<!-- JQuery -->
-        <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    	<!--JQuery Migrate-->
-    	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Work Order Summary</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-
-<main>
-    <div class="module-page module-master module-rwt">
-        <div class="container-fluid px-0">
-            <section class="gems-page-header module-page-header">
-                <div class="header-text">
-                    <span class="header-subtitle">Operations</span>
-                    <h2>Work Order Summary</h2>
-                    <p>Monitor monthly performance across sites and drill into daily trends when needed.</p>
-                </div>
-                <div class="header-actions">
-                    <button type="button" id="btnDtRwtWoTotalRefresh" class="btn btn-outline-light btn-icon" data-toggle="tooltip" data-placement="top" title="Refresh data">
-                        <i class="fas fa-sync"></i>
-                    </button>
-                </div>
-            </section>
-
-            <section class="metrics-row">
-                <div class="metric-card">
-                    <div class="metric-label">Total Open</div>
-                    <div class="metric-value" id="metricRwtOpen">0</div>
-                    <div class="metric-subtext">Outstanding work orders across all categories</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Total Closed</div>
-                    <div class="metric-value" id="metricRwtClosed">0</div>
-                    <div class="metric-subtext">Completed this reporting period</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Pending Queue</div>
-                    <div class="metric-value" id="metricRwtPending">0</div>
-                    <div class="metric-subtext">Items awaiting action</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Sites Tracked</div>
-                    <div class="metric-value" id="metricRwtSites">0</div>
-                    <div class="metric-subtext">Sites contributing data this month</div>
-                </div>
-            </section>
-
-            <section class="filter-card mt-4">
-                <div class="filter-card-header">
-                    <h3>Filters</h3>
-                    <span class="summary-pill" id="lblRwtPeriod">Reporting window: --</span>
-                </div>
-                <form id="formRwtSearch">
-                    <div class="filter-grid">
-                        <div class="select-outline">
-                            <label for="optRwtYearId">Year</label>
-                            <select id="optRwtYearId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                        </div>
-                        <div class="select-outline">
-                            <label for="optRwtMonthId">Month</label>
-                            <select id="optRwtMonthId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                        </div>
-                    </div>
-                    <div class="filter-actions">
-                        <button type="button" id="btnRwtSearch" class="btn btn-primary" disabled>
-                            <i class="fas fa-search mr-2"></i>Apply Filters
-                        </button>
-                    </div>
-                </form>
-            </section>
-
-            <section class="module-data-card">
-                <div class="module-card-header">
-                    <div>
-                        <h4>Total Work Order Summary</h4>
-                        <p>Breakdown of open and closed work orders by request type.</p>
-                    </div>
-                    <div class="module-card-actions">
-                        <div id="btnDtRwtWoTotalExport"></div>
-                    </div>
-                </div>
-                <div class="module-inline-controls">
-                    <div class="search-field">
-                        <label class="sr-only" for="txtRwtTotalSearch">Search total summary</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            </div>
-                            <input type="text" id="txtRwtTotalSearch" class="form-control" placeholder="Search site or values">
-                        </div>
-                    </div>
-                </div>
-                <div class="module-table-wrapper">
-                    <div class="table-responsive">
-                        <table id="dtRwtWoTotal" class="table table-hover table-bordered table-sm mb-0 display responsive no-stack" cellspacing="0" width="100%">
-                            <thead>
-                            <tr class="th-strong text-center">
-                                <th rowspan="2" style="vertical-align: middle; width: 23%">Site</th>
-                                <th colspan="2">PPM</th>
-                                <th colspan="2">Client Complaint</th>
-                                <th colspan="2">Self Finding</th>
-                                <th colspan="2">Request</th>
-                                <th colspan="2">Breakdown</th>
-                                <th colspan="2">Defect</th>
-                                <th rowspan="2" class="text-center" style="vertical-align: middle;">Total</th>
-                            </tr>
-                            <tr class="th-strong text-center">
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="results-summary">
-                    <span id="lblRwtTotalCount">Showing 0 of 0 rows</span>
-                    <span id="lblRwtTotalUpdated">Updated —</span>
-                </div>
-            </section>
-
-            <section class="module-data-card module-daily-card" id="divRwtWoDaily">
-                <div class="module-card-header">
-                    <div>
-                        <h4>Daily Work Order Summary</h4>
-                        <p class="header-subtext">Site detail for <span id="spanRwtWoDailySiteName">—</span></p>
-                    </div>
-                    <div class="module-card-actions">
-                        <button type="button" id="btnDtRwtWoDailyAdd" class="btn btn-light btn-icon" data-toggle="tooltip" data-placement="top" title="Add manual entry">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                        <button type="button" id="btnDtRwtWoDailyRefresh" class="btn btn-light btn-icon" data-toggle="tooltip" data-placement="top" title="Refresh data">
-                            <i class="fas fa-sync"></i>
-                        </button>
-                        <div id="btnDtRwtWoDailyExport"></div>
-                    </div>
-                </div>
-                <div class="module-inline-controls">
-                    <div class="search-field">
-                        <label class="sr-only" for="txtRwtDailySearch">Search daily summary</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            </div>
-                            <input type="text" id="txtRwtDailySearch" class="form-control" placeholder="Search date or category values">
-                        </div>
-                    </div>
-                </div>
-                <div class="module-table-wrapper">
-                    <div class="table-responsive">
-                        <table id="dtRwtWoDaily" class="table table-hover table-bordered table-sm mb-0 display responsive no-stack" cellspacing="0" width="100%">
-                            <thead>
-                            <tr class="th-strong text-center">
-                                <th rowspan="2" style="vertical-align: middle; width: 23%">Date</th>
-                                <th colspan="2">PPM</th>
-                                <th colspan="2">Client Complaint</th>
-                                <th colspan="2">Self Finding</th>
-                                <th colspan="2">Request</th>
-                                <th colspan="2">Breakdown</th>
-                                <th colspan="2">Defect</th>
-                                <th rowspan="2" class="text-center" style="vertical-align: middle;">Total</th>
-                            </tr>
-                            <tr class="th-strong text-center">
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                                <th>Open</th>
-                                <th>Closed</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="results-summary">
-                    <span id="lblRwtDailyCount">Showing 0 of 0 rows</span>
-                    <span id="lblRwtDailyUpdated">Updated —</span>
-                </div>
-            </section>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <div class="text-secondary" style="font-size:.75rem">Operations</div>
+              <h1 class="page-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Work Order Summary</h1>
+              <div class="page-subtitle">Monitor monthly performance across sites and drill into daily trends when needed.</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" id="btnDtRwtWoTotalRefresh" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync"></i>
+              </button>
+            </div>
+          </div>
         </div>
+
+        <div class="row row-cards mb-3">
+          <div class="col-sm-6 col-xl-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Total Open</div>
+                <div class="h2 mb-0" id="metricRwtOpen">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Outstanding work orders across all categories</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Total Closed</div>
+                <div class="h2 mb-0" id="metricRwtClosed">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Completed this reporting period</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Pending Queue</div>
+                <div class="h2 mb-0" id="metricRwtPending">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Items awaiting action</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="card">
+              <div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Sites Tracked</div>
+                <div class="h2 mb-0" id="metricRwtSites">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Sites contributing data this month</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Filters</h3>
+              <div class="text-secondary" style="font-size:.75rem" id="lblRwtPeriod">Reporting window: --</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <form id="formRwtSearch" autocomplete="off" novalidate>
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optRwtYearId">Year <span class="required" aria-hidden="true">*</span></label>
+                  <select id="optRwtYearId" class="form-select" aria-required="true" aria-describedby="optRwtYearIdErr"></select>
+                  <div class="gems-field-error" id="optRwtYearIdErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optRwtMonthId">Month <span class="required" aria-hidden="true">*</span></label>
+                  <select id="optRwtMonthId" class="form-select" aria-required="true" aria-describedby="optRwtMonthIdErr"></select>
+                  <div class="gems-field-error" id="optRwtMonthIdErr" role="alert"></div>
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="button" id="btnRwtSearch" class="btn btn-primary" disabled>
+                  <i class="fas fa-search me-2"></i>Apply Filters
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Total Work Order Summary</h3>
+              <div class="text-secondary" style="font-size:.75rem">Breakdown of open and closed work orders by request type.</div>
+            </div>
+            <div class="gems-card-toolbar">
+              <div id="btnDtRwtWoTotalExport" class="d-inline-flex align-items-center"></div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="gems-form-grid mb-3">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtRwtTotalSearch">Search total summary</label>
+                <input type="text" id="txtRwtTotalSearch" class="form-control" placeholder="Search site or values" autocomplete="off">
+              </div>
+            </div>
+            <div class="d-flex justify-content-between text-secondary" style="font-size:.75rem">
+              <span id="lblRwtTotalCount">Showing 0 of 0 rows</span>
+              <span id="lblRwtTotalUpdated">Updated —</span>
+            </div>
+          </div>
+          <table id="dtRwtWoTotal" class="table table-vcenter card-table table-hover mb-0" width="100%">
+            <thead>
+              <tr class="text-center">
+                <th rowspan="2" style="vertical-align:middle;width:23%">Site</th>
+                <th colspan="2">PPM</th>
+                <th colspan="2">Client Complaint</th>
+                <th colspan="2">Self Finding</th>
+                <th colspan="2">Request</th>
+                <th colspan="2">Breakdown</th>
+                <th colspan="2">Defect</th>
+                <th rowspan="2" class="text-center" style="vertical-align:middle;">Total</th>
+              </tr>
+              <tr class="text-center">
+                <th>Open</th><th>Closed</th>
+                <th>Open</th><th>Closed</th>
+                <th>Open</th><th>Closed</th>
+                <th>Open</th><th>Closed</th>
+                <th>Open</th><th>Closed</th>
+                <th>Open</th><th>Closed</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="card" id="divRwtWoDaily">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Daily Work Order Summary</h3>
+              <div class="text-secondary" style="font-size:.75rem">Site detail for <span id="spanRwtWoDailySiteName">—</span></div>
+            </div>
+            <div class="gems-card-toolbar">
+              <button type="button" id="btnDtRwtWoDailyAdd" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Add manual entry" aria-label="Add manual entry">
+                <i class="fas fa-plus"></i>
+              </button>
+              <button type="button" id="btnDtRwtWoDailyRefresh" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync"></i>
+              </button>
+              <div id="btnDtRwtWoDailyExport" class="d-inline-flex align-items-center"></div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="gems-form-grid mb-3">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtRwtDailySearch">Search daily summary</label>
+                <input type="text" id="txtRwtDailySearch" class="form-control" placeholder="Search date or category values" autocomplete="off">
+              </div>
+            </div>
+            <div class="d-flex justify-content-between text-secondary" style="font-size:.75rem">
+              <span id="lblRwtDailyCount">Showing 0 of 0 rows</span>
+              <span id="lblRwtDailyUpdated">Updated —</span>
+            </div>
+          </div>
+          <table id="dtRwtWoDaily" class="table table-vcenter card-table table-hover mb-0" width="100%">
+            <thead>
+              <tr class="text-center">
+                <th rowspan="2" style="vertical-align:middle;width:23%">Date</th>
+                <th colspan="2">PPM</th>
+                <th colspan="2">Client Complaint</th>
+                <th colspan="2">Self Finding</th>
+                <th colspan="2">Request</th>
+                <th colspan="2">Breakdown</th>
+                <th colspan="2">Defect</th>
+                <th rowspan="2" class="text-center" style="vertical-align:middle;">Total</th>
+              </tr>
+              <tr class="text-center">
+                <th>Open</th><th>Closed</th>
+                <th>Open</th><th>Closed</th>
+                <th>Open</th><th>Closed</th>
+                <th>Open</th><th>Closed</th>
+                <th>Open</th><th>Closed</th>
+                <th>Open</th><th>Closed</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_report_total_wo"></div>
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_report_total_wo"></div>
 
-</main>
-
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_report_total_wo.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_report_all_summary.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- Stepper JavaScript - minified -->
-<script type="text/javascript" src="js/addons-pro/stepper.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let reportWoTotalClass_;
+  let modalReportTotalWoClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        reportWoTotalClass_ = new MainReportWoTotal();
+        modalReportTotalWoClass_ = new ModalReportTotalWo();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let reportWoTotalClass_;
-    let modalReportTotalWoClass_;
+        modalReportTotalWoClass_.setClassFrom(reportWoTotalClass_);
+        modalReportTotalWoClass_.init();
 
-    document.addEventListener('DOMContentLoaded', function () {
-
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                reportWoTotalClass_ = new MainReportWoTotal();
-                modalReportTotalWoClass_ = new ModalReportTotalWo();
-
-                modalReportTotalWoClass_.setClassFrom(reportWoTotalClass_);
-                modalReportTotalWoClass_.init();
-
-                reportWoTotalClass_.setModalReportTotalWo(modalReportTotalWoClass_);
-                reportWoTotalClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_report_total_wo.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_report_all_summary.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+        reportWoTotalClass_.setModalReportTotalWo(modalReportTotalWoClass_);
+        reportWoTotalClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 300);
+  });
 </script>
-
 </body>
 </html>
