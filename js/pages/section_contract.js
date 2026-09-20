@@ -1,6 +1,6 @@
 function SectionContract() {
 
-    const className = "SectionContract";
+    const className = 'SectionContract';
     let self = this;
     let modalConfirmDeleteClass;
     let contractId = '';
@@ -16,6 +16,87 @@ function SectionContract() {
     let modalLocationCodeClass;
     let modalContractUserClass;
 
+    function displayText(value, type) {
+        const text = value || '';
+        if (type !== 'display') {
+            return text;
+        }
+        return GemsUI.escape(text);
+    }
+
+    function statusLabel(statusId, fallback) {
+        if (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc']) {
+            return refStatus[statusId]['statusDesc'];
+        }
+        switch (String(statusId)) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            default:
+                return fallback || 'Unknown';
+        }
+    }
+
+    function statusBadgeKind(status) {
+        return String(status) === '1' ? 'success' : 'secondary';
+    }
+
+    function statusBadge(statusId, type) {
+        const label = statusLabel(statusId, 'Unknown');
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
+    function getUserName(userId) {
+        if (refUser && refUser[userId] && refUser[userId]['userFullName']) {
+            return refUser[userId]['userFullName'];
+        }
+        return 'Unknown Technician';
+    }
+
+    function getAssetGroupName(assetGroupId) {
+        if (refAssetGroup && refAssetGroup[assetGroupId] && refAssetGroup[assetGroupId]['assetGroupName']) {
+            return refAssetGroup[assetGroupId]['assetGroupName'];
+        }
+        return 'Unknown Asset Group';
+    }
+
+    function rowIdFromLink(el) {
+        const linkId = $(el).attr('id') || '';
+        const linkIndex = linkId.indexOf('_');
+        return linkIndex > 0 ? linkId.substr(linkIndex + 1) : '';
+    }
+
+    function exportButtons(title, columns) {
+        let exportCounter = 1;
+        const exportOpt = {
+            columns: columns,
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        exportCounter = 1;
+                    }
+                    if (column === 0) {
+                        return exportCounter++;
+                    }
+                    return data;
+                }
+            }
+        };
+        return GemsUI.dtButtons(title).map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
+            }
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
+        });
+    }
+
     this.init = function () {
         $('.toHide').hide();
         $('.sectionContract').hide();
@@ -30,129 +111,109 @@ function SectionContract() {
 
         oTableLocationCode = $('#dtSctLocationCode').DataTable({
             bLengthChange: false,
-            bFilter: true,
+            searching: true,
             autoWidth: false,
-            aaSorting: [1, 'asc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
-                const info = oTableLocationCode.page.info();
-                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            aaSorting: [[1, 'asc']],
+            dom: GemsUI.dtDomButtons,
+            buttons: exportButtons('GEMS 2.0 - Location Code List', [0, 1, 2]),
+            language: GemsUI.dtEmpty('fa-map-marker-alt', 'No location codes recorded yet.', 'No location codes match the current search.'),
+            pagingType: 'simple_numbers',
+            columnDefs: [
+                { targets: [0, 2, 3], orderable: false, className: 'text-center' }
+            ],
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
+                const info = (oTableLocationCode && oTableLocationCode.page && typeof oTableLocationCode.page.info === 'function')
+                    ? oTableLocationCode.page.info()
+                    : null;
+                const rowNumber = info ? (info.start + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
+                $('td', nRow).eq(0).html(rowNumber);
             },
-            drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkSctLocationCodeEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableLocationCode.row(parseInt(rowId)).data();
-                        modalLocationCodeClass.edit(currentRow['locationCodeId'], contractId, rowId);
+            aoColumns: [
+                { mData: null, bSortable: false },
+                { mData: 'locationCodeName',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
                     }
-                });
-                $('.lnkSctLocationCodeDeactivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableLocationCode.row(parseInt(rowId)).data();
-                        modalLocationCodeClass.deactivate(currentRow['locationCodeId'], rowId);
+                },
+                { mData: 'locationCodeStatus',
+                    mRender: function (data, type) {
+                        return statusBadge(data, type);
                     }
-                });
-                $('.lnkSctLocationCodeActivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableLocationCode.row(parseInt(rowId)).data();
-                        modalLocationCodeClass.activate(currentRow['locationCodeId'], rowId);
-                    }
-                });
-                $('.lnkSctLocationCodeDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableLocationCode.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['locationCodeId'], modalLocationCodeClass);
-                    }
-                });
-            },
-            language: _DATATABLE_LANGUAGE,
-            aoColumns:
-                [
-                    {mData: null, bSortable: false},
-                    {mData: 'locationCodeName'},
-                    /*{mData: 'totalTechnician', mRender: function (data) { return mzFormatNumber(data);}},*/
-                    {mData: null,
-                        mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['locationCodeStatus']]['statusColor']+' z-depth-2">'+refStatus[row['locationCodeStatus']]['statusDesc']+'</span></h6>';
+                },
+                { mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
+                    mRender: function (data, type, row, meta) {
+                        let html = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkSctLocationCodeEdit',
+                            id: 'lnkSctLocationCodeEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
+                        if (row['locationCodeStatus'] === '1') {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkSctLocationCodeDeactivate',
+                                id: 'lnkSctLocationCodeDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
+                        } else {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkSctLocationCodeActivate',
+                                id: 'lnkSctLocationCodeActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
                         }
-                    },
-                    {mData: null, bSortable: false, sClass: 'text-center',
-                        mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-edit lnkSctLocationCodeEdit" id="lnkSctLocationCodeEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
-                            if (row['locationCodeStatus'] === '1') {
-                                label += '<button type="button" class="btn-action btn-deactivate lnkSctLocationCodeDeactivate" id="lnkSctLocationCodeDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
-                            } else {
-                                label += '<button type="button" class="btn-action btn-activate lnkSctLocationCodeActivate" id="lnkSctLocationCodeActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
-                            }
-                            label += '<button type="button" class="btn-action btn-delete lnkSctLocationCodeDelete" id="lnkSctLocationCodeDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                            label += '</div>';
-                            return label;
-                        }
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkSctLocationCodeDelete',
+                            id: 'lnkSctLocationCodeDelete_' + meta.row,
+                            title: 'Delete',
+                            icon: 'fas fa-trash-alt'
+                        });
+                        return html;
                     }
-                ]
+                }
+            ]
         });
-        $("#dtSctLocationCode_filter").hide();
+        oTableLocationCode.buttons().container().appendTo($('#btnDtSctLocationCodeExport'));
+        GemsUI.bindDtTooltips('#dtSctLocationCode');
+
+        const tbodyCode = $('#dtSctLocationCode tbody');
+        tbodyCode.on('click', '.lnkSctLocationCodeEdit', function () {
+            const rowId = rowIdFromLink(this);
+            const currentRow = oTableLocationCode.row(parseInt(rowId, 10)).data();
+            if (currentRow) {
+                modalLocationCodeClass.edit(currentRow['locationCodeId'], contractId, rowId);
+            }
+        });
+        tbodyCode.on('click', '.lnkSctLocationCodeDeactivate', function () {
+            const rowId = rowIdFromLink(this);
+            const currentRow = oTableLocationCode.row(parseInt(rowId, 10)).data();
+            if (currentRow) {
+                modalLocationCodeClass.deactivate(currentRow['locationCodeId'], rowId);
+            }
+        });
+        tbodyCode.on('click', '.lnkSctLocationCodeActivate', function () {
+            const rowId = rowIdFromLink(this);
+            const currentRow = oTableLocationCode.row(parseInt(rowId, 10)).data();
+            if (currentRow) {
+                modalLocationCodeClass.activate(currentRow['locationCodeId'], rowId);
+            }
+        });
+        tbodyCode.on('click', '.lnkSctLocationCodeDelete', function () {
+            const rowId = rowIdFromLink(this);
+            const currentRow = oTableLocationCode.row(parseInt(rowId, 10)).data();
+            if (currentRow) {
+                modalConfirmDeleteClass.delete(currentRow['locationCodeId'], modalLocationCodeClass);
+            }
+        });
+
         $('#txtSctLocationCodeSearch').on('keyup change', function () {
             oTableLocationCode.search($(this).val()).draw();
         });
-
-        let cntLocationCode;
-        let btnLocationCodeOpt = {
-            exportOptions: {
-                columns: [ 0, 1, 2],
-                format: {
-                    body: function ( data, row, column ) {
-                        if (row === 0 && column === 0) {
-                            cntLocationCode = 1;
-                        }
-                        if (column === 2) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
-                        }
-                        return column === 0 ? cntLocationCode++ : data;
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableLocationCode, {
-            buttons: [
-                $.extend( true, {}, btnLocationCodeOpt, {
-                    extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - Location Code List',
-                    titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnLocationCodeOpt, {
-                    extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - Location Code List',
-                    titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnLocationCodeOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Location Code List',
-                    titleAttr: 'Pdf',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                })
-            ]
-        }).container().appendTo($('#btnDtSctLocationCodeExport'));
 
         $('#btnSctLocationCodeAdd').on('click', function () {
             modalLocationCodeClass.add(contractId);
@@ -172,91 +233,67 @@ function SectionContract() {
 
         oTableLocationUser = $('#dtSctLocationUser').DataTable({
             bLengthChange: false,
-            bFilter: true,
+            searching: true,
             autoWidth: false,
-            aaSorting: [1, 'asc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
-                const info = oTableLocationUser.page.info();
-                $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
+            aaSorting: [[1, 'asc']],
+            dom: GemsUI.dtDomButtons,
+            buttons: exportButtons('GEMS 2.0 - Technician Assigned List', [0, 1, 2, 3]),
+            language: GemsUI.dtEmpty('fa-users', 'No technicians assigned yet.', 'No technicians match the current search.'),
+            pagingType: 'simple_numbers',
+            columnDefs: [
+                { targets: [0, 4], orderable: false, className: 'text-center' }
+            ],
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
+                const info = (oTableLocationUser && oTableLocationUser.page && typeof oTableLocationUser.page.info === 'function')
+                    ? oTableLocationUser.page.info()
+                    : null;
+                const rowNumber = info ? (info.start + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
+                $('td', nRow).eq(0).html(rowNumber);
             },
-            drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkSctLocationUserDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableLocationUser.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['contractUserId'], modalContractUserClass);
+            aoColumns: [
+                { mData: null, bSortable: false },
+                { mData: 'locationCodeName',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
                     }
-                });
-            },
-            language: _DATATABLE_LANGUAGE,
-            aoColumns:
-                [
-                    {mData: null, bSortable: false},
-                    {mData: 'locationCodeName'},
-                    {mData: 'userId', mRender: function (data){
-                            return refUser[data]['userFullName'];
-                        }},
-                    {mData: 'assetGroupId', mRender: function (data){
-                            return refAssetGroup[data]['assetGroupName'];
-                        }},
-                    {mData: null, bSortable: false, sClass: 'text-center',
-                        mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-delete lnkSctLocationUserDelete" id="lnkSctLocationUserDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                            label += '</div>';
-                            return label;
-                        }
+                },
+                { mData: 'userId',
+                    mRender: function (data, type) {
+                        return displayText(getUserName(data), type);
                     }
-                ]
+                },
+                { mData: 'assetGroupId',
+                    mRender: function (data, type) {
+                        return displayText(getAssetGroupName(data), type);
+                    }
+                },
+                { mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
+                    mRender: function (data, type, row, meta) {
+                        return GemsUI.actionBtn({
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkSctLocationUserDelete',
+                            id: 'lnkSctLocationUserDelete_' + meta.row,
+                            title: 'Delete',
+                            icon: 'fas fa-trash-alt'
+                        });
+                    }
+                }
+            ]
         });
-        $("#dtSctLocationUser_filter").hide();
+        oTableLocationUser.buttons().container().appendTo($('#btnDtSctLocationUserExport'));
+        GemsUI.bindDtTooltips('#dtSctLocationUser');
+
+        $('#dtSctLocationUser tbody').on('click', '.lnkSctLocationUserDelete', function () {
+            const rowId = rowIdFromLink(this);
+            const currentRow = oTableLocationUser.row(parseInt(rowId, 10)).data();
+            if (currentRow) {
+                modalConfirmDeleteClass.delete(currentRow['contractUserId'], modalContractUserClass);
+            }
+        });
+
         $('#txtSctLocationUserSearch').on('keyup change', function () {
             oTableLocationUser.search($(this).val()).draw();
         });
-
-        let cntLocationUser;
-        let btnLocationUserOpt = {
-            exportOptions: {
-                columns: [ 0, 1, 2, 3],
-                format: {
-                    body: function ( data, row, column ) {
-                        if (row === 0 && column === 0) {
-                            cntLocationUser = 1;
-                        }
-                        return column === 0 ? cntLocationUser++ : data;
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableLocationUser, {
-            buttons: [
-                $.extend( true, {}, btnLocationUserOpt, {
-                    extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - Technician Assigned List',
-                    titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnLocationUserOpt, {
-                    extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - Technician Assigned List',
-                    titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnLocationUserOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Technician Assigned List',
-                    titleAttr: 'Pdf',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                })
-            ]
-        }).container().appendTo($('#btnDtSctLocationUserExport'));
 
         $('#btnSctLocationUserAdd').on('click', function () {
             modalContractUserClass.add(contractId);
@@ -282,7 +319,7 @@ function SectionContract() {
                 contractId = _contractId;
                 rowRefresh = _rowRefresh;
 
-                const dataMcr = mzAjaxRequest('contract.php?contractId='+contractId, 'GET');
+                const dataMcr = mzAjaxRequest('contract.php?contractId=' + contractId, 'GET');
                 const siteId = dataMcr['siteId'];
                 const clientId = refSite[siteId]['clientId'];
                 const contractStatus = dataMcr['contractStatus'];
@@ -306,6 +343,12 @@ function SectionContract() {
                 if (classFrom.getClassName() === 'MainContract') {
                     $('.sectionCcrMain').hide();
                 }
+                if (oTableLocationCode) {
+                    oTableLocationCode.columns.adjust();
+                }
+                if (oTableLocationUser) {
+                    oTableLocationUser.columns.adjust();
+                }
                 $(window).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -315,12 +358,12 @@ function SectionContract() {
     };
 
     this.genTableLocationCode = function () {
-        const dataLocationCode = mzAjaxRequest('location_code.php?contractId='+contractId, 'GET');
+        const dataLocationCode = mzAjaxRequest('location_code.php?contractId=' + contractId, 'GET');
         oTableLocationCode.clear().rows.add(dataLocationCode).draw();
     };
 
     this.genTableLocationUser = function () {
-        const dataLocationUser = mzAjaxRequest('contract_user.php?contractId='+contractId, 'GET');
+        const dataLocationUser = mzAjaxRequest('contract_user.php?contractId=' + contractId, 'GET');
         oTableLocationUser.clear().rows.add(dataLocationUser).draw();
     };
 

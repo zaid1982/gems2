@@ -1,45 +1,70 @@
-<div class="modal fade gems-modal" id="modal_location_code" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2" id="lblMlcTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_location_code — Tabler/GEMS modal + form contract (P4C-4).
+
+  Loaded by pages/contract.html ONLY. Child of section_contract.
+  gems-modal-md + modal-dialog-scrollable, never centered.
+  Client / Site / Contract are read-only context. Location Code name is
+  required maxLength 150. Status checkbox writes 1 or 2.
+
+  JS contract preserved (js/pages/modal_location_code.js):
+    #modal_location_code  #formMlc
+    #txtMlcClientName  #txtMlcSiteName  #txtMlcContractName
+    #txtMlcLocationCodeName  #lblMlcLocationCodeName  #txtMlcLocationCodeNameErr
+    #chkMlcStatus
+    #btnMlcSubmit  #lblMlcTitle
+-->
+<div class="modal fade" id="modal_location_code" tabindex="-1" aria-labelledby="lblMlcTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMlcTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMlc" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMlcClientName" id="lblMlcClientName">Client Name</label>
+              <input type="text" id="txtMlcClientName" class="form-control" disabled aria-describedby="txtMlcClientNameErr">
+              <div class="gems-field-error" id="txtMlcClientNameErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body gems-modal-body">
-                <form id="formMlc">
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMlcClientName" class="form-control" disabled>
-                        <label for="txtMlcClientName" id="lblMlcClientName">Client Name</label>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMlcSiteName" class="form-control" disabled>
-                        <label for="txtMlcSiteName" id="lblMlcSiteName">Site Name</label>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMlcContractName" class="form-control" disabled>
-                        <label for="txtMlcContractName" id="lblMlcContractName">Contract Name</label>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMlcLocationCodeName" class="form-control">
-                        <label for="txtMlcLocationCodeName" id="lblMlcLocationCodeName">Location Code *</label>
-                        <p class="font-small text-danger" id="txtMlcLocationCodeNameErr"></p>
-                    </div>
-                    <h6 class="font-small">Status:</h6>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMlcStatus" name="chkMlcStatus" value="1">
-                        <label class="form-check-label" for="chkMlcStatus">Active</label>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMlcSiteName" id="lblMlcSiteName">Site Name</label>
+              <input type="text" id="txtMlcSiteName" class="form-control" disabled aria-describedby="txtMlcSiteNameErr">
+              <div class="gems-field-error" id="txtMlcSiteNameErr" role="alert"></div>
             </div>
-            <div class="modal-footer gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMlcSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMlcContractName" id="lblMlcContractName">Contract Name</label>
+              <input type="text" id="txtMlcContractName" class="form-control" disabled aria-describedby="txtMlcContractNameErr">
+              <div class="gems-field-error" id="txtMlcContractNameErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMlcLocationCodeName" id="lblMlcLocationCodeName">Location Code <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMlcLocationCodeName" class="form-control" aria-required="true" aria-describedby="txtMlcLocationCodeNameErr">
+              <div class="gems-field-error" id="txtMlcLocationCodeNameErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <span class="form-label">Status</span>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="chkMlcStatus" name="chkMlcStatus" value="1" aria-describedby="chkMlcStatusErr">
+                <label class="form-check-label" for="chkMlcStatus">Active</label>
+              </div>
+              <div class="gems-field-error" id="chkMlcStatusErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMlcSubmit" class="btn btn-primary" disabled>
+          <i class="far fa-paper-plane me-2"></i>Submit
+        </button>
+      </div>
     </div>
+  </div>
 </div>

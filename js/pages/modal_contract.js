@@ -9,11 +9,93 @@ function ModalContract() {
     let refSite;
     let dataMcr;
 
+    function rowsFromRef(ref, idKey, labelKey, predicate, selectedId) {
+        const rows = [];
+        let hasSelected = false;
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (!row[labelKey] && (row[idKey] === undefined || row[idKey] === '')) {
+                return true;
+            }
+            const isSelected = selectedId !== undefined && selectedId !== null && selectedId !== ''
+                && String(row[idKey]) === String(selectedId);
+            if (predicate && !predicate(row) && !isSelected) {
+                return true;
+            }
+            if (isSelected) {
+                hasSelected = true;
+            }
+            rows.push(row);
+            return true;
+        });
+        if (selectedId !== undefined && selectedId !== null && selectedId !== '' && !hasSelected && ref && ref[selectedId]) {
+            const extra = $.extend({}, ref[selectedId]);
+            if (extra[idKey] === undefined || extra[idKey] === null || extra[idKey] === '') {
+                extra[idKey] = selectedId;
+            }
+            rows.push(extra);
+        }
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''));
+        });
+        return rows;
+    }
+
+    function fillClientSelect(activeOnly, selected) {
+        GemsUI.fillSelect(
+            'optMcrClientId',
+            rowsFromRef(refClient, 'clientId', 'clientName', function (row) {
+                if (activeOnly && String(row['clientStatus']) !== '1') {
+                    return false;
+                }
+                return true;
+            }, selected),
+            'clientId',
+            function (row) {
+                return row['clientName'] || '';
+            },
+            'Choose Client',
+            selected
+        );
+    }
+
+    function fillSiteSelect(clientId, activeOnly, selected) {
+        GemsUI.fillSelect(
+            'optMcrSiteId',
+            rowsFromRef(refSite, 'siteId', 'siteName', function (row) {
+                if (clientId !== undefined && clientId !== null && clientId !== ''
+                    && String(row['clientId']) !== String(clientId)) {
+                    return false;
+                }
+                if (activeOnly && String(row['siteStatus']) !== '1') {
+                    return false;
+                }
+                return true;
+            }, selected),
+            'siteId',
+            function (row) {
+                return row['siteName'] || '';
+            },
+            'Choose Site',
+            selected
+        );
+    }
+
+    function setParentSelectsDisabled(disabled) {
+        $('#optMcrClientId, #optMcrSiteId').prop('disabled', !!disabled);
+    }
+
     this.init = function () {
         mzDateFromTo('txtMcrContractDateStart', 'txtMcrContractDateEnd');
 
         $('#optMcrClientId').on('change', function () {
-            mzOptionStop('optMcrSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: $(this).val(), siteStatus: '1'}, 'required');
+            fillSiteSelect($(this).val(), true, '');
         });
 
         const vData = [
@@ -82,22 +164,21 @@ function ModalContract() {
             $('#btnMcrSubmit').attr('disabled', !formValidate.validateForm());
         });
 
-        $('#modal_contract').on('hidden.bs.modal', function(){
+        $('#modal_contract').on('hidden.bs.modal', function () {
             $('#btnMcrSubmit').attr('disabled', true);
             formValidate.clearValidation();
             mzDateFromToReset('txtMcrContractDateStart', 'txtMcrContractDateEnd');
-            mzDisableSelect('optMcrClientId', false);
-            mzDisableSelect('optMcrSiteId', false);
+            setParentSelectsDisabled(false);
             $('#txtMcrContractDateStart').prop('disabled', false);
         });
 
         $("input[name='radMcrContractType']:radio").on('change', function () {
             const value = $(this).val();
-            if ( value === '1') {
+            if (value === '1') {
                 mzSetDate('txtMcrContractDateEnd', dataMcr['contractDateEnd']);
                 mzSetDate('txtMcrContractDateStart', dataMcr['contractDateStart']);
                 $('#txtMcrContractDateStart').prop('disabled', false);
-            } else if ( value === '2') {
+            } else if (value === '2') {
                 mzSetDate('txtMcrContractDateEnd', dataMcr['contractDateEndExtend']);
                 mzSetDate('txtMcrContractDateStart', dataMcr['contractDateStartExtend']);
                 $('#txtMcrContractDateStart').prop('disabled', true);
@@ -108,7 +189,7 @@ function ModalContract() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
+                    if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
@@ -118,7 +199,7 @@ function ModalContract() {
                         const txtDesc = $('#txaMcrDesc').val();
                         const contractDateStart = mzConvertDate($('#txtMcrContractDateStart').val());
                         const contractDateEnd = mzConvertDate($('#txtMcrContractDateEnd').val());
-                        const statusVal = $("input[name='chkMcrStatus']").is(":checked") ? '1' : '2';
+                        const statusVal = $("input[name='chkMcrStatus']").is(':checked') ? '1' : '2';
                         let data = {
                             siteId: siteId,
                             contractName: txtName,
@@ -162,7 +243,6 @@ function ModalContract() {
                             tempRow['contractDateEnd'] = contractDateEnd.replaceAll('-', '/');
                             tempRow['contractStatus'] = statusVal;
                             classFrom.updateTableCcr(tempRow, rowRefresh);
-
                         }
                         $('#modal_contract').modal('hide');
                     }
@@ -180,11 +260,12 @@ function ModalContract() {
         ShowLoader();
         setTimeout(function () {
             try {
-                mzOptionStop('optMcrClientId', refClient, 'Choose Client', 'clientId', 'clientName', {clientStatus: '1'}, 'required');
+                fillClientSelect(true, '');
+                fillSiteSelect('', true, '');
                 mzSetFieldValue('McrStatus', '1', 'checkSingle', '1');
                 mzSetFieldValue('McrContractType', '1', 'radio');
                 $('input[name="radMcrContractType"]').prop('disabled', true);
-                $('#lblMcrTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Contract');
+                $('#lblMcrTitle').html('<i class="fas fa-plus me-2"></i>Add Contract');
                 $('#modal_contract').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -199,26 +280,24 @@ function ModalContract() {
             try {
                 mzSetFieldValue('McrContractType', '1', 'radio');
                 $('input[name="radMcrContractType"]').prop('disabled', false);
-                mzOptionStop('optMcrClientId', refClient, 'Choose Client', 'clientId', 'clientName');
-                mzOptionStop('optMcrSiteId', refSite, 'Choose Site', 'siteId', 'siteName');
                 mzCheckFuncParam([_contractId, _rowRefresh]);
                 contractId = _contractId;
                 rowRefresh = _rowRefresh;
 
-                dataMcr = mzAjaxRequest('contract.php?contractId='+contractId, 'GET');
+                dataMcr = mzAjaxRequest('contract.php?contractId=' + contractId, 'GET');
                 const siteId = dataMcr['siteId'];
-                mzSetFieldValue('McrSiteId', siteId, 'select', 'Site *');
-                mzSetFieldValue('McrClientId', refSite[siteId]['clientId'], 'select', 'Client *');
+                const clientId = refSite[siteId]['clientId'];
+                fillClientSelect(false, clientId);
+                fillSiteSelect('', false, siteId);
                 mzSetFieldValue('McrName', dataMcr['contractName'], 'text');
                 mzSetFieldValue('McrDesc', dataMcr['contractDesc'], 'textarea');
                 mzSetDate('txtMcrContractDateEnd', dataMcr['contractDateEnd']);
                 mzSetDate('txtMcrContractDateStart', dataMcr['contractDateStart']);
                 mzSetFieldValue('McrStatus', dataMcr['contractStatus'], 'checkSingle', '1');
 
-                mzDisableSelect('optMcrClientId', true);
-                mzDisableSelect('optMcrSiteId', true);
+                setParentSelectsDisabled(true);
 
-                $('#lblMcrTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Contract');
+                $('#lblMcrTitle').html('<i class="far fa-edit me-2"></i>Edit Contract');
                 $('#modal_contract').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -232,8 +311,8 @@ function ModalContract() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_contractId, _rowRefresh]);
-                mzAjaxRequest('contract.php?contractId='+_contractId, 'PUT', {action: 'deactivate'});
-                const tempRow = {contractStatus:'2'};
+                mzAjaxRequest('contract.php?contractId=' + _contractId, 'PUT', {action: 'deactivate'});
+                const tempRow = {contractStatus: '2'};
                 if (classFrom.getClassName() === 'MainContract') {
                     classFrom.updateTableCcr(tempRow, _rowRefresh);
                 }
@@ -249,8 +328,8 @@ function ModalContract() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_contractId, _rowRefresh]);
-                mzAjaxRequest('contract.php?contractId='+_contractId, 'PUT', {action: 'activate'});
-                const tempRow = {contractStatus:'1'};
+                mzAjaxRequest('contract.php?contractId=' + _contractId, 'PUT', {action: 'activate'});
+                const tempRow = {contractStatus: '1'};
                 if (classFrom.getClassName() === 'MainContract') {
                     classFrom.updateTableCcr(tempRow, _rowRefresh);
                 }
@@ -266,7 +345,7 @@ function ModalContract() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_contractId]);
-                mzAjaxRequest('contract.php?contractId='+_contractId, 'DELETE');
+                mzAjaxRequest('contract.php?contractId=' + _contractId, 'DELETE');
                 if (classFrom.getClassName() === 'MainContract') {
                     classFrom.genTableCcr(1);
                 }

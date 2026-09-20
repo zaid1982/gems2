@@ -1,144 +1,147 @@
-<section class="section sectionContract contract-shell mb-5">
-    <div class="gems-page-header contract-header">
-        <div class="header-text">
-            <h2>Contract Details</h2>
-            <p>Review client assignments, associated sites, and supporting location assets.</p>
-        </div>
-        <div class="header-actions">
-            <button type="button" class="btn btn-outline-light btn-icon" id="btnSctBack" data-toggle="tooltip" title="Back to main page" aria-label="Back to main page"><i class="fas fa-arrow-left"></i></button>
-        </div>
-    </div>
+<!--
+  Section: section_contract — Tabler two-panel Contract details (P4C-4).
 
-    <div class="row mt-4">
-        <div class="col-lg-6 mb-4">
-            <div class="card module-data-card contract-info-card h-100">
-                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2 d-flex align-items-center">
-                    <span class="badge badge-soft-primary mr-3"><i class="fas fa-file-contract"></i></span>
-                    <div>
-                        <h5 class="font-weight-bold mb-1">Contract Information</h5>
-                        <p class="text-muted mb-0">Key attributes for the active maintenance contract.</p>
-                    </div>
-                </div>
-                <div class="card-body pt-0 px-4 pb-4">
-                    <form id="formSct">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSctClientName" class="form-control" disabled>
-                                    <label for="txtSctClientName" id="lblSctClientName">Client Name</label>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSctSiteName" class="form-control" disabled>
-                                    <label for="txtSctSiteName" id="lblSctSiteName">Site Name</label>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSctContractName" class="form-control" disabled>
-                                    <label for="txtSctContractName" id="lblSctContractName">Contract Name</label>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <textarea id="txaSctContractDesc" class="md-textarea form-control" rows="3" disabled></textarea>
-                                    <label for="txaSctContractDesc" id="lblSctContractDesc" class="text-muted">Description</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSctContractDateStart" class="form-control" disabled>
-                                    <label for="txtSctContractDateStart" id="lblSctContractDateStart">Contract Date Start</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSctContractDateEnd" class="form-control" disabled>
-                                    <label for="txtSctContractDateEnd" id="lblSctContractDateEnd">Contract Date End</label>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="md-form md-outline mt-0">
-                                    <input type="text" id="txtSctContractStatus" class="form-control" disabled>
-                                    <label for="txtSctContractStatus" id="lblSctContractStatus">Status</label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 mb-4">
-            <div class="card module-data-card">
-                <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                    <div>
-                        <button type="button" id="btnSctLocationCodeAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Location Code"><i class="fas fa-plus"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Location Code List" data-content="All location codes available in this contract."><i class="fas fa-info mx-1"></i></a>
-                        <button type="button" id="btnDtSctLocationCodeRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                    </div>
-                    <span class="text-white font-weight-bold">Location Code</span>
-                    <div id="btnDtSctLocationCodeExport"></div>
-                </div>
-                <div class="card-body px-4 pb-3">
-                    <div class="d-flex justify-content-end mb-3">
-                        <div class="md-form md-outline my-0" style="width: 280px;">
-                            <i class="fas fa-search prefix"></i>
-                            <input type="text" id="txtSctLocationCodeSearch" class="form-control form-control-sm">
-                            <label for="txtSctLocationCodeSearch">Search</label>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table id="dtSctLocationCode" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                            <thead>
-                            <tr class="th-strong">
-                                <th style="width: 5%">#</th>
-                                <th>Location Code</th>
-                                <th style="width: 20%">Status</th>
-                                <th style="width: 64px; min-width: 64px"></th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 toHide mb-4">
-            <div class="card module-data-card">
-                <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                    <div>
-                        <button type="button" id="btnSctLocationUserAdd" class="btn btn-outline-white btn-rounded btn-sm px-2 material-tooltip-main" data-toggle="tooltip" data-placement="top" title="Add Technician Assigned"><i class="fas fa-plus"></i></button>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Technician Assigned List" data-content="All technicians assigned in this location with the asset group."><i class="fas fa-info mx-1"></i></a>
-                        <button type="button" id="btnDtSctLocationUserRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                    </div>
-                    <span class="text-white font-weight-bold">Technician Assigned</span>
-                    <div id="btnDtSctLocationUserExport"></div>
-                </div>
-                <div class="card-body px-4 pb-3">
-                    <div class="d-flex justify-content-end mb-3">
-                        <div class="md-form md-outline my-0" style="width: 280px;">
-                            <i class="fas fa-search prefix"></i>
-                            <input type="text" id="txtSctLocationUserSearch" class="form-control form-control-sm">
-                            <label for="txtSctLocationUserSearch">Search</label>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table id="dtSctLocationUser" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                            <thead>
-                            <tr class="th-strong">
-                                <th style="width: 5%">#</th>
-                                <th style="width: 20%">Location Code</th>
-                                <th>Technician Name</th>
-                                <th style="width: 20%">Asset Group</th>
-                                <th style="width: 24px; min-width: 24px"></th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+  Loaded by pages/contract.html ONLY. Not shared with an MDB page.
+  Hidden until SectionContract.load(); Back restores .sectionCcrMain.
+
+  Location Code table stays visible. Technician Assigned stays behind
+  .toHide (legacy). Do not expose that panel.
+
+  IDs preserved for js/pages/section_contract.js.
+-->
+<section class="section sectionContract mb-4" style="display:none">
+  <div class="page-header">
+    <div class="row align-items-center g-2">
+      <div class="col-12 col-sm">
+        <h1 class="page-title"><i class="fas fa-file-contract me-2 text-primary"></i>Contract Details</h1>
+        <div class="page-subtitle">Review client assignments, associated sites, and supporting location assets.</div>
+      </div>
+      <div class="col-12 col-sm-auto">
+        <button type="button" class="btn btn-outline-secondary" id="btnSctBack"
+                data-bs-toggle="tooltip" title="Back to main page" aria-label="Back to main page">
+          <i class="fas fa-arrow-left me-2"></i>Back
+        </button>
+      </div>
     </div>
+  </div>
+
+  <div class="row row-cards">
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0"><i class="fas fa-file-contract me-2 text-primary"></i>Contract Information</h3>
+            <div class="text-secondary" style="font-size:.75rem">Key attributes for the active maintenance contract.</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <form id="formSct" autocomplete="off">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSctClientName" id="lblSctClientName">Client Name</label>
+                <input type="text" id="txtSctClientName" class="form-control" disabled>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSctSiteName" id="lblSctSiteName">Site Name</label>
+                <input type="text" id="txtSctSiteName" class="form-control" disabled>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSctContractName" id="lblSctContractName">Contract Name</label>
+                <input type="text" id="txtSctContractName" class="form-control" disabled>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txaSctContractDesc" id="lblSctContractDesc">Description</label>
+                <textarea id="txaSctContractDesc" class="form-control" rows="3" disabled></textarea>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtSctContractDateStart" id="lblSctContractDateStart">Contract Date Start</label>
+                <input type="text" id="txtSctContractDateStart" class="form-control" disabled>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtSctContractDateEnd" id="lblSctContractDateEnd">Contract Date End</label>
+                <input type="text" id="txtSctContractDateEnd" class="form-control" disabled>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSctContractStatus" id="lblSctContractStatus">Status</label>
+                <input type="text" id="txtSctContractStatus" class="form-control" disabled>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0"><i class="fas fa-map-marker-alt me-2 text-primary"></i>Location Code</h3>
+            <div class="text-secondary" style="font-size:.75rem">All location codes available in this contract.</div>
+          </div>
+          <div class="gems-card-toolbar">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSctLocationCodeAdd"
+                    data-bs-toggle="tooltip" title="Add Location Code" aria-label="Add Location Code">
+              <i class="fas fa-plus me-1"></i>Add
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnDtSctLocationCodeRefresh"
+                    data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh location codes">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+            <div id="btnDtSctLocationCodeExport" class="d-inline-flex align-items-center"></div>
+          </div>
+        </div>
+        <div class="card-body py-2">
+          <label class="form-label" for="txtSctLocationCodeSearch">Search</label>
+          <input type="search" id="txtSctLocationCodeSearch" class="form-control" placeholder="Search location code" autocomplete="off">
+        </div>
+        <table id="dtSctLocationCode" class="table table-vcenter card-table table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="width:8%">#</th>
+              <th>Location Code</th>
+              <th style="width:20%">Status</th>
+              <th style="width:140px" class="noVis text-center"></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-lg-6 toHide" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0"><i class="fas fa-user-hard-hat me-2 text-primary"></i>Technician Assigned</h3>
+            <div class="text-secondary" style="font-size:.75rem">All technicians assigned in this location with the asset group.</div>
+          </div>
+          <div class="gems-card-toolbar">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSctLocationUserAdd"
+                    data-bs-toggle="tooltip" title="Add Technician Assigned" aria-label="Add Technician Assigned">
+              <i class="fas fa-plus me-1"></i>Add
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnDtSctLocationUserRefresh"
+                    data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh technicians">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+            <div id="btnDtSctLocationUserExport" class="d-inline-flex align-items-center"></div>
+          </div>
+        </div>
+        <div class="card-body py-2">
+          <label class="form-label" for="txtSctLocationUserSearch">Search</label>
+          <input type="search" id="txtSctLocationUserSearch" class="form-control" placeholder="Search technician" autocomplete="off">
+        </div>
+        <table id="dtSctLocationUser" class="table table-vcenter card-table table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="width:8%">#</th>
+              <th>Location Code</th>
+              <th>Technician Name</th>
+              <th>Asset Group</th>
+              <th style="width:64px" class="noVis text-center"></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </section>

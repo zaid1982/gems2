@@ -13,9 +13,100 @@ function ModalContractUser() {
     let refAssetGroup;
     let refUser;
 
+    function rowsFromRef(ref, idKey, labelKey, predicate, selectedId) {
+        const rows = [];
+        let hasSelected = false;
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (!row[labelKey] && (row[idKey] === undefined || row[idKey] === '')) {
+                return true;
+            }
+            const isSelected = selectedId !== undefined && selectedId !== null && selectedId !== ''
+                && String(row[idKey]) === String(selectedId);
+            if (predicate && !predicate(row) && !isSelected) {
+                return true;
+            }
+            if (isSelected) {
+                hasSelected = true;
+            }
+            rows.push(row);
+            return true;
+        });
+        if (selectedId !== undefined && selectedId !== null && selectedId !== '' && !hasSelected && ref && ref[selectedId]) {
+            const extra = $.extend({}, ref[selectedId]);
+            if (extra[idKey] === undefined || extra[idKey] === null || extra[idKey] === '') {
+                extra[idKey] = selectedId;
+            }
+            rows.push(extra);
+        }
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''));
+        });
+        return rows;
+    }
+
+    function userHasTechnicianRole(row) {
+        const roles = row['roles'];
+        if (roles === null || roles === undefined || roles === '') {
+            return false;
+        }
+        const parts = String(roles).split(',');
+        for (let i = 0; i < parts.length; i++) {
+            if (parts[i] === '5') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function fillUserSelect(selected) {
+        GemsUI.fillSelect(
+            'optMcuUserId',
+            rowsFromRef(refUser, 'userId', 'userFullName', userHasTechnicianRole, selected),
+            'userId',
+            function (row) {
+                return row['userFullName'] || '';
+            },
+            'Choose Technician',
+            selected
+        );
+    }
+
+    function fillAssetGroupSelect(selected) {
+        GemsUI.fillSelect(
+            'optMcuAssetGroupId',
+            rowsFromRef(refAssetGroup, 'assetGroupId', 'assetGroupName', null, selected),
+            'assetGroupId',
+            function (row) {
+                return row['assetGroupName'] || '';
+            },
+            'Choose Asset Group',
+            selected
+        );
+    }
+
+    function fillLocationSelect(locationRef, selected) {
+        GemsUI.fillSelect(
+            'optMcuLocationCodeId',
+            rowsFromRef(locationRef, 'locationCodeId', 'locationCodeName', null, selected),
+            'locationCodeId',
+            function (row) {
+                return row['locationCodeName'] || '';
+            },
+            'Choose Location Code',
+            selected
+        );
+    }
+
     this.init = function () {
-        mzOption('optMcuAssetGroupId', refAssetGroup, 'Choose Asset Group', 'assetGroupId', 'assetGroupName', [], 'required');
-        mzOption('optMcuUserId', refUser, 'Choose Technician', 'userId', 'userFullName', {roles: '#5'}, 'required');
+        fillAssetGroupSelect('');
+        fillUserSelect('');
 
         const vData = [
             {
@@ -69,16 +160,16 @@ function ModalContractUser() {
             $('#btnMcuSubmit').attr('disabled', !formValidate.validateForm());
         });
 
-        $('#modal_contract_user').on('hidden.bs.modal', function(){
+        $('#modal_contract_user').on('hidden.bs.modal', function () {
             formValidate.clearValidation();
-            $('#btnMcuSubmit').attr('disabled',true);
+            $('#btnMcuSubmit').attr('disabled', true);
         });
 
         $('#btnMcuSubmit').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
+                    if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
@@ -118,14 +209,15 @@ function ModalContractUser() {
 
                 const versionLocal = mzGetDataVersion();
                 const refLocationCode = mzGetLocalArray('gems_locationCode', versionLocal, 'locationCodeId', {siteId: siteId}, 'location_code');
-                mzOptionStop('optMcuLocationCodeId', refLocationCode, 'Choose Location Code', 'locationCodeId', 'locationCodeName', [], 'required');
-
+                fillLocationSelect(refLocationCode, '');
+                fillUserSelect('');
+                fillAssetGroupSelect('');
 
                 mzSetFieldValue('McuClientName', refClient[clientId]['clientName'], 'text');
                 mzSetFieldValue('McuSiteName', refSite[siteId]['siteName'], 'text');
                 mzSetFieldValue('McuContractName', refContract[contractId]['contractName'], 'text');
 
-                $('#lblMcuTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Technician Assigned');
+                $('#lblMcuTitle').html('<i class="fas fa-plus me-2"></i>Add Technician Assigned');
                 $('#modal_contract_user').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -139,7 +231,7 @@ function ModalContractUser() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_contractUserId]);
-                mzAjaxRequest('contract_user.php?contractUserId='+_contractUserId, 'DELETE');
+                mzAjaxRequest('contract_user.php?contractUserId=' + _contractUserId, 'DELETE');
                 if (classFrom.getClassName() === 'SectionContract') {
                     classFrom.genTableLocationUser();
                 }

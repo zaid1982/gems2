@@ -1,80 +1,104 @@
-<div class="modal fade gems-modal" id="modal_contract" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2" id="lblMcrTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_contract — Tabler/GEMS modal + form contract (P4C-4).
+
+  Loaded by pages/contract.html ONLY. Copies the P4 modal contract:
+    gems-modal-md (640px) + modal-dialog-scrollable, never modal-dialog-centered.
+    Flat white header, btn-close flex-centred with the title.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close first, primary Submit last. No btn-info.
+
+  Contract extras: Client → Site cascade (Add filters clientStatus 1 and
+  siteStatus 1; Edit loads every Client/Site then disables both), native
+  date range (mzDateFromTo), Contract Modification Type radios (1 = normal
+  update, 2 = extension + ppm_v3/contractExtension), Active checkbox
+  writes 1 or 2.
+
+  JS contract preserved (js/pages/modal_contract.js, js/pages/main_contract.js):
+    #modal_contract  #formMcr
+    #optMcrClientId  #lblMcrClientId  #optMcrClientIdErr
+    #optMcrSiteId  #lblMcrSiteId  #optMcrSiteIdErr
+    #txtMcrName  #lblMcrName  #txtMcrNameErr
+    #txaMcrDesc  #lblMcrDesc  #txaMcrDescErr
+    #radMcrContractType1  #radMcrContractType2  #radMcrContractTypeErr
+    #txtMcrContractDateStart  #lblMcrContractDateStart  #txtMcrContractDateStartErr
+    #txtMcrContractDateEnd  #lblMcrContractDateEnd  #txtMcrContractDateEndErr
+    #chkMcrStatus
+    #btnMcrSubmit  #lblMcrTitle
+-->
+<div class="modal fade" id="modal_contract" tabindex="-1" aria-labelledby="lblMcrTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMcrTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMcr" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optMcrClientId" id="lblMcrClientId">Client <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMcrClientId" class="form-select" aria-required="true" aria-describedby="optMcrClientIdErr"></select>
+              <div class="gems-field-error" id="optMcrClientIdErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body gems-modal-body">
-                <form id="formMcr">
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-2">
-                            <select id="optMcrClientId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true"></select>
-                            <label for="optMcrClientId" id="lblMcrClientId">Client <span class="text-danger">*</span></label>
-                            <p class="font-small text-danger" id="optMcrClientIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-0">
-                            <select id="optMcrSiteId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                <option value="" disabled selected>Choose Site</option>
-                            </select>
-                            <label for="optMcrSiteId" id="lblMcrSiteId">Site <span class="text-danger">*</span></label>
-                            <p class="font-small text-danger" id="optMcrSiteIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMcrName" class="form-control">
-                        <label for="txtMcrName" id="lblMcrName">Contract Name <span class="text-danger">*</span></label>
-                        <p class="font-small text-danger" id="txtMcrNameErr"></p>
-                    </div>
-                    <div class="md-form md-outline mb-0">
-                        <textarea id="txaMcrDesc" class="md-textarea form-control" rows="3"></textarea>
-                        <label for="txaMcrDesc" id="lblMcrDesc" class="text-muted">Description</label>
-                        <p class="font-small text-danger" id="txaMcrDescErr"></p>
-                    </div>
-                    <h6 class="font-small">Contract Modification Type : <span class="text-danger">*</span></h6>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="radio" class="form-check-input" name="radMcrContractType" id="radMcrContractType1" value="1">
-                        <label class="form-check-label" for="radMcrContractType1">Normal Update</label>
-                    </div>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="radio" class="form-check-input" name="radMcrContractType" id="radMcrContractType2" value="2">
-                        <label class="form-check-label" for="radMcrContractType2">Contract Extension with PPM Reschedule</label>
-                    </div>
-                    <p class="font-small text-danger" id="radMcrContractTypeErr"></p>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="md-form md-outline my-0">
-                                <input type="text" id="txtMcrContractDateStart" class="form-control datepicker" readonly>
-                                <label for="txtMcrContractDateStart" id="lblMcrContractDateStart">Date Start *</label>
-                                <p class="font-small text-danger" id="txtMcrContractDateStartErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="md-form md-outline my-0">
-                                <input type="text" id="txtMcrContractDateEnd" class="form-control datepicker" readonly>
-                                <label for="txtMcrContractDateEnd" id="lblMcrContractDateEnd">Date End *</label>
-                                <p class="font-small text-danger" id="txtMcrContractDateEndErr"></p>
-                            </div>
-                        </div>
-                    </div>
-                    <h6 class="font-small">Status : </h6>
-                    <div class="form-check pl-0 ml-3">
-                        <input type="checkbox" class="form-check-input" id="chkMcrStatus" name="chkMcrStatus" value="1">
-                        <label class="form-check-label" for="chkMcrStatus">Active</label>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optMcrSiteId" id="lblMcrSiteId">Site <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMcrSiteId" class="form-select" aria-required="true" aria-describedby="optMcrSiteIdErr"></select>
+              <div class="gems-field-error" id="optMcrSiteIdErr" role="alert"></div>
             </div>
-            <div class="modal-footer p-1 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMcrSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMcrName" id="lblMcrName">Contract Name <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMcrName" class="form-control" aria-required="true" aria-describedby="txtMcrNameErr">
+              <div class="gems-field-error" id="txtMcrNameErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMcrDesc" id="lblMcrDesc">Description</label>
+              <textarea id="txaMcrDesc" class="form-control" rows="3" aria-describedby="txaMcrDescErr"></textarea>
+              <div class="gems-field-error" id="txaMcrDescErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <span class="form-label" id="lblMcrContractType">Contract Modification Type <span class="required" aria-hidden="true">*</span></span>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="radMcrContractType" id="radMcrContractType1" value="1" aria-describedby="radMcrContractTypeErr">
+                <label class="form-check-label" for="radMcrContractType1">Normal Update</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="radMcrContractType" id="radMcrContractType2" value="2" aria-describedby="radMcrContractTypeErr">
+                <label class="form-check-label" for="radMcrContractType2">Contract Extension with PPM Reschedule</label>
+              </div>
+              <div class="gems-field-error" id="radMcrContractTypeErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMcrContractDateStart" id="lblMcrContractDateStart">Date Start <span class="required" aria-hidden="true">*</span></label>
+              <input type="date" id="txtMcrContractDateStart" class="form-control" aria-required="true" aria-describedby="txtMcrContractDateStartErr">
+              <div class="gems-field-error" id="txtMcrContractDateStartErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMcrContractDateEnd" id="lblMcrContractDateEnd">Date End <span class="required" aria-hidden="true">*</span></label>
+              <input type="date" id="txtMcrContractDateEnd" class="form-control" aria-required="true" aria-describedby="txtMcrContractDateEndErr">
+              <div class="gems-field-error" id="txtMcrContractDateEndErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <span class="form-label">Status</span>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="chkMcrStatus" name="chkMcrStatus" value="1" aria-describedby="chkMcrStatusErr">
+                <label class="form-check-label" for="chkMcrStatus">Active</label>
+              </div>
+              <div class="gems-field-error" id="chkMcrStatusErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMcrSubmit" class="btn btn-primary" disabled>
+          <i class="far fa-paper-plane me-2"></i>Submit
+        </button>
+      </div>
     </div>
+  </div>
 </div>

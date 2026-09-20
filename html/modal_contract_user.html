@@ -1,56 +1,75 @@
-<div class="modal fade gems-modal" id="modal_contract_user" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2" id="lblMcuTitle"></h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_contract_user — Tabler/GEMS modal + form contract (P4C-4).
+
+  Loaded by pages/contract.html ONLY. Child of the hidden technician
+  assignment panel in section_contract. Do not expose that panel.
+
+  gems-modal-md + modal-dialog-scrollable, never centered.
+  Location codes are site-scoped. Technician select stays role 5.
+  POST contract_user.php only (no edit).
+
+  JS contract preserved (js/pages/modal_contract_user.js):
+    #modal_contract_user  #formMcu
+    #txtMcuClientName  #txtMcuSiteName  #txtMcuContractName
+    #optMcuLocationCodeId  #lblMcuLocationCodeId  #optMcuLocationCodeIdErr
+    #optMcuUserId  #lblMcuUserId  #optMcuUserIdErr
+    #optMcuAssetGroupId  #lblMcuAssetGroupId  #optMcuAssetGroupIdErr
+    #btnMcuSubmit  #lblMcuTitle
+-->
+<div class="modal fade" id="modal_contract_user" tabindex="-1" aria-labelledby="lblMcuTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMcuTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMcu" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMcuClientName" id="lblMcuClientName">Client Name</label>
+              <input type="text" id="txtMcuClientName" class="form-control" disabled aria-describedby="txtMcuClientNameErr">
+              <div class="gems-field-error" id="txtMcuClientNameErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body gems-modal-body">
-                <form id="formMcu">
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMcuClientName" class="form-control" disabled>
-                        <label for="txtMcuClientName" id="lblMcuClientName">Client Name</label>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMcuSiteName" class="form-control" disabled>
-                        <label for="txtMcuSiteName" id="lblMcuSiteName">Site Name</label>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMcuContractName" class="form-control" disabled>
-                        <label for="txtMcuContractName" id="lblMcuContractName">Contract Name</label>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-0">
-                            <select id="optMcuLocationCodeId" class="mdb-select md-form md-outline colorful-select mt-0" searchable="Search here.." data-stop-refresh="true"></select>
-                            <label for="optMcuLocationCodeId" id="lblMcuLocationCodeId">Location Code *</label>
-                            <p class="font-small text-danger" id="optMcuLocationCodeIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-0">
-                            <select id="optMcuUserId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                            <label for="optMcuUserId" id="lblMcuUserId">Technician Assigned *</label>
-                            <p class="font-small text-danger" id="optMcuUserIdErr"></p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-0">
-                            <select id="optMcuAssetGroupId" class="mdb-select md-form md-outline colorful-select mt-0 mb-0"></select>
-                            <label for="optMcuAssetGroupId" id="lblMcuAssetGroupId">Asset Group *</label>
-                            <p class="font-small text-danger" id="optMcuAssetGroupIdErr"></p>
-                        </div>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMcuSiteName" id="lblMcuSiteName">Site Name</label>
+              <input type="text" id="txtMcuSiteName" class="form-control" disabled aria-describedby="txtMcuSiteNameErr">
+              <div class="gems-field-error" id="txtMcuSiteNameErr" role="alert"></div>
             </div>
-            <div class="modal-footer gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMcuSubmit" class="btn btn-info waves-effect" disabled><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMcuContractName" id="lblMcuContractName">Contract Name</label>
+              <input type="text" id="txtMcuContractName" class="form-control" disabled aria-describedby="txtMcuContractNameErr">
+              <div class="gems-field-error" id="txtMcuContractNameErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optMcuLocationCodeId" id="lblMcuLocationCodeId">Location Code <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMcuLocationCodeId" class="form-select" aria-required="true" aria-describedby="optMcuLocationCodeIdErr"></select>
+              <div class="gems-field-error" id="optMcuLocationCodeIdErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optMcuUserId" id="lblMcuUserId">Technician Assigned <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMcuUserId" class="form-select" aria-required="true" aria-describedby="optMcuUserIdErr"></select>
+              <div class="gems-field-error" id="optMcuUserIdErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optMcuAssetGroupId" id="lblMcuAssetGroupId">Asset Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMcuAssetGroupId" class="form-select" aria-required="true" aria-describedby="optMcuAssetGroupIdErr"></select>
+              <div class="gems-field-error" id="optMcuAssetGroupIdErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnMcuSubmit" class="btn btn-primary" disabled>
+          <i class="far fa-paper-plane me-2"></i>Submit
+        </button>
+      </div>
     </div>
+  </div>
 </div>

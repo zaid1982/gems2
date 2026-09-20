@@ -55,21 +55,21 @@ function ModalLocationCode() {
             $('#btnMlcSubmit').attr('disabled', !formValidate.validateForm());
         });
 
-        $('#modal_location_code').on('hidden.bs.modal', function(){
+        $('#modal_location_code').on('hidden.bs.modal', function () {
             formValidate.clearValidation();
-            $('#btnMlcSubmit').attr('disabled',true);
+            $('#btnMlcSubmit').attr('disabled', true);
         });
 
         $('#btnMlcSubmit').on('click', function () {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    if (!formValidate.validateForm()) {
+                    if (!formValidate.validateNow()) {
                         toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                     }
                     else {
                         const txtName = $('#txtMlcLocationCodeName').val();
-                        const statusVal = $("input[name='chkMlcStatus']").is(":checked") ? '1' : '2';
+                        const statusVal = $("input[name='chkMlcStatus']").is(':checked') ? '1' : '2';
                         const data = {
                             contractId: contractId,
                             locationCodeName: txtName,
@@ -83,7 +83,7 @@ function ModalLocationCode() {
                             }
                         } else {
                             data['action'] = 'update';
-                            mzAjaxRequest('location_code.php?locationCodeId='+locationCodeId, 'PUT', data);
+                            mzAjaxRequest('location_code.php?locationCodeId=' + locationCodeId, 'PUT', data);
                             if (classFrom.getClassName() === 'SectionContract') {
                                 classFrom.updateTableLocationCode(data, rowRefresh);
                             }
@@ -115,7 +115,7 @@ function ModalLocationCode() {
                 mzSetFieldValue('MlcContractName', refContract[contractId]['contractName'], 'text');
                 mzSetFieldValue('MlcStatus', '1', 'checkSingle', '1');
 
-                $('#lblMlcTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Location Code');
+                $('#lblMlcTitle').html('<i class="fas fa-plus me-2"></i>Add Location Code');
                 $('#modal_location_code').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -136,14 +136,14 @@ function ModalLocationCode() {
                 const siteId = refContract[contractId]['siteId'];
                 const clientId = refSite[siteId]['clientId'];
 
-                const dataMlc = mzAjaxRequest('location_code.php?locationCodeId='+locationCodeId, 'GET');
+                const dataMlc = mzAjaxRequest('location_code.php?locationCodeId=' + locationCodeId, 'GET');
                 mzSetFieldValue('MlcClientName', refClient[clientId]['clientName'], 'text');
                 mzSetFieldValue('MlcSiteName', refSite[siteId]['siteName'], 'text');
                 mzSetFieldValue('MlcContractName', refContract[contractId]['contractName'], 'text');
                 mzSetFieldValue('MlcLocationCodeName', dataMlc['locationCodeName'], 'text');
                 mzSetFieldValue('MlcStatus', dataMlc['locationCodeStatus'], 'checkSingle', '1');
 
-                $('#lblMlcTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Location Code');
+                $('#lblMlcTitle').html('<i class="fas fa-plus me-2"></i>Add Location Code');
                 $('#modal_location_code').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -157,8 +157,8 @@ function ModalLocationCode() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_locationCodeId, _rowRefresh]);
-                mzAjaxRequest('location_code.php?locationCodeId='+_locationCodeId, 'PUT', {action: 'deactivate'});
-                const tempRow = {locationCodeStatus:'2'};
+                mzAjaxRequest('location_code.php?locationCodeId=' + _locationCodeId, 'PUT', {action: 'deactivate'});
+                const tempRow = {locationCodeStatus: '2'};
                 if (classFrom.getClassName() === 'SectionContract') {
                     classFrom.updateTableLocationCode(tempRow, _rowRefresh);
                 }
@@ -174,8 +174,8 @@ function ModalLocationCode() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_locationCodeId, _rowRefresh]);
-                mzAjaxRequest('location_code.php?locationCodeId='+_locationCodeId, 'PUT', {action: 'activate'});
-                const tempRow = {locationCodeStatus:'1'};
+                mzAjaxRequest('location_code.php?locationCodeId=' + _locationCodeId, 'PUT', {action: 'activate'});
+                const tempRow = {locationCodeStatus: '1'};
                 if (classFrom.getClassName() === 'SectionContract') {
                     classFrom.updateTableLocationCode(tempRow, _rowRefresh);
                 }
@@ -191,7 +191,7 @@ function ModalLocationCode() {
         setTimeout(function () {
             try {
                 mzCheckFuncParam([_locationCodeId]);
-                mzAjaxRequest('location_code.php?locationCodeId='+_locationCodeId, 'DELETE');
+                mzAjaxRequest('location_code.php?locationCodeId=' + _locationCodeId, 'DELETE');
                 if (classFrom.getClassName() === 'SectionContract') {
                     classFrom.genTableLocationCode();
                 }

@@ -1,6 +1,7 @@
 function MainContract() {
 
     const className = 'MainContract';
+    const momentAvailable = (typeof moment === 'function');
     let self = this;
     let versionLocal;
     let modalConfirmDeleteClass;
@@ -11,7 +12,7 @@ function MainContract() {
     let modalContractClass;
     let sectionContractClass;
     let contractDataCache = [];
-    let lastListUpdatedText = '—';
+    let lastListUpdated = null;
     let statusFilterValue = '';
     let clientFilterValue = '';
     let siteFilterValue = '';
@@ -23,119 +24,217 @@ function MainContract() {
         '5': '#linkCcrArchived'
     };
 
-    const tableHeaders = ['#', 'Client', 'Site', 'Contract', 'Description', 'Start Date', 'End Date', 'Status', 'Actions'];
+    function formatTimestamp(value) {
+        if (!value) {
+            return 'Updated —';
+        }
+        if (momentAvailable) {
+            return 'Updated ' + moment(value).format('DD MMM YYYY, hh:mm A');
+        }
+        return 'Updated ' + new Date(value).toLocaleString();
+    }
 
-    const initMaterialSelect = function (selector) {
-        // const $element = $(selector);
-        // if (!$element.length || typeof $element.materialSelect !== 'function') {
-        //     return;
-        // }
-        // try {
-        //     $element.materialSelect('destroy');
-        // } catch (e) {
-        //     // ignore destroy errors when reinitialising
-        // }
-        // const $wrapper = $element.parent('.select-wrapper');
-        // if ($wrapper.length) {
-        //     $wrapper.before($element);
-        //     $wrapper.remove();
-        // }
-        // $element.siblings('.select-dropdown').remove();
-        // $element.materialSelect();
-    };
+    function displayText(value, type) {
+        const text = value || '';
+        if (type !== 'display') {
+            return text;
+        }
+        return GemsUI.escape(text);
+    }
 
-    const applyTableDataLabels = function (tableSelector, headers) {
-        $(`${tableSelector} tbody tr`).each(function () {
-            $('td', this).each(function (index) {
-                if (headers[index]) {
-                    $(this).attr('data-label', headers[index]);
-                }
-            });
+    function rowsFromRef(ref, idKey, labelKey, predicate) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (!row[labelKey] && (row[idKey] === undefined || row[idKey] === '')) {
+                return true;
+            }
+            if (predicate && !predicate(row)) {
+                return true;
+            }
+            rows.push(row);
+            return true;
         });
-    };
-
-    const stripHtml = function (value) {
-        if (value === null || value === undefined) {
-            return '';
-        }
-        if (typeof value !== 'string') {
-            return value;
-        }
-        return value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-    };
-
-    const getNowStamp = function () {
-        return (typeof moment !== 'undefined' && moment) ? moment().format('MMM D, YYYY h:mm A') : new Date().toLocaleString();
-    };
-
-    const refreshListSummary = function () {
-        if (!oTableContract) {
-            return;
-        }
-        const info = oTableContract.page.info();
-        const showing = info ? (info.end - info.start) : 0;
-        const total = info ? info.recordsDisplay : 0;
-        const summaryText = `Showing ${mzFormatNumber(showing, 0)} of ${mzFormatNumber(total, 0)}`;
-        $('#lblCcrFilterCount').text(summaryText);
-        $('#lblCcrListCount').text(summaryText);
-        $('#lblCcrFilterUpdated').text(lastListUpdatedText);
-        $('#lblCcrListUpdated').text(lastListUpdatedText);
-    };
-
-    const getStatusDesc = function (status) {
-        if (!status || !refStatus || !refStatus[status]) {
-            return 'Unknown';
-        }
-        return refStatus[status]['statusDesc'] || 'Unknown';
-    };
-
-    const updateStatusChips = function (counts) {
-        const labelMap = {
-            '': 'All',
-            '1': getStatusDesc('1'),
-            '2': getStatusDesc('2'),
-            '5': getStatusDesc('5')
-        };
-        $.each(statusChipMap, function (status, selector) {
-            const count = typeof counts[status] !== 'undefined' ? counts[status] : 0;
-            $(selector).html(`${labelMap[status]} <span class="chip-count">${mzFormatNumber(count, 0)}</span>`);
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''));
         });
-    };
+        return rows;
+    }
 
-    const getClientName = function (clientId) {
-        if (refClient && refClient[clientId]) {
+    function clientRows() {
+        return rowsFromRef(refClient, 'clientId', 'clientName');
+    }
+
+    function siteRows(clientId) {
+        return rowsFromRef(refSite, 'siteId', 'siteName', function (row) {
+            if (clientId && String(row['clientId']) !== String(clientId)) {
+                return false;
+            }
+            return true;
+        });
+    }
+
+    function statusRows() {
+        const rows = [];
+        ['1', '2', '5'].forEach(function (statusId) {
+            if (!refStatus || !refStatus[statusId]) {
+                return;
+            }
+            const row = $.extend({}, refStatus[statusId]);
+            if (row['statusId'] === undefined || row['statusId'] === null || row['statusId'] === '') {
+                row['statusId'] = statusId;
+            }
+            rows.push(row);
+        });
+        return rows;
+    }
+
+    function populateStatusFilter() {
+        GemsUI.fillSelect(
+            'optCcrStatus',
+            statusRows(),
+            'statusId',
+            function (row) {
+                return row['statusDesc'] || '';
+            },
+            'All Status',
+            statusFilterValue
+        );
+    }
+
+    function populateClientFilter() {
+        GemsUI.fillSelect(
+            'optCcrClientId',
+            clientRows(),
+            'clientId',
+            function (row) {
+                return row['clientName'] || '';
+            },
+            'All Clients',
+            clientFilterValue
+        );
+    }
+
+    function populateSiteFilter() {
+        const rows = siteRows(clientFilterValue);
+        if (siteFilterValue && !rows.some(function (site) {
+            return String(site['siteId']) === String(siteFilterValue);
+        })) {
+            siteFilterValue = '';
+        }
+        GemsUI.fillSelect(
+            'optCcrSiteId',
+            rows,
+            'siteId',
+            function (row) {
+                return row['siteName'] || '';
+            },
+            'All Sites',
+            siteFilterValue
+        );
+    }
+
+    function getClientName(clientId) {
+        if (refClient && refClient[clientId] && refClient[clientId]['clientName']) {
             return refClient[clientId]['clientName'];
         }
         return 'Unknown Client';
-    };
+    }
 
-    const getSiteName = function (siteId) {
-        if (refSite && refSite[siteId]) {
+    function getSiteName(siteId) {
+        if (refSite && refSite[siteId] && refSite[siteId]['siteName']) {
             return refSite[siteId]['siteName'];
         }
         return 'Unknown Site';
-    };
+    }
 
-    const getStatusBadge = function (status) {
-        if (!status || !refStatus || !refStatus[status]) {
-            return '<span class="badge badge-pill badge-secondary">Unknown</span>';
+    function statusLabel(statusId, fallback) {
+        if (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc']) {
+            return refStatus[statusId]['statusDesc'];
         }
-        const statusObj = refStatus[status];
-        return `<span class="badge badge-pill ${statusObj['statusColor']} z-depth-2">${statusObj['statusDesc']}</span>`;
-    };
+        switch (String(statusId)) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            case '5':
+                return 'Archived';
+            default:
+                return fallback || 'Unknown';
+        }
+    }
 
-    const getMoment = function () {
-        return (typeof moment !== 'undefined' && moment) ? moment : null;
-    };
+    function statusBadgeKind(status) {
+        switch (String(status)) {
+            case '1':
+                return 'success';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
 
-    const updateContractMetrics = function (dataSet) {
+    function statusBadge(statusId, type) {
+        const label = statusLabel(statusId, 'Unknown');
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
+    function refreshListSummary() {
+        if (!oTableContract) {
+            return;
+        }
+        const info = (typeof oTableContract.page === 'function' && typeof oTableContract.page.info === 'function')
+            ? oTableContract.page.info()
+            : null;
+        const showing = info ? (info.end - info.start) : 0;
+        const total = info ? info.recordsDisplay : 0;
+        const summaryText = 'Showing ' + mzFormatNumber(showing, 0) + ' of ' + mzFormatNumber(total, 0);
+        const updatedText = formatTimestamp(lastListUpdated);
+        $('#lblCcrFilterCount').text(summaryText);
+        $('#lblCcrListCount').text(summaryText + ' results');
+        $('#lblCcrFilterUpdated').text(updatedText);
+        $('#lblCcrListUpdated').html('<i class="far fa-clock me-1"></i>' + updatedText);
+    }
+
+    function updateStatusChips(counts) {
+        const labelMap = {
+            '': 'All',
+            '1': statusLabel('1', 'Active'),
+            '2': statusLabel('2', 'Inactive'),
+            '5': statusLabel('5', 'Archived')
+        };
+        $.each(statusChipMap, function (status, selector) {
+            const count = typeof counts[status] !== 'undefined' ? counts[status] : 0;
+            $(selector).html(GemsUI.escape(labelMap[status]) + ' <span class="badge bg-secondary-lt ms-1">' + mzFormatNumber(count, 0) + '</span>');
+        });
+        setActiveStatusChip(statusFilterValue);
+    }
+
+    function getMoment() {
+        return momentAvailable ? moment : null;
+    }
+
+    function updateContractMetrics(dataSet) {
         let total = 0;
         let active = 0;
         let expiringSoon = 0;
         let ended = 0;
         const now = getMoment() ? getMoment()() : null;
 
-        dataSet.forEach(function (item) {
+        (dataSet || []).forEach(function (item) {
+            if (!item) {
+                return;
+            }
             total += 1;
             const status = String(item['contractStatus']);
             if (status === '1') {
@@ -168,13 +267,11 @@ function MainContract() {
         $('#metricCcrExpiring').text(mzFormatNumber(expiringSoon, 0)).toggleClass('text-warning', expiringSoon > 0);
         $('#metricCcrEnded').text(mzFormatNumber(ended, 0)).toggleClass('text-danger', ended > 0);
 
-        const inactive = dataSet.filter(function (item) {
-            const status = String(item['contractStatus']);
-            return status === '2';
+        const inactive = (dataSet || []).filter(function (item) {
+            return String(item['contractStatus']) === '2';
         }).length;
-        const archived = dataSet.filter(function (item) {
-            const status = String(item['contractStatus']);
-            return status === '5';
+        const archived = (dataSet || []).filter(function (item) {
+            return String(item['contractStatus']) === '5';
         }).length;
 
         updateStatusChips({
@@ -183,108 +280,19 @@ function MainContract() {
             '2': inactive,
             '5': archived
         });
-    };
+    }
 
-    const populateStatusFilter = function () {
-        const $select = $('#optCcrStatus');
-        if (!$select.length) {
-            return;
-        }
-        const options = ['<option value="" selected>All Status</option>'];
-        ['1', '2', '5'].forEach(function (statusId) {
-            if (refStatus && refStatus[statusId]) {
-                options.push(`<option value="${statusId}">${refStatus[statusId]['statusDesc']}</option>`);
-            }
-        });
-        $select.html(options.join(''));
-        initMaterialSelect('#optCcrStatus');
-        $select.off('change').on('change', handleStatusSelectChange);
-    };
-
-    const populateClientFilter = function () {
-        const $select = $('#optCcrClientId');
-        if (!$select.length) {
-            return;
-        }
-        const clients = [];
-        if (refClient) {
-            $.each(refClient, function (key, client) {
-                if (!client || typeof client !== 'object') {
-                    return true;
-                }
-                const id = client['clientId'] || key;
-                const name = client['clientName'] || '';
-                clients.push({ id: id, name: name });
-                return true;
-            });
-        }
-        clients.sort(function (a, b) {
-            return (a.name || '').localeCompare(b.name || '');
-        });
-        const options = ['<option value="" selected>All Clients</option>'];
-        clients.forEach(function (client) {
-            options.push(`<option value="${client.id}">${client.name}</option>`);
-        });
-        $select.html(options.join(''));
-        initMaterialSelect('#optCcrClientId');
-        if (clientFilterValue) {
-            $select.val(clientFilterValue);
-            $select.materialSelect();
-        }
-        $select.off('change').on('change', handleClientSelectChange);
-    };
-
-    const populateSiteFilter = function () {
-        const $select = $('#optCcrSiteId');
-        if (!$select.length) {
-            return;
-        }
-        const sites = [];
-        if (refSite) {
-            $.each(refSite, function (key, site) {
-                if (!site || typeof site !== 'object') {
-                    return true;
-                }
-                const siteId = site['siteId'] || key;
-                const siteName = site['siteName'] || '';
-                const siteClientId = site['clientId'];
-                if (clientFilterValue && String(siteClientId) !== String(clientFilterValue)) {
-                    return true;
-                }
-                sites.push({ id: siteId, name: siteName });
-                return true;
-            });
-        }
-        sites.sort(function (a, b) {
-            return (a.name || '').localeCompare(b.name || '');
-        });
-        const options = ['<option value="" selected>All Sites</option>'];
-        sites.forEach(function (site) {
-            options.push(`<option value="${site.id}">${site.name}</option>`);
-        });
-        if (siteFilterValue && !sites.some(function (site) { return String(site.id) === String(siteFilterValue); })) {
-            siteFilterValue = '';
-        }
-        $select.html(options.join(''));
-        initMaterialSelect('#optCcrSiteId');
-        if (siteFilterValue) {
-            $select.val(siteFilterValue);
-            $select.materialSelect();
-        }
-        $select.off('change').on('change', handleSiteSelectChange);
-    };
-
-    const setActiveStatusChip = function (value) {
+    function setActiveStatusChip(value) {
         $.each(statusChipMap, function (status, selector) {
             if (status === value) {
-                $(selector).addClass('active');
+                $(selector).addClass('active btn-primary').removeClass('btn-outline-secondary');
             } else {
-                $(selector).removeClass('active');
+                $(selector).removeClass('active btn-primary').addClass('btn-outline-secondary');
             }
         });
-    };
+    }
 
-    const setStatusFilter = function (value, fromSelect) {
+    function setStatusFilter(value, fromSelect) {
         statusFilterValue = value || '';
         if (oTableContract) {
             oTableContract.draw();
@@ -292,23 +300,12 @@ function MainContract() {
         }
         setActiveStatusChip(statusFilterValue);
         if (!fromSelect) {
-            const $statusSelect = $('#optCcrStatus');
-            if ($statusSelect.length) {
-                try {
-                    $statusSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy errors
-                }
-                $statusSelect.val(statusFilterValue);
-                $statusSelect.materialSelect();
-                $statusSelect.off('change').on('change', handleStatusSelectChange);
-            }
+            $('#optCcrStatus').val(statusFilterValue);
         }
-    };
+    }
 
-    const setClientFilter = function (value, skipSelect) {
-        const newValue = value || '';
-        clientFilterValue = newValue;
+    function setClientFilter(value, skipSelect) {
+        clientFilterValue = value || '';
         if (clientFilterValue && siteFilterValue && refSite && refSite[siteFilterValue]) {
             const siteClientId = refSite[siteFilterValue]['clientId'];
             if (String(siteClientId) !== String(clientFilterValue)) {
@@ -321,98 +318,49 @@ function MainContract() {
         }
         populateSiteFilter();
         if (!skipSelect) {
-            const $clientSelect = $('#optCcrClientId');
-            if ($clientSelect.length) {
-                try {
-                    $clientSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy errors
-                }
-                $clientSelect.val(clientFilterValue);
-                $clientSelect.materialSelect();
-                $clientSelect.off('change').on('change', handleClientSelectChange);
-            }
+            $('#optCcrClientId').val(clientFilterValue);
         }
-    };
+    }
 
-    const setSiteFilter = function (value, skipSelect) {
+    function setSiteFilter(value, skipSelect) {
         siteFilterValue = value || '';
         if (oTableContract) {
             oTableContract.draw();
             refreshListSummary();
         }
         if (!skipSelect) {
-            const $siteSelect = $('#optCcrSiteId');
-            if ($siteSelect.length) {
-                try {
-                    $siteSelect.materialSelect('destroy');
-                } catch (e) {
-                    // ignore destroy errors
-                }
-                $siteSelect.val(siteFilterValue);
-                $siteSelect.materialSelect();
-                $siteSelect.off('change').on('change', handleSiteSelectChange);
-            }
+            $('#optCcrSiteId').val(siteFilterValue);
         }
-    };
+    }
 
-    const handleStatusSelectChange = function () {
+    function handleStatusSelectChange() {
         setStatusFilter($(this).val() || '', true);
-    };
+    }
 
-    const handleClientSelectChange = function () {
+    function handleClientSelectChange() {
         setClientFilter($(this).val() || '', true);
-    };
+    }
 
-    const handleSiteSelectChange = function () {
+    function handleSiteSelectChange() {
         setSiteFilter($(this).val() || '', true);
-    };
+    }
 
-    const bindRowActions = function () {
-        $('.lnkCcrContractEdit').off('click').on('click', function () {
-            const row = oTableContract.row($(this).closest('tr'));
-            const rowData = row.data();
-            if (!rowData) {
-                return;
-            }
-            modalContractClass.edit(rowData['contractId'], row.index());
-        });
-        $('.lnkCcrContractDetails').off('click').on('click', function () {
-            const row = oTableContract.row($(this).closest('tr'));
-            const rowData = row.data();
-            if (!rowData) {
-                return;
-            }
-            sectionContractClass.load(rowData['contractId'], row.index());
-        });
-        $('.lnkCcrContractDeactivate').off('click').on('click', function () {
-            const row = oTableContract.row($(this).closest('tr'));
-            const rowData = row.data();
-            if (!rowData) {
-                return;
-            }
-            modalContractClass.deactivate(rowData['contractId'], row.index());
-        });
-        $('.lnkCcrContractActivate').off('click').on('click', function () {
-            const row = oTableContract.row($(this).closest('tr'));
-            const rowData = row.data();
-            if (!rowData) {
-                return;
-            }
-            modalContractClass.activate(rowData['contractId'], row.index());
-        });
-        $('.lnkCcrContractDelete').off('click').on('click', function () {
-            const row = oTableContract.row($(this).closest('tr'));
-            const rowData = row.data();
-            if (!rowData) {
-                return;
-            }
-            modalConfirmDeleteClass.delete(rowData['contractId'], modalContractClass);
-        });
-    };
+    function rowIdFromLink(el) {
+        const linkId = $(el).attr('id') || '';
+        const linkIndex = linkId.indexOf('_');
+        return linkIndex > 0 ? linkId.substr(linkIndex + 1) : '';
+    }
 
-    const contractFilterFn = function (settings, data, dataIndex) {
-        if (!oTableContract || settings.nTable.id !== 'dtCcrContract') {
+    function rowDataFromLink(el) {
+        const rowId = rowIdFromLink(el);
+        if (!rowId || !oTableContract) {
+            return null;
+        }
+        return { rowId: rowId, data: oTableContract.row(parseInt(rowId, 10)).data() };
+    }
+
+    function contractFilterFn(settings, data, dataIndex) {
+        if (!oTableContract || !settings.nTable || settings.nTable.id !== 'dtCcrContract') {
             return true;
         }
         const rowData = oTableContract.row(dataIndex).data();
@@ -429,146 +377,194 @@ function MainContract() {
             return false;
         }
         return true;
-    };
+    }
 
     this.init = function () {
-        $.fn.dataTable.ext.search.push(contractFilterFn);
-
         populateStatusFilter();
         populateClientFilter();
         populateSiteFilter();
 
+        let exportCounter = 1;
+        const exportOpt = {
+            columns: [0, 1, 2, 3, 4, 5, 6, 7],
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        exportCounter = 1;
+                    }
+                    if (column === 0) {
+                        return exportCounter++;
+                    }
+                    return data;
+                }
+            }
+        };
+        const dtButtons = GemsUI.dtButtons('GEMS 2.0 - Contract List').map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
+            }
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
+        });
+
         oTableContract = $('#dtCcrContract').DataTable({
             bLengthChange: false,
-            bFilter: true,
-            aaSorting: [[1, 'asc'], [2, 'asc'], [3, 'asc']],
-            language: _DATATABLE_LANGUAGE,
-            dom: 't<"dt-pagination-wrapper d-flex justify-content-center"p>',
-            pagingType: 'simple_numbers',
+            searching: true,
             autoWidth: false,
+            aaSorting: [[1, 'asc'], [2, 'asc'], [3, 'asc']],
+            dom: GemsUI.dtDomButtons,
+            buttons: dtButtons,
+            language: GemsUI.dtEmpty('fa-file-contract', 'No contracts recorded yet.', 'No contracts match the current search or filter.'),
+            pagingType: 'simple_numbers',
             columnDefs: [
                 { targets: [0, 7, 8], orderable: false, className: 'text-center' },
                 { targets: [1, 2, 3], className: 'text-nowrap' }
             ],
             fnRowCallback: function (nRow, aData, iDisplayIndex) {
-                const info = oTableContract.page.info();
-                $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
+                const info = (oTableContract && oTableContract.page && typeof oTableContract.page.info === 'function')
+                    ? oTableContract.page.info()
+                    : null;
+                const rowNumber = info ? (info.start + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
+                $('td', nRow).eq(0).html(rowNumber);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                applyTableDataLabels('#dtCcrContract', tableHeaders);
-                bindRowActions();
                 refreshListSummary();
             },
             aoColumns: [
-                { mData: null },
-                { mData: 'clientId', mRender: function (data, type) {
-                        const name = getClientName(data);
-                        return type !== 'display' ? name : name;
-                    } },
-                { mData: 'siteId', mRender: function (data, type) {
-                        const name = getSiteName(data);
-                        return type !== 'display' ? name : name;
-                    } },
-                { mData: 'contractName', mRender: function (data, type) {
+                { mData: null, bSortable: false },
+                { mData: 'clientId',
+                    mRender: function (data, type) {
+                        return displayText(getClientName(data), type);
+                    }
+                },
+                { mData: 'siteId',
+                    mRender: function (data, type) {
+                        return displayText(getSiteName(data), type);
+                    }
+                },
+                { mData: 'contractName',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
+                    }
+                },
+                { mData: 'contractDesc',
+                    mRender: function (data, type) {
                         if (type !== 'display') {
                             return data || '';
                         }
-                        return data || '<span class="text-muted">—</span>';
-                    } },
-                { mData: 'contractDesc', mRender: function (data, type) {
-                        if (type !== 'display') {
-                            return data || '';
+                        if (!data || String(data).trim() === '') {
+                            return '<span class="text-muted">No description</span>';
                         }
-                        return data && data.trim() !== '' ? data : '<span class="text-muted">No description</span>';
-                    } },
-                { mData: 'contractDateStart', mRender: function (data, type) {
-                        if (type !== 'display') {
-                            return data || '';
-                        }
-                        return data || '<span class="text-muted">—</span>';
-                    } },
-                { mData: 'contractDateEnd', mRender: function (data, type) {
-                        if (type !== 'display') {
-                            return data || '';
-                        }
-                        return data || '<span class="text-muted">—</span>';
-                    } },
-                { mData: 'contractStatus', mRender: function (data, type) {
-                        if (type !== 'display') {
-                            return getStatusDesc(data);
-                        }
-                        return `<h6 class="mb-0">${getStatusBadge(data)}</h6>`;
-                    } },
-                { mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        label += '<button type="button" class="btn-action btn-edit lnkCcrContractEdit" id="lnkCcrContractEdit_' + meta.row + '" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>';
-                        label += '<button type="button" class="btn-action btn-view lnkCcrContractDetails" id="lnkCcrContractDetails_' + meta.row + '" data-toggle="tooltip" title="Details"><i class="fas fa-search-plus"></i></button>';
+                        return GemsUI.escape(data);
+                    }
+                },
+                { mData: 'contractDateStart',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
+                    }
+                },
+                { mData: 'contractDateEnd',
+                    mRender: function (data, type) {
+                        return displayText(data, type);
+                    }
+                },
+                { mData: 'contractStatus',
+                    mRender: function (data, type) {
+                        return statusBadge(data, type);
+                    }
+                },
+                { mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
+                    mRender: function (data, type, row, meta) {
+                        let html = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkCcrContractEdit',
+                            id: 'lnkCcrContractEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-view',
+                            cls: 'lnkCcrContractDetails',
+                            id: 'lnkCcrContractDetails_' + meta.row,
+                            title: 'Details',
+                            icon: 'fas fa-search-plus'
+                        });
                         if (row['contractStatus'] === '1') {
-                            label += '<button type="button" class="btn-action btn-delete lnkCcrContractDeactivate" id="lnkCcrContractDeactivate_' + meta.row + '" data-toggle="tooltip" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkCcrContractDeactivate',
+                                id: 'lnkCcrContractDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
                         } else {
-                            label += '<button type="button" class="btn-action btn-edit lnkCcrContractActivate" id="lnkCcrContractActivate_' + meta.row + '" data-toggle="tooltip" title="Activate"><i class="fas fa-toggle-on"></i></button>';
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkCcrContractActivate',
+                                id: 'lnkCcrContractActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
                         }
-                        label += '<button type="button" class="btn-action btn-delete lnkCcrContractDelete" id="lnkCcrContractDelete_' + meta.row + '" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                        label += '</div>';
-                        return label;
-                    } }
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkCcrContractDelete',
+                            id: 'lnkCcrContractDelete_' + meta.row,
+                            title: 'Delete',
+                            icon: 'fas fa-trash-alt'
+                        });
+                        return html;
+                    }
+                }
             ]
         });
-        $('#dtCcrContract_filter').hide();
+
+        oTableContract.buttons().container().appendTo($('#btnDtCcrContractExport'));
+        GemsUI.bindDtTooltips('#dtCcrContract');
+
+        $.fn.dataTable.ext.search.push(contractFilterFn);
+
+        const tbody = $('#dtCcrContract tbody');
+        tbody.on('click', '.lnkCcrContractEdit', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalContractClass.edit(current.data['contractId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkCcrContractDetails', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                sectionContractClass.load(current.data['contractId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkCcrContractDeactivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalContractClass.deactivate(current.data['contractId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkCcrContractActivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalContractClass.activate(current.data['contractId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkCcrContractDelete', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalConfirmDeleteClass.delete(current.data['contractId'], modalContractClass);
+            }
+        });
 
         $('#txtCcrContractSearch').on('keyup change', function () {
             oTableContract.search($(this).val()).draw();
         });
 
-        let exportCounter = 1;
-        const btnContractOpt = {
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7],
-                format: {
-                    body: function (data, row, column) {
-                        if (column === 0) {
-                            if (row === 0) {
-                                exportCounter = 1;
-                            }
-                            return exportCounter++;
-                        }
-                        if (column === 7) {
-                            const rowData = oTableContract.row(row).data();
-                            const statusVal = rowData ? rowData['contractStatus'] : '';
-                            return getStatusDesc(statusVal);
-                        }
-                        return stripHtml(data);
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableContract, {
-            buttons: [
-                $.extend(true, {}, btnContractOpt, {
-                    extend: 'print',
-                    text: '<i class="fas fa-print"></i>',
-                    title: 'GEMS 2.0 - Contract List',
-                    titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend(true, {}, btnContractOpt, {
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i>',
-                    title: 'GEMS 2.0 - Contract List',
-                    titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                }),
-                $.extend(true, {}, btnContractOpt, {
-                    extend: 'pdfHtml5',
-                    text: '<i class="fas fa-file-pdf"></i>',
-                    title: 'GEMS 2.0 - Contract List',
-                    titleAttr: 'Pdf',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
-                })
-            ]
-        }).container().appendTo($('#btnDtCcrContractExport'));
+        $('#optCcrStatus').on('change', handleStatusSelectChange);
+        $('#optCcrClientId').on('change', handleClientSelectChange);
+        $('#optCcrSiteId').on('change', handleSiteSelectChange);
 
         $('#btnCcrContractAdd').on('click', function () {
             modalContractClass.add();
@@ -605,9 +601,9 @@ function MainContract() {
         }
         const refContract = mzGetLocalRaw('gems_contract', versionLocal, [], 'contract');
         contractDataCache = Array.isArray(refContract) ? refContract : [];
+        lastListUpdated = new Date();
         oTableContract.clear().rows.add(contractDataCache).draw();
         contractDataCache = oTableContract.rows().data().toArray();
-        lastListUpdatedText = getNowStamp();
         updateContractMetrics(contractDataCache);
         refreshListSummary();
         setStatusFilter(statusFilterValue || '', true);
@@ -618,7 +614,7 @@ function MainContract() {
     this.addTableCcr = function (_dataAdd) {
         oTableContract.row.add(_dataAdd).draw();
         contractDataCache = oTableContract.rows().data().toArray();
-        lastListUpdatedText = getNowStamp();
+        lastListUpdated = new Date();
         updateContractMetrics(contractDataCache);
         refreshListSummary();
         setStatusFilter(statusFilterValue || '', true);
@@ -654,7 +650,7 @@ function MainContract() {
         }
         oTableContract.row(_rowEdit).data(currentRow).draw();
         contractDataCache = oTableContract.rows().data().toArray();
-        lastListUpdatedText = getNowStamp();
+        lastListUpdated = new Date();
         updateContractMetrics(contractDataCache);
         refreshListSummary();
         setStatusFilter(statusFilterValue || '', true);
