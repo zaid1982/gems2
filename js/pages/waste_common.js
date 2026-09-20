@@ -90,7 +90,8 @@ function WasteCommon() {
     this.fillSelect = function (id, rows, valueKey, labelFn, placeholder, selected) {
         const el = document.getElementById(id);
         if (!el) { return; }
-        el.classList.add('custom-select', 'gems-plain-select', 'browser-default');
+        el.classList.add('form-select');
+        el.classList.remove('custom-select', 'gems-plain-select', 'browser-default');
         el.innerHTML = '';
         const first = document.createElement('option');
         first.value = '';
@@ -156,9 +157,34 @@ function WasteCommon() {
     };
 
     this.statusBadge = function (status) {
-        if (status === 'FINAL') { return '<span class="badge-status completed"><i class="fas fa-check-circle"></i>Final</span>'; }
-        if (status === 'DRAFT') { return '<span class="badge-status in-progress"><i class="fas fa-hourglass-half"></i>Draft</span>'; }
-        return '<span class="badge-status inactive"><i class="fas fa-ban"></i>Cancelled</span>';
+        if (status === 'FINAL') { return '<span class="badge gems-badge gems-badge-success">Final</span>'; }
+        if (status === 'DRAFT') { return '<span class="badge gems-badge gems-badge-warning">Draft</span>'; }
+        return '<span class="badge gems-badge gems-badge-secondary">Cancelled</span>';
+    };
+
+    this.collectionBadge = function (status) {
+        if (status === 'DISPOSED') { return '<span class="badge gems-badge gems-badge-success">Disposed</span>'; }
+        return '<span class="badge gems-badge gems-badge-warning">Pending Collection</span>';
+    };
+
+    // Canonical P2 DataTables chrome: hide DT's own filter, scroll ONLY the
+    // table, keep info + pagination in a real .card-footer outside the scroller.
+    this.dtDom = "<'d-none'f>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
+    this.dtDomButtons = "<'d-none'B>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
+    this.dtEmpty = function (icon, emptyText, zeroText) {
+        return $.extend({}, _DATATABLE_LANGUAGE, {
+            emptyTable: '<div class="gems-empty-state"><i class="fas ' + (icon || 'fa-inbox') + '"></i><p>' + emptyText + '</p></div>',
+            zeroRecords: '<div class="gems-empty-state"><i class="fas fa-filter"></i><p>' + (zeroText || 'No records match the current filters.') + '</p></div>'
+        });
+    };
+    this.actionBtn = function (opts) {
+        const href = opts.href ? ' href="' + opts.href + '"' : ' type="button"';
+        const tag = opts.href ? 'a' : 'button';
+        const extra = opts.extra || '';
+        const id = opts.id ? ' id="' + opts.id + '"' : '';
+        return '<' + tag + href + id + ' class="btn gems-btn-action ' + (opts.tint || '') + ' ' + (opts.cls || '') +
+            '" data-toggle="tooltip" title="' + opts.title + '" aria-label="' + (opts.label || opts.title) + '" ' + extra +
+            '><i class="' + opts.icon + '"></i></' + tag + '>';
     };
 
     this.uuid = function () {
@@ -172,6 +198,26 @@ function WasteCommon() {
     this.queryParam = function (name) {
         const params = new URLSearchParams(window.location.search);
         return params.get(name);
+    };
+
+    // Expand the existing More-filters collapse when any control inside it
+    // already has a value (dashboard drill-down). Leave it collapsed otherwise.
+    this.revealActiveMoreFilters = function (collapseId) {
+        const el = document.getElementById(collapseId);
+        if (!el) { return false; }
+        const fields = el.querySelectorAll('input, select, textarea');
+        let active = false;
+        for (let i = 0; i < fields.length; i++) {
+            if (String(fields[i].value || '').trim()) { active = true; break; }
+        }
+        if (!active) { return false; }
+        el.classList.add('show');
+        const trigger = document.querySelector('[data-bs-target="#' + collapseId + '"], [data-target="#' + collapseId + '"]');
+        if (trigger) {
+            trigger.setAttribute('aria-expanded', 'true');
+            trigger.classList.remove('collapsed');
+        }
+        return true;
     };
 
     this.goRecords = function (qs) {
@@ -195,11 +241,20 @@ function WasteCommon() {
 
     this.dtButtons = function (title) {
         return [
-            { extend: 'colvis', columns: ':not(.noVis)', fade: 400, text: '<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility' },
-            { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2', text: '<i class="fas fa-print"></i>', title: title, titleAttr: 'Print', exportOptions: typeof mzExportOpt !== 'undefined' ? mzExportOpt : {} },
-            { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text: '<i class="fas fa-file-excel"></i>', title: title, titleAttr: 'Excel', exportOptions: typeof mzExportExcelOpt !== 'undefined' ? mzExportExcelOpt : {} },
-            { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3', text: '<i class="fas fa-file-pdf"></i>', title: title, titleAttr: 'PDF', orientation: 'landscape', exportOptions: typeof mzExportOpt !== 'undefined' ? mzExportOpt : {} }
+            { extend: 'colvis', columns: ':not(.noVis)', fade: 400, text: '<i class="fas fa-columns"></i>', className: 'btn btn-outline-secondary btn-sm', titleAttr: 'Column visibility' },
+            { extend: 'print', className: 'btn btn-outline-secondary btn-sm', text: '<i class="fas fa-print"></i>', title: title, titleAttr: 'Print', exportOptions: typeof mzExportOpt !== 'undefined' ? mzExportOpt : {} },
+            { extend: 'excelHtml5', className: 'btn btn-outline-secondary btn-sm', text: '<i class="fas fa-file-excel"></i>', title: title, titleAttr: 'Excel', exportOptions: typeof mzExportExcelOpt !== 'undefined' ? mzExportExcelOpt : {} },
+            { extend: 'pdfHtml5', className: 'btn btn-outline-secondary btn-sm', text: '<i class="fas fa-file-pdf"></i>', title: title, titleAttr: 'PDF', orientation: 'landscape', exportOptions: typeof mzExportOpt !== 'undefined' ? mzExportOpt : {} }
         ];
+    };
+
+    this.bindDtTooltips = function (tableId) {
+        const $table = $(tableId);
+        $table.on('draw.dt', function () {
+            if (typeof window.gemsInitTooltips === 'function') {
+                window.gemsInitTooltips($table.find('tbody')[0]);
+            }
+        });
     };
 
     this.pageScripts = function (initFn) {

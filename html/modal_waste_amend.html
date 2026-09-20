@@ -1,17 +1,29 @@
-<div class="modal fade gems-modal" id="modal_waste_amend" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content gems-modal-card">
-      <div class="modal-header gems-modal-header">
-        <h4 class="text-white mt-2 ml-2" id="h4WamTitle">Reason required</h4>
-        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+<!--
+  Modal: modal_waste_amend — Tabler/GEMS modal contract (P3A Waste).
+  Loaded by pages/waste_record_form.html. JS IDs preserved from the MDB original.
+-->
+<div class="modal fade" id="modal_waste_amend" tabindex="-1" aria-labelledby="h4WamTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-sm modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="h4WamTitle">Reason required</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body gems-modal-body">
-        <p id="pWamHelp">Enter the reason for this change.</p>
-        <textarea id="txaWamReason" class="form-control" rows="3"></textarea>
+      <div class="modal-body">
+        <div class="gems-form-grid">
+          <div class="gems-field gems-field-12">
+            <label class="form-label" for="txaWamReason" id="pWamHelp">Enter the reason for this change.</label>
+            <textarea id="txaWamReason" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
       </div>
-      <div class="modal-footer gems-modal-footer">
-        <button class="btn btn-outline-info" data-dismiss="modal">Close</button>
-        <button class="btn btn-info" id="btnWamOk">Continue</button>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" class="btn btn-primary" id="btnWamOk">
+          <i class="fas fa-check me-2"></i>Continue
+        </button>
       </div>
     </div>
   </div>

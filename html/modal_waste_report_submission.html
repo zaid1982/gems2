@@ -1,22 +1,53 @@
-<div class="modal fade gems-modal" id="modal_waste_report_submission" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content gems-modal-card">
-      <div class="modal-header gems-modal-header">
-        <h4 class="text-white mt-2 ml-2">Record JKR Submission</h4>
-        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+<!--
+  Modal: modal_waste_report_submission — Tabler/GEMS modal + form contract (P3A Waste).
+  Loaded by pages/waste_report.html. JS IDs preserved from the MDB original.
+-->
+<div class="modal fade" id="modal_waste_report_submission" tabindex="-1" aria-labelledby="lblWrsTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblWrsTitle">Record JKR Submission</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body gems-modal-body">
+      <div class="modal-body">
         <input type="hidden" id="hidWrsId">
-        <div class="form-group"><label>Submission Date *</label><input type="date" id="txtWrsDate" class="form-control"></div>
-        <div class="form-group"><label>Submitted To *</label><input type="text" id="txtWrsTo" class="form-control"></div>
-        <div class="form-group"><label>Channel</label><select id="optWrsChannel" class="custom-select gems-plain-select browser-default"></select></div>
-        <div class="form-group"><label>Reference</label><input type="text" id="txtWrsRef" class="form-control"></div>
-        <div class="form-group"><label>Notes</label><textarea id="txaWrsNotes" class="form-control" rows="2"></textarea></div>
-        <div class="form-group"><label>Acknowledgement evidence</label><input type="file" id="txfWrsFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div>
+        <div class="gems-form-grid">
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="txtWrsDate">Submission Date <span class="required" aria-hidden="true">*</span></label>
+            <input type="date" id="txtWrsDate" class="form-control" aria-required="true">
+          </div>
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="txtWrsTo">Submitted To <span class="required" aria-hidden="true">*</span></label>
+            <input type="text" id="txtWrsTo" class="form-control" aria-required="true">
+          </div>
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="optWrsChannel">Channel</label>
+            <select id="optWrsChannel" class="form-select"></select>
+          </div>
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="txtWrsRef">Reference</label>
+            <input type="text" id="txtWrsRef" class="form-control">
+          </div>
+          <div class="gems-field gems-field-12">
+            <label class="form-label" for="txaWrsNotes">Notes</label>
+            <textarea id="txaWrsNotes" class="form-control" rows="2"></textarea>
+          </div>
+          <div class="gems-field gems-field-12">
+            <label class="form-label" for="txfWrsFile">Acknowledgement evidence</label>
+            <input type="file" id="txfWrsFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+          </div>
+        </div>
       </div>
-      <div class="modal-footer gems-modal-footer">
-        <button class="btn btn-outline-info" data-dismiss="modal">Close</button>
-        <button class="btn btn-info" id="btnWrsSave">Save</button>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" class="btn btn-primary" id="btnWrsSave">
+          <i class="far fa-save me-2"></i>Save
+        </button>
       </div>
     </div>
   </div>

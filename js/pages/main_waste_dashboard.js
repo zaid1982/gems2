@@ -207,21 +207,17 @@ function MainWasteDashboard() {
             searching: false,
             pageLength: 10,
             autoWidth: false,
-            language: _DATATABLE_LANGUAGE,
-            dom: 't<"dataTables-footer"ip>',
+            language: wc.dtEmpty('fa-balance-scale', 'No balance rows for this period.'),
+            dom: wc.dtDom,
             columns: [
                 { data: 'siteName' },
                 { data: 'swCode' },
                 { data: 'swDescription' },
-                { data: 'openingKg', className: 'text-qty', render: wc.fmtQty },
-                { data: 'producedKg', className: 'text-qty', render: wc.fmtQty },
-                { data: 'disposedKg', className: 'text-qty', render: wc.fmtQty },
-                { data: 'closingKg', className: 'text-qty', render: wc.fmtQty }
-            ],
-            createdRow: function (row) {
-                const labels = ['Premise', 'SW Code', 'Description', 'Opening', 'Produced', 'Disposed', 'Closing'];
-                $('td', row).each(function (i) { $(this).attr('data-label', labels[i]); });
-            }
+                { data: 'openingKg', className: 'gems-num', render: wc.fmtQty },
+                { data: 'producedKg', className: 'gems-num', render: wc.fmtQty },
+                { data: 'disposedKg', className: 'gems-num', render: wc.fmtQty },
+                { data: 'closingKg', className: 'gems-num', render: wc.fmtQty }
+            ]
         });
         dtHist = $('#dtWdbHist').DataTable({
             data: [],
@@ -229,21 +225,17 @@ function MainWasteDashboard() {
             searching: false,
             pageLength: 10,
             autoWidth: false,
-            language: _DATATABLE_LANGUAGE,
-            dom: "<'row align-items-center mb-2'<'col-sm-12 px-0'B>><'row'<'col-sm-12'tr>><'row'<'col-sm-6'i><'col-sm-6'p>>",
+            language: wc.dtEmpty('fa-layer-group', 'No historical waste by type for this period.'),
+            dom: wc.dtDomButtons,
             buttons: wc.dtButtons('GEMS - Historical Waste by Type'),
             columns: [
                 { data: 'swCode' },
                 { data: 'swDescription' },
-                { data: 'producedKg', className: 'text-qty', render: wc.fmtQty },
-                { data: 'disposedKg', className: 'text-qty', render: wc.fmtQty },
-                { data: 'pendingKg', className: 'text-qty', render: wc.fmtQty },
-                { data: 'closingKg', className: 'text-qty', render: wc.fmtQty }
-            ],
-            createdRow: function (row) {
-                const labels = ['SW Code', 'Description', 'Produced', 'Disposed', 'Pending', 'Closing'];
-                $('td', row).each(function (i) { $(this).attr('data-label', labels[i]); });
-            }
+                { data: 'producedKg', className: 'gems-num', render: wc.fmtQty },
+                { data: 'disposedKg', className: 'gems-num', render: wc.fmtQty },
+                { data: 'pendingKg', className: 'gems-num', render: wc.fmtQty },
+                { data: 'closingKg', className: 'gems-num', render: wc.fmtQty }
+            ]
         });
         dtHist.buttons().container().appendTo($('#btnDtWdbHistExport'));
 

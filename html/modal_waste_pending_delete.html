@@ -1,21 +1,31 @@
-<div class="modal fade gems-modal" id="modal_waste_pending_delete" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content gems-modal-card">
-      <div class="modal-header gems-modal-header">
-        <h4 class="text-white mt-2 ml-2">Delete pending waste</h4>
-        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+<!--
+  Modal: modal_waste_pending_delete — Tabler/GEMS modal contract (P3A Waste).
+  Loaded by pages/waste_pending.html. JS IDs preserved from the MDB original.
+-->
+<div class="modal fade" id="modal_waste_pending_delete" tabindex="-1" aria-labelledby="lblWpxTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-sm modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblWpxTitle">Delete pending waste</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body gems-modal-body">
+      <div class="modal-body">
         <input type="hidden" id="hidWpxId">
         <p>Record <strong id="lblWpxRef"></strong> will be cancelled and removed from the premise balance. The row is kept for the audit trail.</p>
-        <div class="form-group mb-0">
-          <label class="waste-label" for="txaWpxReason">Reason <span class="waste-req">*</span></label>
-          <textarea id="txaWpxReason" class="form-control" rows="3"></textarea>
+        <div class="gems-form-grid">
+          <div class="gems-field gems-field-12">
+            <label class="form-label" for="txaWpxReason">Reason <span class="required" aria-hidden="true">*</span></label>
+            <textarea id="txaWpxReason" class="form-control" rows="3" aria-required="true"></textarea>
+          </div>
         </div>
       </div>
-      <div class="modal-footer gems-modal-footer">
-        <button class="btn btn-outline-info" data-dismiss="modal">Close</button>
-        <button class="btn btn-danger" id="btnWpxDelete">Delete Record</button>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" class="btn btn-outline-danger" id="btnWpxDelete">
+          <i class="fas fa-trash-alt me-2"></i>Delete Record
+        </button>
       </div>
     </div>
   </div>

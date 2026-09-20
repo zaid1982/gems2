@@ -22,7 +22,7 @@ function MainWasteDispose() {
         if (isImage(payload)) {
             prev.append($('<img>').attr('src', 'data:' + payload.type + ';base64,' + payload.data));
         } else {
-            prev.append('<div class="mt-2"><i class="fas fa-file-pdf text-danger mr-1"></i>' + payload.name + '</div>');
+            prev.append('<div class="mt-2"><i class="fas fa-file-pdf text-danger me-1"></i>' + payload.name + '</div>');
         }
     };
 

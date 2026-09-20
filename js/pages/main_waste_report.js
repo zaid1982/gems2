@@ -25,23 +25,30 @@ function MainWasteReport() {
         wc.fillSelect('optWrpSite', wc.sites, 'siteId', function (r) { return r.siteName; }, 'All authorised');
         if (!wc.caps.canReport) { $('#btnWrpNew').hide(); }
         dt = $('#dtWrp').DataTable({
-            data: [], bLengthChange: false, pageLength: 12, autoWidth: false, language: _DATATABLE_LANGUAGE, order: [[2, 'desc']],
+            data: [], bLengthChange: false, pageLength: 12, autoWidth: false,
+            language: wc.dtEmpty('fa-file-alt', 'No JKR report versions yet.', 'No report versions match this search.'),
+            order: [[2, 'desc']],
+            dom: wc.dtDom,
             columns: [
                 { data: null },
                 { data: 'siteName' },
                 { data: null, render: function (r) { return wc.fmtDate(r.periodStart) + ' – ' + wc.fmtDate(r.periodEnd); } },
                 { data: 'versionNo', render: function (v) { return 'v' + v; } },
                 { data: null, render: function (r) { return wc.fmtDate((r.generatedAt || '').slice(0, 10)) + ' · ' + (r.generatedByName || ''); } },
-                { data: 'changedSinceGenerated', render: function (v) { return v ? '<span class="badge-status incomplete">Changed</span>' : '<span class="badge-status completed">Current</span>'; } },
-                { data: null, orderable: false, render: function (r) {
+                { data: 'changedSinceGenerated', render: function (v) { return v ? '<span class="badge gems-badge gems-badge-warning">Changed</span>' : '<span class="badge gems-badge gems-badge-success">Current</span>'; } },
+                { data: null, orderable: false, className: 'text-center text-nowrap', render: function (r) {
                     let html = '';
-                    if (r.pdfUploadId) html += '<a href="#" class="mr-2 lnkFile" data-id="' + r.pdfUploadId + '">PDF</a>';
-                    if (r.excelUploadId) html += '<a href="#" class="mr-2 lnkFile" data-id="' + r.excelUploadId + '">Excel</a>';
-                    if (wc.caps.canReport) html += '<a href="#" class="lnkSubmit" data-id="' + r.reportId + '">Submission</a>';
+                    if (r.pdfUploadId) html += wc.actionBtn({ href: '#', tint: 'gems-btn-action-view', cls: 'lnkFile', title: 'Open PDF', icon: 'fas fa-file-pdf', extra: 'data-id="' + r.pdfUploadId + '"' });
+                    if (r.excelUploadId) html += wc.actionBtn({ href: '#', tint: 'gems-btn-action-view', cls: 'lnkFile', title: 'Open Excel', icon: 'fas fa-file-excel', extra: 'data-id="' + r.excelUploadId + '"' });
+                    if (wc.caps.canReport) html += wc.actionBtn({ href: '#', tint: 'gems-btn-action-edit', cls: 'lnkSubmit', title: 'Record submission', icon: 'fas fa-paper-plane', extra: 'data-id="' + r.reportId + '"' });
                     return html;
                 } }
             ],
             fnRowCallback: function (n, d, i) { $('td', n).eq(0).html(i + 1); }
+        });
+        wc.bindDtTooltips('#dtWrp');
+        $('#txtWrpSearch').on('input search', function () {
+            dt.search(this.value).draw();
         });
         reload();
         $('#btnWrpRefresh, #optWrpSite').on('click change', function (e) {

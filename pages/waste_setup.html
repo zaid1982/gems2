@@ -1,88 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/waste_setup.html — Tabler-migrated (P3A Waste).
+
+  Asset stack is a verbatim copy of html/head_tabler.html and
+  html/scripts_tabler.html. Page extras: moment.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GEMS 2.0 - Waste Setup</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
-  <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-  <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<header>
-  <div class="includeHtml" id="h-nav_left"></div>
-  <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<main>
-  <div class="container-fluid module-page module-master waste-page">
-    <section>
-      <div class="gems-page-header module-page-header">
-        <div class="header-text">
-          <h2><i class="fas fa-cog mr-3"></i>Waste Setup</h2>
-          <p>Maintain reporting premises, approved SW profiles, storage locations and reference values.</p>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-cog me-2 text-primary"></i>Waste Setup</h1>
+              <div class="page-subtitle">Maintain reporting premises, approved SW profiles, storage locations and reference values.</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnWstRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-primary" id="btnWstAdd"
+                      data-bs-toggle="tooltip" title="Add" aria-label="Add">
+                <i class="fas fa-plus me-2"></i>Add
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="header-actions">
-          <button type="button" class="btn btn-light btn-icon" id="btnWstRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-          <button type="button" class="btn btn-primary btn-icon" id="btnWstAdd" title="Add"><i class="fas fa-plus"></i></button>
+
+        <ul class="nav nav-tabs mb-3" id="wstSetupTabs">
+          <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabPremise" data-tab="premise">Premises</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabProfile" data-tab="profile">Waste Profiles</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabLocation" data-tab="location">Locations</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabRef" data-tab="ref">Reference Values</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="tabPremise">
+            <div class="card">
+              <table id="dtPremise" class="table table-vcenter card-table table-hover mb-0">
+                <thead><tr><th>#</th><th>Premise</th><th>Code</th><th>Contact</th><th>Cut-over</th><th>Evidence</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="tabProfile">
+            <div class="card">
+              <table id="dtProfile" class="table table-vcenter card-table table-hover mb-0">
+                <thead><tr><th>#</th><th>SW Code</th><th>Official Description</th><th>Site Alias</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="tabLocation">
+            <div class="card">
+              <table id="dtLocation" class="table table-vcenter card-table table-hover mb-0">
+                <thead><tr><th>#</th><th>Location</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="tabRef">
+            <div class="card">
+              <table id="dtRef" class="table table-vcenter card-table table-hover mb-0">
+                <thead><tr><th>#</th><th>Type</th><th>Name</th><th>Scope</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
         </div>
+
       </div>
-      <ul class="nav nav-tabs mb-3" id="wstSetupTabs">
-        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#tabPremise" data-tab="premise">Premises</a></li>
-        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tabProfile" data-tab="profile">Waste Profiles</a></li>
-        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tabLocation" data-tab="location">Locations</a></li>
-        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tabRef" data-tab="ref">Reference Values</a></li>
-      </ul>
-      <div class="tab-content">
-        <div class="tab-pane fade show active" id="tabPremise">
-          <div class="module-data-card"><div class="module-table-wrapper"><table id="dtPremise" class="table table-hover mb-0 display mobile-stack"><thead><tr><th>#</th><th>Premise</th><th>Code</th><th>Contact</th><th>Cut-over</th><th>Evidence</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div>
-        </div>
-        <div class="tab-pane fade" id="tabProfile">
-          <div class="module-data-card"><div class="module-table-wrapper"><table id="dtProfile" class="table table-hover mb-0 display mobile-stack"><thead><tr><th>#</th><th>SW Code</th><th>Official Description</th><th>Site Alias</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div>
-        </div>
-        <div class="tab-pane fade" id="tabLocation">
-          <div class="module-data-card"><div class="module-table-wrapper"><table id="dtLocation" class="table table-hover mb-0 display mobile-stack"><thead><tr><th>#</th><th>Location</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div>
-        </div>
-        <div class="tab-pane fade" id="tabRef">
-          <div class="module-data-card"><div class="module-table-wrapper"><table id="dtRef" class="table table-hover mb-0 display mobile-stack"><thead><tr><th>#</th><th>Type</th><th>Name</th><th>Scope</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div>
-        </div>
-      </div>
-    </section>
+    </div>
   </div>
-  <div class="includeHtml" id="h-modal_change_password"></div>
-  <div class="includeHtml" id="h-modal_waste_premise"></div>
-  <div class="includeHtml" id="h-modal_waste_profile"></div>
-  <div class="includeHtml" id="h-modal_waste_location"></div>
-  <div class="includeHtml" id="h-modal_waste_ref_value"></div>
-</main>
-<script>
-  $('.includeHtml').each(function () { const id = $(this).attr('id'); $('#' + id).load('html/' + id.substr(2) + '.html?' + Date.now()); });
-</script>
-<script src="js/popper.min.js"></script>
-<script src="js/bootstrap.js"></script>
-<script src="js/mdb.min.js"></script>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_waste_premise"></div>
+<div class="includeHtml" id="h-modal_waste_profile"></div>
+<div class="includeHtml" id="h-modal_waste_location"></div>
+<div class="includeHtml" id="h-modal_waste_ref_value"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
 <script src="js/addons/crypto.js"></script>
 <script src="js/addons/moment.min.js"></script>
-<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script src="js/vendor/datatables/js/jszip.min.js"></script>
-<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
 <script>
-  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/waste_common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/main_waste_setup.js?'+Date.now()+'"></scr'+'ipt>');
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/waste_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_waste_setup.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.addEventListener('DOMContentLoaded', function () {
     ShowLoader();
     setTimeout(function () {

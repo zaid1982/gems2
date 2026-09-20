@@ -1,33 +1,57 @@
-<div class="modal fade gems-modal" id="modal_waste_ref_value" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content gems-modal-card">
-      <div class="modal-header gems-modal-header">
-        <h4 class="text-white mt-2 ml-2">Reference Value</h4>
-        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+<!--
+  Modal: modal_waste_ref_value — Tabler/GEMS modal + form contract (P3A Waste).
+  Loaded by pages/waste_setup.html. JS IDs preserved from the MDB original.
+-->
+<div class="modal fade" id="modal_waste_ref_value" tabindex="-1" aria-labelledby="lblWrvTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblWrvTitle">Reference Value</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body gems-modal-body">
-        <form id="formWrv">
+      <div class="modal-body">
+        <form id="formWrv" autocomplete="off" novalidate>
           <input type="hidden" id="hidWrvId">
-          <div class="form-group"><label>Type *</label>
-            <select id="optWrvType" class="custom-select gems-plain-select browser-default">
-              <option value="PACKAGING_TYPE">Packaging Type</option>
-              <option value="HANDLING_METHOD">Handling Method</option>
-              <option value="DOCUMENT_TYPE">Document Type</option>
-              <option value="TRANSPORTER">Transporter</option>
-              <option value="RECEIVER">Receiving Facility</option>
-              <option value="SUBMISSION_CHANNEL">Submission Channel</option>
-            </select>
-          </div>
-          <div class="form-group"><label>Name *</label><input type="text" id="txtWrvName" class="form-control"></div>
-          <div class="form-group"><label>Premise (optional, blank = global)</label><select id="optWrvSite" class="custom-select gems-plain-select browser-default"></select></div>
-          <div class="form-group"><label>Status</label>
-            <select id="optWrvStatus" class="custom-select gems-plain-select browser-default"><option value="1">Active</option><option value="2">Inactive</option></select>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optWrvType">Type <span class="required" aria-hidden="true">*</span></label>
+              <select id="optWrvType" class="form-select" aria-required="true">
+                <option value="PACKAGING_TYPE">Packaging Type</option>
+                <option value="HANDLING_METHOD">Handling Method</option>
+                <option value="DOCUMENT_TYPE">Document Type</option>
+                <option value="TRANSPORTER">Transporter</option>
+                <option value="RECEIVER">Receiving Facility</option>
+                <option value="SUBMISSION_CHANNEL">Submission Channel</option>
+              </select>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtWrvName">Name <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtWrvName" class="form-control" aria-required="true">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optWrvSite">Premise (optional, blank = global)</label>
+              <select id="optWrvSite" class="form-select"></select>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optWrvStatus">Status</label>
+              <select id="optWrvStatus" class="form-select">
+                <option value="1">Active</option>
+                <option value="2">Inactive</option>
+              </select>
+            </div>
           </div>
         </form>
       </div>
-      <div class="modal-footer gems-modal-footer">
-        <button class="btn btn-outline-info" data-dismiss="modal">Close</button>
-        <button class="btn btn-info" id="btnWrvSave">Save</button>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" class="btn btn-primary" id="btnWrvSave">
+          <i class="far fa-save me-2"></i>Save
+        </button>
       </div>
     </div>
   </div>

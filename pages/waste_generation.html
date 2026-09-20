@@ -1,105 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/waste_generation.html — Tabler-migrated (P3A Waste).
+
+  Page sheet uses gems-form-grid, not waste-grid-4. Asset stack is a verbatim
+  copy of html/head_tabler.html and html/scripts_tabler.html.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GEMS 2.0 - Waste Generation</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
-  <script src="js/jquery-3.7.0.min.js"></script>
-  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
-<main>
-  <div class="container-fluid module-page module-master waste-page waste-form-page">
-    <div class="gems-page-header module-page-header">
-      <div class="header-text">
-        <h2><i class="fas fa-dumpster mr-3"></i>Waste Generation</h2>
-        <p>Record waste as it is produced. The record then waits in the pending disposal list until it is collected.</p>
-      </div>
-      <div class="header-actions">
-        <a class="btn btn-light" href="p_waste_pending"><i class="fas fa-list mr-2"></i>Pending Disposal</a>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-dumpster me-2 text-primary"></i>Waste Generation</h1>
+              <div class="page-subtitle">Record waste as it is produced. The record then waits in the pending disposal list until it is collected.</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <a class="btn btn-outline-secondary" href="p_waste_pending"><i class="fas fa-list me-2"></i>Pending Disposal</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3 class="card-title mb-0">Waste details</h3>
+          </div>
+          <div class="card-body">
+            <form id="formWgn" autocomplete="off" novalidate>
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="optWgnSite">Premise <span class="required" aria-hidden="true">*</span></label>
+                  <select id="optWgnSite" class="form-select" aria-required="true"></select>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="optWgnSw">Waste type <span class="required" aria-hidden="true">*</span></label>
+                  <select id="optWgnSw" class="form-select" aria-required="true"></select>
+                  <p id="lblWgnSwDesc" class="waste-sw-official d-none"></p>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="txtWgnQty">Waste weight (kg) <span class="required" aria-hidden="true">*</span></label>
+                  <input type="number" step="0.001" min="0.001" id="txtWgnQty" class="form-control" placeholder="0.000" aria-required="true">
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="txtWgnDate">Date <span class="required" aria-hidden="true">*</span></label>
+                  <input type="date" id="txtWgnDate" class="form-control" aria-required="true">
+                </div>
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txtWgnRemarks">Remarks</label>
+                  <input type="text" id="txtWgnRemarks" class="form-control" placeholder="Optional notes">
+                </div>
+              </div>
+              <div class="waste-note">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                  <div>Saving adds the weight to the premise balance and puts the record in <strong>Pending Collection</strong>.</div>
+                  <div>Images and the actual disposed weight are captured later, when the disposal is executed.</div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer waste-form-footer">
+            <div class="waste-form-footer-note"><span class="required" aria-hidden="true">*</span> Required fields.</div>
+            <div class="waste-form-footer-actions">
+              <button type="button" class="btn btn-outline-secondary" id="btnWgnReset">Clear</button>
+              <button type="button" class="btn btn-primary" id="btnWgnSave"><i class="fas fa-save me-2"></i>Save Generation</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Recently generated</h3>
+              <div class="text-secondary" style="font-size:.75rem">The last waste records you created at this premise.</div>
+            </div>
+          </div>
+          <table id="dtWgnRecent" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Reference</th>
+                <th>Date</th>
+                <th>Waste Type</th>
+                <th>Registered</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
       </div>
     </div>
-
-    <form id="formWgn" class="waste-sheet">
-      <section class="waste-letter-block">
-        <h3 class="waste-letter">Waste details</h3>
-        <div class="waste-grid-4">
-          <div class="waste-field waste-field-site">
-            <label class="waste-label" for="optWgnSite">Premise <span class="waste-req">*</span></label>
-            <select id="optWgnSite" class="custom-select gems-plain-select browser-default"></select>
-          </div>
-          <div class="waste-field waste-field-span-2">
-            <label class="waste-label" for="optWgnSw">Waste type <span class="waste-req">*</span></label>
-            <select id="optWgnSw" class="custom-select gems-plain-select browser-default"></select>
-            <p id="lblWgnSwDesc" class="waste-sw-official d-none"></p>
-          </div>
-          <div class="waste-field">
-            <label class="waste-label" for="txtWgnQty">Waste weight (kg) <span class="waste-req">*</span></label>
-            <input type="number" step="0.001" min="0.001" id="txtWgnQty" class="form-control" placeholder="0.000">
-          </div>
-          <div class="waste-field">
-            <label class="waste-label" for="txtWgnDate">Date <span class="waste-req">*</span></label>
-            <input type="date" id="txtWgnDate" class="form-control">
-          </div>
-          <div class="waste-field waste-field-span-3">
-            <label class="waste-label" for="txtWgnRemarks">Remarks</label>
-            <input type="text" id="txtWgnRemarks" class="form-control" placeholder="Optional notes">
-          </div>
-        </div>
-        <div class="waste-note">
-          <i class="fas fa-info-circle"></i>
-          <div>
-            <div>Saving adds the weight to the premise balance and puts the record in <strong>Pending Collection</strong>.</div>
-            <div>Images and the actual disposed weight are captured later, when the disposal is executed.</div>
-          </div>
-        </div>
-      </section>
-    </form>
-
-    <div class="waste-form-footer">
-      <div class="waste-form-footer-note">* Required fields.</div>
-      <div class="waste-form-footer-actions">
-        <button type="button" class="btn btn-light" id="btnWgnReset">Clear</button>
-        <button type="button" class="btn btn-primary" id="btnWgnSave"><i class="fas fa-save mr-2"></i>Save Generation</button>
-      </div>
-    </div>
-
-    <section class="module-data-card mt-4">
-      <div class="module-card-header">
-        <div>
-          <h4>Recently generated</h4>
-          <p>The last waste records you created at this premise.</p>
-        </div>
-      </div>
-      <div class="module-table-wrapper">
-        <table id="dtWgnRecent" class="table table-hover mb-0 display mobile-stack">
-          <thead><tr><th>#</th><th>Reference</th><th>Date</th><th>Waste Type</th><th>Registered</th><th>Status</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
   </div>
-  <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
-<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
-<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
-<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
 <script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
 <script>
-  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/waste_common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/main_waste_generation.js?'+Date.now()+'"></scr'+'ipt>');
-  document.addEventListener('DOMContentLoaded', function(){
-    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainWasteGeneration().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 250);
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
   });
 </script>
-</body></html>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/waste_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_waste_generation.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try { initiatePages(); new ModalChangePassword(); new MainWasteGeneration().init(); }
+      catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 250);
+  });
+</script>
+</body>
+</html>

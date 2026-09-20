@@ -34,11 +34,6 @@ function MainWasteGeneration() {
         dt.clear().rows.add(rows.slice(0, 10)).draw();
     };
 
-    const collectionBadge = function (status) {
-        if (status === 'DISPOSED') { return '<span class="badge-status completed"><i class="fas fa-check-circle"></i>Disposed</span>'; }
-        return '<span class="badge-status in-progress"><i class="fas fa-hourglass-half"></i>Pending Collection</span>';
-    };
-
     const clearForm = function () {
         $('#txtWgnQty').val('');
         $('#txtWgnRemarks').val('');
@@ -92,15 +87,17 @@ function MainWasteGeneration() {
         $('#txtWgnDate').attr('max', moment().format('YYYY-MM-DD'));
 
         dt = $('#dtWgnRecent').DataTable({
-            data: [], bLengthChange: false, pageLength: 10, autoWidth: false, language: _DATATABLE_LANGUAGE,
-            searching: false, ordering: false, dom: 't',
+            data: [], bLengthChange: false, pageLength: 10, autoWidth: false,
+            language: wc.dtEmpty('fa-dumpster', 'No generation records yet.'),
+            searching: false, ordering: false, paging: false, info: false,
+            dom: "<'table-responsive't>",
             columns: [
                 { data: null },
                 { data: 'txnRef' },
                 { data: 'eventDate', render: wc.fmtDate },
                 { data: null, render: function (r) { return r.swCode + ' — ' + (r.swDescription || ''); } },
-                { data: 'registeredKg', render: wc.fmtQty },
-                { data: 'collectionStatus', render: collectionBadge }
+                { data: 'registeredKg', className: 'gems-num', render: wc.fmtQty },
+                { data: 'collectionStatus', render: wc.collectionBadge }
             ],
             fnRowCallback: function (n, d, i) { $('td', n).eq(0).html(this._iDisplayStart + i + 1); }
         });

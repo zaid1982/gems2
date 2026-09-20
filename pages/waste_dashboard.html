@@ -1,304 +1,373 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/waste_dashboard.html — Tabler-migrated (P3A Waste).
+
+  Seven filters: four visible, extras behind More filters. Metric tiles keep
+  .metric-card[data-kpi] because main_waste_dashboard.js binds click-to-drill
+  on that class. Chart and table IDs are unchanged.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GEMS 2.0 - Waste Dashboard</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
-  <script src="js/jquery-3.7.0.min.js"></script>
-  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
-<main>
-  <div class="container-fluid module-page module-master waste-page">
-    <section>
-      <div class="gems-page-header module-page-header">
-        <div class="header-text">
-          <h2><i class="fas fa-chart-bar mr-3"></i>Waste Dashboard</h2>
-          <p>Official quantities use Final records only. Current Balance is not recalculated by packaging or transporter filters.</p>
-        </div>
-        <div class="header-actions">
-          <button type="button" class="btn btn-light btn-icon" id="btnWdbRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-          <a class="btn btn-primary btn-icon" href="p_waste_record_form" title="Record waste"><i class="fas fa-plus"></i></a>
-        </div>
-      </div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-      <div class="filter-card">
-        <div class="filter-grid">
-          <div>
-            <div class="filter-label">Month</div>
-            <select id="optWdbMonth" class="custom-select gems-plain-select browser-default">
-              <option value="">All months</option>
-              <option value="1">January</option><option value="2">February</option><option value="3">March</option>
-              <option value="4">April</option><option value="5">May</option><option value="6">June</option>
-              <option value="7">July</option><option value="8">August</option><option value="9">September</option>
-              <option value="10">October</option><option value="11">November</option><option value="12">December</option>
-            </select>
-          </div>
-          <div>
-            <div class="filter-label">Year</div>
-            <select id="optWdbYear" class="custom-select gems-plain-select browser-default"></select>
-          </div>
-          <div>
-            <div class="filter-label">Period from</div>
-            <input type="date" id="txtWdbFrom" class="form-control">
-          </div>
-          <div>
-            <div class="filter-label">Period to / As-at</div>
-            <input type="date" id="txtWdbTo" class="form-control">
-          </div>
-          <div>
-            <div class="filter-label">Premise</div>
-            <select id="optWdbSite" class="custom-select gems-plain-select browser-default"><option value="">All authorised</option></select>
-          </div>
-          <div>
-            <div class="filter-label">SW Code</div>
-            <select id="optWdbSw" class="custom-select gems-plain-select browser-default"><option value="">All</option></select>
-          </div>
-          <div>
-            <div class="filter-label">Trend grain</div>
-            <select id="optWdbGrain" class="custom-select gems-plain-select browser-default">
-              <option value="day">Day</option>
-              <option value="week">Week</option>
-              <option value="month">Month</option>
-            </select>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-chart-bar me-2 text-primary"></i>Waste Dashboard</h1>
+              <div class="page-subtitle">Official quantities use Final records only. Current Balance is not recalculated by packaging or transporter filters.</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnWdbRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <a class="btn btn-primary" href="p_waste_record_form" title="Record waste" aria-label="Record waste">
+                <i class="fas fa-plus me-2"></i>Record waste
+              </a>
+            </div>
           </div>
         </div>
-        <div class="results-summary">
-          <div id="lblWdbFilter" class="summary-pill">Filters: current month</div>
-          <div id="lblWdbUnit" class="summary-pill">Unit: kg (1 MT = 1,000 kg)</div>
-          <div id="lblWdbUpdated" class="summary-pill">Last refreshed: -</div>
-        </div>
-      </div>
 
-      <div class="metrics-row">
-        <div class="metric-card" data-kpi="opening">
-          <div class="metric-label">Opening Balance</div>
-          <div class="metric-value" id="kOpen">-</div>
-          <div class="metric-subtext">Before period</div>
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optWdbMonth">Month</label>
+                <select id="optWdbMonth" class="form-select">
+                  <option value="">All months</option>
+                  <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                  <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                  <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                  <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                </select>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optWdbYear">Year</label>
+                <select id="optWdbYear" class="form-select"></select>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optWdbSite">Premise</label>
+                <select id="optWdbSite" class="form-select"><option value="">All authorised</option></select>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optWdbSw">SW Code</label>
+                <select id="optWdbSw" class="form-select"><option value="">All</option></select>
+              </div>
+              <div class="gems-field gems-field-12 gems-field-actions">
+                <button class="btn btn-ghost-secondary btn-sm ms-auto" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#wdbMoreFilters"
+                        aria-expanded="false" aria-controls="wdbMoreFilters">
+                  <i class="fas fa-sliders-h me-1"></i>More filters
+                </button>
+              </div>
+            </div>
+            <div class="collapse" id="wdbMoreFilters">
+              <div class="gems-form-grid mt-2 pt-2" style="border-top:1px solid var(--gems-border)">
+                <div class="gems-field-pair">
+                  <div class="gems-field">
+                    <label class="form-label" for="txtWdbFrom">Period from</label>
+                    <input type="date" id="txtWdbFrom" class="form-control">
+                  </div>
+                  <div class="gems-field">
+                    <label class="form-label" for="txtWdbTo">Period to / As-at</label>
+                    <input type="date" id="txtWdbTo" class="form-control">
+                  </div>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="optWdbGrain">Trend grain</label>
+                  <select id="optWdbGrain" class="form-select">
+                    <option value="day">Day</option>
+                    <option value="week">Week</option>
+                    <option value="month">Month</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-2 text-secondary" style="font-size:.75rem">
+              <div id="lblWdbFilter">Filters: current month</div>
+              <div id="lblWdbUnit">Unit: kg (1 MT = 1,000 kg)</div>
+              <div id="lblWdbUpdated" class="ms-auto text-nowrap">Last refreshed: -</div>
+            </div>
+          </div>
         </div>
-        <div class="metric-card" data-kpi="produced">
-          <div class="metric-label">Produced</div>
-          <div class="metric-value text-success" id="kProd">-</div>
-          <div class="metric-subtext">During period</div>
-        </div>
-        <div class="metric-card" data-kpi="disposed">
-          <div class="metric-label">Disposed</div>
-          <div class="metric-value text-danger" id="kDisp">-</div>
-          <div class="metric-subtext">During period</div>
-        </div>
-        <div class="metric-card" data-kpi="net">
-          <div class="metric-label">Net Movement</div>
-          <div class="metric-value" id="kNet">-</div>
-          <div class="metric-subtext">Produced − Disposed</div>
-        </div>
-        <div class="metric-card" data-kpi="current">
-          <div class="metric-label">Current Balance</div>
-          <div class="metric-value text-primary" id="kCur">-</div>
-          <div class="metric-subtext">As-at date</div>
-        </div>
-        <div class="metric-card" data-kpi="final">
-          <div class="metric-label">Final Transactions</div>
-          <div class="metric-value" id="kFinal">-</div>
-          <div class="metric-subtext">Draft: <span id="kDraft">0</span></div>
-        </div>
-        <div class="metric-card" data-kpi="pending">
-          <div class="metric-label">Pending Disposal</div>
-          <div class="metric-value text-warning" id="kPending">-</div>
-          <div class="metric-subtext">Awaiting collection</div>
-        </div>
-      </div>
 
-      <div class="waste-grid waste-grid-trend">
-        <div class="module-data-card waste-panel">
-          <div class="module-card-header">
+        <div class="row row-cards mb-3">
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card metric-card" data-kpi="opening"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Opening Balance</div>
+              <div class="h2 mb-0" id="kOpen">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Before period</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card metric-card" data-kpi="produced"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Produced</div>
+              <div class="h2 mb-0 text-success" id="kProd">-</div>
+              <div class="text-secondary" style="font-size:.75rem">During period</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card metric-card" data-kpi="disposed"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Disposed</div>
+              <div class="h2 mb-0 text-danger" id="kDisp">-</div>
+              <div class="text-secondary" style="font-size:.75rem">During period</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card metric-card" data-kpi="net"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Net Movement</div>
+              <div class="h2 mb-0" id="kNet">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Produced − Disposed</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card metric-card" data-kpi="current"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Current Balance</div>
+              <div class="h2 mb-0 text-primary" id="kCur">-</div>
+              <div class="text-secondary" style="font-size:.75rem">As-at date</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card metric-card" data-kpi="final"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Final Transactions</div>
+              <div class="h2 mb-0" id="kFinal">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Draft: <span id="kDraft">0</span></div>
+            </div></div>
+          </div>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card metric-card" data-kpi="pending"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Pending Disposal</div>
+              <div class="h2 mb-0 text-warning" id="kPending">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Awaiting collection</div>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="row row-cards mb-3">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">Pending disposal by waste type</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Total kilograms awaiting collection, grouped by SW code.</div>
+                </div>
+                <div class="gems-card-toolbar">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" id="btnWdbPendExcel" title="Excel" aria-label="Export pending chart to Excel"><i class="fas fa-file-excel"></i></button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" id="btnWdbPendPrint" title="Print" aria-label="Print pending chart"><i class="fas fa-print"></i></button>
+                </div>
+              </div>
+              <div class="card-body"><div id="chartPending" class="waste-chart"></div></div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">Disposed waste by type</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Disposed kilograms in the selected period.</div>
+                </div>
+              </div>
+              <div class="card-body"><div id="chartDisposed" class="waste-chart"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header">
             <div>
-              <h4>Pending disposal by waste type</h4>
-              <p>Total kilograms awaiting collection, grouped by SW code.</p>
+              <h3 class="card-title mb-0">Historical waste by type</h3>
+              <div class="text-secondary" style="font-size:.75rem">Registered and disposed kilograms per waste type for the selected period.</div>
             </div>
-            <div class="header-actions">
-              <button type="button" class="btn btn-outline-green btn-sm px-2" id="btnWdbPendExcel" title="Excel"><i class="fas fa-file-excel"></i></button>
-              <button type="button" class="btn btn-outline-blue-grey btn-sm px-2" id="btnWdbPendPrint" title="Print"><i class="fas fa-print"></i></button>
-            </div>
+            <div id="btnDtWdbHistExport" class="gems-card-toolbar"></div>
           </div>
-          <div class="waste-card-body">
-            <div id="chartPending" class="waste-chart"></div>
-          </div>
-        </div>
-        <div class="module-data-card waste-panel">
-          <div class="module-card-header">
-            <div>
-              <h4>Disposed waste by type</h4>
-              <p>Disposed kilograms in the selected period.</p>
-            </div>
-          </div>
-          <div class="waste-card-body">
-            <div id="chartDisposed" class="waste-chart"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="module-data-card mb-4">
-        <div class="module-card-header">
-          <div>
-            <h4>Historical waste by type</h4>
-            <p>Registered and disposed kilograms per waste type for the selected period.</p>
-          </div>
-          <div id="btnDtWdbHistExport" class="d-flex align-items-center"></div>
-        </div>
-        <div class="module-table-wrapper">
-          <table id="dtWdbHist" class="table table-hover mb-0 mobile-stack">
+          <table id="dtWdbHist" class="table table-vcenter card-table table-hover mb-0">
             <thead>
               <tr>
                 <th>SW Code</th>
                 <th>Description</th>
-                <th class="text-qty">Produced</th>
-                <th class="text-qty">Disposed</th>
-                <th class="text-qty">Pending</th>
-                <th class="text-qty">Closing</th>
+                <th class="gems-num">Produced</th>
+                <th class="gems-num">Disposed</th>
+                <th class="gems-num">Pending</th>
+                <th class="gems-num">Closing</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
-      </div>
 
-      <div class="waste-grid waste-grid-trend">
-        <div class="module-data-card waste-panel">
-          <div class="module-card-header">
-            <div>
-              <h4>Waste output trend</h4>
-              <p>Produced and disposed quantities in the selected period.</p>
+        <div class="row row-cards mb-3">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">Waste output trend</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Produced and disposed quantities in the selected period.</div>
+                </div>
+              </div>
+              <div class="card-body"><div id="chartTrend" class="waste-chart"></div></div>
             </div>
           </div>
-          <div class="waste-card-body">
-            <div id="chartTrend" class="waste-chart"></div>
-          </div>
-        </div>
-        <div class="module-data-card waste-panel">
-          <div class="module-card-header">
-            <div>
-              <h4>By SW code</h4>
-              <p>Produced quantity by scheduled waste code.</p>
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">By SW code</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Produced quantity by scheduled waste code.</div>
+                </div>
+              </div>
+              <div class="card-body"><div id="chartSw" class="waste-chart"></div></div>
             </div>
           </div>
-          <div class="waste-card-body">
-            <div id="chartSw" class="waste-chart"></div>
-          </div>
         </div>
-      </div>
 
-      <div class="module-data-card">
-        <div class="module-card-header">
-          <div>
-            <h4>Current balance by premise and SW code</h4>
-            <p>Opening + Produced − Disposed. Final records only.</p>
+        <div class="card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Current balance by premise and SW code</h3>
+              <div class="text-secondary" style="font-size:.75rem">Opening + Produced − Disposed. Final records only.</div>
+            </div>
           </div>
-        </div>
-        <div class="module-table-wrapper">
-          <table id="dtBal" class="table table-hover mb-0 mobile-stack">
+          <table id="dtBal" class="table table-vcenter card-table table-hover mb-0">
             <thead>
               <tr>
                 <th>Premise</th>
                 <th>SW Code</th>
                 <th>Description</th>
-                <th class="text-qty">Opening</th>
-                <th class="text-qty">Produced</th>
-                <th class="text-qty">Disposed</th>
-                <th class="text-qty">Closing</th>
+                <th class="gems-num">Opening</th>
+                <th class="gems-num">Produced</th>
+                <th class="gems-num">Disposed</th>
+                <th class="gems-num">Closing</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
-      </div>
 
-      <div class="waste-grid waste-grid-split">
-        <div class="module-data-card waste-panel">
-          <div class="module-card-header">
-            <div>
-              <h4>Premise comparison</h4>
-              <p>Produced, disposed and current balance by premise.</p>
+        <div class="row row-cards mb-3">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">Premise comparison</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Produced, disposed and current balance by premise.</div>
+                </div>
+              </div>
+              <div class="card-body"><div id="chartPremise" class="waste-chart-sm"></div></div>
             </div>
           </div>
-          <div class="waste-card-body">
-            <div id="chartPremise" class="waste-chart-sm"></div>
-          </div>
-        </div>
-        <div class="module-data-card waste-panel">
-          <div class="module-card-header">
-            <div>
-              <h4>Transaction analysis</h4>
-              <p>Does not change Current Balance.</p>
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">Transaction analysis</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Does not change Current Balance.</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="mb-2">
+                  <label class="form-label" for="optWdbAnalysis">Breakdown</label>
+                  <select id="optWdbAnalysis" class="form-select">
+                    <option value="packaging">Packaging</option>
+                    <option value="handling">Handling</option>
+                    <option value="transporter">Transporter</option>
+                  </select>
+                </div>
+                <div id="chartAnalysis" class="waste-chart-sm"></div>
+              </div>
             </div>
           </div>
-          <div class="waste-card-body">
-            <select id="optWdbAnalysis" class="custom-select gems-plain-select browser-default waste-analysis-select">
-              <option value="packaging">Packaging</option>
-              <option value="handling">Handling</option>
-              <option value="transporter">Transporter</option>
-            </select>
-            <div id="chartAnalysis" class="waste-chart-sm"></div>
-          </div>
         </div>
-      </div>
 
-      <div class="module-data-card">
-        <div class="module-card-header">
-          <div>
-            <h4>Recent records</h4>
-            <p>Latest waste transactions across the selected filters.</p>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Recent records</h3>
+              <div class="text-secondary" style="font-size:.75rem">Latest waste transactions across the selected filters.</div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="tblRecent" class="table table-vcenter card-table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Type</th>
+                  <th>SW Code</th>
+                  <th>Event Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="5" class="text-muted">No confirmed transactions</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
-        <div class="module-table-wrapper">
-          <table id="tblRecent" class="table table-hover mb-0">
-            <thead>
-              <tr>
-                <th>Reference</th>
-                <th>Type</th>
-                <th>SW Code</th>
-                <th>Event Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="5" class="text-muted">No confirmed transactions</td></tr>
-            </tbody>
-          </table>
-        </div>
+
       </div>
-    </section>
+    </div>
   </div>
-  <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
-<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
-<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
-<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
-<script src="js/vendor/highcharts/highcharts.js"></script>
-<script src="js/vendor/highcharts/modules/exporting.js"></script>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
 <script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
 <script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
 <script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
 <script src="js/vendor/datatables/js/buttons.print.min.js"></script>
 <script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
 <script src="js/vendor/datatables/js/jszip.min.js"></script>
 <script src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/highcharts/highcharts.js"></script>
+<script src="js/vendor/highcharts/modules/exporting.js"></script>
 <script>
-  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/waste_common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/main_waste_dashboard.js?'+Date.now()+'"></scr'+'ipt>');
-  document.addEventListener('DOMContentLoaded', function(){
-    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainWasteDashboard().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 300);
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
   });
 </script>
-</body></html>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/waste_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_waste_dashboard.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try { initiatePages(); new ModalChangePassword(); new MainWasteDashboard().init(); }
+      catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 300);
+  });
+</script>
+</body>
+</html>

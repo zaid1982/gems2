@@ -286,7 +286,7 @@ function WasteRecordForm() {
         if (isDisposal && linked.consignmentReceiptRef) { fields.push(['Consignment receipt', linked.consignmentReceiptRef]); }
         if (isDisposal && linked.disposalRemarks) { fields.push(['Disposal remarks', linked.disposalRemarks]); }
         $('#divWrfLinkedFields').html(fields.map(function (f) {
-            return '<div class="waste-field"><label class="waste-label">' + f[0] + '</label>' +
+            return '<div class="gems-field gems-field-6"><label class="form-label">' + f[0] + '</label>' +
                 '<input type="text" class="form-control" value="' + String(f[1] === null || f[1] === undefined ? '-' : f[1]).replace(/"/g, '&quot;') + '" readonly disabled></div>';
         }).join(''));
         $('#divWrfLinkedDocs').html((linked.documents || []).map(function (d) {
@@ -356,7 +356,7 @@ function WasteRecordForm() {
         $('#btnWrfCancel').toggle(!row.txnId || row.txnStatus === 'DRAFT' || row.txnStatus === 'FINAL');
         $('#btnWrfAmend').toggle(row.txnStatus === 'FINAL' && wc.caps.canAmendFinal);
         $('#divWrfDrop').toggle((!row.txnId || row.txnStatus === 'DRAFT' || row.txnStatus === 'FINAL') && wc.caps.canRecord);
-        $('#btnWrfAmend').data('ready', 0).html('<i class="fas fa-pen mr-2"></i>Amend');
+        $('#btnWrfAmend').data('ready', 0).html('<i class="fas fa-pen me-2"></i>Amend');
         syncChrome();
         refreshQty();
         refreshBalance();
@@ -443,7 +443,7 @@ function WasteRecordForm() {
             if ($('#btnWrfAmend').data('ready') !== 1) {
                 $('#formWrf').find('input, select, textarea').prop('disabled', false);
                 $('#txtWrfRef, #txtWrfStatus, #txtWrfRecorded, #txtWrfQtyKg, #txtWrfBalBefore, #txtWrfBalAfter, #txtWrfAlias, #txtWrfAddress, #txtWrfPhone').prop('disabled', true);
-                $('#btnWrfAmend').data('ready', 1).html('<i class="fas fa-save mr-2"></i>Save Amendment');
+                $('#btnWrfAmend').data('ready', 1).html('<i class="fas fa-save me-2"></i>Save Amendment');
                 toastr['info']('Update the fields, then save the amendment.', 'Amend Final');
                 return;
             }
@@ -453,7 +453,7 @@ function WasteRecordForm() {
                     const body = payload();
                     body.reason = reason;
                     applyRecord(wc.api('transaction/' + $('#hidWrfId').val() + '/amend', 'POST', body));
-                    $('#btnWrfAmend').data('ready', 0).html('<i class="fas fa-pen mr-2"></i>Amend Final');
+                    $('#btnWrfAmend').data('ready', 0).html('<i class="fas fa-pen me-2"></i>Amend Final');
                 } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
                 HideLoader();
             });

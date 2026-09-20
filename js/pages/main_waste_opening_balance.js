@@ -13,20 +13,23 @@ function MainWasteOpeningBalance() {
         wc.fillSelect('optWobSite', wc.sites, 'siteId', function (r) { return r.siteName; }, 'All authorised');
         if (!wc.caps.canOpening) { $('#btnWobAdd').hide(); }
         dt = $('#dtWob').DataTable({
-            data: [], bLengthChange: false, pageLength: 15, autoWidth: false, language: _DATATABLE_LANGUAGE,
-            dom: "<'row'<'col-sm-12 col-lg-6 px-0 pb-2'B>><'row'<'col-sm-12'tr>><'row'<'col-sm-6'i><'col-sm-6'p>>",
+            data: [], bLengthChange: false, pageLength: 15, autoWidth: false, searching: false,
+            language: wc.dtEmpty('fa-balance-scale', 'No opening balances recorded yet.'),
+            dom: wc.dtDomButtons,
             buttons: wc.dtButtons('GEMS - Opening Balance'),
             columns: [
                 { data: null }, { data: 'siteName' }, { data: 'swCode' }, { data: 'swDescription' },
                 { data: 'asAtDate', render: wc.fmtDate },
-                { data: null, render: function (r) { return Number(r.qty).toLocaleString() + ' ' + r.unit + ' (' + wc.fmtQty(r.qtyKg) + ')'; } },
+                { data: null, className: 'gems-num', render: function (r) { return Number(r.qty).toLocaleString() + ' ' + r.unit + ' (' + wc.fmtQty(r.qtyKg) + ')'; } },
                 { data: 'locationName' },
-                { data: null, orderable: false, render: function (r) {
-                    return wc.caps.canOpening ? '<a class="text-primary lnkWobEdit" data-id="' + r.openingId + '"><i class="fas fa-pen-to-square"></i></a>' : '';
+                { data: null, orderable: false, className: 'text-center text-nowrap', render: function (r) {
+                    return wc.caps.canOpening ? wc.actionBtn({ tint: 'gems-btn-action-edit', cls: 'lnkWobEdit', title: 'Edit', icon: 'fas fa-pen', extra: 'data-id="' + r.openingId + '"' }) : '';
                 } }
             ],
             fnRowCallback: function (n, d, i) { $('td', n).eq(0).html(i + 1); }
         });
+        dt.buttons().container().appendTo($('#btnDtWobExport'));
+        wc.bindDtTooltips('#dtWob');
         reload();
         $('#btnWobRefresh, #optWobSite').on('click change', function (e) {
             if (e.type === 'click' && this.id !== 'btnWobRefresh') return;

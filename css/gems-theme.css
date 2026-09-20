@@ -502,6 +502,15 @@ body.gems-tabler {
   color: var(--gems-muted);
 }
 
+/* Pre-init only. A DataTable starts as a direct .card child (P2/catalog).
+   Until DataTables' dom wraps it, a wide <table> would expand the page.
+   :has(> table) matches only that pre-init shape. After init the table
+   lives inside .dataTables_wrapper > .table-responsive, this rule
+   un-matches, and the info/pagination footer stays outside the scroller. */
+body.gems-tabler .card:has(> table.table) {
+  overflow-x: auto;
+}
+
 /* --------------------------------------------------------------------------
    8. Badges — one status vocabulary
    -------------------------------------------------------------------------- */
@@ -787,4 +796,193 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
 }
 .gems-tabler .gems-modal p.font-small { font-size: 0.75rem; margin: 0; }
 .gems-tabler .gems-modal p.font-small:empty { display: none; }
+
+/* --------------------------------------------------------------------------
+   13. Waste module helpers (P3A)
+   --------------------------------------------------------------------------
+   Waste JS still writes a small set of module class names (dropzone, file
+   chips, history rows, empty charts, header chips). Those rules used to live
+   in gems2-ui.css, which a Tabler page must never load. This section only
+   restyles those existing hooks with the P0 tokens — it does not invent a
+   second form grid or badge language.
+   -------------------------------------------------------------------------- */
+.gems-tabler .waste-chart { height: 280px; }
+.gems-tabler .waste-chart-sm { height: 220px; }
+@media (min-width: 1600px) {
+  .gems-tabler .waste-chart { height: 320px; }
+  .gems-tabler .waste-chart-sm { height: 260px; }
+}
+
+.gems-tabler .waste-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  padding: 1.5rem 1rem;
+  color: var(--gems-muted);
+  text-align: center;
+  font-size: 0.8125rem;
+}
+
+.gems-tabler .metric-card[data-kpi] { cursor: pointer; }
+.gems-tabler .metric-card[data-kpi]:hover { background: #f5f7f9; }
+
+.gems-tabler .waste-header-chip,
+.gems-tabler .waste-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+.gems-tabler .waste-header-chip {
+  background: #eef1f4;
+  color: var(--gems-text-soft);
+}
+.gems-tabler .waste-status-badge.is-draft { background: #fdf3e2; color: #9a6206; }
+.gems-tabler .waste-status-badge.is-final { background: #e7f7ee; color: #1a7f4b; }
+.gems-tabler .waste-status-badge.is-cancelled { background: #eef1f4; color: var(--gems-text-soft); }
+
+.gems-tabler .waste-note,
+.gems-tabler .gems-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: var(--gems-field-gap);
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--tblr-border-radius);
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+.gems-tabler .waste-note i,
+.gems-tabler .gems-note i { margin-top: 0.15rem; flex: 0 0 auto; }
+
+.gems-tabler .waste-inline-radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: var(--gems-control-h);
+  align-items: center;
+}
+.gems-tabler .waste-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--gems-border);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.gems-tabler .waste-radio input { margin: 0; }
+.gems-tabler .waste-sheet.is-produced .waste-radio:has(#radWrfTypeP),
+.gems-tabler .waste-sheet.is-disposed .waste-radio:has(#radWrfTypeD) {
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(36, 55, 70, 0.08);
+  border-color: var(--gems-primary);
+}
+
+.gems-tabler .waste-dropzone,
+.gems-tabler .waste-image-drop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 88px;
+  padding: 0.75rem;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: var(--tblr-border-radius);
+  background: #f8fafc;
+  cursor: pointer;
+  text-align: center;
+}
+.gems-tabler .waste-dropzone { flex-direction: row; text-align: left; }
+.gems-tabler .waste-dropzone.is-over,
+.gems-tabler .waste-image-drop.is-set {
+  border-color: var(--gems-secondary);
+  background: rgba(var(--gems-secondary-rgb), 0.06);
+}
+.gems-tabler .waste-dropzone input[type="file"],
+.gems-tabler .waste-image-drop input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.gems-tabler .waste-image-drop img {
+  max-height: 160px;
+  border-radius: 6px;
+  margin-top: 0.35rem;
+}
+.gems-tabler .waste-image-drop .drop-hint,
+.gems-tabler .waste-dropzone small {
+  font-size: 0.75rem;
+  color: var(--gems-muted);
+}
+.gems-tabler .waste-dropzone i,
+.gems-tabler .waste-image-drop i { color: var(--gems-muted-icon); }
+
+.gems-tabler .waste-doc-chips { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; }
+.gems-tabler .waste-file-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--gems-border);
+  border-radius: var(--tblr-border-radius);
+  background: #fff;
+}
+.gems-tabler .waste-file-chip i { color: var(--gems-danger); }
+.gems-tabler .waste-file-chip span { flex: 1; min-width: 0; }
+.gems-tabler .waste-file-chip strong { display: block; font-size: 0.8125rem; }
+.gems-tabler .waste-file-chip small { color: var(--gems-muted); font-size: 0.75rem; }
+
+.gems-tabler .waste-history-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.gems-tabler .waste-history-item {
+  display: flex;
+  gap: 0.65rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--gems-border);
+  border-radius: var(--tblr-border-radius);
+}
+.gems-tabler .waste-history-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 0.4rem;
+  border-radius: 50%;
+  background: var(--gems-secondary);
+}
+.gems-tabler .waste-history-title { font-weight: 700; font-size: 0.8125rem; }
+.gems-tabler .waste-history-meta { color: var(--gems-muted); font-size: 0.75rem; }
+
+.gems-tabler .waste-form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.gems-tabler .waste-form-footer-note { color: var(--gems-muted); font-size: 0.75rem; }
+.gems-tabler .waste-form-footer-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.gems-tabler .waste-sw-official { font-size: 0.75rem; color: var(--gems-muted); margin: 0.25rem 0 0; }
+.gems-tabler #txtWrfLocText:not(.d-none) { margin-top: 0.4rem; }
+
+@media (max-width: 575.98px) {
+  .gems-tabler .waste-form-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .gems-tabler .waste-form-footer-actions { justify-content: stretch; }
+  .gems-tabler .waste-form-footer-actions .btn { flex: 1 1 auto; }
+}
 

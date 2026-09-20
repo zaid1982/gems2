@@ -1,29 +1,67 @@
-<div class="modal fade gems-modal" id="modal_waste_opening_balance" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-    <div class="modal-content gems-modal-card">
-      <div class="modal-header gems-modal-header">
-        <h4 class="text-white mt-2 ml-2">Opening Balance</h4>
-        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+<!--
+  Modal: modal_waste_opening_balance — Tabler/GEMS modal + form contract (P3A Waste).
+  Loaded by pages/waste_opening_balance.html. JS IDs preserved from the MDB original.
+-->
+<div class="modal fade" id="modal_waste_opening_balance" tabindex="-1" aria-labelledby="lblWobTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblWobTitle">Opening Balance</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body gems-modal-body">
-        <form id="formWob">
+      <div class="modal-body">
+        <form id="formWob" autocomplete="off" novalidate>
           <input type="hidden" id="hidWobId">
-          <div class="form-group"><label>Premise *</label><select id="optWobFormSite" class="custom-select gems-plain-select browser-default"></select></div>
-          <div class="form-group"><label>SW Code *</label><select id="optWobSw" class="custom-select gems-plain-select browser-default"></select></div>
-          <div class="form-group"><label>Official Description</label><p id="lblWobDesc">-</p></div>
-          <div class="form-row">
-            <div class="form-group col-md-4"><label>As-at Date *</label><input type="date" id="txtWobAsAt" class="form-control"></div>
-            <div class="form-group col-md-4"><label>Quantity *</label><input type="number" step="0.001" min="0" id="txtWobQty" class="form-control"></div>
-            <div class="form-group col-md-4"><label>Unit *</label><select id="optWobUnit" class="custom-select gems-plain-select browser-default"><option value="KG">kg</option><option value="MT">MT</option></select></div>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optWobFormSite">Premise <span class="required" aria-hidden="true">*</span></label>
+              <select id="optWobFormSite" class="form-select" aria-required="true"></select>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="optWobSw">SW Code <span class="required" aria-hidden="true">*</span></label>
+              <select id="optWobSw" class="form-select" aria-required="true"></select>
+              <div class="gems-field-help" id="lblWobDesc">-</div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtWobAsAt">As-at Date <span class="required" aria-hidden="true">*</span></label>
+              <input type="date" id="txtWobAsAt" class="form-control" aria-required="true">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtWobQty">Quantity <span class="required" aria-hidden="true">*</span></label>
+              <input type="number" step="0.001" min="0" id="txtWobQty" class="form-control" aria-required="true">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optWobUnit">Unit <span class="required" aria-hidden="true">*</span></label>
+              <select id="optWobUnit" class="form-select" aria-required="true">
+                <option value="KG">kg</option>
+                <option value="MT">MT</option>
+              </select>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optWobLoc">Storage Location</label>
+              <select id="optWobLoc" class="form-select"></select>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaWobRemarks">Remarks</label>
+              <textarea id="txaWobRemarks" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txfWobFile">Supporting Document (optional)</label>
+              <input type="file" id="txfWobFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+            </div>
           </div>
-          <div class="form-group"><label>Storage Location</label><select id="optWobLoc" class="custom-select gems-plain-select browser-default"></select></div>
-          <div class="form-group"><label>Remarks</label><textarea id="txaWobRemarks" class="form-control" rows="2"></textarea></div>
-          <div class="form-group"><label>Supporting Document (optional)</label><input type="file" id="txfWobFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png"></div>
         </form>
       </div>
-      <div class="modal-footer gems-modal-footer">
-        <button class="btn btn-outline-info" data-dismiss="modal">Close</button>
-        <button class="btn btn-info" id="btnWobSave">Save</button>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" class="btn btn-primary" id="btnWobSave">
+          <i class="far fa-save me-2"></i>Save
+        </button>
       </div>
     </div>
   </div>

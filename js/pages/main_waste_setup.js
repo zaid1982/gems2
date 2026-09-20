@@ -4,33 +4,47 @@ function MainWasteSetup() {
     let dtP, dtF, dtL, dtR;
 
     const actions = function (kind, id) {
-        return '<a class="text-primary lnkEdit mr-2" data-kind="' + kind + '" data-id="' + id + '" title="Edit"><i class="fas fa-pen-to-square"></i></a>';
+        return wc.actionBtn({
+            tint: 'gems-btn-action-edit',
+            cls: 'lnkEdit',
+            title: 'Edit',
+            icon: 'fas fa-pen',
+            extra: 'data-kind="' + kind + '" data-id="' + id + '"'
+        });
     };
 
     const initTables = function () {
-        const common = { bLengthChange: false, pageLength: 10, autoWidth: false, language: _DATATABLE_LANGUAGE, dom: "<'row'<'col-sm-12'tr>><'row'<'col-sm-6'i><'col-sm-6'p>>" };
+        const common = {
+            bLengthChange: false, pageLength: 10, autoWidth: false, searching: false,
+            language: wc.dtEmpty('fa-cog', 'No setup records yet.'),
+            dom: wc.dtDom
+        };
         dtP = $('#dtPremise').DataTable($.extend(true, {}, common, { columns: [
             { data: null }, { data: 'siteName' }, { data: 'siteCode' }, { data: 'premiseContactNo' },
             { data: 'cutoverDate', render: wc.fmtDate },
             { data: null, render: function (r) { return (Number(r.evidenceRequiredProduced) ? 'P ' : '') + (Number(r.evidenceRequiredDisposed) ? 'D' : '') || '-'; } },
-            { data: null, orderable: false, render: function (r) { return actions('premise', r.siteId); } }
+            { data: null, orderable: false, className: 'text-center text-nowrap', render: function (r) { return actions('premise', r.siteId); } }
         ], fnRowCallback: function (n, d, i) { $('td', n).eq(0).html(i + 1); } }));
         dtF = $('#dtProfile').DataTable($.extend(true, {}, common, { columns: [
             { data: null }, { data: 'swCode' }, { data: 'swDescription' }, { data: 'profileAlias' },
-            { data: 'profileStatus', render: function (s) { return Number(s) === 1 ? 'Active' : 'Inactive'; } },
-            { data: null, orderable: false, render: function (r) { return actions('profile', r.profileId); } }
+            { data: 'profileStatus', render: function (s) { return Number(s) === 1 ? '<span class="badge gems-badge gems-badge-success">Active</span>' : '<span class="badge gems-badge gems-badge-secondary">Inactive</span>'; } },
+            { data: null, orderable: false, className: 'text-center text-nowrap', render: function (r) { return actions('profile', r.profileId); } }
         ], fnRowCallback: function (n, d, i) { $('td', n).eq(0).html(i + 1); } }));
         dtL = $('#dtLocation').DataTable($.extend(true, {}, common, { columns: [
             { data: null }, { data: 'locationName' }, { data: 'locationType' },
-            { data: 'locationStatus', render: function (s) { return Number(s) === 1 ? 'Active' : 'Inactive'; } },
-            { data: null, orderable: false, render: function (r) { return actions('location', r.locationId); } }
+            { data: 'locationStatus', render: function (s) { return Number(s) === 1 ? '<span class="badge gems-badge gems-badge-success">Active</span>' : '<span class="badge gems-badge gems-badge-secondary">Inactive</span>'; } },
+            { data: null, orderable: false, className: 'text-center text-nowrap', render: function (r) { return actions('location', r.locationId); } }
         ], fnRowCallback: function (n, d, i) { $('td', n).eq(0).html(i + 1); } }));
         dtR = $('#dtRef').DataTable($.extend(true, {}, common, { columns: [
             { data: null }, { data: 'valueType' }, { data: 'valueName' },
             { data: 'siteId', render: function (v) { return v ? 'Premise' : 'Global'; } },
-            { data: 'valueStatus', render: function (s) { return Number(s) === 1 ? 'Active' : 'Inactive'; } },
-            { data: null, orderable: false, render: function (r) { return actions('ref', r.refValueId); } }
+            { data: 'valueStatus', render: function (s) { return Number(s) === 1 ? '<span class="badge gems-badge gems-badge-success">Active</span>' : '<span class="badge gems-badge gems-badge-secondary">Inactive</span>'; } },
+            { data: null, orderable: false, className: 'text-center text-nowrap', render: function (r) { return actions('ref', r.refValueId); } }
         ], fnRowCallback: function (n, d, i) { $('td', n).eq(0).html(i + 1); } }));
+        wc.bindDtTooltips('#dtPremise');
+        wc.bindDtTooltips('#dtProfile');
+        wc.bindDtTooltips('#dtLocation');
+        wc.bindDtTooltips('#dtRef');
     };
 
     const reload = function () {
@@ -62,7 +76,10 @@ function MainWasteSetup() {
     this.init = function () {
         initTables();
         reload();
-        $('#wstSetupTabs a').on('shown.bs.tab', function (e) { tab = $(e.target).data('tab'); });
+        $('#wstSetupTabs a').on('shown.bs.tab', function (e) {
+            tab = $(e.target).data('tab');
+            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        });
         $('#btnWstRefresh').on('click', reload);
         $('#btnWstAdd').on('click', function () {
             if (tab === 'profile') {
