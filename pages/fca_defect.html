@@ -1,205 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/fca_defect.html — Tabler-migrated (P5-8 FCA Defect Category).
+
+  Page-local. Modals modal_fca_defect and modal_fca_defect_site are this page only.
+  Bridges: modal_change_password, modal_confirm_delete.
+  Role 22 still gates Add and row-edit. bFilter stays false (HEAD).
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css?1" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-        .fca-defect-header {
-            padding: 32px;
-            border-radius: 24px;
-            margin-bottom: 32px;
-        }
-
-        .fca-defect-header .header-text h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .fca-defect-header .header-text p {
-            font-size: 1rem;
-            opacity: 0.9;
-            margin: 0;
-        }
-    </style>
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - FCA Defect Category</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid">
-        <div class="gems-page-header fca-defect-header sectionFcdMain">
-            <div class="header-text">
-                <h2><i class="fas fa-exclamation-triangle mr-3"></i>FCA Defect Category</h2>
-                <p>Manage defect categories and site assignments for facility appraisals</p>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12">
+              <div class="text-secondary" style="font-size:.75rem">Facility Condition Appraisal</div>
+              <h1 class="page-title"><i class="fas fa-exclamation-triangle me-2 text-primary"></i>FCA Defect Category</h1>
+              <div class="page-subtitle">Manage defect categories and site assignments for facility appraisals</div>
             </div>
+          </div>
         </div>
-        <section class="mt-4 mb-3">
-            <div class="row">
-                <div class="col-lg-5">
-                    <div class="card z-depth-3 mb-4_5" id="divFcdDefectCard">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="float-left primary-color" style="width: 24px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Defect Category</h4>
-                        </div>
-                        <div class="card-body pt-4">
-                            <div class="table-responsive">
-                                <table id="dtFcdDefectData" class="table table-hover table-sm mb-0 display responsive mobile-stack">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Defect Category</th>
-                                        <th>Status</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+
+        <div class="row">
+          <div class="col-lg-5">
+            <div class="card mb-3" id="divFcdDefectCard">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">Defect Category</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Click a row to edit. Auditor role required.</div>
                 </div>
-                <div class="col-lg-7">
-                    <div class="card z-depth-3 mb-4_5" id="divFcdSiteCard">
-                        <div class="card-header white p-0 z-depth-1">
-                            <div class="float-left primary-color" style="width: 24px; height: 48px">&nbsp;</div>
-                            <h4 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;">Site's Defect Category</h4>
-                        </div>
-                        <div class="card-body pt-4">
-                            <div class="table-responsive">
-                                <table id="dtFcdSiteData" class="table table-hover table-sm mb-0 display responsive mobile-stack">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Site</th>
-                                        <th>Defect Category</th>
-                                        <th>Defect Category</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                <div class="gems-card-toolbar">
+                  <div id="btnDtFcdDefectExport" class="d-inline-flex align-items-center"></div>
                 </div>
+              </div>
+              <table id="dtFcdDefectData" class="table table-vcenter card-table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th style="width:6%">#</th>
+                    <th>Defect Category</th>
+                    <th style="width:20%">Status</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
             </div>
-        </section>
+          </div>
+          <div class="col-lg-7">
+            <div class="card mb-3" id="divFcdSiteCard">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">Site's Defect Category</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Click site columns to add. Trash removes one category.</div>
+                </div>
+                <div class="gems-card-toolbar">
+                  <div id="btnDtFcdSiteExport" class="d-inline-flex align-items-center"></div>
+                </div>
+              </div>
+              <table id="dtFcdSiteData" class="table table-vcenter card-table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th style="width:6%">#</th>
+                    <th>Site</th>
+                    <th>Defect Category</th>
+                    <th>Defect Category</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_fca_defect"></div>
-    <div class="includeHtml" id="h-modal_fca_defect_site"></div>
-</main>
+  </div>
+</div>
 
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
+<div class="includeHtml" id="h-modal_fca_defect"></div>
+<div class="includeHtml" id="h-modal_fca_defect_site"></div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_fca_defect.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_fca_defect_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_fca_defect.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let modalConfirmDelete_;
+  let modalFcaDefectClass_;
+  let modalFcaDefectSiteClass_;
+  let fcaDefectClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        modalConfirmDelete_ = new ModalConfirmDelete();
+        modalFcaDefectClass_ = new ModalFcaDefect();
+        modalFcaDefectSiteClass_ = new ModalFcaDefectSite();
+        fcaDefectClass_ = new MainFcaDefect();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let modalConfirmDelete_;
-    let modalFcaDefectClass_;
-    let modalFcaDefectSiteClass_;
-    let fcaDefectClass_;
+        const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
+        const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
 
-    document.addEventListener('DOMContentLoaded', function () {
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                modalConfirmDelete_ = new ModalConfirmDelete();
-                modalFcaDefectClass_ = new ModalFcaDefect();
-                modalFcaDefectSiteClass_ = new ModalFcaDefectSite();
-                fcaDefectClass_ = new MainFcaDefect();
+        modalFcaDefectClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+        modalFcaDefectClass_.setClassFrom(fcaDefectClass_);
+        modalFcaDefectClass_.init();
 
-                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
-                const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
+        modalFcaDefectSiteClass_.setRefSite(refSite_);
+        modalFcaDefectSiteClass_.setClassFrom(fcaDefectClass_);
+        modalFcaDefectSiteClass_.init();
 
-                modalFcaDefectClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                modalFcaDefectClass_.setClassFrom(fcaDefectClass_);
-                modalFcaDefectClass_.init();
-
-                modalFcaDefectSiteClass_.setRefSite(refSite_);
-                modalFcaDefectSiteClass_.setClassFrom(fcaDefectClass_);
-                modalFcaDefectSiteClass_.init();
-
-                fcaDefectClass_.setRefStatus(refStatus_);
-                fcaDefectClass_.setRefSite(refSite_);
-                fcaDefectClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                fcaDefectClass_.setModalFcaDefectClass(modalFcaDefectClass_);
-                fcaDefectClass_.setModalFcaDefectSiteClass(modalFcaDefectSiteClass_);
-                fcaDefectClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_fca_defect.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_fca_defect_site.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_fca_defect.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        fcaDefectClass_.setRefStatus(refStatus_);
+        fcaDefectClass_.setRefSite(refSite_);
+        fcaDefectClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+        fcaDefectClass_.setModalFcaDefectClass(modalFcaDefectClass_);
+        fcaDefectClass_.setModalFcaDefectSiteClass(modalFcaDefectSiteClass_);
+        fcaDefectClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 200);
+  });
 </script>
 </body>
-</html><!DOCTYPE html>
+</html>

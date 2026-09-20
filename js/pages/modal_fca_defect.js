@@ -93,7 +93,7 @@ function ModalFcaDefect () {
                 formValidate.clearValidation();
                 $('#btnMfdSubmit').show();
                 $('#btnMfdDelete, #btnMfdSave').hide();
-                $('#h4MfdTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add New FCA Defect Category');
+                $('#h4MfdTitle').html('<i class="fas fa-plus me-2"></i>Add New FCA Defect Category');
                 $('#modal_fca_defect').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);
@@ -114,7 +114,7 @@ function ModalFcaDefect () {
                 mzSetFieldValue('MfdStatus', data['fcaDefectCategoryStatus'], 'radio');
                 $('#btnMfdSubmit').hide();
                 $('#btnMfdDelete, #btnMfdSave').show();
-                $('#h4MfdTitle').html('<i class="fas fa-edit text-white"></i> &nbsp;Edit FCA Defect Category');
+                $('#h4MfdTitle').html('<i class="fas fa-edit me-2"></i>Edit FCA Defect Category');
                 $('#modal_fca_defect').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

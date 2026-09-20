@@ -8,8 +8,59 @@ function ModalFcaDefectSite () {
     let refDefectCategory;
     let fcaDefectCategoryId;
 
+    function rowsFromRef(ref, idKey, labelKey, statusKey, activeOnly) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (!row[idKey]) {
+                row[idKey] = key;
+            }
+            if (!row[idKey] && !row[labelKey]) {
+                return true;
+            }
+            if (activeOnly && String(row[statusKey]) !== '1') {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return (a[labelKey] || '').localeCompare(b[labelKey] || '');
+        });
+        return rows;
+    }
+
+    function fillSiteSelect(selected) {
+        GemsUI.fillSelect(
+            'optMfySite',
+            rowsFromRef(refSite, 'siteId', 'siteName', 'siteStatus', true),
+            'siteId',
+            function (row) {
+                return row['siteName'] || '';
+            },
+            'Select Site *',
+            selected
+        );
+    }
+
+    function fillDefectSelect(selected) {
+        GemsUI.fillSelect(
+            'optMfyDefectCategory',
+            rowsFromRef(refDefectCategory, 'fcaDefectCategoryId', 'fcaDefectCategoryName', 'fcaDefectCategoryStatus', true),
+            'fcaDefectCategoryId',
+            function (row) {
+                return row['fcaDefectCategoryName'] || '';
+            },
+            'Select Defect Category *',
+            selected
+        );
+    }
+
     this.init = function () {
-        mzOptionV2('optMfySite', refSite, 'Select Site *', 'siteName', {siteStatus: 1}, 'required');
+        fillSiteSelect();
 
         const vData = [
             {
@@ -61,7 +112,8 @@ function ModalFcaDefectSite () {
         setTimeout(function () {
             try {
                 formValidate.clearValidation();
-                mzOptionStopV2('optMfyDefectCategory', refDefectCategory, 'Select Defect Category *', 'fcaDefectCategoryName', {fcaDefectCategoryStatus: 1}, 'required');
+                fillSiteSelect(_siteId);
+                fillDefectSelect();
                 if (typeof _siteId !== 'undefined') {
                     mzSetFieldValue('MfySite', _siteId, 'select');
                 }

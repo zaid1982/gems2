@@ -12,6 +12,26 @@ function MainFcaDefect () {
     let modalFcaDefectSiteClass;
     let modalConfirmDeleteClass;
 
+    function siteName(siteId) {
+        const row = refSite && (refSite[siteId] || refSite[String(siteId)]);
+        return row && row['siteName'] ? row['siteName'] : siteId;
+    }
+
+    function siteCode(siteId) {
+        const row = refSite && (refSite[siteId] || refSite[String(siteId)]);
+        return row && row['siteCode'] ? row['siteCode'] : siteId;
+    }
+
+    function statusDesc(statusId) {
+        const row = refStatus && (refStatus[statusId] || refStatus[String(statusId)]);
+        return row && row['statusDesc'] ? row['statusDesc'] : statusId;
+    }
+
+    function defectName(id) {
+        const row = refDefectCategory && (refDefectCategory[id] || refDefectCategory[String(id)]);
+        return row && row['fcaDefectCategoryName'] ? row['fcaDefectCategoryName'] : id;
+    }
+
     this.init = function () {
         isAuditor = mzIsRoleExist('22');
 
@@ -20,29 +40,26 @@ function MainFcaDefect () {
             bFilter: false,
             aaSorting: [[1, 'asc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-exclamation-triangle', 'No defect categories recorded yet.', 'No defect categories match the current search.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 px-0 pb-2'B>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { className: 'text-center', targets: [0, 2] }
             ],
             buttons: [
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFcdDefectHide', text:'<i class="fas fa-print"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFcdDefectHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'PDF', exportOptions: mzExportOpt},
-                { text: '<i class="fas fa-plus mr-2"></i>Add Defect Category', className: 'btn btn-outline-red btn-sm px-2 ml-0', attr: { id: 'btnFcdDefectAdd' }, titleAttr: 'Add New FCA Defect Category'}
+                { extend: 'print', className: 'btn btn-outline-secondary btn-sm btnFcdDefectHide', text:'<i class="fas fa-print"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'Print', exportOptions: mzExportOpt},
+                { extend: 'copy', className: 'btn btn-outline-secondary btn-sm btnFcdDefectHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'Copy', exportOptions: mzExportOpt},
+                { extend: 'excelHtml5', className: 'btn btn-outline-secondary btn-sm', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-secondary btn-sm', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - FCA Defect Category List', titleAttr: 'PDF', exportOptions: mzExportOpt},
+                { text: '<i class="fas fa-plus me-2"></i>Add Defect Category', className: 'btn btn-primary btn-sm', attr: { id: 'btnFcdDefectAdd' }, titleAttr: 'Add New FCA Defect Category'}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('#btnFcdDefectAdd').off('click').on('click', function () {
                     if (!isAuditor) {
                         toastr['error']('You don\'t have permission as FCA Auditor role to perform this task!', _ALERT_TITLE_ERROR);
@@ -58,10 +75,12 @@ function MainFcaDefect () {
                 {mData: null},
                 {mData: 'fcaDefectCategoryName'},
                 {mData: 'fcaDefectCategoryStatus', mRender: function(data) {
-                        return refStatus[data]['statusDesc'];
+                        return statusDesc(data);
                     }}
             ]
         });
+        oTableFcdDefect.buttons().container().appendTo($('#btnDtFcdDefectExport'));
+        GemsUI.bindDtTooltips('#dtFcdDefectData');
         let oTableFcdDefectTbody = $('#dtFcdDefectData tbody');
         oTableFcdDefectTbody.delegate('tr', 'click', function () {
             if (!isAuditor) {
@@ -77,7 +96,7 @@ function MainFcaDefect () {
             cell.css('cursor', 'pointer');
             cell.attr('data-toggle', 'tooltip');
             cell.attr('title', 'Click to edit '+data['fcaDefectCategoryName']+' details');
-            $('[data-toggle="tooltip"]').tooltip();
+            GemsUI.initTooltips(cell[0]);
         });
 
         let exportOptFcdSite = Object.assign({}, mzExportOpt);
@@ -87,30 +106,27 @@ function MainFcaDefect () {
             bFilter: false,
             aaSorting: [[1, 'asc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-building', 'No site defect categories recorded yet.', 'No site assignments match the current search.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 px-0 pb-2'B>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0] },
                 { visible: false, targets: [3] },
                 { className: 'text-center', targets: [0] }
             ],
             buttons: [
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFcdSiteHide', text:'<i class="fas fa-print"></i>', title:'GEMS - FCA Defect Category by Site', titleAttr: 'Print', exportOptions: exportOptFcdSite},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFcdSiteHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Defect Category by Site', titleAttr: 'Copy', exportOptions: exportOptFcdSite},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Defect Category by Site', titleAttr: 'Excel', exportOptions: exportOptFcdSite},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - FCA Defect Category by Site', titleAttr: 'PDF', exportOptions: exportOptFcdSite},
-                { text: '<i class="fas fa-plus mr-2"></i>Add Site Defect Category', className: 'btn btn-outline-red btn-sm px-2 ml-0', attr: { id: 'btnFcdSiteAdd' }, titleAttr: 'Add New FCA Defect Category'}
+                { extend: 'print', className: 'btn btn-outline-secondary btn-sm btnFcdSiteHide', text:'<i class="fas fa-print"></i>', title:'GEMS - FCA Defect Category by Site', titleAttr: 'Print', exportOptions: exportOptFcdSite},
+                { extend: 'copy', className: 'btn btn-outline-secondary btn-sm btnFcdSiteHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Defect Category by Site', titleAttr: 'Copy', exportOptions: exportOptFcdSite},
+                { extend: 'excelHtml5', className: 'btn btn-outline-secondary btn-sm', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Defect Category by Site', titleAttr: 'Excel', exportOptions: exportOptFcdSite},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-secondary btn-sm', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - FCA Defect Category by Site', titleAttr: 'PDF', exportOptions: exportOptFcdSite},
+                { text: '<i class="fas fa-plus me-2"></i>Add Site Defect Category', className: 'btn btn-primary btn-sm', attr: { id: 'btnFcdSiteAdd' }, titleAttr: 'Add New FCA Defect Category'}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('#btnFcdSiteAdd').off('click').on('click', function () {
                     if (!isAuditor) {
                         toastr['error']('You don\'t have permission as FCA Auditor role to perform this task!', _ALERT_TITLE_ERROR);
@@ -132,14 +148,14 @@ function MainFcaDefect () {
             aoColumns: [
                 {mData: null},
                 {mData: 'siteId', mRender: function(data) {
-                        return refSite[data]['siteName'];
+                        return siteName(data);
                     }},
-                {mData: 'defectCategoryList', mRender: function(data, type, row, meta) {
+                {mData: 'defectCategoryList', mRender: function(data, type, row) {
                         let label = '<ul style="padding-left: 25px; margin-bottom: 0px !important;">';
                         const dataSplit = data.split(',');
                         for (let j=0; j<dataSplit.length; j++) {
-                            label += '<li>' + refDefectCategory[dataSplit[j]]['fcaDefectCategoryName'] +
-                                '<a><i class="fas fa-trash-alt lnkFcdDelete ml-2" id="lnkFcdDelete_'+row['siteId']+'_'+dataSplit[j]+'" data-toggle="tooltip" data-placement="top" title="Remove Defect Category"></i></a>' +
+                            label += '<li>' + defectName(dataSplit[j]) +
+                                '<a><i class="fas fa-trash-alt lnkFcdDelete ms-2" id="lnkFcdDelete_'+row['siteId']+'_'+dataSplit[j]+'" data-toggle="tooltip" data-placement="top" title="Remove Defect Category"></i></a>' +
                                 '</li>';
                         }
                         label += '</ul>';
@@ -149,7 +165,7 @@ function MainFcaDefect () {
                         let label = '';
                         const dataSplit = data.split(',');
                         for (let j =0; j<dataSplit.length; j++) {
-                            label += refDefectCategory[dataSplit[j]]['fcaDefectCategoryName'];
+                            label += defectName(dataSplit[j]);
                             if (j < dataSplit.length - 1) {
                                 label += ', ';
                             }
@@ -158,6 +174,8 @@ function MainFcaDefect () {
                     }}
             ]
         });
+        oTableFcdSite.buttons().container().appendTo($('#btnDtFcdSiteExport'));
+        GemsUI.bindDtTooltips('#dtFcdSiteData');
         let oTableFcdSiteTbody = $('#dtFcdSiteData tbody');
         oTableFcdSiteTbody.delegate('tr', 'click', function (evt) {
             if (!isAuditor) {
@@ -176,8 +194,8 @@ function MainFcaDefect () {
             if (cell.index() < 2) {
                 cell.css('cursor', 'pointer');
                 cell.attr('data-toggle', 'tooltip');
-                cell.attr('title', 'Click to add Defect Category at ' + refSite[data['siteId']]['siteCode'] + ' site');
-                $('[data-toggle="tooltip"]').tooltip();
+                cell.attr('title', 'Click to add Defect Category at ' + siteCode(data['siteId']) + ' site');
+                GemsUI.initTooltips(cell[0]);
             }
         });
 
