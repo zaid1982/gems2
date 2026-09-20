@@ -1,729 +1,301 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/space_manage.html — Tabler-migrated (P5-6 Space Manage).
+
+  Admin detail: info PUT, asset attach/unlink, reservations, media PUT.
+  Do not invent #btnSpcMngRefresh, #txtSpmAttachAssetId, or .btnSpmViewResv handler.
+  Media delete stays confirm(). Status badges keep HEAD approved/pending leftovers.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>GEMS 2.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Space Manage</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-  <link href="css/style.css" rel="stylesheet">
-  <!-- Shared navigation + chrome -->
-  <link href="css/gems2-ui.css" rel="stylesheet">
-  <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-  <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-</head>
-<body class="fixed-sn light-blue-skin">
-<header>                                                        
-  
-  <div class="includeHtml" id="h-nav_left"></div>
-  <div class="includeHtml" id="h-nav_top"></div>
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
   <style>
-    /* Space Management - Using GEMS2 Standard Colors */
-    main { padding: 1.5rem 0 3rem; }
-
-    /* Modern Page Header */
-
-
-
-    /* Modern Content Cards */
-    .space-content-card {
-      background: #fff;
-      border-radius: var(--gems-radius-lg);
-      box-shadow: var(--gems-card-shadow);
-      margin-bottom: 28px;
-      overflow: visible;
+    .space-card-header { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .space-card-title { font-size:1.05rem; font-weight:700; color:var(--gems-text); display:flex; align-items:center; gap:10px; }
+    .space-card-title i { color:var(--gems-primary); }
+    .space-card-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .spm-media-card { position:relative; border-radius:8px; overflow:hidden; }
+    .spm-media-card.spm-media-cover { border:2px solid var(--gems-primary); }
+    .spm-cover-badge { position:absolute; top:10px; left:16px; z-index:5; }
+    .spm-media-card .chkSpmMedia { opacity:1 !important; position:static !important; width:18px; height:18px; cursor:pointer; accent-color:var(--gems-primary); }
+    .spm-card-actions { margin-top:0.5rem; display:flex; justify-content:flex-end; gap:0.35rem; }
+    #dtSpmPickAsset .chkSpmPick, #chkSpmPickAll {
+      opacity:1 !important; position:static !important; width:16px; height:16px; cursor:pointer; accent-color:var(--gems-primary);
     }
-
-    .space-card-header {
-      padding: 22px 28px;
-      border-bottom: 1px solid var(--gems-border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .space-card-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--gems-text);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .space-card-title i {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(0,85,184,0.12), rgba(0,173,168,0.15));
-      color: var(--gems-primary);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-    }
-
-    .space-card-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .space-card-actions .btn {
-      border-radius: 12px;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all .2s ease;
-    }
-
-    .space-card-actions .btn-light {
-      background: rgba(0,85,184,0.08);
-      color: var(--gems-primary);
-      border: 1px solid rgba(0,85,184,0.15);
-    }
-
-    .space-card-actions .btn-light:hover {
-      background: rgba(0,85,184,0.15);
-      border-color: rgba(0,85,184,0.25);
-      transform: translateY(-1px);
-    }
-
-    .space-card-body {
-      padding: 28px;
-    }
-    /* Form Styling */
-    .space-card-body .md-form.md-outline input.form-control,
-    .space-card-body .md-form.md-outline textarea.md-textarea {
-      border-radius: 14px;
-      border: 1px solid var(--gems-border);
-    }
-
-    .space-card-body .md-form.md-outline input.form-control:focus,
-    .space-card-body .md-form.md-outline textarea.md-textarea:focus {
-      border-color: rgba(0,85,184,0.75);
-      box-shadow: 0 0 0 0.15rem rgba(0, 85, 184, 0.1);
-    }
-
-    /* Media Cards */
-    .spm-media-card {
-      position: relative;
-      transition: all .2s ease;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 6px 16px -12px rgba(15,23,42,.25);
-    }
-
-    .spm-media-card:hover {
-      box-shadow: 0 12px 28px -16px rgba(15,23,42,.35);
-      transform: translateY(-2px);
-    }
-
-    .spm-media-card.spm-media-cover {
-      border: 2px solid var(--gems-primary);
-      box-shadow: 0 0 0 2px rgba(0,85,184,0.15);
-    }
-
-    .spm-cover-badge {
-      position: absolute;
-      top: 10px;
-      left: 16px;
-      z-index: 5;
-    }
-
-    .spm-media-card .chkSpmMedia {
-      opacity: 1 !important;
-      position: static !important;
-      transform: none !important;
-      -webkit-appearance: checkbox !important;
-      appearance: checkbox !important;
-      width: 18px;
-      height: 18px;
-      margin: 0;
-      cursor: pointer;
-      accent-color: var(--gems-primary);
-      pointer-events: auto !important;
-      z-index: 3;
-    }
-
-    .spm-card-actions {
-      margin-top: 0.5rem;
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.35rem;
-    }
-
-    .spm-card-actions .btn {
-      padding: 0.35rem 0.9rem;
-      font-size: 0.75rem;
-      letter-spacing: .02em;
-      border-radius: 10px;
-    }
-
-    /* Badge Styling */
-    .badge-modern {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .badge-success {
-      background: rgba(34, 197, 94, 0.15);
-      color: #166534;
-    }
-
-    .badge-warning {
-      background: rgba(250, 204, 21, 0.15);
-      color: #854d0e;
-    }
-
-    .badge-danger {
-      background: rgba(239, 68, 68, 0.15);
-      color: #dc2626;
-    }
-
-    .badge-info {
-      background: rgba(59, 130, 246, 0.15);
-      color: #1e40af;
-    }
-
-    .badge-dark {
-      background: rgba(31, 41, 55, 0.15);
-      color: #1f2937;
-    }
-
-    /* Helper text styling */
-    .space-card-body .text-muted {
-      color: var(--gems-muted) !important;
-      font-size: 0.9rem;
-    }
-
-    .space-card-body .form-text {
-      color: var(--gems-muted);
-      font-size: 0.85rem;
-    }
-
-    /* Table wrapper styling */
-    .space-card-body .table-responsive {
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px -8px rgba(15,23,42,.15);
-    }
-
-    /* Ensure native checkboxes in the asset picker are visible (MDB hides them by default) */
-    #dtSpmPickAsset .chkSpmPick,
-    #chkSpmPickAll {
-      opacity: 1 !important;
-      position: static !important;
-      transform: none !important;
-      -webkit-appearance: checkbox !important;
-      appearance: checkbox !important;
-      width: 16px;
-      height: 16px;
-      margin: 0;
-      cursor: pointer;
-      accent-color: var(--gems-primary); /* modern browsers */
-    }
-    #dtSpmPickAsset th:first-child, #dtSpmPickAsset td:first-child {
-      text-align: center;
-      vertical-align: middle;
-    }
-
-    /* Modern table styling - high specificity to override DataTables */
-    .table.dataTable { 
-      margin-bottom: 0 !important; 
-      border-collapse: separate !important; 
-      border-spacing: 0 !important; 
-    }
-    .table.dataTable thead th,
-    table.dataTable thead th { 
-      background: var(--gems-bg-page) !important; 
-      color: var(--gems-muted) !important; 
-      font-weight: 700 !important; 
-      font-size: 11px !important; 
-      text-transform: uppercase !important; 
-      letter-spacing: 0.08em !important; 
-      padding: 14px 16px !important; 
-      border: none !important; 
-      border-bottom: 2px solid #E2E8F0 !important;
-      border-top: none !important;
-      white-space: nowrap !important;
-    }
-    .table.dataTable tbody tr,
-    table.dataTable tbody tr { 
-      background: #fff !important; 
-      transition: all 0.15s ease !important; 
-      border-bottom: 1px solid var(--gems-bg-page) !important;
-    }
-    .table.dataTable tbody tr:hover,
-    table.dataTable tbody tr:hover { 
-      background: #FAFBFC !important; 
-      box-shadow: 0 2px 8px rgba(2,6,23,.04) !important; 
-      position: relative !important; 
-      z-index: 1 !important;
-    }
-    .table.dataTable tbody td,
-    table.dataTable tbody td { 
-      padding: 16px !important; 
-      vertical-align: middle !important; 
-      color: var(--gems-text) !important; 
-      border: none !important;
-      border-top: none !important;
-      font-size: 14px !important;
-    }
-
-    /* Modern Action Buttons for Space Management */
-    .spm-action-btn-group {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
+    .spm-action-btn-group { display:flex; gap:6px; align-items:center; }
     .btn-spm-action {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      cursor: pointer;
-      padding: 0;
-      font-size: 0.9rem;
+      width:34px; height:34px; border-radius:8px; border:none; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
     }
-
-    .btn-spm-action.btn-unlink {
-      background: rgba(239, 68, 68, 0.1) !important;
-      color: #ef4444 !important;
-    }
-
-    .btn-spm-action.btn-unlink:hover {
-      background: rgba(239, 68, 68, 0.2) !important;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-    }
-
-    .btn-spm-action.btn-view {
-      background: rgba(59, 130, 246, 0.1) !important;
-      color: var(--gems-primary) !important;
-    }
-
-    .btn-spm-action.btn-view:hover {
-      background: rgba(59, 130, 246, 0.2) !important;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-
-    .btn-spm-action.btn-cancel {
-      background: rgba(245, 158, 11, 0.1) !important;
-      color: #f59e0b !important;
-    }
-
-    .btn-spm-action.btn-cancel:hover {
-      background: rgba(245, 158, 11, 0.2) !important;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-    }
-
-    .btn-spm-action:active {
-      transform: translateY(0);
-    }
-
-    /* Status badges for reservations */
-    .spm-status-badge {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .spm-status-badge.approved {
-      background: rgba(34, 197, 94, 0.15) !important;
-      color: #16a34a !important;
-    }
-
-    .spm-status-badge.pending {
-      background: rgba(245, 158, 11, 0.15) !important;
-      color: #d97706 !important;
-    }
-
-    .spm-status-badge.cancelled {
-      background: rgba(148, 163, 184, 0.15) !important;
-      color: var(--gems-muted) !important;
-    }
-
-    .spm-status-badge.rejected {
-      background: rgba(239, 68, 68, 0.15) !important;
-      color: #dc2626 !important;
-    }
-
-    /* Action cell no pointer cursor */
-    #dtSpmAssets tbody td.action-cell,
-    #dtSpmResv tbody td.action-cell {
-      cursor: default;
-    }
-
-    /* Mobile responsive table stacking */
+    .btn-spm-action.btn-unlink { background:rgba(239,68,68,0.1); color:#ef4444; }
+    .btn-spm-action.btn-view { background:rgba(59,130,246,0.1); color:var(--gems-primary); }
+    .btn-spm-action.btn-cancel { background:rgba(245,158,11,0.1); color:#f59e0b; }
+    .spm-status-badge { display:inline-block; padding:6px 14px; border-radius:999px; font-size:0.75rem; font-weight:700; text-transform:uppercase; }
+    .spm-status-badge.approved { background:rgba(34,197,94,0.15); color:#16a34a; }
+    .spm-status-badge.pending { background:rgba(245,158,11,0.15); color:#d97706; }
+    .spm-status-badge.cancelled { background:rgba(148,163,184,0.15); color:var(--gems-muted); }
+    .spm-status-badge.rejected { background:rgba(239,68,68,0.15); color:#dc2626; }
     @media (max-width: 768px) {
-      #dtSpmAssets thead,
-      #dtSpmResv thead,
-      #dtSpmPickAsset thead {
-        display: none;
-      }
-
-      #dtSpmAssets tbody tr,
-      #dtSpmResv tbody tr,
-      #dtSpmPickAsset tbody tr {
-        display: block;
-        margin-bottom: 12px;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        box-shadow: 0 6px 16px -12px rgba(15,23,42,.25);
-        overflow: hidden;
-      }
-
-      #dtSpmAssets tbody td,
-      #dtSpmResv tbody td,
-      #dtSpmPickAsset tbody td {
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 12px;
-        border-bottom: 1px dashed #e5e7eb;
-      }
-
-      #dtSpmAssets tbody td:last-child,
-      #dtSpmResv tbody td:last-child,
-      #dtSpmPickAsset tbody td:last-child {
-        border-bottom: none;
-      }
-
-      #dtSpmAssets tbody td::before,
-      #dtSpmResv tbody td::before,
-      #dtSpmPickAsset tbody td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: #475569;
-        margin-right: 8px;
-      }
-
-
-      .space-card-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .space-card-actions {
-        width: 100%;
-        justify-content: flex-start;
-      }
-
-      .space-card-body {
-        padding: 20px;
-      }
-    }
-
-    @media (max-width: 576px) {
-
-
-      .space-card-header {
-        padding: 18px 20px;
-      }
-
-      .space-card-title {
-        font-size: 1rem;
-      }
-
-      .space-card-title i {
-        width: 36px;
-        height: 36px;
-        font-size: 0.95rem;
-      }
-
-      .space-card-actions .btn {
-        padding: 0.45rem 0.85rem;
-        font-size: 0.85rem;
-      }
+      .space-card-header { flex-direction:column; align-items:flex-start; }
     }
   </style>
-</header>
-<main>
-  <div class="container-fluid">
-    <section class="mb-5 mt-lg-5">
-      <!-- Modern Page Header -->
-      <div class="gems-page-header module-page-header">
-        <div class="header-text">
-          <h2><i class="fas fa-door-open mr-3"></i><span id="lblSpcMngTitle">Space Management</span></h2>
-          <p><span id="lblSpcMngSubtitle">Review and manage spaces within the organization</span></p>
-        </div>
-      </div>
+</head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-      <!-- Space Info Section -->
-      <div class="space-content-card">
-        <div class="space-card-header">
-          <div class="space-card-title">
-            <i class="fas fa-info-circle"></i>
-            <span>Space Info</span>
-          </div>
-          <div class="space-card-actions">
-            <button id="btnSpmOpenCalendar" class="btn btn-light" title="Open Calendar">
-              <i class="fas fa-calendar-alt mr-1"></i>Calendar
-            </button>
-            <button id="btnSpmSaveInfo" class="btn btn-light" title="Save Changes">
-              <i class="fas fa-save mr-1"></i>Save
-            </button>
-          </div>
-        </div>
-        <div class="space-card-body">
-                <form id="frmSpcInfo">
-                  <div class="row">
-                    <div class="col-lg-6">
-                      <div class="md-form md-outline mt-0">
-                        <input id="txtSpmName" type="text" class="form-control" required>
-                        <label for="txtSpmName" class="active">Space Name *</label>
-                        <small class="form-text text-muted">A clear, recognizable name for this space.</small>
-                      </div>
-                      <div class="select-outline mt-0 mb-3">
-                        <select id="optSpmStatus" class="mdb-select md-form md-outline colorful-select mt-0">
-                          <option value="AVAILABLE">Available</option>
-                          <option value="ACTIVE">Active</option>
-                          <option value="RESERVED">Reserved</option>
-                          <option value="DISABLED">Disabled</option>
-                        </select>
-                        <label id="lblSpmStatus" for="optSpmStatus">Status</label>
-                      </div>
-                      <div class="select-outline mt-0 mb-3">
-                        <select id="optSpmLocation" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                        <label id="lblSpmLocation" for="optSpmLocation">Location</label>
-                      </div>
-                    </div>
-                    <div class="col-lg-6">
-                      <div class="select-outline mt-0 mb-3">
-                        <select id="optSpmCategory" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                        <label id="lblSpmCategory" for="optSpmCategory">Category</label>
-                      </div>
-                      <div class="select-outline mt-0 mb-3">
-                        <select id="optSpmType" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                        <label id="lblSpmType" for="optSpmType">Type</label>
-                      </div>
-                      <div class="md-form md-outline mt-0">
-                        <input id="txtSpmArea" type="number" class="form-control" min="0" step="0.01">
-                        <label for="txtSpmArea" class="active">Area (m²)</label>
-                      </div>
-                      <div class="md-form md-outline mt-0">
-                        <input id="txtSpmCapacity" type="number" class="form-control" min="0" step="1">
-                        <label for="txtSpmCapacity" class="active">Capacity (pax)</label>
-                      </div>
-                    </div>
-                    <div class="col-12">
-                      <div class="md-form md-outline mt-0">
-                        <textarea id="txaSpmDesc" class="md-textarea form-control" rows="3"></textarea>
-                        <label for="txaSpmDesc" class="active">Description</label>
-                        <small class="form-text text-muted">Optional notes, features, or usage guidelines.</small>
-                      </div>
-                    </div>
-                  </div>
-                </form>
-        </div>
-      </div>
-
-      <!-- Linked Assets Section -->
-      <div class="space-content-card">
-        <div class="space-card-header">
-          <div class="space-card-title">
-            <i class="fas fa-boxes"></i>
-            <span>Linked Assets</span>
-          </div>
-          <div class="space-card-actions">
-            <button id="btnSpmAttachAsset" class="btn btn-light" title="Attach Assets">
-              <i class="fas fa-link mr-1"></i>Attach
-            </button>
-          </div>
-        </div>
-        <div class="space-card-body">
-          <div class="table-responsive">
-            <table id="dtSpmAssets" class="table mb-0 display responsive mobile-stack" width="100%">
-              <thead><tr><th style="width:4%">#</th><th style="width:18%">Asset No</th><th>Name</th><th style="width:22%">Serial No</th><th style="width:22%">Linked At</th><th style="width:80px">Actions</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Reservations Section -->
-      <div class="space-content-card">
-        <div class="space-card-header">
-          <div class="space-card-title">
-            <i class="fas fa-calendar-check"></i>
-            <span>Reservations</span>
-          </div>
-          <div class="space-card-actions">
-            <button id="btnSpmRefreshResv" class="btn btn-light" title="Refresh">
-              <i class="fas fa-sync mr-1"></i>Refresh
-            </button>
-          </div>
-        </div>
-        <div class="space-card-body">
-          <div class="table-responsive">
-            <table id="dtSpmResv" class="table mb-0 display responsive mobile-stack" width="100%">
-              <thead>
-                <tr>
-                  <th style="width:4%">#</th>
-                  <th style="width:24%">Start</th>
-                  <th style="width:24%">End</th>
-                  <th style="width:28%">Requester</th>
-                  <th style="width:12%">Status</th>
-                  <th style="width:120px">Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Media Section -->
-      <div class="space-content-card">
-        <div class="space-card-header">
-          <div class="space-card-title">
-            <i class="fas fa-images"></i>
-            <span>Media</span>
-          </div>
-          <div class="space-card-actions">
-            <button id="btnSpmUploadPhotos" class="btn btn-light" title="Upload Photos">
-              <i class="fas fa-camera mr-1"></i>Photos
-            </button>
-            <button id="btnSpmUploadFloor" class="btn btn-light" title="Upload Floorplan">
-              <i class="fas fa-file-image mr-1"></i>Floorplan
-            </button>
-            <button id="btnSpmDeleteMedia" class="btn btn-light" title="Delete Selected">
-              <i class="fas fa-trash mr-1"></i>Delete
-            </button>
-          </div>
-        </div>
-        <div class="space-card-body">
-          <!-- Hidden inputs for file selection -->
-          <input type="file" id="inpSpmPhotos" accept="image/*" multiple class="d-none" />
-          <input type="file" id="inpSpmFloor" accept="image/*" class="d-none" />
-
-          <div id="spmMediaGrid" class="row"></div>
-          <small class="text-muted d-block mt-2">Tip: Click a thumbnail to preview. Use the checkbox to select items to delete. Use “Set cover” on a photo to pick the thumbnail shown in Space Browse. Only one floorplan is kept; uploading a new one replaces the old.</small>
-        </div>
-      </div>
-  </section>
-
-    <!-- Attach Assets Modal (site-scoped picker) -->
-    <div class="modal fade" id="modalSpmPickAsset" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content gems-modal-card">
-          <div class="modal-header gems-modal-header">
-            <div class="gems-modal-title">
-              <span class="gems-modal-icon"><i class="fas fa-link"></i></span>
-              <span class="gems-modal-heading">Attach Assets</span>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-door-open me-2 text-primary"></i><span id="lblSpcMngTitle">Space Management</span></h1>
+              <div class="page-subtitle" id="lblSpcMngSubtitle">Review and manage spaces within the organization</div>
             </div>
-            <button type="button" class="gems-modal-close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
           </div>
-          <div class="modal-body gems-modal-body">
-            <div class="row">
-              <div class="col-md-6 select-outline">
-                <select id="optSpmPickContract" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                <label for="optSpmPickContract">Contract (site-scoped)</label>
-              </div>
-              <div class="col-md-6">
-                <div class="md-form md-outline mt-0">
-                  <input type="text" id="txtSpmPickSearch" class="form-control">
-                  <label for="txtSpmPickSearch" class="active">Search asset name / no / serial</label>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header space-card-header">
+            <div class="space-card-title"><i class="fas fa-info-circle"></i><span>Space Info</span></div>
+            <div class="space-card-actions">
+              <button type="button" id="btnSpmOpenCalendar" class="btn btn-outline-secondary" title="Open Calendar">
+                <i class="fas fa-calendar-alt me-1"></i>Calendar
+              </button>
+              <button type="button" id="btnSpmSaveInfo" class="btn btn-primary" title="Save Changes">
+                <i class="fas fa-save me-1"></i>Save
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <form id="frmSpcInfo" autocomplete="off" novalidate>
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="txtSpmName">Space Name <span class="required" aria-hidden="true">*</span></label>
+                  <input id="txtSpmName" type="text" class="form-control">
+                  <small class="form-hint">A clear, recognizable name for this space.</small>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" id="lblSpmStatus" for="optSpmStatus">Status</label>
+                  <select id="optSpmStatus" class="form-select">
+                    <option value="AVAILABLE">Available</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="RESERVED">Reserved</option>
+                    <option value="DISABLED">Disabled</option>
+                  </select>
+                </div>
+                <div class="gems-field gems-field-4">
+                  <label class="form-label" id="lblSpmLocation" for="optSpmLocation">Location</label>
+                  <select id="optSpmLocation" class="form-select"></select>
+                </div>
+                <div class="gems-field gems-field-4">
+                  <label class="form-label" id="lblSpmCategory" for="optSpmCategory">Category</label>
+                  <select id="optSpmCategory" class="form-select"></select>
+                </div>
+                <div class="gems-field gems-field-4">
+                  <label class="form-label" id="lblSpmType" for="optSpmType">Type</label>
+                  <select id="optSpmType" class="form-select"></select>
+                </div>
+                <div class="gems-field gems-field-4">
+                  <label class="form-label" for="txtSpmArea">Area (m²)</label>
+                  <input id="txtSpmArea" type="number" class="form-control" min="0" step="0.01">
+                </div>
+                <div class="gems-field gems-field-4">
+                  <label class="form-label" for="txtSpmCapacity">Capacity (pax)</label>
+                  <input id="txtSpmCapacity" type="number" class="form-control" min="0" step="1">
+                </div>
+                <div class="gems-field gems-field-4">
+                  <label class="form-label" for="txaSpmDesc">Description</label>
+                  <textarea id="txaSpmDesc" class="form-control" rows="3"></textarea>
+                  <small class="form-hint">Optional notes, features, or usage guidelines.</small>
                 </div>
               </div>
-            </div>
-            <div class="table-responsive">
-              <table id="dtSpmPickAsset" class="table mb-0 display responsive mobile-stack" width="100%">
-                <thead>
-                  <tr>
-                    <th style="width:36px"><input type="checkbox" id="chkSpmPickAll"></th>
-                    <th>Asset No</th>
-                    <th>Name</th>
-                    <th>Serial No</th>
-                    <th style="width:120px">Group</th>
-                    <th style="width:120px">Category</th>
-                    <th style="width:120px">Type</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer gems-modal-footer">
-            <div class="mr-auto text-muted small"><span id="lblSpmPickCount">0 selected</span></div>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" id="btnSpmPickAttach" class="btn btn-primary"><i class="fas fa-paperclip mr-1"></i>Attach Selected</button>
+            </form>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Cancel Reservation Modal -->
-    <div class="modal fade" id="modalCancelResv" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content gems-modal-card">
-          <div class="modal-header gems-modal-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-            <div class="gems-modal-title">
-              <span class="gems-modal-icon"><i class="fas fa-ban"></i></span>
-              <span class="gems-modal-heading">Cancel Reservation</span>
-            </div>
-            <button type="button" class="gems-modal-close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body gems-modal-body">
-            <p>Provide an optional reason for cancellation:</p>
-            <div class="md-form md-outline mt-0">
-              <textarea id="txaSpmCancelReason" class="md-textarea form-control" rows="3"></textarea>
-              <label id="lblSpmCancelReason" for="txaSpmCancelReason" class="active">Reason</label>
+        <div class="card mb-3">
+          <div class="card-header space-card-header">
+            <div class="space-card-title"><i class="fas fa-boxes"></i><span>Linked Assets</span></div>
+            <div class="space-card-actions">
+              <button type="button" id="btnSpmAttachAsset" class="btn btn-outline-secondary" title="Attach Assets">
+                <i class="fas fa-link me-1"></i>Attach
+              </button>
             </div>
           </div>
-          <div class="modal-footer gems-modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" id="btnSpmCancelConfirm" class="btn btn-warning">Cancel Reservation</button>
+          <table id="dtSpmAssets" class="table table-vcenter card-table table-hover mb-0" width="100%">
+            <thead>
+              <tr>
+                <th style="width:4%">#</th>
+                <th style="width:18%">Asset No</th>
+                <th>Name</th>
+                <th style="width:22%">Serial No</th>
+                <th style="width:22%">Linked At</th>
+                <th style="width:80px">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header space-card-header">
+            <div class="space-card-title"><i class="fas fa-calendar-check"></i><span>Reservations</span></div>
+            <div class="space-card-actions">
+              <button type="button" id="btnSpmRefreshResv" class="btn btn-outline-secondary" title="Refresh">
+                <i class="fas fa-sync me-1"></i>Refresh
+              </button>
+            </div>
+          </div>
+          <table id="dtSpmResv" class="table table-vcenter card-table table-hover mb-0" width="100%">
+            <thead>
+              <tr>
+                <th style="width:4%">#</th>
+                <th style="width:24%">Start</th>
+                <th style="width:24%">End</th>
+                <th style="width:28%">Requester</th>
+                <th style="width:12%">Status</th>
+                <th style="width:120px">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header space-card-header">
+            <div class="space-card-title"><i class="fas fa-images"></i><span>Media</span></div>
+            <div class="space-card-actions">
+              <button type="button" id="btnSpmUploadPhotos" class="btn btn-outline-secondary" title="Upload Photos">
+                <i class="fas fa-camera me-1"></i>Photos
+              </button>
+              <button type="button" id="btnSpmUploadFloor" class="btn btn-outline-secondary" title="Upload Floorplan">
+                <i class="fas fa-file-image me-1"></i>Floorplan
+              </button>
+              <button type="button" id="btnSpmDeleteMedia" class="btn btn-outline-danger" title="Delete Selected">
+                <i class="fas fa-trash me-1"></i>Delete
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <input type="file" id="inpSpmPhotos" accept="image/*" multiple class="d-none">
+            <input type="file" id="inpSpmFloor" accept="image/*" class="d-none">
+            <div id="spmMediaGrid" class="row"></div>
+            <small class="text-secondary d-block mt-2">Tip: Click a thumbnail to preview. Use the checkbox to select items to delete. Use “Set cover” on a photo to pick the thumbnail shown in Space Browse. Only one floorplan is kept; uploading a new one replaces the old.</small>
           </div>
         </div>
+
       </div>
     </div>
-
-    <div class="includeHtml" id="h-modal_change_password"></div>
   </div>
-</main>
+</div>
 
-<script type="text/javascript">$('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf()); });</script>
-<script type="text/javascript" src="js/popper.min.js"></script>
-<script type="text/javascript" src="js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
-<script type="text/javascript" src="js/modules/toastr.js"></script>
-<script type="text/javascript" src="js/common.js"></script>
-<script type="text/javascript" src="js/pages/main_space_manage.js"></script>
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<div class="modal fade" id="modalSpmPickAsset" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Attach Assets</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="gems-form-grid mb-3">
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="optSpmPickContract">Contract (site-scoped)</label>
+            <select id="optSpmPickContract" class="form-select"></select>
+          </div>
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="txtSpmPickSearch">Search asset name / no / serial</label>
+            <input type="search" id="txtSpmPickSearch" class="form-control">
+          </div>
+        </div>
+        <table id="dtSpmPickAsset" class="table table-vcenter card-table table-hover mb-0" width="100%">
+          <thead>
+            <tr>
+              <th style="width:36px"><input type="checkbox" id="chkSpmPickAll"></th>
+              <th>Asset No</th>
+              <th>Name</th>
+              <th>Serial No</th>
+              <th style="width:120px">Group</th>
+              <th style="width:120px">Category</th>
+              <th style="width:120px">Type</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem" id="lblSpmPickCount">0 selected</span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnSpmPickAttach" class="btn btn-primary">
+          <i class="fas fa-paperclip me-1"></i>Attach Selected
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalCancelResv" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cancel Reservation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Provide an optional reason for cancellation:</p>
+        <div class="gems-form-grid">
+          <div class="gems-field gems-field-12">
+            <label class="form-label" id="lblSpmCancelReason" for="txaSpmCancelReason">Reason</label>
+            <textarea id="txaSpmCancelReason" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Close
+        </button>
+        <button type="button" id="btnSpmCancelConfirm" class="btn btn-warning">Cancel Reservation</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_space_manage.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
 </body>
 </html>

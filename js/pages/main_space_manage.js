@@ -7,8 +7,19 @@ function MainSpaceManage(){
   this.init=function(){
     spaceId=self.getQueryInt('id'); if(!spaceId){ toastr['error']('Missing space id','Error'); return; }
     // Tables
-    oAssets=$('#dtSpmAssets').DataTable({ bLengthChange:false,bFilter:true,aaSorting:[[2,'asc']], language:_DATATABLE_LANGUAGE, fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=oAssets.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)).attr('data-label','#'); $('td',nRow).eq(1).attr('data-label','Asset No'); $('td',nRow).eq(2).attr('data-label','Name'); $('td',nRow).eq(3).attr('data-label','Serial No'); $('td',nRow).eq(4).attr('data-label','Linked At'); $('td',nRow).eq(5).attr('data-label','Actions'); }, aoColumns:[ {mData:null,bSortable:false}, {mData:'assetNo'}, {mData:null, mRender:function(d,t,row){ const name=row.assetName||''; const id=row.assetId; return id?('<a href="asset.html?assetId='+id+'" title="Open asset">'+name+'</a>'):name; }}, {mData:'assetSerialNo'}, {mData:'linkedAt', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }}, {mData:null,bSortable:false,sClass:'text-center action-cell', mRender:function(d,t,row,meta){ return '<div class="spm-action-btn-group"><button class="btn-spm-action btn-unlink btnSpmUnlink" data-row="'+meta.row+'" title="Unlink asset"><i class="fas fa-unlink"></i></button></div>'; }} ] });
-    oResv=$('#dtSpmResv').DataTable({ bLengthChange:false,bFilter:false,aaSorting:[[1,'asc']], language:_DATATABLE_LANGUAGE, fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=oResv.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)).attr('data-label','#'); $('td',nRow).eq(1).attr('data-label','Start'); $('td',nRow).eq(2).attr('data-label','End'); $('td',nRow).eq(3).attr('data-label','Requester'); $('td',nRow).eq(4).attr('data-label','Status'); $('td',nRow).eq(5).attr('data-label','Actions'); }, aoColumns:[ 
+    oAssets=$('#dtSpmAssets').DataTable({
+      lengthChange:false, searching:true, autoWidth:false, paging:true, order:[[2,'asc']],
+      language: GemsUI.dtEmpty('fa-boxes', 'No assets linked.', 'No assets match the current search.'),
+      dom: GemsUI.dtDom,
+      fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=oAssets.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)).attr('data-label','#'); $('td',nRow).eq(1).attr('data-label','Asset No'); $('td',nRow).eq(2).attr('data-label','Name'); $('td',nRow).eq(3).attr('data-label','Serial No'); $('td',nRow).eq(4).attr('data-label','Linked At'); $('td',nRow).eq(5).attr('data-label','Actions'); },
+      aoColumns:[ {mData:null,bSortable:false}, {mData:'assetNo'}, {mData:null, mRender:function(d,t,row){ const name=row.assetName||''; const id=row.assetId; return id?('<a href="asset.html?assetId='+id+'" title="Open asset">'+name+'</a>'):name; }}, {mData:'assetSerialNo'}, {mData:'linkedAt', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }}, {mData:null,bSortable:false,sClass:'text-center action-cell', mRender:function(d,t,row,meta){ return '<div class="spm-action-btn-group"><button type="button" class="btn-spm-action btn-unlink btnSpmUnlink" data-row="'+meta.row+'" title="Unlink asset"><i class="fas fa-unlink"></i></button></div>'; }} ]
+    });
+    oResv=$('#dtSpmResv').DataTable({
+      lengthChange:false, searching:false, autoWidth:false, paging:true, order:[[1,'asc']],
+      language: GemsUI.dtEmpty('fa-calendar-check', 'No reservations recorded.', 'No reservations match the current search.'),
+      dom: GemsUI.dtDom,
+      fnRowCallback:function(nRow,aData,iDisplayIndex){ const info=oResv.page.info(); $('td',nRow).eq(0).html(info.page*info.length + (iDisplayIndex+1)).attr('data-label','#'); $('td',nRow).eq(1).attr('data-label','Start'); $('td',nRow).eq(2).attr('data-label','End'); $('td',nRow).eq(3).attr('data-label','Requester'); $('td',nRow).eq(4).attr('data-label','Status'); $('td',nRow).eq(5).attr('data-label','Actions'); },
+      aoColumns:[ 
       {mData:null,bSortable:false}, 
       {mData:'reservationStart', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }}, 
       {mData:'reservationEnd', mRender:function(d){ return d?moment(d).format('YYYY-MM-DD HH:mm'):'-'; }}, 
@@ -57,7 +68,10 @@ function MainSpaceManage(){
     selectedAssetIds.clear(); self.updatePickCount(); $('#chkSpmPickAll').prop('checked', false);
     // Ensure DataTable exists
     if(!oPick){
-      oPick=$('#dtSpmPickAsset').DataTable({ bLengthChange:false,bFilter:true,aaSorting:[[2,'asc']], language:_DATATABLE_LANGUAGE, responsive:false,
+      oPick=$('#dtSpmPickAsset').DataTable({
+        lengthChange:false, searching:true, autoWidth:false, paging:true, order:[[2,'asc']],
+        language: GemsUI.dtEmpty('fa-cubes', 'No assets for this contract.', 'No assets match the current search.'),
+        dom: GemsUI.dtDom, responsive:false,
         columnDefs:[{targets:0, orderable:false, searchable:false, className:'text-center', width:'32px'}],
         data:[], columns:[
           { data:null, orderable:false, searchable:false, render:function(d,t,row){
@@ -100,14 +114,13 @@ function MainSpaceManage(){
   this.loadContractsForSite=function(siteId){ // use api/contract.php and filter by site on client (admins will see many)
     const headers=self.headers();
     return $.ajax({ url:'api/contract.php', method:'GET', dataType:'json', headers}).done(function(resp){ if(resp&&resp.success){
-      const list=resp.result||[]; const $opt=$('#optSpmPickContract'); try{$opt.materialSelect('destroy');}catch(e){}
-      $opt.empty().append('<option value="" selected>All Contracts</option>');
-      (list||[]).forEach(function(c){ if(!siteId || parseInt(c.siteId)===parseInt(siteId)){ $opt.append('<option value="'+c.contractId+'">'+(c.contractName||('Contract #'+c.contractId))+'</option>'); }});
-      // pick first site-matching contract by default
+      const list=resp.result||[];
+      const rows=(list||[]).filter(function(c){ return !siteId || parseInt(c.siteId)===parseInt(siteId); });
+      GemsUI.fillSelect('optSpmPickContract', rows, 'contractId', function(c){ return c.contractName||('Contract #'+c.contractId); }, 'All Contracts');
+      const $opt=$('#optSpmPickContract');
       let first = $opt.find('option[value!=""]').first().val();
       pickContractId = first || null;
       if (pickContractId) { $opt.val(pickContractId); }
-      $opt.materialSelect();
       $opt.off('change._spmPick').on('change._spmPick', function(){ pickContractId=$(this).val()||null; self.refreshPickAssets(); });
     }});
   };
@@ -143,32 +156,43 @@ function MainSpaceManage(){
 
   this.renderInfo=function(d){
     $('#lblSpcMngTitle').text('Space Management: '+(d.spaceName||'-'));
-    // Initialize status select cleanly, then set value and re-init so UI reflects it
-    try { $('#optSpmStatus').materialSelect('destroy'); } catch(e){}
     $('#optSpmStatus').val(d.spaceStatus||'AVAILABLE');
-    $('#optSpmStatus').materialSelect();
-    // refs (location/category/type)
     self.loadRefs(d.categoryId).always(function(){
-      $('#txtSpmName').val(d.spaceName||''); $('#txtSpmName').siblings('label').addClass('active');
+      $('#txtSpmName').val(d.spaceName||'');
       self.setSelect('#optSpmLocation','#lblSpmLocation', d.locationId);
       self.setSelect('#optSpmCategory','#lblSpmCategory', d.categoryId);
       self.setSelect('#optSpmType','#lblSpmType', d.typeId);
-      $('#txtSpmArea').val(d.spaceArea||''); $('#txtSpmArea').siblings('label').addClass('active');
-      $('#txtSpmCapacity').val(d.spaceCapacity||''); $('#txtSpmCapacity').siblings('label').addClass('active');
-      $('#txaSpmDesc').val(d.spaceDesc||''); $('#txaSpmDesc').siblings('label').addClass('active');
+      $('#txtSpmArea').val(d.spaceArea||'');
+      $('#txtSpmCapacity').val(d.spaceCapacity||'');
+      $('#txaSpmDesc').val(d.spaceDesc||'');
     }); };
 
-  this.loadRefs=function(categoryId){ function one(key){ let url='api/space.php/refs/'+key; if(key==='type'&&categoryId){ url+='?spaceCategoryId='+encodeURIComponent(categoryId); } return $.ajax({ url, method:'GET', dataType:'json', headers:self.headers()}); } return $.when(one('location'),one('category'),one('type')).done(function(loc,cat,typ){ const $loc=$('#optSpmLocation'),$cat=$('#optSpmCategory'),$typ=$('#optSpmType'); try{$loc.materialSelect('destroy');}catch(e){} try{$cat.materialSelect('destroy');}catch(e){} try{$typ.materialSelect('destroy');}catch(e){} $loc.empty().append('<option value="" selected>--</option>'); $cat.empty().append('<option value="" selected>--</option>'); $typ.empty().append('<option value="" selected>--</option>'); (loc[0].result||[]).forEach(function(r){ $loc.append('<option value="'+r.spaceLocationId+'">'+r.spaceLocationName+'</option>'); }); (cat[0].result||[]).forEach(function(r){ $cat.append('<option value="'+r.spaceCategoryId+'">'+r.spaceCategoryName+'</option>'); }); (typ[0].result||[]).forEach(function(r){ $typ.append('<option value="'+r.spaceTypeId+'">'+r.spaceTypeName+'</option>'); }); $loc.materialSelect(); $cat.materialSelect(); $typ.materialSelect(); $cat.off('change._typeCascade').on('change._typeCascade', function(){ const cid=$(this).val(); try{$typ.materialSelect('destroy');}catch(e){} let url='api/space.php/refs/type'+(cid?('?spaceCategoryId='+encodeURIComponent(cid)):''); $.ajax({ url, method:'GET', dataType:'json', headers:self.headers()}).done(function(resp){ $typ.empty().append('<option value="" selected>--</option>'); (resp.result||[]).forEach(function(r){ $typ.append('<option value="'+r.spaceTypeId+'">'+r.spaceTypeName+'</option>'); }); $typ.materialSelect(); }); }); }); };
+  this.loadRefs=function(categoryId){
+    function one(key){
+      let url='api/space.php/refs/'+key;
+      if(key==='type'&&categoryId){ url+='?spaceCategoryId='+encodeURIComponent(categoryId); }
+      return $.ajax({ url:url, method:'GET', dataType:'json', headers:self.headers()});
+    }
+    return $.when(one('location'),one('category'),one('type')).done(function(loc,cat,typ){
+      GemsUI.fillSelect('optSpmLocation', loc[0].result||[], 'spaceLocationId', 'spaceLocationName', '--');
+      GemsUI.fillSelect('optSpmCategory', cat[0].result||[], 'spaceCategoryId', 'spaceCategoryName', '--');
+      GemsUI.fillSelect('optSpmType', typ[0].result||[], 'spaceTypeId', 'spaceTypeName', '--');
+      $('#optSpmCategory').off('change._typeCascade').on('change._typeCascade', function(){
+        const cid=$(this).val();
+        const url='api/space.php/refs/type'+(cid?('?spaceCategoryId='+encodeURIComponent(cid)):'');
+        $.ajax({ url:url, method:'GET', dataType:'json', headers:self.headers()}).done(function(resp){
+          GemsUI.fillSelect('optSpmType', resp.result||[], 'spaceTypeId', 'spaceTypeName', '--');
+        });
+      });
+    });
+  };
 
   this.setSelect=function(sel,label,val){
-    // Recreate the MDB select to sync the selected value and label UI
-    try { $(sel).materialSelect('destroy'); } catch(e){}
     if(val!==undefined && val!==null && val!==''){
       $(sel).val(String(val));
     } else {
       $(sel).val('');
     }
-    $(sel).materialSelect();
   };
 
   this.renderAssets=function(list){ oAssets.clear().rows.add(list||[]).draw(); };
@@ -185,17 +209,17 @@ function MainSpaceManage(){
   const cap=m.mediaCaption||m.media_caption||'';
   const isCover = type==='PHOTO' && parseInt(m.isCover||m.is_cover||0)===1;
       if(isCover){ currentCoverId=id; }
-      const badge= type==='FLOORPLAN' ? '<span class="badge badge-info badge-modern">FLOORPLAN</span>' : '<span class="badge badge-dark badge-modern">PHOTO</span>';
-  const coverChip = isCover ? '<span class="badge badge-success badge-modern spm-cover-badge"><i class="fas fa-star mr-1"></i>Cover</span>' : '';
+      const badge= type==='FLOORPLAN' ? GemsUI.badge('info','FLOORPLAN') : GemsUI.badge('secondary','PHOTO');
+  const coverChip = isCover ? '<span class="badge gems-badge gems-badge-success spm-cover-badge"><i class="fas fa-star me-1"></i>Cover</span>' : '';
       const coverButton = type==='PHOTO'
-        ? '<button type="button" class="btn btn-sm '+(isCover?'btn-primary':'btn-outline-primary')+' btnSpmSetCover" data-id="'+id+'" '+(isCover?'disabled':'')+'>'+(isCover?'<i class="fas fa-star mr-1"></i>Cover photo':'<i class="far fa-star mr-1"></i>Set cover')+'</button>'
+        ? '<button type="button" class="btn btn-sm '+(isCover?'btn-primary':'btn-outline-primary')+' btnSpmSetCover" data-id="'+id+'" '+(isCover?'disabled':'')+'>'+(isCover?'<i class="fas fa-star me-1"></i>Cover photo':'<i class="far fa-star me-1"></i>Set cover')+'</button>'
         : '';
-      const deleteButton = '<button type="button" class="btn btn-sm btn-outline-danger btnSpmDeleteOne" data-id="'+id+'"><i class="fas fa-trash mr-1"></i>Delete</button>';
+      const deleteButton = '<button type="button" class="btn btn-sm btn-outline-danger btnSpmDeleteOne" data-id="'+id+'"><i class="fas fa-trash me-1"></i>Delete</button>';
       const actionRow = '<div class="spm-card-actions">'+(coverButton||'')+deleteButton+'</div>';
       const card = '<div class="col-lg-3 col-sm-4 mb-3">'
         +  '<div class="card h-100 spm-media-card'+(isCover?' spm-media-cover':'')+'">'
         +    coverChip
-        +    '<div class="view overlay"><img src="'+url+'" class="card-img-top" style="object-fit:cover;height:160px"><a href="'+url+'" target="_blank"><div class="mask rgba-white-slight"></div></a></div>'
+        +    '<a href="'+url+'" target="_blank"><img src="'+url+'" class="card-img-top" style="object-fit:cover;height:160px" alt="media"></a>'
         +    '<div class="card-body py-2">'
         +      '<div class="d-flex justify-content-between align-items-center">'
         +        '<div>'+badge+'</div>'
@@ -266,4 +290,12 @@ function MainSpaceManage(){
   this.getClassName=function(){ return className; };
 }
 
-document.addEventListener('DOMContentLoaded', function(){ ShowLoader(); let pending=$('.includeHtml').length; function boot(){ try{ if (typeof initiatePages === 'function') { initiatePages(); } const main=new MainSpaceManage(); main.init(); }catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); } if(pending===0){ setTimeout(boot,100);} else { $('.includeHtml').each(function(){ const id=$(this).attr('id'); $('#'+id).load('html/'+id.substr(2)+'.html?'+new Date().valueOf(), function(){ pending--; if(pending===0){ setTimeout(boot,50);} }); }); } });
+$(document).ready(function(){
+  try {
+    if (typeof initiatePages === 'function') { initiatePages(); }
+    const main=new MainSpaceManage();
+    main.init();
+  } catch(e) {
+    toastr['error'](e.message,_ALERT_TITLE_ERROR);
+  }
+});
