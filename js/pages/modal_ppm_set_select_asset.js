@@ -2,9 +2,9 @@ function ModalPpmSetSelectAsset () {
 
     const className = 'ModalPpmSetSelectAsset';
     let self = this;
-    let classFrom; // Reference to the calling class (e.g., ModalPpmSet)
-    let dtMpssa; // DataTable for assets
-    let refStatus; // Reference status array
+    let classFrom;
+    let dtMpssa;
+    let refStatus;
 
     let currentPpmSetId;
     let currentContractId;
@@ -13,129 +13,108 @@ function ModalPpmSetSelectAsset () {
     let currentAssetTypeId;
     let callbackOnAddFunction;
 
+    const statusColorMap = {
+        'badge-primary': 'info',
+        'badge-info': 'info',
+        'badge-success': 'success',
+        'badge-danger': 'danger',
+        'badge-warning': 'warning',
+        'badge-secondary': 'secondary'
+    };
+
     this.init = function () {
 
-        // Initialize DataTable for Available Assets
-        dtMpssa = $('#dtMpssa').DataTable({ // HTML table ID from modal_ppm_set_select_asset.html
+        dtMpssa = $('#dtMpssa').DataTable({
             bLengthChange: false,
             bFilter: true,
-            aaSorting: [[2, 'asc']], // Sort by Asset No
+            aaSorting: [[2, 'asc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-cubes', 'No available assets for this PPM set.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDom,
             columnDefs: [
-                { bSortable: false, targets: [0] }, // Checkbox column
-                { className: 'text-center', targets: [0, 1, 5] }, // Checkbox, #, Status
-                { className: 'text-right', targets: [] },
-                // { visible: false, targets: [] },
+                { bSortable: false, targets: [0] },
+                { className: 'text-center', targets: [0, 1, 5] },
                 { className: 'noVis', targets: [0] }
             ],
-            buttons: [], // No buttons needed here, manual add button below
+            buttons: [],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
-                $('td', nRow).eq(1).html(info.start + (iDisplayIndex + 1)); // Set # column
+                $('td', nRow).eq(1).html(info.start + (iDisplayIndex + 1));
             },
-            
-            // REMOVE drawCallback
-            /*
-            drawCallback: function () {
-                // Handle individual checkbox clicks
-                $('#dtMpssa tbody input[type="checkbox"]').off('change').on('change', function () {
-                    if (!this.checked) {
-                        $('#chkMpssaSelectAll').prop('checked', false); // Uncheck select all if any individual is unchecked
-                    }
-                });
-            },
-            */
             aoColumns: [
-                { // Checkbox for selection - MODIFIED MARKUP
+                {
                     mData: null, bSortable: false, mRender: function (data, type, row) {
-                        // Ensure unique ID for the label
+                        if (type !== 'display') {
+                            return '';
+                        }
                         const checkboxId = 'chkMpssaAsset_' + row.assetId;
-                        return `
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input chkMpssaAsset" id="${checkboxId}" value="${row.assetId}">
-                                <label class="form-check-label" for="${checkboxId}"></label>
-                            </div>
-                        `;
-                        // Alternative simplified MDB checkbox markup often used:
-                        /*
-                        return `
-                            <input type="checkbox" class="filled-in chkMpssaAsset" id="${checkboxId}" value="${row.assetId}">
-                            <label for="${checkboxId}"></label>
-                        `;
-                        */
+                        return '<input type="checkbox" class="form-check-input chkMpssaAsset" id="' + checkboxId + '" value="' + row.assetId + '" aria-label="Select asset">';
                     }
                 },
-                { mData: null}, // #
-                { mData: 'assetNo'}, // Asset No
-                { mData: 'assetName'}, // Asset Name
-                { mData: 'assetLocationDesc'}, // Location
-                { mData: 'assetStatus', mRender: function (data) {
-                        if (refStatus && refStatus[data]) {
-                            return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                { mData: null},
+                { mData: 'assetNo'},
+                { mData: 'assetName'},
+                { mData: 'assetLocationDesc'},
+                { mData: 'assetStatus', mRender: function (data, type) {
+                        const rec = refStatus && refStatus[data];
+                        const label = rec ? rec['statusDesc'] : 'N/A';
+                        if (type !== 'display') {
+                            return label;
                         }
-                        return '<span class="badge badge-pill badge-secondary">N/A</span>';
+                        return GemsUI.badge(statusColorMap[rec && rec['statusColor']] || 'secondary', GemsUI.escape(label));
                     }}
             ]
         });
+        GemsUI.bindDtTooltips('#dtMpssa');
 
-        // Handle "Select All" checkbox - This is fine as init() runs once.
+        $('#dtMpssa_filter').hide();
+        $('#txtMpssaSearch').off('keyup change').on('keyup change', function () {
+            if (dtMpssa) {
+                dtMpssa.search($(this).val()).draw();
+            }
+        });
         $('#chkMpssaSelectAll').off('change').on('change', function () {
             $('.chkMpssaAsset').prop('checked', this.checked);
         });
 
-        // NEW: Event delegation for individual checkbox clicks
-        // Bind to a static parent element (e.g., the DataTable container or even the modal itself)
-        // This handler will only be bound once during init().
         $('#dtMpssa').on('change', 'tbody input[type="checkbox"].chkMpssaAsset', function () {
             if (!this.checked) {
-                $('#chkMpssaSelectAll').prop('checked', false); // Uncheck select all if any individual is unchecked
+                $('#chkMpssaSelectAll').prop('checked', false);
             }
         });
 
         $('#btnMpssaAddAllAssetSelected').off('click').on('click', function () {
             if(!confirm('This action will add all asset listed under this groupe, category and type. Are you sure to proceed?')) {
-                return; // User cancelled the action
+                return;
             }
-        
+
             ShowLoader(); setTimeout(function () {
                 try {
-                    // --- UPDATED: No longer need to fetch/send these from frontend ---
-                    // const assetGroupId = parseInt($('#your_asset_group_filter_element').val()); 
-                    // const assetCategoryId = parseInt($('#your_asset_category_filter_element').val()); 
-                    // const assetTypeId = parseInt($('#your_asset_type_filter_element').val());     
-        
                     const res = mzAjaxRequest('ppm.php', 'POST', {
                         action: 'add_assets_to_ppm_set',
                         ppmSetId: parseInt(currentPpmSetId),
-                        assetIds: JSON.stringify([]), // Still send empty array, backend ignores it for allAssetSelected=true
+                        assetIds: JSON.stringify([]),
                         allAssetSelected: true
-                        // --- REMOVED assetGroupId, assetCategoryId, assetTypeId from here ---
-                    }, '', false); 
-        
-                    toastr['success'](res.errmsg, _ALERT_TITLE_SUCCESS); 
-        
-                    self.close(); // Close this modal
-        
+                    }, '', false);
+
+                    toastr['success'](res.errmsg, _ALERT_TITLE_SUCCESS);
+
+                    self.close();
+
                     if (callbackOnAddFunction) {
-                        callbackOnAddFunction(res); // Pass res (the 'result' data) to callback if needed
+                        callbackOnAddFunction(res);
                     }
-                    
-                    HideLoader(); 
-                } catch (e) { 
-                    HideLoader(); // Ensure loader is hidden on error
-                    toastr['error'](e.message, _ALERT_TITLE_ERROR); 
+
+                    HideLoader();
+                } catch (e) {
+                    HideLoader();
+                    toastr['error'](e.message, _ALERT_TITLE_ERROR);
                 }
             }, 200);
         });
 
-
-        // Handle "Add Selected Assets" button click - This is fine as init() runs once.
         $('#btnMpssaAddSelected').off('click').on('click', function () {
             try {
                 const selectedAssetIds = [];
@@ -148,34 +127,27 @@ function ModalPpmSetSelectAsset () {
                     return;
                 }
 
-                // Call backend API to add selected assets to the PPM Set
                 ShowLoader(); setTimeout(function () {
                     try {
-                        // Use mzAjaxRequest synchronously (async: false)
-                        // Or, use its third parameter (functionStr) for callback
                         const res = mzAjaxRequest('ppm.php', 'POST', {
                             action: 'add_assets_to_ppm_set',
                             ppmSetId: parseInt(currentPpmSetId),
-                            assetIds: JSON.stringify(selectedAssetIds) // Send as a plain JS array
-                        }, /* functionStr = */ '', /* apiBeautify = */ false); // Call synchronously, no callback needed here
+                            assetIds: JSON.stringify(selectedAssetIds)
+                        }, '', false);
 
-                        // If mzAjaxRequest doesn't throw an error, it means it was successful.
-                        // 'res' here will be the 'result' property from the backend response.
-                        toastr['success'](res.errmsg, _ALERT_TITLE_SUCCESS); // The backend now sets errmsg on success
+                        toastr['success'](res.errmsg, _ALERT_TITLE_SUCCESS);
 
-                        self.close(); // Close this modal
+                        self.close();
 
-                        // Callback to parent page to refresh assets list
                         if (callbackOnAddFunction) {
-                            callbackOnAddFunction(res); // Pass res (the 'result' data) to callback if needed
+                            callbackOnAddFunction(res);
                         }
-                        
-                        HideLoader(); // Hide loader after all successful operations
+
+                        HideLoader();
 
                     } catch (e) {
-                        // mzAjaxRequest throws an Error object on failure.
                         toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                        HideLoader(); // Hide loader on error
+                        HideLoader();
                     }
                 }, 200);
 
@@ -183,17 +155,16 @@ function ModalPpmSetSelectAsset () {
         });
     };
 
-    // Method to show the modal and load asset data
     this.show = function (_ppmSetId, _assetGroupId, _assetCategoryId, _assetTypeId) {
         try {
-            mzCheckFuncParam([_ppmSetId, _assetGroupId, _assetCategoryId, _assetTypeId]); // assetTypeId can be null
+            mzCheckFuncParam([_ppmSetId, _assetGroupId, _assetCategoryId, _assetTypeId]);
             currentPpmSetId = _ppmSetId;
             currentAssetGroupId = _assetGroupId;
             currentAssetCategoryId = _assetCategoryId;
             currentAssetTypeId = _assetTypeId;
 
-            dtMpssa.clear().draw(); // Clear previous data
-            $('#chkMpssaSelectAll').prop('checked', false); // Uncheck select all checkbox
+            dtMpssa.clear().draw();
+            $('#chkMpssaSelectAll').prop('checked', false);
 
             ShowLoader(); setTimeout(function () {
                 mzFetch('api/ppm.php?type=assets_for_ppm_set_selection&ppmSetId='+currentPpmSetId+'&assetTypeId='+currentAssetTypeId+'&assetGroupId='+currentAssetGroupId+'&assetCategoryId='+currentAssetCategoryId, 'GET').then(res => {
@@ -224,5 +195,4 @@ function ModalPpmSetSelectAsset () {
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
     };
-    // Add other ref setters if this modal needs more reference data (e.g., asset groups for filtering)
 }

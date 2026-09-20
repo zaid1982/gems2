@@ -26,6 +26,14 @@ function MainPpmSet () {
         '2': '#linkPsmInactive',
         '5': '#linkPsmArchived'
     };
+    const statusColorMap = {
+        'badge-primary': 'info',
+        'badge-info': 'info',
+        'badge-success': 'success',
+        'badge-danger': 'danger',
+        'badge-warning': 'warning',
+        'badge-secondary': 'secondary'
+    };
 
     const applyTableDataLabels = function (tableSelector, headers) {
         $(`${tableSelector} tbody tr`).each(function () {
@@ -130,15 +138,15 @@ function MainPpmSet () {
         }
         const disabled = !isAdmin && contractList.length <= 1;
         $select.prop('disabled', disabled);
-        let optionsHtml = '';
-        contractList.forEach(function (contract) {
-            const selectedAttr = String(contract.contractId) === String(contractId) ? ' selected' : '';
-            optionsHtml += `<option value="${contract.contractId}"${selectedAttr}>${contract.contractName}</option>`;
-        });
-        if (optionsHtml === '') {
-            optionsHtml = '<option value="" selected>No contract available</option>';
+        if (!contractList.length) {
+            GemsUI.fillSelect('optPsmContract', [], 'contractId', function (row) {
+                return row.contractName || '';
+            }, 'No contract available');
+            return;
         }
-        $select.html(optionsHtml);
+        GemsUI.fillSelect('optPsmContract', contractList, 'contractId', function (row) {
+            return row.contractName || '';
+        }, null, contractId);
         $select.val(contractId);
     };
 
@@ -156,6 +164,15 @@ function MainPpmSet () {
         return String(rowData['ppmSetStatus']) === statusFilterValue;
     };
 
+    const statusBadge = function (statusId, type) {
+        const rec = refStatus && refStatus[statusId];
+        const label = rec ? rec['statusDesc'] : 'Unknown';
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusColorMap[rec && rec['statusColor']] || 'secondary', GemsUI.escape(label));
+    };
+
     this.init = function () {
         $.fn.dataTable.ext.search.push(statusFilterFn);
 
@@ -165,10 +182,14 @@ function MainPpmSet () {
         contractList = [];
         $.each(refContract, function (id, contract) {
             if (contract && typeof contract === 'object') {
+                const row = $.extend({}, contract);
+                if (row.contractId === undefined || row.contractId === null || row.contractId === '') {
+                    row.contractId = id;
+                }
                 contractList.push({
-                    contractId: parseInt(contract.contractId || id, 10),
-                    contractName: contract.contractName || ('Contract ' + id),
-                    siteId: contract.siteId
+                    contractId: parseInt(row.contractId, 10),
+                    contractName: row.contractName || ('Contract ' + row.contractId),
+                    siteId: row.siteId
                 });
             }
         });
@@ -240,10 +261,10 @@ function MainPpmSet () {
             bFilter: true,
             aaSorting: [[1, 'asc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-layer-group', 'No PPM sets for this contract.'),
             pageLength: 15,
             autoWidth: false,
-            dom: "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 d-flex justify-content-end mt-3'p>>",
+            dom: GemsUI.dtDom,
             columnDefs: [
                 { targets: [0, 7], orderable: false, className: 'text-center noVis' },
                 { targets: [5], className: 'text-right' },
@@ -255,16 +276,6 @@ function MainPpmSet () {
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPsmEdit').off('click').on('click', function () {
-                    const ppmSetId = mzGetLinkId($(this), dtPsm, 'ppmSetId');
-                    if (modalPpmSetClass) {
-                        modalPpmSetClass.setClassFrom(self);
-                        modalPpmSetClass.edit(ppmSetId);
-                    } else {
-                        window.location.href = 'ppm_set_form.html?ppmSetId=' + ppmSetId;
-                    }
-                });
                 applyTableDataLabels('#dtPsm', tableHeaders);
                 refreshListSummary();
             },
@@ -279,38 +290,47 @@ function MainPpmSet () {
                         return self.getRefName(row.ppmGroupId, refPpmGroup, 'ppmGroupName');
                     }},
                 { mData: 'totalAssets', width: '5%' },
-                { mData: 'ppmSetStatus', mRender: function (data) {
-                        if (typeof refStatus === 'undefined' || !refStatus[data]) {
-                            return '<span class="badge badge-pill badge-secondary">Unknown</span>';
-                        }
-                        return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                { mData: 'ppmSetStatus', mRender: function (data, type) {
+                        return statusBadge(data, type);
                     }},
                 { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
-                        const safeName = (row.ppmSetName || '')
-                            .replace(/\\/g, "\\\\")
-                            .replace(/'/g, "\\'");
-                        let html = '<div class="action-btn-group">';
-                        html += '<button type="button" class="btn-action btn-edit lnkPsmEdit" id="lnkPsmEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit ' + (row.ppmSetName || 'PPM Set') + '">';
-                        html += '<i class="fas fa-edit"></i>';
-                        html += '</button>';
-                        html += `<button type="button" class="btn-action btn-delete" onclick="mainPpmSetClass_.deletePpmSetTrigger(${row.ppmSetId}, '${safeName}')" data-toggle="tooltip" data-placement="top" title="Delete ${row.ppmSetName || 'PPM Set'}">`;
-                        html += '<i class="fas fa-trash-alt"></i>';
-                        html += '</button>';
-                        html += '</div>';
-                        return html;
+                        if (type !== 'display') {
+                            return '';
+                        }
+                        const titleName = row.ppmSetName || 'PPM Set';
+                        return GemsUI.actionBtn({
+                            id: 'lnkPsmEdit_' + meta.row,
+                            cls: 'lnkPsmEdit',
+                            icon: 'fas fa-edit',
+                            title: 'Edit ' + titleName
+                        }) + GemsUI.actionBtn({
+                            id: 'lnkPsmDelete_' + meta.row,
+                            cls: 'lnkPsmDelete',
+                            icon: 'fas fa-trash-alt',
+                            title: 'Delete ' + titleName
+                        });
                     }}
             ]
         });
-        $('#dtPsm_filter').hide();
+        GemsUI.bindDtTooltips('#dtPsm');
+        $('#dtPsm').on('click', '.lnkPsmEdit', function () {
+            const ppmSetId = mzGetLinkId($(this), dtPsm, 'ppmSetId');
+            if (modalPpmSetClass) {
+                modalPpmSetClass.setClassFrom(self);
+                modalPpmSetClass.edit(ppmSetId);
+            } else {
+                window.location.href = 'ppm_set_form.html?ppmSetId=' + ppmSetId;
+            }
+        });
+        $('#dtPsm').on('click', '.lnkPsmDelete', function () {
+            const ppmSetId = mzGetLinkId($(this), dtPsm, 'ppmSetId');
+            const row = dtPsm.row($(this).closest('tr')).data();
+            const name = row && row.ppmSetName ? row.ppmSetName : 'PPM Set';
+            self.deletePpmSetTrigger(ppmSetId, name);
+        });
 
         new $.fn.dataTable.Buttons(dtPsm, {
-            buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', text: '<i class="fas fa-columns"></i>', className: 'btn btn-light btn-icon', titleAttr: 'Column Visibility' },
-                { extend: 'print', text: '<i class="fas fa-print"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'Print', className: 'btn btn-light btn-icon', exportOptions: mzExportOpt },
-                { extend: 'copy', text: '<i class="fas fa-copy"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'Copy', className: 'btn btn-light btn-icon', exportOptions: mzExportOpt },
-                { extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'Excel', className: 'btn btn-light btn-icon', exportOptions: mzExportExcelOpt },
-                { extend: 'pdfHtml5', text: '<i class="fas fa-file-pdf"></i>', title: 'GEMS 2.0 - PPM Set List', titleAttr: 'PDF', orientation: 'landscape', className: 'btn btn-light btn-icon', exportOptions: mzExportOpt }
-            ]
+            buttons: GemsUI.dtButtons('GEMS 2.0 - PPM Set List')
         }).container().appendTo($('#btnDtPsmExport'));
 
         self.genTable();

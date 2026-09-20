@@ -1,49 +1,51 @@
-<div class="modal fade gems-modal" id="modal_ppm_set_select_asset" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable" role="document">
-        <div class="modal-content gems-modal-card">
-            <div class="modal-header gems-modal-header">
-                <h4 class="modal-title w-100" id="h4MpssaTitle"><i class="fas fa-cubes mr-2"></i>Select Assets for PPM Set</h4>
-                <button type="button" class="close gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" class="text-white">&times;</span>
-                </button>
+<!--
+  Modal: modal_ppm_set_select_asset — Tabler/GEMS modal + form contract (P5-4 Commit 3).
+
+  SHARED by pages/ppm_set_management.html and pages/ppm_set_form.html. Convert in place; do not fork.
+  modal-xl + gems-modal-lg, modal-dialog-scrollable, never modal-dialog-centered.
+  Wide table: Close (outline), Add Selected (primary), Add All (warning).
+-->
+<div class="modal fade" id="modal_ppm_set_select_asset" tabindex="-1" aria-labelledby="h4MpssaTitle" aria-hidden="true">
+  <div class="modal-dialog modal-xl gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="h4MpssaTitle"><i class="fas fa-cubes me-2"></i>Select Assets for PPM Set</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="lblMpssaPpmSetId">
+        <input type="hidden" id="lblMpssaContractId">
+        <input type="hidden" id="lblMpssaAssetTypeId">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title mb-0"><i class="fas fa-list me-2"></i>Available Assets</h3>
+            <div class="gems-card-toolbar" style="min-width:16rem">
+              <label class="form-label visually-hidden" for="txtMpssaSearch">Keyword Search</label>
+              <input type="text" id="txtMpssaSearch" class="form-control" placeholder="Search assets...">
             </div>
-            <div class="modal-body mx-3 gems-modal-body">
-                <input type="hidden" id="lblMpssaPpmSetId">
-                <input type="hidden" id="lblMpssaContractId">
-                <input type="hidden" id="lblMpssaAssetTypeId">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card z-depth-3 mb-4_5">
-                            <div class="card-header white p-0 z-depth-1">
-                                <div class="float-left cyan" style="width: 16px; height: 48px">&nbsp;</div>
-                                <h5 class="font-weight-bold pl-4_5 mb-0" style="margin-top: 12px;"><i class="fas fa-list mr-1"></i> Available Assets</h5>
-                            </div>
-                            <div class="card-body pt-4">
-                                <div class="table-responsive">
-                                    <table id="dtMpssa" class="table table-tight table-hover mb-0 display responsive mobile-stack">
-                                        <thead>
-                                        <tr class="th-strong">
-                                            <th><input type="checkbox" id="chkMpssaSelectAll"></th>
-                                            <th>#</th>
-                                            <th>Asset No</th>
-                                            <th>Asset Name</th>
-                                            <th>Location</th>
-                                            <th>Status</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer gems-modal-footer">
-                <button class="btn btn-blue-grey" data-dismiss="modal">Close</button>
-                <button class="btn btn-indigo" id="btnMpssaAddSelected">Add Selected Assets</button>
-                <button class="btn btn-warning" id="btnMpssaAddAllAssetSelected">Add All Assets</button>
-            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="dtMpssa" class="table table-vcenter card-table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th style="width:2.5rem"><input type="checkbox" class="form-check-input" id="chkMpssaSelectAll" aria-label="Select all assets"></th>
+                  <th style="width:4%">#</th>
+                  <th>Asset No</th>
+                  <th>Asset Name</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-undo-alt me-1"></i> Close</button>
+        <button type="button" class="btn btn-primary" id="btnMpssaAddSelected">Add Selected</button>
+        <button type="button" class="btn btn-warning" id="btnMpssaAddAllAssetSelected">Add All</button>
+      </div>
     </div>
+  </div>
 </div>

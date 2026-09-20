@@ -3,19 +3,19 @@ function ModalPpmSet () {
     const className = 'ModalPpmSet';
     let self = this;
     let formValidate;
-    let classFrom; // Reference to MainPpmSet class
-    let submitType = ''; // 'add' or 'put'
+    let classFrom;
+    let submitType = '';
     let refAssetGroup;
     let refAssetCategory;
     let refAssetType;
     let refPpmGroup;
-    let ppmSetId; // Renamed from ppmId for ppm_set
+    let ppmSetId;
     let contractId;
     let siteId;
 
     const vData = [
         {
-            field_id: 'txtMpsName', // Renamed ID
+            field_id: 'txtMpsName',
             type: 'text',
             name: 'PPM Set Name',
             validator: {
@@ -24,7 +24,7 @@ function ModalPpmSet () {
             }
         },
         {
-            field_id: 'txaMpsDesc', // Renamed ID
+            field_id: 'txaMpsDesc',
             type: 'textarea',
             name: 'Description',
             validator: {
@@ -33,7 +33,7 @@ function ModalPpmSet () {
             }
         },
         {
-            field_id: 'optMpsAssetGroup', // Renamed ID
+            field_id: 'optMpsAssetGroup',
             type: 'select',
             name: 'Asset Group',
             validator: {
@@ -41,7 +41,7 @@ function ModalPpmSet () {
             }
         },
         {
-            field_id: 'optMpsAssetCategory', // Renamed ID
+            field_id: 'optMpsAssetCategory',
             type: 'select',
             name: 'Asset Category',
             validator: {
@@ -49,7 +49,7 @@ function ModalPpmSet () {
             }
         },
         {
-            field_id: 'optMpsAssetType', // Renamed ID
+            field_id: 'optMpsAssetType',
             type: 'select',
             name: 'Asset Type',
             validator: {
@@ -57,15 +57,59 @@ function ModalPpmSet () {
             }
         },
         {
-            field_id: 'optMpsPpmGroupId', // Renamed ID
+            field_id: 'optMpsPpmGroupId',
             type: 'select',
             name: 'PPM Executor Group',
             validator: {
                 notEmpty: true
             }
         }
-        // Removed: Checklist ID, Frequency, Date Start - they are not ppm_set fields
     ];
+
+    function rowsFromRef(ref, idKey) {
+        const rows = [];
+        if (!ref) {
+            return rows;
+        }
+        $.each(ref, function (id, rec) {
+            if (!rec || typeof rec !== 'object') {
+                return;
+            }
+            const row = $.extend({}, rec);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = String(id);
+            }
+            rows.push(row);
+        });
+        return rows;
+    }
+
+    function filterRows(rows, filters) {
+        return (rows || []).filter(function (row) {
+            const keys = Object.keys(filters || {});
+            for (let i = 0; i < keys.length; i++) {
+                if (String(row[keys[i]]) !== String(filters[keys[i]])) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    function fillNamed(id, rows, valueKey, labelKey, placeholder, selected) {
+        const sorted = (rows || []).slice().sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''));
+        });
+        GemsUI.fillSelect(id, sorted, valueKey, function (row) {
+            return row[labelKey] || '';
+        }, placeholder, selected);
+        $('#' + id + 'Err').html('');
+    }
+
+    function clearAndDisable(id, valueKey, labelKey, placeholder) {
+        fillNamed(id, [], valueKey, labelKey, placeholder);
+        mzDisableSelect(id, true);
+    }
 
     function successAfterSubmit() {
         const msg = submitType === 'add' ? 'PPM Set successfully created!' : 'PPM Set successfully updated!';
@@ -75,80 +119,64 @@ function ModalPpmSet () {
         HideLoader();
     }
 
-    /**
-     * Populate a cascading MDB materialSelect in ONE pass (destroy → populate → create).
-     * Replaces the old mzOptionStop + mzDisableSelect(field, false) combo which
-     * caused a double materialSelect destroy→create cycle and severe lag on
-     * large option lists (e.g. Mechanical asset categories).
-     */
-    function _populateSelect(name, data, defaultText, keyIndex, valIndex, filters, type) {
-        var $s = $('#' + name);
-        $s.prop('disabled', false).removeClass('grey lighten-4');
-        try { $s.materialSelect('destroy'); } catch (e) { /* ignore */ }
-        mzOption(name, data, defaultText, keyIndex, valIndex, filters, type);
-        $s.materialSelect({ visibleOptions: 15 });
-        $s.removeClass('invalid');
-        $('#' + name + 'Err').html('');
-    }
-
-    /**
-     * Clear a cascading MDB materialSelect to its placeholder and disable it
-     * in ONE pass. Replaces the old mzOptionStopClear + mzDisableSelect(field, true)
-     * combo that triggered two full rebuilds.
-     */
-    function _clearAndDisable(name, defaultText, type) {
-        var $s = $('#' + name);
-        try { $s.materialSelect('destroy'); } catch (e) { /* ignore */ }
-        removeOptions(document.getElementById(name));
-        var opt0 = new Option(defaultText, '', true, true);
-        if (type === 'required') { opt0.disabled = true; }
-        document.getElementById(name).options[0] = opt0;
-        $s.val(null).prop('disabled', true).addClass('grey lighten-4');
-        $s.materialSelect({ visibleOptions: 15 });
-        $s.removeClass('invalid');
-        $('#' + name + 'Err').html('');
-        $('#lbl' + name.substr(3)).removeClass('active').addClass('active');
-    }
-
     this.init = function () {
 
         $('#optMpsAssetGroup').on('change', function () {
             const id = $(this).val();
             try {
-                // Single-pass: populate Category, clear & disable downstream
-                _clearAndDisable('optMpsPpmGroupId', 'Select PPM Executor Group', 'required');
-                _clearAndDisable('optMpsAssetType', 'Select Asset Type', 'required');
-                _populateSelect('optMpsAssetCategory', refAssetCategory, 'Select Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: id, assetCategoryStatus: '1'}, 'required');
+                clearAndDisable('optMpsPpmGroupId', 'ppmGroupId', 'ppmGroupName', 'Select PPM Executor Group');
+                clearAndDisable('optMpsAssetType', 'assetTypeId', 'assetTypeName', 'Select Asset Type');
+                fillNamed(
+                    'optMpsAssetCategory',
+                    filterRows(rowsFromRef(refAssetCategory, 'assetCategoryId'), {assetGroupId: id, assetCategoryStatus: '1'}),
+                    'assetCategoryId',
+                    'assetCategoryName',
+                    'Select Asset Category'
+                );
+                mzDisableSelect('optMpsAssetCategory', false);
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
         $('#optMpsAssetCategory').on('change', function () {
             const id = $(this).val();
             try {
-                _clearAndDisable('optMpsPpmGroupId', 'Select PPM Executor Group', 'required');
-                _populateSelect('optMpsAssetType', refAssetType, 'Select Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: id, assetTypeStatus: '1'}, 'required');
+                clearAndDisable('optMpsPpmGroupId', 'ppmGroupId', 'ppmGroupName', 'Select PPM Executor Group');
+                fillNamed(
+                    'optMpsAssetType',
+                    filterRows(rowsFromRef(refAssetType, 'assetTypeId'), {assetCategoryId: id, assetTypeStatus: '1'}),
+                    'assetTypeId',
+                    'assetTypeName',
+                    'Select Asset Type'
+                );
+                mzDisableSelect('optMpsAssetType', false);
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
         $('#optMpsAssetType').on('change', function () {
-            const id = $(this).val();
             try {
-                _populateSelect('optMpsPpmGroupId', refPpmGroup, 'Select PPM Executor Group', 'ppmGroupId', 'ppmGroupName', {roleId: '5', siteId: siteId, ppmGroupStatus: '1'}, 'required');
+                fillNamed(
+                    'optMpsPpmGroupId',
+                    filterRows(rowsFromRef(refPpmGroup, 'ppmGroupId'), {roleId: '5', siteId: siteId, ppmGroupStatus: '1'}),
+                    'ppmGroupId',
+                    'ppmGroupName',
+                    'Select PPM Executor Group'
+                );
+                mzDisableSelect('optMpsPpmGroupId', false);
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
-        $('#btnMpsSubmit').on('click', function () { // Renamed ID
+        $('#btnMpsSubmit').on('click', function () {
             try {
                 if (!formValidate.validateNow()) {
                     toastr['error'](_ALERT_MSG_VALIDATION, _ALERT_TITLE_ERROR);
                 } else {
                     let data = {
-                        ppmSetName: mzNullString('txtMpsName'), // Renamed ID
-                        ppmSetDesc: mzNullString('txaMpsDesc'), // Renamed ID
-                        assetTypeId: mzNullInt('optMpsAssetType'), // Renamed ID
-                        ppmGroupId: mzNullInt('optMpsPpmGroupId'), // Renamed ID
-                        assetGroupId: mzNullInt('optMpsAssetGroup'),      // Add assetGroupId
-                        assetCategoryId: mzNullInt('optMpsAssetCategory'), // Add assetCategoryId
+                        ppmSetName: mzNullString('txtMpsName'),
+                        ppmSetDesc: mzNullString('txaMpsDesc'),
+                        assetTypeId: mzNullInt('optMpsAssetType'),
+                        ppmGroupId: mzNullInt('optMpsPpmGroupId'),
+                        assetGroupId: mzNullInt('optMpsAssetGroup'),
+                        assetCategoryId: mzNullInt('optMpsAssetCategory')
                     };
                     ShowLoader(); setTimeout(function () {
                         try {
@@ -171,19 +199,16 @@ function ModalPpmSet () {
             } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
         });
 
-        formValidate = new MzValidate('formMps'); // Renamed ID
+        formValidate = new MzValidate('formMps');
         formValidate.registerFields(vData);
     };
 
     this.resetOption = function () {
-        // Clear & disable cascading selects bottom-up (single materialSelect pass each)
-        _clearAndDisable('optMpsPpmGroupId', 'Select PPM Executor Group', 'required');
-        _clearAndDisable('optMpsAssetType', 'Select Asset Type', 'required');
-        _clearAndDisable('optMpsAssetCategory', 'Select Asset Category', 'required');
-        // Asset Group: clear & leave enabled (add/edit populates it right after)
-        mzOptionStopClear('optMpsAssetGroup', 'Select Asset Group', 'required');
+        clearAndDisable('optMpsPpmGroupId', 'ppmGroupId', 'ppmGroupName', 'Select PPM Executor Group');
+        clearAndDisable('optMpsAssetType', 'assetTypeId', 'assetTypeName', 'Select Asset Type');
+        clearAndDisable('optMpsAssetCategory', 'assetCategoryId', 'assetCategoryName', 'Select Asset Category');
+        fillNamed('optMpsAssetGroup', [], 'assetGroupId', 'assetGroupName', 'Select Asset Group');
 
-        // Clear text fields
         mzSetFieldValue('txtMpsName', '', 'text');
         mzSetFieldValue('txaMpsDesc', '', 'text');
         $('#lblMpsId').val('');
@@ -193,12 +218,19 @@ function ModalPpmSet () {
         try {
             submitType = 'add';
             formValidate.clearValidation();
-            self.resetOption(); // Clear and reset dropdowns
+            self.resetOption();
 
-            _populateSelect('optMpsAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+            fillNamed(
+                'optMpsAssetGroup',
+                filterRows(rowsFromRef(refAssetGroup, 'assetGroupId'), {assetGroupStatus: '1'}),
+                'assetGroupId',
+                'assetGroupName',
+                'Select Asset Group'
+            );
+            mzDisableSelect('optMpsAssetGroup', false);
 
-            $('#h4MpsTitle').html('<i class="fas fa-plus mr-2"></i>Add PPM Set'); // Renamed ID and text
-            $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0); // Show new modal ID
+            $('#h4MpsTitle').html('<i class="fas fa-plus me-2"></i>Add PPM Set');
+            $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
         } catch (e) { toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); }
     };
 
@@ -207,20 +239,24 @@ function ModalPpmSet () {
             mzCheckFuncParam([_ppmSetId]);
             ppmSetId = _ppmSetId;
             submitType = 'put';
-            ShowLoader(); 
-            // Corrected API call for fetching ppm_set details
+            ShowLoader();
             mzFetch('api/ppm.php?type=ppm_set_details&ppmSetId='+ppmSetId, 'GET').then(res => {
                 formValidate.clearValidation();
                 self.resetOption();
-                
-                // --- SPECIAL HANDLING FOR lblMpsId ---
-                // Direct jQuery val() for hidden input, bypass mzSetFieldValue for this one.
-                $('#lblMpsId').val(res['ppmSetId']); // This sets the value without mzSetFieldValue
 
-                mzSetFieldValue('txtMpsName', res['ppmSetName']); // This will work with 'txt' prefix
-                mzSetFieldValue('txaMpsDesc', res['ppmSetDesc']); // This will work with 'txa' prefix
+                $('#lblMpsId').val(res['ppmSetId']);
 
-                _populateSelect('optMpsAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupId', 'assetGroupName', {assetGroupStatus: '1'}, 'required');
+                mzSetFieldValue('txtMpsName', res['ppmSetName']);
+                mzSetFieldValue('txaMpsDesc', res['ppmSetDesc']);
+
+                fillNamed(
+                    'optMpsAssetGroup',
+                    filterRows(rowsFromRef(refAssetGroup, 'assetGroupId'), {assetGroupStatus: '1'}),
+                    'assetGroupId',
+                    'assetGroupName',
+                    'Select Asset Group'
+                );
+                mzDisableSelect('optMpsAssetGroup', false);
 
                 mzSetFieldValue('optMpsAssetGroup', res['assetGroupId']);
                 $('#optMpsAssetGroup').trigger('change');
@@ -248,7 +284,7 @@ function ModalPpmSet () {
                 formValidate.disableField('txtMpsName', isDisable);
                 formValidate.disableField('txaMpsDesc', isDisable);
 
-                $('#h4MpsTitle').html('<i class="fas fa-edit mr-2"></i>Edit PPM Set');
+                $('#h4MpsTitle').html('<i class="fas fa-edit me-2"></i>Edit PPM Set');
                 $('#modal_ppm_set').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
                 HideLoader();
             }).catch((e) => {
@@ -261,14 +297,14 @@ function ModalPpmSet () {
         }
     };
 
-    this.delete = function (_ppmSetId) { // Renamed _ppmId to _ppmSetId
+    this.delete = function (_ppmSetId) {
         try {
             mzCheckFuncParam([_ppmSetId]);
-            toastr['info']('Delete functionality for PPM Set not yet implemented!', _ALERT_TITLE_INFO); // Temporarily block
+            toastr['info']('Delete functionality for PPM Set not yet implemented!', _ALERT_TITLE_INFO);
             // ShowLoader(); setTimeout(function () {
-            //     mzFetch('api/ppm.php?action=delete_ppm_set&ppmSetId='+_ppmSetId, 'DELETE').then(res => { // Example future call
-            //         classFrom.genTable(); // Refresh table after delete
-            //         $('#modal_ppm_set').modal('hide'); // Hide modal if deleting from here
+            //     mzFetch('api/ppm.php?action=delete_ppm_set&ppmSetId='+_ppmSetId, 'DELETE').then(res => {
+            //         classFrom.genTable();
+            //         $('#modal_ppm_set').modal('hide');
             //         toastr['success']('PPM Set successfully deleted!', _ALERT_TITLE_SUCCESS);
             //     }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
             // }, 200);

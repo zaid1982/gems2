@@ -1,59 +1,57 @@
-<div class="modal fade gems-modal" id="modal_ppm_set" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
-        <div class="modal-content gems-modal-card">
-            <div class="modal-header gems-modal-header">
-                <h4 class="modal-title w-100" id="h4MpsTitle"><i class="fas fa-layer-group mr-2"></i>Add PPM Set</h4>
-                <button type="button" class="close gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" class="text-white">&times;</span>
-                </button>
+<!--
+  Modal: modal_ppm_set — Tabler/GEMS modal + form contract (P5-4 Commit 3).
+
+  Loaded by pages/ppm_set_management.html ONLY. Form page does not load this modal.
+  gems-modal-md + modal-dialog-scrollable, never modal-dialog-centered.
+-->
+<div class="modal fade" id="modal_ppm_set" tabindex="-1" aria-labelledby="h4MpsTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="h4MpsTitle"><i class="fas fa-layer-group me-2"></i>Add PPM Set</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMps" name="formMps" autocomplete="off" novalidate>
+          <input type="hidden" id="lblMpsId">
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMpsName" id="lblMpsName">PPM Set Name <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMpsName" class="form-control" maxlength="200" autocomplete="off" aria-required="true" aria-describedby="txtMpsNameErr">
+              <div class="gems-field-error" id="txtMpsNameErr" role="alert"></div>
             </div>
-            <div class="modal-body mx-3 gems-modal-body">
-                <form id="formMps" name="formMps">
-                    <div class="md-form mb-5">
-                        <i class="far fa-users prefix"></i>
-                        <input type="text" id="txtMpsName" class="form-control validate" maxlength="200" autocomplete="off" required>
-                        <label data-error="Incorrect" data-success="Correct" for="txtMpsName">PPM Set Name</label>
-                    </div>
-                    <div class="md-form mb-5">
-                        <i class="fas fa-file-alt prefix"></i>
-                        <textarea id="txaMpsDesc" class="md-textarea form-control" rows="3" maxlength="1000"></textarea>
-                        <label data-error="Incorrect" data-success="Correct" for="txaMpsDesc">Description</label>
-                    </div>
-                    <div class="select-outline mb-4">
-                        <i class="fas fa-layer-group select-prefix"></i>
-                        <select class="mdb-select md-form colorful-select dropdown-primary" searchable="Search here.." id="optMpsAssetGroup" required>
-                            <option value="" disabled selected>Select Asset Group</option>
-                        </select>
-                        <label class="">Asset Group</label>
-                    </div>
-                    <div class="select-outline mb-4">
-                        <i class="fas fa-list-alt select-prefix"></i>
-                        <select class="mdb-select md-form colorful-select dropdown-primary" searchable="Search here.." id="optMpsAssetCategory" required>
-                            <option value="" disabled selected>Select Asset Category</option>
-                        </select>
-                        <label class="">Asset Category</label>
-                    </div>
-                    <div class="select-outline mb-4">
-                        <i class="fas fa-cogs select-prefix"></i>
-                        <select class="mdb-select md-form colorful-select dropdown-primary" searchable="Search here.." id="optMpsAssetType" required>
-                            <option value="" disabled selected>Select Asset Type</option>
-                        </select>
-                        <label class="">Asset Type</label>
-                    </div>
-                    <div class="select-outline mb-4">
-                        <i class="fas fa-users-medical select-prefix"></i>
-                        <select class="mdb-select md-form colorful-select dropdown-primary" searchable="Search here.." id="optMpsPpmGroupId" required>
-                            <option value="" disabled selected>Select PPM Executor Group</option>
-                        </select>
-                        <label class="">PPM Executor Group</label>
-                    </div>
-                    <input type="hidden" id="lblMpsId">
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMpsDesc" id="lblMpsDesc">Description</label>
+              <textarea id="txaMpsDesc" class="form-control" rows="3" maxlength="1000" aria-describedby="txaMpsDescErr"></textarea>
+              <div class="gems-field-error" id="txaMpsDescErr" role="alert"></div>
             </div>
-            <div class="modal-footer gems-modal-footer">
-                <button class="btn btn-blue-grey" data-dismiss="modal">Close</button>
-                <button class="btn btn-indigo" id="btnMpsSubmit">Save</button>
+            <div class="gems-field gems-field-12" id="optMpsAssetGroup_">
+              <label class="form-label" for="optMpsAssetGroup" id="lblMpsAssetGroup">Asset Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpsAssetGroup" class="form-select" data-stop-refresh="true" aria-required="true" aria-describedby="optMpsAssetGroupErr"></select>
+              <div class="gems-field-error" id="optMpsAssetGroupErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12" id="optMpsAssetCategory_">
+              <label class="form-label" for="optMpsAssetCategory" id="lblMpsAssetCategory">Asset Category <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpsAssetCategory" class="form-select" data-stop-refresh="true" aria-required="true" aria-describedby="optMpsAssetCategoryErr"></select>
+              <div class="gems-field-error" id="optMpsAssetCategoryErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12" id="optMpsAssetType_">
+              <label class="form-label" for="optMpsAssetType" id="lblMpsAssetType">Asset Type <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpsAssetType" class="form-select" data-stop-refresh="true" aria-required="true" aria-describedby="optMpsAssetTypeErr"></select>
+              <div class="gems-field-error" id="optMpsAssetTypeErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12" id="optMpsPpmGroupId_">
+              <label class="form-label" for="optMpsPpmGroupId" id="lblMpsPpmGroupId">PPM Executor Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpsPpmGroupId" class="form-select" data-stop-refresh="true" aria-required="true" aria-describedby="optMpsPpmGroupIdErr"></select>
+              <div class="gems-field-error" id="optMpsPpmGroupIdErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-undo-alt me-1"></i> Close</button>
+        <button type="button" id="btnMpsSubmit" class="btn btn-primary"><i class="far fa-paper-plane me-1"></i> Save</button>
+      </div>
     </div>
+  </div>
 </div>
