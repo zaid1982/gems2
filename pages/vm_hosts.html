@@ -1,212 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/vm_hosts.html — Tabler-migrated (P5-9 VM Hosts).
+
+  Category A authenticated page. Public QR pages are NOT in this commit.
+  Page-local JS + #hostModal. Bridges: modal_change_password.
+  APIs: api/vm_host.php (csrf, list include_inactive=1, create, update, delete→inactive).
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GEMS 2.0 - Hosts</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-  <link href="css/style.css" rel="stylesheet">
-  <!-- Shared navigation + chrome -->
-  <link href="css/gems2-ui.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
   <style>
-    body { background: var(--gems-bg-page); }
-    .page { max-width: 1100px; margin: 0 auto; padding: 2rem 0; }
-    /* Keep square look for cards/inputs/modals only; allow custom pills for buttons/badges */
-    .card, .form-control, .modal-content, .input-group-text { border-radius: 0 !important; }
-    .filters .form-control { height: 46px; }
-    .filters select.browser-default.custom-select { display:block !important; visibility: visible !important; width:100%; height:46px; }
-
-    .filter-card .form-control, .filter-card select.browser-default.custom-select { height: 46px; padding: 10px 12px; width: 100%; border-radius: 12px !important; }
-
-    /* Table card wrapper */
-    .hosts-table-card { 
-      background: #fff; 
-      border-radius: 20px; 
-      padding: 0; 
-      box-shadow: 0 6px 16px rgba(2,6,23,.06); 
-      border: none; 
-      overflow: hidden;
-    }
-    .hosts-table-card .table-wrapper { padding: 12px; }
-
-    /* DataTable controls styling */
-    .hosts-table-card .dataTables_wrapper .dataTables_length,
-    .hosts-table-card .dataTables_wrapper .dataTables_info {
-      color: var(--gems-muted);
-      font-size: 13px;
-      padding: 8px 4px;
-    }
-    .hosts-table-card .dataTables_wrapper .dataTables_length select {
-      border: 1px solid #E2E8F0;
-      border-radius: 8px;
-      padding: 4px 8px;
-      margin: 0 4px;
-    }
-    .hosts-table-card .dataTables_wrapper .dataTables_paginate {
-      padding: 8px 4px;
-    }
-    .hosts-table-card .dataTables_wrapper .dataTables_paginate .paginate_button {
-      border-radius: 8px;
-      padding: 4px 10px;
-      margin: 0 2px;
-      border: 1px solid #E2E8F0;
-      background: #fff;
-    }
-    .hosts-table-card .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-      background: var(--gems-primary) !important;
-      color: #fff !important;
-      border-color: var(--gems-primary);
-    }
-    .hosts-table-card .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) {
-      background: var(--gems-bg-page);
-      border-color: #CBD5E1;
-    }
-
-  /* Icon-only action buttons */
-  .btn-icon { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-width: 2px; border-radius: 50% !important; }
-  .btn-icon i { font-size: .95rem; line-height: 1; }
-  .btn-group.btn-group-sm .btn-icon { width: 32px; height: 32px; border-width: 1.5px; }
-  .btn-icon:active { transform: translateY(1px); }
-
-  /* Modern table styling to match design system */
-  .table { margin-bottom: 0; border-collapse: separate; border-spacing: 0; }
-  .table thead th { 
-    background: var(--gems-bg-page); 
-    color: var(--gems-muted); 
-    font-weight: 700; 
-    font-size: 11px; 
-    text-transform: uppercase; 
-    letter-spacing: 0.08em; 
-    padding: 14px 16px; 
-    border: none; 
-    border-bottom: 2px solid #E2E8F0;
-    white-space: nowrap;
-  }
-  .table tbody tr { 
-    background: #fff; 
-    transition: all 0.15s ease; 
-    border-bottom: 1px solid var(--gems-bg-page);
-  }
-  .table tbody tr:hover { 
-    background: #FAFBFC; 
-    box-shadow: 0 2px 8px rgba(2,6,23,.04); 
-    position: relative; 
-    z-index: 1;
-  }
-  .table tbody td { 
-    padding: 16px; 
-    vertical-align: middle; 
-    color: var(--gems-text); 
-    border: none;
-    font-size: 14px;
-  }
-  /* .table tbody td:first-child { font-weight: 600; color: var(--gems-primary); } */
-
-    /* License-style status badges (translucent, pill) */
     .badge-success { background: rgba(34, 197, 94, 0.18) !important; color: #166534 !important; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px !important; }
     .badge-secondary { background: rgba(148, 163, 184, 0.18) !important; color: #475569 !important; font-weight: 600; padding: 0.35rem 0.65rem; border-radius: 999px !important; }
-
-    /* Mobile table stack at ≤768px */
     @media (max-width: 768px) {
-      .hosts-metrics { grid-template-columns: 1fr 1fr; }
-      .filter-grid { grid-template-columns: 1fr; }
       #tbl thead { display: none; }
       #tbl, #tbl tbody, #tbl tr, #tbl td { display: block; width: 100%; }
-      #tbl tr { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; box-shadow: 0 4px 10px rgba(2,6,23,.04); }
-      #tbl td { border: 0; border-bottom: 1px dashed #e5e7eb; padding: 8px 0; }
+      #tbl tr { background: var(--tblr-bg-surface, #fff); border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; }
+      #tbl td { border: 0; border-bottom: 1px dashed var(--tblr-border-color, #e5e7eb); padding: 8px 0; }
       #tbl td:last-child { border-bottom: 0; }
-      #tbl td::before { content: attr(data-label); display: block; color: var(--gems-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+      #tbl td::before { content: attr(data-label); display: block; color: var(--tblr-secondary, #6c7a91); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
     }
   </style>
 </head>
-<body class="fixed-sn light-blue-skin">
-  <header>
-    <div class="includeHtml" id="h-nav_left"></div>
-    <div class="includeHtml" id="h-nav_top"></div>
-  </header>
-  <main>
-    <div class="container-fluid page">
-      <section class="gems-page-header module-page-header">
-        <div class="header-text">
-          <h4 class="mb-1"><i class="fas fa-user-tie mr-2"></i> Reception: Host Directory</h4>
-          <div class="sub">Manage host entries for visitor registration</div>
-        </div>
-        <div class="header-actions">
-          <button id="btnRefresh" class="btn btn-light btn-icon" data-toggle="tooltip" data-placement="top" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync-alt"></i></button>
-          <button id="btnAdd" class="btn btn-primary btn-icon" data-toggle="tooltip" data-placement="top" title="Add host" aria-label="Add host"><i class="fas fa-plus"></i></button>
-        </div>
-      </section>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-      <section class="metrics-row" id="hostsMetrics" style="display:none;">
-        <div class="metric-card">
-          <div class="metric-label">Total</div>
-          <div class="metric-value" id="metricHostTotal">0</div>
-          <div class="metric-subtext">All hosts</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Active</div>
-          <div class="metric-value" id="metricHostActive">0</div>
-          <div class="metric-subtext">Enabled for selection</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Inactive</div>
-          <div class="metric-value" id="metricHostInactive">0</div>
-          <div class="metric-subtext">Hidden from lists</div>
-        </div>
-      </section>
-
-      <section class="filter-card">
-        <div class="filter-grid filters">
-          <div>
-            <label class="filter-label">Site</label>
-            <select id="siteId" class="browser-default custom-select">
-              <option value="" disabled selected>Select site…</option>
-            </select>
-          </div>
-          <div>
-            <label class="filter-label">Search</label>
-            <input type="text" id="q" class="form-control" placeholder="Search name/email/contact/department">
-          </div>
-          <div style="align-self:center;">
-            <div class="summary-pill">
-              <span id="lblHostCount">Showing 0 of 0</span>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <div class="text-secondary" style="font-size:.75rem">Visitor Management</div>
+              <h1 class="page-title"><i class="fas fa-user-tie me-2 text-primary"></i>Reception: Host Directory</h1>
+              <div class="page-subtitle">Manage host entries for visitor registration</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" id="btnRefresh" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync-alt"></i></button>
+              <button type="button" id="btnAdd" class="btn btn-primary" disabled data-bs-toggle="tooltip" title="Add host" aria-label="Add host"><i class="fas fa-plus"></i></button>
             </div>
           </div>
-          <div class="d-flex align-items-end" style="gap:8px;">
-            <button id="btnApply" class="btn btn-primary" disabled>Apply</button>
-            <button id="btnReset" class="btn btn-outline-secondary">Reset</button>
+        </div>
+
+        <div class="row row-deck mb-3" id="hostsMetrics" style="display:none;">
+          <div class="col-sm-6 col-lg-4">
+            <div class="card"><div class="card-body">
+              <div class="subheader">Total</div>
+              <div class="h1 mb-0" id="metricHostTotal">0</div>
+              <div class="text-secondary" style="font-size:.75rem">All hosts</div>
+            </div></div>
+          </div>
+          <div class="col-sm-6 col-lg-4">
+            <div class="card"><div class="card-body">
+              <div class="subheader">Active</div>
+              <div class="h1 mb-0" id="metricHostActive">0</div>
+              <div class="text-secondary" style="font-size:.75rem">Enabled for selection</div>
+            </div></div>
+          </div>
+          <div class="col-sm-6 col-lg-4">
+            <div class="card"><div class="card-body">
+              <div class="subheader">Inactive</div>
+              <div class="h1 mb-0" id="metricHostInactive">0</div>
+              <div class="text-secondary" style="font-size:.75rem">Hidden from lists</div>
+            </div></div>
           </div>
         </div>
-        <div class="results-summary">
-          <div id="lblHostUpdated" class="summary-pill"><i class="far fa-clock mr-2"></i>Last refreshed: <span>-</span></div>
-        </div>
-      </section>
 
-      <div id="emptyState" class="alert alert-warning d-flex align-items-center" role="alert">
-        <i class="fas fa-info-circle mr-2"></i>
-        <span>Please select a site from the dropdown above to view and manage hosts.</span>
-      </div>
-
-      <section>
-        <div id="resultsCard" class="modern-table-card" style="display:none;">
-          <div class="table-header">
-            <div class="d-flex justify-content-between align-items-center" style="width: 100%; display: flex; flex-direction: space-between;">
-                <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                    <h4 class="mb-1 font-weight-600">Host Directory</h4>
-                    <p class="mb-0">All hosts defined in the system</p>
-                </div>
-                <div class="dt-btn-slot">
-                    <div id="btnDtAgrAssetGroupExport"></div>
-                </div>
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid filters">
+              <div class="gems-field gems-field-4">
+                <label class="form-label" for="siteId">Site</label>
+                <select id="siteId" class="form-select">
+                  <option value="" disabled selected>Select site…</option>
+                </select>
+              </div>
+              <div class="gems-field gems-field-5">
+                <label class="form-label" for="q">Search</label>
+                <input type="text" id="q" class="form-control" placeholder="Search name/email/contact/department">
+              </div>
+              <div class="gems-field gems-field-3">
+                <div class="form-label">Results</div>
+                <div id="lblHostCount">Showing 0 of 0</div>
+                <small id="lblHostUpdated" class="text-secondary"><i class="far fa-clock me-1"></i>Last refreshed: <span>-</span></small>
+              </div>
+            </div>
+            <div class="mt-3 btn-list">
+              <button type="button" id="btnApply" class="btn btn-primary" disabled>Apply</button>
+              <button type="button" id="btnReset" class="btn btn-outline-secondary">Reset</button>
             </div>
           </div>
-          <div class="table-wrapper" style="padding: 1rem;">
-            <table id="tbl" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+        </div>
+
+        <div id="emptyState" class="alert alert-warning" role="alert">
+          <i class="fas fa-info-circle me-2"></i>
+          Please select a site from the dropdown above to view and manage hosts.
+        </div>
+
+        <div id="resultsCard" class="card" style="display:none;">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Host Directory</h3>
+              <div class="text-secondary" style="font-size:.75rem">All hosts defined in the system</div>
+            </div>
+            <div class="gems-card-toolbar">
+              <div id="btnDtAgrAssetGroupExport" class="d-inline-flex align-items-center"></div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="tbl" class="table table-vcenter card-table table-hover mb-0">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -221,101 +137,93 @@
             </table>
           </div>
         </div>
-      </section>
-    </div>
-  </main>
 
-  <!-- Modals -->
-  <div class="modal fade" id="hostModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title">Host</h5></div>
-        <div class="modal-body">
-          <form id="hostForm">
-            <input type="hidden" name="host_id" />
-            <div class="mb-3">
-              <label class="form-label">Name</label>
-              <input class="form-control" name="name" maxlength="100" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input class="form-control" name="email" type="email" maxlength="150" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Contact No</label>
-              <input class="form-control" name="contact_no" maxlength="50" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Department</label>
-              <input class="form-control" name="department" maxlength="100" />
-            </div>
-            <div class="mb-3">
-              <div class="custom-control custom-switch">
-                <input type="checkbox" class="custom-control-input" id="activeSwitch" name="active" checked>
-                <label class="custom-control-label" for="activeSwitch">Active</label>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" id="saveHost" class="btn btn-primary">Save</button>
-        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <script src="js/jquery-3.7.0.min.js"></script>
-  <script src="js/jquery-migrate-3.4.0.min.js"></script>
-  <script src="js/popper.min.js"></script>
-  <script src="js/bootstrap.js"></script>
-  <script src="js/mdb.js"></script>
-  <!-- Crypto JS (required by common.js initiatePages) -->
-  <script src="js/addons/crypto.js"></script>
-  <!-- DataTables -->
-  <script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-  <script src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-  <!-- Moment JS (used by common.js and pages) -->
-  <script src="js/addons/moment.min.js"></script>
-  <!-- Toastr for consistent notifications -->
-  <script src="js/modules/toastr.js"></script>
-  <script src="js/toastr-safe.js"></script>
-  <!-- Common helpers with cache buster (defines initiatePages) -->
-  <script>
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-  </script>
-  <script>
-    // Load shared includes, then wait for initiatePages(), then initialize page logic
-    $(function(){
-      const $includes = $('.includeHtml');
-      let pending = $includes.length;
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="modal fade gems-modal" id="hostModal" tabindex="-1" aria-labelledby="hostModalTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="hostModalTitle">Host</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="hostForm" class="gems-form-grid">
+          <input type="hidden" name="host_id">
+          <div class="gems-field gems-field-12">
+            <label class="form-label" for="hostName">Name</label>
+            <input id="hostName" class="form-control" name="name" maxlength="100" required>
+          </div>
+          <div class="gems-field gems-field-12">
+            <label class="form-label" for="hostEmail">Email</label>
+            <input id="hostEmail" class="form-control" name="email" type="email" maxlength="150">
+          </div>
+          <div class="gems-field gems-field-12">
+            <label class="form-label" for="hostContact">Contact No</label>
+            <input id="hostContact" class="form-control" name="contact_no" maxlength="50">
+          </div>
+          <div class="gems-field gems-field-12">
+            <label class="form-label" for="hostDepartment">Department</label>
+            <input id="hostDepartment" class="form-control" name="department" maxlength="100">
+          </div>
+          <div class="gems-field gems-field-12">
+            <div class="form-label">Status</div>
+            <div class="form-check form-switch">
+              <input type="checkbox" class="form-check-input" id="activeSwitch" name="active" checked>
+              <label class="form-check-label" for="activeSwitch">Active</label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" id="saveHost" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-      function startApp(){
-        // All includes loaded; wait for initiatePages to be available, then init this page
-        let tries = 0; const maxTries = 50;
-        const tick = setInterval(function(){
-          tries++;
-          if (typeof initiatePages === 'function') {
-            try { initiatePages(); } catch(e) { console.error('initiatePages error', e); }
-            clearInterval(tick);
-            initHostsPage();
-          } else if (tries >= maxTries) {
-            clearInterval(tick);
-            console.warn('initiatePages not found after waiting');
-            initHostsPage();
-          }
-        }, 100);
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/toastr-safe.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+  let changePasswordClass_;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        changePasswordClass_ = new ModalChangePassword();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
       }
-
-      if (pending === 0) { startApp(); return; }
-      $includes.each(function(){
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf(), function(){
-          pending--;
-          if (pending === 0) startApp();
-        });
-      });
-
+      HideLoader();
+      initHostsPage();
+    }, 200);
+  });
+</script>
+<script>
       function initHostsPage(){
     const $tbl = $('#tbl');
         const $site = $('#siteId');
@@ -325,9 +233,9 @@
   const $add = $('#btnAdd');
   const $empty = $('#emptyState');
         let CSRF = null;
-    let dt = null; // DataTable instance
+    let dt = null;
+    let dtTooltipsBound = false;
 
-        // Safe JSON fetch that logs server text when not JSON
         function fetchJson(url, opts){
           return fetch(url, opts).then(r=>r.text()).then(t=>{ try { return JSON.parse(t); } catch(e){ console.error('Non-JSON response from', url, '\n', t); throw new Error('Server returned non-JSON'); } });
         }
@@ -338,7 +246,6 @@
 
         function populateSites(){
           return new Promise((resolve)=>{
-            // Try local refs first
             try {
               const version = (typeof mzGetDataVersion === 'function') ? mzGetDataVersion() : null;
               const sites = (typeof mzGetLocalArray === 'function') ? mzGetLocalArray('gems_site', version, 'siteId', [], 'site') : [];
@@ -349,7 +256,6 @@
                 return;
               }
             } catch(e){}
-            // Fallback
             fetchJson('api/validate_import.php?action=sites').then(resp=>{
               const list = resp.result || resp.data || [];
               $site.empty().append('<option value="" disabled selected>Select site…</option>');
@@ -368,12 +274,13 @@
         }
 
         function draw(rows){
+          if (dt) { dt.destroy(); dt = null; }
           const $tbody = $tbl.find('tbody').empty();
           rows.forEach(r=>{
             const status = r.active==1 ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-secondary">Inactive</span>';
             const $act = $('<div class="action-btn-group">')
-              .append($('<button type="button" class="btn-action btn-edit" data-toggle="tooltip" title="Edit"><i class="fas fa-edit"></i></button>').on('click', ()=>editHost(r)))
-              .append($('<button type="button" class="btn-action btn-delete" data-toggle="tooltip" title="Delete"><i class="fas fa-trash-alt"></i></button>').on('click', ()=>deleteHost(r)));
+              .append($(GemsUI.actionBtn({ tint: 'gems-btn-action-edit', title: 'Edit', icon: 'fas fa-edit' })).on('click', ()=>editHost(r)))
+              .append($(GemsUI.actionBtn({ tint: 'gems-btn-action-delete', title: 'Delete', icon: 'fas fa-trash-alt' })).on('click', ()=>deleteHost(r)));
             const tr = $('<tr/>').attr('data-host-id', r.host_id)
               .append($('<td/>').text(r.name||''))
               .append($('<td/>').text(r.email||''))
@@ -381,7 +288,6 @@
               .append($('<td/>').text(r.department||''))
               .append($('<td/>').html(status))
               .append($('<td/>').append($act));
-            // data-labels for mobile cards
             tr.find('td').eq(0).attr('data-label','Name');
             tr.find('td').eq(1).attr('data-label','Email');
             tr.find('td').eq(2).attr('data-label','Contact No');
@@ -390,16 +296,15 @@
             tr.find('td').eq(5).attr('data-label','Actions');
             $tbody.append(tr);
           });
-          if (dt) { dt.destroy(); }
           dt = $tbl.DataTable({ order: [[0,'asc']], pageLength: 25, dom: 'lrtip' });
-          if ($.fn.tooltip) { $tbl.find('[data-toggle="tooltip"]').tooltip({ container: 'body' }); }
+          if (!dtTooltipsBound) {
+            GemsUI.bindDtTooltips('#tbl');
+            dtTooltipsBound = true;
+          }
           updateMetrics(rows);
           updateSummary();
           $('#hostsMetrics').show();
-          $tbl.off('draw.dt').on('draw.dt', function(){
-            if ($.fn.tooltip) { $tbl.find('[data-toggle="tooltip"]').tooltip({ container: 'body' }); }
-            updateSummary();
-          });
+          $tbl.off('draw.dt.summary').on('draw.dt.summary', updateSummary);
         }
 
         function updateMetrics(rows){
@@ -464,7 +369,6 @@
         $('#saveHost').on('click', function(){
           const $f = $('#hostForm')[0];
           const payload = Object.fromEntries(new FormData($f).entries());
-          // Normalize active checkbox to '1'/'0'
           payload.active = $('#activeSwitch').is(':checked') ? '1' : '0';
           payload.site_id = $('#siteId').val();
           const hasId = !!payload.host_id;
@@ -478,14 +382,11 @@
               }
               const newId = hasId ? payload.host_id : (resp.result && resp.result.host_id);
               $('#hostModal').modal('hide');
-              // Reload and try to navigate to the row regardless of pagination
-              // Temporarily bias the search to the added/updated name
               const prevQ = $q.val();
               if (payload.name) { $q.val(payload.name); }
               return load().then(() => {
                 if (payload.name) { $q.val(prevQ); }
                 if (!focusRowById(newId) && $q.val()) {
-                  // Clear server-side search filter and try again
                   $q.val('');
                   return load().then(() => { focusRowById(newId); });
                 }
@@ -501,7 +402,6 @@
           $('#hostModal').modal('show');
         });
 
-        // Match admin page behavior: enable Apply/Add when site selected, auto-load when changing site
         const params = new URLSearchParams(window.location.search);
         const siteParam = params.get('site') || '';
         if (siteParam) { $site.val(siteParam); $apply.prop('disabled', false); $add.prop('disabled', false); $empty.hide(); $('#resultsCard').show(); }
@@ -509,17 +409,18 @@
         $apply.on('click', load);
         $reset.on('click', function(){ $q.val(''); if($site.val()) load(); });
 
-        // init
         $apply.prop('disabled', true); $add.prop('disabled', true); $empty.show(); $('#resultsCard').hide();
+        if (window.GemsUI) { GemsUI.initTooltips(document.querySelector('.page-header')); }
         getCsrf();
         populateSites().then(()=>{
-          // Auto-load if site already set via param, or select user's site
           try {
+            if (siteParam && $site.find('option[value="'+siteParam+'"]').length) {
+              $site.val(siteParam);
+            }
             if ($site.val()) {
-              // Site already set via param, trigger load
+              $apply.prop('disabled', false); $add.prop('disabled', false); $empty.hide(); $('#resultsCard').show();
               load();
             } else {
-              // Try user's site
               const userSite = (typeof mzGetUserInfoByParam === 'function') ? mzGetUserInfoByParam('siteId') : '';
               if (userSite && $site.find('option[value="'+userSite+'"]').length) {
                 $site.val(userSite); $apply.prop('disabled', false); $add.prop('disabled', false); $empty.hide(); $('#resultsCard').show();
@@ -531,7 +432,6 @@
           } catch(e) { /* ignore */ }
         });
       }
-    });
-  </script>
+</script>
 </body>
 </html>
