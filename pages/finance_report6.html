@@ -1,230 +1,211 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/finance_report6.html — Tabler-migrated (P5-8 finance dashboards).
+
+  Page-local hardcoded corporate-resource dashboard. Chart IDs and values stay.
+  JS is unchanged. danger-color / spacing leftovers kept via page-local CSS.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js, css/addons-pro/steppers.css,
+    js/addons-pro/stepper.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Stepper CSS - minified-->
-    <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Corporate Resource Performance</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .finance-dash .danger-color { background-color: #ff3547 !important; }
+    .finance-dash .red-text { color: #f44336 !important; }
+    .finance-dash .mt-4_5 { margin-top: 2.1rem !important; }
+    .finance-dash .ps-4_5 { padding-left: 2.5rem !important; }
+    .finance-dash .font-small { font-size: 0.9rem; }
+  </style>
 </head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl finance-dash">
 
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid">
-        <!--Section: Notification panel-->
-        <section class="mt-2 mb-4">
-            <h2 class="font-weight-bolder">CORPORATE RESOURCE PERFORMANCE</h2>
-            <div class="row mt-4 mb-2">
-                <div class="col-xl-6 col-md-12">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card z-depth-4 mb-3">
-                                <div class="">
-                                    <div class="float-left danger-color" style="width: 24px; height: 45px">&nbsp;</div>
-                                    <h4 class="font-weight-bold pt-2 pl-4_5">Absenteeism</h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 pr-md-2">
-                            <div class="card z-depth-4 mb-3">
-                                <div class="p-3">
-                                    <h1 class="float-left ml-4"><i class="far fa-user red-text"></i></h1>
-                                    <h2 class="text-center font-weight-bold mb-0">7.7 days</h2>
-                                    <p class="text-center font-small mb-0">Avg YTD Absenteeism</p>
-                                </div>
-                            </div>
-                            <div class="card z-depth-4 mb-4">
-                                <div class="pt-3 px-3 danger-color text-white">
-                                    <h4>Absenteeism Cost</h4>
-                                    <h1 class="mt-3">RM 35,000</h1>
-                                    <p class="mt-4_5 mb-2 font-small">Calculated based on staff related costs</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 pl-md-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div id="chartFrf1" style="height: 274px; margin: 0"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-6 col-md-12">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card z-depth-4 mb-3">
-                                <div class="">
-                                    <div class="float-left danger-color" style="width: 24px; height: 45px">&nbsp;</div>
-                                    <h4 class="font-weight-bold pt-2 pl-4_5">Overtime Hours</h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 pr-md-2">
-                            <div class="card z-depth-4 mb-3">
-                                <div class="p-3">
-                                    <h1 class="float-left ml-4"><i class="far fa-calendar-alt red-text"></i></h1>
-                                    <h2 class="text-center font-weight-bold mb-0">3.5 hours</h2>
-                                    <p class="text-center font-small mb-0">Avg Overtime Per Month</p>
-                                </div>
-                            </div>
-                            <div class="card z-depth-4 mb-4">
-                                <div class="p-3">
-                                    <div id="chartFrf2" style="height: 138px; margin: 0"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 pl-md-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div id="chartFrf3" style="height: 274px; margin: 0"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12">
+              <div class="text-secondary" style="font-size:.75rem">Finance Reporting</div>
+              <h1 class="page-title"><i class="fas fa-users me-2 text-primary"></i>Corporate Resource Performance</h1>
+              <div class="page-subtitle">Hardcoded absenteeism, overtime, OLE, and payroll KPIs.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-xl-6">
+            <div class="card mb-3">
+              <div class="d-flex align-items-center">
+                <div class="danger-color" style="width: 24px; height: 45px"></div>
+                <h3 class="card-title mb-0 ps-4_5 pt-2">Absenteeism</h3>
+              </div>
             </div>
             <div class="row">
-                <div class="col-xl-7 col-md-12">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card z-depth-4 mb-3">
-                                <div class="">
-                                    <div class="float-left danger-color" style="width: 24px; height: 45px">&nbsp;</div>
-                                    <h4 class="font-weight-bold pt-2 pl-4_5">Overall Labor Effectiveness (OLE)</h4>
-                                </div>
-                            </div>
-                        </div>
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center">
+                      <div class="h1 mb-0 me-3"><i class="far fa-user red-text"></i></div>
+                      <div class="text-center flex-fill">
+                        <div class="h2 fw-bold mb-0">7.7 days</div>
+                        <p class="text-center font-small mb-0">Avg YTD Absenteeism</p>
+                      </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-5 pr-md-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div id="chartFrf4" style="height: 220px; margin: 0"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-7 pl-md-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div id="chartFrf5" style="height: 220px; margin: 0"></div>
-                            </div>
-                        </div>
-                    </div>
+                  </div>
                 </div>
-                <div class="col-xl-5 col-md-12">
-                    <div class="row">
-                        <div class="col-md-6 pr-md-2">
-                            <div class="p-3 danger-color text-white" style="height: 282px">
-                                <h4>Human Capital ROI</h4>
-                                <h1 class="mt-3">5:1</h1>
-                                <p class="mt-4_5 font-small">Return on every ringgit spent on human capital (Target - 6:1)</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 pl-md-2">
-                            <div class="p-3 danger-color text-white" style="height: 282px">
-                                <h4>Payroll Ratio</h4>
-                                <h1 class="mt-3">RM 2,911</h1>
-                                <p class="mt-4_5 font-small">Total payroll cost over number of people (Target: RM 2,746</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="card mb-3">
+                  <div class="pt-3 px-3 danger-color text-white">
+                    <h4>Absenteeism Cost</h4>
+                    <div class="h1 mt-3">RM 35,000</div>
+                    <p class="mt-4_5 mb-2 font-small">Calculated based on staff related costs</p>
+                  </div>
                 </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div id="chartFrf1" style="height: 274px; margin: 0"></div>
+                </div>
+              </div>
             </div>
-        </section>
+          </div>
+          <div class="col-xl-6">
+            <div class="card mb-3">
+              <div class="d-flex align-items-center">
+                <div class="danger-color" style="width: 24px; height: 45px"></div>
+                <h3 class="card-title mb-0 ps-4_5 pt-2">Overtime Hours</h3>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center">
+                      <div class="h1 mb-0 me-3"><i class="far fa-calendar-alt red-text"></i></div>
+                      <div class="text-center flex-fill">
+                        <div class="h2 fw-bold mb-0">3.5 hours</div>
+                        <p class="text-center font-small mb-0">Avg Overtime Per Month</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <div id="chartFrf2" style="height: 138px; margin: 0"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div id="chartFrf3" style="height: 274px; margin: 0"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xl-7">
+            <div class="card mb-3">
+              <div class="d-flex align-items-center">
+                <div class="danger-color" style="width: 24px; height: 45px"></div>
+                <h3 class="card-title mb-0 ps-4_5 pt-2">Overall Labor Effectiveness (OLE)</h3>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-5">
+                <div class="card mb-3">
+                  <div id="chartFrf4" style="height: 220px; margin: 0"></div>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <div class="card mb-3">
+                  <div id="chartFrf5" style="height: 220px; margin: 0"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-5">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="p-3 danger-color text-white" style="height: 282px">
+                  <h4>Human Capital ROI</h4>
+                  <div class="h1 mt-3">5:1</div>
+                  <p class="mt-4_5 font-small">Return on every ringgit spent on human capital (Target - 6:1)</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="p-3 danger-color text-white" style="height: 282px">
+                  <h4>Payroll Ratio</h4>
+                  <div class="h1 mt-3">RM 2,911</div>
+                  <p class="mt-4_5 font-small">Total payroll cost over number of people (Target: RM 2,746</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
+<div class="includeHtml" id="h-modal_change_password"></div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/vendor/highcharts/highcharts.js"></script>
+<script src="js/vendor/highcharts/modules/data.js"></script>
+<script src="js/vendor/highcharts/modules/drilldown.js"></script>
+<script src="js/vendor/highcharts/modules/exporting.js"></script>
+<script src="js/vendor/highcharts/modules/export-data.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_finance_report6.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Highchart -->
-<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
-<!--<script type="text/javascript" src="js/vendor/highcharts/themes/sand-signika.js"></script>-->
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal;
+  let changePasswordClass;
+  let financeClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
-    let versionLocal;
-    let changePasswordClass;
-    let financeClass_;
-
-    document.addEventListener('DOMContentLoaded', function () {
-
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                changePasswordClass = new ModalChangePassword();
-                financeClass_ = new MainFinanceReport6();
-
-                financeClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_finance_report6.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        changePasswordClass = new ModalChangePassword();
+        financeClass_ = new MainFinanceReport6();
+        financeClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 300);
+  });
 </script>
-
 </body>
 </html>

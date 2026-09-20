@@ -1,255 +1,265 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/finance_report5.html — Tabler-migrated (P5-8 finance dashboards).
+
+  Page-local hardcoded opportunity funnel. Chart IDs, salesperson cards,
+  and values stay. JS is unchanged and still needs funnel.js.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js, css/addons-pro/steppers.css,
+    js/addons-pro/stepper.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Stepper CSS - minified-->
-    <link href="css/addons-pro/steppers.min.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Business Development Performance</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .finance-dash .rgba-teal-strong { background-color: rgba(0, 150, 136, 0.7); }
+    .finance-dash .teal-text { color: #009688 !important; }
+    .finance-dash .mt-4_5 { margin-top: 2.1rem !important; }
+  </style>
 </head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl finance-dash">
 
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid">
-        <!--Section: Notification panel-->
-        <section class="mt-2 mb-4">
-            <div class="row mt-4">
-                <div class="col-xl-5 col-md-12">
-                    <div class="row">
-                        <h2 class="font-weight-bolder ml-2">BUSINESS DEVELOPMENT PERFORMANCE</h2>
-                        <div class="col-md-6 px-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div class="rgba-teal-strong">
-                                    <div class="p-3">
-                                        <h5 class="text-white">Opportunity-to-Win Ratio</h5>
-                                        <h1 class="card-text text-white mt-3 ml-2">4:1</h1>
-                                        <h6 class="text-white mt-3 font-weight-bold">Unqualified leads<br/>turned into customers</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 px-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div class="rgba-teal-strong">
-                                    <div class="p-3">
-                                        <h5 class="text-white">Negotiation-to-Win Ratio</h5>
-                                        <h1 class="card-text text-white mt-3 ml-2">2:1</h1>
-                                        <h6 class="text-white mt-3 font-weight-bold">Negotiation stage<br/>turned into customers</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 px-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div class="p-2 text-center">
-                                    <h4 class="teal-text font-weight-bold mt-3">Opportunity Funnel</h4>
-                                    <div id="chartFrf1" style="height: 406px; margin: 0"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 px-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div class="p-2">
-                                    <h4 class="teal-text font-weight-bold mt-3 text-center">Ave. Length of Stage</h4>
-                                    <div class="mt-4 col-md-1 float-left" style="background-color: mediumaquamarine; height: 85px">&nbsp;</div>
-                                    <h5 class="teal-text font-weight-bold mt-4_5 pl-5">Opportunity</h5>
-                                    <h4 class="teal-text pl-5">3.2 days</h4><br/>
-                                    <div class="mt-1 col-md-1 float-left" style="background-color: darkkhaki; height: 85px">&nbsp;</div>
-                                    <h5 class="teal-text font-weight-bold mt-2 pl-5">Proposal</h5>
-                                    <h4 class="teal-text pl-5">3.2 days</h4><br/>
-                                    <div class="col-md-1 float-left" style="background-color: moccasin; height: 85px">&nbsp;</div>
-                                    <h5 class="teal-text font-weight-bold mt-2 pl-5">Negotiation</h5>
-                                    <h4 class="teal-text pl-5">3.2 days</h4><br/>
-                                    <div class="col-md-1 float-left" style="background-color: lightblue; height: 85px">&nbsp;</div>
-                                    <h5 class="teal-text font-weight-bold mt-2 pl-5">Win</h5>
-                                    <h4 class="teal-text pl-5">3.2 days</h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-7 col-md-12">
-                    <div class="row">
-                        <div class="col-xl-6 col-md-12 px-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div class="p-2 teal-text">
-                                    <h5 class="font-weight-bold">Azam Hairi Hasan</h5>
-                                    <h6 class="card-text mt-3 mb-0">Opportunity-to-Win Ratio <span class="float-right font-weight-bold">3%</span></h6>
-                                    <div id="chartFrf2" style="height: 100px; margin: 0"></div>
-                                    <h6 class="card-text mb-0">Sales Cycle Length <span class="float-right font-weight-bold">100 days</span></h6>
-                                    <div class="">
-                                        <button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: mediumaquamarine;">3</button><button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: darkkhaki;">5</button><button type="button" class="btn btn-sm col-md-3 mx-0" style="background-color: moccasin;">7</button><button type="button" class="btn btn-sm col-md-3 mx-0 text-white" style="background-color: slategray;">3</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6 col-md-12 px-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div class="p-2 teal-text">
-                                    <h5 class="font-weight-bold">Abdul Fatah Ahmad</h5>
-                                    <h6 class="card-text mt-3 mb-0">Opportunity-to-Win Ratio <span class="float-right font-weight-bold">3%</span></h6>
-                                    <div id="chartFrf3" style="height: 100px; margin: 0"></div>
-                                    <h6 class="card-text mb-0">Sales Cycle Length <span class="float-right font-weight-bold">100 days</span></h6>
-                                    <div class="">
-                                        <button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: mediumaquamarine;">3</button><button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: darkkhaki;">5</button><button type="button" class="btn btn-sm col-md-3 mx-0" style="background-color: moccasin;">7</button><button type="button" class="btn btn-sm col-md-3 mx-0 text-white" style="background-color: slategray;">3</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6 col-md-12 px-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div class="p-2 teal-text">
-                                    <h5 class="font-weight-bold">Sarvin Raj</h5>
-                                    <h6 class="card-text mt-3 mb-0">Opportunity-to-Win Ratio <span class="float-right font-weight-bold">3%</span></h6>
-                                    <div id="chartFrf4" style="height: 100px; margin: 0"></div>
-                                    <h6 class="card-text mb-0">Sales Cycle Length <span class="float-right font-weight-bold">100 days</span></h6>
-                                    <div class="">
-                                        <button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: mediumaquamarine;">3</button><button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: darkkhaki;">5</button><button type="button" class="btn btn-sm col-md-3 mx-0" style="background-color: moccasin;">7</button><button type="button" class="btn btn-sm col-md-3 mx-0 text-white" style="background-color: slategray;">3</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6 col-md-12 px-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div class="p-2 teal-text">
-                                    <h5 class="font-weight-bold">Lydia Saron</h5>
-                                    <h6 class="card-text mt-3 mb-0">Opportunity-to-Win Ratio <span class="float-right font-weight-bold">3%</span></h6>
-                                    <div id="chartFrf5" style="height: 100px; margin: 0"></div>
-                                    <h6 class="card-text mb-0">Sales Cycle Length <span class="float-right font-weight-bold">100 days</span></h6>
-                                    <div class="">
-                                        <button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: mediumaquamarine;">3</button><button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: darkkhaki;">5</button><button type="button" class="btn btn-sm col-md-3 mx-0" style="background-color: moccasin;">7</button><button type="button" class="btn btn-sm col-md-3 mx-0 text-white" style="background-color: slategray;">3</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6 col-md-12 px-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div class="p-2 teal-text">
-                                    <h5 class="font-weight-bold">Ahmad Hata Husin</h5>
-                                    <h6 class="card-text mt-3 mb-0">Opportunity-to-Win Ratio <span class="float-right font-weight-bold">3%</span></h6>
-                                    <div id="chartFrf6" style="height: 100px; margin: 0"></div>
-                                    <h6 class="card-text mb-0">Sales Cycle Length <span class="float-right font-weight-bold">100 days</span></h6>
-                                    <div class="">
-                                        <button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: mediumaquamarine;">3</button><button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: darkkhaki;">5</button><button type="button" class="btn btn-sm col-md-3 mx-0" style="background-color: moccasin;">7</button><button type="button" class="btn btn-sm col-md-3 mx-0 text-white" style="background-color: slategray;">3</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6 col-md-12 px-2">
-                            <div class="card z-depth-4 mb-4">
-                                <div class="p-2 teal-text">
-                                    <h5 class="font-weight-bold">Andek Jelantek</h5>
-                                    <h6 class="card-text mt-3 mb-0">Opportunity-to-Win Ratio <span class="float-right font-weight-bold">3%</span></h6>
-                                    <div id="chartFrf7" style="height: 100px; margin: 0"></div>
-                                    <h6 class="card-text mb-0">Sales Cycle Length <span class="float-right font-weight-bold">100 days</span></h6>
-                                    <div class="">
-                                        <button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: mediumaquamarine;">3</button><button type="button" class="btn btn-sm mx-0 col-md-3 text-white" style="background-color: darkkhaki;">5</button><button type="button" class="btn btn-sm col-md-3 mx-0" style="background-color: moccasin;">7</button><button type="button" class="btn btn-sm col-md-3 mx-0 text-white" style="background-color: slategray;">3</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12">
+              <div class="text-secondary" style="font-size:.75rem">Finance Reporting</div>
+              <h1 class="page-title"><i class="fas fa-filter me-2 text-primary"></i>Business Development Performance</h1>
+              <div class="page-subtitle">Hardcoded win ratios, opportunity funnel, and salesperson cards.</div>
             </div>
-        </section>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xl-5">
+            <div class="row row-cards">
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div class="rgba-teal-strong text-white p-3">
+                    <div>Opportunity-to-Win Ratio</div>
+                    <div class="h1 mt-3 ms-2">4:1</div>
+                    <div class="fw-bold mt-3">Unqualified leads<br>turned into customers</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div class="rgba-teal-strong text-white p-3">
+                    <div>Negotiation-to-Win Ratio</div>
+                    <div class="h1 mt-3 ms-2">2:1</div>
+                    <div class="fw-bold mt-3">Negotiation stage<br>turned into customers</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div class="card-body text-center">
+                    <h3 class="card-title teal-text">Opportunity Funnel</h3>
+                    <div id="chartFrf1" style="height: 406px; margin: 0"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <h3 class="card-title text-center teal-text">Ave. Length of Stage</h3>
+                    <div class="d-flex mb-3">
+                      <div style="background-color: mediumaquamarine; width: 24px; height: 85px"></div>
+                      <div class="ps-3">
+                        <div class="teal-text fw-bold mt-4_5">Opportunity</div>
+                        <div class="teal-text h4">3.2 days</div>
+                      </div>
+                    </div>
+                    <div class="d-flex mb-3">
+                      <div style="background-color: darkkhaki; width: 24px; height: 85px"></div>
+                      <div class="ps-3">
+                        <div class="teal-text fw-bold mt-2">Proposal</div>
+                        <div class="teal-text h4">3.2 days</div>
+                      </div>
+                    </div>
+                    <div class="d-flex mb-3">
+                      <div style="background-color: moccasin; width: 24px; height: 85px"></div>
+                      <div class="ps-3">
+                        <div class="teal-text fw-bold mt-2">Negotiation</div>
+                        <div class="teal-text h4">3.2 days</div>
+                      </div>
+                    </div>
+                    <div class="d-flex">
+                      <div style="background-color: lightblue; width: 24px; height: 85px"></div>
+                      <div class="ps-3">
+                        <div class="teal-text fw-bold mt-2">Win</div>
+                        <div class="teal-text h4">3.2 days</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-7">
+            <div class="row row-cards">
+              <div class="col-xl-6">
+                <div class="card mb-3">
+                  <div class="card-body teal-text">
+                    <h3 class="card-title">Azam Hairi Hasan</h3>
+                    <div class="mb-0">Opportunity-to-Win Ratio <span class="float-end fw-bold">3%</span></div>
+                    <div id="chartFrf2" style="height: 100px; margin: 0"></div>
+                    <div class="mb-0">Sales Cycle Length <span class="float-end fw-bold">100 days</span></div>
+                    <div class="row g-0 mt-2">
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: mediumaquamarine;">3</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: darkkhaki;">5</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100" style="background-color: moccasin;">7</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: slategray;">3</button></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card mb-3">
+                  <div class="card-body teal-text">
+                    <h3 class="card-title">Abdul Fatah Ahmad</h3>
+                    <div class="mb-0">Opportunity-to-Win Ratio <span class="float-end fw-bold">3%</span></div>
+                    <div id="chartFrf3" style="height: 100px; margin: 0"></div>
+                    <div class="mb-0">Sales Cycle Length <span class="float-end fw-bold">100 days</span></div>
+                    <div class="row g-0 mt-2">
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: mediumaquamarine;">3</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: darkkhaki;">5</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100" style="background-color: moccasin;">7</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: slategray;">3</button></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card mb-3">
+                  <div class="card-body teal-text">
+                    <h3 class="card-title">Sarvin Raj</h3>
+                    <div class="mb-0">Opportunity-to-Win Ratio <span class="float-end fw-bold">3%</span></div>
+                    <div id="chartFrf4" style="height: 100px; margin: 0"></div>
+                    <div class="mb-0">Sales Cycle Length <span class="float-end fw-bold">100 days</span></div>
+                    <div class="row g-0 mt-2">
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: mediumaquamarine;">3</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: darkkhaki;">5</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100" style="background-color: moccasin;">7</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: slategray;">3</button></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card mb-3">
+                  <div class="card-body teal-text">
+                    <h3 class="card-title">Lydia Saron</h3>
+                    <div class="mb-0">Opportunity-to-Win Ratio <span class="float-end fw-bold">3%</span></div>
+                    <div id="chartFrf5" style="height: 100px; margin: 0"></div>
+                    <div class="mb-0">Sales Cycle Length <span class="float-end fw-bold">100 days</span></div>
+                    <div class="row g-0 mt-2">
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: mediumaquamarine;">3</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: darkkhaki;">5</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100" style="background-color: moccasin;">7</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: slategray;">3</button></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card mb-3">
+                  <div class="card-body teal-text">
+                    <h3 class="card-title">Ahmad Hata Husin</h3>
+                    <div class="mb-0">Opportunity-to-Win Ratio <span class="float-end fw-bold">3%</span></div>
+                    <div id="chartFrf6" style="height: 100px; margin: 0"></div>
+                    <div class="mb-0">Sales Cycle Length <span class="float-end fw-bold">100 days</span></div>
+                    <div class="row g-0 mt-2">
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: mediumaquamarine;">3</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: darkkhaki;">5</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100" style="background-color: moccasin;">7</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: slategray;">3</button></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="card mb-3">
+                  <div class="card-body teal-text">
+                    <h3 class="card-title">Andek Jelantek</h3>
+                    <div class="mb-0">Opportunity-to-Win Ratio <span class="float-end fw-bold">3%</span></div>
+                    <div id="chartFrf7" style="height: 100px; margin: 0"></div>
+                    <div class="mb-0">Sales Cycle Length <span class="float-end fw-bold">100 days</span></div>
+                    <div class="row g-0 mt-2">
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: mediumaquamarine;">3</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: darkkhaki;">5</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100" style="background-color: moccasin;">7</button></div>
+                      <div class="col-3"><button type="button" class="btn btn-sm w-100 text-white" style="background-color: slategray;">3</button></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
+<div class="includeHtml" id="h-modal_change_password"></div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/vendor/highcharts/highcharts.js"></script>
+<script src="js/vendor/highcharts/modules/funnel.js"></script>
+<script src="js/vendor/highcharts/modules/data.js"></script>
+<script src="js/vendor/highcharts/modules/exporting.js"></script>
+<script src="js/vendor/highcharts/modules/export-data.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_finance_report5.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Highchart -->
-<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/funnel.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
-<!--<script type="text/javascript" src="js/vendor/highcharts/themes/sand-signika.js"></script>-->
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal;
+  let changePasswordClass;
+  let financeClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
-    let versionLocal;
-    let changePasswordClass;
-    let financeClass_;
-
-    document.addEventListener('DOMContentLoaded', function () {
-
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                changePasswordClass = new ModalChangePassword();
-                financeClass_ = new MainFinanceReport5();
-
-                financeClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_finance_report5.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        changePasswordClass = new ModalChangePassword();
+        financeClass_ = new MainFinanceReport5();
+        financeClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 300);
+  });
 </script>
-
 </body>
 </html>
