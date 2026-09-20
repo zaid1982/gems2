@@ -87,7 +87,7 @@ function ModalSeverity() {
         rowRefresh = '';
 
         mzSetFieldValue('MsvStatus', '1', 'checkSingle', '1');
-        $('#lblMsvTitle').html('<i class="fas fa-plus text-white"></i> &nbsp;Add Severity');
+        $('#lblMsvTitle').html('<i class="fas fa-plus me-2"></i>Add Severity');
         $('#modal_severity').modal({backdrop: 'static', keyboard: false});
     };
 
@@ -103,7 +103,7 @@ function ModalSeverity() {
                 mzSetFieldValue('MsvName', dataMsv['severityName'], 'text');
                 mzSetFieldValue('MsvStatus', dataMsv['severityStatus'], 'checkSingle', '1');
 
-                $('#lblMsvTitle').html('<i class="far fa-edit text-white"></i> &nbsp;Edit Severity');
+                $('#lblMsvTitle').html('<i class="far fa-edit me-2"></i>Edit Severity');
                 $('#modal_severity').modal({backdrop: 'static', keyboard: false});
             } catch (e) {
                 toastr['error'](e.message, _ALERT_TITLE_ERROR);

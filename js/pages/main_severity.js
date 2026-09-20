@@ -50,7 +50,7 @@ function MainSeverity() {
         if (!oTableSeverity) {
             return;
         }
-    const info = (oTableSeverity && typeof oTableSeverity.page === 'function' && typeof oTableSeverity.page.info === 'function')
+        const info = (oTableSeverity && typeof oTableSeverity.page === 'function' && typeof oTableSeverity.page.info === 'function')
             ? oTableSeverity.page.info()
             : null;
         if (info) {
@@ -87,90 +87,155 @@ function MainSeverity() {
         $select.val(currentValue);
     }
 
+    function statusLabel(row) {
+        const status = refStatus && refStatus[row['severityStatus']];
+        return status ? status['statusDesc'] : '';
+    }
+
+    function statusBadge(row, type) {
+        const label = statusLabel(row);
+        if (type !== 'display') {
+            return label;
+        }
+        const kind = row['severityStatus'] === '1' ? 'success' : 'secondary';
+        return GemsUI.badge(kind, GemsUI.escape(label));
+    }
+
+    function rowIdFromLink(el) {
+        const linkId = $(el).attr('id') || '';
+        const linkIndex = linkId.indexOf('_');
+        return linkIndex > 0 ? linkId.substr(linkIndex + 1) : '';
+    }
+
+    function rowDataFromLink(el) {
+        const rowId = rowIdFromLink(el);
+        if (!rowId || !oTableSeverity) {
+            return null;
+        }
+        return { rowId: rowId, data: oTableSeverity.row(parseInt(rowId, 10)).data() };
+    }
+
     this.init = function () {
-        oTableSeverity =  $('#dtSvrSeverity').DataTable({
+        let cntSeverity;
+        const exportOpt = {
+            columns: [0, 1, 2],
+            orthogonal: 'export',
+            format: {
+                body: function (data, row, column) {
+                    if (row === 0 && column === 0) {
+                        cntSeverity = 1;
+                    }
+                    if (column === 0) {
+                        return cntSeverity++;
+                    }
+                    return data;
+                }
+            }
+        };
+        const dtButtons = GemsUI.dtButtons('GEMS 2.0 - Severity List').map(function (src) {
+            if (src.extend === 'colvis') {
+                return src;
+            }
+            const btn = $.extend(true, {}, src);
+            btn.exportOptions = exportOpt;
+            return btn;
+        });
+
+        oTableSeverity = $('#dtSvrSeverity').DataTable({
             bLengthChange: false,
-            bFilter: false,
-            "aaSorting": [1, 'asc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
+            searching: true,
+            autoWidth: false,
+            aaSorting: [1, 'asc'],
+            dom: GemsUI.dtDomButtons,
+            buttons: dtButtons,
+            language: GemsUI.dtEmpty('fa-triangle-exclamation', 'No severity levels recorded yet.', 'No severity levels match the current search or status filter.'),
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 const info = (oTableSeverity && oTableSeverity.page && typeof oTableSeverity.page.info === 'function')
                     ? oTableSeverity.page.info()
                     : null;
                 const rowNumber = info ? (info.page * info.length + (iDisplayIndex + 1)) : (iDisplayIndex + 1);
-                $('td', nRow).eq(0).html(rowNumber).attr('data-label', '#');
-                $('td', nRow).eq(1).attr('data-label', 'Severity');
-                $('td', nRow).eq(2).attr('data-label', 'Status');
-                $('td', nRow).eq(3).attr('data-label', 'Actions');
+                $('td', nRow).eq(0).html(rowNumber);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkSvrSeverityEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableSeverity.row(parseInt(rowId)).data();
-                        modalSeverityClass.edit(currentRow['severityId'], rowId);
-                    }
-                });
-                $('.lnkSvrSeverityDeactivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableSeverity.row(parseInt(rowId)).data();
-                        modalSeverityClass.deactivate(currentRow['severityId'], rowId);
-                    }
-                });
-                $('.lnkSvrSeverityActivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableSeverity.row(parseInt(rowId)).data();
-                        modalSeverityClass.activate(currentRow['severityId'], rowId);
-                    }
-                });
-                $('.lnkSvrSeverityDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableSeverity.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['severityId'], modalSeverityClass);
-                    }
-                });
                 updateMetrics();
                 updateSummary();
             },
-            language: _DATATABLE_LANGUAGE,
-            aoColumns:
-                [
-                    {mData: null, bSortable: false},
-                    {mData: 'severityName'},
-                    {mData: null,
-                        mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill ' + refStatus[row['severityStatus']]['statusColor'] + ' z-depth-2">' + refStatus[row['severityStatus']]['statusDesc'] + '</span></h6>';
+            aoColumns: [
+                {mData: null, bSortable: false},
+                {mData: 'severityName'},
+                {mData: null,
+                    mRender: function (data, type, row) {
+                        return statusBadge(row, type);
+                    }
+                },
+                {mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis',
+                    mRender: function (data, type, row, meta) {
+                        let html = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkSvrSeverityEdit',
+                            id: 'lnkSvrSeverityEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
+                        if (row['severityStatus'] === '1') {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkSvrSeverityDeactivate',
+                                id: 'lnkSvrSeverityDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
+                        } else {
+                            html += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkSvrSeverityActivate',
+                                id: 'lnkSvrSeverityActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
                         }
-                    },
-                    {mData: null, bSortable: false, sClass: 'text-center',
-                        mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-edit lnkSvrSeverityEdit" id="lnkSvrSeverityEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fas fa-edit"></i></button>';
-                            if (row['severityStatus'] === '1') {
-                                label += '<button type="button" class="btn-action btn-deactivate lnkSvrSeverityDeactivate" id="lnkSvrSeverityDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
-                            } else {
-                                label += '<button type="button" class="btn-action btn-activate lnkSvrSeverityActivate" id="lnkSvrSeverityActivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Activate"><i class="fas fa-toggle-on"></i></button>';
-                            }
-                            label += '<button type="button" class="btn-action btn-delete lnkSvrSeverityDelete" id="lnkSvrSeverityDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash-alt"></i></button>';
-                            label += '</div>';
-                            return label;
-                        }
-                    },
-                    {mData: 'severityId', visible: false}
-                ]
+                        html += GemsUI.actionBtn({
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkSvrSeverityDelete',
+                            id: 'lnkSvrSeverityDelete_' + meta.row,
+                            title: 'Delete',
+                            icon: 'fas fa-trash-alt'
+                        });
+                        return html;
+                    }
+                },
+                {mData: 'severityId', visible: false, sClass: 'noVis'}
+            ]
         });
-        $('#dtSvrSeverity_filter').hide();
+
+        oTableSeverity.buttons().container().appendTo($('#btnDtSvrSeverityExport'));
+        GemsUI.bindDtTooltips('#dtSvrSeverity');
+
+        const tbody = $('#dtSvrSeverity tbody');
+        tbody.on('click', '.lnkSvrSeverityEdit', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalSeverityClass.edit(current.data['severityId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkSvrSeverityDeactivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalSeverityClass.deactivate(current.data['severityId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkSvrSeverityActivate', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalSeverityClass.activate(current.data['severityId'], current.rowId);
+            }
+        });
+        tbody.on('click', '.lnkSvrSeverityDelete', function () {
+            const current = rowDataFromLink(this);
+            if (current && current.data) {
+                modalConfirmDeleteClass.delete(current.data['severityId'], modalSeverityClass);
+            }
+        });
 
         statusFilterFn = function (settings, data, dataIndex) {
             if (!settings.nTable || settings.nTable.id !== 'dtSvrSeverity') {
@@ -184,56 +249,9 @@ function MainSeverity() {
             return rowData && rowData['severityStatus'] === statusVal;
         };
         $.fn.dataTable.ext.search.push(statusFilterFn);
-
         $('#txtSvrSeveritySearch').on('keyup change', function () {
             oTableSeverity.search($(this).val()).draw();
         });
-
-        let cntSeverity;
-        let btnSeverityOpt = {
-            exportOptions: {
-                columns: [ 0, 1, 2],
-                format: {
-                    body: function ( data, row, column ) {
-                        if (row === 0 && column === 0) {
-                            cntSeverity = 1;
-                        }
-                        if (column === 2) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
-                        }
-                        return column === 0 ? cntSeverity++ : data;
-                    }
-                }
-            }
-        };
-
-        new $.fn.dataTable.Buttons(oTableSeverity, {
-            buttons: [
-                $.extend( true, {}, btnSeverityOpt, {
-                    extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - Severity List',
-                    titleAttr: 'Print',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnSeverityOpt, {
-                    extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - Severity List',
-                    titleAttr: 'Excel',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                }),
-                $.extend( true, {}, btnSeverityOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Severity List',
-                    titleAttr: 'Pdf',
-                    className: 'btn btn-outline-primary btn-rounded btn-sm px-2'
-                })
-            ]
-        }).container().appendTo($('#btnDtSvrSeverityExport'));
 
         $('#btnSvrSeverityAdd').on('click', function () {
             modalSeverityClass.add();
