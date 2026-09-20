@@ -1,361 +1,319 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/asset.html — Tabler-migrated (P4C-5 Asset Management).
+
+  Mechanical copy of Contract for shell, toolbar, metric cards, filter
+  card, GemsUI, row actions, and dependent taxonomy filters.
+
+  Asset extras stay: server-side DataTable (api/asset.php?type=datatable),
+  custom server export (xlsx/pdf), Highcharts drilldown by
+  Group → Category → Type, Excel import modal, and the details section
+  fork html/section_asset_details_tabler.html (MDB original stays for
+  ppm_management.html).
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?5">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!--<link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>-->
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css?6" rel="stylesheet">
-    <link href="css/gems2-ui.css?7" rel="stylesheet">
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-    <script type="text/javascript">
-        (function () {
-            try {
-                if (window.__gemsLocalStorageSetItemPatched) { return; }
-                window.__gemsLocalStorageSetItemPatched = true;
-                if (!window.localStorage || !window.sessionStorage) { return; }
-                const originalSetItem = window.localStorage.setItem ? window.localStorage.setItem.bind(window.localStorage) : null;
-                if (!originalSetItem) { return; }
-                window.localStorage.setItem = function (key, value) {
-                    try {
-                        return originalSetItem(key, value);
-                    } catch (e) {
-                        try { return window.sessionStorage.setItem(key, value); } catch (_e) {}
-                    }
-                };
-            } catch (e) { /* ignore */ }
-        })();
-    </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Asset Management</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid" id="divWssPageWidth">
-        <section class="mb-5  sectionAszMain">
-            <div class="card card-cascade narrower gems-card-shell asset-shell">
-                <section class="gems-page-header asset-header">
-                    <div class="header-text">
-                        <h2>Asset Management</h2>
-                        <p>Monitor asset coverage and manage detailed records across your contract portfolio.</p>
-                        <div class="summary-pill mt-3"><span>Current Contract</span><span id="lblAszContractName">—</span></div>
-                    </div>
-                    <div class="header-actions">
-                        <button type="button" id="btnDtAszAssetRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                        <button type="button" id="btnAszAssetImport" class="btn btn-light" aria-label="Import assets from Excel">
-                            <i class="fas fa-file-excel mr-2"></i>Import Excel
-                        </button>
-                        <button type="button" id="btnAszAssetAdd" class="btn btn-primary" aria-label="Add asset">
-                            <i class="fas fa-plus mr-2"></i>Add Asset
-                        </button>
-                    </div>
-                </section>
-
-                <section class="mt-4">
-                    <div class="row">
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Total Assets</span>
-                                <span class="metric-value" id="metricAszTotal">0</span>
-                                <span class="metric-subtext">All assets under the selected contract</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Active</span>
-                                <span class="metric-value" id="metricAszActive">0</span>
-                                <span class="metric-subtext">Assets currently operational</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Inactive</span>
-                                <span class="metric-value" id="metricAszInactive">0</span>
-                                <span class="metric-subtext">Assets in standby or maintenance</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Archived</span>
-                                <span class="metric-value" id="metricAszArchived">0</span>
-                                <span class="metric-subtext">Retired assets kept for reference</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mt-2">
-                    <div class="filter-card asset-filter">
-                        <div class="filter-grid">
-                            <div>
-                                <label class="filter-label" for="optAszContractId">Contract</label>
-                                <select id="optAszContractId" class="form-control gems-plain-select"></select>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optAszGroupId">Asset Group</label>
-                                <select id="optAszGroupId" class="form-control gems-plain-select">
-                                    <option value="">All Asset Group</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optAszCategoryId">Asset Category</label>
-                                <select id="optAszCategoryId" class="form-control gems-plain-select" data-stop-refresh="true">
-                                    <option value="">All Asset Category</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optAszTypeId">Asset Type</label>
-                                <select id="optAszTypeId" class="form-control gems-plain-select" data-stop-refresh="true">
-                                    <option value="">All Asset Type</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optAszColumns">Columns Visibility</label>
-                                <div class="select-outline">
-                                    <select id="optAszColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
-                                        <option value="" disabled>Choose Column Visibility</option>
-                                        <option value="1">Asset Name</option>
-                                        <option value="2" selected>Asset No</option>
-                                        <option value="3">Asset Serial No</option>
-                                        <option value="4" selected>Asset Group</option>
-                                        <option value="5" selected>Asset Category</option>
-                                        <option value="6" selected>Asset Type</option>
-                                        <option value="7">Brand</option>
-                                        <option value="8">Model</option>
-                                        <option value="9" selected>PPM Group</option>
-                                        <option value="10">Location Code</option>
-                                        <option value="11" selected>Status</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="txtAszAssetSearch">Keyword Search</label>
-                                <div class="md-form md-outline mt-0 mb-0">
-                                    <input type="text" id="txtAszAssetSearch" class="form-control">
-                                    <label for="txtAszAssetSearch" class="active">Keyword Search</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
-                            <span id="lblAszFilterCount">Showing 0 of 0</span>
-                            <span id="lblAszFilterUpdated">—</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mb-4 mt-4">
-                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
-                        <label class="filter-label mb-2">Quick Status</label>
-                        <div class="gems-status-scroll">
-                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkAszAll">All</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAsz1">Active</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAsz2">Inactive</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkAsz5">Archived</a>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mb-4">
-                    <div class="card card-cascade narrower z-depth-0 module-data-card asset-chart-card">
-                        <div class="view view-cascade gradient-card-header aqua-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center z-depth-3">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Asset Distribution" data-content="Visual breakdown of active assets by group, category, and type."><i class="fas fa-info mt-0 mx-1"></i></a>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Asset Breakdown</a>
-                            <div class="d-none d-md-block"></div>
-                        </div>
-                        <div class="px-4 pb-4">
-                            <div id="chartAszAssetByType" class="asset-chart" style="min-height: 420px;"></div>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <div class="d-flex justify-content-between align-items-center" style="width: 100%; display: flex; flex-direction: space-between;">
-                                <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                                    <h4 class="mb-1 font-weight-600">Asset List</h4>
-                                    <p class="mb-0">Comprehensive list of assets for the selected contract</p>
-                                </div>
-                                <div class="dt-btn-slot">
-                                    <div id="btnDtAszAssetExport"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <div class="summary-pill d-flex justify-content-between align-items-center mt-4 results-info mb-3" style="margin: 1rem 0;">
-                                <span class="results-count" id="lblAszListCount">Showing 0 of 0 results</span>
-                                <span class="separator mx-2">•</span>
-                                <span class="last-updated" id="lblAszListUpdated">Last updated: —</span>
-                            </div>
-                            <div class="table-responsive">
-                                <table id="dtAszAsset" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th scope="row">#</th>
-                                        <th>Asset Name</th>
-                                        <th>Asset No</th>
-                                        <th>Asset Serial No</th>
-                                        <th>Asset Group</th>
-                                        <th>Asset Category</th>
-                                        <th>Asset Type</th>
-                                        <th>Brand</th>
-                                        <th>Model</th>
-                                        <th>PPM Group</th>
-                                        <th>Location Code</th>
-                                        <th>Status</th>
-                                        <th>&nbsp;</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        <section class="sectionAszMain">
+          <div class="page-header">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm">
+                <h1 class="page-title"><i class="fas fa-cubes me-2 text-primary"></i>Asset Management</h1>
+                <div class="page-subtitle">Monitor asset coverage and manage detailed records across your contract portfolio.</div>
+                <div class="text-secondary mt-1" style="font-size:.8125rem">
+                  Current Contract: <span id="lblAszContractName">—</span>
+                </div>
+              </div>
+              <div class="col-12 col-sm-auto">
+                <button type="button" class="btn btn-outline-secondary" id="btnDtAszAssetRefresh"
+                        data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                  <i class="fas fa-sync-alt me-2"></i>Refresh
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="btnAszAssetImport"
+                        aria-label="Import assets from Excel">
+                  <i class="fas fa-file-excel me-2"></i>Import Excel
+                </button>
+                <button type="button" class="btn btn-primary" id="btnAszAssetAdd" aria-label="Add asset">
+                  <i class="fas fa-plus me-2"></i>Add Asset
+                </button>
+              </div>
             </div>
+          </div>
+
+          <div class="row row-cards mb-3">
+            <div class="col-6 col-lg-3">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Total Assets</div>
+                  <div class="h2 mb-0" id="metricAszTotal">0</div>
+                  <div class="text-secondary" style="font-size:.75rem">All assets under the selected contract</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Active</div>
+                  <div class="h2 mb-0" id="metricAszActive">0</div>
+                  <div class="text-secondary" style="font-size:.75rem">Assets currently operational</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Inactive</div>
+                  <div class="h2 mb-0" id="metricAszInactive">0</div>
+                  <div class="text-secondary" style="font-size:.75rem">Assets in standby or maintenance</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Archived</div>
+                  <div class="h2 mb-0" id="metricAszArchived">0</div>
+                  <div class="text-secondary" style="font-size:.75rem">Retired assets kept for reference</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card gems-filter-card mb-3">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optAszContractId">Contract</label>
+                  <select id="optAszContractId" class="form-select"></select>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optAszGroupId">Asset Group</label>
+                  <select id="optAszGroupId" class="form-select"></select>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optAszCategoryId">Asset Category</label>
+                  <select id="optAszCategoryId" class="form-select" data-stop-refresh="true"></select>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optAszTypeId">Asset Type</label>
+                  <select id="optAszTypeId" class="form-select" data-stop-refresh="true"></select>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="optAszColumns">Columns Visibility</label>
+                  <select id="optAszColumns" class="form-select" multiple size="6">
+                    <option value="1">Asset Name</option>
+                    <option value="2" selected>Asset No</option>
+                    <option value="3">Asset Serial No</option>
+                    <option value="4" selected>Asset Group</option>
+                    <option value="5" selected>Asset Category</option>
+                    <option value="6" selected>Asset Type</option>
+                    <option value="7">Brand</option>
+                    <option value="8">Model</option>
+                    <option value="9" selected>PPM Group</option>
+                    <option value="10">Location Code</option>
+                    <option value="11" selected>Status</option>
+                  </select>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="txtAszAssetSearch">Keyword Search</label>
+                  <input type="search" id="txtAszAssetSearch" class="form-control" placeholder="Search asset" autocomplete="off">
+                </div>
+              </div>
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
+                <div>
+                  <div class="form-label mb-1">Quick Status</div>
+                  <div class="btn-group" role="group" aria-label="Quick Status">
+                    <button type="button" class="btn btn-sm btn-primary active" id="linkAszAll">All</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="linkAsz1">Active</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="linkAsz2">Inactive</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="linkAsz5">Archived</button>
+                  </div>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2 text-secondary" style="font-size:.75rem">
+                  <span id="lblAszFilterCount">Showing 0 of 0</span>
+                  <span id="lblAszFilterUpdated">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title mb-0"><i class="fas fa-chart-pie me-2 text-primary"></i>Asset Breakdown</h3>
+                <div class="text-secondary" style="font-size:.75rem">Visual breakdown of active assets by group, category, and type.</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="chartAszAssetByType" class="gems-chart-lg"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title mb-0"><i class="fas fa-cubes me-2 text-primary"></i>Asset List</h3>
+                <div class="text-secondary" style="font-size:.75rem">Comprehensive list of assets for the selected contract</div>
+              </div>
+              <div class="gems-card-toolbar text-secondary" style="font-size:.75rem">
+                <span id="lblAszListCount">Showing 0 of 0 results</span>
+                <span id="lblAszListUpdated" class="text-nowrap"><i class="far fa-clock me-1"></i>—</span>
+                <div id="btnDtAszAssetExport" class="d-inline-flex align-items-center"></div>
+              </div>
+            </div>
+            <table id="dtAszAsset" class="table table-vcenter card-table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th style="width:6%">#</th>
+                  <th>Asset Name</th>
+                  <th>Asset No</th>
+                  <th>Asset Serial No</th>
+                  <th>Asset Group</th>
+                  <th>Asset Category</th>
+                  <th>Asset Type</th>
+                  <th>Brand</th>
+                  <th>Model</th>
+                  <th>PPM Group</th>
+                  <th>Location Code</th>
+                  <th>Status</th>
+                  <th style="width:180px" class="noVis text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </section>
-        <div class="includeHtml" id="h-section_asset_details"></div>
+
+        <div class="includeHtml" id="h-section_asset_details_tabler"></div>
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_asset_import"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
+  </div>
+</div>
 
-</main>
+<!-- Shared fragments. modal_change_password, modal_confirm_delete, and
+     modal_pdf stay on the existing MDB/Tabler compatibility bridge. -->
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
+<div class="includeHtml" id="h-modal_asset_import"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/highcharts/highcharts.js"></script>
+<script src="js/vendor/highcharts/modules/data.js"></script>
+<script src="js/vendor/highcharts/modules/drilldown.js"></script>
+<script src="js/vendor/highcharts/modules/exporting.js"></script>
+<script src="js/vendor/highcharts/modules/export-data.js"></script>
+<script src="js/vendor/qrCode/qrcode.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_asset_details_tabler.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_asset_import.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Highchart -->
-<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
-<!-- QR Code -->
-<script type="text/javascript" src="js/vendor/qrCode/qrcode.min.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let assetClass_;
+  let sectionAssetDetails_;
+  let modalConfirmDelete_;
+  let modalAssetImport_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        assetClass_ = new MainAsset();
+        sectionAssetDetails_ = new SectionAssetDetails();
+        modalConfirmDelete_ = new ModalConfirmDelete();
+        modalAssetImport_ = new ModalAssetImport();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let assetClass_;
-    let sectionAssetDetails_;
-    let modalConfirmDelete_;
-    let modalAssetImport_;
+        const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+        const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+        const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
+        const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
+        const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
+        const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+        const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+        const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
 
-    document.addEventListener('DOMContentLoaded', function () {
+        sectionAssetDetails_.setClassFrom(assetClass_);
+        sectionAssetDetails_.setRefStatus(refStatus_);
+        sectionAssetDetails_.setRefAssetGroup(refAssetGroup_);
+        sectionAssetDetails_.setRefAssetCategory(refAssetCategory_);
+        sectionAssetDetails_.setRefAssetType(refAssetType_);
+        sectionAssetDetails_.setRefContract(refContract_);
+        sectionAssetDetails_.setRefSite(refSite_);
+        sectionAssetDetails_.setRefClient(refClient_);
+        sectionAssetDetails_.setRefPpmGroup(refPpmGroup_);
+        sectionAssetDetails_.setVersionLocal(versionLocal_);
+        sectionAssetDetails_.init();
 
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                assetClass_ = new MainAsset();
-                sectionAssetDetails_ = new SectionAssetDetails();
-                modalConfirmDelete_ = new ModalConfirmDelete();
-                modalAssetImport_ = new ModalAssetImport();
-
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
-                const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
-                const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
-                const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
-                const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
-
-                sectionAssetDetails_.setClassFrom(assetClass_);
-                sectionAssetDetails_.setRefStatus(refStatus_);
-                sectionAssetDetails_.setRefAssetGroup(refAssetGroup_);
-                sectionAssetDetails_.setRefAssetCategory(refAssetCategory_);
-                sectionAssetDetails_.setRefAssetType(refAssetType_);
-                sectionAssetDetails_.setRefContract(refContract_);
-                sectionAssetDetails_.setRefSite(refSite_);
-                sectionAssetDetails_.setRefClient(refClient_);
-                sectionAssetDetails_.setRefPpmGroup(refPpmGroup_);
-                sectionAssetDetails_.setVersionLocal(versionLocal_);
-                sectionAssetDetails_.init();
-
-                assetClass_.setRefStatus(refStatus_);
-                assetClass_.setRefContract(refContract_);
-                assetClass_.setRefAssetGroup(refAssetGroup_);
-                assetClass_.setRefAssetCategory(refAssetCategory_);
-                assetClass_.setRefAssetType(refAssetType_);
-                assetClass_.setRefPpmGroup(refPpmGroup_);
-                assetClass_.setSectionAssetClass(sectionAssetDetails_);
-                assetClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                modalAssetImport_.setClassFrom(assetClass_);
-                modalAssetImport_.init();
-                assetClass_.setModalAssetImportClass(modalAssetImport_);
-                assetClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_asset_details.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_asset_import.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_asset.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+        assetClass_.setRefStatus(refStatus_);
+        assetClass_.setRefContract(refContract_);
+        assetClass_.setRefAssetGroup(refAssetGroup_);
+        assetClass_.setRefAssetCategory(refAssetCategory_);
+        assetClass_.setRefAssetType(refAssetType_);
+        assetClass_.setRefPpmGroup(refPpmGroup_);
+        assetClass_.setSectionAssetClass(sectionAssetDetails_);
+        assetClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+        modalAssetImport_.setClassFrom(assetClass_);
+        modalAssetImport_.init();
+        assetClass_.setModalAssetImportClass(modalAssetImport_);
+        assetClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 300);
+  });
 </script>
-
 </body>
 </html>

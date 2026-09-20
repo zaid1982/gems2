@@ -61,8 +61,8 @@ function ModalAssetImport() {
         rows.forEach(function (row) {
             const reasons = (row.errors || []).join('; ');
             const statusHtml = row.valid
-                ? '<span class="status-badge completed">Valid</span>'
-                : '<span class="status-badge cancelled">Skipped</span>';
+                ? GemsUI.badge('success', 'Valid')
+                : GemsUI.badge('secondary', 'Skipped');
             html += '<tr>' +
                 '<td>' + escapeHtml(row.row_number) + '</td>' +
                 '<td>' + escapeHtml(row.assetNo) + '</td>' +
@@ -108,10 +108,10 @@ function ModalAssetImport() {
             const statusCell = $('td', this).eq(6);
             const reasonCell = $('td', this).eq(7);
             if (insertedMap[rowNo]) {
-                statusCell.html('<span class="status-badge completed">Imported</span>');
+                statusCell.html(GemsUI.badge('success', 'Imported'));
                 reasonCell.text('');
             } else if (typeof skippedMap[rowNo] !== 'undefined') {
-                statusCell.html('<span class="status-badge cancelled">Skipped</span>');
+                statusCell.html(GemsUI.badge('secondary', 'Skipped'));
                 reasonCell.text(skippedMap[rowNo]);
             }
         });

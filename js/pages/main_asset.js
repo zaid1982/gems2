@@ -29,6 +29,122 @@ function MainAsset() {
         '5': '#linkAsz5'
     };
 
+    function rowsFromRef(ref, idKey, labelKey, predicate) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (predicate && !predicate(row)) {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function fillContractSelect(siteFilter, selected) {
+        GemsUI.fillSelect(
+            'optAszContractId',
+            rowsFromRef(refContract, 'contractId', 'contractName', function (row) {
+                if (siteFilter && siteFilter.siteId && String(row['siteId']) !== String(siteFilter.siteId)) {
+                    return false;
+                }
+                return true;
+            }),
+            'contractId',
+            function (row) { return row['contractName'] || ''; },
+            'Choose Contract',
+            selected
+        );
+    }
+
+    function fillGroupSelect(selected) {
+        GemsUI.fillSelect(
+            'optAszGroupId',
+            rowsFromRef(refAssetGroup, 'assetGroupId', 'assetGroupName'),
+            'assetGroupId',
+            function (row) { return row['assetGroupName'] || ''; },
+            'All Asset Group',
+            selected
+        );
+    }
+
+    function fillCategorySelect(groupId, selected) {
+        const rows = groupId
+            ? rowsFromRef(refAssetCategory, 'assetCategoryId', 'assetCategoryName', function (row) {
+                return String(row['assetGroupId']) === String(groupId);
+            })
+            : [];
+        GemsUI.fillSelect(
+            'optAszCategoryId',
+            rows,
+            'assetCategoryId',
+            function (row) { return row['assetCategoryName'] || ''; },
+            'All Asset Category',
+            selected
+        );
+    }
+
+    function fillTypeSelect(categoryId, selected) {
+        const rows = categoryId
+            ? rowsFromRef(refAssetType, 'assetTypeId', 'assetTypeName', function (row) {
+                return String(row['assetCategoryId']) === String(categoryId);
+            })
+            : [];
+        GemsUI.fillSelect(
+            'optAszTypeId',
+            rows,
+            'assetTypeId',
+            function (row) { return row['assetTypeName'] || ''; },
+            'All Asset Type',
+            selected
+        );
+    }
+
+    function statusLabel(statusId, fallback) {
+        if (refStatus && refStatus[statusId] && refStatus[statusId]['statusDesc']) {
+            return refStatus[statusId]['statusDesc'];
+        }
+        switch (String(statusId)) {
+            case '1':
+                return 'Active';
+            case '2':
+                return 'Inactive';
+            case '5':
+                return 'Archived';
+            default:
+                return fallback || 'Unknown';
+        }
+    }
+
+    function statusBadgeKind(status) {
+        switch (String(status)) {
+            case '1':
+                return 'success';
+            case '5':
+                return 'warning';
+            default:
+                return 'secondary';
+        }
+    }
+
+    function statusBadge(statusId, type) {
+        const label = statusLabel(statusId, 'Unknown');
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusBadgeKind(statusId), GemsUI.escape(label));
+    }
+
     const applyTableDataLabels = function (tableSelector, headers) {
         $(`${tableSelector} tbody tr`).each(function () {
             $('td', this).each(function (index) {
@@ -66,8 +182,9 @@ function MainAsset() {
         };
         $.each(statusChipMap, function (status, selector) {
             const count = typeof counts[status] !== 'undefined' ? counts[status] : 0;
-            $(selector).html(`${labelMap[status]} <span class="chip-count">${mzFormatNumber(count, 0)}</span>`);
+            $(selector).html(GemsUI.escape(labelMap[status]) + ' <span class="badge bg-secondary-lt ms-1">' + mzFormatNumber(count, 0) + '</span>');
         });
+        setActiveStatusChip(statusFilterValue);
     };
 
     const updateAssetMetrics = function (dataSet) {
@@ -108,9 +225,9 @@ function MainAsset() {
     const setActiveStatusChip = function (value) {
         $.each(statusChipMap, function (status, selector) {
             if (status === value) {
-                $(selector).addClass('active');
+                $(selector).addClass('active btn-primary').removeClass('btn-outline-secondary');
             } else {
-                $(selector).removeClass('active');
+                $(selector).removeClass('active btn-primary').addClass('btn-outline-secondary');
             }
         });
     };
@@ -131,15 +248,20 @@ function MainAsset() {
         refreshListSummary();
     };
 
-    const lookupName = function (row, nameKey, idKey, ref, labelKey) {
+    const lookupName = function (row, nameKey, idKey, ref, labelKey, type) {
+        let name = '';
         if (row[nameKey]) {
-            return row[nameKey];
+            name = row[nameKey];
+        } else {
+            const id = row[idKey];
+            if (id && ref && ref[id] && ref[id][labelKey]) {
+                name = ref[id][labelKey];
+            }
         }
-        const id = row[idKey];
-        if (id && ref && ref[id] && ref[id][labelKey]) {
-            return ref[id][labelKey];
+        if (type !== 'display') {
+            return name;
         }
-        return '';
+        return GemsUI.escape(name);
     };
 
     const loadAssetSummary = function () {
@@ -197,10 +319,10 @@ function MainAsset() {
         }
 
         const filterSite = !mzIsRoleExist('1,10') ? {siteId: userSite} : {};
-        mzOption('optAszContractId', refContract, 'Choose Contract', 'contractId', 'contractName', filterSite, 'required');
-        mzOption('optAszGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
-        mzOptionStopClear('optAszCategoryId', 'All Asset Category');
-        mzOptionStopClear('optAszTypeId', 'All Asset Type');
+        fillContractSelect(filterSite, contractId);
+        fillGroupSelect('');
+        fillCategorySelect('', '');
+        fillTypeSelect('', '');
 
         if (!contractId) {
             $.each(refContract, function (index, contract) {
@@ -225,7 +347,7 @@ function MainAsset() {
             serverSide: true,
             deferRender: true,
             order: [[2, 'asc']],
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-cubes', 'No assets recorded yet.', 'No assets match the current search or filter.'),
             autoWidth: false,
             pageLength: 25,
             ajax: {
@@ -257,9 +379,8 @@ function MainAsset() {
                     return json.result.data || [];
                 }
             },
-            dom: "<'row d-none'<'col-sm-12'f>>" +
-                 "<'row'<'col-sm-12'tr>>" +
-                 "<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
+            pagingType: 'simple_numbers',
+            dom: GemsUI.dtDom,
             columnDefs: [
                 {targets: [0], orderable: false, className: 'text-center'},
                 {targets: [11], className: 'text-center'},
@@ -271,7 +392,6 @@ function MainAsset() {
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkAszAssetEdit').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');
@@ -313,56 +433,55 @@ function MainAsset() {
             },
             aoColumns: [
                 {mData: null, defaultContent: ''},
-                {mData: 'assetName', defaultContent: ''},
-                {mData: 'assetNo', defaultContent: ''},
-                {mData: 'assetSerialNo', defaultContent: ''},
-                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetGroupName', 'assetGroupId', refAssetGroup, 'assetGroupName'); }},
-                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetCategoryName', 'assetCategoryId', refAssetCategory, 'assetCategoryName'); }},
-                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetTypeName', 'assetTypeId', refAssetType, 'assetTypeName'); }},
-                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetBrandName', 'assetBrandId', refAssetBrand, 'assetBrandName'); }},
-                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetModelName', 'assetModelId', refAssetModel, 'assetModelName'); }},
-                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'ppmGroupName', 'ppmGroupId', refPpmGroup, 'ppmGroupName'); }},
-                {mData: 'assetLocationCode', defaultContent: ''},
+                {mData: 'assetName', defaultContent: '', mRender: function (data, type) { return type === 'display' ? GemsUI.escape(data || '') : (data || ''); }},
+                {mData: 'assetNo', defaultContent: '', mRender: function (data, type) { return type === 'display' ? GemsUI.escape(data || '') : (data || ''); }},
+                {mData: 'assetSerialNo', defaultContent: '', mRender: function (data, type) { return type === 'display' ? GemsUI.escape(data || '') : (data || ''); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetGroupName', 'assetGroupId', refAssetGroup, 'assetGroupName', type); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetCategoryName', 'assetCategoryId', refAssetCategory, 'assetCategoryName', type); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetTypeName', 'assetTypeId', refAssetType, 'assetTypeName', type); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetBrandName', 'assetBrandId', refAssetBrand, 'assetBrandName', type); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'assetModelName', 'assetModelId', refAssetModel, 'assetModelName', type); }},
+                {mData: null, mRender: function (data, type, row) { return lookupName(row, 'ppmGroupName', 'ppmGroupId', refPpmGroup, 'ppmGroupName', type); }},
+                {mData: 'assetLocationCode', defaultContent: '', mRender: function (data, type) { return type === 'display' ? GemsUI.escape(data || '') : (data || ''); }},
                 {mData: null, mRender: function (data, type, row) {
-                        if (type !== 'display') {
-                            const status = row['assetStatus'];
-                            return status && refStatus[status] ? refStatus[status]['statusDesc'] : 'Unknown';
-                        }
-                        const status = row['assetStatus'];
-                        if (!status || typeof refStatus[status] === 'undefined') {
-                            return '<span class="status-badge pending">Unknown</span>';
-                        }
-                        const statusMap = {
-                            '1': 'completed',    // Active
-                            '2': 'cancelled',    // Inactive
-                            '5': 'cancelled'     // Archived
-                        };
-                        const statusClass = statusMap[status] || 'pending';
-                        const statusText = refStatus[status]['statusDesc'];
-                        return `<span class="status-badge ${statusClass}">${statusText}</span>`;
+                        return statusBadge(row['assetStatus'], type);
                     }},
-                {mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
+                {mData: null, bSortable: false, sClass: 'text-center text-nowrap noVis', mRender: function (data, type, row, meta) {
                         if (type !== 'display') {
                             return '';
                         }
-                        let buttons = '<div class="action-btn-group">';
-                        buttons += `<button type="button" class="btn-action btn-edit lnkAszAssetEdit" id="lnkAszAssetEdit_${meta.row}" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>`;
+                        let buttons = GemsUI.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkAszAssetEdit',
+                            id: 'lnkAszAssetEdit_' + meta.row,
+                            title: 'Edit',
+                            icon: 'fas fa-pen-to-square'
+                        });
                         if (row['assetStatus'] === '1') {
-                            buttons += `<button type="button" class="btn-action btn-delete lnkAszAssetDeactivate" id="lnkAszAssetDeactivate_${meta.row}" title="Deactivate">
-                                <i class="fas fa-toggle-off"></i>
-                            </button>`;
+                            buttons += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkAszAssetDeactivate',
+                                id: 'lnkAszAssetDeactivate_' + meta.row,
+                                title: 'Deactivate',
+                                icon: 'fas fa-toggle-off'
+                            });
                         } else if (row['assetStatus'] === '2') {
-                            buttons += `<button type="button" class="btn-action btn-view lnkAszAssetActivate" id="lnkAszAssetActivate_${meta.row}" title="Activate">
-                                <i class="fas fa-toggle-on"></i>
-                            </button>`;
+                            buttons += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-view',
+                                cls: 'lnkAszAssetActivate',
+                                id: 'lnkAszAssetActivate_' + meta.row,
+                                title: 'Activate',
+                                icon: 'fas fa-toggle-on'
+                            });
                         } else if (row['assetStatus'] === '5') {
-                            buttons += `<button type="button" class="btn-action btn-delete lnkAszAssetDelete" id="lnkAszAssetDelete_${meta.row}" title="Delete">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>`;
+                            buttons += GemsUI.actionBtn({
+                                tint: 'gems-btn-action-delete',
+                                cls: 'lnkAszAssetDelete',
+                                id: 'lnkAszAssetDelete_' + meta.row,
+                                title: 'Delete',
+                                icon: 'fas fa-trash-alt'
+                            });
                         }
-                        buttons += '</div>';
                         return buttons;
                     }},
                 {mData: 'assetId', visible: false},
@@ -373,6 +492,7 @@ function MainAsset() {
             ]
         });
         $('#dtAszAsset_filter').hide();
+        GemsUI.bindDtTooltips('#dtAszAsset');
 
         $('#txtAszAssetSearch').on('keyup change', function () {
             const value = $(this).val();
@@ -383,13 +503,13 @@ function MainAsset() {
         });
 
         $('#optAszGroupId').on('change', function () {
-            mzOptionStop('optAszCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
-            mzOptionStopClear('optAszTypeId', 'All Asset Type');
+            fillCategorySelect($(this).val(), '');
+            fillTypeSelect('', '');
             reloadAssetTable(true);
         });
 
         $('#optAszCategoryId').on('change', function () {
-            mzOptionStop('optAszTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
+            fillTypeSelect($(this).val(), '');
             reloadAssetTable(true);
         });
 
@@ -460,19 +580,19 @@ function MainAsset() {
                 {
                     text: '<i class="fas fa-print"></i>',
                     titleAttr: 'Print / PDF',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
+                    className: 'btn btn-outline-secondary btn-sm',
                     action: function () { downloadAssetExport('pdf'); }
                 },
                 {
                     text: '<i class="fas fa-file-excel"></i>',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
+                    className: 'btn btn-outline-secondary btn-sm',
                     action: function () { downloadAssetExport('xlsx'); }
                 },
                 {
                     text: '<i class="fas fa-file-pdf"></i>',
                     titleAttr: 'PDF',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
+                    className: 'btn btn-outline-secondary btn-sm',
                     action: function () { downloadAssetExport('pdf'); }
                 }
             ]
@@ -500,9 +620,9 @@ function MainAsset() {
             ShowLoader();
             setTimeout(function () {
                 try {
-                    $('#optAszGroupId').val(null);
-                    mzOptionStopClear('optAszCategoryId', 'All Asset Category');
-                    mzOptionStopClear('optAszTypeId', 'All Asset Type');
+                    fillGroupSelect('');
+                    fillCategorySelect('', '');
+                    fillTypeSelect('', '');
                     self.genTableAsz();
                 } catch (e) {
                     toastr['error'](e.message, _ALERT_TITLE_ERROR);
