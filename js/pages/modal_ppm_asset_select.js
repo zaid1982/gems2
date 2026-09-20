@@ -48,10 +48,27 @@ function ModalPpmAssetSelect () {
                 if (assetTypeId !== _assetTypeId) {
                     assetTypeId = _assetTypeId;
                     mzFetch('ppm_asset/listSelection/'+_contractId+'/'+assetTypeId, 'GET').then(res => {
-                        for (const i in res) {
-                            res[i]['display'] = res[i]['assetNo'] + ' - ' + res[i]['assetName'];
-                        }
-                        mzOptionStopV2('optMpasAsset', res, 'Choose Asset', 'display', {assetStatus: 1}, 'required');
+                        const rows = [];
+                        $.each(res, function (n, u) {
+                            if (!u || typeof u !== 'object') {
+                                return;
+                            }
+                            if (u['assetStatus'] !== 1) {
+                                return;
+                            }
+                            const row = $.extend({}, u);
+                            if (row['id'] === undefined) {
+                                row['id'] = String(n);
+                            }
+                            row['display'] = (row['assetNo'] || '') + ' - ' + (row['assetName'] || '');
+                            rows.push(row);
+                        });
+                        rows.sort(function (a, b) {
+                            return String(a['display']).localeCompare(String(b['display']));
+                        });
+                        GemsUI.fillSelect('optMpasAsset', rows, 'id', function (row) {
+                            return row['display'];
+                        }, null);
                         $('#modal_ppm_asset_select').modal({backdrop: 'static', keyboard: false}).scrollTop(0);
                     }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
                 } else {
@@ -72,7 +89,7 @@ function ModalPpmAssetSelect () {
                     $('#modal_ppm_asset_select').modal('hide');
                 }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
             }, 200);
-        } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+        } catch (e) { toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR); }
     };
 
     this.getClassName = function () {

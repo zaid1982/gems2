@@ -16,6 +16,32 @@ function MainPpmAsset () {
     let userContractId = null;
     let contractId;
 
+    function statusBadge(statusId, type) {
+        const rec = refStatus && refStatus[statusId];
+        const label = rec ? rec['statusDesc'] : String(statusId);
+        if (type !== 'display') {
+            return label;
+        }
+        const colorMap = {
+            'badge-primary': 'info',
+            'badge-info': 'info',
+            'badge-success': 'success',
+            'badge-danger': 'danger',
+            'badge-warning': 'warning',
+            'badge-secondary': 'secondary'
+        };
+        return GemsUI.badge(colorMap[rec && rec['statusColor']] || 'secondary', GemsUI.escape(label));
+    }
+
+    function applyContractContext() {
+        $('#lblPgrContractName').text(refContract[contractId]['contractName']);
+        const siteId = refContract[contractId]['siteId'];
+        modalPpmAssetClass.setContractId(contractId);
+        modalPpmAssetClass.setSiteId(siteId);
+        sectionPpmAssetClass.setContractName(refContract[contractId]['contractName']);
+        sectionPpmAssetClass.setSiteName(refSite[siteId]['siteName']);
+    }
+
     this.init = function () {
         $('#ulPgrContract').hide();
         const userSiteId = mzGetUserInfoByParam('siteId');
@@ -30,41 +56,38 @@ function MainPpmAsset () {
             $('#ulPgrContract').show();
             userContractId = 20;
             contractId = userContractId;
+            const contractRows = [];
             $.each(refContract, function (_contractId, _contract) {
                 if (typeof _contract !== 'undefined') {
                     if (mzIsRoleExist('1,10')) {
-                        $('#divPgrContract').append('<a class="dropdown-item lnkPgrContract" href="#" id="lnkPgrContract_'+_contractId+'">'+_contract['contractName']+'</a>');
+                        const row = $.extend({}, _contract);
+                        if (row['contractId'] === undefined) {
+                            row['contractId'] = String(_contractId);
+                        }
+                        contractRows.push(row);
                     }
                 }
             });
-            $('#lnkPgrContract_'+contractId).addClass('active').addClass('text-white');
+            GemsUI.fillSelect('optPgrContract', contractRows, 'contractId', function (row) {
+                return row['contractName'] || '';
+            }, null, contractId);
+            $('#optPgrContract').val(contractId);
         }
 
-        $('#lblPgrContractName').text(refContract[contractId]['contractName']);
-        const siteId = refContract[contractId]['siteId'];
-        modalPpmAssetClass.setContractId(contractId);
-        modalPpmAssetClass.setSiteId(siteId);
-        sectionPpmAssetClass.setContractName(refContract[contractId]['contractName']);
-        sectionPpmAssetClass.setSiteName(refSite[siteId]['siteName']);
+        applyContractContext();
 
-        $('.lnkPgrContract').off('click').on('click', function () {
-            const linkId = $(this).attr('id');
-            const linkIndex = linkId.indexOf('_');
+        $('#optPgrContract').on('change', function () {
             try {
-                if (linkIndex > 0) {
-                    const selector = $('#lnkPgrContract_'+contractId);
-                    selector.removeClass('active').removeClass('text-white');
-                    contractId = parseInt(linkId.substr(linkIndex + 1));
-                    $('#lnkPgrContract_'+contractId).addClass('active').addClass('text-white');
-                    $('#lblPgrContractName').text(refContract[contractId]['contractName']);
-                    self.genTable();
-                    const siteId = refContract[contractId]['siteId'];
-                    modalPpmAssetClass.setContractId(contractId);
-                    modalPpmAssetClass.setSiteId(siteId);
-                    sectionPpmAssetClass.setContractName(refContract[contractId]['contractName']);
-                    sectionPpmAssetClass.setSiteName(refSite[siteId]['siteName']);
+                const nextId = parseInt($(this).val(), 10);
+                if (!nextId) {
+                    return;
                 }
-            } catch (e) {  toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+                contractId = nextId;
+                applyContractContext();
+                self.genTable();
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
         });
 
         dtPgr = $('#dtPgr').DataTable({
@@ -72,12 +95,10 @@ function MainPpmAsset () {
             bFilter: true,
             aaSorting: [[1, 'asc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-users', 'No PPM asset groups for this contract.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDom,
             columnDefs: [
                 { bSortable: false, targets: [0, 14] },
                 { className: 'text-center', targets: [0, 8, 12, 13, 14] },
@@ -85,32 +106,9 @@ function MainPpmAsset () {
                 { visible: false, targets: [2, 7, 8, 12] },
                 { className: 'noVis', targets: [0, 14] }
             ],
-            buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'three-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0', text:'<i class="fas fa-print"></i>', title:'GEMS - PPM Asset Group List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0', text:'<i class="fas fa-copy"></i>', title:'GEMS - PPM Asset Group List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - PPM Asset Group List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - PPM Asset Group List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
-                { text: '<i class="fas fa-sync"></i>', className: 'btn btn-outline-purple btn-sm px-2 ml-0 mr-2', attr: { id: 'btnPgrPendingRefresh' }, titleAttr: 'Refresh'},
-                { text: '<i class="fas fa-users-medical mr-2"></i>Add New Group', className: 'btn btn-outline-blue btn-sm px-2 ml-0', attr: { id: 'btnPgrAdd' }, titleAttr: 'Add New Group'}
-            ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
-            },
-            drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('#btnPgrPendingRefresh').off('click').on('click', function () {
-                    self.genTable();
-                });
-                $('#btnPgrAdd').off('click').on('click', function () {
-                    modalPpmAssetClass.setClassFrom(self);
-                    modalPpmAssetClass.add();
-                });
-                $('.lnkPgrEdit').off('click').on('click', function () {
-                    const ppmId = mzGetLinkId($(this), dtPgr, 'ppmId');
-                    sectionPpmAssetClass.load(ppmId);
-                });
             },
             aoColumns: [
                 { mData: null},
@@ -125,21 +123,40 @@ function MainPpmAsset () {
                         const assetCategoryId = refAssetType[data]['assetCategoryId'];
                         return refAssetCategory[assetCategoryId]['assetCategoryName'];
                     }},
-                { mData: 'assetTypeId', mRender: function (data){ return refAssetType[data]['assetTypeName']; }},  // 5
+                { mData: 'assetTypeId', mRender: function (data){ return refAssetType[data]['assetTypeName']; }},
                 { mData: 'ppmTaskNo'},
                 { mData: 'ppmIssueNo'},
                 { mData: 'ppmDateStart'},
                 { mData: 'ppmFrequency'},
-                { mData: 'totalAsset', width: '5%'}, // 10
+                { mData: 'totalAsset', width: '5%'},
                 { mData: 'totalTask', width: '5%'},
                 { mData: 'ppmTimeCreated'},
-                { mData: 'ppmStatus', mRender: function (data) {
-                        return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                { mData: 'ppmStatus', mRender: function (data, type) {
+                        return statusBadge(data, type);
                     }},
                 { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
-                        return '<a><i class="far fa-edit lnkPgrEdit" id="lnkPgrEdit_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Edit/Info"></i></a>';
+                        if (type !== 'display') {
+                            return '';
+                        }
+                        return GemsUI.actionBtn({id: 'lnkPgrEdit_' + meta.row, cls: 'lnkPgrEdit', icon: 'far fa-edit', title: 'Edit/Info'});
                     }}
             ]
+        });
+        GemsUI.bindDtTooltips('#dtPgr');
+        new $.fn.dataTable.Buttons(dtPgr, {
+            buttons: GemsUI.dtButtons('GEMS - PPM Asset Group List')
+        }).container().appendTo($('#btnDtPgrExport'));
+
+        $('#btnPgrPendingRefresh').on('click', function () {
+            self.genTable();
+        });
+        $('#btnPgrAdd').on('click', function () {
+            modalPpmAssetClass.setClassFrom(self);
+            modalPpmAssetClass.add();
+        });
+        $('#dtPgr').on('click', '.lnkPgrEdit', function () {
+            const ppmId = mzGetLinkId($(this), dtPgr, 'ppmId');
+            sectionPpmAssetClass.load(ppmId);
         });
 
         self.genTable();

@@ -18,6 +18,23 @@ function SectionPpmAsset () {
     let contractId;
     let isUpdate = false;
 
+    function statusBadge(statusId, type) {
+        const rec = refStatus && refStatus[statusId];
+        const label = rec ? rec['statusDesc'] : String(statusId);
+        if (type !== 'display') {
+            return label;
+        }
+        const colorMap = {
+            'badge-primary': 'info',
+            'badge-info': 'info',
+            'badge-success': 'success',
+            'badge-danger': 'danger',
+            'badge-warning': 'warning',
+            'badge-secondary': 'secondary'
+        };
+        return GemsUI.badge(colorMap[rec && rec['statusColor']] || 'secondary', GemsUI.escape(label));
+    }
+
     this.init = function () {
         self.hideSection();
 
@@ -41,45 +58,19 @@ function SectionPpmAsset () {
             bFilter: true,
             aaSorting: [[1, 'asc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-cube', 'No assets in this PPM group.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDom,
             columnDefs: [
                 { bSortable: false, targets: [0, 6] },
                 { className: 'text-center', targets: [0, 1] },
                 { visible: false, targets: [3, 5] },
                 { className: 'noVis', targets: [0, 6] }
             ],
-            buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'three-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0', text:'<i class="fas fa-print"></i>', title:'GEMS - PPM Asset Group - Asset List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0', text:'<i class="fas fa-copy"></i>', title:'GEMS - PPM Asset Group - Asset List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - PPM Asset Group - Asset List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - PPM Asset Group - Asset List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
-                { text: '<i class="fas fa-sync"></i>', className: 'btn btn-outline-purple btn-sm px-2 ml-0 mr-2', attr: { id: 'btnSpgAssetRefresh' }, titleAttr: 'Refresh'},
-                { text: '<i class="fas fa-plus mr-2"></i>Add Asset', className: 'btn btn-outline-blue btn-sm px-2 ml-0', attr: { id: 'btnSpgAssetAdd' }, titleAttr: 'Add Asset'}
-            ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
-            },
-            drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('#btnSpgAssetRefresh').off('click').on('click', function () {
-                    self.genTableAsset();
-                });
-                $('#btnSpgAssetAdd').off('click').on('click', function () {
-                    modalPpmAssetSelectClass.setLabelName($('#pSpgName').text());
-                    modalPpmAssetSelectClass.setLabelDocNo($('#pSpgTaskNo').text());
-                    modalPpmAssetSelectClass.add(ppmId, contractId, assetTypeId);
-                });
-                $('.lnkSpgAssetRemove').off('click').on('click', function () {
-                    const ppmAssetId = mzGetLinkId($(this), dtSpgAsset, 'ppmAssetId');
-                    modalConfirmDeleteClass.delete(ppmAssetId, modalPpmAssetSelectClass);
-                });
             },
             aoColumns: [
                 { mData: null},
@@ -89,9 +80,28 @@ function SectionPpmAsset () {
                 { mData: 'assetLocationCode'},
                 { mData: 'assetDesc'},
                 { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
-                        return '<a><i class="far fa-trash-alt lnkSpgAssetRemove" id="lnkSpgAssetRemove_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Remove"></i></a>';
+                        if (type !== 'display') {
+                            return '';
+                        }
+                        return GemsUI.actionBtn({id: 'lnkSpgAssetRemove_' + meta.row, cls: 'lnkSpgAssetRemove', icon: 'far fa-trash-alt', title: 'Remove'});
                     }}
             ]
+        });
+        GemsUI.bindDtTooltips('#dtSpgAsset');
+        new $.fn.dataTable.Buttons(dtSpgAsset, {
+            buttons: GemsUI.dtButtons('GEMS - PPM Asset Group - Asset List')
+        }).container().appendTo($('#btnDtSpgAssetExport'));
+        $('#btnSpgAssetRefresh').on('click', function () {
+            self.genTableAsset();
+        });
+        $('#btnSpgAssetAdd').on('click', function () {
+            modalPpmAssetSelectClass.setLabelName($('#pSpgName').text());
+            modalPpmAssetSelectClass.setLabelDocNo($('#pSpgTaskNo').text());
+            modalPpmAssetSelectClass.add(ppmId, contractId, assetTypeId);
+        });
+        $('#dtSpgAsset').on('click', '.lnkSpgAssetRemove', function () {
+            const ppmAssetId = mzGetLinkId($(this), dtSpgAsset, 'ppmAssetId');
+            modalConfirmDeleteClass.delete(ppmAssetId, modalPpmAssetSelectClass);
         });
 
         dtSpgTask = $('#dtSpgTask').DataTable({
@@ -99,58 +109,18 @@ function SectionPpmAsset () {
             bFilter: true,
             aaSorting: [[2, 'asc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-calendar-check', 'No PPM tasks for this group.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-12 col-sm-7 px-0 pb-2'B><'col-sm-5 d-none d-sm-block pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDom,
             columnDefs: [
                 { bSortable: false, targets: [0, 6] },
                 { className: 'text-center', targets: [0, 1, 2, 4, 5, 6] },
                 { className: 'noVis', targets: [0, 6] }
             ],
-            buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'three-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 ml-0', text:'<i class="fas fa-print"></i>', title:'GEMS - PPM Asset Group - Task List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0', text:'<i class="fas fa-copy"></i>', title:'GEMS - PPM Asset Group - Task List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - PPM Asset Group - Task List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - PPM Asset Group - Task List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
-                { text: '<i class="fas fa-sync"></i>', className: 'btn btn-outline-purple btn-sm px-2 ml-0 mr-2', attr: { id: 'btnSpgTaskRefresh' }, titleAttr: 'Refresh'}
-            ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
-            },
-            drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('#btnSpgTaskRefresh').off('click').on('click', function () {
-                    self.genTableTask();
-                });
-                $('.lnkSpgAssetPdf').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        ShowLoader();
-                        setTimeout(function () {
-                            try {
-                                const rowId = linkId.substr(linkIndex+1);
-                                const currentRow = dtSpgTask.row(parseInt(rowId)).data();
-                                let pdfId = currentRow['pdfId'];
-                                if (currentRow['pdfId'] === null) {
-                                    pdfId = mzAjaxRequest('ppm.php', 'POST', {action: 'generate_pdf', ppmTaskId:currentRow['ppmTaskId']});
-                                }
-                                const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
-                                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;PPM Report: '+currentRow['ppmTaskNo']);
-                                $('#mpdf_iframe').attr('src', pdfSrc);
-                                $('#modal_pdf').modal('show');
-                            } catch (e) {
-                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                            }
-                            HideLoader();
-                        }, 200);
-                    }
-                });
             },
             aoColumns: [
                 { mData: null},
@@ -158,13 +128,47 @@ function SectionPpmAsset () {
                 { mData: 'ppmTaskStartDate'},
                 { mData: 'ppmTaskAssignedTo'},
                 { mData: 'ppmTaskTimeServiced'},
-                { mData: 'ppmTaskStatus', mRender: function (data) {
-                        return '<h6 class="mb-0"><span class="badge badge-pill '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                { mData: 'ppmTaskStatus', mRender: function (data, type) {
+                        return statusBadge(data, type);
                     }},
                 { mData: null, bSortable: false, mRender: function (data, type, row, meta) {
-                        return '<a><i class="far fa-file-pdf lnkSpgAssetPdf" id="lnkSpgAssetPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"></i></a>';
+                        if (type !== 'display') {
+                            return '';
+                        }
+                        return GemsUI.actionBtn({id: 'lnkSpgAssetPdf_' + meta.row, cls: 'lnkSpgAssetPdf', icon: 'far fa-file-pdf', title: 'PPM PDF'});
                     }}
             ]
+        });
+        GemsUI.bindDtTooltips('#dtSpgTask');
+        new $.fn.dataTable.Buttons(dtSpgTask, {
+            buttons: GemsUI.dtButtons('GEMS - PPM Asset Group - Task List')
+        }).container().appendTo($('#btnDtSpgTaskExport'));
+        $('#btnSpgTaskRefresh').on('click', function () {
+            self.genTableTask();
+        });
+        $('#dtSpgTask').on('click', '.lnkSpgAssetPdf', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                ShowLoader();
+                setTimeout(function () {
+                    try {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = dtSpgTask.row(parseInt(rowId, 10)).data();
+                        let pdfId = currentRow['pdfId'];
+                        if (currentRow['pdfId'] === null) {
+                            pdfId = mzAjaxRequest('ppm.php', 'POST', {action: 'generate_pdf', ppmTaskId:currentRow['ppmTaskId']});
+                        }
+                        const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                        $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;PPM Report: '+currentRow['ppmTaskNo']);
+                        $('#mpdf_iframe').attr('src', pdfSrc);
+                        $('#modal_pdf').modal('show');
+                    } catch (e) {
+                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                    }
+                    HideLoader();
+                }, 200);
+            }
         });
 
         $('#btnSpgSubmit').on('click', function () {

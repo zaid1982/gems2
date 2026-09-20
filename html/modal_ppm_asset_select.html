@@ -1,47 +1,46 @@
-<div class="modal fade gems-modal" id="modal_ppm_asset_select" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg mt-5 pt-3 mb-5" role="document">
-        <div class="modal-content gems-modal-card">
-            <div class="modal-header pt-3 pb-1 gems-modal-header">
-                <h3 class="text-white ml-2" id="h4MpasTitle"><i class="fa-duotone fa-plus mr-2"></i>Add PPM Asset</h3>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pr-3 pt-3 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_ppm_asset_select — Tabler/GEMS modal + form contract (P5-4).
+
+  Loaded by pages/ppm_asset.html ONLY.
+  gems-modal-lg + modal-dialog-scrollable, never modal-dialog-centered.
+  Native multiple select (MDB searchable type-ahead is not on Tabler).
+-->
+<div class="modal fade" id="modal_ppm_asset_select" tabindex="-1" aria-labelledby="h4MpasTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="h4MpasTitle"><i class="fas fa-plus me-2"></i>Add PPM Asset</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMpas" autocomplete="off" novalidate>
+          <div class="card mb-3">
+            <div class="card-body py-2">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-6">
+                  <label class="form-label">PPM Group Name</label>
+                  <p class="mb-0" id="pMpasName"></p>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label">Document No.</label>
+                  <p class="mb-0" id="pMpasDocNo"></p>
+                </div>
+              </div>
             </div>
-            <div class="modal-body pb-0 gems-modal-body">
-                <form class="pt-2-5" id="formMpas">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card z-depth-1 mb-4_5">
-                                <div class="card-body blue-grey lighten-5 pt-3 pb-0">
-                                    <div class="row">
-                                        <div class="md-form col-sm-7 mt-1 mb-0">
-                                            <label class="active pl-3">PPM Group Name</label>
-                                            <p class="mt-1 pt-2 mb-0" id="pMpasName"></p>
-                                            <hr class="grey lighten-1 mt-0">
-                                        </div>
-                                        <div class="md-form col-sm-5 mt-1 mb-0">
-                                            <label class="active pl-3">Document No.</label>
-                                            <p class="mt-1 pt-2 mb-0" id="pMpasDocNo"></p>
-                                            <hr class="grey lighten-1 mt-0">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline" id="optMpasAsset_">
-                            <select id="optMpasAsset" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true" searchable="Search here.." multiple></select>
-                            <label for="optMpasAsset" id="lblMpasAsset">Asset for PPM Asset Group <span class="text-danger">*</span></label>
-                            <p class="font-small text-danger mt-0" id="optMpasAssetErr"></p>
-                        </div>
-                    </div>
-                </form>
+          </div>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12" id="optMpasAsset_">
+              <label class="form-label" for="optMpasAsset" id="lblMpasAsset">Asset for PPM Asset Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpasAsset" class="form-select" data-stop-refresh="true" multiple size="10" aria-required="true" aria-describedby="optMpasAssetErr"></select>
+              <div class="gems-field-error" id="optMpasAssetErr" role="alert"></div>
             </div>
-            <div class="modal-footer p-1 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
-                <button id="btnMpasSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
-            </div>
-        </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-undo-alt me-1"></i> Close</button>
+        <button type="button" id="btnMpasSubmit" class="btn btn-primary"><i class="far fa-paper-plane me-1"></i> Submit</button>
+      </div>
     </div>
+  </div>
 </div>

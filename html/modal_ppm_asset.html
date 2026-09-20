@@ -1,56 +1,57 @@
-<div class="modal fade gems-modal" id="modal_ppm_asset" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-5 pt-3 mb-5" role="document">
-        <div class="modal-content gems-modal-card">
-            <div class="modal-header pt-3 pb-1 gems-modal-header">
-                <h3 class="text-white ml-2" id="h4MpaTitle"></h3>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pr-3 pt-3 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_ppm_asset — Tabler/GEMS modal + form contract (P5-4).
+
+  Loaded by pages/ppm_asset.html ONLY.
+  gems-modal-md + modal-dialog-scrollable, never modal-dialog-centered.
+  No pickadate / mzDateSetMin (txtMpaPpmDateStart is not in this form).
+-->
+<div class="modal fade" id="modal_ppm_asset" tabindex="-1" aria-labelledby="h4MpaTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="h4MpaTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMpa" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMpaName" id="lblMpaName">PPM Asset Group Name <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMpaName" class="form-control" aria-required="true" aria-describedby="txtMpaNameErr">
+              <div class="gems-field-error" id="txtMpaNameErr" role="alert"></div>
             </div>
-            <div class="modal-body pb-0 gems-modal-body">
-                <form class="pt-2-5" id="formMpa">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="md-form md-outline mt-0">
-                                <input type="text" id="txtMpaName" class="form-control">
-                                <label for="txtMpaName" id="lblMpaName">PPM Asset Group Name <span class="text-danger">*</span></label>
-                                <p class="font-small text-danger" id="txtMpaNameErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="md-form md-outline mt-0">
-                                <textarea id="txaMpaDesc" class="md-textarea form-control" rows="3"></textarea>
-                                <label for="txaMpaDesc" id="lblMpaDesc" class="text-muted">Description</label>
-                                <p class="font-small text-danger" id="txaMpaDescErr"></p>
-                            </div>
-                        </div>
-                        <div class="col-md-12 select-outline mb-2" id="optMpaAssetGroup_">
-                            <select id="optMpaAssetGroup" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
-                            <label for="optMpaAssetGroup" id="lblMpaAssetGroup">Asset Group <span class="text-danger">*</span></label>
-                            <p class="font-small text-danger" id="optMpaAssetGroupErr"></p>
-                        </div>
-                        <div class="col-md-12 select-outline mb-2" id="optMpaAssetCategory_">
-                            <select id="optMpaAssetCategory" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
-                            <label for="optMpaAssetCategory" id="lblMpaAssetCategory">Asset Category <span class="text-danger">*</span></label>
-                            <p class="font-small text-danger" id="optMpaAssetCategoryErr"></p>
-                        </div>
-                        <div class="col-md-12 select-outline mb-2" id="optMpaAssetType_">
-                            <select id="optMpaAssetType" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
-                            <label for="optMpaAssetType" id="lblMpaAssetType">Asset Type <span class="text-danger">*</span></label>
-                            <p class="font-small text-danger" id="optMpaAssetTypeErr"></p>
-                        </div>
-                        <div class="col-md-12 select-outline mb-2" id="optMpaPpmGroupId_">
-                            <select id="optMpaPpmGroupId" class="mdb-select md-form md-outline colorful-select dropdown-danger my-0" data-stop-refresh="true"></select>
-                            <label for="optMpaPpmGroupId" id="lblMpaPpmGroupId">PPM Executor Group <span class="text-danger">*</span></label>
-                            <p class="font-small text-danger" id="optMpaPpmGroupIdErr"></p>
-                        </div>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMpaDesc" id="lblMpaDesc">Description</label>
+              <textarea id="txaMpaDesc" class="form-control" rows="3" aria-describedby="txaMpaDescErr"></textarea>
+              <div class="gems-field-error" id="txaMpaDescErr" role="alert"></div>
             </div>
-            <div class="modal-footer p-1 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt mr-1"></i> Close</button>
-                <button id="btnMpaSubmit" class="btn btn-info waves-effect"><i class="far fa-paper-plane mr-1"></i> Submit</button>
+            <div class="gems-field gems-field-12" id="optMpaAssetGroup_">
+              <label class="form-label" for="optMpaAssetGroup" id="lblMpaAssetGroup">Asset Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpaAssetGroup" class="form-select" data-stop-refresh="true" aria-required="true" aria-describedby="optMpaAssetGroupErr"></select>
+              <div class="gems-field-error" id="optMpaAssetGroupErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12" id="optMpaAssetCategory_">
+              <label class="form-label" for="optMpaAssetCategory" id="lblMpaAssetCategory">Asset Category <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpaAssetCategory" class="form-select" data-stop-refresh="true" aria-required="true" aria-describedby="optMpaAssetCategoryErr"></select>
+              <div class="gems-field-error" id="optMpaAssetCategoryErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12" id="optMpaAssetType_">
+              <label class="form-label" for="optMpaAssetType" id="lblMpaAssetType">Asset Type <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpaAssetType" class="form-select" data-stop-refresh="true" aria-required="true" aria-describedby="optMpaAssetTypeErr"></select>
+              <div class="gems-field-error" id="optMpaAssetTypeErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12" id="optMpaPpmGroupId_">
+              <label class="form-label" for="optMpaPpmGroupId" id="lblMpaPpmGroupId">PPM Executor Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpaPpmGroupId" class="form-select" data-stop-refresh="true" aria-required="true" aria-describedby="optMpaPpmGroupIdErr"></select>
+              <div class="gems-field-error" id="optMpaPpmGroupIdErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-undo-alt me-1"></i> Close</button>
+        <button type="button" id="btnMpaSubmit" class="btn btn-primary"><i class="far fa-paper-plane me-1"></i> Submit</button>
+      </div>
     </div>
+  </div>
 </div>

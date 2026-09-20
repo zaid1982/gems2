@@ -1,205 +1,181 @@
-<section class="section mb-5 sectionPpmAsset">
-    <div class="row mb-2 pb-0">
-        <div class="col-md-12">
-            <button type="button" class="btn btn-outline-blue btn-rounded float-right z-depth-3" id="btnSpgBack" data-toggle="tooltip" data-placement="bottom" title="Back to Main Page">
-                <i class="fas fa-arrow-left mr-1"></i> Back to Main Page
+<!--
+  Section: section_ppm_asset — Tabler (P5-4 Commit 2).
+
+  Loaded by pages/ppm_asset.html ONLY. Not the asset-details split.
+  Field IDs, table IDs, and button IDs are copied verbatim.
+-->
+<section class="section mb-4 sectionPpmAsset" style="display:none">
+  <div class="page-header">
+    <div class="row align-items-center g-2">
+      <div class="col-12 col-sm">
+        <h1 class="page-title"><i class="fas fa-users me-2 text-primary"></i><span id="lblSpgWoMainName">PPM Asset Group Name</span></h1>
+        <div class="page-subtitle"><span id="lblSpgName"></span></div>
+      </div>
+      <div class="col-12 col-sm-auto">
+        <button type="button" class="btn btn-outline-secondary" id="btnSpgBack" data-bs-toggle="tooltip" title="Back to Main Page" aria-label="Back to main page">
+          <i class="fas fa-arrow-left me-2"></i>Back to Main Page
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row row-cards">
+    <div class="col-xl-4">
+      <div class="card mb-3">
+        <div class="card-body py-2">
+          <div class="text-secondary" style="font-size:.75rem">PPM Status</div>
+          <h4 class="mb-0" id="pSpgStatus"></h4>
+        </div>
+      </div>
+      <div class="card mb-3">
+        <div class="card-body py-2">
+          <div class="text-secondary" style="font-size:.75rem">Total Assets</div>
+          <h4 class="mb-0" id="pSpgTotalAsset">0</h4>
+        </div>
+      </div>
+      <div class="card mb-3">
+        <div class="card-body py-2">
+          <div class="text-secondary" style="font-size:.75rem">Total PPM Tasks</div>
+          <h4 class="mb-0" id="pSpgTotalTask">0</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-8">
+      <div class="card mb-3">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0">PPM Asset Group Details</h3>
+          </div>
+          <div class="gems-card-toolbar">
+            <button type="button" class="btn btn-outline-danger btn-sm" id="btnSpgRemove" data-bs-toggle="tooltip" title="Edit Info" aria-label="Delete PPM Group">
+              <i class="far fa-trash-alt me-1"></i>Delete PPM Group
             </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSpgEdit" data-bs-toggle="tooltip" title="Edit Info" aria-label="Edit Info">
+              <i class="far fa-edit me-1"></i>Edit Info
+            </button>
+          </div>
         </div>
+        <div class="card-body">
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6" id="divSpgWo">
+              <label class="form-label">PPM Asset Group Name</label>
+              <p class="mb-0" id="pSpgName">-</p>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label">Site</label>
+              <p class="mb-0" id="pSpgSite">-</p>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label">Contract</label>
+              <p class="mb-0" id="pSpgContract">-</p>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label">Asset Group</label>
+              <p class="mb-0" id="pSpgAssetGroup">-</p>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label">Asset Category</label>
+              <p class="mb-0" id="pSpgAssetCategory">-</p>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label">Asset Type</label>
+              <p class="mb-0" id="pSpgAssetType">-</p>
+            </div>
+            <div class="gems-field gems-field-4">
+              <label class="form-label">Document No.</label>
+              <p class="mb-0" id="pSpgTaskNo">-</p>
+            </div>
+            <div class="gems-field gems-field-4">
+              <label class="form-label">Issue No.</label>
+              <p class="mb-0" id="pSpgIssueNo">-</p>
+            </div>
+            <div class="gems-field gems-field-4">
+              <label class="form-label">Frequency</label>
+              <p class="mb-0" id="pSpgFrequency">-</p>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label">Started Date</label>
+              <p class="mb-0" id="pSpgDateStart">-</p>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label">Created Date/Time</label>
+              <p class="mb-0" id="pSpgTimeCreated">-</p>
+            </div>
+            <div class="gems-field gems-field-12" id="divSpgWr">
+              <label class="form-label">Description</label>
+              <p class="mb-0" id="pSpgRemark">-</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3 divSpgAssigned">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0">List of Assets</h3>
+          </div>
+          <div class="gems-card-toolbar">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSpgAssetRefresh" aria-label="Refresh assets" data-bs-toggle="tooltip" title="Refresh">
+              <i class="fas fa-sync me-1"></i>Refresh
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnSpgAssetAdd" aria-label="Add Asset" title="Add Asset">
+              <i class="fas fa-plus me-1"></i>Add Asset
+            </button>
+            <div id="btnDtSpgAssetExport"></div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table id="dtSpgAsset" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th style="width:4%">#</th>
+                <th>Asset No.</th>
+                <th>Asset Name</th>
+                <th>Serial No.</th>
+                <th>Location Code</th>
+                <th>Asset Description</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="btn btn-primary" id="btnSpgSubmit" data-bs-toggle="tooltip" title="Submit" aria-label="Submit for PPM Task Scheduling">
+            <i class="far fa-calendar-check me-1"></i>Submit for PPM Task Scheduling
+          </button>
+        </div>
+      </div>
+
+      <div class="card mb-3 divSpgAssigned">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0">List of PPM Tasks</h3>
+          </div>
+          <div class="gems-card-toolbar">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSpgTaskRefresh" aria-label="Refresh tasks" data-bs-toggle="tooltip" title="Refresh">
+              <i class="fas fa-sync me-1"></i>Refresh
+            </button>
+            <div id="btnDtSpgTaskExport"></div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table id="dtSpgTask" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th style="width:4%">#</th>
+                <th>PPM Task No.</th>
+                <th>Schedule Date</th>
+                <th>Executor</th>
+                <th>Time Execute</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card z-depth-4 mb-4">
-                <div class="p-3 aqua-gradient text-white">
-                    <h5 id="lblSpgWoMainName">PPM Asset Group Name</h5>
-                    <h2 class="mt-1 mb-0 font-weight-bold"><span id="lblSpgName"></span></h2>
-                </div>
-            </div>
-            <div class="card z-depth-4 mb-3">
-                <div class="card-body py-3">
-                    <div class="media">
-                        <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
-                            <i class="fa-duotone fa-diamond-exclamation fa-2x text-info"></i>
-                        </span>
-                        <div class="media-body">
-                            <h4 class="dark-grey-text mt-1 mb-1" id="pSpgStatus"></h4>
-                            <p class="text-muted mb-0">PPM Status</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card z-depth-4 mb-3">
-                <div class="card-body py-3">
-                    <div class="media">
-                        <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
-                            <i class="fa-duotone fa-computer-classic fa-2x text-info"></i>
-                        </span>
-                        <div class="media-body">
-                            <h4 class="dark-grey-text mt-1 mb-1" id="pSpgTotalAsset">0</h4>
-                            <p class="text-muted mb-0">Total Assets</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card z-depth-4 mb-3">
-                <div class="card-body py-3">
-                    <div class="media">
-                        <span class="card-img-64 d-inline-flex justify-content-center align-items-center rounded-circle grey lighten-3 mr-4">
-                            <i class="fa-duotone fa-thin fa-ballot-check fa-2x text-info"></i>
-                        </span>
-                        <div class="media-body">
-                            <h4 class="dark-grey-text mt-1 mb-1" id="pSpgTotalTask">0</h4>
-                            <p class="text-muted mb-0">Total PPM Tasks</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-8">
-            <div class="card z-depth-3 mb-4">
-                <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left aqua-gradient" style="width: 15px; height: 45px">&nbsp;</div>
-                    <h5 class="font-weight-bold pl-4 pt-2-5 mt-1">PPM Asset Group Details</h5>
-                </div>
-                <div class="card-body pb-0">
-                    <div class="row">
-                        <div class="md-form col-lg-6 my-1" id="divSpgWo">
-                            <i class="fa-duotone fa-object-group prefix text-info"></i>
-                            <label class="active pl-3_5">PPM Asset Group Name</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgName">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-map-marked-alt prefix text-info"></i>
-                            <label class="active pl-3_5">Site</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgSite">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-file-contract prefix text-info"></i>
-                            <label class="active pl-3_5">Contract</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgContract">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-network-wired prefix text-info"></i>
-                            <label class="active pl-3">Asset Group</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgAssetGroup">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-tag prefix text-info"></i>
-                            <label class="active pl-3">Asset Category</label>
-                            <p class="pt-2-5 mb-0 pl-4_5" id="pSpgAssetCategory">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-tags prefix text-info"></i>
-                            <label class="active pl-3_5">Asset Type</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgAssetType">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-4 my-1">
-                            <i class="fa-duotone fa-cabinet-filing prefix text-info"></i>
-                            <label class="active pl-3">Document No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgTaskNo">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-4 my-1">
-                            <i class="fa-duotone fa-hashtag prefix text-info"></i>
-                            <label class="active pl-3">Issue No.</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgIssueNo">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-4 my-1">
-                            <i class="fa-duotone fa-calendar-circle-exclamation prefix text-info"></i>
-                            <label class="active pl-3">Frequency</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgFrequency">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-calendar-alt prefix text-info"></i>
-                            <label class="active pl-3">Started Date</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgDateStart">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-6 my-1">
-                            <i class="fa-duotone fa-calendar-circle-plus prefix text-info"></i>
-                            <label class="active pl-3">Created Date/Time</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgTimeCreated">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                        <div class="md-form col-lg-12 my-1" id="divSpgWr">
-                            <i class="fa-duotone fa-note prefix text-info"></i>
-                            <label class="active pl-3_5">Description</label>
-                            <p class="pt-2-5 mb-0 pl-4_6" id="pSpgRemark">-</p>
-                            <hr class="grey lighten-2 mt-1 ml-4_5" style="margin-left: 40px">
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer p-0">
-                    <button type="button" class="btn btn-outline-info btn-sm z-depth-2 float-right" id="btnSpgEdit" data-toggle="tooltip" data-placement="bottom" title="Edit Info"><i class="far fa-edit mr-1"></i> Edit Info</button>
-                    <button type="button" class="btn btn-outline-danger btn-sm z-depth-2 float-right" id="btnSpgRemove" data-toggle="tooltip" data-placement="bottom" title="Edit Info"><i class="far fa-trash-alt mr-1"></i> Delete PPM Group</button>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-4 divSpgAssigned">
-                <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left aqua-gradient" style="width: 15px; height: 45px">&nbsp;</div>
-                    <h5 class="font-weight-bold pl-4 pt-2-5 mt-1">List of Assets</h5>
-                </div>
-                <div class="card-body py-3">
-                    <div class="row">
-                        <div class="col-12 px-0">
-                            <div class="table-responsive">
-                                <table id="dtSpgAsset" class="table table-hover table-tight mb-0 display responsive mobile-stack">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Asset No.</th>
-                                        <th>Asset Name</th>
-                                        <th>Serial No.</th>
-                                        <th>Location Code</th>
-                                        <th>Asset Description</th>
-                                        <th style="width: 12px; min-width: 12px">&nbsp;</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer p-0">
-                    <button type="button" class="btn btn-outline-primary btn-sm z-depth-2 float-right" id="btnSpgSubmit" data-toggle="tooltip" data-placement="bottom" title="Submit"><i class="far fa-calendar-check mr-1"></i> Submit for PPM Task Scheduling</button>
-                </div>
-            </div>
-            <div class="card z-depth-3 mb-4 divSpgAssigned">
-                <div class="card-header white p-0 z-depth-1">
-                    <div class="float-left aqua-gradient" style="width: 15px; height: 45px">&nbsp;</div>
-                    <h5 class="font-weight-bold pl-4 pt-2-5 mt-1">List of PPM Tasks</h5>
-                </div>
-                <div class="card-body py-3">
-                    <div class="row">
-                        <div class="col-12 px-0">
-                            <div class="table-responsive">
-                                <table id="dtSpgTask" class="table table-hover table-tight mb-0 display responsive w-100 mobile-stack">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th style="width: 50px">PPM Task No.</th>
-                                        <th>Schedule Date</th>
-                                        <th>Executor</th>
-                                        <th>Time Execute</th>
-                                        <th>Status</th>
-                                        <th style="width: 12px; min-width: 12px">&nbsp;</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
 </section>
