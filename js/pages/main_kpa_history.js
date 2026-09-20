@@ -5,7 +5,7 @@ function MainKpaHistory() {
     const colors = { max: '#0055b8', deducted: '#dc2626', demerit: '#f59e0b', actual: '#00ada8', target: '#64748b' };
 
     const emptyChart = function (id, message) {
-        $('#' + id).html('<div class="waste-empty text-muted text-center py-5">' + message + '</div>');
+        $('#' + id).html('<div class="gems-empty-state"><i class="fas fa-chart-column"></i><p>' + message + '</p></div>');
     };
 
     const renderApdChart = function () {
@@ -105,22 +105,23 @@ function MainKpaHistory() {
 
         dt = $('#dtKhi').DataTable({
             data: [], bLengthChange: false, searching: false, pageLength: 24, autoWidth: false,
-            language: _DATATABLE_LANGUAGE, ordering: false,
-            dom: "<'row align-items-center mb-2'<'col-sm-12 px-0'B>><'row'<'col-sm-12'tr>><'row'<'col-sm-6'i><'col-sm-6'p>>",
+            language: kc.dtEmpty('fa-clock-rotate-left', 'No evaluation months in the selected range.'),
+            ordering: false, dom: kc.dtDomButtons,
             buttons: kc.dtButtons('GEMS - KPI History'),
             columns: [
                 { data: 'periodLabel' },
-                { data: 'mpv', render: function (v) { return kc.fmtNumber(v, 2); } },
+                { data: 'mpv', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2); } },
                 { data: 'maxApdPct', render: function (v) { return kc.fmtNumber(v, 2) + ' %'; } },
-                { data: 'apdMaxAmount', render: function (v) { return kc.fmtNumber(v, 2); } },
-                { data: 'totalApdDeducted', render: function (v) { return kc.fmtNumber(v, 2); } },
-                { data: 'apdRetained', render: function (v) { return kc.fmtNumber(v, 2); } },
+                { data: 'apdMaxAmount', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2); } },
+                { data: 'totalApdDeducted', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2); } },
+                { data: 'apdRetained', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2); } },
                 { data: 'totalDemerit' },
                 { data: null, render: function (r) { return r.piSubmitted + ' / ' + r.piTotal; } },
                 { data: 'evalStatus', render: kc.evalStatusBadge }
             ]
         });
         dt.buttons().container().appendTo($('#btnDtKhiExport'));
+        kc.bindDtTooltips('#dtKhi');
 
         render();
         $('#optKhiSite, #optKhiFrom, #optKhiTo').off('change').on('change', render);

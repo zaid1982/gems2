@@ -326,6 +326,17 @@ body.gems-tabler {
 }
 .gems-tabler textarea.form-control { min-height: calc(var(--gems-control-h) * 2); }
 
+/* Input-group add-on buttons share the single-line control height.
+   Tabler's .btn is 40px, so Save/Apply beside a 38px field sits 2px tall.
+   Lock the button only. Do not re-declare .form-control / .form-select
+   here — they already use --gems-control-h above, and the tall-control
+   exemption must keep winning. Re-locking them at .input-group > …
+   specificity collapses textarea / [multiple] / [size] to 38px. */
+.gems-tabler .input-group > .btn {
+  height: var(--gems-control-h);
+  min-height: var(--gems-control-h);
+}
+
 .gems-tabler .form-control:focus,
 .gems-tabler .form-select:focus,
 .gems-tabler .form-check-input:focus,
@@ -985,4 +996,40 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   .gems-tabler .waste-form-footer-actions { justify-content: stretch; }
   .gems-tabler .waste-form-footer-actions .btn { flex: 1 1 auto; }
 }
+
+/* --------------------------------------------------------------------------
+   14. KPA module helpers (P3B)
+   --------------------------------------------------------------------------
+   KPI pages still write a few module class names (charts, formula chip,
+   autosave). Those rules used to live in gems2-ui.css / page <style> blocks,
+   which a Tabler page must never load. This section only restyles those
+   existing hooks with the P0 tokens.
+   -------------------------------------------------------------------------- */
+.gems-tabler .kpa-chart { height: 280px; }
+.gems-tabler .kpa-chart-sm { height: 220px; }
+@media (min-width: 1600px) {
+  .gems-tabler .kpa-chart { height: 320px; }
+  .gems-tabler .kpa-chart-sm { height: 260px; }
+}
+
+.gems-tabler .kpa-formula {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #f1f5f9;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+}
+
+.gems-tabler .autosave-state {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gems-muted);
+}
+.gems-tabler .autosave-state.is-saving { color: #0369a1; }
+.gems-tabler .autosave-state.is-saved { color: #166534; }
+.gems-tabler .autosave-state.is-error { color: #991b1b; }
+.gems-tabler .autosave-state[hidden] { display: none !important; }
 

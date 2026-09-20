@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
-  <link rel="stylesheet" href="css/gems-theme.css?p1">
+  <link rel="stylesheet" href="css/gems-theme.css?p3b">
 
   <style>
     /* ------------------------------------------------------------------
@@ -365,6 +365,57 @@
                 its error element; page scripts must set and clear all three together, or the
                 field looks wrong to sighted users and reads as valid to everyone else.
               </p>
+            </div>
+          </div>
+
+          <h3 class="mt-3" style="font-size:.875rem;font-weight:600">Input groups</h3>
+          <p class="cat-note">
+            Add-on buttons lock to <code>--gems-control-h</code>. The control itself keeps the
+            §5 contract: a single-line input stays 38px; <code>textarea</code>,
+            <code>select[multiple]</code> and <code>select[size]</code> stay tall.
+          </p>
+          <div class="card">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="catIgText">Single-line text</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="catIgText" value="5.00">
+                    <button class="btn btn-primary" type="button" id="catIgTextBtn">Save</button>
+                  </div>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="catIgTextarea">Textarea stays tall</label>
+                  <div class="input-group">
+                    <textarea class="form-control" id="catIgTextarea" rows="3">Notes stay multi-line.</textarea>
+                    <button class="btn btn-primary" type="button" id="catIgTextareaBtn">Add</button>
+                  </div>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="catIgMulti">select[multiple]</label>
+                  <div class="input-group">
+                    <select class="form-select" id="catIgMulti" multiple size="4">
+                      <option selected>Menara GFM</option>
+                      <option>Wisma Putra</option>
+                      <option selected>Kompleks D</option>
+                      <option>Blok Rasmi</option>
+                    </select>
+                    <button class="btn btn-primary" type="button" id="catIgMultiBtn">Apply</button>
+                  </div>
+                </div>
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="catIgSize">select[size]</label>
+                  <div class="input-group">
+                    <select class="form-select" id="catIgSize" size="4">
+                      <option selected>Menara GFM</option>
+                      <option>Wisma Putra</option>
+                      <option>Kompleks D</option>
+                      <option>Blok Rasmi</option>
+                    </select>
+                    <button class="btn btn-primary" type="button" id="catIgSizeBtn">Apply</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>

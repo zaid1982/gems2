@@ -1,116 +1,227 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/kpa_evaluation.html — Tabler-migrated (P3B KPA).
+
+  Asset stack is a verbatim copy of html/head_tabler.html and
+  html/scripts_tabler.html. Page extras: moment, DataTables Buttons exports.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GEMS 2.0 - Monthly KPI Evaluation</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
-  <script src="js/jquery-3.7.0.min.js"></script>
-  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
-<main>
-  <div class="container-fluid module-page module-master">
-    <section>
-      <div class="gems-page-header module-page-header">
-        <div class="header-text">
-          <span class="header-subtitle">Performance Monitoring</span>
-          <h2>Monthly KPI Evaluation</h2>
-          <p>Create the month, capture the parameters for each indicator and submit them. There is no approval step.</p>
-        </div>
-        <div class="header-actions">
-          <button type="button" class="btn btn-light btn-icon" id="btnKevRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-          <button type="button" class="btn btn-primary" id="btnKevAdd"><i class="fas fa-plus mr-2"></i>Create Month</button>
-        </div>
-      </div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-      <div class="filter-card">
-        <div class="filter-grid">
-          <div><div class="filter-label">Site</div><select id="optKevSite" class="custom-select gems-plain-select browser-default"></select></div>
-          <div><div class="filter-label">Year</div><select id="optKevYear" class="custom-select gems-plain-select browser-default"></select></div>
-          <div><div class="filter-label">Status</div>
-            <select id="optKevStatus" class="custom-select gems-plain-select browser-default">
-              <option value="">All</option><option value="OPEN">Open</option><option value="COMPLETED">Completed</option>
-            </select>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-clipboard-check me-2 text-primary"></i>Monthly KPI Evaluation</h1>
+              <div class="page-subtitle">Create the month, capture the parameters for each indicator and submit them. There is no approval step.</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnKevRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-primary" id="btnKevAdd">
+                <i class="fas fa-plus me-2"></i>Create Month
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="module-data-card mb-4">
-        <div class="module-card-header">
-          <div><h4>Evaluation months</h4><p>Select a month to open its indicator grid.</p></div>
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optKevSite">Site</label>
+                <select id="optKevSite" class="form-select"></select>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optKevYear">Year</label>
+                <select id="optKevYear" class="form-select"></select>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optKevStatus">Status</label>
+                <select id="optKevStatus" class="form-select">
+                  <option value="">All</option>
+                  <option value="OPEN">Open</option>
+                  <option value="COMPLETED">Completed</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="module-table-wrapper">
-          <table id="dtKev" class="table table-hover mb-0 display mobile-stack">
-            <thead><tr><th>Period</th><th>MPV (RM)</th><th>Max APD %</th><th>APD Maximum (RM)</th><th>Demerit</th><th>APD Deducted (RM)</th><th>Progress</th><th>Status</th><th class="noVis">Actions</th></tr></thead>
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Evaluation months</h3>
+              <div class="text-secondary" style="font-size:.75rem">Select a month to open its indicator grid.</div>
+            </div>
+          </div>
+          <table id="dtKev" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Period</th>
+                <th class="gems-num">MPV (RM)</th>
+                <th>Max APD %</th>
+                <th class="gems-num">APD Maximum (RM)</th>
+                <th>Demerit</th>
+                <th class="gems-num">APD Deducted (RM)</th>
+                <th>Progress</th>
+                <th>Status</th>
+                <th class="noVis">Actions</th>
+              </tr>
+            </thead>
             <tbody></tbody>
           </table>
         </div>
-      </div>
 
-      <div id="divKevDetail" class="d-none">
-        <div class="metrics-row">
-          <div class="metric-card"><div class="metric-label">Monthly Payment Value</div><div class="metric-value" id="mKevMpv">-</div><div class="metric-subtext" id="mKevPeriod">-</div></div>
-          <div class="metric-card"><div class="metric-label">APD Maximum</div><div class="metric-value" id="mKevApdMax">-</div><div class="metric-subtext">MPV &times; max APD %</div></div>
-          <div class="metric-card"><div class="metric-label">APD Deducted</div><div class="metric-value text-danger" id="mKevApdDeducted">-</div><div class="metric-subtext">Failing indicators</div></div>
-          <div class="metric-card"><div class="metric-label">APD Retained</div><div class="metric-value text-success" id="mKevApdRetained">-</div><div class="metric-subtext">Maximum less deduction</div></div>
-          <div class="metric-card"><div class="metric-label">Demerit Points</div><div class="metric-value" id="mKevDemerit">-</div><div class="metric-subtext">Imposed this month</div></div>
-          <div class="metric-card"><div class="metric-label">Submitted</div><div class="metric-value" id="mKevSubmitted">-</div><div class="metric-subtext">Of all indicators</div></div>
-        </div>
-
-        <div class="module-data-card">
-          <div class="module-card-header">
-            <div><h4 id="lblKevDetailTitle">Performance Indicators</h4><p id="lblKevDetailSub">Open an indicator to capture its parameters.</p></div>
-            <div class="header-actions">
-              <div id="btnDtKevPiExport" class="d-inline-flex align-items-center"></div>
-              <button type="button" class="btn btn-light btn-icon" id="btnKevEditMpv" title="Edit MPV"><i class="fas fa-pen-to-square"></i></button>
+        <div id="divKevDetail" class="d-none">
+          <div class="row row-cards mb-3">
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="card"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Monthly Payment Value</div>
+                <div class="h2 mb-0" id="mKevMpv">-</div>
+                <div class="text-secondary" style="font-size:.75rem" id="mKevPeriod">-</div>
+              </div></div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="card"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">APD Maximum</div>
+                <div class="h2 mb-0" id="mKevApdMax">-</div>
+                <div class="text-secondary" style="font-size:.75rem">MPV &times; max APD %</div>
+              </div></div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="card"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">APD Deducted</div>
+                <div class="h2 mb-0 text-danger" id="mKevApdDeducted">-</div>
+                <div class="text-secondary" style="font-size:.75rem">Failing indicators</div>
+              </div></div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="card"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">APD Retained</div>
+                <div class="h2 mb-0 text-success" id="mKevApdRetained">-</div>
+                <div class="text-secondary" style="font-size:.75rem">Maximum less deduction</div>
+              </div></div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="card"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Demerit Points</div>
+                <div class="h2 mb-0" id="mKevDemerit">-</div>
+                <div class="text-secondary" style="font-size:.75rem">Imposed this month</div>
+              </div></div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="card"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Submitted</div>
+                <div class="h2 mb-0" id="mKevSubmitted">-</div>
+                <div class="text-secondary" style="font-size:.75rem">Of all indicators</div>
+              </div></div>
             </div>
           </div>
-          <div class="module-table-wrapper">
-            <table id="dtKevPi" class="table table-hover mb-0 display mobile-stack">
-              <thead><tr>
-                <th>KPI</th><th>PI No.</th><th>Performance Indicator</th><th>Target</th><th>Actual</th>
-                <th>Result</th><th>Demerit</th><th>Weightage</th><th>APD Value (RM)</th><th>APD Deducted (RM)</th>
-                <th>Status</th><th class="noVis">Actions</th>
-              </tr></thead>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title mb-0" id="lblKevDetailTitle">Performance Indicators</h3>
+                <div class="text-secondary" style="font-size:.75rem" id="lblKevDetailSub">Open an indicator to capture its parameters.</div>
+              </div>
+              <div class="gems-card-toolbar">
+                <div id="btnDtKevPiExport" class="d-inline-flex align-items-center"></div>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnKevEditMpv"
+                        data-bs-toggle="tooltip" title="Edit MPV" aria-label="Edit MPV">
+                  <i class="fas fa-pen-to-square me-1"></i>Edit MPV
+                </button>
+              </div>
+            </div>
+            <table id="dtKevPi" class="table table-vcenter card-table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>KPI</th>
+                  <th>PI No.</th>
+                  <th>Performance Indicator</th>
+                  <th>Target</th>
+                  <th>Actual</th>
+                  <th>Result</th>
+                  <th>Demerit</th>
+                  <th>Weightage</th>
+                  <th class="gems-num">APD Value (RM)</th>
+                  <th class="gems-num">APD Deducted (RM)</th>
+                  <th>Status</th>
+                  <th class="noVis">Actions</th>
+                </tr>
+              </thead>
               <tbody></tbody>
             </table>
           </div>
         </div>
+
       </div>
-    </section>
+    </div>
   </div>
-  <div class="includeHtml" id="h-modal_change_password"></div>
-  <div class="includeHtml" id="h-modal_kpa_eval_new"></div>
-  <div class="includeHtml" id="h-modal_kpa_eval_mpv"></div>
-</main>
-<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
-<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
-<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_kpa_eval_new"></div>
+<div class="includeHtml" id="h-modal_kpa_eval_mpv"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
 <script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
 <script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
 <script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
 <script src="js/vendor/datatables/js/buttons.print.min.js"></script>
 <script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
 <script src="js/vendor/datatables/js/jszip.min.js"></script>
 <script src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
 <script>
-  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/kpa_common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/main_kpa_evaluation.js?'+Date.now()+'"></scr'+'ipt>');
-  document.addEventListener('DOMContentLoaded', function(){
-    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainKpaEvaluation().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 300);
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
   });
 </script>
-</body></html>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/kpa_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_kpa_evaluation.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try { initiatePages(); new ModalChangePassword(); new MainKpaEvaluation().init(); }
+      catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 300);
+  });
+</script>
+</body>
+</html>

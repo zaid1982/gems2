@@ -1,114 +1,204 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/kpa_history.html — Tabler-migrated (P3B KPA).
+
+  Four filters stay visible (no More filters). Asset stack is a verbatim
+  copy of html/head_tabler.html and html/scripts_tabler.html.
+  Page extras: moment, Highcharts, DataTables Buttons exports.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GEMS 2.0 - KPI History</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-  <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
-  <style>
-    .kpa-chart { height: 360px; }
-    .kpa-chart-sm { height: 300px; }
-  </style>
-  <script src="js/jquery-3.7.0.min.js"></script>
-  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
-<main>
-  <div class="container-fluid module-page module-master">
-    <section>
-      <div class="gems-page-header module-page-header">
-        <div class="header-text">
-          <span class="header-subtitle">Performance Monitoring</span>
-          <h2>KPI History</h2>
-          <p>Compare APD deductions, demerit points and indicator achievement across months.</p>
-        </div>
-        <div class="header-actions">
-          <button type="button" class="btn btn-light btn-icon" id="btnKhiRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-        </div>
-      </div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-      <div class="filter-card">
-        <div class="filter-grid">
-          <div><div class="filter-label">Site</div><select id="optKhiSite" class="custom-select gems-plain-select browser-default"></select></div>
-          <div><div class="filter-label">From year</div><select id="optKhiFrom" class="custom-select gems-plain-select browser-default"></select></div>
-          <div><div class="filter-label">To year</div><select id="optKhiTo" class="custom-select gems-plain-select browser-default"></select></div>
-          <div><div class="filter-label">Indicator trend</div><select id="optKhiPi" class="custom-select gems-plain-select browser-default"></select></div>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-chart-line me-2 text-primary"></i>KPI History</h1>
+              <div class="page-subtitle">Compare APD deductions, demerit points and indicator achievement across months.</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnKhiRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="results-summary">
-          <div id="lblKhiSummary" class="summary-pill">Loading…</div>
-        </div>
-      </div>
 
-      <div class="metrics-row">
-        <div class="metric-card"><div class="metric-label">APD Maximum</div><div class="metric-value" id="mKhiApdMax">-</div><div class="metric-subtext">Across the selected months</div></div>
-        <div class="metric-card"><div class="metric-label">APD Deducted</div><div class="metric-value text-danger" id="mKhiApdDeducted">-</div><div class="metric-subtext">Total penalty applied</div></div>
-        <div class="metric-card"><div class="metric-label">APD Retained</div><div class="metric-value text-success" id="mKhiApdRetained">-</div><div class="metric-subtext">Maximum less deduction</div></div>
-        <div class="metric-card"><div class="metric-label">Demerit Points</div><div class="metric-value" id="mKhiDemerit">-</div><div class="metric-subtext">Total imposed</div></div>
-      </div>
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optKhiSite">Site</label>
+                <select id="optKhiSite" class="form-select"></select>
+              </div>
+              <div class="gems-field-pair">
+                <div class="gems-field">
+                  <label class="form-label" for="optKhiFrom">From year</label>
+                  <select id="optKhiFrom" class="form-select"></select>
+                </div>
+                <div class="gems-field">
+                  <label class="form-label" for="optKhiTo">To year</label>
+                  <select id="optKhiTo" class="form-select"></select>
+                </div>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optKhiPi">Indicator trend</label>
+                <select id="optKhiPi" class="form-select"></select>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-2 text-secondary" style="font-size:.75rem">
+              <div id="lblKhiSummary">Loading…</div>
+            </div>
+          </div>
+        </div>
 
-      <div class="module-data-card mb-4">
-        <div class="module-card-header">
-          <div><h4>APD and demerit trend</h4><p>Monthly APD maximum against the amount deducted.</p></div>
+        <div class="row row-cards mb-3">
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">APD Maximum</div>
+              <div class="h2 mb-0" id="mKhiApdMax">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Across the selected months</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">APD Deducted</div>
+              <div class="h2 mb-0 text-danger" id="mKhiApdDeducted">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Total penalty applied</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">APD Retained</div>
+              <div class="h2 mb-0 text-success" id="mKhiApdRetained">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Maximum less deduction</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Demerit Points</div>
+              <div class="h2 mb-0" id="mKhiDemerit">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Total imposed</div>
+            </div></div>
+          </div>
         </div>
-        <div class="card-body">
-          <div id="chartKhiApd" class="kpa-chart"></div>
-        </div>
-      </div>
 
-      <div class="module-data-card mb-4">
-        <div class="module-card-header">
-          <div><h4 id="lblKhiPiTitle">Indicator achievement</h4><p>Monthly achievement against the target for the selected indicator.</p></div>
+        <div class="card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">APD and demerit trend</h3>
+              <div class="text-secondary" style="font-size:.75rem">Monthly APD maximum against the amount deducted.</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="chartKhiApd" class="kpa-chart"></div>
+          </div>
         </div>
-        <div class="card-body">
-          <div id="chartKhiPi" class="kpa-chart-sm"></div>
-        </div>
-      </div>
 
-      <div class="module-data-card">
-        <div class="module-card-header">
-          <div><h4>Monthly totals</h4><p>One row per evaluation month.</p></div>
-          <div id="btnDtKhiExport" class="d-flex align-items-center"></div>
+        <div class="card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0" id="lblKhiPiTitle">Indicator achievement</h3>
+              <div class="text-secondary" style="font-size:.75rem">Monthly achievement against the target for the selected indicator.</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="chartKhiPi" class="kpa-chart-sm"></div>
+          </div>
         </div>
-        <div class="module-table-wrapper">
-          <table id="dtKhi" class="table table-hover mb-0 display mobile-stack">
-            <thead><tr><th>Period</th><th>MPV (RM)</th><th>Max APD %</th><th>APD Maximum (RM)</th><th>APD Deducted (RM)</th><th>APD Retained (RM)</th><th>Demerit</th><th>Submitted</th><th>Status</th></tr></thead>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Monthly totals</h3>
+              <div class="text-secondary" style="font-size:.75rem">One row per evaluation month.</div>
+            </div>
+            <div class="gems-card-toolbar" id="btnDtKhiExport"></div>
+          </div>
+          <table id="dtKhi" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Period</th>
+                <th class="gems-num">MPV (RM)</th>
+                <th>Max APD %</th>
+                <th class="gems-num">APD Maximum (RM)</th>
+                <th class="gems-num">APD Deducted (RM)</th>
+                <th class="gems-num">APD Retained (RM)</th>
+                <th>Demerit</th>
+                <th>Submitted</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody></tbody>
           </table>
         </div>
+
       </div>
-    </section>
+    </div>
   </div>
-  <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
-<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
-<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
-<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
-<script src="js/vendor/highcharts/highcharts.js"></script>
-<script src="js/vendor/highcharts/modules/exporting.js"></script>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
 <script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
 <script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
 <script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
 <script src="js/vendor/datatables/js/buttons.print.min.js"></script>
 <script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
 <script src="js/vendor/datatables/js/jszip.min.js"></script>
 <script src="js/vendor/datatables/js/pdfmake.min.js"></script>
 <script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/highcharts/highcharts.js"></script>
+<script src="js/vendor/highcharts/modules/exporting.js"></script>
 <script>
-  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/kpa_common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/main_kpa_history.js?'+Date.now()+'"></scr'+'ipt>');
-  document.addEventListener('DOMContentLoaded', function(){
-    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainKpaHistory().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 300);
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
   });
 </script>
-</body></html>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/kpa_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_kpa_history.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try { initiatePages(); new ModalChangePassword(); new MainKpaHistory().init(); }
+      catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 300);
+  });
+</script>
+</body>
+</html>

@@ -28,12 +28,6 @@ function MainKpaStructure() {
         return map[row.calcType] || row.calcType;
     };
 
-    const statusBadge = function (status) {
-        return Number(status) === 1
-            ? '<span class="badge-status completed"><i class="fas fa-check-circle"></i>Active</span>'
-            : '<span class="badge-status inactive"><i class="fas fa-ban"></i>Inactive</span>';
-    };
-
     const loadConfig = function () {
         const cfg = kc.apiGet('config' + (siteId() ? ('?siteId=' + siteId()) : '')) || {};
         $('#txtKstMaxApd').val(cfg.maxApdPct !== undefined ? cfg.maxApdPct : 5);
@@ -55,8 +49,8 @@ function MainKpaStructure() {
         const balanced = Math.abs(total - 100) < 0.01;
         $('#lblKstWeightWarn')
             .html(balanced
-                ? '<i class="fas fa-check-circle text-success mr-1"></i>Active weightage totals 100%.'
-                : '<i class="fas fa-triangle-exclamation text-warning mr-1"></i>Active weightage totals ' + kc.fmtNumber(total, 2) + '%. APD exposure will not add up to the maximum until this is 100%.');
+                ? '<i class="fas fa-check-circle text-success me-1"></i>Active weightage totals 100%.'
+                : '<i class="fas fa-triangle-exclamation text-warning me-1"></i>Active weightage totals ' + kc.fmtNumber(total, 2) + '%. APD exposure will not add up to the maximum until this is 100%.');
     };
 
     const reload = function () {
@@ -130,8 +124,8 @@ function MainKpaStructure() {
         keys.sort();
         keys.forEach(function (key) {
             box.append(
-                '<div class="col-md-3 mb-2">' +
-                '<label class="waste-label" for="txtKpiTest_' + key + '">' + key + '</label>' +
+                '<div class="gems-field gems-field-3">' +
+                '<label class="form-label" for="txtKpiTest_' + key + '">' + key + '</label>' +
                 '<input type="number" step="any" class="form-control kpiTestInput" data-key="' + key + '" id="txtKpiTest_' + key + '">' +
                 '</div>'
             );
@@ -242,7 +236,7 @@ function MainKpaStructure() {
     const renderParams = function (rows) {
         const body = $('#tblKprList tbody');
         if (!rows || !rows.length) {
-            body.html('<tr><td colspan="7" class="text-muted">No parameters yet</td></tr>');
+            body.html('<tr><td colspan="7"><div class="gems-empty-state"><i class="fas fa-sliders"></i><p>No parameters yet</p></div></td></tr>');
             return;
         }
         body.html(rows.map(function (r) {
@@ -253,9 +247,9 @@ function MainKpaStructure() {
                 '<td>' + r.sourceType + '</td>' +
                 '<td>' + (r.isRequired ? 'Yes' : 'No') + '</td>' +
                 '<td>' + r.sortOrder + '</td>' +
-                '<td class="text-right">' +
-                '<a href="#" class="text-info mr-2 lnkKprEdit" data-id="' + r.paramId + '"><i class="fas fa-pen-to-square"></i></a>' +
-                '<a href="#" class="text-danger lnkKprDel" data-id="' + r.paramId + '"><i class="fas fa-trash"></i></a>' +
+                '<td class="text-nowrap">' +
+                kc.actionBtn({ tint: 'gems-btn-action-edit', cls: 'lnkKprEdit', title: 'Edit', icon: 'fas fa-pen-to-square', extra: 'data-id="' + r.paramId + '"' }) +
+                kc.actionBtn({ tint: 'gems-btn-action-delete', cls: 'lnkKprDel', title: 'Remove', icon: 'fas fa-trash', extra: 'data-id="' + r.paramId + '"' }) +
                 '</td></tr>';
         }).join(''));
         $('#tblKprList tbody').data('rows', rows);
@@ -320,50 +314,57 @@ function MainKpaStructure() {
 
         dtGroup = $('#dtKstGroup').DataTable({
             data: [], bLengthChange: false, searching: false, pageLength: 25, autoWidth: false,
-            language: _DATATABLE_LANGUAGE, ordering: false, dom: 't',
+            language: kc.dtEmpty('fa-layer-group', 'No KPI groups yet.'),
+            ordering: false, dom: kc.dtDom,
             columns: [
                 { data: null },
                 { data: 'groupNo' },
                 { data: 'groupName' },
                 { data: 'piCount' },
-                { data: 'weightageTotal', render: function (v) { return kc.fmtNumber(v, 2) + ' %'; } },
+                { data: 'weightageTotal', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2) + ' %'; } },
                 { data: 'sortOrder' },
-                { data: 'groupStatus', render: statusBadge },
-                { data: null, orderable: false, className: 'noVis', render: function (r) {
-                    return '<a href="#" class="text-info mr-2 lnkKgpEdit" data-id="' + r.groupId + '" title="Edit"><i class="fas fa-pen-to-square"></i></a>' +
-                        '<a href="#" class="text-danger lnkKgpDel" data-id="' + r.groupId + '" title="Deactivate"><i class="fas fa-ban"></i></a>';
+                { data: 'groupStatus', render: kc.activeBadge },
+                { data: null, orderable: false, className: 'noVis text-nowrap', render: function (r) {
+                    return kc.actionBtn({ tint: 'gems-btn-action-edit', cls: 'lnkKgpEdit', title: 'Edit', icon: 'fas fa-pen-to-square', extra: 'data-id="' + r.groupId + '"' }) +
+                        kc.actionBtn({ tint: 'gems-btn-action-delete', cls: 'lnkKgpDel', title: 'Deactivate', icon: 'fas fa-ban', extra: 'data-id="' + r.groupId + '"' });
                 } }
             ],
             fnRowCallback: function (n, d, i) { $('td', n).eq(0).html(i + 1); }
         });
 
         dtPi = $('#dtKstPi').DataTable({
-            data: [], bLengthChange: false, pageLength: 25, autoWidth: false,
-            language: _DATATABLE_LANGUAGE, ordering: false,
-            dom: "<'row align-items-center mb-2'<'col-sm-12 col-lg-6 px-0 pb-2'B><'col-sm-12 col-lg-6 px-0 pb-2'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-6'i><'col-sm-6'p>>",
+            data: [], bLengthChange: false, searching: false, pageLength: 25, autoWidth: false,
+            language: kc.dtEmpty('fa-list-check', 'No performance indicators yet.'),
+            ordering: false, dom: kc.dtDomButtons,
             buttons: kc.dtButtons('GEMS - KPI Structure'),
             columns: [
                 { data: null, render: function (r) { return r.groupNo + ' — ' + r.groupName; } },
                 { data: 'piNo' },
                 { data: 'piName' },
-                { data: null, render: function (r) { return kc.fmtNumber(r.targetValue, 2) + (r.targetUnit === 'BEI' ? '' : ' %'); } },
+                { data: null, className: 'gems-num', render: function (r) { return kc.fmtNumber(r.targetValue, 2) + (r.targetUnit === 'BEI' ? '' : ' %'); } },
                 { data: 'demeritPoint' },
-                { data: 'weightagePct', render: function (v) { return kc.fmtNumber(v, 2) + ' %'; } },
+                { data: 'weightagePct', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2) + ' %'; } },
                 { data: 'passRule', render: passRuleLabel },
                 { data: null, render: calcLabel },
                 { data: 'sourceType' },
                 { data: 'paramCount' },
-                { data: 'piStatus', render: statusBadge },
-                { data: null, orderable: false, className: 'noVis', render: function (r) {
-                    return '<a href="#" class="text-primary mr-2 lnkKpiParam" data-id="' + r.piId + '" title="Parameters"><i class="fas fa-sliders"></i></a>' +
-                        '<a href="#" class="text-info mr-2 lnkKpiEdit" data-id="' + r.piId + '" title="Edit"><i class="fas fa-pen-to-square"></i></a>' +
-                        '<a href="#" class="text-danger lnkKpiDel" data-id="' + r.piId + '" title="Deactivate"><i class="fas fa-ban"></i></a>';
+                { data: 'piStatus', render: kc.activeBadge },
+                { data: null, orderable: false, className: 'noVis text-nowrap', render: function (r) {
+                    return kc.actionBtn({ tint: 'gems-btn-action-view', cls: 'lnkKpiParam', title: 'Parameters', icon: 'fas fa-sliders', extra: 'data-id="' + r.piId + '"' }) +
+                        kc.actionBtn({ tint: 'gems-btn-action-edit', cls: 'lnkKpiEdit', title: 'Edit', icon: 'fas fa-pen-to-square', extra: 'data-id="' + r.piId + '"' }) +
+                        kc.actionBtn({ tint: 'gems-btn-action-delete', cls: 'lnkKpiDel', title: 'Deactivate', icon: 'fas fa-ban', extra: 'data-id="' + r.piId + '"' });
                 } }
             ]
         });
         dtPi.buttons().container().appendTo($('#btnDtKstPiExport'));
+        kc.bindDtTooltips('#dtKstPi');
+        kc.bindDtTooltips('#dtKstGroup');
 
         reload();
+
+        $('#kstTabs a').on('shown.bs.tab', function () {
+            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        });
 
         $('#optKstSite').off('change').on('change', reload);
         $('#btnKstRefresh').off('click').on('click', reload);

@@ -1,6 +1,11 @@
 /**
  * Shared helpers for the KPI & APD screens. Mirrors WasteCommon so both
  * modules read the same way.
+ *
+ * kpa_common.js is also loaded by the unmigrated MDB page pages/kpi_in.html.
+ * Helpers that that page calls (fillSelect, fillYears, fillMonths, badges,
+ * apiGet) must keep working on both stacks: Tabler classes when
+ * body.gems-tabler is present, the original MDB/plain-select path otherwise.
  */
 function KpaCommon() {
     const self = this;
@@ -9,6 +14,10 @@ function KpaCommon() {
 
     this.MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'];
+
+    this.isTabler = function () {
+        return !!(document.body && document.body.classList.contains('gems-tabler'));
+    };
 
     this.api = function (path, method, data) {
         return mzAjaxRequest3('kpa/' + path, method || 'GET', data || '');
@@ -61,7 +70,12 @@ function KpaCommon() {
     this.fillSelect = function (id, rows, valueKey, labelFn, placeholder, selected) {
         const el = document.getElementById(id);
         if (!el) { return; }
-        el.classList.add('custom-select', 'gems-plain-select', 'browser-default');
+        if (self.isTabler()) {
+            el.classList.add('form-select');
+            el.classList.remove('custom-select', 'gems-plain-select', 'browser-default');
+        } else {
+            el.classList.add('custom-select', 'gems-plain-select', 'browser-default');
+        }
         el.innerHTML = '';
         if (placeholder !== null && placeholder !== undefined) {
             const first = document.createElement('option');
@@ -117,25 +131,53 @@ function KpaCommon() {
         return self.fmtNumber(value, 2) + suffix;
     };
 
+    this.badge = function (kind, label) {
+        if (self.isTabler()) {
+            return '<span class="badge gems-badge gems-badge-' + kind + '">' + label + '</span>';
+        }
+        const status = {
+            success: 'completed',
+            warning: 'in-progress',
+            danger: 'incomplete',
+            secondary: 'neutral',
+            info: 'in-progress'
+        };
+        const icon = {
+            success: 'fa-check-circle',
+            warning: 'fa-hourglass-half',
+            danger: 'fa-circle-xmark',
+            secondary: 'fa-minus',
+            info: 'fa-pen'
+        };
+        return '<span class="badge-status ' + (status[kind] || 'neutral') + '"><i class="fas ' +
+            (icon[kind] || 'fa-minus') + '"></i>' + label + '</span>';
+    };
+
     this.passBadge = function (isPass) {
         if (isPass === null || isPass === undefined) {
-            return '<span class="badge-status neutral"><i class="fas fa-minus"></i>Not calculated</span>';
+            return self.badge('secondary', 'Not calculated');
         }
         return isPass
-            ? '<span class="badge-status completed"><i class="fas fa-check-circle"></i>Met</span>'
-            : '<span class="badge-status incomplete"><i class="fas fa-circle-xmark"></i>Not met</span>';
+            ? self.badge('success', 'Met')
+            : self.badge('danger', 'Not met');
     };
 
     this.piStatusBadge = function (status) {
-        if (status === 'SUBMITTED') { return '<span class="badge-status completed"><i class="fas fa-lock"></i>Submitted</span>'; }
-        if (status === 'NOT_STARTED') { return '<span class="badge-status neutral"><i class="fas fa-minus"></i>Not started</span>'; }
-        return '<span class="badge-status in-progress"><i class="fas fa-pen"></i>Draft</span>';
+        if (status === 'SUBMITTED') { return self.badge('success', 'Submitted'); }
+        if (status === 'NOT_STARTED') { return self.badge('secondary', 'Not started'); }
+        return self.badge('warning', 'Draft');
     };
 
     this.evalStatusBadge = function (status) {
-        if (status === 'COMPLETED') { return '<span class="badge-status completed"><i class="fas fa-check-circle"></i>Completed</span>'; }
-        if (status === 'NOT_STARTED') { return '<span class="badge-status neutral"><i class="fas fa-minus"></i>Not started</span>'; }
-        return '<span class="badge-status in-progress"><i class="fas fa-hourglass-half"></i>Open</span>';
+        if (status === 'COMPLETED') { return self.badge('success', 'Completed'); }
+        if (status === 'NOT_STARTED') { return self.badge('secondary', 'Not started'); }
+        return self.badge('warning', 'Open');
+    };
+
+    this.activeBadge = function (status) {
+        return Number(status) === 1
+            ? self.badge('success', 'Active')
+            : self.badge('secondary', 'Inactive');
     };
 
     this.userLabel = function (row) {
@@ -152,12 +194,45 @@ function KpaCommon() {
         return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     };
 
+    // Canonical P2/P3A DataTables chrome: hide DT's own filter, scroll ONLY the
+    // table, keep info + pagination in a real .card-footer outside the scroller.
+    this.dtDom = "<'d-none'f>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
+    this.dtDomButtons = "<'d-none'B>r<'table-responsive't><'card-footer d-flex align-items-center py-2'i<'ms-auto'p>>";
+    this.dtEmpty = function (icon, emptyText, zeroText) {
+        return $.extend({}, _DATATABLE_LANGUAGE, {
+            emptyTable: '<div class="gems-empty-state"><i class="fas ' + (icon || 'fa-inbox') + '"></i><p>' + emptyText + '</p></div>',
+            zeroRecords: '<div class="gems-empty-state"><i class="fas fa-filter"></i><p>' + (zeroText || 'No records match the current filters.') + '</p></div>'
+        });
+    };
+
+    this.actionBtn = function (opts) {
+        const href = opts.href ? ' href="' + opts.href + '"' : ' type="button"';
+        const tag = opts.href ? 'a' : 'button';
+        const extra = opts.extra || '';
+        const id = opts.id ? ' id="' + opts.id + '"' : '';
+        return '<' + tag + href + id + ' class="btn gems-btn-action ' + (opts.tint || '') + ' ' + (opts.cls || '') +
+            '" data-toggle="tooltip" title="' + opts.title + '" aria-label="' + (opts.label || opts.title) + '" ' + extra +
+            '><i class="' + opts.icon + '"></i></' + tag + '>';
+    };
+
+    this.bindDtTooltips = function (tableId) {
+        const $table = $(tableId);
+        $table.on('draw.dt', function () {
+            if (typeof window.gemsInitTooltips === 'function') {
+                window.gemsInitTooltips($table.find('tbody')[0]);
+            }
+        });
+    };
+
     this.dtButtons = function (title) {
+        const btnClass = self.isTabler()
+            ? 'btn btn-outline-secondary btn-sm'
+            : 'btn btn-outline-grey btn-sm px-2 ml-0';
         return [
-            { extend: 'colvis', columns: ':not(.noVis)', fade: 400, text: '<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility' },
-            { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2', text: '<i class="fas fa-print"></i>', title: title, titleAttr: 'Print', exportOptions: typeof mzExportOpt !== 'undefined' ? mzExportOpt : {} },
-            { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0', text: '<i class="fas fa-file-excel"></i>', title: title, titleAttr: 'Excel', exportOptions: typeof mzExportExcelOpt !== 'undefined' ? mzExportExcelOpt : {} },
-            { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3', text: '<i class="fas fa-file-pdf"></i>', title: title, titleAttr: 'PDF', orientation: 'landscape', exportOptions: typeof mzExportOpt !== 'undefined' ? mzExportOpt : {} }
+            { extend: 'colvis', columns: ':not(.noVis)', fade: 400, text: '<i class="fas fa-columns"></i>', className: btnClass, titleAttr: 'Column Visibility' },
+            { extend: 'print', className: btnClass, text: '<i class="fas fa-print"></i>', title: title, titleAttr: 'Print', exportOptions: typeof mzExportOpt !== 'undefined' ? mzExportOpt : {} },
+            { extend: 'excelHtml5', className: btnClass, text: '<i class="fas fa-file-excel"></i>', title: title, titleAttr: 'Excel', exportOptions: typeof mzExportExcelOpt !== 'undefined' ? mzExportExcelOpt : {} },
+            { extend: 'pdfHtml5', className: btnClass, text: '<i class="fas fa-file-pdf"></i>', title: title, titleAttr: 'PDF', orientation: 'landscape', exportOptions: typeof mzExportOpt !== 'undefined' ? mzExportOpt : {} }
         ];
     };
 }

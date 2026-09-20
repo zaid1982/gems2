@@ -132,53 +132,73 @@ function MainKpaEvaluation() {
         $('#btnKevAdd').toggle(!!kc.caps.canAdmin);
 
         dt = $('#dtKev').DataTable({
-            data: [], bLengthChange: false, pageLength: 12, autoWidth: false,
-            language: _DATATABLE_LANGUAGE, ordering: false, dom: "t<'row'<'col-sm-6'i><'col-sm-6'p>>",
+            data: [], bLengthChange: false, searching: false, pageLength: 12, autoWidth: false,
+            language: kc.dtEmpty('fa-calendar-days', 'No evaluation months yet.'),
+            ordering: false, dom: kc.dtDom,
             columns: [
                 { data: 'periodLabel' },
-                { data: 'mpv', render: function (v) { return kc.fmtNumber(v, 2); } },
+                { data: 'mpv', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2); } },
                 { data: 'maxApdPct', render: function (v) { return kc.fmtNumber(v, 2) + ' %'; } },
-                { data: 'apdMaxAmount', render: function (v) { return kc.fmtNumber(v, 2); } },
+                { data: 'apdMaxAmount', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2); } },
                 { data: 'totalDemerit' },
-                { data: 'totalApdDeducted', render: function (v) { return kc.fmtNumber(v, 2); } },
+                { data: 'totalApdDeducted', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2); } },
                 { data: null, render: function (r) { return r.piSubmitted + ' / ' + r.piTotal; } },
                 { data: 'evalStatus', render: kc.evalStatusBadge },
-                { data: null, orderable: false, className: 'noVis', render: function (r) {
-                    return '<a href="#" class="text-primary lnkKevOpen" data-id="' + r.evalId + '" title="Open"><i class="fas fa-folder-open"></i></a>';
+                { data: null, orderable: false, className: 'noVis text-nowrap', render: function (r) {
+                    return kc.actionBtn({
+                        tint: 'gems-btn-action-view',
+                        cls: 'lnkKevOpen',
+                        title: 'Open',
+                        icon: 'fas fa-folder-open',
+                        extra: 'data-id="' + r.evalId + '"'
+                    });
                 } }
             ]
         });
 
         dtPi = $('#dtKevPi').DataTable({
-            data: [], bLengthChange: false, pageLength: 25, autoWidth: false,
-            language: _DATATABLE_LANGUAGE, ordering: false,
-            dom: "<'row align-items-center mb-2'<'col-sm-12 col-lg-6 px-0 pb-2'B><'col-sm-12 col-lg-6 px-0 pb-2'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-6'i><'col-sm-6'p>>",
+            data: [], bLengthChange: false, searching: false, pageLength: 25, autoWidth: false,
+            language: kc.dtEmpty('fa-list-check', 'Open a month to see its indicators.'),
+            ordering: false, dom: kc.dtDomButtons,
             buttons: kc.dtButtons('GEMS - Monthly KPI Evaluation'),
             columns: [
                 { data: 'groupNo' },
                 { data: 'piNo' },
                 { data: 'piName' },
-                { data: null, render: function (r) { return kc.fmtNumber(r.targetValue, 2) + (r.targetUnit === 'BEI' ? '' : ' %'); } },
-                { data: null, render: function (r) { return kc.fmtActual(r.actualValue, r.targetUnit); } },
+                { data: null, className: 'gems-num', render: function (r) { return kc.fmtNumber(r.targetValue, 2) + (r.targetUnit === 'BEI' ? '' : ' %'); } },
+                { data: null, className: 'gems-num', render: function (r) { return kc.fmtActual(r.actualValue, r.targetUnit); } },
                 { data: 'isPass', render: kc.passBadge },
                 { data: null, render: function (r) { return r.demeritImposed + ' / ' + r.demeritPoint; } },
-                { data: 'weightagePct', render: function (v) { return kc.fmtNumber(v, 2) + ' %'; } },
-                { data: 'apdValue', render: function (v) { return kc.fmtNumber(v, 2); } },
-                { data: 'apdDeducted', render: function (v) { return kc.fmtNumber(v, 2); } },
+                { data: 'weightagePct', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2) + ' %'; } },
+                { data: 'apdValue', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2); } },
+                { data: 'apdDeducted', className: 'gems-num', render: function (v) { return kc.fmtNumber(v, 2); } },
                 { data: 'piStatus', render: kc.piStatusBadge },
-                { data: null, orderable: false, className: 'noVis', render: function (r) {
-                    let html = '<a class="text-primary mr-2" href="p_kpa_pi_entry?id=' + r.evalPiId + '" title="Open PI"><i class="fas fa-pen-to-square"></i></a>';
+                { data: null, orderable: false, className: 'noVis text-nowrap', render: function (r) {
+                    let html = kc.actionBtn({
+                        href: 'p_kpa_pi_entry?id=' + r.evalPiId,
+                        tint: 'gems-btn-action-edit',
+                        title: 'Open PI',
+                        icon: 'fas fa-pen-to-square'
+                    });
                     if (r.canReopen) {
-                        html += '<a href="#" class="text-warning lnkKevReopen" data-id="' + r.evalPiId + '" title="Reopen"><i class="fas fa-lock-open"></i></a>';
+                        html += kc.actionBtn({
+                            tint: 'gems-btn-action-edit',
+                            cls: 'lnkKevReopen',
+                            title: 'Reopen',
+                            icon: 'fas fa-lock-open',
+                            extra: 'data-id="' + r.evalPiId + '"'
+                        });
                     }
                     if (!r.isAssigned && r.piStatus === 'DRAFT') {
-                        html += '<span class="text-muted small ml-1" title="Not assigned to you"><i class="fas fa-user-slash"></i></span>';
+                        html += '<span class="text-muted small ms-1" title="Not assigned to you"><i class="fas fa-user-slash"></i></span>';
                     }
                     return html;
                 } }
             ]
         });
         dtPi.buttons().container().appendTo($('#btnDtKevPiExport'));
+        kc.bindDtTooltips('#dtKev');
+        kc.bindDtTooltips('#dtKevPi');
 
         reload();
         const preselect = kc.queryParam('evalId');

@@ -1,119 +1,151 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/kpa_pi_entry.html — Tabler-migrated (P3B KPA).
+
+  Page sheet uses gems-form-grid. Asset stack is a verbatim copy of
+  html/head_tabler.html and html/scripts_tabler.html.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GEMS 2.0 - PI Entry</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
-  <style>
-    .kpa-result-card { border-radius: 20px; padding: 22px 24px; background: var(--gems-bg-page); box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08); height: 100%; }
-    .kpa-result-value { display: block; font-weight: 700; font-size: 2rem; margin-top: 0.3rem; }
-    .kpa-result-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; color: var(--gems-muted); }
-    .kpa-param-row { border-bottom: 1px solid #eef2f7; padding: 12px 0; }
-    .kpa-param-row:last-child { border-bottom: 0; }
-    .kpa-param-label { font-weight: 600; }
-    .kpa-param-hint { font-size: 0.78rem; color: #64748b; }
-    .kpa-formula { font-family: monospace; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
-  </style>
-  <script src="js/jquery-3.7.0.min.js"></script>
-  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
-<main>
-  <div class="container-fluid module-page module-master">
-    <div class="gems-page-header module-page-header">
-      <div class="header-text">
-        <span class="header-subtitle" id="lblKpeGroup">KPI</span>
-        <h2 id="lblKpeTitle">PI Entry</h2>
-        <p id="lblKpeSub">Loading…</p>
-      </div>
-      <div class="header-actions">
-        <a class="btn btn-light" id="lnkKpeBack" href="p_kpa_evaluation"><i class="fas fa-arrow-left mr-2"></i>Back</a>
-      </div>
-    </div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-    <div class="row mb-4">
-      <div class="col-md-3 mb-3">
-        <div class="kpa-result-card">
-          <span class="kpa-result-label">Target</span>
-          <span class="kpa-result-value" id="mKpeTarget">-</span>
-          <span class="kpa-param-hint" id="mKpeRule">-</span>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <div class="page-subtitle" id="lblKpeGroup">KPI</div>
+              <h1 class="page-title" id="lblKpeTitle">PI Entry</h1>
+              <div class="page-subtitle" id="lblKpeSub">Loading…</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <a class="btn btn-outline-secondary" id="lnkKpeBack" href="p_kpa_evaluation">
+                <i class="fas fa-arrow-left me-2"></i>Back
+              </a>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="kpa-result-card">
-          <span class="kpa-result-label">Achievement</span>
-          <span class="kpa-result-value" id="mKpeActual">-</span>
-          <span class="kpa-param-hint" id="mKpeResult">Not calculated</span>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="kpa-result-card">
-          <span class="kpa-result-label">APD Exposure</span>
-          <span class="kpa-result-value" id="mKpeApdValue">-</span>
-          <span class="kpa-param-hint" id="mKpeWeight">-</span>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="kpa-result-card">
-          <span class="kpa-result-label">APD Deducted</span>
-          <span class="kpa-result-value text-danger" id="mKpeApdDeducted">-</span>
-          <span class="kpa-param-hint" id="mKpeDemerit">-</span>
-        </div>
-      </div>
-    </div>
 
-    <div class="module-data-card mb-4">
-      <div class="module-card-header">
-        <div>
-          <h4>Parameters</h4>
-          <p id="lblKpeFormula">Enter the values for this evaluation month.</p>
+        <div class="row row-cards mb-3">
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Target</div>
+              <div class="h2 mb-0" id="mKpeTarget">-</div>
+              <div class="text-secondary" style="font-size:.75rem" id="mKpeRule">-</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Achievement</div>
+              <div class="h2 mb-0" id="mKpeActual">-</div>
+              <div class="text-secondary" style="font-size:.75rem" id="mKpeResult">Not calculated</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">APD Exposure</div>
+              <div class="h2 mb-0" id="mKpeApdValue">-</div>
+              <div class="text-secondary" style="font-size:.75rem" id="mKpeWeight">-</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">APD Deducted</div>
+              <div class="h2 mb-0 text-danger" id="mKpeApdDeducted">-</div>
+              <div class="text-secondary" style="font-size:.75rem" id="mKpeDemerit">-</div>
+            </div></div>
+          </div>
         </div>
-        <div class="header-actions">
-          <span id="lblKpeStatus"></span>
-          <span id="lblKpeSaveState" class="autosave-state" hidden></span>
-        </div>
-      </div>
-      <div class="card-body">
-        <div id="divKpeParams"></div>
-        <div class="form-group mt-3 mb-0">
-          <label class="waste-label" for="txtKpeRemarks">Remarks</label>
-          <input type="text" id="txtKpeRemarks" class="form-control" placeholder="Optional notes for this month">
-        </div>
-        <div class="waste-note mt-3 d-none" id="divKpeMessage">
-          <i class="fas fa-triangle-exclamation"></i>
-          <div id="lblKpeMessage"></div>
-        </div>
-      </div>
-    </div>
 
-    <div class="waste-form-footer">
-      <div class="waste-form-footer-note" id="lblKpeFooterNote">Save a draft as often as you like. Submitting locks the values.</div>
-      <div class="waste-form-footer-actions">
-        <button type="button" class="btn btn-light" id="btnKpeSave"><i class="fas fa-save mr-2"></i>Save Draft</button>
-        <button type="button" class="btn btn-warning" id="btnKpeReopen" style="display:none"><i class="fas fa-lock-open mr-2"></i>Reopen</button>
-        <button type="button" class="btn btn-primary" id="btnKpeSubmit"><i class="fas fa-check mr-2"></i>Submit PI</button>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Parameters</h3>
+              <div class="text-secondary" style="font-size:.75rem" id="lblKpeFormula">Enter the values for this evaluation month.</div>
+            </div>
+            <div class="gems-card-toolbar">
+              <span id="lblKpeStatus"></span>
+              <span id="lblKpeSaveState" class="autosave-state" hidden></span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="divKpeParams" class="gems-form-grid"></div>
+            <div class="gems-form-grid mt-3">
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtKpeRemarks">Remarks</label>
+                <input type="text" id="txtKpeRemarks" class="form-control" placeholder="Optional notes for this month">
+              </div>
+            </div>
+            <div class="gems-note mt-3 d-none" id="divKpeMessage">
+              <i class="fas fa-triangle-exclamation"></i>
+              <div id="lblKpeMessage"></div>
+            </div>
+          </div>
+          <div class="card-footer waste-form-footer">
+            <div class="waste-form-footer-note" id="lblKpeFooterNote">Save a draft as often as you like. Submitting locks the values.</div>
+            <div class="waste-form-footer-actions">
+              <button type="button" class="btn btn-outline-secondary" id="btnKpeSave"><i class="fas fa-save me-2"></i>Save Draft</button>
+              <button type="button" class="btn btn-outline-secondary" id="btnKpeReopen" style="display:none"><i class="fas fa-lock-open me-2"></i>Reopen</button>
+              <button type="button" class="btn btn-primary" id="btnKpeSubmit"><i class="fas fa-check me-2"></i>Submit PI</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
-  <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
-<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
-<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
-<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
 <script>
-  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/kpa_common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/main_kpa_pi_entry.js?'+Date.now()+'"></scr'+'ipt>');
-  document.addEventListener('DOMContentLoaded', function(){
-    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainKpaPiEntry().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 250);
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
   });
 </script>
-</body></html>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/kpa_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_kpa_pi_entry.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try { initiatePages(); new ModalChangePassword(); new MainKpaPiEntry().init(); }
+      catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 250);
+  });
+</script>
+</body>
+</html>

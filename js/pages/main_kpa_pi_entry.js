@@ -17,24 +17,22 @@ function MainKpaPiEntry() {
         const box = $('#divKpeParams').empty();
         const params = record.params || [];
         if (!params.length) {
-            box.html('<p class="text-muted mb-0">This indicator has no parameters configured. Ask a KPI Admin to add them.</p>');
+            box.html('<div class="gems-field gems-field-12"><div class="gems-empty-state"><i class="fas fa-sliders"></i><p>This indicator has no parameters configured. Ask a KPI Admin to add them.</p></div></div>');
             return;
         }
         params.forEach(function (p) {
             const step = p.dataType === 'INT' ? '1' : 'any';
             const auto = p.sourceType === 'GEMS'
-                ? '<span class="kpa-param-hint d-block">Marked for GEMS+ automation. Enter the value manually for now.</span>'
+                ? '<div class="form-hint">Marked for GEMS+ automation. Enter the value manually for now.</div>'
                 : '';
+            const value = (p.paramValue === null || p.paramValue === undefined) ? '' : p.paramValue;
             box.append(
-                '<div class="row kpa-param-row align-items-center">' +
-                '<div class="col-md-7">' +
-                '<span class="kpa-param-label">' + kc.escape(p.paramLabel) + (p.isRequired ? ' <span class="waste-req">*</span>' : '') + '</span>' +
-                '<span class="kpa-param-hint d-block">Key <code>' + p.paramKey + '</code> · ' + p.dataType + '</span>' + auto +
-                '</div>' +
-                '<div class="col-md-5">' +
-                '<input type="number" step="' + step + '" class="form-control kpeParam" data-key="' + p.paramKey + '" ' +
-                'value="' + (p.paramValue === null || p.paramValue === undefined ? '' : p.paramValue) + '">' +
-                '</div>' +
+                '<div class="gems-field gems-field-6">' +
+                '<label class="form-label" for="txtKpe_' + p.paramKey + '">' + kc.escape(p.paramLabel) +
+                (p.isRequired ? ' <span class="required" aria-hidden="true">*</span>' : '') + '</label>' +
+                '<input type="number" step="' + step + '" class="form-control kpeParam" id="txtKpe_' + p.paramKey + '" data-key="' + p.paramKey + '" ' +
+                'value="' + value + '"' + (p.isRequired ? ' aria-required="true"' : '') + '>' +
+                '<div class="form-hint">Key <code>' + p.paramKey + '</code> · ' + p.dataType + '</div>' + auto +
                 '</div>'
             );
         });

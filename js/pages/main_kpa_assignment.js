@@ -52,21 +52,29 @@ function MainKpaAssignment() {
         kc.fillSelect('optKasSite', kc.sites, 'siteId', function (r) { return r.siteName; }, null, kc.caps.siteId || '');
 
         dt = $('#dtKas').DataTable({
-            data: [], bLengthChange: false, pageLength: 25, autoWidth: false,
-            language: _DATATABLE_LANGUAGE, ordering: false, dom: "t<'row'<'col-sm-6'i><'col-sm-6'p>>",
+            data: [], bLengthChange: false, searching: false, pageLength: 25, autoWidth: false,
+            language: kc.dtEmpty('fa-user-check', 'No PI assignments yet.'),
+            ordering: false, dom: kc.dtDom,
             columns: [
                 { data: null },
                 { data: null, render: function (r) { return r.groupNo + ' — ' + r.groupName; } },
                 { data: 'piNo' },
                 { data: 'piName' },
                 { data: null, render: kc.userLabel },
-                { data: null, orderable: false, className: 'noVis', render: function (r) {
+                { data: null, orderable: false, className: 'noVis text-nowrap', render: function (r) {
                     if (!kc.caps.canAdmin) { return ''; }
-                    return '<a href="#" class="text-danger lnkKasDel" data-id="' + r.assignId + '" title="Remove"><i class="fas fa-trash"></i></a>';
+                    return kc.actionBtn({
+                        tint: 'gems-btn-action-delete',
+                        cls: 'lnkKasDel',
+                        title: 'Remove',
+                        icon: 'fas fa-trash',
+                        extra: 'data-id="' + r.assignId + '"'
+                    });
                 } }
             ],
             fnRowCallback: function (n, d, i) { $('td', n).eq(0).html(i + 1); }
         });
+        kc.bindDtTooltips('#dtKas');
 
         loadPiOptions();
         loadUserOptions();
