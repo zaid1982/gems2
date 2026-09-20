@@ -1,234 +1,177 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/fca_report.html — Tabler-migrated (P5-8 FCA Report).
+
+  Page-local master. modal_fca_report is this page only.
+  Bridges: modal_change_password, modal_confirm_delete, modal_pdf.
+  Role 22 (FCA Auditor) still gates Generate New Report.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css?1" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-        /* Report table */
-        #dtFcrData { margin-bottom: 0; border-collapse: separate; border-spacing: 0; }
-        #dtFcrData thead th { 
-            background: var(--gems-bg-page); 
-            color: var(--gems-muted); 
-            font-weight: 700; 
-            font-size: 11px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.08em; 
-            padding: 14px 16px; 
-            border: none; 
-            border-bottom: 2px solid #E2E8F0;
-            white-space: nowrap;
-        }
-        #dtFcrData tbody tr { 
-            background: #fff; 
-            transition: all 0.15s ease; 
-            border-bottom: 1px solid var(--gems-bg-page);
-        }
-        #dtFcrData tbody tr:hover { 
-            background: #FAFBFC; 
-            box-shadow: 0 2px 8px rgba(2,6,23,.04); 
-            position: relative; 
-            z-index: 1;
-        }
-        #dtFcrData tbody td { 
-            padding: 16px; 
-            vertical-align: middle; 
-            color: var(--gems-text); 
-            border: none;
-            font-size: 14px;
-        }
-        #dtFcrData tbody td:first-child { font-weight: 600; color: var(--gems-muted); }
-        #dtFcrData tbody td:nth-child(3) { font-weight: 600; color: var(--gems-primary); }
-
-        /* Card styling */
-        #divFcrCard { 
-            background: #fff; 
-            border-radius: 20px; 
-            border: none; 
-            box-shadow: 0 6px 16px rgba(2,6,23,.06);
-        }
-        #divFcrCard .card-body { padding: 12px; }
-
-        /* DataTable buttons styling */
-        .dt-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-        .dt-buttons .btn { border-radius: 8px !important; font-weight: 600; }
-        div.dataTables_wrapper div.dataTables_filter { margin-bottom: 8px; }
-        div.dataTables_wrapper div.dataTables_filter input { 
-            border-radius: 8px !important; 
-            padding: 8px 12px; 
-            border: 1px solid #E2E8F0;
-        }
-        div.dataTables_wrapper div.dataTables_filter input:focus {
-            border-color: var(--gems-primary);
-            box-shadow: 0 0 0 3px rgba(var(--gems-primary-rgb), 0.1);
-        }
-
-        /* Mobile table stack at ≤768px */
-        @media (max-width: 768px) {
-            #dtFcrData thead { display: none; }
-            #dtFcrData, #dtFcrData tbody, #dtFcrData tr, #dtFcrData td { display: block; width: 100%; }
-            #dtFcrData tr { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; box-shadow: 0 4px 10px rgba(2,6,23,.04); }
-            #dtFcrData td { border: 0; border-bottom: 1px dashed #e5e7eb; padding: 8px 0; }
-            #dtFcrData td:last-child { border-bottom: 0; }
-            #dtFcrData td::before { content: attr(data-label); display: block; color: var(--gems-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-        }
-    </style>
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS - FCA PDF Report</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    /* Page-local mobile stack from the MDB page; table IDs unchanged. */
+    @media (max-width: 768px) {
+      #dtFcrData thead { display: none; }
+      #dtFcrData, #dtFcrData tbody, #dtFcrData tr, #dtFcrData td { display: block; width: 100%; }
+      #dtFcrData tr { background: var(--tblr-bg-surface, #fff); border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; }
+      #dtFcrData td { border: 0; border-bottom: 1px dashed var(--tblr-border-color, #e5e7eb); padding: 8px 0; }
+      #dtFcrData td:last-child { border-bottom: 0; }
+      #dtFcrData td::before { content: attr(data-label); display: block; color: var(--tblr-secondary, #6c7a91); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    }
+  </style>
 </head>
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid">
-        <section class="gems-page-header module-page-header fca-report-header sectionFcrMain">
-            <div class="header-text">
-                <h2><i class="fas fa-file-pdf mr-3"></i>FCA PDF Report</h2>
-                <p>Generate and manage Facility Condition Appraisal PDF documents</p>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <div class="text-secondary" style="font-size:.75rem">Facility Condition Appraisal</div>
+              <h1 class="page-title"><i class="fas fa-file-pdf me-2 text-primary"></i>FCA PDF Report</h1>
+              <div class="page-subtitle">Generate and manage Facility Condition Appraisal PDF documents</div>
             </div>
-            <div class="header-actions">
-                <!-- Actions will be added by DataTable buttons -->
+          </div>
+        </div>
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtFcrSearch">Search</label>
+                <input type="search" id="txtFcrSearch" class="form-control" placeholder="Search reports" autocomplete="off">
+              </div>
             </div>
-        </section>
-        <section class="mt-4 mb-3">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card" id="divFcrCard">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="dtFcrData" class="table display responsive mobile-stack">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Site</th>
-                                        <th>Report Name</th>
-                                        <th>Date From</th>
-                                        <th>Date To</th>
-                                        <th>Asset Group</th>  <!--5-->
-                                        <th>Exclude List</th>
-                                        <th>Sort By</th>
-                                        <th>Total FCA</th>
-                                        <th>Created By</th>
-                                        <th>Time Created</th>   <!--10-->
-                                        <th style="width: 34px; min-width: 34px;">Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          </div>
+        </div>
+
+        <div class="card" id="divFcrCard">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Reports</h3>
+              <div class="text-secondary" style="font-size:.75rem">Auditor role required to generate a new PDF report.</div>
             </div>
-        </section>
+            <div class="gems-card-toolbar">
+              <div id="btnDtFcrExport" class="d-inline-flex align-items-center"></div>
+            </div>
+          </div>
+          <table id="dtFcrData" class="table table-vcenter card-table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Site</th>
+                <th>Report Name</th>
+                <th>Date From</th>
+                <th>Date To</th>
+                <th>Asset Group</th>
+                <th>Exclude List</th>
+                <th>Sort By</th>
+                <th>Total FCA</th>
+                <th>Created By</th>
+                <th>Time Created</th>
+                <th style="width: 34px; min-width: 34px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_fca_report"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
-</main>
+  </div>
+</div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
+<div class="includeHtml" id="h-modal_fca_report"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_fca_report.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_fca_report.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let modalConfirmDelete_;
+  let modalFcaReportClass_;
+  let fcaReportClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        modalConfirmDelete_ = new ModalConfirmDelete();
+        modalFcaReportClass_ = new ModalFcaReport();
+        fcaReportClass_ = new MainFcaReport();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let modalConfirmDelete_;
-    let modalFcaReportClass_;
-    let fcaReportClass_;
+        const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
+        const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group/ref');
+        const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
 
-    document.addEventListener('DOMContentLoaded', function () {
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                modalConfirmDelete_ = new ModalConfirmDelete();
-                modalFcaReportClass_ = new ModalFcaReport();
-                fcaReportClass_ = new MainFcaReport();
+        modalFcaReportClass_.setRefSite(refSite_);
+        modalFcaReportClass_.setRefAssetGroup(refAssetGroup_);
+        modalFcaReportClass_.setClassFrom(fcaReportClass_);
+        modalFcaReportClass_.init();
 
-                const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
-                const refAssetGroup_ = mzGetLocalArrayV2('gems_assetGroup2', versionLocal_, 'asset_group/ref');
-                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
-
-                modalFcaReportClass_.setRefSite(refSite_);
-                modalFcaReportClass_.setRefAssetGroup(refAssetGroup_);
-                modalFcaReportClass_.setClassFrom(fcaReportClass_);
-                modalFcaReportClass_.init();
-
-                fcaReportClass_.setRefSite(refSite_);
-                fcaReportClass_.setRefAssetGroup(refAssetGroup_);
-                fcaReportClass_.setRefUser(refUser_);
-                fcaReportClass_.setModalFcaReportClass(modalFcaReportClass_);
-                fcaReportClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                fcaReportClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_fca_report.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_fca_report.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        fcaReportClass_.setRefSite(refSite_);
+        fcaReportClass_.setRefAssetGroup(refAssetGroup_);
+        fcaReportClass_.setRefUser(refUser_);
+        fcaReportClass_.setModalFcaReportClass(modalFcaReportClass_);
+        fcaReportClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+        fcaReportClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 200);
+  });
 </script>
 </body>
 </html>

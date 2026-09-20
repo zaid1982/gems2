@@ -26,31 +26,28 @@ function MainFcaReport () {
             bFilter: true,
             aaSorting: [[10, 'desc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-file-pdf', 'No FCA PDF reports found.', 'No reports match the current search.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-5 col-sm-7 px-0 pb-2'B><'col-7 col-sm-5 pb-0'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDomButtons,
             columnDefs: [
                 { bSortable: false, targets: [0,11] },
                 { className: 'text-center', targets: [0, 3, 4, 6, 10, 11] },
-                { className: 'text-right', targets: [8] },
+                { className: 'text-end', targets: [8] },
                 { visible: false, targets: [9] },
                 { className: 'noVis', targets: [0, 11] }
             ],
             buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFcrHide', text:'<i class="fas fa-print"></i>', title:'GEMS - FCA Report List', titleAttr: 'Print', exportOptions: exportOptFcr},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFcrHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Report List', titleAttr: 'Copy', exportOptions: exportOptFcr},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFcrHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Report List', titleAttr: 'Excel', exportOptions: exportOptFcr},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-3 btnFcrHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - FCA Report List', titleAttr: 'PDF', exportOptions: exportOptFcr},
-                { text: '<i class="fas fa-plus mr-2"></i>Generate New Report', className: 'btn btn-outline-red btn-sm px-2 ml-0', attr: { id: 'btnFcrAdd' }, orientation: 'landscape', titleAttr: 'Generate New FCA Report'}
+                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'four-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-secondary btn-sm', titleAttr: 'Column Visibility'},
+                { extend: 'print', className: 'btn btn-outline-secondary btn-sm btnFcrHide', text:'<i class="fas fa-print"></i>', title:'GEMS - FCA Report List', titleAttr: 'Print', exportOptions: exportOptFcr},
+                { extend: 'copy', className: 'btn btn-outline-secondary btn-sm btnFcrHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - FCA Report List', titleAttr: 'Copy', exportOptions: exportOptFcr},
+                { extend: 'excelHtml5', className: 'btn btn-outline-secondary btn-sm btnFcrHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - FCA Report List', titleAttr: 'Excel', exportOptions: exportOptFcr},
+                { extend: 'pdfHtml5', className: 'btn btn-outline-secondary btn-sm btnFcrHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - FCA Report List', titleAttr: 'PDF', exportOptions: exportOptFcr},
+                { text: '<i class="fas fa-plus me-2"></i>Generate New Report', className: 'btn btn-primary btn-sm', attr: { id: 'btnFcrAdd' }, titleAttr: 'Generate New FCA Report'}
             ],
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
-                // Add data-label for mobile card layout
                 $('td', nRow).eq(0).attr('data-label', '#');
                 $('td', nRow).eq(1).attr('data-label', 'Site');
                 $('td', nRow).eq(2).attr('data-label', 'Report Name');
@@ -65,7 +62,6 @@ function MainFcaReport () {
                 $('td', nRow).eq(11).attr('data-label', 'Actions');
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('#btnFcrAdd').off('click').on('click', function () {
                     if (!isAuditor) {
                         toastr['error']('You don\'t have permission as FCA Auditor role to generate PDF Report!', _ALERT_TITLE_ERROR);
@@ -112,7 +108,7 @@ function MainFcaReport () {
                 {mData: 'fcaReportName'},
                 {mData: 'fcaReportDateFrom'},
                 {mData: 'fcaReportDateTo'},
-                {mData: 'assetGroupId', mRender: function(data) {   // 5
+                {mData: 'assetGroupId', mRender: function(data) {
                         return data !== null ? refAssetGroup[data]['assetGroupName'] : '';
                     }},
                 {mData: 'fcaReportExcludeList', mRender: function(data) {
@@ -127,15 +123,29 @@ function MainFcaReport () {
                 {mData: 'fcaReportCreatedBy', mRender: function(data) {
                         return data !== null ? refUser[data]['userFirstName'] : '';
                     }},
-                {mData: 'fcaReportTimeCreated'},    // 10
+                {mData: 'fcaReportTimeCreated'},
                 {mData: null, mRender: function(data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        label += '<button type="button" class="btn-action btn-pdf lnkFcrPdf" id="lnkFcrPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to view ' + row['fcaReportName'] + ' PDF"><i class="fas fa-file-pdf"></i></button>';
-                        label += '<button type="button" class="btn-action btn-delete lnkFcrDelete" id="lnkFcrDelete_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Click to delete ' + row['fcaReportName'] + '"><i class="fas fa-trash-alt"></i></button>';
-                        label += '</div>';
-                        return label;
+                        return GemsUI.actionBtn({
+                            id: 'lnkFcrPdf_' + meta.row,
+                            tint: 'gems-btn-action-view',
+                            cls: 'lnkFcrPdf',
+                            title: 'Click to view ' + row['fcaReportName'] + ' PDF',
+                            icon: 'fas fa-file-pdf'
+                        }) + GemsUI.actionBtn({
+                            id: 'lnkFcrDelete_' + meta.row,
+                            tint: 'gems-btn-action-delete',
+                            cls: 'lnkFcrDelete',
+                            title: 'Click to delete ' + row['fcaReportName'],
+                            icon: 'fas fa-trash-alt'
+                        });
                     }}
             ]
+        });
+
+        oTableFcr.buttons().container().appendTo($('#btnDtFcrExport'));
+        GemsUI.bindDtTooltips('#dtFcrData');
+        $('#txtFcrSearch').on('keyup search input', function () {
+            oTableFcr.search(this.value).draw();
         });
 
         self.genTable();

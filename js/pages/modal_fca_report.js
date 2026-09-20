@@ -9,8 +9,25 @@ function ModalFcaReport () {
 
     this.init = function () {
         mzDateFromTo('txtMfrDateFrom', 'txtMfrDateTo');
-        mzOptionV2('optMfrSite', refSite, 'Select Site *', 'siteName', {siteStatus: 1}, 'required');
-        mzOptionV2('optMfrAssetGroup', refAssetGroup, 'Select Asset Group', 'assetGroupName', {assetGroupStatus: 1});
+        const siteRows = [];
+        $.each(refSite, function (id, row) {
+            if (row && parseInt(row.siteStatus, 10) === 1) {
+                const item = Object.assign({}, row);
+                if (item.siteId == null) { item.siteId = id; }
+                siteRows.push(item);
+            }
+        });
+        GemsUI.fillSelect('optMfrSite', siteRows, 'siteId', function (r) { return r.siteName; }, 'Select Site *');
+
+        const groupRows = [];
+        $.each(refAssetGroup, function (id, row) {
+            if (row && parseInt(row.assetGroupStatus, 10) === 1) {
+                const item = Object.assign({}, row);
+                if (item.assetGroupId == null) { item.assetGroupId = id; }
+                groupRows.push(item);
+            }
+        });
+        GemsUI.fillSelect('optMfrAssetGroup', groupRows, 'assetGroupId', function (r) { return r.assetGroupName; }, 'Select Asset Group');
 
         const vData = [
             {
