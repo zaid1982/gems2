@@ -1,486 +1,422 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/ppm_management.html — Tabler-migrated (P5-4 Commit 5 PPM Management).
+
+  SWAP: consumes html/section_asset_details_tabler.html +
+  js/pages/section_asset_details_tabler.js via include id
+  h-section_asset_details_tabler (same pattern as pages/asset.html).
+  Class stays SectionAssetDetails. Do not edit the shared section files.
+
+  Page-local: modal_ppm is this page only (converted here).
+
+  Bridges: modal_change_password, modal_confirm_delete, modal_pdf stay dual-stack.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js, steppers, lightbox.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Shared Design System stylesheet -->
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-    <script type="text/javascript">
-        (function () {
-            try {
-                if (window.__gemsLocalStorageSetItemPatched) { return; }
-                window.__gemsLocalStorageSetItemPatched = true;
-                if (!window.localStorage || !window.sessionStorage) { return; }
-                const originalSetItem = window.localStorage.setItem ? window.localStorage.setItem.bind(window.localStorage) : null;
-                if (!originalSetItem) { return; }
-                window.localStorage.setItem = function (key, value) {
-                    try {
-                        return originalSetItem(key, value);
-                    } catch (e) {
-                        try { return window.sessionStorage.setItem(key, value); } catch (_e) {}
-                    }
-                };
-            } catch (e) { /* ignore */ }
-        })();
-    </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - PPM Management</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid">
-        <!--Section: Main panel-->
-        <section class="mb-5 sectionPmgMain">
-            <div class="card card-cascade narrower gems-card-shell">
-                <section class="gems-page-header ppm-page-header">
-                    <div class="header-text">
-                        <h2>PPM Management</h2>
-                        <p>Monitor preventive maintenance coverage, assignments, and schedules for every asset.</p>
-                    </div>
-                    <div class="header-actions">
-                        <button type="button" id="btnDtPmgAssetRefresh" class="btn btn-light btn-icon" aria-label="Refresh list" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                        <button type="button" id="btnPmgAssignBatch" class="btn btn-primary btn-icon" aria-label="Bulk assign PPM" data-toggle="tooltip" data-placement="top" title="PPM Bulk Assign"><i class="fas fa-layer-plus"></i></button>
-                    </div>
-                </section>
-
-                <section class="mt-4">
-                    <div class="row">
-                        <div class="col-xl-5 col-lg-12 mb-4">
-                            <div class="gems-chart-card h-100">
-                                <div class="gems-chart-overlay" id="overlayChartPmg">
-                                    <div class="spinner-border text-primary" role="status" aria-label="Loading chart"></div>
-                                </div>
-                                <div class="gems-chart-container">
-                                    <div id="chartPmgAssetByStatus" style="height: 100%; margin: 0"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-7 col-lg-12 mb-4">
-                            <div class="filter-card ppm-filter-card h-100 d-flex flex-column">
-                                <div class="filter-grid w-100">
-                                    <div>
-                                        <label class="filter-label" for="optPmgContractId">Contract</label>
-                                        <div class="select-outline">
-                                            <select id="optPmgContractId" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                                            <label for="optPmgContractId">Contract *</label>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="filter-label" for="optPmgGroupId">Asset Group</label>
-                                        <div class="select-outline">
-                                            <select id="optPmgGroupId" class="mdb-select md-form md-outline colorful-select mt-0">
-                                                <option value="" disabled>All Asset Group</option>
-                                            </select>
-                                            <label for="optPmgGroupId">Asset Group</label>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="filter-label" for="optPmgCategoryId">Asset Category</label>
-                                        <div class="select-outline">
-                                            <select id="optPmgCategoryId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                                <option value="" disabled>All Asset Category</option>
-                                            </select>
-                                            <label for="optPmgCategoryId">Asset Category</label>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="filter-label" for="optPmgTypeId">Asset Type</label>
-                                        <div class="select-outline">
-                                            <select id="optPmgTypeId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                                <option value="" disabled>All Asset Type</option>
-                                            </select>
-                                            <label for="optPmgTypeId">Asset Type</label>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="filter-label" for="optPmgBrandId">Brand</label>
-                                        <div class="select-outline">
-                                            <select id="optPmgBrandId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                                <option value="" disabled>All Asset Brand</option>
-                                            </select>
-                                            <label for="optPmgBrandId">Brand</label>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="filter-label" for="optPmgModelId">Model</label>
-                                        <div class="select-outline">
-                                            <select id="optPmgModelId" class="mdb-select md-form md-outline colorful-select mt-0" data-stop-refresh="true">
-                                                <option value="" disabled>All Asset Model</option>
-                                            </select>
-                                            <label for="optPmgModelId">Model</label>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="filter-label" for="optPmgColumns">Columns Visibility</label>
-                                        <div class="select-outline">
-                                            <select id="optPmgColumns" class="mdb-select md-form md-outline colorful-select mt-0" multiple>
-                                                <option value="" disabled>Choose Column Visibility</option>
-                                                <option value="1">Asset Name</option>
-                                                <option value="2" selected>Asset No</option>
-                                                <option value="3" selected>Checklist</option>
-                                                <option value="4">Asset Serial No</option>
-                                                <option value="5" selected>Asset Group</option>
-                                                <option value="6" selected>Asset Category</option>
-                                                <option value="7" selected>Asset Type</option>
-                                                <option value="8">Brand</option>
-                                                <option value="9">Model</option>
-                                                <option value="10" selected>Executor Group</option>
-                                                <option value="11" selected>Location Code</option>
-                                                <option value="12" selected>Status</option>
-                                            </select>
-                                            <label for="optPmgColumns">Columns Visibility</label>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="filter-label" for="txtPmgAssetSearch">Keyword Search</label>
-                                        <div class="md-form md-outline mt-0 mb-0">
-                                            <input type="text" id="txtPmgAssetSearch" class="form-control">
-                                            <label for="txtPmgAssetSearch" class="active">Keyword Search</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-auto pt-3 w-100">
-                                    <div class="summary-pill d-flex justify-content-between align-items-center">
-                                        <span id="lblPmgAssetCount">Showing 0 of 0</span>
-                                        <span id="lblPmgAssetUpdated">—</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mb-4">
-                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
-                        <label class="filter-label mb-2">Status</label>
-                        <div class="gems-status-scroll">
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPmgAll"></a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPmg1"></a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPmg2"></a>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="Asset List"
-                                   data-content="Asset List for assigned and unassigned checklist."><i class="fas fa-info mt-0 mx-1"></i></a>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Asset List</a>
-                            <div class="dt-btn-slot">
-                                <div id="btnDtPmgAssetExport"></div>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <table id="dtPmgAsset" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th scope="row" style="max-width: 30px">#</th>
-                                        <th style="min-width: 100px">Asset Name</th>
-                                        <th style="min-width: 130px">Asset No</th>
-                                        <th style="min-width: 80px">Checklist</th>
-                                        <th style="min-width: 130px">Asset Serial No</th>
-                                        <th style="min-width: 80px">Asset Group</th>
-                                        <th style="min-width: 80px">Asset Category</th>
-                                        <th style="min-width: 80px">Asset Type</th>
-                                        <th style="min-width: 80px">Brand</th>
-                                        <th style="min-width: 80px">Model</th>
-                                        <th style="min-width: 100px">Executor Group</th>
-                                        <th style="min-width: 100px">Location Code</th>
-                                        <th style="max-width: 70px">Status</th>
-                                        <th style="width: 64px; min-width: 64px"></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                </section>
-
-                <section id="divPmgScheduled" class="mt-5">
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <div>
-                                <button type="button" id="btnDtPmgScheduledRefresh" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync mt-0"></i></button>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">Scheduled PPM List - <span id="lblPmgScheduledTitle" class="font-italic"></span></a>
-                            <div class="dt-btn-slot">
-                                <div id="btnDtPmgScheduledExport"></div>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <div class="filter-card mb-3">
-                                <label class="filter-label" for="txtPmgScheduledSearch">Search</label>
-                                <div class="md-form md-outline mt-0 mb-0">
-                                    <input type="text" id="txtPmgScheduledSearch" class="form-control">
-                                    <label for="txtPmgScheduledSearch" class="active">Search scheduled list</label>
-                                </div>
-                            </div>
-                            <table id="dtPmgScheduled" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th scope="row" style="max-width: 30px">#</th>
-                                        <th>Work Order No</th>
-                                        <th>Scheduled Date</th>
-                                        <th>Frequency</th>
-                                        <th>Technician Assigned</th>
-                                        <th style="max-width: 70px">Status</th>
-                                        <th style="width: 64px; min-width: 64px"></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                </section>
+        <section class="sectionPmgMain">
+          <div class="page-header">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm">
+                <h1 class="page-title"><i class="fas fa-calendar-alt me-2 text-primary"></i>PPM Management</h1>
+                <div class="page-subtitle">Monitor preventive maintenance coverage, assignments, and schedules for every asset.</div>
+              </div>
+              <div class="col-12 col-sm-auto">
+                <button type="button" id="btnDtPmgAssetRefresh" class="btn btn-outline-secondary" aria-label="Refresh list" data-bs-toggle="tooltip" title="Refresh data">
+                  <i class="fas fa-sync me-2"></i>Refresh
+                </button>
+                <button type="button" id="btnPmgAssignBatch" class="btn btn-primary" aria-label="Bulk assign PPM" data-bs-toggle="tooltip" title="PPM Bulk Assign">
+                  <i class="fas fa-layer-plus me-2"></i>Bulk Assign
+                </button>
+              </div>
             </div>
+          </div>
+
+          <div class="row">
+            <div class="col-xl-5 mb-3">
+              <div class="card h-100">
+                <div class="card-header">
+                  <div>
+                    <h3 class="card-title mb-0"><i class="fas fa-chart-pie me-2 text-primary"></i>PPM Status</h3>
+                    <div class="text-secondary" style="font-size:.75rem">Assigned vs unassigned assets for the selected contract.</div>
+                  </div>
+                </div>
+                <div class="card-body position-relative">
+                  <div class="position-absolute top-50 start-50 translate-middle" id="overlayChartPmg" style="display:none">
+                    <div class="spinner-border text-primary" role="status" aria-label="Loading chart"></div>
+                  </div>
+                  <div id="chartPmgAssetByStatus" class="gems-chart"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-7 mb-3">
+              <div class="card gems-filter-card h-100">
+                <div class="card-body">
+                  <div class="gems-form-grid">
+                    <div class="gems-field gems-field-3">
+                      <label class="form-label" for="optPmgContractId">Contract</label>
+                      <select id="optPmgContractId" class="form-select"></select>
+                    </div>
+                    <div class="gems-field gems-field-3">
+                      <label class="form-label" for="optPmgGroupId">Asset Group</label>
+                      <select id="optPmgGroupId" class="form-select"></select>
+                    </div>
+                    <div class="gems-field gems-field-3">
+                      <label class="form-label" for="optPmgCategoryId">Asset Category</label>
+                      <select id="optPmgCategoryId" class="form-select" data-stop-refresh="true"></select>
+                    </div>
+                    <div class="gems-field gems-field-3">
+                      <label class="form-label" for="optPmgTypeId">Asset Type</label>
+                      <select id="optPmgTypeId" class="form-select" data-stop-refresh="true"></select>
+                    </div>
+                    <div class="gems-field gems-field-3">
+                      <label class="form-label" for="optPmgBrandId">Brand</label>
+                      <select id="optPmgBrandId" class="form-select" data-stop-refresh="true"></select>
+                    </div>
+                    <div class="gems-field gems-field-3">
+                      <label class="form-label" for="optPmgModelId">Model</label>
+                      <select id="optPmgModelId" class="form-select" data-stop-refresh="true"></select>
+                    </div>
+                    <div class="gems-field gems-field-6">
+                      <label class="form-label" for="optPmgColumns">Columns Visibility</label>
+                      <select id="optPmgColumns" class="form-select" multiple size="6">
+                        <option value="1">Asset Name</option>
+                        <option value="2" selected>Asset No</option>
+                        <option value="3" selected>Checklist</option>
+                        <option value="4">Asset Serial No</option>
+                        <option value="5" selected>Asset Group</option>
+                        <option value="6" selected>Asset Category</option>
+                        <option value="7" selected>Asset Type</option>
+                        <option value="8">Brand</option>
+                        <option value="9">Model</option>
+                        <option value="10" selected>Executor Group</option>
+                        <option value="11" selected>Location Code</option>
+                        <option value="12" selected>Status</option>
+                      </select>
+                    </div>
+                    <div class="gems-field gems-field-6">
+                      <label class="form-label" for="txtPmgAssetSearch">Keyword Search</label>
+                      <input type="search" id="txtPmgAssetSearch" class="form-control" placeholder="Search asset" autocomplete="off">
+                    </div>
+                  </div>
+                  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
+                    <div>
+                      <div class="form-label mb-1">Status</div>
+                      <div class="btn-group" role="group" aria-label="Status">
+                        <button type="button" class="btn btn-sm btn-primary active" id="linkPmgAll">All Status</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="linkPmg1">Assigned</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="linkPmg2">Unassigned</button>
+                      </div>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 text-secondary" style="font-size:.75rem">
+                      <span id="lblPmgAssetCount">Showing 0 of 0</span>
+                      <span id="lblPmgAssetUpdated">—</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title mb-0"><i class="fas fa-cubes me-2 text-primary"></i>Asset List</h3>
+                <div class="text-secondary" style="font-size:.75rem">Assigned and unassigned checklist coverage for the selected contract.</div>
+              </div>
+              <div class="gems-card-toolbar">
+                <div id="btnDtPmgAssetExport" class="d-inline-flex align-items-center"></div>
+              </div>
+            </div>
+            <table id="dtPmgAsset" class="table table-vcenter card-table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th style="width:4%">#</th>
+                  <th>Asset Name</th>
+                  <th>Asset No</th>
+                  <th>Checklist</th>
+                  <th>Asset Serial No</th>
+                  <th>Asset Group</th>
+                  <th>Asset Category</th>
+                  <th>Asset Type</th>
+                  <th>Brand</th>
+                  <th>Model</th>
+                  <th>Executor Group</th>
+                  <th>Location Code</th>
+                  <th>Status</th>
+                  <th style="width:180px" class="noVis text-center">Actions</th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <section id="divPmgScheduled" style="display:none">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0">Scheduled PPM List — <span id="lblPmgScheduledTitle"></span></h3>
+                </div>
+                <div class="gems-card-toolbar">
+                  <button type="button" id="btnDtPmgScheduledRefresh" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh scheduled list">
+                    <i class="fas fa-sync"></i>
+                  </button>
+                  <div id="btnDtPmgScheduledExport" class="d-inline-flex align-items-center"></div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="gems-form-grid">
+                  <div class="gems-field gems-field-12">
+                    <label class="form-label" for="txtPmgScheduledSearch">Search</label>
+                    <input type="search" id="txtPmgScheduledSearch" class="form-control" placeholder="Search scheduled list" autocomplete="off">
+                  </div>
+                </div>
+              </div>
+              <table id="dtPmgScheduled" class="table table-vcenter card-table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th style="width:4%">#</th>
+                    <th>Work Order No</th>
+                    <th>Scheduled Date</th>
+                    <th>Frequency</th>
+                    <th>Technician Assigned</th>
+                    <th>Status</th>
+                    <th style="width:64px" class="noVis text-center"></th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
         </section>
-        <div class="includeHtml" id="h-section_asset_details"></div>
+
+        <div class="includeHtml" id="h-section_asset_details_tabler"></div>
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_ppm"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
+  </div>
+</div>
 
-</main>
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
+<div class="includeHtml" id="h-modal_ppm"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/vendor/highcharts/highcharts.js"></script>
+<script src="js/vendor/highcharts/modules/data.js"></script>
+<script src="js/vendor/highcharts/modules/drilldown.js"></script>
+<script src="js/vendor/highcharts/modules/exporting.js"></script>
+<script src="js/vendor/highcharts/modules/export-data.js"></script>
+<script src="js/vendor/qrCode/qrcode.min.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_asset_details_tabler.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_ppm.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_ppm_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Highchart -->
-<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
-<!-- QR Code -->
-<script type="text/javascript" src="js/vendor/qrCode/qrcode.min.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let ppmManagementClass_;
+  let sectionAssetDetails_;
+  let modalConfirmDelete_;
+  let modalPpmClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        ppmManagementClass_ = new MainPpmManagement();
+        sectionAssetDetails_ = new SectionAssetDetails();
+        modalConfirmDelete_ = new ModalConfirmDelete();
+        modalPpmClass_ = new ModalPpm();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let ppmManagementClass_;
-    let sectionAssetDetails_;
-    let modalConfirmDelete_;
-    let modalPpmClass_;
+        const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+        const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+        const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
+        const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
+        const refAssetBrand_ = mzGetLocalArray('gems_assetBrand', versionLocal_, 'assetBrandId', [], 'asset_brand');
+        const refAssetModel_ = mzGetLocalArray('gems_assetModel', versionLocal_, 'assetModelId', [], 'asset_model');
+        const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+        const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
+        const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+        const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+        const refLocationCode_ = mzGetLocalArray('gems_locationCode', versionLocal_, 'locationCodeId', [], 'location_code');
+        const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
+        const refZone_ = mzGetLocalArrayV2('gems_siteZone', versionLocal_, 'zone/ref');
+        const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId', [], 'severity');
 
-    document.addEventListener('DOMContentLoaded', function () {
+        modalPpmClass_.setClassFrom(ppmManagementClass_);
+        modalPpmClass_.setRefContract(refContract_);
+        modalPpmClass_.setRefAssetGroup(refAssetGroup_);
+        modalPpmClass_.setRefAssetCategory(refAssetCategory_);
+        modalPpmClass_.setRefAssetType(refAssetType_);
+        modalPpmClass_.setRefAssetBrand(refAssetBrand_);
+        modalPpmClass_.setRefAssetModel(refAssetModel_);
+        modalPpmClass_.setRefPpmGroup(refPpmGroup_);
+        modalPpmClass_.init();
 
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                ppmManagementClass_ = new MainPpmManagement();
-                sectionAssetDetails_ = new SectionAssetDetails();
-                modalConfirmDelete_ = new ModalConfirmDelete();
-                modalPpmClass_ = new ModalPpm();
+        sectionAssetDetails_.setClassFrom(ppmManagementClass_);
+        sectionAssetDetails_.setRefStatus(refStatus_);
+        sectionAssetDetails_.setRefAssetGroup(refAssetGroup_);
+        sectionAssetDetails_.setRefAssetCategory(refAssetCategory_);
+        sectionAssetDetails_.setRefAssetType(refAssetType_);
+        sectionAssetDetails_.setRefAssetBrand(refAssetBrand_);
+        sectionAssetDetails_.setRefAssetModel(refAssetModel_);
+        sectionAssetDetails_.setRefUser(refUser_);
+        sectionAssetDetails_.setRefContract(refContract_);
+        sectionAssetDetails_.setRefSite(refSite_);
+        sectionAssetDetails_.setRefClient(refClient_);
+        sectionAssetDetails_.setRefPpmGroup(refPpmGroup_);
+        sectionAssetDetails_.setRefZone(refZone_);
+        sectionAssetDetails_.setRefSeverity(refSeverity_);
+        sectionAssetDetails_.setVersionLocal(versionLocal_);
+        sectionAssetDetails_.init();
 
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
-                const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
-                const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
-                const refAssetBrand_ = mzGetLocalArray('gems_assetBrand', versionLocal_, 'assetBrandId', [], 'asset_brand');
-                const refAssetModel_ = mzGetLocalArray('gems_assetModel', versionLocal_, 'assetModelId', [], 'asset_model');
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
-                const refContract_ = mzGetLocalArray('gems_contract', versionLocal_, 'contractId', [], 'contract');
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
-                const refLocationCode_ = mzGetLocalArray('gems_locationCode', versionLocal_, 'locationCodeId', [], 'location_code');
-                const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
-                const refZone_ = mzGetLocalArrayV2('gems_siteZone', versionLocal_, 'zone/ref');
-                const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId', [], 'severity');
+        ppmManagementClass_.setVersionLocal(versionLocal_);
+        ppmManagementClass_.setRefStatus(refStatus_);
+        ppmManagementClass_.setRefContract(refContract_);
+        ppmManagementClass_.setRefAssetGroup(refAssetGroup_);
+        ppmManagementClass_.setRefAssetCategory(refAssetCategory_);
+        ppmManagementClass_.setRefAssetType(refAssetType_);
+        ppmManagementClass_.setRefAssetBrand(refAssetBrand_);
+        ppmManagementClass_.setRefAssetModel(refAssetModel_);
+        ppmManagementClass_.setRefLocationCode(refLocationCode_);
+        ppmManagementClass_.setRefUser(refUser_);
+        ppmManagementClass_.setRefPpmGroup(refPpmGroup_);
+        ppmManagementClass_.setModalPpmClass(modalPpmClass_);
+        ppmManagementClass_.setSectionAssetClass(sectionAssetDetails_);
+        ppmManagementClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
+        ppmManagementClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
 
-                modalPpmClass_.setClassFrom(ppmManagementClass_);
-                modalPpmClass_.setRefContract(refContract_);
-                modalPpmClass_.setRefAssetGroup(refAssetGroup_);
-                modalPpmClass_.setRefAssetCategory(refAssetCategory_);
-                modalPpmClass_.setRefAssetType(refAssetType_);
-                modalPpmClass_.setRefAssetBrand(refAssetBrand_);
-                modalPpmClass_.setRefAssetModel(refAssetModel_);
-                modalPpmClass_.setRefPpmGroup(refPpmGroup_);
-                modalPpmClass_.init();
-
-                sectionAssetDetails_.setClassFrom(ppmManagementClass_);
-                sectionAssetDetails_.setRefStatus(refStatus_);
-                sectionAssetDetails_.setRefAssetGroup(refAssetGroup_);
-                sectionAssetDetails_.setRefAssetCategory(refAssetCategory_);
-                sectionAssetDetails_.setRefAssetType(refAssetType_);
-                sectionAssetDetails_.setRefAssetBrand(refAssetBrand_);
-                sectionAssetDetails_.setRefAssetModel(refAssetModel_);
-                sectionAssetDetails_.setRefUser(refUser_);
-                sectionAssetDetails_.setRefContract(refContract_);
-                sectionAssetDetails_.setRefSite(refSite_);
-                sectionAssetDetails_.setRefClient(refClient_);
-                sectionAssetDetails_.setRefPpmGroup(refPpmGroup_);
-                sectionAssetDetails_.setRefZone(refZone_);
-                sectionAssetDetails_.setRefSeverity(refSeverity_);
-                sectionAssetDetails_.setVersionLocal(versionLocal_);
-                sectionAssetDetails_.init();
-
-                ppmManagementClass_.setVersionLocal(versionLocal_);
-                ppmManagementClass_.setRefStatus(refStatus_);
-                ppmManagementClass_.setRefContract(refContract_);
-                ppmManagementClass_.setRefAssetGroup(refAssetGroup_);
-                ppmManagementClass_.setRefAssetCategory(refAssetCategory_);
-                ppmManagementClass_.setRefAssetType(refAssetType_);
-                ppmManagementClass_.setRefAssetBrand(refAssetBrand_);
-                ppmManagementClass_.setRefAssetModel(refAssetModel_);
-                ppmManagementClass_.setRefLocationCode(refLocationCode_);
-                ppmManagementClass_.setRefUser(refUser_);
-                ppmManagementClass_.setRefPpmGroup(refPpmGroup_);
-                ppmManagementClass_.setModalPpmClass(modalPpmClass_);
-                ppmManagementClass_.setSectionAssetClass(sectionAssetDetails_);
-                ppmManagementClass_.setModalConfirmDeleteClass(modalConfirmDelete_);
-                ppmManagementClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_asset_details.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_ppm.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_ppm_management.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+      HideLoader();
+    }, 300);
+  });
 </script>
 
 <!-- Page-specific helpers: Highcharts light theme -->
 <script type="text/javascript">
-    if (window.Highcharts) {
-        var rootStyles = getComputedStyle(document.documentElement);
-        var colorText = (rootStyles.getPropertyValue('--gems-text') || '#243746').trim();
-        var colorMuted = (rootStyles.getPropertyValue('--gems-muted') || '#7e8f9a').trim();
-        var colorBg = (rootStyles.getPropertyValue('--gems-bg') || '#e7eaec').trim();
+  if (window.Highcharts) {
+    var rootStyles = getComputedStyle(document.documentElement);
+    var colorText = (rootStyles.getPropertyValue('--gems-text') || '#243746').trim();
+    var colorMuted = (rootStyles.getPropertyValue('--gems-muted') || '#7e8f9a').trim();
+    var colorBg = (rootStyles.getPropertyValue('--gems-bg') || '#e7eaec').trim();
 
-        Highcharts.setOptions({
-            chart: {
-                backgroundColor: '#FFFFFF',
-                style: {
-                    fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
-                    color: colorText
-                }
-            },
-            title: {
-                style: {
-                    color: colorText,
-                    fontWeight: '600'
-                }
-            },
-            tooltip: {
-                backgroundColor: '#ffffff',
-                borderColor: 'rgba(36,55,70,0.15)',
-                style: {
-                    color: colorText
-                }
-            },
-            xAxis: {
-                gridLineColor: colorBg,
-                labels: {
-                    style: {
-                        color: colorMuted
-                    }
-                }
-            },
-            yAxis: {
-                gridLineColor: 'rgba(231,234,236,0.8)',
-                labels: {
-                    style: {
-                        color: colorMuted
-                    }
-                },
-                title: {
-                    style: {
-                        color: colorMuted
-                    }
-                }
-            },
-            legend: {
-                itemStyle: {
-                    color: colorMuted,
-                    fontWeight: '500'
-                }
-            },
-            exporting: {
-                chartOptions: {
-                    chart: {
-                        backgroundColor: '#FFFFFF'
-                    }
-                }
-            }
-        });
-    }
+    Highcharts.setOptions({
+      chart: {
+        backgroundColor: '#FFFFFF',
+        style: {
+          fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+          color: colorText
+        }
+      },
+      title: {
+        style: {
+          color: colorText,
+          fontWeight: '600'
+        }
+      },
+      tooltip: {
+        backgroundColor: '#ffffff',
+        borderColor: 'rgba(36,55,70,0.15)',
+        style: {
+          color: colorText
+        }
+      },
+      xAxis: {
+        gridLineColor: colorBg,
+        labels: {
+          style: {
+            color: colorMuted
+          }
+        }
+      },
+      yAxis: {
+        gridLineColor: 'rgba(231,234,236,0.8)',
+        labels: {
+          style: {
+            color: colorMuted
+          }
+        },
+        title: {
+          style: {
+            color: colorMuted
+          }
+        }
+      },
+      legend: {
+        itemStyle: {
+          color: colorMuted,
+          fontWeight: '500'
+        }
+      },
+      exporting: {
+        chartOptions: {
+          chart: {
+            backgroundColor: '#FFFFFF'
+          }
+        }
+      }
+    });
+  }
 </script>
 
 </body>

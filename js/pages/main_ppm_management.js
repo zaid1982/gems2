@@ -23,16 +23,138 @@ function MainPpmManagement() {
     let userSite;
     let userIsAdmin = false;
 
+    const statusColorMap = {
+        'badge-primary': 'info',
+        'badge-info': 'info',
+        'badge-success': 'success',
+        'badge-danger': 'danger',
+        'badge-warning': 'warning',
+        'badge-secondary': 'secondary'
+    };
+
+    function rowsFromRef(ref, idKey, labelKey, predicate) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (predicate && !predicate(row)) {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function fillNamed(id, rows, valueKey, labelKey, placeholder, selected) {
+        GemsUI.fillSelect(id, rows, valueKey, function (row) {
+            return row[labelKey] || '';
+        }, placeholder, selected);
+    }
+
+    function fillContractSelect(siteFilter, selected) {
+        fillNamed(
+            'optPmgContractId',
+            rowsFromRef(refContract, 'contractId', 'contractName', function (row) {
+                if (siteFilter && siteFilter.siteId && String(row['siteId']) !== String(siteFilter.siteId)) {
+                    return false;
+                }
+                return true;
+            }),
+            'contractId',
+            'contractName',
+            'Choose Contract',
+            selected
+        );
+    }
+
+    function fillGroupSelect(selected) {
+        fillNamed(
+            'optPmgGroupId',
+            rowsFromRef(refAssetGroup, 'assetGroupId', 'assetGroupName'),
+            'assetGroupId',
+            'assetGroupName',
+            'All Asset Group',
+            selected
+        );
+    }
+
+    function fillCategorySelect(groupId, selected) {
+        const rows = groupId
+            ? rowsFromRef(refAssetCategory, 'assetCategoryId', 'assetCategoryName', function (row) {
+                return String(row['assetGroupId']) === String(groupId);
+            })
+            : [];
+        fillNamed('optPmgCategoryId', rows, 'assetCategoryId', 'assetCategoryName', 'All Asset Category', selected);
+    }
+
+    function fillTypeSelect(categoryId, selected) {
+        const rows = categoryId
+            ? rowsFromRef(refAssetType, 'assetTypeId', 'assetTypeName', function (row) {
+                return String(row['assetCategoryId']) === String(categoryId);
+            })
+            : [];
+        fillNamed('optPmgTypeId', rows, 'assetTypeId', 'assetTypeName', 'All Asset Type', selected);
+    }
+
+    function fillBrandSelect(rows, selected) {
+        fillNamed(
+            'optPmgBrandId',
+            rowsFromRef(rows, 'assetBrandId', 'assetBrandName'),
+            'assetBrandId',
+            'assetBrandName',
+            'All Asset Brand',
+            selected
+        );
+    }
+
+    function fillModelSelect(brandId, typeId, selected) {
+        const rows = brandId
+            ? rowsFromRef(refAssetModel, 'assetModelId', 'assetModelName', function (row) {
+                return String(row['assetBrandId']) === String(brandId)
+                    && String(row['assetTypeId']) === String(typeId);
+            })
+            : [];
+        fillNamed('optPmgModelId', rows, 'assetModelId', 'assetModelName', 'All Asset Model', selected);
+    }
+
+    function statusBadge(statusId, type) {
+        const rec = refStatus && refStatus[statusId];
+        const label = rec ? rec['statusDesc'] : String(statusId);
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusColorMap[rec && rec['statusColor']] || 'secondary', GemsUI.escape(label));
+    }
+
+    function exportCellText(data) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = data;
+        return tmp.textContent || tmp.innerText || '';
+    }
+
     this.init = function () {
         $('#divPmgScheduled').hide();
         userSite = mzGetUserInfoByParam('siteId');
         userIsAdmin = mzIsRoleExist('1,19');
 
         const filterSite = !mzIsRoleExist('1,10') ? {siteId: userSite} : {};
-        mzOption('optPmgContractId', refContract, 'Choose Contract', 'contractId', 'contractName', filterSite, 'required');
-        mzOption('optPmgGroupId', refAssetGroup, 'All Asset Group', 'assetGroupId', 'assetGroupName', {});
+        fillContractSelect(filterSite);
+        fillGroupSelect();
+        fillCategorySelect('');
+        fillTypeSelect('');
+        fillBrandSelect([]);
+        fillModelSelect('', '');
 
-        for(let contract of refContract) {
+        for (let contract of refContract) {
             if (typeof contract !== 'undefined' && contract['contractId'] === '20') {
                 contractId = contract['contractId'];
                 $('#optPmgContractId').val(contractId);
@@ -77,145 +199,146 @@ function MainPpmManagement() {
             });
         };
 
-        oTableAsset =  $('#dtPmgAsset').DataTable({
+        oTableAsset = $('#dtPmgAsset').DataTable({
             bLengthChange: false,
             bFilter: true,
             "aaSorting": [2, 'asc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 const info = oTableAsset.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPmgAssetView').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        sectionAssetClass.view(currentRow['assetId']);
-                    }
-                });
-                $('.lnkPmgAssetPpmAssign').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        modalPpmClass.setSingle(currentRow['assetId'], rowId);
-                    }
-                });
-                $('.lnkPmgAssetDeactivate').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        sectionAssetClass.deactivate(currentRow['assetId'], rowId);
-                    }
-                });
-                $('.lnkPmgPpmListExpand').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTableAsset.row(parseInt(rowId)).data();
-                        ShowLoader();
-                        setTimeout(function () {
-                            try {
-                                self.genTablePmgScheduled(currentRow['ppmId'], currentRow['assetNo']);
-                                const elmnt = document.getElementById("divPmgScheduled");
-                                elmnt.scrollIntoView();
-                            } catch (e) {
-                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                            }
-                            HideLoader();
-                        }, 300);
-                    }
-                });
                 updateAssetSummary();
                 applyAssetDataLabels();
             },
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-cubes', 'No assets recorded for this contract.', 'No assets match the current search or filter.'),
+            dom: GemsUI.dtDom,
             aoColumns:
                 [
                     {mData: null, bSortable: false},
-                    {mData: null, mRender: function (data, type, row){
+                    {mData: null, mRender: function (data, type, row) {
                             return typeof row['assetName'] !== 'undefined' ? row['assetName'] : '';
                         }},
-                    {mData: null, mRender: function (data, type, row){
+                    {mData: null, mRender: function (data, type, row) {
                             return typeof row['assetNo'] !== 'undefined' ? row['assetNo'] : '';
                         }},
-                    {mData: null, mRender: function (data, type, row){
+                    {mData: null, mRender: function (data, type, row) {
                             return typeof row['ppmTaskNo'] !== 'undefined' ? row['ppmTaskNo'] : '';
                         }},
-                    {mData: null, mRender: function (data, type, row){
+                    {mData: null, mRender: function (data, type, row) {
                             return typeof row['assetSerialNo'] !== 'undefined' ? row['assetSerialNo'] : '';
-                        }}, // 4
-                    {mData: null, mRender: function (data, type, row){
+                        }},
+                    {mData: null, mRender: function (data, type, row) {
                             return row['assetGroupId'] !== '' ? refAssetGroup[row['assetGroupId']]['assetGroupName'] : '';
                         }},
-                    {mData: null, mRender: function (data, type, row){
+                    {mData: null, mRender: function (data, type, row) {
                             return row['assetCategoryId'] !== '' ? refAssetCategory[row['assetCategoryId']]['assetCategoryName'] : '';
                         }},
-                    {mData: null, mRender: function (data, type, row){
+                    {mData: null, mRender: function (data, type, row) {
                             return row['assetTypeId'] !== '' ? refAssetType[row['assetTypeId']]['assetTypeName'] : '';
                         }},
-                    {mData: null, mRender: function (data, type, row){
-                            return typeof row['assetBrandId'] !== 'undefined' &&  row['assetBrandId'] !== '' ? refAssetBrand[row['assetBrandId']]['assetBrandName'] : '';
+                    {mData: null, mRender: function (data, type, row) {
+                            return typeof row['assetBrandId'] !== 'undefined' && row['assetBrandId'] !== '' ? refAssetBrand[row['assetBrandId']]['assetBrandName'] : '';
                         }},
-                    {mData: null, mRender: function (data, type, row){
-                            return typeof row['assetModelId'] !== 'undefined' &&  row['assetModelId'] !== '' ? refAssetModel[row['assetModelId']]['assetModelName'] : '';
-                        }}, // 9
-                    {mData: null, mRender: function (data, type, row){
+                    {mData: null, mRender: function (data, type, row) {
+                            return typeof row['assetModelId'] !== 'undefined' && row['assetModelId'] !== '' ? refAssetModel[row['assetModelId']]['assetModelName'] : '';
+                        }},
+                    {mData: null, mRender: function (data, type, row) {
                             let ppmGroupId = row['ppmGroupIdPpm'];
                             if (ppmGroupId == '') {
                                 ppmGroupId = row['ppmGroupId'];
                             }
                             return ppmGroupId !== '' ? refPpmGroup[ppmGroupId]['ppmGroupName'] : '';
                         }},
-                    {mData: null, mRender: function (data, type, row){
+                    {mData: null, mRender: function (data, type, row) {
                             return row['locationCodeId'] !== '' ? refLocationCode[row['locationCodeId']]['locationCodeName'] : '';
                         }},
                     {mData: null,
                         mRender: function (data, type, row) {
-                            if (row['ppmStatus'] === '6') {
-                                return '<h6><span class="badge badge-pill '+refStatus[row['ppmStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmStatus']]['statusDesc']+'</span></h6>';
-                            }
-                            return '<h6><span class="badge badge-pill '+refStatus[row['assignedStatus']]['statusColor']+' z-depth-2">'+refStatus[row['assignedStatus']]['statusDesc']+'</span></h6>';
+                            const statusId = row['ppmStatus'] === '6' ? row['ppmStatus'] : row['assignedStatus'];
+                            return statusBadge(statusId, type);
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
+                            if (type !== 'display') {
+                                return '';
+                            }
+                            let label = '';
                             if (row['assignedStatus'] === '10') {
-                                label += '<button type="button" class="btn-action btn-view lnkPmgPpmListExpand" id="lnkPmgPpmListExpand_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Scheduled PPM List"><i class="fas fa-list-ul"></i></button>';
-                                // label += '<button type="button" class="btn-action btn-deactivate lnkPmgAssetDeactivate" id="lnkPmgAssetDeactivate_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Deactivate"><i class="fas fa-toggle-off"></i></button>';
+                                label += GemsUI.actionBtn({id: 'lnkPmgPpmListExpand_' + meta.row, cls: 'lnkPmgPpmListExpand', icon: 'fas fa-list-ul', title: 'Scheduled PPM List'});
                             }
                             if (userIsAdmin) {
-                                label += '<button type="button" class="btn-action btn-edit lnkPmgAssetPpmAssign" id="lnkPmgAssetPpmAssign_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Assign PPM"><i class="fas fa-calendar-plus"></i></button>';
+                                label += GemsUI.actionBtn({id: 'lnkPmgAssetPpmAssign_' + meta.row, cls: 'lnkPmgAssetPpmAssign', icon: 'fas fa-calendar-plus', title: 'Assign PPM'});
                             }
-                            label += '<button type="button" class="btn-action btn-view lnkPmgAssetView" id="lnkPmgAssetView_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Asset Information"><i class="fas fa-qrcode"></i></button>';
-                            label += '</div>';
+                            label += GemsUI.actionBtn({id: 'lnkPmgAssetView_' + meta.row, cls: 'lnkPmgAssetView', icon: 'fas fa-qrcode', title: 'Asset Information'});
                             return label;
                         }
                     },
-                    {mData: 'assetId', visible: false}, // 14
+                    {mData: 'assetId', visible: false},
                     {mData: 'assetGroupId', visible: false},
                     {mData: 'assetCategoryId', visible: false},
                     {mData: 'assetTypeId', visible: false},
                     {mData: 'assetBrandId', visible: false},
-                    {mData: 'assetModelId', visible: false}, // 19
+                    {mData: 'assetModelId', visible: false},
                     {mData: 'assignedStatus', visible: false}
                 ]
         });
         $("#dtPmgAsset_filter").hide();
+        GemsUI.bindDtTooltips('#dtPmgAsset');
         $('#txtPmgAssetSearch').on('keyup change', function () {
             oTableAsset.search($(this).val()).draw();
         });
+        $('#dtPmgAsset').on('click', '.lnkPmgAssetView', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableAsset.row(parseInt(rowId)).data();
+                sectionAssetClass.view(currentRow['assetId']);
+            }
+        });
+        $('#dtPmgAsset').on('click', '.lnkPmgAssetPpmAssign', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableAsset.row(parseInt(rowId)).data();
+                modalPpmClass.setSingle(currentRow['assetId'], rowId);
+            }
+        });
+        $('#dtPmgAsset').on('click', '.lnkPmgAssetDeactivate', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableAsset.row(parseInt(rowId)).data();
+                sectionAssetClass.deactivate(currentRow['assetId'], rowId);
+            }
+        });
+        $('#dtPmgAsset').on('click', '.lnkPmgPpmListExpand', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTableAsset.row(parseInt(rowId)).data();
+                ShowLoader();
+                setTimeout(function () {
+                    try {
+                        self.genTablePmgScheduled(currentRow['ppmId'], currentRow['assetNo']);
+                        const elmnt = document.getElementById("divPmgScheduled");
+                        elmnt.scrollIntoView();
+                    } catch (e) {
+                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                    }
+                    HideLoader();
+                }, 300);
+            }
+        });
+
         const setActiveStatusChip = function (target) {
-            $('#linkPmgAll, #linkPmg1, #linkPmg2').removeClass('active');
-            $(target).addClass('active');
+            $('#linkPmgAll, #linkPmg1, #linkPmg2').removeClass('active btn-primary').addClass('btn-outline-secondary');
+            $(target).addClass('active btn-primary').removeClass('btn-outline-secondary');
         };
 
         $('#linkPmgAll').on('click', function () {
@@ -234,11 +357,10 @@ function MainPpmManagement() {
         setActiveStatusChip('#linkPmgAll');
 
         $('#optPmgGroupId').on('change', function () {
-            mzOptionStop('optPmgCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: $(this).val()});
-            mzOptionStopClear('optPmgTypeId', 'All Asset Type');
-            mzOptionStopClear('optPmgBrandId', 'All Asset Brand');
-            mzOptionStopClear('optPmgModelId', 'All Asset Model');
-            //mzOptionStop('optPmgTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
+            fillCategorySelect($(this).val());
+            fillTypeSelect('');
+            fillBrandSelect([]);
+            fillModelSelect('', '');
             oTableAsset.column(15).search("^" + $(this).val() + "$", true, false, true);
             oTableAsset.column(16).search('');
             oTableAsset.column(17).search('');
@@ -247,9 +369,9 @@ function MainPpmManagement() {
         });
 
         $('#optPmgCategoryId').on('change', function () {
-            mzOptionStop('optPmgTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: $(this).val()});
-            mzOptionStopClear('optPmgBrandId', 'All Asset Brand');
-            mzOptionStopClear('optPmgModelId', 'All Asset Model');
+            fillTypeSelect($(this).val());
+            fillBrandSelect([]);
+            fillModelSelect('', '');
             oTableAsset.column(16).search($(this).val());
             oTableAsset.column(17).search('');
             oTableAsset.column(18).search('');
@@ -258,15 +380,15 @@ function MainPpmManagement() {
 
         $('#optPmgTypeId').on('change', function () {
             const refAssetBrandGroup = mzGetLocalArray('gems_assetBrandGroup', versionLocal, 'assetBrandId', {assetTypeId: $(this).val()});
-            mzOptionStop('optPmgBrandId', refAssetBrandGroup, 'All Asset Brand', 'assetBrandId', 'assetBrandName');
-            mzOptionStopClear('optPmgModelId', 'All Asset Model');
+            fillBrandSelect(refAssetBrandGroup);
+            fillModelSelect('', '');
             oTableAsset.column(17).search("^" + $(this).val() + "$", true, false, true);
             oTableAsset.column(18).search('');
             oTableAsset.column(19).search('').draw();
         });
 
         $('#optPmgBrandId').on('change', function () {
-            mzOptionStop('optPmgModelId', refAssetModel, 'All Asset Model', 'assetModelId', 'assetModelName', {assetBrandId: $(this).val(), assetTypeId: $('#optPmgTypeId').val()});
+            fillModelSelect($(this).val(), $('#optPmgTypeId').val());
             oTableAsset.column(18).search("^" + $(this).val() + "$", true, false, true);
             oTableAsset.column(19).search('').draw();
         });
@@ -278,16 +400,14 @@ function MainPpmManagement() {
         let cntAsset;
         let btnAssetOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                 format: {
-                    body: function ( data, row, column ) {
+                    body: function (data, row, column) {
                         if (row === 0 && column === 0) {
                             cntAsset = 1;
                         }
                         if (column === 12) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
+                            return exportCellText(data);
                         }
                         return column === 0 ? cntAsset++ : data;
                     }
@@ -297,27 +417,27 @@ function MainPpmManagement() {
 
         new $.fn.dataTable.Buttons(oTableAsset, {
             buttons: [
-                $.extend( true, {}, btnAssetOpt, {
-                    extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - Asset List',
+                $.extend(true, {}, btnAssetOpt, {
+                    extend: 'print',
+                    text: '<i class="fas fa-print"></i>',
+                    title: 'GEMS 2.0 - Asset List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
-                $.extend( true, {}, btnAssetOpt, {
-                    extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - Asset List',
+                $.extend(true, {}, btnAssetOpt, {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i>',
+                    title: 'GEMS 2.0 - Asset List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
-                $.extend( true, {}, btnAssetOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Asset List',
+                $.extend(true, {}, btnAssetOpt, {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf"></i>',
+                    title: 'GEMS 2.0 - Asset List',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtPmgAssetExport'));
@@ -328,7 +448,7 @@ function MainPpmManagement() {
         oTableAsset.column(9).visible(false);
 
         $('#optPmgColumns').on('change', function () {
-            for (let i=1; i<=10; i++) {
+            for (let i = 1; i <= 10; i++) {
                 oTableAsset.column(i).visible(false);
             }
             const selectedColumns = $(this).val();
@@ -342,8 +462,8 @@ function MainPpmManagement() {
 
         $('#optPmgContractId').on('change', function () {
             $('#optPmgGroupId').val(null);
-            mzOption('optPmgCategoryId', refAssetCategory, 'All Asset Category', 'assetCategoryId', 'assetCategoryName', {assetGroupId: '0'});
-            mzOption('optPmgTypeId', refAssetType, 'All Asset Type', 'assetTypeId', 'assetTypeName', {assetCategoryId: '0'});
+            fillCategorySelect('');
+            fillTypeSelect('');
             oTableAsset.column(14).search('', false, true, false).draw();
             oTableAsset.column(15).search('', false, true, false).draw();
             oTableAsset.column(16).search('', false, true, false).draw();
@@ -373,44 +493,20 @@ function MainPpmManagement() {
             }, 300);
         });
 
-        oTableScheduled =  $('#dtPmgScheduled').DataTable({
+        oTableScheduled = $('#dtPmgScheduled').DataTable({
             bLengthChange: false,
             bFilter: true,
             autoWidth: false,
             "aaSorting": [[1, 'asc'], [2, 'asc'], [3, 'asc']],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 const info = oTableScheduled.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPmgScheduledPdf').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        ShowLoader();
-                        setTimeout(function () {
-                            try {
-                                const rowId = linkId.substr(linkIndex+1);
-                                const currentRow = oTableScheduled.row(parseInt(rowId)).data();
-                                let pdfId = currentRow['pdfId'];
-                                if (currentRow['pdfId'] === '') {
-                                    pdfId = mzAjaxRequest('ppm.php', 'POST', {action: 'generate_pdf', ppmTaskId:currentRow['ppmTaskId']});
-                                }
-                                const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
-                                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Order Report: '+currentRow['ppmTaskNo']);
-                                $('#mpdf_iframe').attr('src', pdfSrc);
-                                $('#modal_pdf').modal('show');
-                            } catch (e) {
-                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                            }
-                            HideLoader();
-                        }, 200);
-                    }
-                });
                 applyScheduledDataLabels();
             },
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-calendar-check', 'No scheduled PPM tasks for this asset.'),
+            dom: GemsUI.dtDom,
             aoColumns:
                 [
                     {mData: null, bSortable: false},
@@ -424,22 +520,47 @@ function MainPpmManagement() {
                     },
                     {mData: null,
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['ppmTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmTaskStatus']]['statusDesc']+'</span></h6>';
+                            return statusBadge(row['ppmTaskStatus'], type);
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-view lnkPmgScheduledPdf" id="lnkPmgScheduledPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Preventive Maintenance PDF"><i class="far fa-file-pdf"></i></button>';
-                            label += '</div>';
-                            return label;
+                            if (type !== 'display') {
+                                return '';
+                            }
+                            return GemsUI.actionBtn({id: 'lnkPmgScheduledPdf_' + meta.row, cls: 'lnkPmgScheduledPdf', icon: 'far fa-file-pdf', title: 'Preventive Maintenance PDF'});
                         }
                     }
                 ]
         });
         $("#dtPmgScheduled_filter").hide();
+        GemsUI.bindDtTooltips('#dtPmgScheduled');
         $('#txtPmgScheduledSearch').on('keyup change', function () {
             oTableScheduled.search($(this).val()).draw();
+        });
+        $('#dtPmgScheduled').on('click', '.lnkPmgScheduledPdf', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                ShowLoader();
+                setTimeout(function () {
+                    try {
+                        const rowId = linkId.substr(linkIndex + 1);
+                        const currentRow = oTableScheduled.row(parseInt(rowId)).data();
+                        let pdfId = currentRow['pdfId'];
+                        if (currentRow['pdfId'] === '') {
+                            pdfId = mzAjaxRequest('ppm.php', 'POST', {action: 'generate_pdf', ppmTaskId: currentRow['ppmTaskId']});
+                        }
+                        const pdfSrc = mzAjaxRequest('pdf.php?pdfId=' + pdfId, 'GET');
+                        $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Order Report: ' + currentRow['ppmTaskNo']);
+                        $('#mpdf_iframe').attr('src', pdfSrc);
+                        $('#modal_pdf').modal('show');
+                    } catch (e) {
+                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                    }
+                    HideLoader();
+                }, 200);
+            }
         });
 
         applyScheduledDataLabels();
@@ -447,16 +568,14 @@ function MainPpmManagement() {
         let cntScheduled;
         let btnScheduledOpt = {
             exportOptions: {
-                columns: [ 0, 1, 2, 3, 4, 5],
+                columns: [0, 1, 2, 3, 4, 5],
                 format: {
-                    body: function ( data, row, column ) {
+                    body: function (data, row, column) {
                         if (row === 0 && column === 0) {
                             cntScheduled = 1;
                         }
                         if (column === 5) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
+                            return exportCellText(data);
                         }
                         return column === 0 ? cntScheduled++ : data;
                     }
@@ -466,27 +585,27 @@ function MainPpmManagement() {
 
         new $.fn.dataTable.Buttons(oTableScheduled, {
             buttons: [
-                $.extend( true, {}, btnScheduledOpt, {
-                    extend:    'print',
-                    text:      '<i class="fas fa-print"></i>',
-                    title:     'GEMS 2.0 - Scheduled PPM List',
+                $.extend(true, {}, btnScheduledOpt, {
+                    extend: 'print',
+                    text: '<i class="fas fa-print"></i>',
+                    title: 'GEMS 2.0 - Scheduled PPM List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
-                $.extend( true, {}, btnScheduledOpt, {
-                    extend:    'excelHtml5',
-                    text:      '<i class="fas fa-file-excel"></i>',
-                    title:     'GEMS 2.0 - Scheduled PPM List',
+                $.extend(true, {}, btnScheduledOpt, {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i>',
+                    title: 'GEMS 2.0 - Scheduled PPM List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
-                $.extend( true, {}, btnScheduledOpt, {
-                    extend:    'pdfHtml5',
-                    text:      '<i class="fas fa-file-pdf"></i>',
-                    title:     'GEMS 2.0 - Scheduled PPM List',
+                $.extend(true, {}, btnScheduledOpt, {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf"></i>',
+                    title: 'GEMS 2.0 - Scheduled PPM List',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtPmgScheduledExport'));
@@ -508,7 +627,7 @@ function MainPpmManagement() {
     };
 
     this.genTablePmg = function () {
-        const dataAsset = mzAjaxRequest('ppm.php?type=asset_with_ppm&contractId='+contractId, 'GET');
+        const dataAsset = mzAjaxRequest('ppm.php?type=asset_with_ppm&contractId=' + contractId, 'GET');
         oTableAsset.clear().rows.add(dataAsset).draw();
     };
 
@@ -535,7 +654,7 @@ function MainPpmManagement() {
 
     this.genTablePmgScheduled = function (_ppmId, _assetNo) {
         ppmIdSelected = _ppmId;
-        const dataScheduled = mzAjaxRequest('ppm.php?type=scheduled_ppm&ppmId='+_ppmId, 'GET');
+        const dataScheduled = mzAjaxRequest('ppm.php?type=scheduled_ppm&ppmId=' + _ppmId, 'GET');
         oTableScheduled.clear().rows.add(dataScheduled).draw();
 
         if (typeof _assetNo !== 'undefined') {
@@ -565,13 +684,15 @@ function MainPpmManagement() {
             }
         });
 
-    $('#linkPmgAll').html('<span>All Status</span><span class="badge-soft badge-soft-muted">'+mzFormatNumber(totalAll)+'</span>');
-    $('#linkPmg1').html('<span>'+refStatus[10]['statusDesc']+'</span><span class="badge '+refStatus[10]['statusColor']+'">'+mzFormatNumber(total1)+'</span>');
-    $('#linkPmg2').html('<span>'+refStatus[11]['statusDesc']+'</span><span class="badge '+refStatus[11]['statusColor']+'">'+mzFormatNumber(total2)+'</span>');
+        const assignedLabel = refStatus[10] ? refStatus[10]['statusDesc'] : 'Assigned';
+        const unassignedLabel = refStatus[11] ? refStatus[11]['statusDesc'] : 'Unassigned';
+        $('#linkPmgAll').html('All Status <span class="badge bg-secondary-lt ms-1">' + mzFormatNumber(totalAll) + '</span>');
+        $('#linkPmg1').html(GemsUI.escape(assignedLabel) + ' <span class="badge bg-secondary-lt ms-1">' + mzFormatNumber(total1) + '</span>');
+        $('#linkPmg2').html(GemsUI.escape(unassignedLabel) + ' <span class="badge bg-secondary-lt ms-1">' + mzFormatNumber(total2) + '</span>');
 
         const chartData = [
-            {name:refStatus[10]['statusDesc'], y:total1},
-            {name:refStatus[11]['statusDesc'], y:total2}
+            {name: assignedLabel, y: total1},
+            {name: unassignedLabel, y: total2}
         ];
 
         $('#overlayChartPmg').show();
@@ -591,8 +712,8 @@ function MainPpmManagement() {
             tooltip: {
                 pointFormat: '{series.name}: <b>{point.y} ({point.percentage:.1f}%)</b>'
             },
-            credits:{
-                enabled:false
+            credits: {
+                enabled: false
             },
             plotOptions: {
                 pie: {
