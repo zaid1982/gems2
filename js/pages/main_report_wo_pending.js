@@ -63,7 +63,7 @@ function MainReportWoPending() {
         }
         const color = status.statusColor || 'badge-secondary';
         const label = status.statusDesc || status.statusAction || status.statusName || statusId;
-        return '<span class="badge badge-pill ' + color + ' z-depth-2">' + label + '</span>';
+        return '<span class="badge gems-badge ' + color + '">' + GemsUI.escape(String(label)) + '</span>';
     }
 
     function setDataLabels(row, apiInstance) {
@@ -187,19 +187,52 @@ function MainReportWoPending() {
         $('#metricRwpThisMonth').text(metrics.monthCount.toLocaleString());
     }
 
+    function rowsFromRef(ref, idKey, labelKey, predicate) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (predicate && !predicate(row)) {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function fillSiteSelect(clientKey, labelKey, selected) {
+        GemsUI.fillSelect(
+            'optRwpSiteId',
+            rowsFromRef(refSite, 'siteId', labelKey, function (row) {
+                if (clientKey && String(row['clientId']) !== String(clientKey)) {
+                    return false;
+                }
+                return String(row['siteStatus']) === '1';
+            }),
+            'siteId',
+            labelKey,
+            'Choose Site',
+            selected
+        );
+    }
+
     this.init = function () {
         userSite = mzGetUserInfoByParam('siteId');
-
-        mzOption('optRwpClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
-
-        const siteFilter = !mzIsRoleExist('1,10') ? {clientId: '1', siteId: userSite, siteStatus: '1'} : {clientId: '1', siteStatus: '1'};
-        mzOption('optRwpSiteId', refSite, 'Choose Site', 'siteId', 'siteDesc', siteFilter, 'required');
 
         clientId = '1';
         siteId = !mzIsRoleExist('1,10') ? userSite : '1';
 
-        $('#optRwpClientId').val(clientId);
-        $('#optRwpSiteId').val(siteId);
+        GemsUI.fillSelect('optRwpClientId', rowsFromRef(refClient, 'clientId', 'clientName'), 'clientId', 'clientName', 'Choose Client', clientId);
+        fillSiteSelect('1', 'siteDesc', siteId);
 
         if (!mzIsRoleExist('1,10')) {
             $('#optRwpSiteId').prop('disabled', true);
@@ -209,11 +242,8 @@ function MainReportWoPending() {
         selectedMonth = dateCurrent.getMonth() + 1;
         selectedYear = dateCurrent.getFullYear();
 
-        mzOption('optRwpYearId', yearArr, 'Choose Year', 'yearId', 'yearName', {}, 'required', false);
-        $('#optRwpYearId').val(selectedYear);
-
-        mzOption('optRwpMonthId', monthArr, 'Choose Month', 'monthId', 'monthName', {}, 'required', false);
-        $('#optRwpMonthId').val(selectedMonth);
+        GemsUI.fillSelect('optRwpYearId', yearArr, 'yearId', 'yearName', 'Choose Year', selectedYear);
+        GemsUI.fillSelect('optRwpMonthId', monthArr, 'monthId', 'monthName', 'Choose Month', selectedMonth);
 
         refreshMaterialSelect('#optRwpClientId');
         refreshMaterialSelect('#optRwpSiteId');
@@ -222,7 +252,7 @@ function MainReportWoPending() {
 
         $('#optRwpClientId').on('change', function () {
             clientId = $(this).val();
-            mzOptionStop('optRwpSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: clientId, siteStatus: '1'}, 'required');
+            fillSiteSelect(clientId, 'siteName');
             if (!mzIsRoleExist('1,10')) {
                 $('#optRwpSiteId').val(userSite);
             }
@@ -276,32 +306,32 @@ function MainReportWoPending() {
             bFilter: false,
             autoWidth: false,
             aaSorting: [[3, 'asc']],
-            language: _DATATABLE_LANGUAGE,
-            dom: "Brt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
+            language: GemsUI.dtEmpty('fa-clipboard-list', 'No outstanding work orders for this period.', 'No records match the current search.'),
+            dom: GemsUI.dtDomButtons,
             buttons: [
                 {
                     extend: 'print',
-                    text: '<i class="fas fa-print text-dark"></i>',
+                    text: '<i class="fas fa-print"></i>',
                     title: 'GEMS 2.0 - Outstanding Work Order List',
                     titleAttr: 'Print',
-                    className: 'btn btn-light btn-rounded btn-sm px-2',
+                    className: 'btn btn-outline-secondary btn-sm',
                     exportOptions: exportOptions
                 },
                 {
                     extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel text-dark"></i>',
+                    text: '<i class="fas fa-file-excel"></i>',
                     title: 'GEMS 2.0 - Outstanding Work Order List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-light btn-rounded btn-sm px-2',
+                    className: 'btn btn-outline-secondary btn-sm',
                     exportOptions: exportOptions
                 },
                 {
                     extend: 'pdfHtml5',
-                    text: '<i class="fas fa-file-pdf text-dark"></i>',
+                    text: '<i class="fas fa-file-pdf"></i>',
                     title: 'GEMS 2.0 - Outstanding Work Order List',
                     titleAttr: 'PDF',
                     orientation: 'landscape',
-                    className: 'btn btn-light btn-rounded btn-sm px-2',
+                    className: 'btn btn-outline-secondary btn-sm',
                     exportOptions: exportOptions
                 }
             ],
@@ -316,7 +346,6 @@ function MainReportWoPending() {
                 setDataLabels(nRow, api);
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 updateSummary();
             },
             aoColumns: [
@@ -334,6 +363,7 @@ function MainReportWoPending() {
             ]
         });
 
+        GemsUI.bindDtTooltips('#dtRwpWoPending');
         oTableWoPending.buttons().container().appendTo('#btnDtRwpWoPendingExport');
 
         $('#txtRwpSearch').on('keyup change', function () {
