@@ -10,17 +10,17 @@ function MainEnergyBei() {
 
     const resultBadge = function (row) {
         if (row.isPass === null || row.isPass === undefined) {
-            return '<span class="badge-status neutral"><i class="fas fa-minus"></i>Not scored</span>';
+            return ec.badge('secondary', 'Not scored');
         }
         return row.isPass
-            ? '<span class="badge-status completed"><i class="fas fa-check-circle"></i>100%</span>'
-            : '<span class="badge-status incomplete"><i class="fas fa-circle-xmark"></i>0%</span>';
+            ? ec.badge('success', '100%')
+            : ec.badge('danger', '0%');
     };
 
     const statusBadge = function (status) {
-        if (status === 'FINAL') { return '<span class="badge-status completed"><i class="fas fa-lock"></i>Final</span>'; }
-        if (status === 'NOT_SAVED') { return '<span class="badge-status neutral"><i class="fas fa-minus"></i>Not saved</span>'; }
-        return '<span class="badge-status in-progress"><i class="fas fa-pen"></i>Draft</span>';
+        if (status === 'FINAL') { return ec.badge('success', 'Final'); }
+        if (status === 'NOT_SAVED') { return ec.badge('secondary', 'Not saved'); }
+        return ec.badge('warning', 'Draft');
     };
 
     const renderRows = function () {
@@ -34,11 +34,11 @@ function MainEnergyBei() {
                 '<td><strong>' + m.monthName + '</strong></td>' +
                 '<td>' + (locked
                     ? ec.fmtKwh(m.electricityKwh)
-                    : '<input type="number" step="0.01" min="0" class="ebeElectricity" data-month="' + m.month + '" value="' + (m.electricityIsOverride ? m.electricityKwh : '') + '" placeholder="' + ec.fmtNumber(m.derivedElectricityKwh, 2) + '">') +
+                    : '<input type="number" step="0.01" min="0" class="form-control ebeElectricity" data-month="' + m.month + '" value="' + (m.electricityIsOverride ? m.electricityKwh : '') + '" placeholder="' + ec.fmtNumber(m.derivedElectricityKwh, 2) + '">') +
                     override + '</td>' +
                 '<td>' + (locked
                     ? ec.fmtKwh(m.chilledWaterKwh)
-                    : '<input type="number" step="0.01" min="0" class="ebeChilled" data-month="' + m.month + '" value="' + (m.chilledWaterKwh || '') + '">') + '</td>' +
+                    : '<input type="number" step="0.01" min="0" class="form-control ebeChilled" data-month="' + m.month + '" value="' + (m.chilledWaterKwh || '') + '">') + '</td>' +
                 '<td class="bei-calc bei-total">' + ec.fmtKwh(m.totalKwh) + '</td>' +
                 '<td class="bei-calc bei-area">' + ec.fmtKwh(m.floorAreaSqm) + '</td>' +
                 '<td class="bei-calc bei-actual"><strong>' + ec.fmtKwh(m.actualBei, 4) + '</strong></td>' +
@@ -46,9 +46,9 @@ function MainEnergyBei() {
                 '<td class="bei-result">' + resultBadge(m) + '</td>' +
                 '<td>' + (locked
                     ? ec.escape(m.remarks || '')
-                    : '<input type="text" class="ebeRemarks" data-month="' + m.month + '" value="' + ec.escape(m.remarks || '') + '">') + '</td>' +
+                    : '<input type="text" class="form-control ebeRemarks" data-month="' + m.month + '" value="' + ec.escape(m.remarks || '') + '">') + '</td>' +
                 '<td class="bei-status">' + statusBadge(m.beiStatus) + '</td>' +
-                '<td class="text-right bei-actions">' + actions(m, editable) + '</td>' +
+                '<td class="text-nowrap bei-actions">' + actions(m, editable) + '</td>' +
                 '</tr>';
         }).join(''));
     };
@@ -57,12 +57,12 @@ function MainEnergyBei() {
         if (!editable) { return ''; }
         if (m.beiStatus === 'FINAL') {
             return ec.caps.canSetup
-                ? '<a href="#" class="text-warning lnkEbeReopen" data-id="' + m.beiId + '" title="Reopen"><i class="fas fa-lock-open"></i></a>'
+                ? ec.actionBtn({ tint: 'gems-btn-action-edit', cls: 'lnkEbeReopen', title: 'Reopen', icon: 'fas fa-lock-open', extra: 'data-id="' + m.beiId + '"' })
                 : '';
         }
-        let html = '<a href="#" class="text-primary mr-2 lnkEbeSave" data-month="' + m.month + '" title="Save"><i class="fas fa-save"></i></a>';
+        let html = ec.actionBtn({ tint: 'gems-btn-action-view', cls: 'lnkEbeSave', title: 'Save', icon: 'fas fa-save', extra: 'data-month="' + m.month + '"' });
         if (m.beiId) {
-            html += '<a href="#" class="text-success lnkEbeFinal" data-id="' + m.beiId + '" title="Finalise"><i class="fas fa-check"></i></a>';
+            html += ec.actionBtn({ tint: 'gems-btn-action-edit', cls: 'lnkEbeFinal', title: 'Finalise', icon: 'fas fa-check', extra: 'data-id="' + m.beiId + '"' });
         }
         return html;
     };
@@ -72,7 +72,7 @@ function MainEnergyBei() {
         const target = Number(data.config.targetBei) || 0;
         if (typeof Highcharts === 'undefined') { return; }
         if (!target) {
-            $('#chartEbe').html('<div class="text-muted text-center py-5">Set a target BEI in the site configuration to chart the results</div>');
+            $('#chartEbe').html(ec.emptyState('fa-bullseye', 'Set a target BEI in the site configuration to chart the results'));
             return;
         }
         Highcharts.chart('chartEbe', {
@@ -116,6 +116,7 @@ function MainEnergyBei() {
         $('#mEbeTotal').text(ec.fmtNumber(months.reduce(function (s, m) { return s + Number(m.totalKwh || 0); }, 0), 2));
         renderRows();
         renderChart();
+        ec.initTooltips(document.getElementById('tblEbe'));
     };
 
     const applyMetrics = function () {
@@ -149,6 +150,7 @@ function MainEnergyBei() {
         (data.months || []).forEach(function (m) { patchRow(m, editable); });
         applyMetrics();
         renderChart();
+        ec.initTooltips(document.getElementById('tblEbe'));
     };
 
     const showSaved = function () {

@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
-  <link rel="stylesheet" href="css/gems-theme.css?p3b">
+  <link rel="stylesheet" href="css/gems-theme.css?p3c">
 
   <style>
     /* ------------------------------------------------------------------
@@ -121,6 +121,7 @@
             <a href="#sec-badges">Badges</a> &middot;
             <a href="#sec-filter">Demo 1: filter bar</a> &middot;
             <a href="#sec-table">Table + empty state</a> &middot;
+            <a href="#sec-workbook">Dense workbook (32px)</a> &middot;
             <a href="#sec-sheet">Demo 3: page sheet</a> &middot;
             <a href="#sec-modals">Demo 2: modals</a> &middot;
             <a href="#sec-focus">Focus &amp; density</a> &middot;
@@ -798,6 +799,151 @@
         </section>
 
         <!-- =========================================================
+             DENSE WORKBOOK — 32px cells (Energy helper, reuse as-is)
+             ========================================================= -->
+        <section class="cat-section" id="sec-workbook">
+          <h2>6a. Dense workbook — 32px cells, not the 38px contract</h2>
+          <p class="cat-note">
+            Application forms, filters, modals and DataTables toolbars stay on
+            <code>--gems-control-h</code> (38px). A dense HTML workbook (Energy Daily /
+            BEI, and later PTW/PPM grids that look the same) may use the existing
+            Energy helpers: <code>.enr-grid</code> + <code>.enr-grid-wrap</code> for a
+            sticky-header grid, or <code>.bei-table</code> for a card-table workbook.
+            Cell <code>.form-control</code> inputs become 32px. Reuse those selectors.
+            Do not invent a second 32px class, and do not change the default 38px system.
+          </p>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="cat-do">
+                <span class="cat-tag">Use 32px workbook cells when</span>
+                The surface is an HTML table of many inline numeric cells (a month of
+                daily readings, a 12-month BEI sheet). Horizontal scroll stays inside
+                <code>.enr-grid-wrap</code> or <code>.table-responsive</code>. Row actions
+                stay <code>.gems-btn-action</code> (already 32px).
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="cat-dont">
+                <span class="cat-tag">Do not use 32px when</span>
+                The control is a page filter, modal field, <code>gems-form-grid</code>
+                sheet, DataTables toolbar, or any ordinary form. Those stay 38px.
+                Do not set a one-off <code>height: 32px</code> on a page. Do not apply
+                <code>.enr-grid</code> to a DataTable.
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title mb-0">38px filter beside a 32px workbook</h3>
+            </div>
+            <div class="card-body">
+              <div class="gems-form-grid mb-3">
+                <div class="gems-field gems-field-6">
+                  <label class="form-label" for="wbSite">Site</label>
+                  <select class="form-select" id="wbSite">
+                    <option>HQ Campus</option>
+                  </select>
+                </div>
+                <div class="gems-field-pair">
+                  <div class="gems-field">
+                    <label class="form-label" for="wbMonth">Month</label>
+                    <select class="form-select" id="wbMonth">
+                      <option>September</option>
+                    </select>
+                  </div>
+                  <div class="gems-field">
+                    <label class="form-label" for="wbYear">Year</label>
+                    <select class="form-select" id="wbYear">
+                      <option>2026</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <p class="cat-note mb-2">
+                The selects above must measure 38px. The cells below must measure 32px.
+                Copy <code>.enr-grid</code> / <code>.enr-grid-wrap</code> from
+                <code>css/gems-theme.css</code> §15 &mdash; do not restyle them here.
+              </p>
+            </div>
+            <div class="enr-grid-wrap" id="catWorkbookWrap">
+              <table class="enr-grid" id="catWorkbook">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th class="enr-meter-head">Incoming No.1</th>
+                    <th>kWh</th>
+                    <th>MD</th>
+                    <th>Remark</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1 Sep</td>
+                    <td class="enr-meter-head"><input type="number" class="form-control" value="1200.00" aria-label="Cumulative 1 Sep"></td>
+                    <td class="enr-calc">48.00</td>
+                    <td><input type="number" class="form-control" value="12.50" aria-label="MD 1 Sep"></td>
+                    <td><input type="text" class="form-control enr-remark" value="" aria-label="Remark 1 Sep"></td>
+                    <td>
+                      <button type="button" class="btn gems-btn-action gems-btn-action-edit" title="Save" aria-label="Save 1 Sep"><i class="fas fa-save"></i></button>
+                    </td>
+                  </tr>
+                  <tr class="is-weekend">
+                    <td>2 Sep</td>
+                    <td class="enr-meter-head"><input type="number" class="form-control" value="1248.00" aria-label="Cumulative 2 Sep"></td>
+                    <td class="enr-calc">44.00</td>
+                    <td><input type="number" class="form-control" value="11.20" aria-label="MD 2 Sep"></td>
+                    <td><input type="text" class="form-control enr-remark" value="Weekend" aria-label="Remark 2 Sep"></td>
+                    <td>
+                      <button type="button" class="btn gems-btn-action gems-btn-action-edit" title="Save" aria-label="Save 2 Sep"><i class="fas fa-save"></i></button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>3 Sep</td>
+                    <td class="enr-meter-head"><input type="number" class="form-control" value="1290.00" aria-label="Cumulative 3 Sep"></td>
+                    <td class="enr-calc">42.00</td>
+                    <td><input type="number" class="form-control" value="10.80" aria-label="MD 3 Sep"></td>
+                    <td><input type="text" class="form-control enr-remark" value="" aria-label="Remark 3 Sep"></td>
+                    <td>
+                      <button type="button" class="btn gems-btn-action gems-btn-action-edit" title="Save" aria-label="Save 3 Sep"><i class="fas fa-save"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title mb-0">Workbook empty state must wrap</h3>
+            </div>
+            <div class="enr-grid-wrap" id="catWorkbookEmptyWrap">
+              <table class="enr-grid" id="catWorkbookEmpty">
+                <tbody>
+                  <tr>
+                    <td class="gems-empty-cell">
+                      <div class="gems-empty-state">
+                        <i class="fas fa-gauge"></i>
+                        <p>No incoming meters are configured for this site. Use Meter setup to add one.</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-body py-2">
+              <p class="cat-note mb-0">
+                <code>td.gems-empty-cell</code> (or a cell whose only child is
+                <code>.gems-empty-state</code>) opts out of workbook
+                <code>white-space: nowrap</code>. Data cells stay nowrap. Do not set a
+                page-specific max-width on the sentence.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
              DEMO 3 — PAGE SHEET
              ========================================================= -->
         <section class="cat-section" id="sec-sheet">
@@ -968,6 +1114,10 @@
                     <code>[data-toggle=</code> selectors and click each control once to confirm the
                     handler fires <strong>exactly once</strong> &mdash; never twice, and never
                     open-then-instantly-closed.</li>
+                <li>Workbook vs form: a dense <code>.enr-grid</code> / <code>.bei-table</code>
+                    cell is 32px; every filter, modal field and <code>gems-form-grid</code>
+                    control is still 38px. The workbook empty-state sentence wraps inside
+                    the scroller &mdash; it must not become one nowrap line at 375px.</li>
                 <li>View source: no <code>mdb.min.css</code>, <code>bootstrap.min.css</code>, <code>style.css</code>, <code>gems2-ui.css</code>, <code>popper.min.js</code> or <code>mdb*.js</code>.</li>
                 <li>Console is clean — no shim errors, no missing-plugin TypeErrors.</li>
               </ol>

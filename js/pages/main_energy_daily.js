@@ -32,25 +32,25 @@ function MainEnergyDaily() {
                 const md = cell.maxDemandKw === null ? '' : cell.maxDemandKw;
                 tds += '<td class="enr-meter-head">' +
                     (editable
-                        ? '<input type="number" step="0.01" min="0" class="edyCumulative" data-meter="' + cell.meterId + '" data-date="' + row.date + '" data-reading="' + (cell.readingId || '') + '" value="' + cumulative + '">'
+                        ? '<input type="number" step="0.01" min="0" class="form-control edyCumulative" data-meter="' + cell.meterId + '" data-date="' + row.date + '" data-reading="' + (cell.readingId || '') + '" value="' + cumulative + '">'
                         : ec.fmtKwh(cell.cumulativeKwh)) +
                     '</td>';
                 tds += '<td class="enr-calc edyCons" data-meter="' + cell.meterId + '" data-date="' + row.date + '">' + ec.fmtKwh(cell.consumptionKwh) + '</td>';
                 tds += '<td>' +
                     (editable
-                        ? '<input type="number" step="0.01" min="0" class="edyMd" data-meter="' + cell.meterId + '" data-date="' + row.date + '" value="' + md + '">'
+                        ? '<input type="number" step="0.01" min="0" class="form-control edyMd" data-meter="' + cell.meterId + '" data-date="' + row.date + '" value="' + md + '">'
                         : ec.fmtKwh(cell.maxDemandKw)) +
                     '</td>';
             });
             tds += '<td class="enr-calc edyRowTotal" data-date="' + row.date + '"><strong>' + ec.fmtKwh(row.totalKwh) + '</strong></td>';
             tds += '<td>' +
                 (editable
-                    ? '<input type="number" step="0.01" min="0" class="edyChiller" data-date="' + row.date + '" value="' + (row.chillerRunningHours === null ? '' : row.chillerRunningHours) + '">'
+                    ? '<input type="number" step="0.01" min="0" class="form-control edyChiller" data-date="' + row.date + '" value="' + (row.chillerRunningHours === null ? '' : row.chillerRunningHours) + '">'
                     : ec.fmtKwh(row.chillerRunningHours)) +
                 '</td>';
             tds += '<td>' +
                 (editable
-                    ? '<input type="text" class="enr-remark edyRemark" data-date="' + row.date + '" value="' + ec.escape(row.remark || '') + '">'
+                    ? '<input type="text" class="form-control enr-remark edyRemark" data-date="' + row.date + '" value="' + ec.escape(row.remark || '') + '">'
                     : ec.escape(row.remark || '')) +
                 '</td>';
             return '<tr class="' + (weekend ? 'is-weekend' : '') + '">' + tds + '</tr>';
@@ -102,7 +102,9 @@ function MainEnergyDaily() {
         $('#lblEdyPeriod').text(data.periodLabel + ' · ' + (data.siteName || ''));
         $('#lblEdyUpdated').text('Last refreshed: ' + (data.refreshedAt || '-'));
         if (!(data.meters || []).length) {
-            $('#tbodyEdy').html('<tr><td colspan="4" class="text-muted p-3">No incoming meters are configured for this site. Use the meter setup button to add one.</td></tr>');
+            $('#theadEdy').html('');
+            $('#tfootEdy').html('');
+            $('#tbodyEdy').html('<tr><td class="gems-empty-cell">' + ec.emptyState('fa-gauge', 'No incoming meters are configured for this site. Use Meter setup to add one.') + '</td></tr>');
         }
     };
 
@@ -181,7 +183,7 @@ function MainEnergyDaily() {
     const renderMeters = function (rows) {
         const body = $('#tblEmtList tbody');
         if (!rows || !rows.length) {
-            body.html('<tr><td colspan="5" class="text-muted">No meters yet</td></tr>');
+            body.html('<tr><td colspan="5" class="gems-empty-cell">' + ec.emptyState('fa-gauge', 'No meters yet') + '</td></tr>');
             return;
         }
         body.html(rows.map(function (r) {
@@ -190,13 +192,14 @@ function MainEnergyDaily() {
                 '<td><strong>' + ec.escape(r.meterName) + '</strong></td>' +
                 '<td>' + ec.escape(r.meterDesc || '') + '</td>' +
                 '<td>' + r.sortOrder + '</td>' +
-                '<td>' + (active ? '<span class="badge-status completed">Active</span>' : '<span class="badge-status inactive">Inactive</span>') + '</td>' +
-                '<td class="text-right">' +
-                '<a href="#" class="text-info mr-2 lnkEmtEdit" data-id="' + r.meterId + '"><i class="fas fa-pen-to-square"></i></a>' +
-                (active ? '<a href="#" class="text-danger lnkEmtDel" data-id="' + r.meterId + '"><i class="fas fa-ban"></i></a>' : '') +
+                '<td>' + ec.activeBadge(r.meterStatus) + '</td>' +
+                '<td class="text-nowrap">' +
+                ec.actionBtn({ tint: 'gems-btn-action-edit', cls: 'lnkEmtEdit', title: 'Edit', icon: 'fas fa-pen-to-square', extra: 'data-id="' + r.meterId + '"' }) +
+                (active ? ec.actionBtn({ tint: 'gems-btn-action-delete', cls: 'lnkEmtDel', title: 'Deactivate', icon: 'fas fa-ban', extra: 'data-id="' + r.meterId + '"' }) : '') +
                 '</td></tr>';
         }).join(''));
         body.data('rows', rows);
+        ec.initTooltips(body[0]);
     };
 
     const openMeters = function () {

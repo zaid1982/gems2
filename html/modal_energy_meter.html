@@ -1,39 +1,62 @@
-<div class="modal fade gems-modal" id="modal_energy_meter" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content gems-modal-card">
-      <div class="modal-header gems-modal-header">
-        <h4 class="text-white mt-2 ml-2">Incoming Meter Setup</h4>
-        <button type="button" class="close text-white gems-modal-close" data-dismiss="modal"><span>&times;</span></button>
+<!--
+  Modal: modal_energy_meter — Tabler/GEMS modal + form contract (P3C Energy).
+  Loaded by pages/energy_daily.html. JS IDs preserved from the MDB original.
+
+  gems-modal-lg because the dialog contains a table. modal-dialog-scrollable,
+  never modal-dialog-centered. No .gems-modal — that class is the legacy
+  MDB bridge in gems-theme.css section 12.
+-->
+<div class="modal fade" id="modal_energy_meter" tabindex="-1" aria-labelledby="lblEmtTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblEmtTitle">Incoming Meter Setup</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body gems-modal-body">
+      <div class="modal-body">
         <input type="hidden" id="hidEmtId">
-        <p class="text-muted">Add, rename or deactivate the incoming electricity supplies recorded for this site.</p>
-        <div class="module-table-wrapper mb-3">
-          <table id="tblEmtList" class="table table-hover table-sm mb-0">
-            <thead><tr><th>Meter</th><th>Description</th><th>Order</th><th>Status</th><th></th></tr></thead>
+        <p class="text-secondary mb-3" style="font-size:.8125rem">Add, rename or deactivate the incoming electricity supplies recorded for this site.</p>
+        <div class="table-responsive mb-3">
+          <table id="tblEmtList" class="table table-vcenter table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Meter</th>
+                <th>Description</th>
+                <th>Order</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
             <tbody></tbody>
           </table>
         </div>
-        <div class="row">
-          <div class="col-md-4 form-group">
-            <label class="waste-label" for="txtEmtName">Meter name <span class="waste-req">*</span></label>
-            <input type="text" id="txtEmtName" class="form-control" placeholder="Incoming No.3">
+        <div class="gems-form-grid">
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="txtEmtName">Meter name <span class="required" aria-hidden="true">*</span></label>
+            <input type="text" id="txtEmtName" class="form-control" placeholder="Incoming No.3" aria-required="true">
           </div>
-          <div class="col-md-4 form-group">
-            <label class="waste-label" for="txtEmtDesc">Description</label>
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="txtEmtDesc">Description</label>
             <input type="text" id="txtEmtDesc" class="form-control" placeholder="Main incoming supply 3">
           </div>
-          <div class="col-md-2 form-group">
-            <label class="waste-label" for="txtEmtOrder">Order</label>
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="txtEmtOrder">Order</label>
             <input type="number" min="1" id="txtEmtOrder" class="form-control" value="1">
           </div>
-          <div class="col-md-2 form-group d-flex align-items-end">
-            <button type="button" class="btn btn-info m-0 w-100" id="btnEmtSave">Save</button>
+          <div class="gems-field gems-field-6 gems-field-actions">
+            <button type="button" class="btn btn-primary" id="btnEmtSave">
+              <i class="fas fa-save me-2"></i>Save
+            </button>
           </div>
         </div>
       </div>
-      <div class="modal-footer gems-modal-footer">
-        <button class="btn btn-outline-info" data-dismiss="modal">Done</button>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Done
+        </button>
       </div>
     </div>
   </div>

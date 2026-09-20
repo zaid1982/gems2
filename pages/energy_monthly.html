@@ -1,88 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/energy_monthly.html — Tabler-migrated (P3C Energy).
+
+  Twelve-month summary plus stacked Highcharts. Asset stack is a verbatim
+  copy of html/head_tabler.html and html/scripts_tabler.html.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GEMS 2.0 - Monthly Electricity Summary</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
-  <style>
-    .enr-chart { height: 380px; }
-    .enr-table th, .enr-table td { white-space: nowrap; }
-    .enr-table td.enr-calc, .enr-table th.enr-calc { text-align: right; font-variant-numeric: tabular-nums; }
-    .enr-table tfoot td { font-weight: 700; background: #f8fafc; border-top: 2px solid #cbd5e1; }
-  </style>
-  <script src="js/jquery-3.7.0.min.js"></script>
-  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
-<main>
-  <div class="container-fluid module-page module-master">
-    <section>
-      <div class="gems-page-header module-page-header">
-        <div class="header-text">
-          <span class="header-subtitle">Energy Monitoring</span>
-          <h2>Monthly Electricity Summary</h2>
-          <p>Twelve months of consumption per incoming meter, derived from the daily cumulative readings.</p>
-        </div>
-        <div class="header-actions">
-          <button type="button" class="btn btn-light btn-icon" id="btnEmoRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-          <button type="button" class="btn btn-outline-white btn-icon" id="btnEmoExport" title="Export CSV"><i class="fas fa-file-excel"></i></button>
-        </div>
-      </div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-      <div class="filter-card">
-        <div class="filter-grid">
-          <div><div class="filter-label">Site</div><select id="optEmoSite" class="custom-select gems-plain-select browser-default"></select></div>
-          <div><div class="filter-label">Year</div><select id="optEmoYear" class="custom-select gems-plain-select browser-default"></select></div>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-chart-column me-2 text-primary"></i>Monthly Electricity Summary</h1>
+              <div class="page-subtitle">Twelve months of consumption per incoming meter, derived from the daily cumulative readings.</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnEmoRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="btnEmoExport"
+                      data-bs-toggle="tooltip" title="Export CSV" aria-label="Export CSV">
+                <i class="fas fa-file-excel me-2"></i>Export
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="results-summary">
-          <div id="lblEmoSummary" class="summary-pill">Loading…</div>
-        </div>
-      </div>
 
-      <div class="module-data-card mb-4">
-        <div class="module-card-header">
-          <div><h4>Consumption by month</h4><p>Stacked by incoming meter with the monthly total.</p></div>
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optEmoSite">Site</label>
+                <select id="optEmoSite" class="form-select"></select>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optEmoYear">Year</label>
+                <select id="optEmoYear" class="form-select"></select>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-2 text-secondary" style="font-size:.75rem">
+              <div id="lblEmoSummary">Loading…</div>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <div id="chartEmo" class="enr-chart"></div>
-        </div>
-      </div>
 
-      <div class="module-data-card">
-        <div class="module-card-header">
-          <div><h4>Monthly totals</h4><p>Total per meter, combined total and the average daily consumption.</p></div>
+        <div class="card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Consumption by month</h3>
+              <div class="text-secondary" style="font-size:.75rem">Stacked by incoming meter with the monthly total.</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="chartEmo" class="enr-chart"></div>
+          </div>
         </div>
-        <div class="module-table-wrapper">
-          <table class="table table-hover mb-0 enr-table" id="tblEmo">
-            <thead id="theadEmo"></thead>
-            <tbody id="tbodyEmo"></tbody>
-            <tfoot id="tfootEmo"></tfoot>
-          </table>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Monthly totals</h3>
+              <div class="text-secondary" style="font-size:.75rem">Total per meter, combined total and the average daily consumption.</div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table table-hover mb-0 enr-table" id="tblEmo">
+              <thead id="theadEmo"></thead>
+              <tbody id="tbodyEmo"></tbody>
+              <tfoot id="tfootEmo"></tfoot>
+            </table>
+          </div>
         </div>
+
       </div>
-    </section>
+    </div>
   </div>
-  <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
-<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
-<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
-<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
 <script src="js/vendor/highcharts/highcharts.js"></script>
 <script src="js/vendor/highcharts/modules/exporting.js"></script>
 <script>
-  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/energy_common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/main_energy_monthly.js?'+Date.now()+'"></scr'+'ipt>');
-  document.addEventListener('DOMContentLoaded', function(){
-    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainEnergyMonthly().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 300);
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
   });
 </script>
-</body></html>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/energy_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_energy_monthly.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try { initiatePages(); new ModalChangePassword(); new MainEnergyMonthly().init(); }
+      catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 300);
+  });
+</script>
+</body>
+</html>

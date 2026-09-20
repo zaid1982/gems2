@@ -1,5 +1,8 @@
 /**
  * Shared helpers for the Energy & Utility Monitoring screens.
+ *
+ * After P3C the Energy pages are Tabler-only. Helpers still branch on
+ * body.gems-tabler so a leftover MDB load cannot re-apply plain-select.
  */
 function EnergyCommon() {
     const self = this;
@@ -8,6 +11,10 @@ function EnergyCommon() {
 
     this.MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'];
+
+    this.isTabler = function () {
+        return !!(document.body && document.body.classList.contains('gems-tabler'));
+    };
 
     this.api = function (path, method, data) {
         return mzAjaxRequest3('energy/' + path, method || 'GET', data || '');
@@ -70,7 +77,12 @@ function EnergyCommon() {
     this.fillSelect = function (id, rows, valueKey, labelFn, placeholder, selected) {
         const el = document.getElementById(id);
         if (!el) { return; }
-        el.classList.add('custom-select', 'gems-plain-select', 'browser-default');
+        if (self.isTabler()) {
+            el.classList.add('form-select');
+            el.classList.remove('custom-select', 'gems-plain-select', 'browser-default');
+        } else {
+            el.classList.add('custom-select', 'gems-plain-select', 'browser-default');
+        }
         el.innerHTML = '';
         if (placeholder !== null && placeholder !== undefined) {
             const first = document.createElement('option');
@@ -124,6 +136,46 @@ function EnergyCommon() {
 
     this.queryParam = function (name) {
         return new URLSearchParams(window.location.search).get(name);
+    };
+
+    this.badge = function (kind, label) {
+        if (self.isTabler()) {
+            return '<span class="badge gems-badge gems-badge-' + kind + '">' + label + '</span>';
+        }
+        const status = {
+            success: 'completed',
+            warning: 'in-progress',
+            danger: 'incomplete',
+            secondary: 'neutral',
+            info: 'in-progress'
+        };
+        return '<span class="badge-status ' + (status[kind] || 'neutral') + '">' + label + '</span>';
+    };
+
+    this.activeBadge = function (status) {
+        return Number(status) === 1
+            ? self.badge('success', 'Active')
+            : self.badge('secondary', 'Inactive');
+    };
+
+    this.actionBtn = function (opts) {
+        const href = opts.href ? ' href="' + opts.href + '"' : ' type="button"';
+        const tag = opts.href ? 'a' : 'button';
+        const extra = opts.extra || '';
+        const id = opts.id ? ' id="' + opts.id + '"' : '';
+        return '<' + tag + href + id + ' class="btn gems-btn-action ' + (opts.tint || '') + ' ' + (opts.cls || '') +
+            '" data-toggle="tooltip" title="' + opts.title + '" aria-label="' + (opts.label || opts.title) + '" ' + extra +
+            '><i class="' + opts.icon + '"></i></' + tag + '>';
+    };
+
+    this.initTooltips = function (root) {
+        if (typeof window.gemsInitTooltips === 'function') {
+            window.gemsInitTooltips(root || document);
+        }
+    };
+
+    this.emptyState = function (icon, text) {
+        return '<div class="gems-empty-state"><i class="fas ' + (icon || 'fa-inbox') + '"></i><p>' + text + '</p></div>';
     };
 
     /** Export an HTML table to Excel through the DataTables button pipeline. */

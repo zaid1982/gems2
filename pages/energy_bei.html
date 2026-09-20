@@ -1,141 +1,219 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/energy_bei.html — Tabler-migrated (P3C Energy).
+
+  Site configuration, Highcharts, and the monthly BEI workbook. Asset stack
+  is a verbatim copy of html/head_tabler.html and html/scripts_tabler.html.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GEMS 2.0 - Building Energy Index</title>
   <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
   <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/mdb.min.css">
-  <link href="css/style.css" rel="stylesheet">
-  <link href="css/gems2-ui.css" rel="stylesheet">
-  <style>
-    .bei-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-    .bei-table th, .bei-table td { padding: 8px; border-bottom: 1px solid #eef2f7; white-space: nowrap; }
-    .bei-table thead th { background: #f8fafc; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.04em; color: #475569; }
-    .bei-table input { width: 130px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 4px 8px; font-size: 0.84rem; }
-    .bei-table .bei-calc { text-align: right; font-variant-numeric: tabular-nums; }
-    .bei-chart { height: 340px; }
-    .bei-override { font-size: 0.7rem; color: #b45309; font-weight: 700; }
-  </style>
-  <script src="js/jquery-3.7.0.min.js"></script>
-  <script src="js/jquery-migrate-3.4.0.min.js"></script>
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<header><div class="includeHtml" id="h-nav_left"></div><div class="includeHtml" id="h-nav_top"></div></header>
-<main>
-  <div class="container-fluid module-page module-master">
-    <section>
-      <div class="gems-page-header module-page-header">
-        <div class="header-text">
-          <span class="header-subtitle">Energy Monitoring</span>
-          <h2>Building Energy Index</h2>
-          <p>Combine electricity and chilled water against the gross floor area, then compare the result with the target BEI.</p>
-        </div>
-        <div class="header-actions">
-          <button type="button" class="btn btn-light btn-icon" id="btnEbeRefresh" title="Refresh"><i class="fas fa-sync-alt"></i></button>
-          <button type="button" class="btn btn-outline-white btn-icon" id="btnEbeExport" title="Export CSV"><i class="fas fa-file-excel"></i></button>
-        </div>
-      </div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-      <div class="module-data-card mb-4">
-        <div class="module-card-header">
-          <div><h4>Site configuration</h4><p>Applies to every month unless a month overrides it.</p></div>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-3 form-group">
-              <label class="waste-label" for="optEbeSite">Site</label>
-              <select id="optEbeSite" class="custom-select gems-plain-select browser-default"></select>
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-leaf me-2 text-primary"></i>Building Energy Index</h1>
+              <div class="page-subtitle">Combine electricity and chilled water against the gross floor area, then compare the result with the target BEI.</div>
             </div>
-            <div class="col-md-2 form-group">
-              <label class="waste-label" for="optEbeYear">Year</label>
-              <select id="optEbeYear" class="custom-select gems-plain-select browser-default"></select>
-            </div>
-            <div class="col-md-2 form-group">
-              <label class="waste-label" for="txtEbeFloor">Gross floor area (m&sup2;)</label>
-              <input type="number" step="0.01" min="0" id="txtEbeFloor" class="form-control">
-            </div>
-            <div class="col-md-2 form-group">
-              <label class="waste-label" for="txtEbeTarget">Target BEI</label>
-              <input type="number" step="0.0001" min="0" id="txtEbeTarget" class="form-control">
-            </div>
-            <div class="col-md-2 form-group">
-              <label class="waste-label" for="txtEbeFactor">Annualisation factor</label>
-              <input type="number" step="0.0001" min="0" id="txtEbeFactor" class="form-control">
-            </div>
-            <div class="col-md-1 form-group d-flex align-items-end">
-              <button type="button" class="btn btn-primary m-0 w-100" id="btnEbeSaveConfig" title="Save configuration"><i class="fas fa-save"></i></button>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnEbeRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="btnEbeExport"
+                      data-bs-toggle="tooltip" title="Export CSV" aria-label="Export CSV">
+                <i class="fas fa-file-excel me-2"></i>Export
+              </button>
             </div>
           </div>
-          <div class="waste-note">
-            <i class="fas fa-info-circle"></i>
+        </div>
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optEbeSite">Site</label>
+                <select id="optEbeSite" class="form-select"></select>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optEbeYear">Year</label>
+                <select id="optEbeYear" class="form-select"></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header">
             <div>
-              <div>BEI is conventionally kWh per m&sup2; per year. Set the annualisation factor to <strong>12</strong> when the consumption figures are monthly, or <strong>1</strong> to keep the raw ratio.</div>
-              <div>Electricity is prefilled from the daily meter readings. Typing over it marks the month as an override.</div>
+              <h3 class="card-title mb-0">Site configuration</h3>
+              <div class="text-secondary" style="font-size:.75rem">Applies to every month unless a month overrides it.</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtEbeFloor">Gross floor area (m&sup2;)</label>
+                <input type="number" step="0.01" min="0" id="txtEbeFloor" class="form-control">
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtEbeTarget">Target BEI</label>
+                <input type="number" step="0.0001" min="0" id="txtEbeTarget" class="form-control">
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtEbeFactor">Annualisation factor</label>
+                <input type="number" step="0.0001" min="0" id="txtEbeFactor" class="form-control">
+              </div>
+              <div class="gems-field gems-field-6 gems-field-actions">
+                <button type="button" class="btn btn-primary" id="btnEbeSaveConfig" title="Save configuration" aria-label="Save configuration">
+                  <i class="fas fa-save me-2"></i>Save
+                </button>
+              </div>
+            </div>
+            <div class="gems-note">
+              <i class="fas fa-info-circle"></i>
+              <div>
+                <div>BEI is conventionally kWh per m&sup2; per year. Set the annualisation factor to <strong>12</strong> when the consumption figures are monthly, or <strong>1</strong> to keep the raw ratio.</div>
+                <div>Electricity is prefilled from the daily meter readings. Typing over it marks the month as an override.</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="metrics-row">
-        <div class="metric-card"><div class="metric-label">Target BEI</div><div class="metric-value" id="mEbeTarget">-</div><div class="metric-subtext">From the site configuration</div></div>
-        <div class="metric-card"><div class="metric-label">Months Passing</div><div class="metric-value text-success" id="mEbePass">-</div><div class="metric-subtext">Actual at or below target</div></div>
-        <div class="metric-card"><div class="metric-label">Months Failing</div><div class="metric-value text-danger" id="mEbeFail">-</div><div class="metric-subtext">Actual above target</div></div>
-        <div class="metric-card"><div class="metric-label">Year Total Energy</div><div class="metric-value" id="mEbeTotal">-</div><div class="metric-subtext">Electricity and chilled water</div></div>
-      </div>
+        <div class="row row-cards mb-3">
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Target BEI</div>
+              <div class="h2 mb-0" id="mEbeTarget">-</div>
+              <div class="text-secondary" style="font-size:.75rem">From the site configuration</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Months Passing</div>
+              <div class="h2 mb-0 text-success" id="mEbePass">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Actual at or below target</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Months Failing</div>
+              <div class="h2 mb-0 text-danger" id="mEbeFail">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Actual above target</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Year Total Energy</div>
+              <div class="h2 mb-0" id="mEbeTotal">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Electricity and chilled water</div>
+            </div></div>
+          </div>
+        </div>
 
-      <div class="module-data-card mb-4">
-        <div class="module-card-header">
-          <div><h4>Actual BEI against target</h4><p>Bars above the dashed target line fail PI 3B.</p></div>
+        <div class="card mb-3">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Actual BEI against target</h3>
+              <div class="text-secondary" style="font-size:.75rem">Bars above the dashed target line fail PI 3B.</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="chartEbe" class="bei-chart"></div>
+          </div>
         </div>
-        <div class="card-body">
-          <div id="chartEbe" class="bei-chart"></div>
-        </div>
-      </div>
 
-      <div class="module-data-card">
-        <div class="module-card-header">
-          <div><h4>Monthly BEI <span id="lblEbeSaveState" class="autosave-state" hidden></span></h4><p>Enter the chilled water consumption for each month. Values save in the background.</p></div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Monthly BEI</h3>
+              <div class="text-secondary" style="font-size:.75rem">Enter the chilled water consumption for each month. Values save in the background.</div>
+            </div>
+            <div class="gems-card-toolbar">
+              <span id="lblEbeSaveState" class="autosave-state" hidden></span>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table table-hover mb-0 bei-table" id="tblEbe">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Electricity (kWh)</th>
+                  <th>Chilled Water (kWh)</th>
+                  <th class="bei-calc">Total (kWh)</th>
+                  <th class="bei-calc">Floor Area (m&sup2;)</th>
+                  <th class="bei-calc">Actual BEI</th>
+                  <th class="bei-calc">Target BEI</th>
+                  <th>Result</th>
+                  <th>Remarks</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
-        <div class="module-table-wrapper">
-          <table class="bei-table" id="tblEbe">
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Electricity (kWh)</th>
-                <th>Chilled Water (kWh)</th>
-                <th class="bei-calc">Total (kWh)</th>
-                <th class="bei-calc">Floor Area (m&sup2;)</th>
-                <th class="bei-calc">Actual BEI</th>
-                <th class="bei-calc">Target BEI</th>
-                <th>Result</th>
-                <th>Remarks</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+
       </div>
-    </section>
+    </div>
   </div>
-  <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
-<script>$('.includeHtml').each(function(){const i=$(this).attr('id');$('#'+i).load('html/'+i.substr(2)+'.html?'+Date.now());});</script>
-<script src="js/popper.min.js"></script><script src="js/bootstrap.js"></script><script src="js/mdb.min.js"></script>
-<script src="js/addons/crypto.js"></script><script src="js/addons/moment.min.js"></script>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
 <script src="js/vendor/highcharts/highcharts.js"></script>
 <script src="js/vendor/highcharts/modules/exporting.js"></script>
 <script>
-  document.write('<scr'+'ipt src="js/common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/energy_common.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/modal_change_password.js?'+Date.now()+'"></scr'+'ipt>');
-  document.write('<scr'+'ipt src="js/pages/main_energy_bei.js?'+Date.now()+'"></scr'+'ipt>');
-  document.addEventListener('DOMContentLoaded', function(){
-    ShowLoader(); setTimeout(function(){ try { initiatePages(); new ModalChangePassword(); new MainEnergyBei().init(); } catch(e){ toastr['error'](e.message,_ALERT_TITLE_ERROR);} HideLoader(); }, 300);
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
   });
 </script>
-</body></html>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/energy_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_energy_bei.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try { initiatePages(); new ModalChangePassword(); new MainEnergyBei().init(); }
+      catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 300);
+  });
+</script>
+</body>
+</html>

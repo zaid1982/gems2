@@ -503,6 +503,26 @@ body.gems-tabler {
 .gems-empty-state i { font-size: 1.75rem; margin-bottom: 0.5rem; display: block; }
 .gems-empty-state p { margin-bottom: 0.75rem; }
 
+/* Workbook / table exception: data cells stay nowrap and may scroll inside
+   their own scroller. An empty-state message inside a cell must wrap to the
+   scroller width so a long sentence cannot become one horizontally scrolling
+   line. Use td.gems-empty-cell (or a direct .gems-empty-state child).
+   body. prefix beats later module nowrap rules such as .enr-grid td. */
+body.gems-tabler table td.gems-empty-cell,
+body.gems-tabler table td:has(> .gems-empty-state) {
+  white-space: normal;
+}
+body.gems-tabler table:has(> tbody > tr > td.gems-empty-cell),
+body.gems-tabler table:has(> tbody > tr > td > .gems-empty-state) {
+  width: 100%;
+  max-width: 100%;
+}
+body.gems-tabler td > .gems-empty-state,
+body.gems-tabler td.gems-empty-cell .gems-empty-state {
+  white-space: normal;
+  max-width: 100%;
+}
+
 /* DataTables toolbar shares the one control baseline.
    Note: form-control-sm / form-select-sm change font and padding but NOT height —
    the height rule above is deliberate and applies to every control on the page, so
@@ -1004,6 +1024,9 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
    autosave). Those rules used to live in gems2-ui.css / page <style> blocks,
    which a Tabler page must never load. This section only restyles those
    existing hooks with the P0 tokens.
+
+   .autosave-state is the shared KPA + Energy hook (same class, same
+   saving/saved/error/idle semantics). Do not restyle it per page.
    -------------------------------------------------------------------------- */
 .gems-tabler .kpa-chart { height: 280px; }
 .gems-tabler .kpa-chart-sm { height: 220px; }
@@ -1032,4 +1055,122 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
 .gems-tabler .autosave-state.is-saved { color: #166534; }
 .gems-tabler .autosave-state.is-error { color: #991b1b; }
 .gems-tabler .autosave-state[hidden] { display: none !important; }
+
+/* --------------------------------------------------------------------------
+   15. Energy module helpers (P3C)
+   --------------------------------------------------------------------------
+   Daily / BEI workbooks are HTML tables with inline inputs, not DataTables.
+   Page filters and modal fields keep the 38px contract. Cell inputs share
+   the same border / radius / focus ring but stay 32px so a 31-day grid
+   remains usable. Scroll stays inside .enr-grid-wrap / .table-responsive
+   so charts and cards cannot create page-level overflow.
+
+   .enr-grid / .enr-grid-wrap / .bei-table are the shared dense-workbook
+   helpers (documented in pages/ui_catalog.html). Do not invent a second
+   32px control class. Do not use these selectors on filters, modals, or
+   gems-form-grid fields. Empty-state wrap is the shared table exception
+   in § empty-state, not a page-specific width hack.
+   -------------------------------------------------------------------------- */
+.gems-tabler .enr-chart,
+.gems-tabler .bei-chart {
+  height: 320px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+@media (min-width: 1600px) {
+  .gems-tabler .enr-chart { height: 380px; }
+  .gems-tabler .bei-chart { height: 340px; }
+}
+
+.gems-tabler .enr-grid-wrap {
+  max-height: 70vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gems-tabler .enr-grid {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+}
+.gems-tabler .enr-grid th,
+.gems-tabler .enr-grid td {
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--gems-border);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.gems-tabler .enr-grid thead th {
+  background: #f8fafc;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gems-text-soft);
+  text-transform: none;
+  letter-spacing: normal;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+.gems-tabler .enr-grid thead tr.enr-grid-sub th {
+  top: 2.25rem;
+  z-index: 2;
+}
+.gems-tabler .enr-grid tbody tr.is-weekend > * {
+  background: #f8fafc;
+}
+.gems-tabler .enr-grid tfoot td {
+  font-weight: 700;
+  background: #f8fafc;
+  border-top: 2px solid #cbd5e1;
+}
+.gems-tabler .enr-meter-head {
+  border-left: 2px solid var(--gems-border);
+}
+
+.gems-tabler .bei-table th,
+.gems-tabler .bei-table td,
+.gems-tabler .enr-table th,
+.gems-tabler .enr-table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.gems-tabler .bei-table tfoot td,
+.gems-tabler .enr-table tfoot td {
+  font-weight: 700;
+  background: #f8fafc;
+  border-top: 2px solid #cbd5e1;
+}
+
+.gems-tabler .enr-calc,
+.gems-tabler .bei-calc {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.gems-tabler .bei-override {
+  font-size: 0.6875rem;
+  color: #9a6206;
+  font-weight: 600;
+}
+
+/* Workbook cells: same chrome as form-control, compact height for the grid. */
+.gems-tabler .enr-grid .form-control,
+.gems-tabler .bei-table .form-control {
+  height: 32px;
+  min-height: 32px;
+  width: 7.5rem;
+  padding-inline: 0.5rem;
+  font-size: 0.8125rem;
+}
+.gems-tabler .enr-grid .form-control.enr-remark,
+.gems-tabler .bei-table .form-control.ebeRemarks {
+  width: 11rem;
+}
+.gems-tabler .enr-grid .form-control:focus,
+.gems-tabler .bei-table .form-control:focus {
+  border-color: var(--gems-primary);
+  box-shadow: var(--gems-focus-ring);
+  outline: none;
+}
 

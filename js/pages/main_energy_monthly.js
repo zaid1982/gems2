@@ -36,7 +36,7 @@ function MainEnergyMonthly() {
         $('#lblEmoSummary').text('Year ' + data.year + ' · ' + (data.siteName || '') + ' · ' + ec.fmtNumber(data.totalKwh, 2) + ' kWh total');
 
         if (typeof Highcharts === 'undefined' || !meters.length) {
-            $('#chartEmo').html('<div class="text-muted text-center py-5">No incoming meters are configured for this site</div>');
+            $('#chartEmo').html(ec.emptyState('fa-gauge', 'No incoming meters are configured for this site'));
             return;
         }
         Highcharts.chart('chartEmo', {
