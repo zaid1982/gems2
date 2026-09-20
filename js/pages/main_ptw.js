@@ -10,148 +10,161 @@ function MainPtw() {
     let userSite;
     let modalCreatePtwClass;
 
+    function exportCellText(data) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = data;
+        return tmp.textContent || tmp.innerText || '';
+    }
+
     this.init = function () {
         if (!mzIsRoleExist('11')) {
             $('#btnPtwAdd').hide();
         }
 
-        $('#lblPtwSiteName').html('Site Name : <b>'+refSite[userSite]['siteName']+'</b>');
+        const siteName = refSite && refSite[userSite] ? refSite[userSite]['siteName'] : '';
+        $('#lblPtwSiteName').html('Site Name : <b>' + GemsUI.escape(siteName) + '</b>');
 
-        oTablePtw =  $('#dtPtw').DataTable({
+        oTablePtw = $('#dtPtw').DataTable({
             bLengthChange: false,
             bFilter: true,
-            "aaSorting": [1, 'desc'],
-            fnRowCallback : function(nRow, aData, iDisplayIndex){
+            aaSorting: [1, 'desc'],
+            language: GemsUI.dtEmpty('fa-file-signature', 'No PTW permits recorded.', 'No permits match the current search or filter.'),
+            dom: GemsUI.dtDom,
+            fnRowCallback: function (nRow, aData, iDisplayIndex) {
                 const info = oTablePtw.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
-            },
-            drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPtwDelete').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTablePtw.row(parseInt(rowId)).data();
-                        modalConfirmDeleteClass.delete(currentRow['ptwPermitId'], self);
-                    }
-                });
-                $('.lnkPtwPdf').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        ShowLoader();
-                        setTimeout(function () {
-                            try {
-                                const rowId = linkId.substr(linkIndex+1);
-                                const currentRow = oTablePtw.row(parseInt(rowId)).data();
-                                let pdfId = currentRow['pdfId'];
-                                const resultRequest = mzAjaxRequest('ptw.php', 'POST', {action: 'generate_pdf', ptwPermitId:currentRow['ptwPermitId']});
-                                if (resultRequest.success) {
-                                    const resultPdf = resultRequest.result;
-                                    pdfId = resultPdf.pdfId;
-                                    oTablePtw.cell(parseInt(rowId), 16).data(pdfId).draw();
-                                    mzOpenPdfModal('/'+resultPdf.pdfFullPath);
-                                } else {
-                                    toastr['error'](resultRequest.error, _ALERT_TITLE_ERROR);
-                                }
-                            } catch (e) {
-                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                            }
-                            HideLoader();
-                        }, 200);
-                    }
-                });
-                $('.lnkPtwEdit').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTablePtw.row(parseInt(rowId)).data();
-                        window.location.href = 'ptw_form.html?id=' + currentRow['ptwPermitId'];
-                    }
-                });
-                $('.lnkPtwView').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        const rowId = linkId.substr(linkIndex+1);
-                        const currentRow = oTablePtw.row(parseInt(rowId)).data();
-                        viewPtwDetails(currentRow['ptwPermitId']);
-                    }
-                });
-            },
-            buttons: [
-                {
-                    extend: 'excelHtml5',
-                    title: 'PTW Permits',
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                },
-                {
-                    extend: 'csvHtml5',
-                    title: 'PTW Permits'
-                },
-                {
-                    extend: 'pdfHtml5',
-                    title: 'PTW Permits',
-                    orientation: 'landscape',
-                    pageSize: 'A4'
-                },
-                {
-                    extend: 'print',
-                    title: 'PTW Permits'
-                }
-            ]
+            }
         });
+
+        GemsUI.bindDtTooltips('#dtPtw');
+
+        $('#dtPtw').on('click', '.lnkPtwDelete', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTablePtw.row(parseInt(rowId)).data();
+                modalConfirmDeleteClass.delete(currentRow['ptwPermitId'], self);
+            }
+        });
+        $('#dtPtw').on('click', '.lnkPtwPdf', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                ShowLoader();
+                setTimeout(function () {
+                    try {
+                        const rowId = linkId.substr(linkIndex + 1);
+                        const currentRow = oTablePtw.row(parseInt(rowId)).data();
+                        let pdfId = currentRow['pdfId'];
+                        const resultRequest = mzAjaxRequest('ptw.php', 'POST', {action: 'generate_pdf', ptwPermitId: currentRow['ptwPermitId']});
+                        if (resultRequest.success) {
+                            const resultPdf = resultRequest.result;
+                            pdfId = resultPdf.pdfId;
+                            oTablePtw.cell(parseInt(rowId), 16).data(pdfId).draw();
+                            mzOpenPdfModal('/' + resultPdf.pdfFullPath);
+                        } else {
+                            toastr['error'](resultRequest.error, _ALERT_TITLE_ERROR);
+                        }
+                    } catch (e) {
+                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                    }
+                    HideLoader();
+                }, 200);
+            }
+        });
+        $('#dtPtw').on('click', '.lnkPtwEdit', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTablePtw.row(parseInt(rowId)).data();
+                window.location.href = 'ptw_form.html?id=' + currentRow['ptwPermitId'];
+            }
+        });
+        $('#dtPtw').on('click', '.lnkPtwView', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                const rowId = linkId.substr(linkIndex + 1);
+                const currentRow = oTablePtw.row(parseInt(rowId)).data();
+                viewPtwDetails(currentRow['ptwPermitId']);
+            }
+        });
+
+        let cntExport;
+        const btnOpt = {
+            exportOptions: {
+                columns: ':visible',
+                format: {
+                    body: function (data, row, column) {
+                        if (row === 0 && column === 0) {
+                            cntExport = 1;
+                        }
+                        return column === 0 ? cntExport++ : exportCellText(data);
+                    }
+                }
+            }
+        };
 
         new $.fn.dataTable.Buttons(oTablePtw, {
             buttons: [
-                {
-                    extend: 'collection',
-                    text: '<i class="fas fa-download"></i>',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2',
-                    buttons: ['excelHtml5', 'csvHtml5', 'pdfHtml5', 'print']
-                }
+                $.extend(true, {}, btnOpt, {
+                    extend: 'print',
+                    text: '<i class="fas fa-print"></i>',
+                    title: 'PTW Permits',
+                    titleAttr: 'Print',
+                    className: 'btn btn-outline-secondary btn-sm'
+                }),
+                $.extend(true, {}, btnOpt, {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i>',
+                    title: 'PTW Permits',
+                    titleAttr: 'Excel',
+                    className: 'btn btn-outline-secondary btn-sm'
+                }),
+                $.extend(true, {}, btnOpt, {
+                    extend: 'csvHtml5',
+                    text: '<i class="fas fa-file-csv"></i>',
+                    title: 'PTW Permits',
+                    titleAttr: 'CSV',
+                    className: 'btn btn-outline-secondary btn-sm'
+                }),
+                $.extend(true, {}, btnOpt, {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf"></i>',
+                    title: 'PTW Permits',
+                    titleAttr: 'Pdf',
+                    orientation: 'landscape',
+                    className: 'btn btn-outline-secondary btn-sm'
+                })
             ]
-        });
+        }).container().appendTo($('#btnDtPtwExport'));
 
-        oTablePtw.buttons().container().appendTo('#btnDtPtwExport');
-
-        // Column visibility
-        $('#optPtwColumns').on('change', function() {
-            var selectedColumns = $(this).val();
-            
-            // Hide all columns first (except first and action columns)
-            for (var i = 1; i < oTablePtw.columns()[0].length - 1; i++) {
+        $('#optPtwColumns').on('change', function () {
+            const selectedColumns = $(this).val();
+            for (let i = 1; i < oTablePtw.columns()[0].length - 1; i++) {
                 oTablePtw.column(i).visible(false);
             }
-            
-            // Show selected columns
             if (selectedColumns) {
-                selectedColumns.forEach(function(col) {
+                selectedColumns.forEach(function (col) {
                     oTablePtw.column(parseInt(col)).visible(true);
                 });
             }
         });
 
-        // Search functionality
-        $('#txtPtwSearch').on('keyup', function() {
+        $('#txtPtwSearch').on('keyup', function () {
             oTablePtw.search(this.value).draw();
         });
 
-        // Refresh button
         $('#btnDtPtwRefresh').off('click').on('click', function () {
             self.refreshPtwData();
         });
 
-        // Add new PTW button
         $('#btnPtwAdd').off('click').on('click', function () {
             modalCreatePtwClass.show();
         });
 
-        // Status filter links
         $('.linkPtwStatus').off('click').on('click', function () {
             const statusFilter = $(this).attr('id').replace('linkPtw', '');
             self.filterByStatus(statusFilter);
@@ -164,25 +177,21 @@ function MainPtw() {
 
     this.refreshPtwData = function () {
         ShowLoader();
-        
+
         try {
             const arrPtwData = mzAjaxRequest('ptw.php', 'GET', {action: 'list'});
-            
+
             oTablePtw.clear();
-            
-            let rowsAdded = 0;
-            
+
             if (arrPtwData && Array.isArray(arrPtwData) && arrPtwData.length > 0) {
-                // Just try the first record for now
                 const firstPtw = arrPtwData[0];
-                
                 try {
-                    const rowData = [
-                        '2', // Row number
+                    oTablePtw.row.add([
+                        '2',
                         firstPtw.created_date || '',
                         firstPtw.ptw_permit_number || '',
                         firstPtw.ptw_permit_description || '',
-                        'Site Name', // Site name - simplified
+                        'Site Name',
                         firstPtw.ptw_work_area || '',
                         firstPtw.ptw_work_type || '',
                         firstPtw.ptw_applicant_name || '',
@@ -190,114 +199,124 @@ function MainPtw() {
                         firstPtw.ptw_status || '',
                         firstPtw.ptw_valid_from || '',
                         firstPtw.ptw_valid_to || '',
-                        '0', // Worker count
+                        '0',
                         firstPtw.ptw_contractor_company || '',
-                        'Creator Name', // Created by name
-                        '<i class="fas fa-eye"></i>', // Action buttons
-                        '', // PDF ID
+                        'Creator Name',
+                        '<i class="fas fa-eye"></i>',
+                        '',
                         firstPtw.ptw_permit_id || '',
                         firstPtw.ptw_status || '',
                         firstPtw.ptw_risk_level || '',
                         firstPtw.created_by || '',
-                        '', // Approved supervisor
-                        '', // Approved SHE
-                        '', // Approved FM
+                        '',
+                        '',
+                        '',
                         firstPtw.approved_supervisor_date || '',
                         firstPtw.approved_she_date || '',
                         firstPtw.approved_fm_date || '',
                         firstPtw.created_date || ''
-                    ];
-                    
-                    oTablePtw.row.add(rowData);
-                    rowsAdded++;
-                    
+                    ]);
                 } catch (e) {
                     console.error('Error processing PTW record:', e);
                 }
             }
-            
+
             oTablePtw.draw();
-            
             self.updateStatusLinks(arrPtwData || []);
-            
         } catch (error) {
-            console.error('PTW API call failed:', error);
             toastr['error'](error.message, _ALERT_TITLE_ERROR);
         }
-        
+
         HideLoader();
     };
 
-    this.getStatusBadge = function(status) {
-        const badges = {
-            'DRAFT': '<span class="badge badge-secondary">Draft</span>',
-            'PENDING_SUPERVISOR': '<span class="badge badge-warning">Pending Supervisor</span>',
-            'PENDING_SHE': '<span class="badge badge-warning">Pending SHE</span>',
-            'PENDING_FM': '<span class="badge badge-warning">Pending FM</span>',
-            'APPROVED': '<span class="badge badge-info">Approved</span>',
-            'ACTIVE': '<span class="badge badge-success">Active</span>',
-            'COMPLETED': '<span class="badge badge-dark">Completed</span>',
-            'CANCELLED': '<span class="badge badge-danger">Cancelled</span>'
+    this.getStatusBadge = function (status) {
+        const kinds = {
+            DRAFT: 'secondary',
+            PENDING_SUPERVISOR: 'warning',
+            PENDING_SHE: 'warning',
+            PENDING_FM: 'warning',
+            APPROVED: 'info',
+            ACTIVE: 'success',
+            COMPLETED: 'secondary',
+            CANCELLED: 'danger'
         };
-        return badges[status] || '<span class="badge badge-light">' + status + '</span>';
+        const labels = {
+            DRAFT: 'Draft',
+            PENDING_SUPERVISOR: 'Pending Supervisor',
+            PENDING_SHE: 'Pending SHE',
+            PENDING_FM: 'Pending FM',
+            APPROVED: 'Approved',
+            ACTIVE: 'Active',
+            COMPLETED: 'Completed',
+            CANCELLED: 'Cancelled'
+        };
+        return GemsUI.badge(kinds[status] || 'secondary', GemsUI.escape(labels[status] || status));
     };
 
-    this.getRiskBadge = function(risk) {
-        const badges = {
-            'LOW': '<span class="badge badge-success">Low</span>',
-            'MEDIUM': '<span class="badge badge-warning">Medium</span>',
-            'HIGH': '<span class="badge badge-danger">High</span>',
-            'CRITICAL': '<span class="badge badge-danger"><i class="fas fa-exclamation-triangle"></i> Critical</span>'
+    this.getRiskBadge = function (risk) {
+        const kinds = {
+            LOW: 'success',
+            MEDIUM: 'warning',
+            HIGH: 'danger',
+            CRITICAL: 'danger'
         };
-        return badges[risk] || '<span class="badge badge-light">' + risk + '</span>';
-    };
-
-    this.getActionButtons = function(ptw, index) {
-        let buttons = '';
-        buttons += '<a href="javascript:void(0);" class="lnkPtwView" id="lnkPtwView_' + index + '" data-toggle="tooltip" title="View Details"><i class="fas fa-eye text-info"></i></a> ';
-        
-        if (ptw.ptw_status === 'DRAFT') {
-            buttons += '<a href="javascript:void(0);" class="lnkPtwEdit" id="lnkPtwEdit_' + index + '" data-toggle="tooltip" title="Edit"><i class="fas fa-edit text-primary"></i></a> ';
-            buttons += '<a href="javascript:void(0);" class="lnkPtwDelete" id="lnkPtwDelete_' + index + '" data-toggle="tooltip" title="Delete"><i class="fas fa-trash text-danger"></i></a> ';
+        const labels = {
+            LOW: 'Low',
+            MEDIUM: 'Medium',
+            HIGH: 'High',
+            CRITICAL: 'Critical'
+        };
+        let label = GemsUI.escape(labels[risk] || risk);
+        if (risk === 'CRITICAL') {
+            label = '<i class="fas fa-exclamation-triangle"></i> ' + label;
         }
-        
-        buttons += '<a href="javascript:void(0);" class="lnkPtwPdf" id="lnkPtwPdf_' + index + '" data-toggle="tooltip" title="Generate PDF"><i class="fas fa-file-pdf text-danger"></i></a>';
-        
+        return GemsUI.badge(kinds[risk] || 'secondary', label);
+    };
+
+    this.getActionButtons = function (ptw, index) {
+        let buttons = '';
+        buttons += GemsUI.actionBtn({id: 'lnkPtwView_' + index, cls: 'lnkPtwView', icon: 'fas fa-eye', title: 'View Details'});
+        if (ptw.ptw_status === 'DRAFT') {
+            buttons += GemsUI.actionBtn({id: 'lnkPtwEdit_' + index, cls: 'lnkPtwEdit', icon: 'fas fa-edit', title: 'Edit'});
+            buttons += GemsUI.actionBtn({id: 'lnkPtwDelete_' + index, cls: 'lnkPtwDelete', icon: 'fas fa-trash', title: 'Delete'});
+        }
+        buttons += GemsUI.actionBtn({id: 'lnkPtwPdf_' + index, cls: 'lnkPtwPdf', icon: 'far fa-file-pdf', title: 'Generate PDF'});
         return buttons;
     };
 
-    this.filterByStatus = function(status) {
+    this.filterByStatus = function (status) {
         if (status === 'All') {
-            oTablePtw.column(18).search('').draw(); // Clear status filter
+            oTablePtw.column(18).search('').draw();
         } else {
             const statusMap = {
-                'Draft': 'DRAFT',
-                'PendingSupervisor': 'PENDING_SUPERVISOR',
-                'PendingShe': 'PENDING_SHE',
-                'PendingFm': 'PENDING_FM',
-                'Approved': 'APPROVED',
-                'Active': 'ACTIVE',
-                'Completed': 'COMPLETED',
-                'Cancelled': 'CANCELLED'
+                Draft: 'DRAFT',
+                PendingSupervisor: 'PENDING_SUPERVISOR',
+                PendingShe: 'PENDING_SHE',
+                PendingFm: 'PENDING_FM',
+                Approved: 'APPROVED',
+                Active: 'ACTIVE',
+                Completed: 'COMPLETED',
+                Cancelled: 'CANCELLED'
             };
             oTablePtw.column(18).search(statusMap[status] || status).draw();
         }
     };
 
-    this.updateStatusLinks = function(data) {
+    this.updateStatusLinks = function (data) {
         const statusCounts = {
-            'All': data.length,
-            'DRAFT': 0,
-            'PENDING_SUPERVISOR': 0,
-            'PENDING_SHE': 0,
-            'PENDING_FM': 0,
-            'APPROVED': 0,
-            'ACTIVE': 0,
-            'COMPLETED': 0,
-            'CANCELLED': 0
+            All: data.length,
+            DRAFT: 0,
+            PENDING_SUPERVISOR: 0,
+            PENDING_SHE: 0,
+            PENDING_FM: 0,
+            APPROVED: 0,
+            ACTIVE: 0,
+            COMPLETED: 0,
+            CANCELLED: 0
         };
 
-        data.forEach(function(ptw) {
+        data.forEach(function (ptw) {
             if (statusCounts.hasOwnProperty(ptw.ptw_status)) {
                 statusCounts[ptw.ptw_status]++;
             }
@@ -314,15 +333,14 @@ function MainPtw() {
         $('#linkPtwCancelled').html('Cancelled (' + statusCounts.CANCELLED + ')');
     };
 
-    this.loadPtwStatusSummary = function() {
+    this.loadPtwStatusSummary = function () {
         const resultRequest = mzAjaxRequest('ptw.php', 'GET', {action: 'statistics'});
         if (resultRequest.success) {
             const stats = resultRequest.result;
-            // Update any status summary displays if needed
         }
     };
 
-    this.loadPtwChart = function() {
+    this.loadPtwChart = function () {
         const resultRequest = mzAjaxRequest('ptw.php', 'GET', {action: 'chart_data'});
         if (resultRequest.success) {
             const chartData = resultRequest.result;
@@ -330,22 +348,12 @@ function MainPtw() {
         }
     };
 
-    this.renderPtwChart = function(data) {
+    this.renderPtwChart = function (data) {
         Highcharts.chart('chartPtwByStatus', {
-            chart: {
-                type: 'pie'
-            },
-            title: {
-                text: 'PTW Permits by Status'
-            },
-            tooltip: {
-                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-            },
-            accessibility: {
-                point: {
-                    valueSuffix: '%'
-                }
-            },
+            chart: { type: 'pie' },
+            title: { text: 'PTW Permits by Status' },
+            tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
+            accessibility: { point: { valueSuffix: '%' } },
             plotOptions: {
                 pie: {
                     allowPointSelect: true,
@@ -376,52 +384,53 @@ function MainPtw() {
         HideLoader();
     };
 
-    // Setters
-    this.setUserSite = function(value) { userSite = value; };
-    this.setRefSite = function(value) { refSite = value; };
-    this.setRefUser = function(value) { refUser = value; };
-    this.setRefPpmGroup = function(value) { refPpmGroup = value; };
-    this.setRefStatus = function(value) { refStatus = value; };
-    this.setModalCreatePtw = function(value) { modalCreatePtwClass = value; };
+    this.getClassName = function () {
+        return className;
+    };
+
+    this.setUserSite = function (value) { userSite = value; };
+    this.setRefSite = function (value) { refSite = value; };
+    this.setRefUser = function (value) { refUser = value; };
+    this.setRefPpmGroup = function (value) { refPpmGroup = value; };
+    this.setRefStatus = function (value) { refStatus = value; };
+    this.setModalCreatePtw = function (value) { modalCreatePtwClass = value; };
 }
 
 function viewPtwDetails(permitId) {
     const resultRequest = mzAjaxRequest('ptw.php', 'GET', {action: 'details', permit_id: permitId});
     if (resultRequest.success) {
         const permit = resultRequest.result;
-        let content = `
-            <div class="row">
-                <div class="col-6"><strong>Permit Number:</strong> ${permit.ptwPermitNumber}</div>
-                <div class="col-6"><strong>Status:</strong> ${permit.ptwStatus}</div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-12"><strong>Description:</strong> ${permit.ptwPermitDescription}</div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-6"><strong>Work Area:</strong> ${permit.ptwWorkArea}</div>
-                <div class="col-6"><strong>Work Type:</strong> ${permit.ptwWorkType}</div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-6"><strong>Risk Level:</strong> ${permit.ptwRiskLevel}</div>
-                <div class="col-6"><strong>Valid From:</strong> ${permit.ptwValidFrom}</div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-6"><strong>Valid To:</strong> ${permit.ptwValidTo}</div>
-                <div class="col-6"><strong>Applicant:</strong> ${permit.ptwApplicantName}</div>
-            </div>
-        `;
-        
+        let content =
+            '<div class="row">' +
+                '<div class="col-6"><strong>Permit Number:</strong> ' + GemsUI.escape(permit.ptwPermitNumber) + '</div>' +
+                '<div class="col-6"><strong>Status:</strong> ' + GemsUI.escape(permit.ptwStatus) + '</div>' +
+            '</div>' +
+            '<div class="row mt-2">' +
+                '<div class="col-12"><strong>Description:</strong> ' + GemsUI.escape(permit.ptwPermitDescription) + '</div>' +
+            '</div>' +
+            '<div class="row mt-2">' +
+                '<div class="col-6"><strong>Work Area:</strong> ' + GemsUI.escape(permit.ptwWorkArea) + '</div>' +
+                '<div class="col-6"><strong>Work Type:</strong> ' + GemsUI.escape(permit.ptwWorkType) + '</div>' +
+            '</div>' +
+            '<div class="row mt-2">' +
+                '<div class="col-6"><strong>Risk Level:</strong> ' + GemsUI.escape(permit.ptwRiskLevel) + '</div>' +
+                '<div class="col-6"><strong>Valid From:</strong> ' + GemsUI.escape(permit.ptwValidFrom) + '</div>' +
+            '</div>' +
+            '<div class="row mt-2">' +
+                '<div class="col-6"><strong>Valid To:</strong> ' + GemsUI.escape(permit.ptwValidTo) + '</div>' +
+                '<div class="col-6"><strong>Applicant:</strong> ' + GemsUI.escape(permit.ptwApplicantName) + '</div>' +
+            '</div>';
+
         if (permit.workers && permit.workers.length > 0) {
             content += '<div class="row mt-3"><div class="col-12"><strong>Workers:</strong></div></div>';
             content += '<div class="table-responsive"><table class="table table-sm">';
             content += '<thead><tr><th>Name</th><th>IC Number</th><th>Company</th></tr></thead><tbody>';
-            permit.workers.forEach(function(worker) {
-                content += `<tr><td>${worker.workerName}</td><td>${worker.workerIcNumber}</td><td>${worker.workerCompany}</td></tr>`;
+            permit.workers.forEach(function (worker) {
+                content += '<tr><td>' + GemsUI.escape(worker.workerName) + '</td><td>' + GemsUI.escape(worker.workerIcNumber) + '</td><td>' + GemsUI.escape(worker.workerCompany) + '</td></tr>';
             });
             content += '</tbody></table></div>';
         }
-        
-        // Show in modal or dedicated view
+
         mzShowAlert('PTW Permit Details', content);
     } else {
         toastr['error'](resultRequest.error, _ALERT_TITLE_ERROR);

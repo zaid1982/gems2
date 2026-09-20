@@ -1,138 +1,103 @@
-<!-- Modal Create PTW -->
-<div class="modal fade gems-modal" id="modalCreatePtw" tabindex="-1" role="dialog" aria-labelledby="modalCreatePtwLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content gems-modal-card">
-            <div class="modal-header gems-modal-header">
-                <h5 class="modal-title" id="modalCreatePtwLabel">Create New PTW Permit</h5>
-                <button type="button" class="close gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_create_ptw — Tabler/GEMS modal + form contract (P5-5).
+
+  Loaded by pages/ptw_management.html ONLY.
+  gems-modal-lg + modal-dialog-scrollable, never modal-dialog-centered.
+  Native datetime-local for #dtMcpValidFrom / #dtMcpValidTo.
+  Visible labels, gems-form-grid, H3 error slots.
+  Footer: outline Close first, primary Submit last.
+
+  HEAD IDs stay: #modalCreatePtw #frmCreatePtw #btnMcpSubmit
+  (JS still looks for #modalMcp / #frmMcp / #btnMcpSave — do not "fix").
+-->
+<div class="modal fade" id="modalCreatePtw" tabindex="-1" aria-labelledby="modalCreatePtwLabel" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCreatePtwLabel">Create New PTW Permit</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="frmCreatePtw" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMcpApplicant">Applicant <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMcpApplicant" class="form-select" aria-required="true" aria-describedby="optMcpApplicantErr"></select>
+              <div class="gems-field-error" id="optMcpApplicantErr" role="alert"></div>
             </div>
-            <div class="modal-body gems-modal-body">
-                <form id="frmCreatePtw">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <!-- Applicant -->
-                            <div class="form-group">
-                                <label for="optMcpApplicant">Applicant <span class="text-danger">*</span></label>
-                                <select id="optMcpApplicant" class="form-control" required>
-                                    <option value="">Select Applicant *</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <!-- Work Type -->
-                            <div class="form-group">
-                                <label for="optMcpWorkType">Work Type <span class="text-danger">*</span></label>
-                                <select id="optMcpWorkType" class="form-control" required>
-                                    <option value="">Select Work Type *</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <!-- Risk Level -->
-                            <div class="form-group">
-                                <label for="optMcpRiskLevel">Risk Level <span class="text-danger">*</span></label>
-                                <select id="optMcpRiskLevel" class="form-control" required>
-                                    <option value="">Select Risk Level *</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <!-- Work Area -->
-                            <div class="form-group">
-                                <label for="txtMcpWorkArea">Work Area <span class="text-danger">*</span></label>
-                                <input type="text" id="txtMcpWorkArea" class="form-control" required>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-12">
-                            <!-- Description -->
-                            <div class="form-group">
-                                <label for="txtMcpDescription">Work Description <span class="text-danger">*</span></label>
-                                <textarea id="txtMcpDescription" class="form-control" rows="3" required></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <!-- Valid From -->
-                            <div class="form-group">
-                                <label for="dtMcpValidFrom">Valid From <span class="text-danger">*</span></label>
-                                <input type="datetime-local" id="dtMcpValidFrom" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <!-- Valid To -->
-                            <div class="form-group">
-                                <label for="dtMcpValidTo">Valid To <span class="text-danger">*</span></label>
-                                <input type="datetime-local" id="dtMcpValidTo" class="form-control" required>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <!-- Workers Count -->
-                            <div class="form-group">
-                                <label for="numMcpWorkersCount">Number of Workers</label>
-                                <input type="number" id="numMcpWorkersCount" class="form-control" min="1" value="1">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <!-- Contractor -->
-                            <div class="form-group">
-                                <label for="txtMcpContractor">Contractor</label>
-                                <input type="text" id="txtMcpContractor" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Workers Section -->
-                    <div class="divMcpHideInitial">
-                        <h6 class="border-top pt-3">Workers Information</h6>
-                        <div id="divMcpWorkers">
-                            <!-- Worker rows will be added dynamically -->
-                        </div>
-                        <button type="button" id="btnMcpAddWorker" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-plus"></i> Add Worker
-                        </button>
-                    </div>
-                    
-                    <!-- Safety Precautions -->
-                    <div class="divMcpHideInitial">
-                        <h6 class="border-top pt-3">Safety Precautions</h6>
-                        <div class="form-group">
-                            <div class="form-check">
-                                <input type="checkbox" id="chkMcpPpe" class="form-check-input">
-                                <label class="form-check-label" for="chkMcpPpe">Personal Protective Equipment (PPE) Required</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" id="chkMcpFireWatch" class="form-check-input">
-                                <label class="form-check-label" for="chkMcpFireWatch">Fire Watch Required</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" id="chkMcpGasTest" class="form-check-input">
-                                <label class="form-check-label" for="chkMcpGasTest">Gas Testing Required</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" id="chkMcpLockout" class="form-check-input">
-                                <label class="form-check-label" for="chkMcpLockout">Lock Out Tag Out (LOTO) Required</label>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMcpWorkType">Work Type <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMcpWorkType" class="form-select" aria-required="true" aria-describedby="optMcpWorkTypeErr"></select>
+              <div class="gems-field-error" id="optMcpWorkTypeErr" role="alert"></div>
             </div>
-            <div class="modal-footer gems-modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" id="btnMcpSubmit" class="btn btn-primary">Create PTW Permit</button>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optMcpRiskLevel">Risk Level <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMcpRiskLevel" class="form-select" aria-required="true" aria-describedby="optMcpRiskLevelErr"></select>
+              <div class="gems-field-error" id="optMcpRiskLevelErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMcpWorkArea">Work Area <span class="required" aria-hidden="true">*</span></label>
+              <input type="text" id="txtMcpWorkArea" class="form-control" aria-required="true" aria-describedby="txtMcpWorkAreaErr">
+              <div class="gems-field-error" id="txtMcpWorkAreaErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMcpDescription">Work Description <span class="required" aria-hidden="true">*</span></label>
+              <textarea id="txtMcpDescription" class="form-control" rows="3" aria-required="true" aria-describedby="txtMcpDescriptionErr"></textarea>
+              <div class="gems-field-error" id="txtMcpDescriptionErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="dtMcpValidFrom">Valid From <span class="required" aria-hidden="true">*</span></label>
+              <input type="datetime-local" id="dtMcpValidFrom" class="form-control" aria-required="true" aria-describedby="dtMcpValidFromErr">
+              <div class="gems-field-error" id="dtMcpValidFromErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="dtMcpValidTo">Valid To <span class="required" aria-hidden="true">*</span></label>
+              <input type="datetime-local" id="dtMcpValidTo" class="form-control" aria-required="true" aria-describedby="dtMcpValidToErr">
+              <div class="gems-field-error" id="dtMcpValidToErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="numMcpWorkersCount">Number of Workers</label>
+              <input type="number" id="numMcpWorkersCount" class="form-control" min="1" value="1">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtMcpContractor">Contractor</label>
+              <input type="text" id="txtMcpContractor" class="form-control">
+            </div>
+          </div>
+
+          <div class="divMcpHideInitial mt-3">
+            <p class="text-secondary mb-2" style="font-size:.8125rem;font-weight:600">Workers Information</p>
+            <div id="divMcpWorkers"></div>
+            <button type="button" id="btnMcpAddWorker" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-plus me-1"></i> Add Worker
+            </button>
+          </div>
+
+          <div class="divMcpHideInitial mt-3">
+            <p class="text-secondary mb-2" style="font-size:.8125rem;font-weight:600">Safety Precautions</p>
+            <div class="form-check">
+              <input type="checkbox" id="chkMcpPpe" class="form-check-input">
+              <label class="form-check-label" for="chkMcpPpe">Personal Protective Equipment (PPE) Required</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" id="chkMcpFireWatch" class="form-check-input">
+              <label class="form-check-label" for="chkMcpFireWatch">Fire Watch Required</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" id="chkMcpGasTest" class="form-check-input">
+              <label class="form-check-label" for="chkMcpGasTest">Gas Testing Required</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" id="chkMcpLockout" class="form-check-input">
+              <label class="form-check-label" for="chkMcpLockout">Lock Out Tag Out (LOTO) Required</label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-undo-alt me-1"></i> Close</button>
+        <button type="button" id="btnMcpSubmit" class="btn btn-primary"><i class="far fa-paper-plane me-1"></i> Create PTW Permit</button>
+      </div>
     </div>
+  </div>
 </div>
