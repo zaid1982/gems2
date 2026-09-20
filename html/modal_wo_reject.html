@@ -1,28 +1,36 @@
-<div class="modal fade gems-modal" id="modal_wo_reject" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-5 pt-3 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header pt-3 pb-1 gems-modal-header">
-                <h3 class="text-white ml-2"><i class="fas fa-ban text-white"></i> &nbsp;Out of Scope</h3>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pr-3 pt-3 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  Modal: modal_wo_reject — Tabler/GEMS modal + form contract (P5-3).
+
+  Loaded by pages/wo_assign.html ONLY.
+    gems-modal-md + modal-dialog-scrollable, never modal-dialog-centered.
+    Visible labels, gems-form-grid, H3 MzValidate error slots.
+    Footer: outline Close first, primary Submit last.
+
+  JS contract preserved (js/pages/modal_wo_reject.js):
+    #modal_wo_reject  #formMwj  #txaMwjRemark  #txaMwjRemarkErr  #btnMwjSubmit
+-->
+<div class="modal fade" id="modal_wo_reject" tabindex="-1" aria-labelledby="mwjTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mwjTitle"><i class="fas fa-ban me-2"></i>Out of Scope</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMwj" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txaMwjRemark" id="lblMwjRemark">Remark / Notes to Complainer <span class="required" aria-hidden="true">*</span></label>
+              <textarea id="txaMwjRemark" class="form-control" rows="4" aria-required="true" aria-describedby="txaMwjRemarkErr"></textarea>
+              <div class="gems-field-error" id="txaMwjRemarkErr" role="alert"></div>
             </div>
-            <!--Body-->
-            <div class="modal-body pt-4_5 pb-2 gems-modal-body">
-                <form id="formMwj">
-                    <div class="md-form md-outline my-0">
-                        <textarea id="txaMwjRemark" class="md-textarea form-control" rows="4"></textarea>
-                        <label for="txaMwjRemark" id="lblMwjRemark" class="text-muted">Remark / Notes to Complainer <span class="text-danger">*</span></label>
-                        <p class="font-small text-danger" id="txaMwjRemarkErr"></p>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer p-1 gems-modal-footer">
-                <button class="btn btn-outline-danger waves-effect" data-dismiss="modal"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMwjSubmit" class="btn btn-danger waves-effect"><i class="far fa-paper-plane ml-1"></i> Submit</button>
-            </div>
-        </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-undo-alt me-1"></i> Close</button>
+        <button type="button" id="btnMwjSubmit" class="btn btn-danger"><i class="far fa-paper-plane me-1"></i> Submit</button>
+      </div>
     </div>
+  </div>
 </div>

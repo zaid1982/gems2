@@ -97,9 +97,31 @@ function SectionWo () {
         }
     ];
 
+    const statusColorMap = {
+        'badge-primary': 'info',
+        'badge-info': 'info',
+        'badge-success': 'success',
+        'badge-danger': 'danger',
+        'badge-warning': 'warning',
+        'badge-secondary': 'secondary'
+    };
+
+    function appendImage(container, url, caption) {
+        const safeUrl = GemsUI.escape(url || '');
+        const safeCaption = GemsUI.escape(caption || '');
+        container.append(
+            '<figure class="mb-2 me-2 d-inline-block">' +
+            '<a href="' + safeUrl + '" target="_blank" rel="noopener">' +
+            '<img src="' + safeUrl + '" style="height: 200px" class="img-fluid img-thumbnail" alt="' + safeCaption + '">' +
+            '</a>' +
+            '<p class="mb-0 small text-center">' + safeCaption + '</p>' +
+            '</figure>'
+        );
+    }
+
     this.init = function () {
         self.hideSection();
-        
+
         $('#btnSwoBack').on('click', function () {
             self.hideSection();
             classFrom.showMain(isSubmitted);
@@ -156,7 +178,8 @@ function SectionWo () {
             bInfo: false,
             ordering: false,
             bPaginate: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-clipboard-list', 'No current tasks.'),
+            dom: "<'table-responsive't>",
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 $('td', nRow).eq(0).html(iDisplayIndex + 1);
             },
@@ -166,30 +189,22 @@ function SectionWo () {
                 { mData: 'dateReceived', sClass: 'text-center'}
             ]
         });
-        
+
         oTableAssistants =  $('#dtSwoAssistants').DataTable({
             bLengthChange: false,
             bFilter: false,
             bInfo: false,
             ordering: false,
             bPaginate: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-users', 'No assisted technicians.'),
             autoWidth: false,
             columnDefs: [
                 { bSortable: false, targets: [0] },
-                //{ visible: false, targets: [5, 6] },
                 { className: 'text-center', targets: [0, 2] },
                 { className: 'noVis', targets: [0] }
             ],
-            dom: "<'row'<'col-12px-0 pb-2'B>>" +
-                "<'row'<'col-sm-12'tr>>",
-            buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Assisted Technicians List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Assisted Technicians List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Assisted Technicians List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-2 btnFctObserveHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Assisted Technicians List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
-            ],
+            dom: "<'mb-2'B>r<'table-responsive't>",
+            buttons: GemsUI.dtButtons('GEMS - Assisted Technicians List'),
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 $('td', nRow).eq(0).html(iDisplayIndex + 1);
             },
@@ -206,31 +221,24 @@ function SectionWo () {
                     }}
             ]
         });
-        
+
         oTableMaterials =  $('#dtSwoMaterials').DataTable({
             bLengthChange: false,
             bFilter: false,
             bInfo: false,
             ordering: false,
             bPaginate: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-box', 'No material spare parts.'),
             autoWidth: false,
             columnDefs: [
                 { bSortable: false, targets: [0, 6] },
                 { visible: false, targets: [5, 6] },
                 { className: 'text-center', targets: [0, 1, 5, 6] },
-                { className: 'text-right', targets: [4] },
+                { className: 'text-end', targets: [4] },
                 { className: 'noVis', targets: [0] }
             ],
-            dom: "<'row'<'col-12px-0 pb-2'B>>" +
-                "<'row'<'col-sm-12'tr>>",
-            buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Material Spare Parts List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Material Spare Parts List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Material Spare Parts List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-2 btnFctObserveHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Material Spare Parts List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt}
-            ],
+            dom: "<'mb-2'B>r<'table-responsive't>",
+            buttons: GemsUI.dtButtons('GEMS - Material Spare Parts List'),
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 $('td', nRow).eq(0).html(iDisplayIndex + 1);
             },
@@ -242,7 +250,9 @@ function SectionWo () {
                 { mData: 'woTaskPartsQuantity'},
                 { mData: 'woTaskRequestTimeOrdered'},
                 { mData: 'woTaskPartsStatus', mRender: function (data) {
-                        return '<h6><span class="badge badge-pill z-depth-2 '+refStatus[data]['statusColor']+'">'+refStatus[data]['statusDesc']+'</span></h6>';
+                        const rec = refStatus && refStatus[data];
+                        const label = rec ? rec['statusDesc'] : String(data);
+                        return GemsUI.badge(statusColorMap[rec && rec['statusColor']] || 'secondary', GemsUI.escape(label));
                     }}
             ]
         });
@@ -311,7 +321,7 @@ function SectionWo () {
             $('.divSwoImageLeft').show();
         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
     };
-    
+
     this.assign = function (_woTaskId) {
         ShowLoader(); setTimeout(function () { try {
             mzCheckFuncParam([_woTaskId]);
@@ -338,7 +348,7 @@ function SectionWo () {
             self.loadDetails('verify');
         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }}, 200);
     };
-    
+
     this.view = function (_woTaskId) {
         ShowLoader(); setTimeout(function () { try {
             mzCheckFuncParam([_woTaskId]);
@@ -351,7 +361,7 @@ function SectionWo () {
             self.loadDetails('view');
         } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }}, 200);
     };
-    
+
     this.loadDetails = function (_type) {
         try {
             Promise.all([
@@ -410,14 +420,8 @@ function SectionWo () {
                     divImageComplaint.html('');
                     let cnt = 0;
                     for (const image of images[1]) {
-                        const imageSize = image['uploadFileWidth'] !== null ? image['uploadFileWidth']+'x'+image['uploadFileHeight'] : '500x500'
                         const imageDesc = image['woTaskUploadDesc'] !== null ? image['woTaskUploadDesc'] : 'Image' + (++cnt);
-                        divImageComplaint.append('<figure class="mx-1">\n' +
-                            '   <a href="'+image['url']+'" data-size="'+imageSize+'">\n' +
-                            '     <img src="'+image['url']+'" style="height: 200px" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
-                            '   </a>\n' +
-                            '   <p class="mb-0 font-small text-center">'+imageDesc+'</p>\n' +
-                            '</figure>\n');
+                        appendImage(divImageComplaint, image['url'], imageDesc);
                     }
                 } else {
                     divImageComplaint.html('<i>- empty -</i>');
@@ -468,7 +472,7 @@ function SectionWo () {
                     $('#pSwoTimeExecution').text(mzNullToValue(woTask['woTaskTimeExecuted'], '-', moment(woTask['woTaskTimeExecuted']).format('MMMM Do, YYYY, hh:mm:ss')));
                     $('#pSwoRating').text(mzNullToValue(woTask['woTaskRate'], '-'));
                     $('#pSwoRepair').text(mzNullToValue(woTask['woTaskRepairDesc'], '-'));
-                    
+
                     if (woTask['woTaskStatus'] === 26) {
                         $('.divSwoAssign').hide();
                         $('.divSwoAssessment').show();
@@ -478,40 +482,22 @@ function SectionWo () {
                         if (images[2].length > 0 || images[3].length > 0 || images[4].length > 0) {
                             $('.divSwoImageRepair').show();
                             for (const image of images[2]) {
-                                const imageSize = image['uploadFileWidth'] !== null ? image['uploadFileWidth'] + 'x' + image['uploadFileHeight'] : '500x500'
                                 const imageDesc = image['woTaskUploadDesc'] !== null ? ' - ' + image['woTaskUploadDesc'] : '';
-                                divImageRepair.append('<figure class="mx-1">\n' +
-                                    '   <a href="' + image['url'] + '" data-size="' + imageSize + '">\n' +
-                                    '     <img src="' + image['url'] + '" style="height: 200px" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
-                                    '   </a>\n' +
-                                    '   <p class="mb-0 font-small text-center">Before' + imageDesc + '</p>\n' +
-                                    '</figure>\n');
+                                appendImage(divImageRepair, image['url'], 'Before' + imageDesc);
                             }
                             for (const image of images[3]) {
-                                const imageSize = image['uploadFileWidth'] !== null ? image['uploadFileWidth'] + 'x' + image['uploadFileHeight'] : '500x500'
                                 const imageDesc = image['woTaskUploadDesc'] !== null ? ' - ' + image['woTaskUploadDesc'] : '';
-                                divImageRepair.append('<figure class="mx-1">\n' +
-                                    '   <a href="' + image['url'] + '" data-size="' + imageSize + '">\n' +
-                                    '     <img src="' + image['url'] + '" style="height: 200px" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
-                                    '   </a>\n' +
-                                    '   <p class="mb-0 font-small text-center">During' + imageDesc + '</p>\n' +
-                                    '</figure>\n');
+                                appendImage(divImageRepair, image['url'], 'During' + imageDesc);
                             }
                             for (const image of images[4]) {
-                                const imageSize = image['uploadFileWidth'] !== null ? image['uploadFileWidth'] + 'x' + image['uploadFileHeight'] : '500x500'
                                 const imageDesc = image['woTaskUploadDesc'] !== null ? ' - ' + image['woTaskUploadDesc'] : '';
-                                divImageRepair.append('<figure class="mx-1">\n' +
-                                    '   <a href="' + image['url'] + '" data-size="' + imageSize + '">\n' +
-                                    '     <img src="' + image['url'] + '" style="height: 200px" class="img-fluid img-thumbnail" alt="thumbnail" width="100%">\n' +
-                                    '   </a>\n' +
-                                    '   <p class="mb-0 font-small text-center">After' + imageDesc + '</p>\n' +
-                                    '</figure>\n');
+                                appendImage(divImageRepair, image['url'], 'After' + imageDesc);
                             }
                         } else {
                             divImageRepair.text('- empty -');
                         }
                     }
-                    
+
                     $('#divSwoAsset, #divSwoAssetEmpty').hide();
                     if (woTask['assetId'] !== null) {
                         $('#divSwoAsset').show();
@@ -521,7 +507,7 @@ function SectionWo () {
                     } else {
                         $('#divSwoAssetEmpty').show();
                     }
-                    
+
                     $('#divSwoAssistants, #divSwoAssistantsEmpty').hide();
                     if (assistants.length > 0) {
                         $('#divSwoAssistants').show();
@@ -529,7 +515,7 @@ function SectionWo () {
                     } else {
                         $('#divSwoAssistantsEmpty').show();
                     }
-                    
+
                     $('#divSwoMaterials, #divSwoMaterialsEmpty').hide();
                     if (materials.length > 0) {
                         $('#divSwoMaterials').show();
@@ -560,15 +546,15 @@ function SectionWo () {
     this.setClassFrom = function (_classFrom) {
         classFrom = _classFrom;
     };
-    
+
     this.setRefStatus = function (_refStatus) {
         refStatus = _refStatus;
     };
-    
+
     this.setRefUser = function (_refUser) {
         refUser = _refUser;
     };
-    
+
     this.setRefSite = function (_refSite) {
         refSite = _refSite;
     };
@@ -580,11 +566,11 @@ function SectionWo () {
     this.setRefPpmGroup = function (_refPpmGroup) {
         refPpmGroup = _refPpmGroup;
     };
-    
+
     this.setIsSubmitted = function (_isSubmitted) {
         isSubmitted = _isSubmitted;
     };
-    
+
     this.getIsSubmitted = function () {
         return isSubmitted;
     };

@@ -21,215 +21,174 @@ function MainWoAssign () {
     let runSubmitted = true;
     let userSite;
 
+    const statusColorMap = {
+        'badge-primary': 'info',
+        'badge-info': 'info',
+        'badge-success': 'success',
+        'badge-danger': 'danger',
+        'badge-warning': 'warning',
+        'badge-secondary': 'secondary'
+    };
+
+    function displayText(data, type) {
+        if (type === 'display') {
+            return GemsUI.escape(data || '');
+        }
+        return data || '';
+    }
+
+    function statusBadge(statusId, type) {
+        const rec = refStatus && refStatus[statusId];
+        const label = rec ? rec['statusDesc'] : String(statusId);
+        if (type !== 'display') {
+            return label;
+        }
+        return GemsUI.badge(statusColorMap[rec && rec['statusColor']] || 'secondary', GemsUI.escape(label));
+    }
+
+    function setWssTab(activeId) {
+        $('.btnWssTab').removeClass('btn-primary').addClass('btn-outline-secondary');
+        $('#' + activeId).removeClass('btn-outline-secondary').addClass('btn-primary');
+    }
+
+    function openPdf(woTask, pdfId, isWr) {
+        ShowLoader(); setTimeout(function () {
+            try {
+                if (pdfId === null || (isWr ? woTask['woTaskIsPdfWr'] === 1 : woTask['woTaskIsPdf'] === 1)) {
+                    const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: isWr ? 'generate_pdf_wr' : 'generate_pdf', woTaskId: woTask['woTaskId']});
+                    pdfId = resultRequest['pdfId'];
+                }
+                const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                const title = isWr ? 'Work Request Report: ' : 'Work Order Report: ';
+                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;' + title + woTask['woTaskNo']);
+                $('#mpdf_iframe').attr('src', pdfSrc);
+                $('#modal_pdf').modal('show');
+            } catch (e) {
+                toastr['error'](e.message, _ALERT_TITLE_ERROR);
+            }
+            HideLoader();
+        }, 200);
+    }
+
+    function pendingActions(row, meta) {
+        let label = '';
+        if (row['woTaskIsWr'] === 1) {
+            label += GemsUI.actionBtn({id: 'lnkWssPendingPdfWr_' + meta.row, cls: 'lnkWssPendingPdfWr', icon: 'far fa-file-alt', title: 'Work Request PDF'});
+        }
+        if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
+            label += GemsUI.actionBtn({id: 'lnkWssPendingPdf_' + meta.row, cls: 'lnkWssPendingPdf', icon: 'far fa-file-pdf', title: 'Work Order PDF'});
+        }
+        label += GemsUI.actionBtn({id: 'lnkWssPendingEdit_' + meta.row, cls: 'lnkWssPendingEdit', icon: 'fas fa-user-check', title: 'Assign'});
+        return label;
+    }
+
+    function submittedActions(row, meta) {
+        let label = '';
+        if (row['woTaskIsWr'] === 1) {
+            label += GemsUI.actionBtn({id: 'lnkWssSubmittedPdfWr_' + meta.row, cls: 'lnkWssSubmittedPdfWr', icon: 'far fa-file-alt', title: 'Work Request PDF'});
+        }
+        if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
+            label += GemsUI.actionBtn({id: 'lnkWssSubmittedPdf_' + meta.row, cls: 'lnkWssSubmittedPdf', icon: 'far fa-file-pdf', title: 'Work Order PDF'});
+        }
+        label += GemsUI.actionBtn({id: 'lnkWssSubmittedInfo_' + meta.row, cls: 'lnkWssSubmittedInfo', icon: 'fas fa-info-circle', title: 'View Details'});
+        return label;
+    }
+
     this.init = function () {
         userSite = mzGetUserInfoByParam('siteId');
         currentTab = 'Pending';
         self.showMain(false);
-        
+
         oTableWssPending = $('#dtWssPending').DataTable({
             bLengthChange: false,
-            bFilter: false,
+            bFilter: true,
             aaSorting: [[5, 'desc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-tasks', 'No pending assignments.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDom,
             columnDefs: [
                 { bSortable: false, targets: [0, 7] },
                 { className: 'text-center', targets: [0, 1, 5, 6, 7] },
                 { className: 'noVis', targets: [0, 7] }
             ],
-            buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-2 btnFctObserveHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Assign WO or WR Pending List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
-                { text: '<i class="fas fa-sync"></i>', className: 'btn btn-outline-purple btn-sm px-2 ml-0', attr: { id: 'btnWssPendingRefresh' }, titleAttr: 'Refresh'}
-            ],
+            buttons: GemsUI.dtButtons('GEMS - Assign WO or WR Pending List').concat([
+                { text: '<i class="fas fa-sync"></i>', className: 'btn btn-outline-secondary btn-sm', attr: { id: 'btnWssPendingRefresh', 'aria-label': 'Refresh data' }, titleAttr: 'Refresh'}
+            ]),
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('#btnWssPendingRefresh').off('click').on('click', function () {
                     runPending = true;
                     self.genTablePending();
                 });
-                $('.lnkWssPendingEdit').off('click').on('click', function () {
-                    const woTaskId = mzGetLinkId($(this), oTableWssPending, 'woTaskId');
-                    sectionWoClass.assign(woTaskId);
-                });
-                $('.lnkWssPendingPdf').off('click').on('click', function () {
-                    const woTask = mzGetLinkRow($(this), oTableWssPending);
-                    ShowLoader(); setTimeout(function () {
-                        try {
-                            let pdfId = woTask['pdfId'];
-                            if (woTask['pdfId'] === null || woTask['woTaskIsPdf'] === 1) {
-                                const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf', woTaskId:woTask['woTaskId']});
-                                pdfId = resultRequest['pdfId'];
-                            }
-                            const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
-                            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Order Report: '+woTask['woTaskNo']);
-                            $('#mpdf_iframe').attr('src', pdfSrc);
-                            $('#modal_pdf').modal('show');
-                        } catch (e) {
-                            toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                        }
-                        HideLoader();
-                    }, 200);
-                });
-                $('.lnkWssPendingPdfWr').off('click').on('click', function () {
-                    const woTask = mzGetLinkRow($(this), oTableWssPending);
-                    ShowLoader(); setTimeout(function () {
-                        try {
-                            let pdfId = woTask['pdfIdWr'];
-                            if (woTask['pdfIdWr'] === null || woTask['woTaskIsPdfWr'] === 1) {
-                                const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf_wr', woTaskId:woTask['woTaskId']});
-                                pdfId = resultRequest['pdfId'];
-                            }
-                            const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
-                            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Request Report: '+woTask['woTaskNo']);
-                            $('#mpdf_iframe').attr('src', pdfSrc);
-                            $('#modal_pdf').modal('show');
-                        } catch (e) {
-                            toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                        }
-                        HideLoader();
-                    }, 200);
-                });
             },
             aoColumns: [
                 { mData: null},
-                { mData: 'woTaskNo'},
-                { mData: 'woTaskLocation'},
-                { mData: 'woTaskType', mRender: function (data) {
-                        return data !== null ? refWoType[data] : '';
+                { mData: 'woTaskNo', mRender: function (data, type) { return displayText(data, type); }},
+                { mData: 'woTaskLocation', mRender: function (data, type) { return displayText(data, type); }},
+                { mData: 'woTaskType', mRender: function (data, type) {
+                        return displayText(data !== null ? refWoType[data] : '', type);
                     }},
-                { mData: 'woTaskCreatedBy', mRender: function (data) {
-                        return (data !== null && refUser && refUser[data]) ? refUser[data]['userFirstName'] : (data ? 'User ID: ' + data : '');
+                { mData: 'woTaskCreatedBy', mRender: function (data, type) {
+                        const name = (data !== null && refUser && refUser[data]) ? refUser[data]['userFirstName'] : (data ? 'User ID: ' + data : '');
+                        return displayText(name, type);
                     }},
                 { mData: 'taskTimeCreated'},
-                { mData: 'woTaskStatus', mRender: function (data) {
-                        const statusMap = {
-                            'badge-primary': 'pending',
-                            'badge-info': 'in-progress',
-                            'badge-success': 'completed',
-                            'badge-danger': 'cancelled'
-                        };
-                        const statusClass = statusMap[refStatus[data]['statusColor']] || 'pending';
-                        return '<span class="status-badge ' + statusClass + '">' + refStatus[data]['statusDesc'] + '</span>';
+                { mData: 'woTaskStatus', mRender: function (data, type) {
+                        return statusBadge(data, type);
                     }},
-                { mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        if (row['woTaskIsWr'] === 1) {
-                            label += '<button type="button" class="btn-action btn-view lnkWssPendingPdfWr" id="lnkWssPendingPdfWr_' + meta.row + '" data-toggle="tooltip" title="Work Request PDF">' +
-                                     '<i class="far fa-file-alt"></i></button>';
-                        }
-                        if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
-                            label += '<button type="button" class="btn-action btn-view lnkWssPendingPdf" id="lnkWssPendingPdf_' + meta.row + '" data-toggle="tooltip" title="Work Order PDF">' +
-                                     '<i class="far fa-file-pdf"></i></button>';
-                        }
-                        label += '<button type="button" class="btn-action btn-edit lnkWssPendingEdit" id="lnkWssPendingEdit_' + meta.row + '" data-toggle="tooltip" title="Assign">' +
-                                 '<i class="fas fa-user-check"></i></button>';
-                        label += '</div>';
-                        return label;
+                { mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
+                        if (type !== 'display') { return ''; }
+                        return pendingActions(row, meta);
                     }}
             ]
         });
 
         oTableWssSubmitted = $('#dtWssSubmitted').DataTable({
             bLengthChange: false,
-            bFilter: false,
+            bFilter: true,
             aaSorting: [[7, 'desc']],
             ordering: true,
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-check', 'No submitted assignments.'),
             pageLength: 10,
             autoWidth: false,
-            dom: "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-6 col-md-5 d-none d-sm-block'i><'col-sm-6 col-md-7'p>>",
+            dom: GemsUI.dtDom,
             columnDefs: [
                 { bSortable: false, targets: [0, 11] },
                 { visible: false, targets: [6] },
                 { className: 'text-center', targets: [0, 1, 6, 7, 8, 9, 10, 11] },
                 { className: 'noVis', targets: [0, 11] }
             ],
-            buttons: [
-                { extend: 'colvis', columns: ':not(.noVis)', fade: 400, collectionLayout: 'two-column', text:'<i class="fas fa-columns"></i>', className: 'btn btn-outline-grey btn-sm px-2 ml-0', titleAttr: 'Column Visibility'},
-                { extend: 'print', className: 'btn btn-outline-blue-grey btn-sm px-2 btnFctObserveHide', text:'<i class="fas fa-print"></i>', title:'GEMS - Assign WO or WR Submitted List', titleAttr: 'Print', exportOptions: mzExportOpt},
-                { extend: 'copy', className: 'btn btn-outline-blue btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-copy"></i>', title:'GEMS - Assign WO or WR Submitted List', titleAttr: 'Copy', exportOptions: mzExportOpt},
-                { extend: 'excelHtml5', className: 'btn btn-outline-green btn-sm px-2 ml-0 btnFctObserveHide', text:'<i class="fas fa-file-excel"></i>', title:'GEMS - Assign WO or WR Submitted List', titleAttr: 'Excel', exportOptions: mzExportExcelOpt},
-                { extend: 'pdfHtml5', className: 'btn btn-outline-red btn-sm px-2 ml-0 mr-2 btnFctObserveHide', text:'<i class="fas fa-file-pdf"></i>', title:'GEMS - Assign WO or WR Submitted List', titleAttr: 'PDF', orientation: 'landscape', exportOptions: mzExportOpt},
-                { text: '<i class="fas fa-sync"></i>', className: 'btn btn-outline-purple btn-sm px-2 ml-0', attr: { id: 'btnWssSubmittedRefresh' }, titleAttr: 'Refresh'}
-            ],
+            buttons: GemsUI.dtButtons('GEMS - Assign WO or WR Submitted List').concat([
+                { text: '<i class="fas fa-sync"></i>', className: 'btn btn-outline-secondary btn-sm', attr: { id: 'btnWssSubmittedRefresh', 'aria-label': 'Refresh data' }, titleAttr: 'Refresh'}
+            ]),
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = $(this).DataTable().page.info();
                 $('td', nRow).eq(0).html(info.start + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
                 $('#btnWssSubmittedRefresh').off('click').on('click', function () {
                     runSubmitted = true;
                     self.genTableSubmitted();
                 });
-                $('.lnkWssSubmittedInfo').off('click').on('click', function () {
-                    const woTaskId = mzGetLinkId($(this), oTableWssSubmitted, 'woTaskId');
-                    sectionWoClass.view(woTaskId);
-                });
-                $('.lnkWssSubmittedPdf').off('click').on('click', function () {
-                    const woTask = mzGetLinkRow($(this), oTableWssSubmitted);
-                    ShowLoader(); setTimeout(function () {
-                        try {
-                            let pdfId = woTask['pdfId'];
-                            if (woTask['pdfId'] === null || woTask['woTaskIsPdf'] === 1) {
-                                const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf', woTaskId:woTask['woTaskId']});
-                                pdfId = resultRequest['pdfId'];
-                            }
-                            const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
-                            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Order Report: '+woTask['woTaskNo']);
-                            $('#mpdf_iframe').attr('src', pdfSrc);
-                            $('#modal_pdf').modal('show');
-                        } catch (e) {
-                            toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                        }
-                        HideLoader();
-                    }, 200);
-                });
-                $('.lnkWssSubmittedPdfWr').off('click').on('click', function () {
-                    const woTask = mzGetLinkRow($(this), oTableWssSubmitted);
-                    ShowLoader(); setTimeout(function () {
-                        try {
-                            let pdfId = woTask['pdfIdWr'];
-                            if (woTask['pdfIdWr'] === null || woTask['woTaskIsPdfWr'] === 1) {
-                                const resultRequest = mzAjaxRequest('wo.php', 'POST', {action: 'generate_pdf_wr', woTaskId:woTask['woTaskId']});
-                                pdfId = resultRequest['pdfId'];
-                            }
-                            const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
-                            $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;Work Request Report: '+woTask['woTaskNo']);
-                            $('#mpdf_iframe').attr('src', pdfSrc);
-                            $('#modal_pdf').modal('show');
-                        } catch (e) {
-                            toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                        }
-                        HideLoader();
-                    }, 200);
-                });
             },
             aoColumns: [
                 { mData: null},
-                { mData: 'woTaskNo'},
-                { mData: 'woTaskLocation'},
-                { mData: 'woTaskType', mRender: function (data) {
-                        return data !== null ? refWoType[data] : '';
+                { mData: 'woTaskNo', mRender: function (data, type) { return displayText(data, type); }},
+                { mData: 'woTaskLocation', mRender: function (data, type) { return displayText(data, type); }},
+                { mData: 'woTaskType', mRender: function (data, type) {
+                        return displayText(data !== null ? refWoType[data] : '', type);
                     }},
-                { mData: 'woTaskCreatedBy', mRender: function (data) {
-                        return (data !== null && refUser && refUser[data]) ? refUser[data]['userFirstName'] : (data ? 'User ID: ' + data : '');
+                { mData: 'woTaskCreatedBy', mRender: function (data, type) {
+                        const name = (data !== null && refUser && refUser[data]) ? refUser[data]['userFirstName'] : (data ? 'User ID: ' + data : '');
+                        return displayText(name, type);
                     }},
-                { mData: 'woTaskSeverity', mRender: function (data) {
-                        return data !== null ? refSeverity[data]['severityName'] : '';
+                { mData: 'woTaskSeverity', mRender: function (data, type) {
+                        return displayText(data !== null ? refSeverity[data]['severityName'] : '', type);
                     }},
                 { mData: 'taskTimeCreated'},
                 { mData: 'taskTimeSubmit'},
@@ -244,42 +203,49 @@ function MainWoAssign () {
                 { mData: null, mRender: function (data, type, row) {
                         return mzDurationStr(type, row['taskTimeCreated'], row['taskTimeSubmit']);
                     }},
-                { mData: 'woTaskStatus', mRender: function (data) {
-                        const statusMap = {
-                            'badge-primary': 'pending',
-                            'badge-info': 'in-progress',
-                            'badge-success': 'completed',
-                            'badge-danger': 'cancelled'
-                        };
-                        const statusClass = statusMap[refStatus[data]['statusColor']] || 'pending';
-                        return '<span class="status-badge ' + statusClass + '">' + refStatus[data]['statusDesc'] + '</span>';
+                { mData: 'woTaskStatus', mRender: function (data, type) {
+                        return statusBadge(data, type);
                     }},
-                { mData: null, bSortable: false, sClass: 'text-center action-cell', mRender: function (data, type, row, meta) {
-                        let label = '<div class="action-btn-group">';
-                        if (row['woTaskIsWr'] === 1) {
-                            label += '<button type="button" class="btn-action btn-view lnkWssSubmittedPdfWr" id="lnkWssSubmittedPdfWr_' + meta.row + '" data-toggle="tooltip" title="Work Request PDF">' +
-                                     '<i class="far fa-file-alt"></i></button>';
-                        }
-                        if (row['woTaskIsWr'] !== 1 || row['woTaskTimeWrVerified'] !== null) {
-                            label += '<button type="button" class="btn-action btn-view lnkWssSubmittedPdf" id="lnkWssSubmittedPdf_' + meta.row + '" data-toggle="tooltip" title="Work Order PDF">' +
-                                     '<i class="far fa-file-pdf"></i></button>';
-                        }
-                        label += '<button type="button" class="btn-action btn-view lnkWssSubmittedInfo" id="lnkWssSubmittedInfo_' + meta.row + '" data-toggle="tooltip" title="View Details">' +
-                                 '<i class="fas fa-info-circle"></i></button>';
-                        label += '</div>';
-                        return label;
+                { mData: null, bSortable: false, sClass: 'text-center', mRender: function (data, type, row, meta) {
+                        if (type !== 'display') { return ''; }
+                        return submittedActions(row, meta);
                     }}
             ]
         });
 
         oTableWssPending.buttons().container().appendTo('#btnWssPendingExport');
         oTableWssSubmitted.buttons().container().appendTo('#btnWssSubmittedExport');
+        GemsUI.bindDtTooltips('#dtWssPending');
+        GemsUI.bindDtTooltips('#dtWssSubmitted');
+
+        $('#dtWssPending').on('click', '.lnkWssPendingEdit', function () {
+            const woTaskId = mzGetLinkId($(this), oTableWssPending, 'woTaskId');
+            sectionWoClass.assign(woTaskId);
+        });
+        $('#dtWssPending').on('click', '.lnkWssPendingPdf', function () {
+            openPdf(mzGetLinkRow($(this), oTableWssPending), mzGetLinkRow($(this), oTableWssPending)['pdfId'], false);
+        });
+        $('#dtWssPending').on('click', '.lnkWssPendingPdfWr', function () {
+            const woTask = mzGetLinkRow($(this), oTableWssPending);
+            openPdf(woTask, woTask['pdfIdWr'], true);
+        });
+        $('#dtWssSubmitted').on('click', '.lnkWssSubmittedInfo', function () {
+            const woTaskId = mzGetLinkId($(this), oTableWssSubmitted, 'woTaskId');
+            sectionWoClass.view(woTaskId);
+        });
+        $('#dtWssSubmitted').on('click', '.lnkWssSubmittedPdf', function () {
+            const woTask = mzGetLinkRow($(this), oTableWssSubmitted);
+            openPdf(woTask, woTask['pdfId'], false);
+        });
+        $('#dtWssSubmitted').on('click', '.lnkWssSubmittedPdfWr', function () {
+            const woTask = mzGetLinkRow($(this), oTableWssSubmitted);
+            openPdf(woTask, woTask['pdfIdWr'], true);
+        });
 
         $('#btnWssPending').on('click', function () {
             $('.sectionWssTask').hide();
             $('.sectionWssPending').show();
-            $('.btnWssTab').removeClass('lighten-2').addClass('lighten-2');
-            $('#btnWssPending').removeClass('lighten-2');
+            setWssTab('btnWssPending');
             currentTab = 'Pending';
             self.genTablePending();
             window.scrollTo({top: 0, behavior: 'smooth'});
@@ -288,8 +254,7 @@ function MainWoAssign () {
         $('#btnWssSubmitted').on('click', function () {
             $('.sectionWssTask').hide();
             $('.sectionWssSubmitted').show();
-            $('.btnWssTab').removeClass('lighten-2').addClass('lighten-2');
-            $('#btnWssSubmitted').removeClass('lighten-2');
+            setWssTab('btnWssSubmitted');
             currentTab = 'Submitted';
             self.genTableSubmitted();
             window.scrollTo({top: 0, behavior: 'smooth'});
@@ -304,27 +269,26 @@ function MainWoAssign () {
 
     this.genTablePending = function () {
         if (runPending) {
-            ShowLoader(); setTimeout(function () { 
+            ShowLoader(); setTimeout(function () {
                 const apiUrl = !mzIsRoleExist('1,10') ? `wo_v3/pending_assign/site/${userSite}` : 'wo_v3/pending_assign';
                 mzFetch(apiUrl).then(res => {
                     $('#badgeWssTotalPending').text(res.length);
-                    
-                    // Check if refUser is empty and try to refresh
+
                     if (!refUser || Object.keys(refUser).length === 0) {
                         console.warn('refUser is empty, attempting to refresh reference data');
                         self.refreshRefData();
                     }
-                    
+
                     oTableWssPending.clear().rows.add(res).draw();
                     runPending = false;
-                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); 
+                }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
             }, 200);
         }
     };
 
     this.genTableSubmitted = function () {
         if (runSubmitted) {
-            ShowLoader(); setTimeout(function () { 
+            ShowLoader(); setTimeout(function () {
                 const apiUrl = !mzIsRoleExist('1,10') ? `wo_v3/submitted_assign/site/${userSite}` : 'wo_v3/submitted_assign';
                 mzFetch(apiUrl).then(res => {
                     $('#badgeWssTotalSubmitted').text(res.length);
@@ -344,7 +308,7 @@ function MainWoAssign () {
     this.getClassName = function () {
         return className;
     };
-    
+
     this.showMain = function (_runPending) {
         $('.sectionWssMain').show();
         $('.sectionWssTask').hide();
@@ -355,11 +319,11 @@ function MainWoAssign () {
             self.genTablePending();
         }
     };
-    
+
     this.hideMain = function () {
         $('.sectionWssMain').hide();
     };
-    
+
     this.setSectionWoClass = function (_sectionWoClass) {
         sectionWoClass = _sectionWoClass;
     };
@@ -382,19 +346,18 @@ function MainWoAssign () {
             const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal, 'user/ref');
             const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal, 'status/ref');
             const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal, 'severityId', [], 'severity');
-            
+
             refUser = refUser_;
             refStatus = refStatus_;
             refSeverity = refSeverity_;
-            
-            // Redraw tables to reflect updated data
+
             if (oTableWssPending) {
                 oTableWssPending.draw();
             }
             if (oTableWssSubmitted) {
                 oTableWssSubmitted.draw();
             }
-            
+
             console.log('Reference data refreshed successfully');
             return true;
         } catch (e) {
@@ -410,8 +373,7 @@ function MainWoAssign () {
         console.log('refStatus:', refStatus);
         console.log('refSeverity:', refSeverity);
         console.log('refUser keys count:', refUser ? Object.keys(refUser).length : 'null/undefined');
-        
-        // Test specific user IDs
+
         const testUserIds = [1, 1388, 1389];
         testUserIds.forEach(userId => {
             if (refUser && refUser[userId]) {
@@ -420,7 +382,7 @@ function MainWoAssign () {
                 console.log(`User ${userId}: NOT FOUND`);
             }
         });
-        
+
         return {
             refUser: refUser,
             refStatus: refStatus,

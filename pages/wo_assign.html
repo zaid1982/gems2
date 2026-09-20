@@ -1,274 +1,257 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/wo_assign.html — Tabler-migrated (P5-3 Work Order Assign).
+
+  Mechanical copy of Helpdesk / PPM Group for shell, metric cards, search,
+  DataTables, GemsUI, and modal chrome.
+
+  Assign extras stay: pending/submitted tabs, export strip, PDF viewer,
+  shared section_wo workspace, assign-local modal_wo_reject.
+
+  Architect (completing 03856aea): section_wo has only two consumers
+  (wo_assign + wo_verify). Convert in place in this same commit. Do not
+  fork section_wo_tabler. PhotoSwipe / mdb-lightbox stays on MDB pages
+  (gems-bs5-jquery non-goal); images open in a new tab.
+
+  Bridges: modal_change_password / modal_pdf stay dual-stack.
+  wo_import is a later page-local batch.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js, js/modules/lightbox.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <!-- Browser icon -->
-    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?4">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css?5" rel="stylesheet">
-    <!-- Shared Design System stylesheet -->
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!--JQuery Migrate-->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Work Order Assignment</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid" id="divWssPageWidth">
-        <div id="mdb-lightbox-ui"></div>
-        <section class="sectionWssMain mb-5 ">
-            <div class="card card-cascade narrower gems-card-shell wo-assign-shell">
-                <section class="gems-page-header wo-assign-page-header">
-                    <div class="header-text">
-                        <h2>Work Order Assignment</h2>
-                        <p>Manage assignments for site: <span id="lblWssSiteName" class="font-weight-bold">—</span></p>
-                    </div>
-                </section>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl" id="divWssPageWidth">
 
-                <section class="mt-4">
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="metric-card metric-card-compact h-100">
-                                <div class="metric-label">Pending Tasks</div>
-                                <div class="d-flex align-items-center justify-content-between mt-2">
-                                    <div class="metric-value" id="badgeWssTotalPending">0</div>
-                                    <i class="fas fa-tasks text-primary"></i>
-                                </div>
-                                <div class="metric-subtext">Awaiting assignment</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="metric-card metric-card-compact h-100">
-                                <div class="metric-label">Recently Submitted</div>
-                                <div class="d-flex align-items-center justify-content-between mt-2">
-                                    <div class="metric-value" id="badgeWssTotalSubmitted">0</div>
-                                    <i class="fas fa-check text-success"></i>
-                                </div>
-                                <div class="metric-subtext">Ready for verification</div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <div class="filter-card wo-assign-filters">
-                        <div class="filter-grid">
-                            <div>
-                                <label class="filter-label" for="txtWssSearch">Search Tasks</label>
-                                <input type="text" id="txtWssSearch" class="form-control" placeholder="Search by number, location, status...">
-                            </div>
-                            <div class="mt-2 mt-sm-0">
-                                <label class="filter-label d-block">View Tasks</label>
-                                <div class="gems-status-scroll">
-                                    <button type="button" class="gems-status-chip btnWssTab" id="btnWssPending">
-                                        <i class="fas fa-tasks mr-2"></i>Pending Tasks
-                                    </button>
-                                    <button type="button" class="gems-status-chip btnWssTab lighten-2" id="btnWssSubmitted">
-                                        <i class="fas fa-check mr-2"></i>Submitted Tasks
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mt-4 sectionWssTask sectionWssPending">
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <h5>
-                                <i class="fas fa-tasks"></i>
-                                Pending Task List
-                            </h5>
-                            <div class="table-header-actions">
-                                <button type="button" class="btn-header" data-toggle="tooltip" title="Tasks awaiting assignment decision">
-                                    <i class="fas fa-info-circle"></i>
-                                </button>
-                                <div id="btnWssPendingExport"></div>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-responsive">
-                                <table id="dtWssPending" class="table table-hover mb-0 mobile-stack" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>WO/WR No</th>
-                                        <th>Location</th>
-                                        <th>Type</th>
-                                        <th>Complainant</th>
-                                        <th>Received Time</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mt-4 sectionWssTask sectionWssSubmitted">
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <h5>
-                                <i class="fas fa-check"></i>
-                                Submitted Task List
-                            </h5>
-                            <div class="table-header-actions">
-                                <button type="button" class="btn-header" data-toggle="tooltip" title="Assignments recently submitted for follow-up">
-                                    <i class="fas fa-info-circle"></i>
-                                </button>
-                                <div id="btnWssSubmittedExport"></div>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-responsive">
-                                <table id="dtWssSubmitted" class="table table-hover mb-0 mobile-stack" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>WO/WR No</th>
-                                        <th>Location</th>
-                                        <th>Type</th>
-                                        <th>Complainant</th>
-                                        <th>Severity</th>
-                                        <th>Received Time</th>
-                                        <th>Submitted Time</th>
-                                        <th>SLA</th>
-                                        <th>Respond Duration</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        <section class="sectionWssMain">
+          <div class="page-header">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm">
+                <h1 class="page-title"><i class="fas fa-clipboard-list me-2 text-primary"></i>Work Order Assignment</h1>
+                <div class="page-subtitle">Manage assignments for site: <span id="lblWssSiteName" class="fw-semibold">—</span></div>
+              </div>
             </div>
+          </div>
+
+          <div class="row row-cards mb-3">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Pending Tasks</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="h2 mb-0" id="badgeWssTotalPending">0</div>
+                    <i class="fas fa-tasks text-primary"></i>
+                  </div>
+                  <div class="text-secondary" style="font-size:.75rem">Awaiting assignment</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Recently Submitted</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="h2 mb-0" id="badgeWssTotalSubmitted">0</div>
+                    <i class="fas fa-check text-success"></i>
+                  </div>
+                  <div class="text-secondary" style="font-size:.75rem">Ready for verification</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-8">
+                  <label class="form-label" for="txtWssSearch">Search Tasks</label>
+                  <input type="text" id="txtWssSearch" class="form-control" placeholder="Search by number, location, status...">
+                </div>
+                <div class="gems-field gems-field-4 gems-field-actions">
+                  <span class="form-label">View Tasks</span>
+                  <div class="btn-list">
+                    <button type="button" class="btn btn-primary btnWssTab" id="btnWssPending">
+                      <i class="fas fa-tasks me-2"></i>Pending Tasks
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btnWssTab" id="btnWssSubmitted">
+                      <i class="fas fa-check me-2"></i>Submitted Tasks
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <section class="sectionWssTask sectionWssPending">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0"><i class="fas fa-tasks me-2 text-primary"></i>Pending Task List</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Tasks awaiting assignment decision</div>
+                </div>
+                <div class="gems-card-toolbar">
+                  <div id="btnWssPendingExport"></div>
+                </div>
+              </div>
+              <table id="dtWssPending" class="table table-vcenter card-table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th style="width:4%">#</th>
+                    <th>WO/WR No</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Complainant</th>
+                    <th>Received Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="sectionWssTask sectionWssSubmitted">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0"><i class="fas fa-check me-2 text-primary"></i>Submitted Task List</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Assignments recently submitted for follow-up</div>
+                </div>
+                <div class="gems-card-toolbar">
+                  <div id="btnWssSubmittedExport"></div>
+                </div>
+              </div>
+              <table id="dtWssSubmitted" class="table table-vcenter card-table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th style="width:4%">#</th>
+                    <th>WO/WR No</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Complainant</th>
+                    <th>Severity</th>
+                    <th>Received Time</th>
+                    <th>Submitted Time</th>
+                    <th>SLA</th>
+                    <th>Respond Duration</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
         </section>
+
         <div class="includeHtml" id="h-section_wo"></div>
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
-    <div class="includeHtml" id="h-modal_wo_reject"></div>
-</main>
+  </div>
+</div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
+<div class="includeHtml" id="h-modal_wo_reject"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_wo_reject.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_wo.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_wo_assign.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let modalWoRejectClass_;
+  let sectionWoClass_;
+  let woAssignClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    $(function () {
-        $("#mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
-    });
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        modalWoRejectClass_ = new ModalWoReject();
+        sectionWoClass_ = new SectionWo();
+        woAssignClass_ = new MainWoAssign();
 
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
+        const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
+        const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
+        const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId', [], 'severity');
+        const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let modalWoRejectClass_;
-    let sectionWoClass_;
-    let woAssignClass_;
+        const userInfo = mzGetProfile();
+        $('#lblWssSiteName').text(refSite_[userInfo['siteId']]['siteName']);
 
-    document.addEventListener('DOMContentLoaded', function () {
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                initPhotoSwipeFromDOM('.mdb-lightbox');
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                modalWoRejectClass_ = new ModalWoReject();
-                sectionWoClass_ = new SectionWo();
-                woAssignClass_ = new MainWoAssign();
+        modalWoRejectClass_.setClassFrom(sectionWoClass_);
+        modalWoRejectClass_.init();
 
-                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
-                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
-                const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
-                const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId', [], 'severity');
-                const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
+        sectionWoClass_.setRefStatus(refStatus_);
+        sectionWoClass_.setRefUser(refUser_);
+        sectionWoClass_.setRefSite(refSite_);
+        sectionWoClass_.setRefSeverity(refSeverity_);
+        sectionWoClass_.setRefPpmGroup(refPpmGroup_);
+        sectionWoClass_.setModalWoRejectClass(modalWoRejectClass_);
+        sectionWoClass_.setClassFrom(woAssignClass_);
+        sectionWoClass_.init();
 
-                const userInfo = mzGetProfile();
-                $('#lblWssSiteName').text(refSite_[userInfo['siteId']]['siteName']);
-
-                modalWoRejectClass_.setClassFrom(sectionWoClass_);
-                modalWoRejectClass_.init();
-
-                sectionWoClass_.setRefStatus(refStatus_);
-                sectionWoClass_.setRefUser(refUser_);
-                sectionWoClass_.setRefSite(refSite_);
-                sectionWoClass_.setRefSeverity(refSeverity_);
-                sectionWoClass_.setRefPpmGroup(refPpmGroup_);
-                sectionWoClass_.setModalWoRejectClass(modalWoRejectClass_);
-                sectionWoClass_.setClassFrom(woAssignClass_);
-                sectionWoClass_.init();
-
-                woAssignClass_.setRefStatus(refStatus_);
-                woAssignClass_.setRefUser(refUser_);
-                woAssignClass_.setRefSeverity(refSeverity_);
-                woAssignClass_.setSectionWoClass(sectionWoClass_);
-                woAssignClass_.init();
-                woAssignClass_.genTablePending();
-                woAssignClass_.assignTotalSubmitted();
-            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_wo_reject.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_wo.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_wo_assign.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        woAssignClass_.setRefStatus(refStatus_);
+        woAssignClass_.setRefUser(refUser_);
+        woAssignClass_.setRefSeverity(refSeverity_);
+        woAssignClass_.setSectionWoClass(sectionWoClass_);
+        woAssignClass_.init();
+        woAssignClass_.genTablePending();
+        woAssignClass_.assignTotalSubmitted();
+      } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 200);
+  });
 </script>
 </body>
 </html>

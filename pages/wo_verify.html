@@ -1,275 +1,255 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/wo_verify.html — Tabler-migrated (P5-3 Work Order Verify).
+
+  Mechanical copy of wo_assign / Helpdesk for shell, metric cards, search,
+  DataTables, and GemsUI. Shares html/section_wo.html + js/pages/section_wo.js
+  with wo_assign — migrated together in one commit (in-place, no _tabler fork).
+
+  Verify extras stay: pending/submitted tabs, export strip, PDF viewer,
+  verify workspace (rating / return). No modal_wo_reject on this page.
+
+  PhotoSwipe / mdb-lightbox stays on MDB pages. Images open in a new tab.
+
+  Bridges: modal_change_password / modal_pdf stay dual-stack.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js, js/modules/lightbox.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <!-- Browser icon -->
-    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?4">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Legacy styles -->
-    <link href="css/style.css?4" rel="stylesheet">
-    <!-- Shared Design System stylesheet -->
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!--JQuery Migrate-->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Verify Work Orders</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid" id="divWvrPageWidth">
-        <div id="mdb-lightbox-ui"></div>
-        <section class="sectionWvrMain mb-5 ">
-            <div class="card card-cascade narrower gems-card-shell wo-verify-shell">
-                <section class="gems-page-header wo-verify-page-header">
-                    <div class="header-text">
-                        <h2>Verify &amp; Close Work Orders</h2>
-                        <p>Site: <span id="lblWvrSiteName" class="font-weight-bold">—</span></p>
-                    </div>
-                </section>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl" id="divWvrPageWidth">
 
-                <section class="mt-4">
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="metric-card metric-card-compact h-100">
-                                <div class="metric-label">Pending Verification</div>
-                                <div class="d-flex align-items-center justify-content-between mt-2">
-                                    <div class="metric-value" id="badgeWvrTotalPending">0</div>
-                                    <i class="fas fa-clipboard-list text-primary"></i>
-                                </div>
-                                <div class="metric-subtext">Awaiting closure review</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="metric-card metric-card-compact h-100">
-                                <div class="metric-label">Recently Submitted</div>
-                                <div class="d-flex align-items-center justify-content-between mt-2">
-                                    <div class="metric-value" id="badgeWvrTotalSubmitted">0</div>
-                                    <i class="fas fa-check text-success"></i>
-                                </div>
-                                <div class="metric-subtext">Completed verifications</div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <div class="filter-card wo-verify-filters">
-                        <div class="filter-grid">
-                            <div>
-                                <label class="filter-label" for="txtWvrSearch">Search Tasks</label>
-                                <input type="text" id="txtWvrSearch" class="form-control" placeholder="Search by number, location, status...">
-                            </div>
-                            <div class="mt-2 mt-sm-0">
-                                <label class="filter-label d-block">View Mode</label>
-                                <div class="gems-status-scroll">
-                                    <button type="button" class="gems-status-chip btnWvrTab" id="btnWvrPending">
-                                        <i class="fas fa-tasks mr-2"></i>Pending Tasks
-                                    </button>
-                                    <button type="button" class="gems-status-chip btnWvrTab lighten-2" id="btnWvrSubmitted">
-                                        <i class="fas fa-check mr-2"></i>Submitted Tasks
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mt-4 sectionWvrMain sectionWvrTask sectionWvrPending">
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <h5>
-                                <i class="fas fa-tasks"></i>
-                                Pending Task List
-                            </h5>
-                            <div class="table-header-actions">
-                                <button type="button" class="btn-header" data-toggle="tooltip" title="Tasks awaiting verification or closure action">
-                                    <i class="fas fa-info-circle"></i>
-                                </button>
-                                <div id="btnWvrPendingExport"></div>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-responsive">
-                                <table id="dtWvrPending" class="table table-hover mb-0 mobile-stack">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>WO No</th>
-                                        <th>Location</th>
-                                        <th>Type</th>
-                                        <th>Complainant</th>
-                                        <th>Severity</th>
-                                        <th>Technician</th>
-                                        <th>Received Time</th>
-                                        <th>SLA Respond</th>
-                                        <th>Respond Duration</th>
-                                        <th>SLA Execution</th>
-                                        <th>Execution Duration</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mt-4 sectionWvrMain sectionWvrTask sectionWvrSubmitted">
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <h5>
-                                <i class="fas fa-check"></i>
-                                Submitted Task List
-                            </h5>
-                            <div class="table-header-actions">
-                                <button type="button" class="btn-header" data-toggle="tooltip" title="Recently verified tasks for audit trail">
-                                    <i class="fas fa-info-circle"></i>
-                                </button>
-                                <div id="btnWvrSubmittedExport"></div>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <div class="table-responsive">
-                                <table id="dtWvrSubmitted" class="table table-hover mb-0 mobile-stack">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>WO No</th>
-                                        <th>Location</th>
-                                        <th>Type</th>
-                                        <th>Complainant</th>
-                                        <th>Severity</th>
-                                        <th>Technician</th>
-                                        <th>Received Time</th>
-                                        <th>Submitted Time</th>
-                                        <th>SLA Respond</th>
-                                        <th>Respond Duration</th>
-                                        <th>SLA Execution</th>
-                                        <th>Execution Duration</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        <section class="sectionWvrMain">
+          <div class="page-header">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm">
+                <h1 class="page-title"><i class="fas fa-clipboard-check me-2 text-primary"></i>Verify &amp; Close Work Orders</h1>
+                <div class="page-subtitle">Site: <span id="lblWvrSiteName" class="fw-semibold">—</span></div>
+              </div>
             </div>
+          </div>
+
+          <div class="row row-cards mb-3">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Pending Verification</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="h2 mb-0" id="badgeWvrTotalPending">0</div>
+                    <i class="fas fa-clipboard-list text-primary"></i>
+                  </div>
+                  <div class="text-secondary" style="font-size:.75rem">Awaiting closure review</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Recently Submitted</div>
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div class="h2 mb-0" id="badgeWvrTotalSubmitted">0</div>
+                    <i class="fas fa-check text-success"></i>
+                  </div>
+                  <div class="text-secondary" style="font-size:.75rem">Completed verifications</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-8">
+                  <label class="form-label" for="txtWvrSearch">Search Tasks</label>
+                  <input type="text" id="txtWvrSearch" class="form-control" placeholder="Search by number, location, status...">
+                </div>
+                <div class="gems-field gems-field-4 gems-field-actions">
+                  <span class="form-label">View Mode</span>
+                  <div class="btn-list">
+                    <button type="button" class="btn btn-primary btnWvrTab" id="btnWvrPending">
+                      <i class="fas fa-tasks me-2"></i>Pending Tasks
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btnWvrTab" id="btnWvrSubmitted">
+                      <i class="fas fa-check me-2"></i>Submitted Tasks
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <section class="sectionWvrMain sectionWvrTask sectionWvrPending">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0"><i class="fas fa-tasks me-2 text-primary"></i>Pending Task List</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Tasks awaiting verification or closure action</div>
+                </div>
+                <div class="gems-card-toolbar">
+                  <div id="btnWvrPendingExport"></div>
+                </div>
+              </div>
+              <table id="dtWvrPending" class="table table-vcenter card-table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th style="width:4%">#</th>
+                    <th>WO No</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Complainant</th>
+                    <th>Severity</th>
+                    <th>Technician</th>
+                    <th>Received Time</th>
+                    <th>SLA Respond</th>
+                    <th>Respond Duration</th>
+                    <th>SLA Execution</th>
+                    <th>Execution Duration</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="sectionWvrMain sectionWvrTask sectionWvrSubmitted">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title mb-0"><i class="fas fa-check me-2 text-primary"></i>Submitted Task List</h3>
+                  <div class="text-secondary" style="font-size:.75rem">Recently verified tasks for audit trail</div>
+                </div>
+                <div class="gems-card-toolbar">
+                  <div id="btnWvrSubmittedExport"></div>
+                </div>
+              </div>
+              <table id="dtWvrSubmitted" class="table table-vcenter card-table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th style="width:4%">#</th>
+                    <th>WO No</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Complainant</th>
+                    <th>Severity</th>
+                    <th>Technician</th>
+                    <th>Received Time</th>
+                    <th>Submitted Time</th>
+                    <th>SLA Respond</th>
+                    <th>Respond Duration</th>
+                    <th>SLA Execution</th>
+                    <th>Execution Duration</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
         </section>
+
         <div class="includeHtml" id="h-section_wo"></div>
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
-</main>
+  </div>
+</div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_wo.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_wo_verify.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let sectionWoClass_;
+  let woVerifyClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    $(function () {
-        $("#mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
-    });
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        sectionWoClass_ = new SectionWo();
+        woVerifyClass_ = new MainWoVerify();
 
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
+        const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
+        const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
+        const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId', [], 'severity');
+        const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let sectionWoClass_;
-    let woVerifyClass_;
+        const userInfo = mzGetProfile();
+        $('#lblWvrSiteName').text(refSite_[userInfo['siteId']]['siteName']);
 
-    document.addEventListener('DOMContentLoaded', function () {
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                initPhotoSwipeFromDOM('.mdb-lightbox');
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                sectionWoClass_ = new SectionWo();
-                woVerifyClass_ = new MainWoVerify();
+        sectionWoClass_.setRefStatus(refStatus_);
+        sectionWoClass_.setRefUser(refUser_);
+        sectionWoClass_.setRefSite(refSite_);
+        sectionWoClass_.setRefSeverity(refSeverity_);
+        sectionWoClass_.setRefPpmGroup(refPpmGroup_);
+        sectionWoClass_.setClassFrom(woVerifyClass_);
+        sectionWoClass_.init();
 
-                const refStatus_ = mzGetLocalArrayV2('gems_status2', versionLocal_, 'status/ref');
-                const refUser_ = mzGetLocalArrayV2('gems_user2', versionLocal_, 'user/ref');
-                const refSite_ = mzGetLocalArrayV2('gems_site2', versionLocal_, 'site/ref');
-                const refSeverity_ = mzGetLocalArray('gems_severity', versionLocal_, 'severityId', [], 'severity');
-                const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
-
-                const userInfo = mzGetProfile();
-                $('#lblWvrSiteName').text(refSite_[userInfo['siteId']]['siteName']);
-
-                sectionWoClass_.setRefStatus(refStatus_);
-                sectionWoClass_.setRefUser(refUser_);
-                sectionWoClass_.setRefSite(refSite_);
-                sectionWoClass_.setRefSeverity(refSeverity_);
-                sectionWoClass_.setRefPpmGroup(refPpmGroup_);
-                sectionWoClass_.setClassFrom(woVerifyClass_);
-                sectionWoClass_.init();
-
-                woVerifyClass_.setRefStatus(refStatus_);
-                woVerifyClass_.setRefUser(refUser_);
-                woVerifyClass_.setRefSeverity(refSeverity_);
-                woVerifyClass_.setSectionWoClass(sectionWoClass_);
-                woVerifyClass_.init();
-                woVerifyClass_.genTablePending();
-                woVerifyClass_.assignTotalSubmitted();
-            } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_wo.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_wo_verify.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        woVerifyClass_.setRefStatus(refStatus_);
+        woVerifyClass_.setRefUser(refUser_);
+        woVerifyClass_.setRefSeverity(refSeverity_);
+        woVerifyClass_.setSectionWoClass(sectionWoClass_);
+        woVerifyClass_.init();
+        woVerifyClass_.genTablePending();
+        woVerifyClass_.assignTotalSubmitted();
+      } catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 200);
+  });
 </script>
 </body>
 </html>
