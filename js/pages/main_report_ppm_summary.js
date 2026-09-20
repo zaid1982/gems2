@@ -13,21 +13,52 @@ function MainReportPpmSummary() {
     let selectedMonth;
     let userSite;
 
+    function rowsFromRef(ref, idKey, labelKey, predicate) {
+        const rows = [];
+        $.each(ref || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const row = $.extend({}, item);
+            if (row[idKey] === undefined || row[idKey] === null || row[idKey] === '') {
+                row[idKey] = key;
+            }
+            if (predicate && !predicate(row)) {
+                return true;
+            }
+            rows.push(row);
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return String(a[labelKey] || '').localeCompare(String(b[labelKey] || ''), 'en', {numeric: true});
+        });
+        return rows;
+    }
+
+    function fillSiteSelect(clientKey, labelKey, selected) {
+        GemsUI.fillSelect(
+            'optRpsSiteId',
+            rowsFromRef(refSite, 'siteId', labelKey, function (row) {
+                if (clientKey && String(row['clientId']) !== String(clientKey)) {
+                    return false;
+                }
+                return String(row['siteStatus']) === '1';
+            }),
+            'siteId',
+            labelKey,
+            'Choose Site',
+            selected
+        );
+    }
+
     this.init = function () {
         userSite = mzGetUserInfoByParam('siteId');
-        
-        mzOption('optRpsClientId', refClient, 'Choose Client', 'clientId', 'clientName', {}, 'required');
-        
-        // Site filtering based on user role
-        const siteFilter = !mzIsRoleExist('1,10') ? {clientId: '1', siteId: userSite, siteStatus: '1'} : {clientId: '1', siteStatus: '1'};
-        mzOption('optRpsSiteId', refSite, 'Choose Site', 'siteId', 'siteDesc', siteFilter, 'required');
 
         clientId = '1';
         siteId = !mzIsRoleExist('1,10') ? userSite : '1';
-        $('#optRpsClientId').val(clientId);
-        $('#optRpsSiteId').val(siteId);
-        
-        // Disable site selection for non-administrators
+        GemsUI.fillSelect('optRpsClientId', rowsFromRef(refClient, 'clientId', 'clientName'), 'clientId', 'clientName', 'Choose Client', clientId);
+        fillSiteSelect('1', 'siteDesc', siteId);
+
         if (!mzIsRoleExist('1,10')) {
             $('#optRpsSiteId').prop('disabled', true);
         }
@@ -36,15 +67,12 @@ function MainReportPpmSummary() {
         selectedMonth = dateCurrent.getMonth()+1;
         selectedYear = dateCurrent.getFullYear();
 
-        mzOption('optRpsYearId', yearArr, 'Choose Year', 'yearId', 'yearName', {}, 'required', false);
-        $('#optRpsYearId').val(selectedYear);
-
-        mzOption('optRpsMonthId', monthArr, 'Choose Month', 'monthId', 'monthName', {}, 'required', false);
-        $('#optRpsMonthId').val(selectedMonth);
+        GemsUI.fillSelect('optRpsYearId', yearArr, 'yearId', 'yearName', 'Choose Year', selectedYear);
+        GemsUI.fillSelect('optRpsMonthId', monthArr, 'monthId', 'monthName', 'Choose Month', selectedMonth);
 
         $('#optRpsClientId').on('change', function () {
             clientId = $(this).val();
-            mzOptionStop('optRpsSiteId', refSite, 'Choose Site', 'siteId', 'siteName', {clientId: $(this).val(), siteStatus: '1'}, 'required');
+            fillSiteSelect($(this).val(), 'siteName');
         });
 
         const vData = [
@@ -89,14 +117,14 @@ function MainReportPpmSummary() {
             bPaginate: false,
             autoWidth: false,
             "aaSorting": [6, 'desc'],
+            language: GemsUI.dtEmpty('fa-clipboard-check', 'No PPM summary for this period.', 'No asset types match the current search.'),
+            dom: "<'d-none'f>rt",
             fnRowCallback : function(nRow, aData, iDisplayIndex){
                 const info = oTablePpmSummary.page.info();
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
             },
-            language: _DATATABLE_LANGUAGE,
             aoColumns:
                 [
                     {mData: null, bSortable: false},
@@ -120,7 +148,7 @@ function MainReportPpmSummary() {
                         }}
                 ]
         });
-        $("#dtRpsPpmSummary_filter").hide();
+        GemsUI.bindDtTooltips('#dtRpsPpmSummary');
 
         let cntPpmSummary;
         let btnPpmSummaryOpt = {
@@ -144,14 +172,14 @@ function MainReportPpmSummary() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - PPM Summary',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnPpmSummaryOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - PPM Summary',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnPpmSummaryOpt, {
                     extend:    'pdfHtml5',
@@ -159,7 +187,7 @@ function MainReportPpmSummary() {
                     title:     'GEMS 2.0 - PPM Summary',
                     titleAttr: 'Pdf',
                     orientation: 'landscape',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtRpsPpmSummaryExport'));
