@@ -7,6 +7,48 @@ function ModalPpmReschedule() {
     let ppmTaskId;
     let ppmTaskStartDate;
 
+    function pad2(n) {
+        return (n < 10 ? '0' : '') + n;
+    }
+
+    function toYmd(dateStr) {
+        if (!dateStr) {
+            return '';
+        }
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+            return dateStr;
+        }
+        const parts = String(dateStr).split('/');
+        if (parts.length === 3) {
+            return parts[0] + '-' + pad2(parseInt(parts[1], 10)) + '-' + pad2(parseInt(parts[2], 10));
+        }
+        return '';
+    }
+
+    function addDaysYmd(ymd, days) {
+        const parts = ymd.split('-');
+        const dt = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        dt.setDate(dt.getDate() + days);
+        return dt.getFullYear() + '-' + pad2(dt.getMonth() + 1) + '-' + pad2(dt.getDate());
+    }
+
+    function setNativeDateBounds(minYmd, maxYmd) {
+        const el = document.getElementById('txtMprNewDate');
+        if (!el) {
+            return;
+        }
+        if (minYmd) {
+            el.min = minYmd;
+        } else {
+            el.removeAttribute('min');
+        }
+        if (maxYmd) {
+            el.max = maxYmd;
+        } else {
+            el.removeAttribute('max');
+        }
+    }
+
     this.init = function () {
         const vData = [
             {
@@ -37,12 +79,11 @@ function ModalPpmReschedule() {
         $('#modal_ppm_reschedule').on('hidden.bs.modal', function(){
             $('#btnMprSubmit').attr('disabled', true);
             formValidate.clearValidation();
-            mzDateEnable('txtMprNewDate', ppmTaskStartDate);
+            setNativeDateBounds('', '');
         });
 
         $('#optMprFrequency').on('change', function () {
             $('#txtMprNewDate').val('');
-            $('#lblMprNewDate').removeClass('active');
         });
 
         $('#btnMprSubmit').on('click', function () {
@@ -89,8 +130,6 @@ function ModalPpmReschedule() {
                 mzSetFieldValue('MprPpmTaskNo', _passParam['ppmTaskNo'], 'text');
                 mzSetFieldValue('MprPpmTaskStartDate', ppmTaskStartDate, 'text');
                 mzSetFieldValue('MprPpmTaskScheduleDate', ppmTaskScheduleDate, 'text');
-                //const dataMzc = mzAjaxRequest('asset_category.php?assetCategoryId='+assetCategoryId, 'GET');
-                //mzSetFieldValue('MzcName', dataMzc['assetCategoryName'], 'text');
 
                 let arrFrequency = [];
                 for (let i = 0; i < frequencySplit.length; i++) {
@@ -99,23 +138,30 @@ function ModalPpmReschedule() {
                     }
                 }
                 mzOptionStop('optMprFrequency', arrFrequency, 'Choose Frequency', 'frequencyId', 'frequencyName', '', 'required', false);
-                mzDateSetMax('txtMprNewDate', ppmTaskScheduleDate);
-                mzDateDisable('txtMprNewDate', ppmTaskStartDate);
+
+                const startYmd = toYmd(ppmTaskStartDate);
+                const maxYmd = toYmd(ppmTaskScheduleDate);
+                let minYmd = startYmd ? addDaysYmd(startYmd, 1) : '';
 
                 if (arrFrequency.length === 1) {
                     const frequencyId = arrFrequency[0]['frequencyId'];
                     mzSetFieldValue('MprFrequency', frequencyId, 'select', 'Frequency *');
                     const dateArr = ppmTaskScheduleDate.split('/');
-                    const finalDate = new Date(parseInt(dateArr[0]), parseInt(dateArr[1])-1, parseInt(dateArr[2]));
+                    const finalDate = new Date(parseInt(dateArr[0], 10), parseInt(dateArr[1], 10)-1, parseInt(dateArr[2], 10));
                     let minDate = finalDate;
-                    if (frequencyId === '4') {  // weekly
+                    if (frequencyId === '4') {
                         minDate.setDate(minDate.getDate() - 7);
-                        mzDateSetMin('txtMprNewDate', minDate.getFullYear()+'/'+(minDate.getMonth()+1)+'/'+minDate.getDate());
+                        minYmd = minDate.getFullYear() + '-' + pad2(minDate.getMonth() + 1) + '-' + pad2(minDate.getDate());
+                    } else if (frequencyId === '3' || frequencyId === '2' || frequencyId === '1' || frequencyId === '6') {
+                        minYmd = minDate.getFullYear() + '-' + pad2(minDate.getMonth() + 1) + '-01';
                     }
-                    else if (frequencyId === '3' || frequencyId === '2' || frequencyId === '1' || frequencyId === '6') {  // monthly
-                        mzDateSetMin('txtMprNewDate', minDate.getFullYear()+'/'+(minDate.getMonth()+1)+'/1');
+                    if (startYmd && minYmd && minYmd <= startYmd) {
+                        minYmd = addDaysYmd(startYmd, 1);
                     }
                 }
+
+                setNativeDateBounds(minYmd, maxYmd);
+                $('#txtMprNewDate').val('');
 
                 $('#modal_ppm_reschedule').modal({backdrop: 'static', keyboard: false});
             } catch (e) {

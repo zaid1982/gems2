@@ -1,294 +1,259 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/ppm_reschedule.html — Tabler-migrated (P5-4 Commit 1 PPM Reschedule).
+
+  Page-local. No section_asset_details. modal_ppm_reschedule is this page only.
+  Dead MDB stepper + lightbox includes dropped. Date picker is native type=date.
+
+  Bridges: modal_change_password / modal_pdf stay dual-stack.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js, css/addons-pro/steppers.css,
+  js/addons-pro/stepper.js, js/modules/lightbox.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Shared Design System stylesheet -->
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Stepper CSS - minified-->
-    <link href="css/addons-pro/steppers.css" rel="stylesheet">
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-    
-    <style>
-        .select-outline label {
-            display: none;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Reschedule PPM</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
 </head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
 
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-
-<main>
-    <div class="container-fluid">
-        <!--Section: Main panel-->
-        <section class="mb-5 sectionPrsMain">
-            <div class="card card-cascade narrower gems-card-shell ppm-reschedule-shell">
-                <section class="gems-page-header ppm-reschedule-header">
-                    <div class="header-text">
-                        <h2>Reschedule PPM</h2>
-                        <p>Review monthly preventive maintenance plans and adjust scheduling with confidence.</p>
-                    </div>
-                    <div class="header-actions">
-                        <button type="button" id="btnDtPrsListRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                    </div>
-                </section>
-
-                <section class="mt-4">
-                    <div class="row">
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Scheduled Tasks</span>
-                                <span class="metric-value" id="metricPrsTotal">0</span>
-                                <span class="metric-subtext">PPM tasks loaded for the period</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Rescheduled</span>
-                                <span class="metric-value" id="metricPrsRescheduled">0</span>
-                                <span class="metric-subtext">Tasks with updated execution date</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Awaiting Action</span>
-                                <span class="metric-value" id="metricPrsPending">0</span>
-                                <span class="metric-subtext">Eligible tasks pending reschedule</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Disallowed</span>
-                                <span class="metric-value" id="metricPrsDisallowed">0</span>
-                                <span class="metric-subtext">Frequencies that cannot be moved</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mt-2 mb-4">
-                    <div class="filter-card ppm-reschedule-filter">
-                        <div class="filter-grid">
-                            <div>
-                                <label class="filter-label" for="optPrsSiteId">Site</label>
-                                <div class="select-outline">
-                                    <select id="optPrsSiteId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                    <label for="optPrsSiteId">Site</label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optPrsYear">Year</label>
-                                <div class="select-outline">
-                                    <select id="optPrsYear" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                    <label for="optPrsYear">Year</label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optPrsMonth">Month</label>
-                                <div class="select-outline">
-                                    <select id="optPrsMonth" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                                    <label for="optPrsMonth">Month</label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="optPrsRescheduleStatus">Reschedule Status</label>
-                                <div class="select-outline">
-                                    <select id="optPrsRescheduleStatus" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0">
-                                        <option value="" selected>All Status</option>
-                                        <option value="Rescheduled">Rescheduled</option>
-                                        <option value="Not Yet">Not Yet</option>
-                                        <option value="Disallowed">Disallowed</option>
-                                    </select>
-                                    <label for="optPrsRescheduleStatus">Reschedule Status</label>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="filter-label" for="txtPrsListSearch">Keyword Search</label>
-                                <div class="md-form md-outline mt-0 mb-0">
-                                    <input type="text" id="txtPrsListSearch" class="form-control">
-                                    <label for="txtPrsListSearch" class="active">Keyword Search</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
-                            <span id="lblPrsFilterCount">Showing 0 of 0</span>
-                            <span id="lblPrsFilterUpdated">—</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mb-4">
-                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
-                        <label class="filter-label mb-2">Quick Status</label>
-                        <div class="gems-status-scroll">
-                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkPrsAll">All</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPrsRescheduled">Rescheduled</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPrsNotYet">Not Yet</a>
-                            <a href="javascript:void(0);" class="gems-status-chip" id="linkPrsDisallowed">Disallowed</a>
-                        </div>
-                    </div>
-                </section>
-
-                <section>
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <div>
-                                <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                                   data-toggle="popover" data-trigger="focus" title="Track and Monitoring"
-                                   data-content="Track current checkpoint for all transactions."><i class="fas fa-info mt-0 mx-1"></i></a>
-                            </div>
-                            <a href="javascript:void(0);" class="text-white mx-3">PPM List</a>
-                            <div class="dt-btn-slot">
-                                <div id="btnDtPrsListExport"></div>
-                            </div>
-                        </div>
-                        <div class="px-4 pb-3">
-                            <div class="summary-pill d-flex justify-content-between align-items-center">
-                                <span id="lblPrsListCount">Showing 0 of 0</span>
-                                <span id="lblPrsListUpdated">—</span>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <table id="dtPrsList" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th scope="row" style="max-width: 30px">#</th>
-                                        <th>Work Order No</th>
-                                        <th>Asset No</th>
-                                        <th>Asset Group</th>
-                                        <th>Asset Category</th>
-                                        <th>Asset Type</th>
-                                        <th>Scheduled Date</th>
-                                        <th>Final Date</th>
-                                        <th>Frequency</th>
-                                        <th>PPM Group</th>
-                                        <th style="max-width: 80px">Reschedule Status</th>
-                                        <th style="max-width: 70px">Status</th>
-                                        <th style="width: 40px; min-width: 40px"></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        <section class="sectionPrsMain">
+          <div class="page-header">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm">
+                <h1 class="page-title"><i class="fas fa-calendar-check me-2 text-primary"></i>Reschedule PPM</h1>
+                <div class="page-subtitle">Review monthly preventive maintenance plans and adjust scheduling with confidence.</div>
+              </div>
+              <div class="col-12 col-sm-auto">
+                <button type="button" id="btnDtPrsListRefresh" class="btn btn-outline-secondary" aria-label="Refresh data" data-bs-toggle="tooltip" title="Refresh data">
+                  <i class="fas fa-sync me-2"></i>Refresh
+                </button>
+              </div>
             </div>
+          </div>
+
+          <div class="row row-cards mb-3">
+            <div class="col-sm-6 col-xl-3">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Scheduled Tasks</div>
+                  <div class="h2 mb-0" id="metricPrsTotal">0</div>
+                  <div class="text-secondary" style="font-size:.75rem">PPM tasks loaded for the period</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Rescheduled</div>
+                  <div class="h2 mb-0" id="metricPrsRescheduled">0</div>
+                  <div class="text-secondary" style="font-size:.75rem">Tasks with updated execution date</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Awaiting Action</div>
+                  <div class="h2 mb-0" id="metricPrsPending">0</div>
+                  <div class="text-secondary" style="font-size:.75rem">Eligible tasks pending reschedule</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card">
+                <div class="card-body py-2">
+                  <div class="text-secondary" style="font-size:.75rem">Disallowed</div>
+                  <div class="h2 mb-0" id="metricPrsDisallowed">0</div>
+                  <div class="text-secondary" style="font-size:.75rem">Frequencies that cannot be moved</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optPrsSiteId">Site</label>
+                  <select id="optPrsSiteId" class="form-select"></select>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optPrsYear">Year</label>
+                  <select id="optPrsYear" class="form-select"></select>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optPrsMonth">Month</label>
+                  <select id="optPrsMonth" class="form-select"></select>
+                </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optPrsRescheduleStatus">Reschedule Status</label>
+                  <select id="optPrsRescheduleStatus" class="form-select">
+                    <option value="" selected>All Status</option>
+                    <option value="Rescheduled">Rescheduled</option>
+                    <option value="Not Yet">Not Yet</option>
+                    <option value="Disallowed">Disallowed</option>
+                  </select>
+                </div>
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txtPrsListSearch">Keyword Search</label>
+                  <input type="text" id="txtPrsListSearch" class="form-control" placeholder="Search PPM tasks...">
+                </div>
+              </div>
+              <div class="d-flex justify-content-between text-secondary mt-3" style="font-size:.75rem">
+                <span id="lblPrsFilterCount">Showing 0 of 0</span>
+                <span id="lblPrsFilterUpdated">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title mb-0">Quick Status</h3>
+              </div>
+            </div>
+            <div class="card-body d-flex flex-wrap gap-2">
+              <a href="javascript:void(0);" class="linkPrsStatus btn btn-outline-secondary btn-sm active" id="linkPrsAll">All</a>
+              <a href="javascript:void(0);" class="linkPrsStatus btn btn-outline-secondary btn-sm" id="linkPrsRescheduled">Rescheduled</a>
+              <a href="javascript:void(0);" class="linkPrsStatus btn btn-outline-secondary btn-sm" id="linkPrsNotYet">Not Yet</a>
+              <a href="javascript:void(0);" class="linkPrsStatus btn btn-outline-secondary btn-sm" id="linkPrsDisallowed">Disallowed</a>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title mb-0">PPM List</h3>
+              </div>
+              <div class="gems-card-toolbar">
+                <div id="btnDtPrsListExport"></div>
+              </div>
+            </div>
+            <div class="card-body py-2">
+              <div class="d-flex justify-content-between text-secondary" style="font-size:.75rem">
+                <span id="lblPrsListCount">Showing 0 of 0</span>
+                <span id="lblPrsListUpdated">—</span>
+              </div>
+            </div>
+            <div class="table-responsive">
+            <table id="dtPrsList" class="table table-vcenter card-table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th style="width:4%">#</th>
+                  <th>Work Order No</th>
+                  <th>Asset No</th>
+                  <th>Asset Group</th>
+                  <th>Asset Category</th>
+                  <th>Asset Type</th>
+                  <th>Scheduled Date</th>
+                  <th>Final Date</th>
+                  <th>Frequency</th>
+                  <th>PPM Group</th>
+                  <th>Reschedule Status</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            </div>
+          </div>
         </section>
-<!--        <div class="includeHtml" id="h-section_task_history"></div>-->
 
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
-    <div class="includeHtml" id="h-modal_ppm_reschedule"></div>
-</main>
+  </div>
+</div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
+<div class="includeHtml" id="h-modal_ppm_reschedule"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_ppm_reschedule.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_ppm_reschedule.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- Stepper JavaScript - minified -->
-<script type="text/javascript" src="js/addons-pro/stepper.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let ppmRescheduleClass_;
+  let modalPpmRescheduleClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        ppmRescheduleClass_ = new MainPpmReschedule();
+        modalPpmRescheduleClass_ = new ModalPpmReschedule();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let ppmRescheduleClass_;
-    let modalPpmRescheduleClass_;
+        const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+        const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
+        const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
+        const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
+        const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
+        const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
 
-    document.addEventListener('DOMContentLoaded', function () {
+        modalPpmRescheduleClass_.setClassFrom(ppmRescheduleClass_);
+        modalPpmRescheduleClass_.init();
 
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                ppmRescheduleClass_ = new MainPpmReschedule();
-                modalPpmRescheduleClass_ = new ModalPpmReschedule();
-
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
-                const refPpmGroup_ = mzGetLocalArray('gems_ppmGroup', versionLocal_, 'ppmGroupId', [], 'ppm_group');
-                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
-                const refAssetCategory_ = mzGetLocalArray('gems_assetCategory', versionLocal_, 'assetCategoryId', [], 'asset_category');
-                const refAssetType_ = mzGetLocalArray('gems_assetType', versionLocal_, 'assetTypeId', [], 'asset_type');
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-
-                modalPpmRescheduleClass_.setClassFrom(ppmRescheduleClass_);
-                modalPpmRescheduleClass_.init();
-
-                ppmRescheduleClass_.setRefSite(refSite_);
-                ppmRescheduleClass_.setRefPpmGroup(refPpmGroup_);
-                ppmRescheduleClass_.setRefAssetGroup(refAssetGroup_);
-                ppmRescheduleClass_.setRefAssetCategory(refAssetCategory_);
-                ppmRescheduleClass_.setRefAssetType(refAssetType_);
-                ppmRescheduleClass_.setRefStatus(refStatus_);
-                ppmRescheduleClass_.setModalPpmRescheduleClass(modalPpmRescheduleClass_);
-                ppmRescheduleClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_ppm_reschedule.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_ppm_reschedule.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+        ppmRescheduleClass_.setRefSite(refSite_);
+        ppmRescheduleClass_.setRefPpmGroup(refPpmGroup_);
+        ppmRescheduleClass_.setRefAssetGroup(refAssetGroup_);
+        ppmRescheduleClass_.setRefAssetCategory(refAssetCategory_);
+        ppmRescheduleClass_.setRefAssetType(refAssetType_);
+        ppmRescheduleClass_.setRefStatus(refStatus_);
+        ppmRescheduleClass_.setModalPpmRescheduleClass(modalPpmRescheduleClass_);
+        ppmRescheduleClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 300);
+  });
 </script>
-
 </body>
 </html>

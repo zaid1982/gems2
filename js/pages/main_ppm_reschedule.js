@@ -90,14 +90,7 @@ function MainPpmReschedule() {
         oTablePpm.column(10).search(value, false, true, false).draw();
         setActiveStatusChip(value);
         if (!fromSelect) {
-            const $statusSelect = $('#optPrsRescheduleStatus');
-            try {
-                $statusSelect.materialSelect('destroy');
-                $statusSelect.val(value);
-                $statusSelect.materialSelect();
-            } catch (e) {
-                $statusSelect.val(value);
-            }
+            $('#optPrsRescheduleStatus').val(value);
         }
     };
 
@@ -123,20 +116,31 @@ function MainPpmReschedule() {
         for (let i = 0; i <= monthFull.length; i++) {
             arrMonth.push({monthId:i, monthDesc:monthFull[i]});
         }
-        for (let i = 0; i <= refSite.length; i++) {
-            if (typeof refSite[i] !== 'undefined' && refSite[i]['clientId'] === userClient) {
-                currentSite = refSite[i]['siteId'];
-                break;
-            }
+        const siteRows = [];
+        if (refSite) {
+            $.each(refSite, function (id, rec) {
+                if (!rec || typeof rec !== 'object') {
+                    return;
+                }
+                const row = $.extend({}, rec);
+                if (row['siteId'] === undefined) {
+                    row['siteId'] = String(id);
+                }
+                if (!currentSite && String(row['clientId']) === String(userClient)) {
+                    currentSite = row['siteId'];
+                }
+                if (typeof row['siteStatus'] !== 'undefined' && String(row['siteStatus']) !== '1') {
+                    return;
+                }
+                if (currentRole === '2' && String(row['clientId']) !== String(userClient)) {
+                    return;
+                }
+                siteRows.push(row);
+            });
         }
-
-        let filterSite = {siteStatus:'1'};
-        if (currentRole === '2') {
-            filterSite['clientId'] = userClient;
-        }
-        mzOption('optPrsYear', arrYear, 'Select Year', 'yearId', 'yearDesc', {}, 'required');
-        mzOption('optPrsMonth', arrMonth, 'Select Month', 'monthId', 'monthDesc', {}, 'required', false);
-        mzOption('optPrsSiteId', refSite, 'Select Site', 'siteId', 'siteName', filterSite, 'required');
+        GemsUI.fillSelect('optPrsYear', arrYear, 'yearId', function (row) { return row['yearDesc'] || ''; }, 'Select Year');
+        GemsUI.fillSelect('optPrsMonth', arrMonth, 'monthId', function (row) { return row['monthDesc'] || ''; }, 'Select Month');
+        GemsUI.fillSelect('optPrsSiteId', siteRows, 'siteId', function (row) { return row['siteName'] || ''; }, 'Select Site');
 
         $('#optPrsYear').val(yearId);
         $('#optPrsMonth').val(currentMonth);
@@ -151,59 +155,11 @@ function MainPpmReschedule() {
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
             },
             drawCallback: function () {
-                $('[data-toggle="tooltip"]').tooltip();
-                $('.lnkPrsPpmPdf').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        ShowLoader();
-                        setTimeout(function () {
-                            try {
-                                const rowId = linkId.substr(linkIndex+1);
-                                const currentRow = oTablePpm.row(parseInt(rowId)).data();
-                                let pdfId = currentRow['pdfId'];
-                                if (currentRow['pdfId'] === '') {
-                                    pdfId = mzAjaxRequest('ppm.php', 'POST', {action: 'generate_pdf', ppmTaskId:currentRow['ppmTaskId']});
-                                }
-                                const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
-                                $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;PPM Report: '+currentRow['ppmTaskNo']);
-                                $('#mpdf_iframe').attr('src', pdfSrc);
-                                $('#modal_pdf').modal('show');
-                            } catch (e) {
-                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                            }
-                            HideLoader();
-                        }, 200);
-                    }
-                });
-                $('.lnkPrsPpmReschedule').off('click').on('click', function () {
-                    const linkId = $(this).attr('id');
-                    const linkIndex = linkId.indexOf('_');
-                    if (linkIndex > 0) {
-                        ShowLoader();
-                        setTimeout(function () {
-                            try {
-                                const rowId = linkId.substr(linkIndex+1);
-                                const currentRow = oTablePpm.row(parseInt(rowId)).data();
-                                const passParam = {
-                                    ppmTaskNo:currentRow['ppmTaskNo'],
-                                    ppmTaskStartDate:currentRow['ppmTaskStartDate'],
-                                    ppmTaskScheduleDate:currentRow['ppmTaskScheduleDate'],
-                                    frequency:currentRow['frequency'],
-                                    frequencyIds:currentRow['frequencyIds']
-                                };
-                                modalPpmRescheduleClass.edit(currentRow['ppmTaskId'], rowId, passParam);
-                            } catch (e) {
-                                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-                            }
-                            HideLoader();
-                        }, 200);
-                    }
-                });
                 applyTableDataLabels('#dtPrsList', rescheduleHeaders);
                 refreshListSummary();
             },
-            language: _DATATABLE_LANGUAGE,
+            language: GemsUI.dtEmpty('fa-calendar-check', 'No PPM tasks for this period.'),
+            dom: GemsUI.dtDom,
             aoColumns:
                 [
                     {mData: null, bSortable: false},
@@ -236,18 +192,32 @@ function MainPpmReschedule() {
                         }},
                     {mData: null, sClass: 'text-center',
                         mRender: function (data, type, row) {
-                            return '<h6><span class="badge badge-pill '+refStatus[row['ppmTaskStatus']]['statusColor']+' z-depth-2">'+refStatus[row['ppmTaskStatus']]['statusDesc']+'</span></h6>';
+                            const rec = refStatus && refStatus[row['ppmTaskStatus']];
+                            const label = rec ? rec['statusDesc'] : String(row['ppmTaskStatus']);
+                            if (type !== 'display') {
+                                return label;
+                            }
+                            const colorMap = {
+                                'badge-primary': 'info',
+                                'badge-info': 'info',
+                                'badge-success': 'success',
+                                'badge-danger': 'danger',
+                                'badge-warning': 'warning',
+                                'badge-secondary': 'secondary'
+                            };
+                            return GemsUI.badge(colorMap[rec && rec['statusColor']] || 'secondary', GemsUI.escape(label));
                         }
                     },
                     {mData: null, bSortable: false, sClass: 'text-center',
                         mRender: function (data, type, row, meta) {
-                            let label = '<div class="action-btn-group">';
-                            label += '<button type="button" class="btn-action btn-pdf lnkPrsPpmPdf" id="lnkPrsPpmPdf_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="PPM PDF"><i class="far fa-file-pdf"></i></button>';
+                            if (type !== 'display') {
+                                return '';
+                            }
+                            let label = GemsUI.actionBtn({id: 'lnkPrsPpmPdf_' + meta.row, cls: 'lnkPrsPpmPdf', icon: 'far fa-file-pdf', title: 'PPM PDF'});
                             const frequency = row['frequencyIds'];
                             if (frequency === '1' || frequency === '2' || frequency === '3' || frequency === '4' || frequency === '6') {
-                                label += '<button type="button" class="btn-action btn-edit lnkPrsPpmReschedule" id="lnkPrsPpmReschedule_' + meta.row + '" data-toggle="tooltip" data-placement="top" title="Reschedule PPM Date"><i class="far fa-calendar-check"></i></button>';
+                                label += GemsUI.actionBtn({id: 'lnkPrsPpmReschedule_' + meta.row, cls: 'lnkPrsPpmReschedule', icon: 'far fa-calendar-check', title: 'Reschedule PPM Date'});
                             }
-                            label += '</div>';
                             return label;
                         }
                     },
@@ -259,6 +229,55 @@ function MainPpmReschedule() {
                 ]
         });
         $("#dtPrsList_filter").hide();
+        GemsUI.bindDtTooltips('#dtPrsList');
+        $('#dtPrsList').on('click', '.lnkPrsPpmPdf', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                ShowLoader();
+                setTimeout(function () {
+                    try {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTablePpm.row(parseInt(rowId, 10)).data();
+                        let pdfId = currentRow['pdfId'];
+                        if (currentRow['pdfId'] === '') {
+                            pdfId = mzAjaxRequest('ppm.php', 'POST', {action: 'generate_pdf', ppmTaskId:currentRow['ppmTaskId']});
+                        }
+                        const pdfSrc = mzAjaxRequest('pdf.php?pdfId='+pdfId, 'GET');
+                        $('#mpdf_title').html('<i class="far fa-file-pdf text-white"></i> &nbsp;PPM Report: '+currentRow['ppmTaskNo']);
+                        $('#mpdf_iframe').attr('src', pdfSrc);
+                        $('#modal_pdf').modal('show');
+                    } catch (e) {
+                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                    }
+                    HideLoader();
+                }, 200);
+            }
+        });
+        $('#dtPrsList').on('click', '.lnkPrsPpmReschedule', function () {
+            const linkId = $(this).attr('id');
+            const linkIndex = linkId.indexOf('_');
+            if (linkIndex > 0) {
+                ShowLoader();
+                setTimeout(function () {
+                    try {
+                        const rowId = linkId.substr(linkIndex+1);
+                        const currentRow = oTablePpm.row(parseInt(rowId, 10)).data();
+                        const passParam = {
+                            ppmTaskNo:currentRow['ppmTaskNo'],
+                            ppmTaskStartDate:currentRow['ppmTaskStartDate'],
+                            ppmTaskScheduleDate:currentRow['ppmTaskScheduleDate'],
+                            frequency:currentRow['frequency'],
+                            frequencyIds:currentRow['frequencyIds']
+                        };
+                        modalPpmRescheduleClass.edit(currentRow['ppmTaskId'], rowId, passParam);
+                    } catch (e) {
+                        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+                    }
+                    HideLoader();
+                }, 200);
+            }
+        });
         $('#txtPrsListSearch').on('keyup change', function () {
             oTablePpm.search($(this).val()).draw();
         });
@@ -285,9 +304,9 @@ function MainPpmReschedule() {
                             cntPpm = 1;
                         }
                         if (column === 11) {
-                            const n = data.search('">');
-                            const k = data.substr(n+2);
-                            return k.replace('</span></h6>','');
+                            const tmp = document.createElement('div');
+                            tmp.innerHTML = data;
+                            return tmp.textContent || tmp.innerText || '';
                         }
                         return column === 0 ? cntPpm++ : data;
                     }
@@ -302,14 +321,14 @@ function MainPpmReschedule() {
                     text:      '<i class="fas fa-print"></i>',
                     title:     'GEMS 2.0 - PPM List',
                     titleAttr: 'Print',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 }),
                 $.extend( true, {}, btnPpmOpt, {
                     extend:    'excelHtml5',
                     text:      '<i class="fas fa-file-excel"></i>',
                     title:     'GEMS 2.0 - PPM List',
                     titleAttr: 'Excel',
-                    className: 'btn btn-outline-white btn-rounded btn-sm px-2'
+                    className: 'btn btn-outline-secondary btn-sm'
                 })
             ]
         }).container().appendTo($('#btnDtPrsListExport'));
