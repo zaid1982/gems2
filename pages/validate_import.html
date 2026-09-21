@@ -1,222 +1,260 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/validate_import.html — Tabler-migrated (P5-17 Validate Import).
+
+  Category A dashboard. Inline JS preserved. API file is NOT edited
+  (also a VM fallback for action=sites).
+
+  GET api/validate_import.php?action=
+    summary | sites | batches | imported_wos&site_id=&batch_id=
+    workflow_data | import_log | integrity_check
+
+  Status IDs 1/12/13/14/15/16 and log success/error stay the same.
+  Read-only QA only — no real import.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Import Data Validation - GEMS</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/mdb.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <style>
-        .stats-card {
-            background: var(--gems-header-gradient);
-            color: white;
-        }
-        .table-responsive {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        .status-badge {
-            font-size: 0.8em;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Import Data Validation</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .page-body, .page-body .container-xl { min-width: 0; max-width: 100%; }
+    .table-responsive { max-height: 500px; overflow-y: auto; }
+    .status-badge { font-size: 0.8em; }
+  </style>
 </head>
-<body>
-    <div class="container-fluid py-4">
-        <div class="row">
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+        <div class="page-header">
+          <div class="row align-items-center g-2">
             <div class="col-12">
-                <h2><i class="fas fa-check-circle"></i> Import Data Validation Dashboard</h2>
-                <p class="text-muted">Verify and validate imported work order data</p>
+              <div class="text-secondary" style="font-size:.75rem">Data Quality</div>
+              <h1 class="page-title">Import Data Validation Dashboard</h1>
+              <div class="page-subtitle">Verify and validate imported work order data</div>
             </div>
+          </div>
         </div>
 
-        <!-- Summary Stats -->
-        <div class="row mb-4" id="summaryStats">
-            <div class="col-md-3">
-                <div class="card stats-card">
-                    <div class="card-body text-center">
-                        <h3 id="totalImported">-</h3>
-                        <p class="mb-0">Total Imported WOs</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-success text-white">
-                    <div class="card-body text-center">
-                        <h3 id="successfulImports">-</h3>
-                        <p class="mb-0">Successful Imports</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-warning text-white">
-                    <div class="card-body text-center">
-                        <h3 id="totalBatches">-</h3>
-                        <p class="mb-0">Import Batches</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-info text-white">
-                    <div class="card-body text-center">
-                        <h3 id="lastImport">-</h3>
-                        <p class="mb-0">Last Import</p>
-                    </div>
-                </div>
-            </div>
+        <div class="row row-deck mb-3" id="summaryStats">
+          <div class="col-sm-6 col-lg-3">
+            <div class="card"><div class="card-body">
+              <div class="subheader">Total Imported WOs</div>
+              <div class="h1 mb-0" id="totalImported">-</div>
+            </div></div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="card"><div class="card-body">
+              <div class="subheader">Successful Imports</div>
+              <div class="h1 mb-0 text-success" id="successfulImports">-</div>
+            </div></div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="card"><div class="card-body">
+              <div class="subheader">Import Batches</div>
+              <div class="h1 mb-0 text-warning" id="totalBatches">-</div>
+            </div></div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="card"><div class="card-body">
+              <div class="subheader">Last Import</div>
+              <div class="h1 mb-0" id="lastImport" style="font-size:1.1rem">-</div>
+            </div></div>
+          </div>
         </div>
 
-        <!-- Controls -->
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <select class="form-control" id="siteFilter">
-                    <option value="">All Sites</option>
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="siteFilter">Site</label>
+                <select class="form-select" id="siteFilter">
+                  <option value="">All Sites</option>
                 </select>
-            </div>
-            <div class="col-md-6">
-                <select class="form-control" id="batchFilter">
-                    <option value="">All Batches</option>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="batchFilter">Batch</label>
+                <select class="form-select" id="batchFilter">
+                  <option value="">All Batches</option>
                 </select>
+              </div>
             </div>
+          </div>
         </div>
 
-        <!-- Tabs -->
-        <ul class="nav nav-tabs" id="validationTabs">
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#importedWOs">Imported Work Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#workflowData">Workflow Data</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#importLog">Import Log</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#dataIntegrity">Data Integrity</a>
-            </li>
+        <ul class="nav nav-tabs" id="validationTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" data-bs-toggle="tab" data-toggle="tab" href="#importedWOs">Imported Work Orders</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" data-toggle="tab" href="#workflowData">Workflow Data</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" data-toggle="tab" data-bs-toggle="tab" href="#importLog">Import Log</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" data-toggle="tab" href="#dataIntegrity">Data Integrity</a>
+          </li>
         </ul>
 
         <div class="tab-content mt-3">
-            <!-- Imported Work Orders Tab -->
-            <div class="tab-pane fade show active" id="importedWOs">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Imported Work Orders</h5>
-                        <button class="btn btn-sm btn-primary float-right" onclick="refreshImportedWOs()">
-                            <i class="fas fa-sync"></i> Refresh
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover mobile-stack" id="importedWOsTable">
-                                <thead>
-                                    <tr>
-                                        <th>WO Number</th>
-                                        <th>External Ref</th>
-                                        <th>Complaint</th>
-                                        <th>Site</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Transaction ID</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="importedWOsBody">
-                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+          <div class="tab-pane fade show active" id="importedWOs">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Imported Work Orders</h3>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-sm btn-primary" onclick="refreshImportedWOs()"><i class="fas fa-sync me-1"></i>Refresh</button>
                 </div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover mobile-stack" id="importedWOsTable">
+                    <thead>
+                      <tr>
+                        <th>WO Number</th>
+                        <th>External Ref</th>
+                        <th>Complaint</th>
+                        <th>Site</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Transaction ID</th>
+                      </tr>
+                    </thead>
+                    <tbody id="importedWOsBody">
+                      <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <!-- Workflow Data Tab -->
-            <div class="tab-pane fade" id="workflowData">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Workflow Transactions & Tasks</h5>
-                        <button class="btn btn-sm btn-primary float-right" onclick="refreshWorkflowData()">
-                            <i class="fas fa-sync"></i> Refresh
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover mobile-stack" id="workflowTable">
-                                <thead>
-                                    <tr>
-                                        <th>Transaction No</th>
-                                        <th>Flow ID</th>
-                                        <th>User</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Task Status</th>
-                                        <th>WO Number</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="workflowBody">
-                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+          <div class="tab-pane fade" id="workflowData">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Workflow Transactions &amp; Tasks</h3>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-sm btn-primary" onclick="refreshWorkflowData()"><i class="fas fa-sync me-1"></i>Refresh</button>
                 </div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover mobile-stack" id="workflowTable">
+                    <thead>
+                      <tr>
+                        <th>Transaction No</th>
+                        <th>Flow ID</th>
+                        <th>User</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Task Status</th>
+                        <th>WO Number</th>
+                      </tr>
+                    </thead>
+                    <tbody id="workflowBody">
+                      <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <!-- Import Log Tab -->
-            <div class="tab-pane fade" id="importLog">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Import Log Details</h5>
-                        <button class="btn btn-sm btn-primary float-right" onclick="refreshImportLog()">
-                            <i class="fas fa-sync"></i> Refresh
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover mobile-stack" id="importLogTable">
-                                <thead>
-                                    <tr>
-                                        <th>Batch ID</th>
-                                        <th>Row #</th>
-                                        <th>External Ref</th>
-                                        <th>WO ID</th>
-                                        <th>Status</th>
-                                        <th>Message</th>
-                                        <th>Imported At</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="importLogBody">
-                                    <tr><td colspan="7" class="text-center">Loading...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+          <div class="tab-pane fade" id="importLog">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Import Log Details</h3>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-sm btn-primary" onclick="refreshImportLog()"><i class="fas fa-sync me-1"></i>Refresh</button>
                 </div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover mobile-stack" id="importLogTable">
+                    <thead>
+                      <tr>
+                        <th>Batch ID</th>
+                        <th>Row #</th>
+                        <th>External Ref</th>
+                        <th>WO ID</th>
+                        <th>Status</th>
+                        <th>Message</th>
+                        <th>Imported At</th>
+                      </tr>
+                    </thead>
+                    <tbody id="importLogBody">
+                      <tr><td colspan="7" class="text-center">Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <!-- Data Integrity Tab -->
-            <div class="tab-pane fade" id="dataIntegrity">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Data Integrity Checks</h5>
-                        <button class="btn btn-sm btn-primary float-right" onclick="runIntegrityChecks()">
-                            <i class="fas fa-search"></i> Run Checks
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div id="integrityResults">
-                            <p class="text-muted">Click "Run Checks" to validate data integrity</p>
-                        </div>
-                    </div>
+          <div class="tab-pane fade" id="dataIntegrity">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Data Integrity Checks</h3>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-sm btn-primary" onclick="runIntegrityChecks()"><i class="fas fa-search me-1"></i>Run Checks</button>
                 </div>
+              </div>
+              <div class="card-body">
+                <div id="integrityResults">
+                  <p class="text-secondary mb-0">Click "Run Checks" to validate data integrity</p>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+</div>
 
-    <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/mdb.min.js"></script>
-    <script>
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/toastr-safe.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+
+  let changePasswordClass_;
+  document.addEventListener('DOMContentLoaded', function () {
+    try {
+      initiatePages();
+      changePasswordClass_ = new ModalChangePassword();
+    } catch (e) {
+      toastr['error'](e.message, _ALERT_TITLE_ERROR);
+    }
+  });
+</script>
+<script>
         const API_BASE = 'api/validate_import.php';
 
         $(document).ready(function() {
@@ -241,7 +279,6 @@
         }
 
         function loadFilters() {
-            // Load sites
             $.get(API_BASE + '?action=sites')
                 .done(function(data) {
                     if (data.success) {
@@ -252,7 +289,6 @@
                     }
                 });
 
-            // Load batches
             $.get(API_BASE + '?action=batches')
                 .done(function(data) {
                     if (data.success) {
@@ -307,9 +343,9 @@
                                     <td><strong>${item.transaction_no}</strong></td>
                                     <td>${item.flow_id}</td>
                                     <td>${item.user_name || item.user_id}</td>
-                                    <td><span class="badge badge-info">${item.transaction_status}</span></td>
+                                    <td><span class="badge bg-info">${item.transaction_status}</span></td>
                                     <td>${item.transaction_time_created}</td>
-                                    <td><span class="badge badge-warning">${item.task_status || 'N/A'}</span></td>
+                                    <td><span class="badge bg-warning">${item.task_status || 'N/A'}</span></td>
                                     <td>${item.wo_task_no || 'N/A'}</td>
                                 </tr>
                             `);
@@ -328,9 +364,9 @@
                     
                     if (data.success && data.data.length > 0) {
                         data.data.forEach(log => {
-                            const statusBadge = log.status === 'success' ? 
-                                '<span class="badge badge-success">Success</span>' : 
-                                '<span class="badge badge-danger">Error</span>';
+                            const statusBadge = log.status === 'success' ?
+                                '<span class="badge bg-success">Success</span>' :
+                                '<span class="badge bg-danger">Error</span>';
                             
                             tbody.append(`
                                 <tr>
@@ -362,7 +398,7 @@
                             const icon = check.status === 'pass' ? 'check-circle text-success' : 'exclamation-triangle text-warning';
                             html += `
                                 <div class="alert alert-${check.status === 'pass' ? 'success' : 'warning'} d-flex align-items-center">
-                                    <i class="fas fa-${icon} mr-2"></i>
+                                    <i class="fas fa-${icon} me-2"></i>
                                     <div>
                                         <strong>${check.check_name}</strong><br>
                                         ${check.message}
@@ -381,20 +417,19 @@
 
         function getStatusBadge(status) {
             const statusMap = {
-                '1': '<span class="badge badge-secondary">New</span>',
-                '12': '<span class="badge badge-info">Created</span>',
-                '13': '<span class="badge badge-warning">Assigned</span>',
-                '14': '<span class="badge badge-primary">In Progress</span>',
-                '15': '<span class="badge badge-dark">Completed</span>',
-                '16': '<span class="badge badge-success">Verified</span>'
+                '1': '<span class="badge bg-secondary">New</span>',
+                '12': '<span class="badge bg-info">Created</span>',
+                '13': '<span class="badge bg-warning">Assigned</span>',
+                '14': '<span class="badge bg-primary">In Progress</span>',
+                '15': '<span class="badge bg-dark">Completed</span>',
+                '16': '<span class="badge bg-success">Verified</span>'
             };
-            return statusMap[status] || `<span class="badge badge-light">${status}</span>`;
+            return statusMap[status] || `<span class="badge bg-secondary">${status}</span>`;
         }
 
-        // Filter change handlers
         $('#siteFilter, #batchFilter').change(function() {
             refreshImportedWOs();
         });
-    </script>
+</script>
 </body>
 </html>
