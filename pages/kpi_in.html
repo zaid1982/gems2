@@ -24,9 +24,8 @@
   <link rel="stylesheet" href="css/gems-theme.css">
   <style>
     .page-body, .page-body .container-xl, .sectionKpiMain { min-width: 0; max-width: 100%; }
-    .gems-status-scroll { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .gems-status-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 999px; color: var(--tblr-body-color, #1e293b); text-decoration: none; }
-    .gems-status-chip.active { background: rgba(32, 107, 196, 0.12); border-color: var(--tblr-primary, #206bc4); color: var(--tblr-primary, #206bc4); }
+    .gems-status-scroll { display: flex; flex-wrap: wrap; gap: 6px; }
+    .gems-status-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 999px; color: var(--tblr-body-color, #1e293b); text-decoration: none; font-size: .8125rem; }
     .gems-tabler .btn-outline-white { color: var(--tblr-primary, #206bc4); border-color: var(--tblr-border-color, #e5e7eb); background: #fff; }
     @media (max-width: 768px) {
       #dtKpi thead { display: none; }
@@ -91,43 +90,42 @@
             </div>
           </div>
 
-          <div class="card mb-3">
+          <div class="card gems-filter-card mb-3">
+            <div class="card-header gems-card-header-compact">
+              <h3 class="card-title mb-0"><i class="fas fa-filter me-2 text-primary"></i>Filter</h3>
+            </div>
             <div class="card-body">
-              <div class="gems-form-grid">
-                <div class="gems-field gems-field-3">
+              <div class="gems-form-grid gems-filter-grid">
+                <div class="gems-field gems-field-4">
                   <label class="form-label" for="optKpiSite">Site</label>
                   <select id="optKpiSite" class="form-select gems-plain-select"></select>
                 </div>
-                <div class="gems-field gems-field-2">
-                  <label class="form-label" for="optKpiYear">Year</label>
-                  <select id="optKpiYear" class="form-select gems-plain-select"></select>
+                <div class="gems-field-pair">
+                  <div class="gems-field">
+                    <label class="form-label" for="optKpiYear">Year</label>
+                    <select id="optKpiYear" class="form-select gems-plain-select"></select>
+                  </div>
+                  <div class="gems-field">
+                    <label class="form-label" for="optKpiMonth">Month</label>
+                    <select id="optKpiMonth" class="form-select gems-plain-select"></select>
+                  </div>
                 </div>
-                <div class="gems-field gems-field-2">
-                  <label class="form-label" for="optKpiMonth">Month</label>
-                  <select id="optKpiMonth" class="form-select gems-plain-select"></select>
-                </div>
-                <div class="gems-field gems-field-5">
+                <div class="gems-field gems-field-4">
                   <label class="form-label" for="txtKpiSearch">Keyword Search</label>
                   <input type="text" id="txtKpiSearch" class="form-control" placeholder="Search KPI, PI, or description">
                 </div>
               </div>
-              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
-                <span id="lblKpiFilterCount">Showing 0 of 0</span>
-                <span id="lblKpiEvalStatus"></span>
-                <span id="lblKpiFilterUpdated">—</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="card mb-3">
-            <div class="card-body text-center">
-              <div class="text-secondary mb-2" style="font-size:.75rem">Quick Category Filter</div>
-              <div class="gems-status-scroll">
+              <div class="gems-status-scroll mt-2">
                 <a href="javascript:void(0);" class="gems-status-chip active" id="linkKpiAll">All</a>
                 <a href="javascript:void(0);" class="gems-status-chip" id="linkKpiService">Service Delivery</a>
                 <a href="javascript:void(0);" class="gems-status-chip" id="linkKpiAsset">Asset Performance</a>
                 <a href="javascript:void(0);" class="gems-status-chip" id="linkKpiEnergy">Energy Efficiency</a>
                 <a href="javascript:void(0);" class="gems-status-chip" id="linkKpiSafety">Safety &amp; Compliance</a>
+              </div>
+              <div class="gems-filter-meta">
+                <span id="lblKpiFilterCount">Showing 0 of 0</span>
+                <span id="lblKpiEvalStatus"></span>
+                <span id="lblKpiFilterUpdated" class="gems-filter-meta-end">—</span>
               </div>
             </div>
           </div>

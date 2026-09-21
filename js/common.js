@@ -1018,10 +1018,16 @@ function mzBuildNotificationRow(row, durationText) {
 
 function mzBuildNotificationFooter(totalLatest, total) {
     if (mzIsTablerPage()) {
-        return '<div class="dropdown-item text-secondary py-2" style="font-size:12px">latest '+totalLatest+' out of '+total+' notifications</div>';
+        return '<div class="gems-notification-footer d-flex align-items-center gap-2 px-3 py-2">' +
+            '<span class="text-secondary" style="font-size:12px">latest '+totalLatest+' out of '+total+' notifications</span>' +
+            '<button type="button" class="btn btn-link btn-sm p-0 ms-auto gems-notification-clear" id="btnNotificationClearAll">Clear all</button>' +
+            '</div>';
     }
     return '<a class="dropdown-item mt-1 py-0" href="#">\n' +
         '<span class="mb-0" style="font-size: 12px">latest '+totalLatest+' out of '+total+' notifications</span>\n' +
+        '</a>' +
+        '<a class="dropdown-item py-0" href="#" id="btnNotificationClearAll">\n' +
+        '<span class="mb-0" style="font-size: 12px">Clear all</span>\n' +
         '</a>';
 }
 
@@ -1126,18 +1132,38 @@ function initiatePages() {
     mzNotificationGenerate ();
 }
 
+function mzSetNotificationBadge (count) {
+    const total = parseInt(count, 10);
+    const n = isNaN(total) ? 0 : total;
+    const $badge = $('#navNotificationTotal');
+    $badge.text(String(n));
+    $badge.toggleClass('d-none', n <= 0);
+}
+
+function mzNotificationEmptyState () {
+    if (mzIsTablerPage()) {
+        return '<div class="dropdown-item text-secondary small py-3">No notifications</div>';
+    }
+    return '<div class="dropdown-item text-center text-muted small py-3">No notifications</div>';
+}
+
 function mzNotificationGenerate () {
-    $('#navNotificationTotal').text(0);
+    mzSetNotificationBadge(0);
     mzFetch('noti_web/by_userId').then(res => {
         const divElement = $('#navNotification');
+        const rows = (res && typeof res['data'] !== 'undefined') ? res['data'] : [];
+        const total = (res && typeof res['total'] !== 'undefined') ? (parseInt(res['total'], 10) || 0) : 0;
         divElement.html('');
-        if (typeof res['total'] !== 'undefined' && typeof res['data'] !== 'undefined') {
-            for (const row of res['data']) {
+        if (total > 0 && rows.length > 0) {
+            for (const row of rows) {
                 divElement.append(mzBuildNotificationRow(row, mzDurationSimple (row['notiWebTimestamp'], '')));
             }
-            const totalLatest = res['total'] > 50 ? 50 : res['total'];
-            $('#navNotificationTotal').text(totalLatest);
-            divElement.append(mzBuildNotificationFooter(totalLatest, res['total']));
+            const totalLatest = total > 50 ? 50 : total;
+            mzSetNotificationBadge(totalLatest);
+            divElement.append(mzBuildNotificationFooter(totalLatest, total));
+        } else {
+            divElement.html(mzNotificationEmptyState());
+            mzSetNotificationBadge(0);
         }
     }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
 }
@@ -1147,6 +1173,20 @@ function mzNotificationDelete (notiWebId) {
         $('#badgeWvrTotalSubmitted').text(res.length);
         mzNotificationGenerate ();
     }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); }); }, 200);
+}
+
+function mzNotificationDeleteAll () {
+    if (sessionStorage.getItem('token') === null) {
+        $('#navNotification').html(mzNotificationEmptyState());
+        mzSetNotificationBadge(0);
+        return;
+    }
+    ShowLoader();
+    setTimeout(function () {
+        mzFetch('noti_web/by_userId', 'DELETE', {}).then(() => {
+            mzNotificationGenerate();
+        }).catch((e) => { toastr['error'](e.message, _ALERT_TITLE_ERROR); });
+    }, 200);
 }
 
 function mzProfile() {
@@ -2688,6 +2728,11 @@ $(function () {
     if (typeof $ === 'undefined') {
         return;
     }
+    $(document).on('click', '#btnNotificationClearAll', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        mzNotificationDeleteAll();
+    });
     $(document).on('draw.dt', function (event, settings) {
         try {
             mzApplyTableDataLabels(new $.fn.dataTable.Api(settings));

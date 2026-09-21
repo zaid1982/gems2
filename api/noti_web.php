@@ -72,8 +72,14 @@ try {
             $fnMain->delete(intval($urlArr[1]));
             DbMysql::commit();
             $formData['errmsg'] = 'Notification successfully removed';
+        } else if (isset ($urlArr[1]) && strtolower($urlArr[1]) === 'by_userid') {
+            DbMysql::beginTransaction();
+            $isTransaction = true;
+            $fnMain->deleteByUserId();
+            DbMysql::commit();
+            $formData['errmsg'] = 'All notifications cleared';
         } else {
-            throw new Exception('[line: ' . __LINE__ . '] - Wrong DELETER Request');
+            throw new Exception('[line: ' . __LINE__ . '] - Wrong DELETE Request');
         }
         $formData['result'] = $result;
         $formData['success'] = true;

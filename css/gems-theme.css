@@ -813,6 +813,14 @@ body.gems-tabler .navbar .avatar {
 
 /* One declaration, not min-width + max-width: min-width wins over max-width, so
    the phone constraint has to live on `width` itself. */
+/* Tabler .bg-red paints the pill but inherits .nav-link ink — the count
+   was reading as dark-on-red. Force white on --gems-danger. */
+body.gems-tabler .navbar .nav-link .badge-notification {
+  color: #fff !important;
+  background: var(--gems-danger) !important;
+  border: 0;
+}
+
 body.gems-tabler .gems-notification-menu {
   width: min(22rem, calc(100vw - 1.5rem));
   max-height: min(24rem, calc(100vh - 6rem));
@@ -824,6 +832,27 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   white-space: normal;
   font-size: 0.8125rem;
   line-height: 1.4;
+}
+
+body.gems-tabler .gems-notification-footer {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  border-top: 1px solid var(--gems-border);
+  margin-top: 0.25rem;
+}
+
+body.gems-tabler .gems-notification-clear {
+  color: var(--gems-primary);
+  font-size: 12px;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+body.gems-tabler .gems-notification-clear:hover {
+  color: var(--gems-primary);
+  text-decoration: underline;
 }
 
 /* The bell sits ~110px from the right edge on a phone, and .dropdown-menu-end

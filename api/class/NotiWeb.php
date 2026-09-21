@@ -102,15 +102,44 @@ class NotiWeb extends General {
             parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
             parent::checkEmptyInteger($notiWebId, $this::$idName);
             $notiWeb = $this->get($notiWebId);
-            if ($notiWeb['notiWebType'] === 4) {
-                $fileLink = str_replace('api/', '', $notiWeb['notiWebLink']);
-                if (file_exists($fileLink)) {
-                    unlink($fileLink);
-                }
-            }
+            $this->unlinkType4($notiWeb);
             DbMysql::delete($this::$tableName, array($this::$idName=>$notiWebId));
         } catch (Exception|Throwable $ex) {
             throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * Clears every web notification for the JWT user. Type-4 rows unlink
+     * their zip the same way single delete does.
+     * @return void
+     * @throws Exception
+     */
+    public function deleteByUserId (): void {
+        try {
+            parent::logDebug(__CLASS__, __FUNCTION__, __LINE__, 'Entering '.__FUNCTION__);
+            parent::checkEmptyInteger($this->userId, 'userId');
+            $rows = DbMysql::selectAll($this::$tableName, array('userId'=>$this->userId), 0, false);
+            foreach ($rows as $row) {
+                $this->unlinkType4($row);
+            }
+            DbMysql::delete($this::$tableName, array('userId'=>$this->userId));
+        } catch (Exception|Throwable $ex) {
+            throw new Exception('['.__CLASS__.':'.__FUNCTION__.'] '.$ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @param array $row
+     * @return void
+     */
+    private function unlinkType4 (array $row): void {
+        if (intval($row['notiWebType'] ?? 0) !== 4) {
+            return;
+        }
+        $fileLink = str_replace('api/', '', $row['notiWebLink'] ?? '');
+        if ($fileLink !== '' && file_exists($fileLink)) {
+            unlink($fileLink);
         }
     }
 }

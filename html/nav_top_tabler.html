@@ -12,7 +12,7 @@
   is load-bearing: below 576px gems-theme.css drops it to position:static so the
   notification menu spans the header instead of hanging off the left of the
   screen. Keep #pBasePageTitle, #navNotification,
-  #navNotificationTotal, #btnChangePassword. modal_profile.js is shipped here
+  #navNotificationTotal, #btnNotificationClearAll, #btnChangePassword. modal_profile.js is shipped here
   because unmigrated pages rely on nav_top.html to load it; Tabler pages will
   too. IDs exist once — do not duplicate this block for a mobile copy.
 -->
@@ -26,7 +26,7 @@
             <a class="nav-link" href="#" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Notifications">
                 <i class="fa fa-bell"></i>
                 <span class="d-none d-lg-inline ms-1">Notifications</span>
-                <span class="badge bg-red badge-notification" id="navNotificationTotal">0</span>
+                <span class="badge text-bg-red badge-notification d-none" id="navNotificationTotal">0</span>
             </a>
             <div class="dropdown-menu dropdown-menu-end gems-notification-menu" aria-labelledby="navbarDropdownMenuLink" id="navNotification">
                 <div class="dropdown-item text-secondary small py-3">No notifications</div>

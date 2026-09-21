@@ -1574,7 +1574,7 @@
       $noti.append(mzBuildNotificationRow(notiFixture[0], '5 min'));
       $noti.append(mzBuildNotificationRow(notiFixture[1], '2 hr'));
       $noti.append(mzBuildNotificationFooter(2, 2));
-      $('#navNotificationTotal').text(2);
+      mzSetNotificationBadge(2);
       if (typeof window.gemsUpgradeLegacyToggles === 'function') {
         window.gemsUpgradeLegacyToggles(document);
       }

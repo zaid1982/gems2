@@ -102,67 +102,129 @@ function ModalUser() {
         GemsUI.fillSelect('optMusSiteId', [], 'siteId', 'siteName', 'Choose Site', '');
     }
 
-    function getRoleIdByDesc(desc) {
-        if (!refRole) return '';
-        if (Array.isArray(refRole)) {
-            for (const r of refRole) {
-                if (!r) continue;
-                const d = (r.roleDesc || '').toLowerCase();
-                if (d === desc.toLowerCase()) return String(r.roleId);
-            }
-        } else if (typeof refRole === 'object') {
-            for (const k in refRole) {
-                if (!Object.prototype.hasOwnProperty.call(refRole, k)) continue;
-                const r = refRole[k];
-                if (!r) continue;
-                const d = (r.roleDesc || '').toLowerCase();
-                if (d === desc.toLowerCase()) return String(r.roleId);
-            }
+    const clientOnlyRoleIds = { '6': true };
+    const clientVisibleRoleIds = { '4': true, '6': true };
+
+    function escapeRoleText(value) {
+        if (window.GemsUI && typeof GemsUI.escape === 'function') {
+            return GemsUI.escape(value);
         }
-        return '';
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
     }
 
-    function applyPtwRoleIds() {
-        console.log('[modal_user] applyPtwRoleIds called, refRole:', refRole);
-        let rSup = getRoleIdByDesc('PTW Supervisor');
-        let rShe = getRoleIdByDesc('PTW SHE');
-        let rFm  = getRoleIdByDesc('PTW Facility Manager');
-        if (!rSup) {
-            rSup = String($('#chkMusRolePTWSUP').attr('data-role-id') || $('#chkMusRolePTWSUP').val() || '24').trim();
-        }
-        if (!rShe) {
-            rShe = String($('#chkMusRolePTWSHE').attr('data-role-id') || $('#chkMusRolePTWSHE').val() || '25').trim();
-        }
-        if (!rFm) {
-            rFm = String($('#chkMusRolePTWFM').attr('data-role-id') || $('#chkMusRolePTWFM').val() || '26').trim();
-        }
-        console.log('[modal_user] PTW role IDs: Supervisor=' + rSup + ', SHE=' + rShe + ', FM=' + rFm);
-        $('#chkMusRolePTWSUP').val(rSup).attr('data-role-id', rSup);
-        $('#chkMusRolePTWSHE').val(rShe).attr('data-role-id', rShe);
-        $('#chkMusRolePTWFM').val(rFm).attr('data-role-id', rFm);
-
-        let rMrReviewer = getRoleIdByDesc('MR Reviewer');
-        if (!rMrReviewer) {
-            const existing = String($('#chkMusRoleMRReviewer').attr('data-role-id') || $('#chkMusRoleMRReviewer').val() || '').trim();
-            rMrReviewer = existing ? existing : '27';
-        }
-        $('#chkMusRoleMRReviewer').val(rMrReviewer).attr('data-role-id', rMrReviewer);
+    function indexRoles(list) {
+        const mapped = [];
+        $.each(list || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const rawId = item.roleId !== undefined && item.roleId !== null && item.roleId !== ''
+                ? item.roleId
+                : key;
+            const roleId = parseInt(rawId, 10);
+            if (isNaN(roleId)) {
+                return true;
+            }
+            const row = $.extend({}, item);
+            row.roleId = String(roleId);
+            mapped[roleId] = row;
+            return true;
+        });
+        return mapped;
     }
 
-    function checkDynamicRolesByValue(roleIds) {
-        if (!roleIds || !Array.isArray(roleIds)) return;
-        const dynamicRoleCheckboxes = [
-            '#chkMusRoleMRReviewer',
-            '#chkMusRolePTWSUP',
-            '#chkMusRolePTWSHE',
-            '#chkMusRolePTWFM'
-        ];
-        dynamicRoleCheckboxes.forEach(function(selector) {
-            const $chk = $(selector);
-            const chkVal = String($chk.val() || '').trim();
-            if (chkVal && roleIds.indexOf(chkVal) !== -1) {
-                $chk.prop('checked', true);
+    function refreshRolesFromApi() {
+        try {
+            const latest = mzAjaxRequest('role.php', 'GET');
+            const indexed = indexRoles(latest);
+            let hasRoles = false;
+            $.each(indexed, function (key, item) {
+                if (item && typeof item === 'object') {
+                    hasRoles = true;
+                    return false;
+                }
+            });
+            if (hasRoles) {
+                refRole = indexed;
             }
+        } catch (e) {
+            // Keep the cached gems_role snapshot when the live list cannot be loaded.
+        }
+    }
+
+    function listRoles(includeIds) {
+        const include = {};
+        $.each(includeIds || [], function (n, id) {
+            if (id !== undefined && id !== null && String(id).trim() !== '') {
+                include[String(id).trim()] = true;
+            }
+        });
+        const rows = [];
+        $.each(refRole || {}, function (key, item) {
+            if (!item || typeof item !== 'object') {
+                return true;
+            }
+            const roleId = String(item.roleId !== undefined && item.roleId !== null && item.roleId !== ''
+                ? item.roleId
+                : key);
+            if (!/^\d+$/.test(roleId)) {
+                return true;
+            }
+            const status = item.roleStatus;
+            const inactive = status !== undefined && status !== null && status !== '' && String(status) !== '1';
+            if (inactive && !include[roleId]) {
+                return true;
+            }
+            rows.push({
+                roleId: roleId,
+                roleDesc: item.roleDesc || item.roleName || ('Role ' + roleId)
+            });
+            return true;
+        });
+        rows.sort(function (a, b) {
+            return Number(a.roleId) - Number(b.roleId);
+        });
+        return rows;
+    }
+
+    function renderRoleCheckboxes(assignedIds) {
+        const $list = $('#divMusRoleList');
+        if (!$list.length) {
+            return;
+        }
+        let html = '';
+        $.each(listRoles(assignedIds), function (n, row) {
+            const id = escapeRoleText(row.roleId);
+            const label = escapeRoleText(row.roleDesc);
+            html += '<div class="form-check" id="divMusRole' + id + '">' +
+                '<input type="checkbox" class="form-check-input" name="chkMusRole[]" id="chkMusRole' + id +
+                '" value="' + id + '" aria-describedby="chkMusRoleErr">' +
+                '<label class="form-check-label" for="chkMusRole' + id + '">' + label + '</label>' +
+                '</div>';
+        });
+        $list.html(html);
+    }
+
+    function applyRoleVisibility(userType) {
+        const type = String(userType || '');
+        if (type !== '1' && type !== '2') {
+            $('.divMusRoles').hide();
+            return;
+        }
+        $('.divMusRoles').show();
+        $('#divMusRoleList .form-check').each(function () {
+            const roleId = String($(this).find('input[name="chkMusRole[]"]').val() || '');
+            let show = false;
+            if (type === '1') {
+                show = !clientOnlyRoleIds[roleId];
+            } else {
+                show = !!clientVisibleRoleIds[roleId];
+            }
+            $(this).toggle(show);
         });
     }
 
@@ -267,8 +329,7 @@ function ModalUser() {
         });
 
         self.defaultPageSetup();
-
-        applyPtwRoleIds();
+        renderRoleCheckboxes();
 
         $('#modal_user').on('hidden.bs.modal', function(){
             formValidate.clearValidation();
@@ -278,17 +339,8 @@ function ModalUser() {
 
         $("input[name='chkMusUserType']:radio").on('click', function () {
             $("input[name='chkMusRole[]']:checkbox").prop('checked',false);
+            applyRoleVisibility($(this).val());
             formValidate.validateForm();
-            if ($(this).val() === '1') {
-                $('.divMusRoles').show();
-                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole4, #divMusRole20, #divMusRole21, #divMusRoleMRReviewer, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').show();
-                $('#divMusRole6').hide();
-            } else if ($(this).val() === '2') {
-                $('.divMusRoles').show();
-                $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole20, #divMusRole21, #divMusRoleMRReviewer, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
-                $('#divMusRole6, #divMusRole4').show();
-                $('#divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
-            }
         });
 
         $('#optMusClientId').on('change', function () {
@@ -308,10 +360,8 @@ function ModalUser() {
                         let isInternalComplainer = false;
                         let isWoAssigner = false;
                         let isWoHelpdesk = false;
-                        console.log('[modal_user] Collecting checked roles:');
                         $("input[name='chkMusRole[]']:checked").map(function(){
                             const val = ($(this).val() || '').trim();
-                            console.log('[modal_user] Checkbox id=' + $(this).attr('id') + ', val=' + val);
                             if (val !== '') {
                                 rolesStr += ','+val;
                             }
@@ -326,7 +376,6 @@ function ModalUser() {
                             }
                         });
                         rolesStr = rolesStr.length > 0 ? rolesStr.slice(1) : rolesStr;
-                        console.log('[modal_user] Final rolesStr:', rolesStr);
                         const userType = $("input[name='chkMusUserType']:checked").val();
 
                         if (userType === '1' && isInternalComplainer === false) {
@@ -379,10 +428,6 @@ function ModalUser() {
         $('.divMusAddOnly, .divMusRoles, #divMusReportGap, #divMusExecutor, #divMusReviewer').hide();
         $('#chkMusUserType1, #chkMusUserType2').prop('disabled', false);
         $("input[name='chkMusRole[]']:checkbox").prop('checked', false);
-        $('#divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
-        $('#divMusRoleMRReviewer').hide();
-        $('#chkMusRolePTWSUP, #chkMusRolePTWSHE, #chkMusRolePTWFM').val('');
-        $('#chkMusRoleMRReviewer').val('');
     };
 
     this.add = function () {
@@ -399,7 +444,8 @@ function ModalUser() {
                 formValidate.enableField('txtMusUserName');
                 formValidate.enableField('txtMusUserPassword');
 
-                applyPtwRoleIds();
+                refreshRolesFromApi();
+                renderRoleCheckboxes();
                 $("input[name='chkMusRole[]']:checkbox").prop('checked', false);
 
                 $('.divMusAddOnly').show();
@@ -423,13 +469,14 @@ function ModalUser() {
                 mzCheckFuncParam([_userId, _rowRefresh]);
                 $('#chkMusUserType1, #chkMusUserType2').prop('disabled', true);
 
-                applyPtwRoleIds();
-                $("input[name='chkMusRole[]']:checkbox").prop('checked', false);
-
                 const dataUser = mzAjaxRequest('profile.php?userId='+userId, 'GET');
                 const roles = dataUser['roles'];
                 const rolesArray = roles ? roles.split(',') : [];
                 const userType = dataUser['userType'];
+
+                refreshRolesFromApi();
+                renderRoleCheckboxes(rolesArray);
+                $("input[name='chkMusRole[]']:checkbox").prop('checked', false);
 
                 fillDesignationSelect(dataUser['designationId']);
                 fillClientSelect(dataUser['clientId']);
@@ -442,19 +489,8 @@ function ModalUser() {
                 mzSetFieldValue('MusUserFirstName', dataUser['userFirstName'], 'text');
                 mzSetFieldValue('MusUserContactNo', dataUser['userContactNo'], 'text');
                 mzSetFieldValue('MusUserEmail', dataUser['userEmail'], 'text');
+                applyRoleVisibility(userType);
                 mzSetFieldValue('MusRole', rolesArray, 'check');
-                checkDynamicRolesByValue(rolesArray);
-
-                if (userType === '1') {
-                    $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole4, #divMusRole20, #divMusRole21, #divMusRoleMRReviewer, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').show();
-                    $('#divMusRole6').hide();
-                }
-                else if (userType === '2') {
-                    $('.divMusRoles').show();
-                    $('#divMusRole1, #divMusRole19, #divMusRole2, #divMusRole3, #divMusRole5, #divMusRole7, #divMusRole8, #divMusRole9, #divMusRole10, #divMusRole11, #divMusRole12, #divMusRole13, #divMusRole14, #divMusRole16, #divMusRole17, #divMusRole18, #divMusRole11, #divMusRole20, #divMusRole21, #divMusRoleMRReviewer, #divMusRolePTWSUP, #divMusRolePTWSHE, #divMusRolePTWFM').hide();
-                    $('#divMusRole6, #divMusRole4').show();
-                }
                 formValidate.validateForm();
 
                 $('#lblMusTitle').html('<i class="fas fa-user-edit me-2"></i>Edit User Profile');
@@ -522,7 +558,7 @@ function ModalUser() {
     };
 
     this.setRefRole = function (_refRole) {
-        refRole = _refRole;
-        applyPtwRoleIds();
+        refRole = indexRoles(_refRole);
+        renderRoleCheckboxes();
     };
 }
