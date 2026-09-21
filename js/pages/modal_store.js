@@ -122,7 +122,7 @@ function ModalStore () {
                 formValidate.clearValidation();
 
                 mzSetFieldValue('MsrStatus', '1', 'checkSingle', '1');
-                $('#lblMsrModalTitle').html('<i class="fas fa-plus text-white"></i> Add Inventory Store');
+                $('#lblMsrModalTitle').html('<i class="fas fa-plus me-1"></i> Add Inventory Store');
                 $('#btnMsrSave').hide();
                 $('#btnMsrSubmit').show();
 
@@ -151,7 +151,7 @@ function ModalStore () {
                 mzSetFieldValue('MsrSite', store['siteId'], 'select');
                 mzSetFieldValue('MsrStatus', store['storeStatus'], 'checkSingle', '1');
 
-                $('#lblMsrModalTitle').html('<i class="fas fa-edit text-white"></i> Edit Inventory Store');
+                $('#lblMsrModalTitle').html('<i class="fas fa-edit me-1"></i> Edit Inventory Store');
                 $('#btnMsrSubmit').hide();
                 $('#btnMsrSave').show();
 
