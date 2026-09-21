@@ -48,7 +48,9 @@ function SectionPr() {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                initPhotoSwipeFromDOM('.mdb-lightbox');
+                if (typeof initPhotoSwipeFromDOM === 'function') {
+                    initPhotoSwipeFromDOM('.mdb-lightbox');
+                }
                 $('.xx').hide();
             },
             aoColumns: [

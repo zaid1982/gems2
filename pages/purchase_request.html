@@ -1,402 +1,389 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/purchase_request.html — Tabler-migrated (P5-25 Purchase Request).
+
+  Category A authenticated. Exclusive section_pr.
+  Bridges: modal_change_password, modal_confirm_delete, modal_pdf (dual-stack).
+  APIs: GET pr/new_request; SectionPr PUT pr/refresh_pdf/1 (unchanged, do not fire in QA).
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css, css/mdb.css,
+    css/style.css, css/gems2-ui.css, js/mdb*.js, js/jquery-migrate-3.4.0.min.js,
+    dataTables.bootstrap4.*.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?5">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Custom styles -->
-    <link href="css/style.css?6" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Purchase Request</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .page-body, .page-body .container-xl, .sectionPcrMain, .sectionPr { min-width: 0; max-width: 100%; }
+    .gems-tabler .btn-outline-white { color: var(--tblr-primary, #206bc4); border-color: var(--tblr-border-color, #e5e7eb); background: #fff; }
+    .gems-tabler .nav-tabs .tab-badge { display: inline-block; margin-left: 6px; min-width: 1.5rem; padding: 0 6px; border-radius: 999px; background: var(--tblr-bg-surface-secondary, #f1f5f9); font-size: .75rem; }
+    .gems-tabler iframe { max-width: 100%; }
+    @media (max-width: 768px) {
+      #dtPcrNew thead, #dtPcrApproval thead, #dtPcrApproved thead, #dtPcrPo thead, #dtPcrAll thead,
+      #dtSprItem thead, #dtSprDo thead, #dtSprHistory thead { display: none; }
+      #dtPcrNew, #dtPcrNew tbody, #dtPcrNew tr, #dtPcrNew td,
+      #dtPcrApproval, #dtPcrApproval tbody, #dtPcrApproval tr, #dtPcrApproval td,
+      #dtPcrApproved, #dtPcrApproved tbody, #dtPcrApproved tr, #dtPcrApproved td,
+      #dtPcrPo, #dtPcrPo tbody, #dtPcrPo tr, #dtPcrPo td,
+      #dtPcrAll, #dtPcrAll tbody, #dtPcrAll tr, #dtPcrAll td,
+      #dtSprItem, #dtSprItem tbody, #dtSprItem tr, #dtSprItem td,
+      #dtSprDo, #dtSprDo tbody, #dtSprDo tr, #dtSprDo td,
+      #dtSprHistory, #dtSprHistory tbody, #dtSprHistory tr, #dtSprHistory td { display: block; width: 100%; }
+      #dtPcrNew tr, #dtPcrApproval tr, #dtPcrApproved tr, #dtPcrPo tr, #dtPcrAll tr,
+      #dtSprItem tr, #dtSprDo tr, #dtSprHistory tr {
+        background: var(--tblr-bg-surface, #fff); border: 1px solid var(--tblr-border-color, #e5e7eb);
+        border-radius: 12px; margin-bottom: 12px; padding: 8px 12px;
+      }
+      #dtPcrNew td, #dtPcrApproval td, #dtPcrApproved td, #dtPcrPo td, #dtPcrAll td,
+      #dtSprItem td, #dtSprDo td, #dtSprHistory td { border: 0; border-bottom: 1px dashed var(--tblr-border-color, #e5e7eb); padding: 8px 0; }
+      #dtPcrNew td:last-child, #dtPcrApproval td:last-child, #dtPcrApproved td:last-child,
+      #dtPcrPo td:last-child, #dtPcrAll td:last-child, #dtSprItem td:last-child,
+      #dtSprDo td:last-child, #dtSprHistory td:last-child { border-bottom: 0; }
+      #dtPcrNew td::before, #dtPcrApproval td::before, #dtPcrApproved td::before,
+      #dtPcrPo td::before, #dtPcrAll td::before, #dtSprItem td::before,
+      #dtSprDo td::before, #dtSprHistory td::before {
+        content: attr(data-label); display: block; color: var(--tblr-secondary, #6c7a91);
+        font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px;
+      }
+    }
+  </style>
 </head>
-
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid">
-        <div id="mdb-lightbox-ui"></div>
-        <!--Section: Main panel-->
-        <section class="mb-5  sectionPcrMain">
-            <div class="card card-cascade narrower gems-card-shell purchase-request-shell">
-                <section class="gems-page-header purchase-request-header">
-                    <div class="header-text">
-                        <h2>Purchase Request</h2>
-                        <p>Track preparation, approvals, and SAP submission across every purchase request.</p>
-                    </div>
-                    <div class="header-actions">
-                        <button type="button" id="btnPcrRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                    </div>
-                </section>
-
-                <section class="mt-4">
-                    <div class="row">
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Prepare PR</span>
-                                <span class="metric-value" id="metricPcrPrepare">0</span>
-                                <span class="metric-subtext">Pending preparation tasks</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Awaiting Approval</span>
-                                <span class="metric-value" id="metricPcrApproval">0</span>
-                                <span class="metric-subtext">Requests queued for approval</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Send to SAP</span>
-                                <span class="metric-value" id="metricPcrSap">0</span>
-                                <span class="metric-subtext">Ready for SAP submission</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">PO &amp; DO Registered</span>
-                                <span class="metric-value" id="metricPcrPo">0</span>
-                                <span class="metric-subtext">Closed with PO / DO</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mt-2">
-                    <div class="filter-card purchase-request-filter">
-                        <div class="filter-grid">
-                            <div>
-                                <label class="filter-label" for="txtPcrSearch">Keyword Search</label>
-                                <div class="md-form md-outline mt-0 mb-0">
-                                    <input type="text" id="txtPcrSearch" class="form-control" placeholder="Search by request no., supplier, or requester">
-                                    <label for="txtPcrSearch" class="active">Keyword Search</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
-                            <span id="lblPcrFilterCount">Showing 0 of 0</span>
-                            <span id="lblPcrFilterUpdated">—</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="purchase-request-tabs mt-4">
-                    <div class="filter-card purchase-tab-card">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="filter-label mb-0">Lifecycle Stages</span>
-                            <span class="text-muted small">Switch between workflow views.</span>
-                        </div>
-                        <ul class="nav nav-tabs gems-nav-tabs" id="myTabPcr" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="tabPcrNewJust" data-toggle="tab" href="#tabPcrNew" role="tab" aria-controls="tabPcrNew" aria-selected="true">
-                                    <span class="tab-icon"><i class="fas fa-clipboard-list"></i></span>
-                                    <span class="tab-label">Prepare PR</span>
-                                    <span class="tab-badge" id="badgePcrNew">0</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="tabPcrApprovalJust" data-toggle="tab" href="#tabPcrApproval" role="tab" aria-controls="tabPcrApproval" aria-selected="false">
-                                    <span class="tab-icon"><i class="fas fa-user-check"></i></span>
-                                    <span class="tab-label">Approval</span>
-                                    <span class="tab-badge" id="badgePcrApproval">0</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="tabPcrApprovedJust" data-toggle="tab" href="#tabPcrApproved" role="tab" aria-controls="tabPcrApproved" aria-selected="false">
-                                    <span class="tab-icon"><i class="fas fa-paper-plane"></i></span>
-                                    <span class="tab-label">Send PR to SAP</span>
-                                    <span class="tab-badge" id="badgePcrSap">0</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="tabPcrPoJust" data-toggle="tab" href="#tabPcrPo" role="tab" aria-controls="tabPcrPo" aria-selected="false">
-                                    <span class="tab-icon"><i class="fas fa-file-signature"></i></span>
-                                    <span class="tab-label">Register PO &amp; DO</span>
-                                    <span class="tab-badge" id="badgePcrPo">0</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="tabPcrAllJust" data-toggle="tab" href="#tabPcrAll" role="tab" aria-controls="tabPcrAll" aria-selected="false">
-                                    <span class="tab-icon"><i class="fas fa-file-invoice-dollar"></i></span>
-                                    <span class="tab-label">All Requests</span>
-                                    <span class="tab-badge" id="badgePcrAll">0</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </section>
-
-                <section class="tab-content purchase-request-content" id="purchaseRequestContent">
-                    <div class="tab-pane fade show active" id="tabPcrNew" role="tabpanel" aria-labelledby="tabPcrNewJust">
-                        <div class="modern-table-card">
-                            <div class="table-header">
-                                <div>
-                                    <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Prepare PR" data-content="Purchase requests that are being prepared prior to submission."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                </div>
-                                <a href="javascript:void(0);" class="text-white mx-3">Prepare PR</a>
-                                <div class="dt-btn-slot">
-                                    <div id="btnDtPcrNewExport"></div>
-                                </div>
-                            </div>
-                            <div class="px-4 pb-3">
-                                <div class="summary-pill d-flex justify-content-between align-items-center">
-                                    <span id="lblPcrNewCount">Showing 0 of 0</span>
-                                    <span id="lblPcrNewUpdated">—</span>
-                                </div>
-                            </div>
-                            <div class="table-body">
-                                <table id="dtPcrNew" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                        <thead>
-                                        <tr class="th-strong">
-                                            <th>#</th>
-                                            <th>Request No.</th>
-                                            <th>Site</th>
-                                            <th>Quotation No.</th>
-                                            <th>Supplier</th>
-                                            <th>Total Price</th>
-                                            <th>Requested By</th>
-                                            <th>Request Time</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="tabPcrApproval" role="tabpanel" aria-labelledby="tabPcrApprovalJust">
-                        <div class="modern-table-card">
-                            <div class="table-header">
-                                <div>
-                                    <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Approval" data-content="Requests awaiting approval routing."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                </div>
-                                <a href="javascript:void(0);" class="text-white mx-3">Approval</a>
-                                <div class="dt-btn-slot"></div>
-                            </div>
-                            <div class="table-body">
-                                <table id="dtPcrApproval" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                        <thead>
-                                        <tr class="th-strong">
-                                            <th>#</th>
-                                            <th>PR No.</th>
-                                            <th>Request No.</th>
-                                            <th>Quotation No.</th>
-                                            <th>Supplier</th>
-                                            <th>Total Price</th>
-                                            <th>Request By</th>
-                                            <th>Prepared By</th>
-                                            <th>PR Created Time</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="tabPcrApproved" role="tabpanel" aria-labelledby="tabPcrApprovedJust">
-                    <div class="tab-pane fade" id="tabPcrApproved" role="tabpanel" aria-labelledby="tabPcrApprovedJust">
-                        <div class="modern-table-card">
-                            <div class="table-header">
-                                <div>
-                                    <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Send PR to SAP" data-content="Approved requests waiting for SAP submission."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                </div>
-                                <a href="javascript:void(0);" class="text-white mx-3">Send to SAP</a>
-                                <div class="dt-btn-slot"></div>
-                            </div>
-                            <div class="table-body">
-                                <table id="dtPcrApproved" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                        <tr class="th-strong">
-                                            <th>#</th>
-                                            <th>PR No.</th>
-                                            <th>Request No.</th>
-                                            <th>Quotation No.</th>
-                                            <th>Supplier</th>
-                                            <th>Total Price</th>
-                                            <th>Request By</th>
-                                            <th>Approval Time</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="tabPcrPo" role="tabpanel" aria-labelledby="tabPcrPoJust">
-                        <div class="modern-table-card">
-                            <div class="table-header">
-                                <div>
-                                    <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="Register PO &amp; DO" data-content="Requests completed with PO / DO numbers."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                </div>
-                                <a href="javascript:void(0);" class="text-white mx-3">Register PO &amp; DO</a>
-                                <div class="dt-btn-slot"></div>
-                            </div>
-                            <div class="table-body">
-                                <table id="dtPcrPo" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                        <thead>
-                                        <tr class="th-strong">
-                                            <th>#</th>
-                                            <th>PR No.</th>
-                                            <th>Request No.</th>
-                                            <th>Quotation No.</th>
-                                            <th>Supplier</th>
-                                            <th>Total Price</th>
-                                            <th>Request By</th>
-                                            <th>Approval Time</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="tabPcrAll" role="tabpanel" aria-labelledby="tabPcrAllJust">
-                        <div class="modern-table-card">
-                            <div class="table-header">
-                                <div>
-                                    <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2" data-toggle="popover" data-trigger="focus" title="All Requests" data-content="Every purchase request regardless of status."><i class="fas fa-info mt-0 mx-1"></i></a>
-                                </div>
-                                <a href="javascript:void(0);" class="text-white mx-3">All Requests</a>
-                                <div class="dt-btn-slot"></div>
-                            </div>
-                            <div class="table-body">
-                                <table id="dtPcrAll" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                        <thead>
-                                        <tr class="th-strong">
-                                            <th>#</th>
-                                            <th>PR No.</th>
-                                            <th>Request No.</th>
-                                            <th>Quotation No.</th>
-                                            <th>Supplier</th>
-                                            <th>Total Price</th>
-                                            <th>Request By</th>
-                                            <th>Request Time</th>
-                                            <th>PR Created Time</th>
-                                            <th>Approval Time</th>
-                                            <th>Status</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+        <section class="sectionPcrMain">
+          <div class="page-header">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm">
+                <div class="text-secondary" style="font-size:.75rem">Inventory</div>
+                <h1 class="page-title">Purchase Request</h1>
+                <div class="page-subtitle">Track preparation, approvals, and SAP submission across every purchase request.</div>
+              </div>
+              <div class="col-12 col-sm-auto">
+                <button type="button" id="btnPcrRefresh" class="btn btn-outline-secondary" data-toggle="tooltip" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync"></i></button>
+              </div>
             </div>
+          </div>
+
+          <div class="row row-deck mb-3">
+            <div class="col-sm-6 col-xl-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">Prepare PR</div>
+                <div class="h1 mb-0" id="metricPcrPrepare">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Pending preparation tasks</div>
+              </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">Awaiting Approval</div>
+                <div class="h1 mb-0" id="metricPcrApproval">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Requests queued for approval</div>
+              </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">Send to SAP</div>
+                <div class="h1 mb-0" id="metricPcrSap">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Ready for SAP submission</div>
+              </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">PO &amp; DO Registered</div>
+                <div class="h1 mb-0" id="metricPcrPo">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Closed with PO / DO</div>
+              </div></div>
+            </div>
+          </div>
+
+          <div class="card gems-filter-card mb-3">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txtPcrSearch">Keyword Search</label>
+                  <input type="text" id="txtPcrSearch" class="form-control" placeholder="Search by request no., supplier, or requester" autocomplete="off">
+                </div>
+              </div>
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2 text-secondary" style="font-size:.75rem">
+                <span id="lblPcrFilterCount">Showing 0 of 0</span>
+                <span id="lblPcrFilterUpdated">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title mb-0">Lifecycle Stages</h3>
+              <div class="card-subtitle">Switch between workflow views.</div>
+            </div>
+            <div class="card-body pt-0">
+              <ul class="nav nav-tabs gems-nav-tabs" id="myTabPcr" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link active" id="tabPcrNewJust" data-toggle="tab" data-bs-toggle="tab" href="#tabPcrNew" role="tab" aria-controls="tabPcrNew" aria-selected="true">
+                    <i class="fas fa-clipboard-list me-1"></i>Prepare PR <span class="tab-badge" id="badgePcrNew">0</span>
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" id="tabPcrApprovalJust" data-toggle="tab" data-bs-toggle="tab" href="#tabPcrApproval" role="tab" aria-controls="tabPcrApproval" aria-selected="false">
+                    <i class="fas fa-user-check me-1"></i>Approval <span class="tab-badge" id="badgePcrApproval">0</span>
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" id="tabPcrApprovedJust" data-toggle="tab" data-bs-toggle="tab" href="#tabPcrApproved" role="tab" aria-controls="tabPcrApproved" aria-selected="false">
+                    <i class="fas fa-paper-plane me-1"></i>Send PR to SAP <span class="tab-badge" id="badgePcrSap">0</span>
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" id="tabPcrPoJust" data-toggle="tab" data-bs-toggle="tab" href="#tabPcrPo" role="tab" aria-controls="tabPcrPo" aria-selected="false">
+                    <i class="fas fa-file-signature me-1"></i>Register PO &amp; DO <span class="tab-badge" id="badgePcrPo">0</span>
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" id="tabPcrAllJust" data-toggle="tab" data-bs-toggle="tab" href="#tabPcrAll" role="tab" aria-controls="tabPcrAll" aria-selected="false">
+                    <i class="fas fa-file-invoice-dollar me-1"></i>All Requests <span class="tab-badge" id="badgePcrAll">0</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="tab-content" id="purchaseRequestContent">
+            <div class="tab-pane fade show active" id="tabPcrNew" role="tabpanel" aria-labelledby="tabPcrNewJust">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <h3 class="card-title mb-0">Prepare PR</h3>
+                    <div class="text-secondary" style="font-size:.75rem">Purchase requests that are being prepared prior to submission.</div>
+                  </div>
+                  <div class="gems-card-toolbar text-secondary" style="font-size:.75rem">
+                    <span id="lblPcrNewCount">Showing 0 of 0</span>
+                    <span id="lblPcrNewUpdated">—</span>
+                    <div id="btnDtPcrNewExport" class="d-inline-flex align-items-center"></div>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table id="dtPcrNew" class="table table-hover table-sm mb-0 display responsive mobile-stack" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Request No.</th>
+                        <th>Site</th>
+                        <th>Quotation No.</th>
+                        <th>Supplier</th>
+                        <th>Total Price</th>
+                        <th>Requested By</th>
+                        <th>Request Time</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tabPcrApproval" role="tabpanel" aria-labelledby="tabPcrApprovalJust">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title mb-0">Approval</h3>
+                  <div class="card-subtitle">Requests awaiting approval routing.</div>
+                </div>
+                <div class="table-responsive">
+                  <table id="dtPcrApproval" class="table table-hover table-sm mb-0 display responsive mobile-stack" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>PR No.</th>
+                        <th>Request No.</th>
+                        <th>Quotation No.</th>
+                        <th>Supplier</th>
+                        <th>Total Price</th>
+                        <th>Request By</th>
+                        <th>Prepared By</th>
+                        <th>PR Created Time</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tabPcrApproved" role="tabpanel" aria-labelledby="tabPcrApprovedJust">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title mb-0">Send to SAP</h3>
+                  <div class="card-subtitle">Approved requests waiting for SAP submission.</div>
+                </div>
+                <div class="table-responsive">
+                  <table id="dtPcrApproved" class="table table-hover table-sm mb-0 display responsive mobile-stack" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>PR No.</th>
+                        <th>Request No.</th>
+                        <th>Quotation No.</th>
+                        <th>Supplier</th>
+                        <th>Total Price</th>
+                        <th>Request By</th>
+                        <th>Approval Time</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tabPcrPo" role="tabpanel" aria-labelledby="tabPcrPoJust">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title mb-0">Register PO &amp; DO</h3>
+                  <div class="card-subtitle">Requests completed with PO / DO numbers.</div>
+                </div>
+                <div class="table-responsive">
+                  <table id="dtPcrPo" class="table table-hover table-sm mb-0 display responsive mobile-stack" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>PR No.</th>
+                        <th>Request No.</th>
+                        <th>Quotation No.</th>
+                        <th>Supplier</th>
+                        <th>Total Price</th>
+                        <th>Request By</th>
+                        <th>Approval Time</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tabPcrAll" role="tabpanel" aria-labelledby="tabPcrAllJust">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title mb-0">All Requests</h3>
+                  <div class="card-subtitle">Every purchase request regardless of status.</div>
+                </div>
+                <div class="table-responsive">
+                  <table id="dtPcrAll" class="table table-hover table-sm mb-0 display responsive mobile-stack" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>PR No.</th>
+                        <th>Request No.</th>
+                        <th>Quotation No.</th>
+                        <th>Supplier</th>
+                        <th>Total Price</th>
+                        <th>Request By</th>
+                        <th>Request Time</th>
+                        <th>PR Created Time</th>
+                        <th>Approval Time</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
         <div class="includeHtml" id="h-section_pr"></div>
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true"></div>
 
-</main>
-
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/toastr-safe.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_pr.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_purchase_request.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let modalConfirmDelete_;
+  let sectionPrClass_;
+  let purchaseRequestClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    $(function () {
-        $("#mdb-lightbox-ui").load("mdb-addons/mdb-lightbox-ui.html");
-    });
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    let tries = 0;
+    const startPage = function () {
+      if ((!$('#btnSprBack').length || !$('#dtSprItem').length) && tries < 20) {
+        tries += 1;
+        setTimeout(startPage, 100);
+        return;
+      }
+      try {
+        initiatePages();
+        moment.locale('ms');
 
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        modalConfirmDelete_ = new ModalConfirmDelete();
+        sectionPrClass_ = new SectionPr();
+        purchaseRequestClass_ = new MainPurchaseRequest();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let modalConfirmDelete_;
-    let sectionPrClass_;
-    let purchaseRequestClass_;
+        const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
 
-    document.addEventListener('DOMContentLoaded', function () {
+        sectionPrClass_.setClassFrom(purchaseRequestClass_);
+        sectionPrClass_.init();
 
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                moment.locale('ms');
-
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                modalConfirmDelete_ = new ModalConfirmDelete();
-                sectionPrClass_ = new SectionPr();
-                purchaseRequestClass_ = new MainPurchaseRequest();
-
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
-
-                sectionPrClass_.setClassFrom(purchaseRequestClass_);
-                sectionPrClass_.init();
-
-                purchaseRequestClass_.setRefUser(refUser_);
-                purchaseRequestClass_.setSectionPrClass(sectionPrClass_);
-                purchaseRequestClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_pr.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_purchase_request.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+        purchaseRequestClass_.setRefUser(refUser_);
+        purchaseRequestClass_.setSectionPrClass(sectionPrClass_);
+        purchaseRequestClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    };
+    setTimeout(startPage, 200);
+  });
 </script>
-
 </body>
 </html>
