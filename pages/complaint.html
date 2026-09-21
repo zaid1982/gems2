@@ -1,254 +1,136 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/complaint.html — public QR Work Request (P5-18).
+
+  Category B public. Reachable as p_complaint?z={zoneId} from Zone QR.
+  NOT an authenticated admin page. Do NOT call initiatePages() (would
+  bounce unauthenticated QR users to login).
+
+  APIs preserved:
+    GET zone/ext/{zoneId}
+    GET api/site.php?external=1&siteId=
+    POST wo_v3/ext {siteId, zoneId, name, icNo, agency, phoneNo, email, complaint, image}
+
+  Gates: zoneStatus === 1, siteIsPublic === '1'.
+  MzValidate stays bound to formMus (HEAD). Field IDs unchanged.
+
+  NEVER load: css/bootstrap.min.css, css/mdb.min.css, css/style.css,
+    css/gems2-ui.css, js/mdb*.js, js/jquery-migrate-3.4.0.min.js.
+-->
+<html lang="en" data-bs-theme="light">
 <head>
-    <!--  Required meta tags always come first  -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <!-- Browser icon -->
-    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!--  Font Awesome  -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <!-- Material Design Bootstrap -->
-    <link href="css/mdb.min.css" rel="stylesheet">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-
-    <!-- Custom styles -->
-    <style>
-        html,
-        body,
-        header,
-        .view {
-            height: 100%;
-        }
-        @media (max-width: 740px) {
-            html,
-            body,
-            header,
-            .view {
-                /*height: 1000px;*/
-            }
-        }
-        @media (min-width: 800px) and (max-width: 850px) {
-            html,
-            body,
-            header,
-            .view {
-                /*height: 650px;*/
-            }
-        }
-        .rgba-gradient {
-            background: -webkit-linear-gradient(45deg, rgba(100, 100, 100, 0.6), rgba(72, 15, 144, 0.8) 100%);
-            background: -webkit-gradient(linear, 45deg, from(rgba(100, 100, 100, 0.6), rgba(72, 15, 144, 0.8) 100%));
-            background: linear-gradient(to 45deg, rgba(100, 100, 100, 0.6), rgba(72, 15, 144, 0.8) 100%);
-        }
-        .card {
-            background-color: rgba(126, 123, 215, 0.2);
-        }
-        .md-form label {
-            color: #ffffff;
-        }
-        h5 {
-            line-height: 0.8;
-        }
-
-        input[type='radio']{
-            display:none;
-        }
-
-        input[type='radio'] + label{
-            display:inline-block;
-            position:relative;
-            padding-left: 30px;
-            cursor: pointer;
-        }
-
-        input[type='radio']:checked + label:after {
-            width: 9px;
-            height: 9px;
-            border-radius: 15px;
-            top: 4px;
-            left: 7px;
-            position: absolute;
-            background-color: #bbbbbb;
-            content: "";
-        }
-
-        input[type=radio] + label:before {
-            content: "";
-            border-color: #bbbbbb;
-            border: solid 2px;
-            width: 17px;
-            position: absolute;
-            left: 3px;
-            height: 17px;
-            border-radius: 50%;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Public Complaint</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    html, body { min-height: 100%; }
+    body.gems-public-complaint {
+      background: url('img/background/buildings.png') center / cover no-repeat fixed;
+    }
+    .complaint-mask {
+      min-height: 100vh;
+      background: linear-gradient(45deg, rgba(15, 23, 42, 0.72), rgba(32, 107, 196, 0.55));
+      padding: 2rem 0 3rem;
+    }
+    .complaint-mask, .complaint-mask .container-xl, .complaint-mask .row, .complaint-hero, .complaint-card, .complaint-card .card-body { min-width: 0; max-width: 100%; }
+    .complaint-hero h1 { color: #fff; overflow-wrap: anywhere; }
+    .complaint-card .card-title { overflow-wrap: anywhere; }
+    .complaint-hero h2, .complaint-hero p { color: rgba(255,255,255,.92); }
+    #imgPsaImage { max-height: 180px; object-fit: contain; background: #fff; border-radius: 8px; }
+  </style>
 </head>
-<body>
-
-<header>
-    <!-- Full Page Intro -->
-    <div class="view" style="background-image: url('img/background/buildings.png'); background-repeat: no-repeat; background-size: cover; background-position: center center;">
-        <!-- Mask & flexbox options-->
-        <div class="mask rgba-gradient align-items-center " style="overflow-y: auto !important;">
-            <!-- Content -->
-            <div class="container">
-                <!--Grid row-->
-                <div class="row">
-                    <!--Grid column-->
-                    <div class="col-lg-6 mb-4 white-text mt-5">
-                        <div class="row">
-                            <div class="col-12">
-                                <h1 class="h1-responsive font-weight-bold mt-lg-5 wow fadeInLeft" data-wow-delay="0.3s">GEMS : GFM Enterprise Management System</h1>
-                                <hr class="hr-light wow fadeInLeft mt-1" data-wow-delay="0.3s">
-                                <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">Site : <span id="lblPsaSiteName"></span></h4>
-                                <h4 class="h4-responsive font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">Zone : <span id="lblPsaZoneName"></span></h4>
-                                <p class="font-weight-bold wow fadeInLeft mt-3 divPsaForm" data-wow-delay="0.6s">
-                                    <i class="fas fa-exclamation-triangle white-text mr-2 mt-2"></i> Please complete the Work Request Form to submit your facilities-related complaint. Our facilities technician will promptly address your issue, and you will receive email notifications regarding the status of the resolution.
-                                </p>
-                                <p class="font-weight-bold wow fadeInLeft mt-3 divPsaErr" data-wow-delay="0.6s">
-                                    <i class="fas fa-exclamation-triangle white-text mr-2 mt-2"></i> The link from the QR code is not valid!! Please contact Administrator!
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <!--Grid column-->
-                    <!--Grid column-->
-                    <div class="col-lg-6 divPsaForm mt-lg-5 mb-4">
-                        <!--Form-->
-                        <div class="card wow fadeInRight" data-wow-delay="0.3s">
-                            <div class="card-body">
-                                <form id="formPsaDetails">
-                                    <!--Header-->
-                                    <div class="pb-2">
-                                        <div class="d-flex justify-content-between align-items-center mb-3"> 
-                                            <img width="auto" height="30px" src="https://www.gfmservices.com.my/wp-content/uploads/Logo/GFM-LOGO-white.png" alt="gfm_logo" />
-                                            <h3 class="mb-0 white-text" id="lblPsaTitleResult"><i class="fas fa-headset"></i> &nbsp;COMPLAINT FORM</h3> </div>
-                                        <hr class="hr-light">
-                                    </div>
-                                    <!--Body-->
-                                    <div class="md-form mt-3 mx-2 pb-0">
-                                        <i class="fas fa-user prefix white-text active"></i>
-                                        <input type="text" id="txtPsaName" class="white-text form-control" value="">
-                                        <label for="txtPsaName">Your Name *</label>
-                                        <p class="font-small text-danger pl-4_5" id="txtPsaNameErr"></p>
-                                    </div>
-                                    <div class="md-form mx-2 pb-0">
-                                        <i class="fas fa-id-card prefix white-text active"></i>
-                                        <input type="text" id="txtPsaIcNo" class="white-text form-control" value="">
-                                        <label for="txtPsaIcNo">IC No.</label>
-                                        <p class="font-small text-danger pl-4_5" id="txtPsaIcNoErr"></p>
-                                    </div>
-                                    <div class="md-form mx-2 pb-0">
-                                        <i class="fas fa-building prefix white-text active"></i>
-                                        <input type="text" id="txtPsaAgency" class="white-text form-control" value="">
-                                        <label for="txtPsaAgency">Agency</label>
-                                        <p class="font-small text-danger pl-4_5" id="txtPsaAgencyErr"></p>
-                                    </div>
-                                    <div class="md-form mx-2 pb-0">
-                                        <i class="fas fa-phone prefix white-text active"></i>
-                                        <input type="text" id="txtPsaPhoneNo" class="white-text form-control" value="">
-                                        <label for="txtPsaPhoneNo">Phone No.</label>
-                                        <p class="font-small text-danger pl-4_5" id="txtPsaPhoneNoErr"></p>
-                                    </div>
-                                    <div class="md-form mx-2 pb-0">
-                                        <i class="fas fa-envelope prefix white-text active"></i>
-                                        <input type="text" id="txtPsaEmail" class="white-text form-control" value="">
-                                        <label for="txtPsaEmail">Email Address *</label>
-                                        <p class="font-small text-danger pl-4_5" id="txtPsaEmailErr"></p>
-                                    </div>
-                                    <!--<div class="md-form mx-2 pb-0">
-                                        <i class="fas fa-tools prefix white-text active"></i>
-                                        <h6 class="font-small white-text pl-4_5">Category *</h6>
-                                        &lt;!&ndash; <h6 class="font-small white-text">Status:</h6>&ndash;&gt;
-                                        <div class="form-check pl-4 ml-3" style="top: -10px">
-                                            <input type="radio" id="chkMzbStatus1" name="chkMzbStatus" value="1">
-                                            <label class="form-check-label white-text" for="chkMzbStatus1">Electrical</label>
-                                        </div>
-                                        <div class="form-check pl-4 ml-3" style="top: -7px">
-                                            <input type="radio" id="chkMzbStatus2" name="chkMzbStatus" value="2">
-                                            <label class="form-check-label white-text" for="chkMzbStatus2">Mechanical</label>
-                                        </div>
-                                    </div>-->
-                                    <!--<div class="select-outline md-form mx-2 pb-0">
-                                        <i class="fas fa-tools prefix white-text active"></i>
-                                        <select id="optPsaCategory" class="md-form colorful-select mt-0 mb-0 white-text"></select>
-                                        <label for="optPsaCategory">Category *</label>
-                                    </div>-->
-                                    <div class="md-form mx-2 mb-3 pb-0">
-                                        <i class="fas fa-pen prefix white-text active"></i>
-                                        <textarea id="txaPsaComplaint" class="md-textarea white-text form-control" rows="3"></textarea>
-                                        <label for="txaPsaComplaint" class="white-text">Complaint Details *</label>
-                                        <p class="font-small text-danger pl-4_5" id="txaPsaComplaintErr"></p>
-                                    </div>
-                                    <div class="md-form mx-2 mt-0 pb-4">
-                                        <i class="fas fa-image prefix white-text active"></i>
-                                        <h6 class="font-small white-text pl-4_5">Picture</h6>
-                                        <div class="file-field pl-4_5">
-                                            <div class="z-depth-1-half mb-1 w-50">
-                                                <img src="img/background/upload_placeholder.png" id="imgPsaImage" class="img-fluid" alt="example placeholder">
-                                            </div>
-                                            <div class="btn btn-outline-white w-50 py-2" style="left: -6px">
-                                                <span>Choose<i class="fas fa-upload ml-3" aria-hidden="true"></i></span>
-                                                <input type="file" id="txfPsaImage">
-                                                <input type="hidden" id="txfPsaImageBlob">
-                                            </div>
-                                            <p class="font-small text-danger" id="txfPsaImageErr"></p>
-                                        </div>
-                                    </div>
-                                    <hr class="hr-light mt-5 mb-2">
-                                    <div class="text-right">
-                                        <button type="button" class="btn btn-outline-white" id="btnPsaSubmit">SUBMIT COMPLAINT NOW !!</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <!--/.Form-->
-                    </div>
-                    <!--Grid column-->
-                </div>
-                <!--Grid row-->
+<body class="gems-tabler gems-public-complaint">
+<div class="complaint-mask">
+  <div class="container-xl">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-6 complaint-hero">
+        <h1 class="page-title text-white">GEMS : GFM Enterprise Management System</h1>
+        <hr class="mt-2 mb-3" style="border-color: rgba(255,255,255,.35); opacity:1">
+        <h2 class="h4 divPsaForm">Site : <span id="lblPsaSiteName"></span></h2>
+        <h2 class="h4 divPsaForm">Zone : <span id="lblPsaZoneName"></span></h2>
+        <p class="divPsaForm mb-0">
+          <i class="fas fa-exclamation-triangle me-2"></i> Please complete the Work Request Form to submit your facilities-related complaint. Our facilities technician will promptly address your issue, and you will receive email notifications regarding the status of the resolution.
+        </p>
+        <p class="divPsaErr mb-0">
+          <i class="fas fa-exclamation-triangle me-2"></i> The link from the QR code is not valid!! Please contact Administrator!
+        </p>
+      </div>
+      <div class="col-lg-6 divPsaForm">
+        <div class="card complaint-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+              <img width="auto" height="30" src="https://www.gfmservices.com.my/wp-content/uploads/Logo/GFM-LOGO-white.png" alt="gfm_logo">
+              <h3 class="card-title mb-0" id="lblPsaTitleResult"><i class="fas fa-headset me-1"></i>COMPLAINT FORM</h3>
             </div>
-            <!-- Content -->
+            <form id="formPsaDetails" autocomplete="off" novalidate>
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txtPsaName">Your Name <span class="required" aria-hidden="true">*</span></label>
+                  <input type="text" id="txtPsaName" class="form-control" value="" aria-describedby="txtPsaNameErr">
+                  <div class="gems-field-error" id="txtPsaNameErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txtPsaIcNo">IC No.</label>
+                  <input type="text" id="txtPsaIcNo" class="form-control" value="" aria-describedby="txtPsaIcNoErr">
+                  <div class="gems-field-error" id="txtPsaIcNoErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txtPsaAgency">Agency</label>
+                  <input type="text" id="txtPsaAgency" class="form-control" value="" aria-describedby="txtPsaAgencyErr">
+                  <div class="gems-field-error" id="txtPsaAgencyErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txtPsaPhoneNo">Phone No.</label>
+                  <input type="text" id="txtPsaPhoneNo" class="form-control" value="" aria-describedby="txtPsaPhoneNoErr">
+                  <div class="gems-field-error" id="txtPsaPhoneNoErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txtPsaEmail">Email Address <span class="required" aria-hidden="true">*</span></label>
+                  <input type="text" id="txtPsaEmail" class="form-control" value="" aria-describedby="txtPsaEmailErr">
+                  <div class="gems-field-error" id="txtPsaEmailErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txaPsaComplaint">Complaint Details <span class="required" aria-hidden="true">*</span></label>
+                  <textarea id="txaPsaComplaint" class="form-control" rows="3" aria-describedby="txaPsaComplaintErr"></textarea>
+                  <div class="gems-field-error" id="txaPsaComplaintErr" role="alert"></div>
+                </div>
+                <div class="gems-field gems-field-12">
+                  <label class="form-label" for="txfPsaImage">Picture</label>
+                  <img src="img/background/upload_placeholder.png" id="imgPsaImage" class="img-fluid mb-2" alt="example placeholder">
+                  <input type="file" id="txfPsaImage" class="form-control" accept="image/*">
+                  <input type="hidden" id="txfPsaImageBlob">
+                  <div class="gems-field-error" id="txfPsaImageErr" role="alert"></div>
+                </div>
+              </div>
+              <div class="d-flex justify-content-end mt-3">
+                <button type="button" class="btn btn-primary" id="btnPsaSubmit">SUBMIT COMPLAINT NOW !!</button>
+              </div>
+            </form>
+          </div>
         </div>
-        <!-- Mask & flexbox options-->
+      </div>
     </div>
-    <!-- Full Page Intro -->
-</header>
-<!-- Main navigation -->
+  </div>
+</div>
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true"></div>
 
-<!--  SCRIPTS  -->
-<!-- JQuery -->
-<!-- JQuery -->
-<script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-<!--JQuery Migrate-->
-<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.min.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
-<script type="text/javascript" src="js/addons/md5.min.js"></script>
-
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    new WOW().init();
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/toastr-safe.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/addons/md5.min.js"></script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
     let imageSize = [0,0];
     document.addEventListener('DOMContentLoaded', function () {
         try {
-            //$('#formPsaDetails, #divPsaPremiseName, #divPsaBranchName, #divPsaBranchAddress').hide();
             let siteId;
             const vData = [
                 {
@@ -436,12 +318,12 @@
             }
             if (resp['licenseStatus'] === '1') {
                 if (moment().isBetween(resp['licenseDateStart'], resp['licenseDateEnd'])) {
-                    $('#lblPsaTitleResult').html('<i class="fas fa-thumbs-up white-text"></i> &nbsp;SIJIL AKTIF !!');
+                    $('#lblPsaTitleResult').html('<i class="fas fa-thumbs-up"></i> &nbsp;SIJIL AKTIF !!');
                 } else {
-                    $('#lblPsaTitleResult').html('<i class="fas fa-exclamation-triangle white-text"></i> &nbsp;SIJIL TAMAT TEMPOH !!');
+                    $('#lblPsaTitleResult').html('<i class="fas fa-exclamation-triangle"></i> &nbsp;SIJIL TAMAT TEMPOH !!');
                 }
             } else {
-                $('#lblPsaTitleResult').html('<i class="fas fa-exclamation-triangle white-text"></i> &nbsp;SIJIL TIDAK AKTIF !!');
+                $('#lblPsaTitleResult').html('<i class="fas fa-exclamation-triangle"></i> &nbsp;SIJIL TIDAK AKTIF !!');
             }
             sessionStorage.setItem('id', data['username']);
             sessionStorage.setItem('password', data['password']);
@@ -451,6 +333,5 @@
         }
     }
 </script>
-
 </body>
 </html>
