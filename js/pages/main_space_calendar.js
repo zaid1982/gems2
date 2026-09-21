@@ -35,11 +35,9 @@
   function cancelReservation(reservationId, reason){ return $.ajax({ url:'api/space.php/reservation/'+reservationId+'/cancel', method:'PUT', data: JSON.stringify({ reason: reason||null }), contentType:'application/json', dataType:'json', headers: headers()}); }
 
   function statusColors(status){
-    switch((status||'').toUpperCase()){
-      case 'RESERVED': return { backgroundColor:'#10b981', borderColor:'#059669', textColor:'#fff' }; // green
-      case 'CANCELED': return { backgroundColor:'#ef4444', borderColor:'#b91c1c', textColor:'#fff' }; // red
-      default: return { backgroundColor:'#64748b', borderColor:'#475569', textColor:'#fff' }; // slate
-    }
+    const kind = (window.GemsUI && GemsUI.statusKind(status)) || ((status||'').toUpperCase() === 'RESERVED' ? 'success' : ((status||'').toUpperCase() === 'CANCELED' ? 'danger' : 'secondary'));
+    const color = (window.GemsUI && GemsUI.kindColor(kind)) || (kind === 'success' ? '#1a7f4b' : (kind === 'danger' ? '#dc2626' : '#5b676f'));
+    return { backgroundColor: color, borderColor: color, textColor: '#fff' };
   }
 
   function toEvent(resv){

@@ -45,7 +45,7 @@ function MainFinanceReport6() {
             series: [{
                 name: 'Absenteeism',
                 data: [6, 7, 5, 7, 3, 4, 6, 8, 10, 3, 1, 6],
-                color: '#ff4444'
+                color: '#dc2626'
             }]
         });
 
@@ -85,7 +85,7 @@ function MainFinanceReport6() {
             series: [{
                 name: 'Overtime Hours',
                 data: [2, 3, 4, 2, 7, 6, 5, 3, 4, 6, 8, 2],
-                color: '#ff4444'
+                color: '#dc2626'
             }]
         });
 
@@ -129,7 +129,7 @@ function MainFinanceReport6() {
             series: [{
                 name: 'Overtime Hours',
                 data: [1, 2, 3, 4],
-                color: '#ff4444'
+                color: '#dc2626'
             }]
         });
 
@@ -171,7 +171,7 @@ function MainFinanceReport6() {
             series: [{
                 name: 'OLE',
                 data: [6.5, 6, 5.5, 6, 2, 2.5, 3, 3.5, 5, 4.5, 2, 6],
-                color: '#ff4444'
+                color: '#dc2626'
             }]
         });
 
@@ -219,7 +219,7 @@ function MainFinanceReport6() {
             series: [{
                 name: 'OLE',
                 data: [6, 7, 5, 7, 3, 4, 6, 8, 10, 3, 11, 6, 5, 7, 3, 4, 6, 8, 10, 3, 1, 6],
-                color: '#ff4444'
+                color: '#dc2626'
             }]
         });
     };

@@ -6,14 +6,14 @@
                 <section class="task-history-section sectionTaskHistory mb-0">
     <style>
         :root {
-            --sth-primary: var(--tblr-primary, #206bc4);
+            --sth-primary: var(--gems-primary);
             --sth-accent: var(--tblr-secondary, #6c7a91);
             --sth-bg: var(--tblr-bg-surface-secondary, #f8fafc);
             --sth-text: var(--tblr-body-color, #1e293b);
             --sth-muted: var(--tblr-secondary, #6c7a91);
             --sth-card-radius: 12px;
             --sth-card-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-            --sth-pill-bg: rgba(32, 107, 196, 0.12);
+            --sth-pill-bg: rgba(0, 85, 184, 0.12);
         }
 
         .task-history-modal .modal-dialog { max-width: 1200px; }
@@ -29,7 +29,7 @@
         }
 
         .task-history-header {
-            background: linear-gradient(135deg, rgba(32, 107, 196, 0.95) 0%, rgba(108, 122, 145, 0.9) 100%);
+            background: linear-gradient(135deg, rgba(0, 85, 184, 0.95) 0%, rgba(108, 122, 145, 0.9) 100%);
             border-radius: 28px;
             padding: 32px 30px;
             color: #fff;
@@ -69,16 +69,16 @@
 
         .task-history-metrics { margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; }
         .task-history-metrics .metric-card { background: #fff; border-radius: var(--sth-card-radius); padding: 20px 22px; box-shadow: var(--sth-card-shadow); position: relative; overflow: hidden; }
-        .task-history-metrics .metric-card::after { content: ''; position: absolute; bottom: -36px; right: -36px; width: 140px; height: 140px; border-radius: 50%; background: rgba(32, 107, 196, 0.08); }
+        .task-history-metrics .metric-card::after { content: ''; position: absolute; bottom: -36px; right: -36px; width: 140px; height: 140px; border-radius: 50%; background: rgba(0, 85, 184, 0.08); }
         .task-history-metrics .metric-label { font-size: 0.78rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.08em; color: var(--sth-muted); margin-bottom: 6px; }
         .task-history-metrics .metric-value { font-size: 2rem; font-weight: 700; color: var(--sth-text); }
         .task-history-metrics .metric-value.is-text { font-size: 1.15rem; }
         .task-history-metrics .metric-subtext { font-size: 0.85rem; color: var(--sth-muted); margin-top: 6px; }
 
         .status-chip { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 0.35rem 0.85rem; font-size: 0.85rem; font-weight: 600; background: rgba(148, 163, 184, 0.18); color: #475569; }
-        .status-chip[data-state="success"] { background: rgba(34, 197, 94, 0.18); color: #166534; }
-        .status-chip[data-state="warning"] { background: rgba(250, 204, 21, 0.18); color: #854d0e; }
-        .status-chip[data-state="danger"] { background: rgba(248, 113, 113, 0.22); color: #991b1b; }
+        .status-chip[data-state="success"] { background: var(--gems-success-soft); color: var(--gems-success); }
+        .status-chip[data-state="warning"] { background: var(--gems-warning-soft); color: var(--gems-warning); }
+        .status-chip[data-state="danger"] { background: var(--gems-danger-soft); color: var(--gems-danger-fg); }
 
         .task-history-grid { margin-top: 34px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .task-info-card, .task-timeline-card { background: #fff; border-radius: var(--sth-card-radius); padding: 24px 26px; box-shadow: var(--sth-card-shadow); }
@@ -94,21 +94,21 @@
         .history-legend { display: flex; gap: 14px; font-size: 0.8rem; color: var(--sth-muted); flex-wrap: wrap; }
         .history-legend span { display: inline-flex; align-items: center; gap: 6px; }
         .legend-dot { width: 10px; height: 10px; border-radius: 999px; }
-        .legend-dot.complete { background: #22c55e; }
-        .legend-dot.current { background: var(--tblr-primary, #206bc4); }
-        .legend-dot.upcoming { background: #cbd5f5; }
+        .legend-dot.complete { background: var(--gems-success); }
+        .legend-dot.current { background: var(--gems-primary); }
+        .legend-dot.upcoming { background: var(--gems-muted-icon); }
 
         .history-stepper { list-style: none; padding: 0; margin: 24px 0 0; position: relative; }
         .history-step { display: flex; align-items: center; gap: 18px; padding: 16px 18px; border-radius: 18px; background: var(--tblr-bg-surface-secondary, #f8fafc); position: relative; margin-bottom: 14px; box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.8); }
         .history-step:last-child { margin-bottom: 0; }
         .history-step::before { content: ''; position: absolute; left: 28px; top: -14px; width: 2px; height: 14px; background: rgba(148, 163, 184, 0.35); }
         .history-step:first-child::before { display: none; }
-        .history-step.complete { box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.25); }
-        .history-step.current { box-shadow: inset 0 0 0 2px rgba(32, 107, 196, 0.55); background: rgba(108, 122, 145, 0.08); }
+        .history-step.complete { box-shadow: inset 0 0 0 1px rgba(26, 127, 75, 0.25); }
+        .history-step.current { box-shadow: inset 0 0 0 2px rgba(0, 85, 184, 0.55); background: rgba(108, 122, 145, 0.08); }
         .history-step.upcoming { opacity: 0.75; }
-        .history-step .step-icon { width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(32, 107, 196, 0.1); color: var(--sth-primary); font-size: 1.1rem; }
-        .history-step.complete .step-icon { background: rgba(34, 197, 94, 0.14); color: #15803d; }
-        .history-step.current .step-icon { background: rgba(76, 29, 149, 0.16); color: #4c1d95; }
+        .history-step .step-icon { width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(0, 85, 184, 0.1); color: var(--sth-primary); font-size: 1.1rem; }
+        .history-step.complete .step-icon { background: var(--gems-success-soft); color: var(--gems-success); }
+        .history-step.current .step-icon { background: var(--gems-primary-soft); color: var(--gems-primary); }
         .history-step .step-content { display: flex; flex-direction: column; gap: 4px; }
         .history-step .step-title { font-weight: 600; color: var(--sth-text); }
         .history-step .step-meta { font-size: 0.85rem; color: var(--sth-muted); }

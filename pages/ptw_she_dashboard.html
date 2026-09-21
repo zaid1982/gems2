@@ -22,9 +22,9 @@
             --primary-color: var(--gems-primary); /* standardized to supervisor */
             --primary-dark: var(--gems-primary-dark);
             --secondary-color: var(--gems-muted);
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
+            --success-color: var(--gems-success);
+            --warning-color: var(--gems-warning);
+            --danger-color: var(--gems-danger);
             --info-color: var(--gems-primary);
             --light-bg: var(--gems-bg-page);
             --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -116,7 +116,7 @@
         }
 
         .stat-card.purple::before {
-            background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+            background: var(--gems-primary);
         }
 
         .stat-card .stat-icon {
@@ -131,23 +131,23 @@
         }
 
         .stat-card.pending .stat-icon {
-            background: rgba(245, 158, 11, 0.1);
+            background: var(--gems-warning-soft);
             color: var(--warning-color);
         }
 
         .stat-card.approved-today .stat-icon {
-            background: rgba(16, 185, 129, 0.1);
+            background: var(--gems-success-soft);
             color: var(--success-color);
         }
 
         .stat-card.overdue .stat-icon {
-            background: rgba(239, 68, 68, 0.1);
+            background: var(--gems-danger-soft);
             color: var(--danger-color);
         }
 
         .stat-card.purple .stat-icon {
-            background: rgba(139, 92, 246, 0.1);
-            color: #8b5cf6;
+            background: var(--gems-primary-soft);
+            color: var(--gems-primary);
         }
 
         .stat-card .stat-number {
@@ -292,34 +292,38 @@
         }
 
         .badge-success {
-            background: rgba(16, 185, 129, 0.1);
+            background: var(--gems-success-soft);
             color: var(--success-color);
         }
 
         .badge-warning {
-            background: rgba(245, 158, 11, 0.1);
+            background: var(--gems-warning-soft);
             color: var(--warning-color);
         }
 
         .badge-danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
+            background: var(--gems-danger-soft);
+            color: var(--gems-danger-fg);
         }
 
         .badge-info {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--info-color);
+            background: var(--gems-info-soft);
+            color: var(--gems-info);
         }
 
         .badge-dark {
-            background: rgba(31, 41, 55, 0.1);
-            color: #1f2937;
+            background: var(--gems-neutral-soft);
+            color: var(--gems-text);
         }
 
-        /* Specific style for Closed/Completed status */
         .badge-closed {
-            background: rgba(31, 41, 55, 0.1);
-            color: #1f2937;
+            background: var(--gems-neutral-soft);
+            color: var(--gems-text-soft);
+        }
+
+        .badge-secondary {
+            background: var(--gems-neutral-soft);
+            color: var(--gems-text-soft);
         }
 
         /* Action Buttons */
@@ -350,18 +354,18 @@
         }
 
         .days-pending.urgent {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
+            background: var(--gems-danger-soft);
+            color: var(--gems-danger-fg);
         }
 
         .days-pending.warning {
-            background: rgba(245, 158, 11, 0.1);
+            background: var(--gems-warning-soft);
             color: var(--warning-color);
         }
 
         .days-pending.normal {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--info-color);
+            background: var(--gems-info-soft);
+            color: var(--gems-info);
         }
 
         /* Auto Refresh Toggle */
@@ -1649,7 +1653,7 @@ function getStatusBadge(status) {
         'Cancellation Requested': '<span class="badge badge-modern badge-compact badge-warning">Cancellation Requested</span>',
         'Suspension Requested': '<span class="badge badge-modern badge-compact badge-warning">Suspension Requested</span>',
         'Extension Requested': '<span class="badge badge-modern badge-compact badge-info">Extension Requested</span>',
-        'Closed': '<span class="badge badge-modern badge-compact badge-closed">Closed</span>',
+        'Closed': '<span class="badge badge-modern badge-compact badge-secondary">Closed</span>',
         'Cancelled': '<span class="badge badge-modern badge-compact badge-dark">Cancelled</span>',
         'Suspended': '<span class="badge badge-modern badge-compact badge-warning">Suspended</span>',
         'Rejected': '<span class="badge badge-modern badge-compact badge-danger">Rejected</span>',
@@ -1666,8 +1670,8 @@ function getStatusBadge(status) {
         'SUSPENDED': '<span class="badge badge-modern badge-compact badge-warning">Suspended</span>',
         'CANCELLED': '<span class="badge badge-modern badge-compact badge-dark">Cancelled</span>',
         'REJECTED': '<span class="badge badge-modern badge-compact badge-danger">Rejected</span>',
-        'COMPLETED': '<span class="badge badge-modern badge-compact badge-closed">Closed</span>',
-        'CLOSED': '<span class="badge badge-modern badge-compact badge-closed">Closed</span>'
+        'COMPLETED': '<span class="badge badge-modern badge-compact badge-secondary">Closed</span>',
+        'CLOSED': '<span class="badge badge-modern badge-compact badge-secondary">Closed</span>'
     };
     return map[s] || '<span class="badge badge-modern badge-compact badge-info">' + s + '</span>';
 }

@@ -23,9 +23,9 @@
             --primary-color: var(--gems-primary);
             --primary-dark: var(--gems-primary-dark);
             --secondary-color: var(--gems-muted);
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
+            --success-color: var(--gems-success);
+            --warning-color: var(--gems-warning);
+            --danger-color: var(--gems-danger);
             --info-color: var(--gems-primary);
             --light-bg: var(--gems-bg-page);
             --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -59,12 +59,12 @@
 
         /* Badges */
         .badge-modern { padding:6px 12px; border-radius:20px; font-size:.65rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; }
-        .badge-success { background:rgba(16,185,129,.1); color:var(--success-color); }
-        .badge-warning { background:rgba(245,158,11,.1); color:var(--warning-color); }
-        .badge-danger { background:rgba(239,68,68,.1); color:var(--danger-color); }
-        .badge-info { background:rgba(59,130,246,.1); color:var(--info-color); }
-        .badge-dark { background:rgba(31,41,55,.1); color:#1f2937; }
-        .badge-closed { background:rgba(6,95,70,.15); color:#065f46; }
+        .badge-success { background:var(--gems-success-soft); color:var(--success-color); }
+        .badge-warning { background:var(--gems-warning-soft); color:var(--warning-color); }
+        .badge-danger { background:var(--gems-danger-soft); color:var(--gems-danger-fg); }
+        .badge-info { background:var(--gems-info-soft); color:var(--gems-info); }
+        .badge-dark { background:var(--gems-neutral-soft); color:var(--gems-text); }
+        .badge-closed { background:var(--gems-neutral-soft); color:var(--gems-text-soft); }
 
         /* Action split */
         .action-split { display:inline-flex; width:100%; max-width:220px; vertical-align:middle; }
