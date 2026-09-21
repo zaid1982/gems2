@@ -253,6 +253,59 @@ function MainHome() {
         return false;
     }
 
+    function formatHomeRange(from, to) {
+        if (!from || !to || typeof moment === 'undefined') {
+            return from && to ? (from + ' – ' + to) : '';
+        }
+        const start = moment(from, ['YYYY-MM-DD', 'DD/MM/YYYY'], true);
+        const end = moment(to, ['YYYY-MM-DD', 'DD/MM/YYYY'], true);
+        if (!start.isValid() || !end.isValid()) {
+            return from + ' – ' + to;
+        }
+        if (start.isSame(end, 'month') && start.date() === 1 && end.date() === end.daysInMonth()) {
+            return start.format('MMM YYYY');
+        }
+        if (start.year() === end.year()) {
+            return start.format('D MMM') + ' – ' + end.format('D MMM YYYY');
+        }
+        return start.format('D MMM YYYY') + ' – ' + end.format('D MMM YYYY');
+    }
+
+    function chartHeader(chartId, title, subtitle) {
+        $('#' + chartId + 'Title').text(title);
+        $('#' + chartId + 'Sub').text(subtitle || '');
+        return {
+            title: { text: null },
+            subtitle: { text: null },
+            exporting: {
+                filename: String(title || 'chart').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'chart',
+                chartOptions: { title: { text: title }, subtitle: { text: subtitle || null } }
+            }
+        };
+    }
+
+    function renderHomeChart(chartId, title, subtitle, options) {
+        Highcharts.chart(chartId, Object.assign({}, options, chartHeader(chartId, title, subtitle)));
+    }
+
+    function emptyHomeChart(chartId, title, subtitle, detail) {
+        chartHeader(chartId, title, subtitle);
+        setChartColumnWidth(chartId, 0, 0);
+        return gemsEmptyChart(chartId, detail);
+    }
+
+    function chartHasRows(value) {
+        return Array.isArray(value) && value.length > 0;
+    }
+
+    function updateWoKpis(api) {
+        const info = api.page.info();
+        const total = info.recordsTotal || 0;
+        const matching = info.recordsDisplay || 0;
+        $('#lblHmeWoTotal').text(mzFormatNumber(total));
+        $('#lblHmeWoMatching').text(mzFormatNumber(matching));
+    }
+
     /* ref_status.status_color stores MDB Material colour words ('green',
        'light-blue', 'blue-grey', 'indigo darken-1', ...). Those are mdb.css
        background classes and mean nothing on a Tabler page, and several of them
@@ -299,7 +352,7 @@ function MainHome() {
             }
         });
         $('#lnkHmeClient_'+clientId).addClass('active');
-        $('#navHmeClient').text(refClient[clientId]['clientName']);
+        $('#navHmeClient').text(refClient[clientId]['clientName']).attr('title', refClient[clientId]['clientName']);
 
         $('.lnkHmeClient').off('click').on('click', function () {
             const linkId = $(this).attr('id');
@@ -313,7 +366,7 @@ function MainHome() {
                     siteId = '0';
                     $('#lnkHmeSite_'+siteId).addClass('active');
                     self.setOptionSite();
-                    $('#navHmeClient').text(refClient[clientId]['clientName']);
+                    $('#navHmeClient').text(refClient[clientId]['clientName']).attr('title', refClient[clientId]['clientName']);
                     //self.runChart();
                 }
             } catch (e) {
@@ -439,6 +492,7 @@ function MainHome() {
                 $('td', nRow).eq(0).html(info.page * info.length + (iDisplayIndex + 1));
             },
             drawCallback: function () {
+                updateWoKpis(this.api());
                 $('[data-toggle="tooltip"]').tooltip();
                 $('.lnkHmeDataWoDelete').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
@@ -1421,7 +1475,7 @@ function MainHome() {
     this.setOptionSite = function () {
         $('#liHmeSite').show();
         siteId = '0';
-        $('#navHmeSite').text(refSite[siteId]['siteDesc']);
+        $('#navHmeSite').text(refSite[siteId]['siteDesc']).attr('title', refSite[siteId]['siteDesc']);
         $('#divHmeSite').html('');
         let siteList = [];
         $.each(refSite, function (_siteId, _site) {
@@ -1446,7 +1500,7 @@ function MainHome() {
                         $('#lnkHmeSite_'+siteId).removeClass('active');
                         siteId = linkId.substr(linkIndex + 1);
                         $('#lnkHmeSite_'+siteId).addClass('active');
-                        $('#navHmeSite').text(refSite[siteId]['siteDesc']);
+                        $('#navHmeSite').text(refSite[siteId]['siteDesc']).attr('title', refSite[siteId]['siteDesc']);
                         //self.runChart();
                     }
                 } catch (e) {
@@ -1478,6 +1532,14 @@ function MainHome() {
         if (reportId === '1') {
             $('.divHmeTopStats_ppm, #divHmeTable_ppm').show();
             $('.divHmeTopStats_wo, #divHmeTable_wo').hide();
+            totalPpm = -1;
+            totalLate = -1;
+            chartHeader('chartHme1', 'PPM By Site', 'Total PPM by status and site');
+            chartHeader('chartHme2', 'PPM By Trade', 'Total PPM by trade and site');
+            chartHeader('chartHme3', 'PPM Lateness', 'PPM execution by lateness status');
+            chartHeader('chartHme4', 'Execution Time', 'Average PPM execution time by trade');
+            chartHeader('chartHme5', 'Top 5 Executor', 'Total PPM executed');
+            chartHeader('chartHme6', 'Bottom 5 Executor', 'Total PPM executed');
             self.generateTotalAsset();
             self.generateTotalPpmTask();
             self.generateTotalPpmLate();
@@ -1491,6 +1553,12 @@ function MainHome() {
         } else if (reportId === '2') {
             $('.divHmeTopStats_ppm, #divHmeTable_ppm').hide();
             $('.divHmeTopStats_wo, #divHmeTable_wo').show();
+            chartHeader('chartHme1', 'WO By Site', 'Total work orders by status and site');
+            chartHeader('chartHme2', 'WO By Category', 'Total work orders by category and site');
+            chartHeader('chartHme3', 'Trade', 'Total work orders by trade');
+            chartHeader('chartHme4', 'Execution Time', 'Average execution time by trade');
+            chartHeader('chartHme5', 'Top 5 Executor', 'Total work orders executed');
+            chartHeader('chartHme6', 'Bottom 5 Executor', 'Total work orders executed');
             self.generateChartWoBySite();
             self.generateChartWoByCategory();
             self.generateChartWoByTrade();
@@ -1500,7 +1568,14 @@ function MainHome() {
             self.genTableHmeDataWo(true);
         }
         $('#lblHmeReportType').text(reportType);
-        $('#lblHmeSelected').html('<i>'+refClient[clientId]['clientName']+' - '+refSite[siteId]['siteDesc']+'</i>');
+        const clientName = refClient[clientId] && refClient[clientId]['clientName'] ? refClient[clientId]['clientName'] : '';
+        const siteName = refSite[siteId] && refSite[siteId]['siteDesc'] ? refSite[siteId]['siteDesc'] : '';
+        const rangeLabel = formatHomeRange(dateFrom, dateTo);
+        const contextParts = [clientName, siteName];
+        if (rangeLabel) { contextParts.push(rangeLabel); }
+        const context = contextParts.filter(Boolean).join(' · ');
+        $('#lblHmeSelected').text(context);
+        $('#lblHmeSelectedw').text(context);
 
         try {
             if (typeof window.__homeSetUpdated === 'function') {
@@ -1550,7 +1625,8 @@ function MainHome() {
                 if (resp.success) {
                     $('#lblHmeTotalPpm').html(mzFormatNumber(resp.result));
                     $('#lblHmeTotalPpmTitle').html('Total PPM');
-                    totalPpm = parseInt(resp.result);
+                    totalPpm = parseInt(resp.result, 10);
+                    self.generateChartPpmByLateness();
                 } else {
                     throw new Error(_ALERT_MSG_ERROR_DEFAULT);
                 }
@@ -1570,7 +1646,7 @@ function MainHome() {
                 if (resp.success) {
                     $('#lblHmeTotalPpmLate').html(mzFormatNumber(resp.result));
                     $('#lblHmeTotalPpmLateTitle').html('Total Late PPM');
-                    totalLate = parseInt(resp.result);
+                    totalLate = parseInt(resp.result, 10);
                     self.generateChartPpmByLateness();
                 } else {
                     throw new Error(_ALERT_MSG_ERROR_DEFAULT);
@@ -1613,21 +1689,21 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme1'); },
             success: function (resp) {
                 if (resp.success) {
+                    const title = 'WO By Site';
+                    const subtitle = 'Total work orders by status and site';
                     let siteDescs = [];
-                    let siteIds = resp.result.categories;
+                    let siteIds = (resp.result && resp.result.categories) || [];
+                    if (!chartHasRows(siteIds)) {
+                        emptyHomeChart('chartHme1', title, subtitle, 'No work orders were found for the selected filters.');
+                        return;
+                    }
                     siteIds.forEach(function(key){
                         siteDescs.push(refSite[key]['siteDesc']);
                     });
                     setChartColumnWidth('chartHme1', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
-                    Highcharts.chart('chartHme1', {
+                    renderHomeChart('chartHme1', title, subtitle, {
                         chart: {
                             type: 'column'
-                        },
-                        title: {
-                            text: 'WO By Site'
-                        },
-                        subtitle: {
-                            text: 'Total Work Order Status by Site'
                         },
                         xAxis: {
                             categories: siteDescs,
@@ -1713,22 +1789,22 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme2'); },
             success: function (resp) {
                 if (resp.success) {
+                    const title = 'WO By Category';
+                    const subtitle = 'Total work orders by category and site';
                     let siteDescs = [];
-                    let siteIds = resp.result.categories;
+                    let siteIds = (resp.result && resp.result.categories) || [];
+                    if (!chartHasRows(siteIds)) {
+                        emptyHomeChart('chartHme2', title, subtitle, 'No work orders were found for the selected filters.');
+                        return;
+                    }
                     siteIds.forEach(function(key){
                         siteDescs.push(refSite[key]['siteDesc']);
                     });
                     setChartColumnWidth('chartHme2', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
-                    Highcharts.chart('chartHme2', {
+                    renderHomeChart('chartHme2', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'column'
-                        },
-                        title: {
-                            text: 'WO By Category'
-                        },
-                        subtitle: {
-                            text: 'Total Work Order by Category'
                         },
                         xAxis: {
                             categories: siteDescs,
@@ -1794,17 +1870,17 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme4'); },
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0, 1);
-                    Highcharts.chart('chartHme4', {
+                    const title = 'Work Order Type';
+                    const subtitle = 'Total work orders by type';
+                    if (!chartHasRows(resp.result)) {
+                        emptyHomeChart('chartHme4', title, subtitle, 'No work orders were found for the selected filters.');
+                        return;
+                    }
+                    setChartColumnWidth('chartHme4', resp.result.length, 1);
+                    renderHomeChart('chartHme4', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'pie'
-                        },
-                        title: {
-                            text: 'Work Order Type'
-                        },
-                        subtitle: {
-                            text: 'Total Work Order by Type'
                         },
                         tooltip: {
                             pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
@@ -1868,16 +1944,17 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme5'); },
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme5', resp.result.categories ? resp.result.categories.length : 0, 1);
-                    Highcharts.chart('chartHme5', {
+                    const title = 'Work Order Progress';
+                    const subtitle = 'Total work orders by current progress';
+                    const categories = resp.result && resp.result.categories;
+                    if (!chartHasRows(categories)) {
+                        emptyHomeChart('chartHme5', title, subtitle, 'No work orders were found for the selected filters.');
+                        return;
+                    }
+                    setChartColumnWidth('chartHme5', categories.length, 1);
+                    renderHomeChart('chartHme5', title, subtitle, {
                         chart: {
                             type: 'bar'
-                        },
-                        title: {
-                            text: 'Work Order Progress'
-                        },
-                        subtitle: {
-                            text: 'Total Work Order by Current Progress'
                         },
                         xAxis: {
                             categories: resp.result.categories,
@@ -1953,21 +2030,17 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme3'); },
             success: function (resp) {
                 if (resp.success) {
+                    const title = 'Trade';
+                    const subtitle = 'Total work orders by trade';
                     const tradeCount = Array.isArray(resp.result) ? resp.result.length : 0;
-                    if (!tradeCount && gemsEmptyChart('chartHme3', 'No work orders were found for the selected filters.')) {
+                    if (!tradeCount && emptyHomeChart('chartHme3', title, subtitle, 'No work orders were found for the selected filters.')) {
                         return;
                     }
                     setChartColumnWidth('chartHme3', tradeCount, 1);
-                    Highcharts.chart('chartHme3', {
+                    renderHomeChart('chartHme3', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'pie'
-                        },
-                        title: {
-                            text: 'Trade'
-                        },
-                        subtitle: {
-                            text: 'Total Work Order by Trade'
                         },
                         tooltip: {
                             pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
@@ -2030,17 +2103,18 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme4'); },
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0, 1);
-                    Highcharts.chart('chartHme4', {
+                    const title = 'Execution Time';
+                    const subtitle = 'Average execution time by trade';
+                    const categories = resp.result && resp.result.categories;
+                    if (!chartHasRows(categories)) {
+                        emptyHomeChart('chartHme4', title, subtitle, 'No work orders were found for the selected filters.');
+                        return;
+                    }
+                    setChartColumnWidth('chartHme4', categories.length, 1);
+                    renderHomeChart('chartHme4', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'column'
-                        },
-                        title: {
-                            text: 'Execution Time'
-                        },
-                        subtitle: {
-                            text: 'Average Execution Time by Trade'
                         },
                         xAxis: {
                             categories: resp.result.categories,
@@ -2111,17 +2185,18 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme5'); },
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme5', resp.result.categories ? resp.result.categories.length : 0, 1);
-                    Highcharts.chart('chartHme5', {
+                    const title = 'Top 5 Executor';
+                    const subtitle = 'Total work orders executed';
+                    const categories = resp.result && resp.result.categories;
+                    if (!chartHasRows(categories)) {
+                        emptyHomeChart('chartHme5', title, subtitle, 'No work orders were found for the selected filters.');
+                        return;
+                    }
+                    setChartColumnWidth('chartHme5', categories.length, 1);
+                    renderHomeChart('chartHme5', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'bar'
-                        },
-                        title: {
-                            text: 'Top 5 Executor'
-                        },
-                        subtitle: {
-                            text: 'Total Work Order Executed'
                         },
                         xAxis: {
                             categories: resp.result.categories,
@@ -2190,17 +2265,18 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme6'); },
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme6', resp.result.categories ? resp.result.categories.length : 0, 1);
-                    Highcharts.chart('chartHme6', {
+                    const title = 'Bottom 5 Executor';
+                    const subtitle = 'Total work orders executed';
+                    const categories = resp.result && resp.result.categories;
+                    if (!chartHasRows(categories)) {
+                        emptyHomeChart('chartHme6', title, subtitle, 'No work orders were found for the selected filters.');
+                        return;
+                    }
+                    setChartColumnWidth('chartHme6', categories.length, 1);
+                    renderHomeChart('chartHme6', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'bar'
-                        },
-                        title: {
-                            text: 'Bottom 5 Executor'
-                        },
-                        subtitle: {
-                            text: 'Total Work Order Executed'
                         },
                         xAxis: {
                             categories: resp.result.categories,
@@ -2270,21 +2346,21 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme1'); },
             success: function (resp) {
                 if (resp.success) {
+                    const title = 'PPM By Site';
+                    const subtitle = 'Total PPM by status and site';
                     let siteDescs = [];
-                    let siteIds = resp.result.categories;
+                    let siteIds = (resp.result && resp.result.categories) || [];
+                    if (!chartHasRows(siteIds)) {
+                        emptyHomeChart('chartHme1', title, subtitle, 'No PPM tasks were found for the selected filters.');
+                        return;
+                    }
                     siteIds.forEach(function(key){
                         siteDescs.push(refSite[key]['siteDesc']);
                     });
                     setChartColumnWidth('chartHme1', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
-                    Highcharts.chart('chartHme1', {
+                    renderHomeChart('chartHme1', title, subtitle, {
                         chart: {
                             type: 'column'
-                        },
-                        title: {
-                            text: 'PPM By Site'
-                        },
-                        subtitle: {
-                            text: 'Total PPM Status by Site'
                         },
                         xAxis: {
                             categories: siteDescs,
@@ -2347,22 +2423,22 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme2'); },
             success: function (resp) {
                 if (resp.success) {
+                    const title = 'PPM By Trade';
+                    const subtitle = 'Total PPM by trade and site';
                     let siteDescs = [];
-                    let siteIds = resp.result.categories;
+                    let siteIds = (resp.result && resp.result.categories) || [];
+                    if (!chartHasRows(siteIds)) {
+                        emptyHomeChart('chartHme2', title, subtitle, 'No PPM tasks were found for the selected filters.');
+                        return;
+                    }
                     siteIds.forEach(function(key){
                         siteDescs.push(refSite[key]['siteDesc']);
                     });
                     setChartColumnWidth('chartHme2', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
-                    Highcharts.chart('chartHme2', {
+                    renderHomeChart('chartHme2', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'column'
-                        },
-                        title: {
-                            text: 'PPM By Trade'
-                        },
-                        subtitle: {
-                            text: 'Total PPM by Trade'
                         },
                         xAxis: {
                             categories: siteDescs,
@@ -2420,17 +2496,17 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme3'); },
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme3', resp.result && resp.result.length ? resp.result.length : 0);
-                    Highcharts.chart('chartHme3', {
+                    const title = 'PPM Trade';
+                    const subtitle = 'Total PPM by trade';
+                    if (!chartHasRows(resp.result)) {
+                        emptyHomeChart('chartHme3', title, subtitle, 'No PPM tasks were found for the selected filters.');
+                        return;
+                    }
+                    setChartColumnWidth('chartHme3', resp.result.length);
+                    renderHomeChart('chartHme3', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'pie'
-                        },
-                        title: {
-                            text: 'PPM Trade'
-                        },
-                        subtitle: {
-                            text: 'Total PPM by Trade'
                         },
                         tooltip: {
                             pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
@@ -2493,16 +2569,17 @@ function MainHome() {
             complete: function(){ hideChartOverlay('chartHme4'); },
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0);
-                    Highcharts.chart('chartHme4', {
+                    const title = 'PPM Progress';
+                    const subtitle = 'Total PPM by current progress';
+                    const categories = resp.result && resp.result.categories;
+                    if (!chartHasRows(categories)) {
+                        emptyHomeChart('chartHme4', title, subtitle, 'No PPM tasks were found for the selected filters.');
+                        return;
+                    }
+                    setChartColumnWidth('chartHme4', categories.length);
+                    renderHomeChart('chartHme4', title, subtitle, {
                         chart: {
                             type: 'bar'
-                        },
-                        title: {
-                            text: 'PPM Progress'
-                        },
-                        subtitle: {
-                            text: 'Total PPM by Current Progress'
                         },
                         xAxis: {
                             categories: resp.result.categories,
@@ -2570,18 +2647,21 @@ function MainHome() {
     };
 
     this.generateChartPpmByLateness = function () {
+        const title = 'PPM Lateness';
+        const subtitle = 'PPM execution by lateness status';
+        if (totalPpm < 0 || totalLate < 0) {
+            return;
+        }
+        if (totalPpm === 0) {
+            emptyHomeChart('chartHme3', title, subtitle, 'No PPM tasks were found for the selected filters.');
+            return;
+        }
         if (totalPpm >= totalLate) {
             showChartOverlay('chartHme3');
             setChartColumnWidth('chartHme3', 2); // lateness pie has two slices
-            Highcharts.chart('chartHme3', {
+            renderHomeChart('chartHme3', title, subtitle, {
                 chart: {
                     type: 'pie'
-                },
-                title: {
-                    text: 'PPM Lateness'
-                },
-                subtitle: {
-                    text: 'Total PPM Execution by Lateness Status'
                 },
                 tooltip: {
                     pointFormat: '{series.name}: <b>{point.y} - {point.percentage:.1f}%</b>'
@@ -2647,17 +2727,18 @@ function MainHome() {
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme5', resp.result.categories ? resp.result.categories.length : 0);
-                    Highcharts.chart('chartHme5', {
+                    const title = 'Top 5 Executor';
+                    const subtitle = 'Total PPM executed';
+                    const categories = resp.result && resp.result.categories;
+                    if (!chartHasRows(categories)) {
+                        emptyHomeChart('chartHme5', title, subtitle, 'No PPM tasks were found for the selected filters.');
+                        return;
+                    }
+                    setChartColumnWidth('chartHme5', categories.length);
+                    renderHomeChart('chartHme5', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'bar'
-                        },
-                        title: {
-                            text: 'Top 5 Executor'
-                        },
-                        subtitle: {
-                            text: 'Total PPM Executed'
                         },
                         xAxis: {
                             categories: resp.result.categories,
@@ -2724,17 +2805,18 @@ function MainHome() {
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme6', resp.result.categories ? resp.result.categories.length : 0);
-                    Highcharts.chart('chartHme6', {
+                    const title = 'Bottom 5 Executor';
+                    const subtitle = 'Total PPM executed';
+                    const categories = resp.result && resp.result.categories;
+                    if (!chartHasRows(categories)) {
+                        emptyHomeChart('chartHme6', title, subtitle, 'No PPM tasks were found for the selected filters.');
+                        return;
+                    }
+                    setChartColumnWidth('chartHme6', categories.length);
+                    renderHomeChart('chartHme6', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'bar'
-                        },
-                        title: {
-                            text: 'Bottom 5 Executor'
-                        },
-                        subtitle: {
-                            text: 'Total PPM Executed'
                         },
                         xAxis: {
                             categories: resp.result.categories,
@@ -2802,17 +2884,18 @@ function MainHome() {
             dataType: 'json', async: true,
             success: function (resp) {
                 if (resp.success) {
-                    setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0);
-                    Highcharts.chart('chartHme4', {
+                    const title = 'Execution Time';
+                    const subtitle = 'Average PPM execution time by trade';
+                    const categories = resp.result && resp.result.categories;
+                    if (!chartHasRows(categories)) {
+                        emptyHomeChart('chartHme4', title, subtitle, 'No PPM tasks were found for the selected filters.');
+                        return;
+                    }
+                    setChartColumnWidth('chartHme4', categories.length);
+                    renderHomeChart('chartHme4', title, subtitle, {
                         colors: gemsChartColors(),
                         chart: {
                             type: 'column'
-                        },
-                        title: {
-                            text: 'Execution Time'
-                        },
-                        subtitle: {
-                            text: 'Average Execution Time by Trade'
                         },
                         xAxis: {
                             categories: resp.result.categories,

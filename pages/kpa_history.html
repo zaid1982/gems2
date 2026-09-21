@@ -48,8 +48,8 @@
 
         <div class="card gems-filter-card mb-3">
           <div class="card-body">
-            <div class="gems-form-grid">
-              <div class="gems-field gems-field-6">
+            <div class="gems-form-grid gems-filter-grid">
+              <div class="gems-field gems-field-4">
                 <label class="form-label" for="optKhiSite">Site</label>
                 <select id="optKhiSite" class="form-select"></select>
               </div>
@@ -63,12 +63,12 @@
                   <select id="optKhiTo" class="form-select"></select>
                 </div>
               </div>
-              <div class="gems-field gems-field-6">
+              <div class="gems-field gems-field-4">
                 <label class="form-label" for="optKhiPi">Indicator trend</label>
                 <select id="optKhiPi" class="form-select"></select>
               </div>
             </div>
-            <div class="d-flex flex-wrap align-items-center gap-2 mt-2 text-secondary" style="font-size:.75rem">
+            <div class="gems-filter-meta">
               <div id="lblKhiSummary">Loading…</div>
             </div>
           </div>
@@ -106,10 +106,10 @@
         </div>
 
         <div class="card mb-3">
-          <div class="card-header">
+          <div class="card-header gems-card-header-compact">
             <div>
               <h3 class="card-title mb-0">APD and demerit trend</h3>
-              <div class="text-secondary" style="font-size:.75rem">Monthly APD maximum against the amount deducted.</div>
+              <div class="gems-card-subtitle">Monthly APD maximum against the amount deducted.</div>
             </div>
           </div>
           <div class="card-body">
@@ -118,10 +118,10 @@
         </div>
 
         <div class="card mb-3">
-          <div class="card-header">
+          <div class="card-header gems-card-header-compact">
             <div>
               <h3 class="card-title mb-0" id="lblKhiPiTitle">Indicator achievement</h3>
-              <div class="text-secondary" style="font-size:.75rem">Monthly achievement against the target for the selected indicator.</div>
+              <div class="gems-card-subtitle">Monthly achievement against the target for the selected indicator.</div>
             </div>
           </div>
           <div class="card-body">
@@ -130,10 +130,10 @@
         </div>
 
         <div class="card">
-          <div class="card-header">
+          <div class="card-header gems-card-header-compact">
             <div>
               <h3 class="card-title mb-0">Monthly totals</h3>
-              <div class="text-secondary" style="font-size:.75rem">One row per evaluation month.</div>
+              <div class="gems-card-subtitle">One row per evaluation month.</div>
             </div>
             <div class="gems-card-toolbar" id="btnDtKhiExport"></div>
           </div>

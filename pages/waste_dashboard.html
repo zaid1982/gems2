@@ -104,10 +104,10 @@
                 </div>
               </div>
             </div>
-            <div class="d-flex flex-wrap align-items-center gap-2 mt-2 text-secondary" style="font-size:.75rem">
+            <div class="gems-filter-meta">
               <div id="lblWdbFilter">Filters: current month</div>
               <div id="lblWdbUnit">Unit: kg (1 MT = 1,000 kg)</div>
-              <div id="lblWdbUpdated" class="ms-auto text-nowrap">Last refreshed: -</div>
+              <div id="lblWdbUpdated" class="gems-filter-meta-end">Last refreshed: -</div>
             </div>
           </div>
         </div>
@@ -167,10 +167,10 @@
         <div class="row row-cards mb-3">
           <div class="col-lg-6">
             <div class="card">
-              <div class="card-header">
+              <div class="card-header gems-card-header-compact">
                 <div>
                   <h3 class="card-title mb-0">Pending disposal by waste type</h3>
-                  <div class="text-secondary" style="font-size:.75rem">Total kilograms awaiting collection, grouped by SW code.</div>
+                  <div class="gems-card-subtitle">Total kilograms awaiting collection, grouped by SW code.</div>
                 </div>
                 <div class="gems-card-toolbar">
                   <button type="button" class="btn btn-outline-secondary btn-sm" id="btnWdbPendExcel" title="Excel" aria-label="Export pending chart to Excel"><i class="fas fa-file-excel"></i></button>
@@ -182,10 +182,10 @@
           </div>
           <div class="col-lg-6">
             <div class="card">
-              <div class="card-header">
+              <div class="card-header gems-card-header-compact">
                 <div>
                   <h3 class="card-title mb-0">Disposed waste by type</h3>
-                  <div class="text-secondary" style="font-size:.75rem">Disposed kilograms in the selected period.</div>
+                  <div class="gems-card-subtitle">Disposed kilograms in the selected period.</div>
                 </div>
               </div>
               <div class="card-body"><div id="chartDisposed" class="gems-chart"></div></div>
@@ -194,10 +194,10 @@
         </div>
 
         <div class="card mb-3">
-          <div class="card-header">
+          <div class="card-header gems-card-header-compact">
             <div>
               <h3 class="card-title mb-0">Historical waste by type</h3>
-              <div class="text-secondary" style="font-size:.75rem">Registered and disposed kilograms per waste type for the selected period.</div>
+              <div class="gems-card-subtitle">Registered and disposed kilograms per waste type for the selected period.</div>
             </div>
             <div id="btnDtWdbHistExport" class="gems-card-toolbar"></div>
           </div>
@@ -219,10 +219,10 @@
         <div class="row row-cards mb-3">
           <div class="col-lg-6">
             <div class="card">
-              <div class="card-header">
+              <div class="card-header gems-card-header-compact">
                 <div>
                   <h3 class="card-title mb-0">Waste output trend</h3>
-                  <div class="text-secondary" style="font-size:.75rem">Produced and disposed quantities in the selected period.</div>
+                  <div class="gems-card-subtitle">Produced and disposed quantities in the selected period.</div>
                 </div>
               </div>
               <div class="card-body"><div id="chartTrend" class="gems-chart"></div></div>
@@ -230,10 +230,10 @@
           </div>
           <div class="col-lg-6">
             <div class="card">
-              <div class="card-header">
+              <div class="card-header gems-card-header-compact">
                 <div>
                   <h3 class="card-title mb-0">By SW code</h3>
-                  <div class="text-secondary" style="font-size:.75rem">Produced quantity by scheduled waste code.</div>
+                  <div class="gems-card-subtitle">Produced quantity by scheduled waste code.</div>
                 </div>
               </div>
               <div class="card-body"><div id="chartSw" class="gems-chart"></div></div>
@@ -242,10 +242,10 @@
         </div>
 
         <div class="card mb-3">
-          <div class="card-header">
+          <div class="card-header gems-card-header-compact">
             <div>
               <h3 class="card-title mb-0">Current balance by premise and SW code</h3>
-              <div class="text-secondary" style="font-size:.75rem">Opening + Produced − Disposed. Final records only.</div>
+              <div class="gems-card-subtitle">Opening + Produced − Disposed. Final records only.</div>
             </div>
           </div>
           <table id="dtBal" class="table table-vcenter card-table table-hover mb-0">
@@ -267,10 +267,10 @@
         <div class="row row-cards mb-3">
           <div class="col-lg-6">
             <div class="card">
-              <div class="card-header">
+              <div class="card-header gems-card-header-compact">
                 <div>
                   <h3 class="card-title mb-0">Premise comparison</h3>
-                  <div class="text-secondary" style="font-size:.75rem">Produced, disposed and current balance by premise.</div>
+                  <div class="gems-card-subtitle">Produced, disposed and current balance by premise.</div>
                 </div>
               </div>
               <div class="card-body"><div id="chartPremise" class="gems-chart-sm"></div></div>
@@ -278,10 +278,10 @@
           </div>
           <div class="col-lg-6">
             <div class="card">
-              <div class="card-header">
+              <div class="card-header gems-card-header-compact">
                 <div>
                   <h3 class="card-title mb-0">Transaction analysis</h3>
-                  <div class="text-secondary" style="font-size:.75rem">Does not change Current Balance.</div>
+                  <div class="gems-card-subtitle">Does not change Current Balance.</div>
                 </div>
               </div>
               <div class="card-body">
@@ -300,10 +300,10 @@
         </div>
 
         <div class="card">
-          <div class="card-header">
+          <div class="card-header gems-card-header-compact">
             <div>
               <h3 class="card-title mb-0">Recent records</h3>
-              <div class="text-secondary" style="font-size:.75rem">Latest waste transactions across the selected filters.</div>
+              <div class="gems-card-subtitle">Latest waste transactions across the selected filters.</div>
             </div>
           </div>
           <div class="table-responsive">
