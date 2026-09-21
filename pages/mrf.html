@@ -1,251 +1,241 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/mrf.html — Tabler-migrated (P5-26 MRF).
+
+  Category A authenticated. No exclusive section.
+  Bridges: modal_change_password, modal_pdf (dual-stack — do not convert).
+  APIs: GET wo_task_request/list_mrf/{site}/{year}/{month};
+        GET wo_task_request/get_mrf_pdf_link/{pdfId};
+        GET wo_task_request/preview_mrf_pdf/{requestId}.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css, css/mdb.css,
+    css/style.css, css/gems2-ui.css, js/mdb*.js, js/jquery-migrate-3.4.0.min.js,
+    dataTables.bootstrap4.*.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-    <!-- Browser icon -->
-    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?5">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <!-- Custom styles -->
-    <link href="css/style.css?6" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <!--JQuery Migrate-->
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Material Request Forms</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .page-body, .page-body .container-xl, .sectionMrfMain { min-width: 0; max-width: 100%; }
+    .gems-status-scroll { display: flex; flex-wrap: wrap; gap: 8px; }
+    .gems-status-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 999px; color: var(--tblr-body-color, #1e293b); text-decoration: none; }
+    .gems-status-chip.active { background: rgba(32, 107, 196, 0.12); border-color: var(--tblr-primary, #206bc4); color: var(--tblr-primary, #206bc4); }
+    .gems-tabler .btn-outline-white { color: var(--tblr-primary, #206bc4); border-color: var(--tblr-border-color, #e5e7eb); background: #fff; }
+    @media (max-width: 768px) {
+      #dtMrfList thead { display: none; }
+      #dtMrfList, #dtMrfList tbody, #dtMrfList tr, #dtMrfList td { display: block; width: 100%; }
+      #dtMrfList tr { background: var(--tblr-bg-surface, #fff); border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; }
+      #dtMrfList td { border: 0; border-bottom: 1px dashed var(--tblr-border-color, #e5e7eb); padding: 8px 0; }
+      #dtMrfList td:last-child { border-bottom: 0; }
+      #dtMrfList td::before { content: attr(data-label); display: block; color: var(--tblr-secondary, #6c7a91); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    }
+  </style>
 </head>
-
-<body class="fixed-sn light-blue-skin">
-<header>
-    <div class="includeHtml" id="h-nav_left"></div>
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<main>
-    <div class="container-fluid">
-        <section class="mb-5  sectionMrfMain">
-            <div class="card card-cascade narrower gems-card-shell mrf-shell">
-                <section class="gems-page-header mrf-header">
-                    <div class="header-text">
-                        <h2>Material Request Forms</h2>
-                        <p>Review submitted MRFs, track PDF generation, and access source work orders.</p>
-                    </div>
-                    <div class="header-actions">
-                        <button type="button" id="btnMrfRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync"></i></button>
-                    </div>
-                </section>
-
-                <section class="mt-4">
-                    <div class="row">
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Total Requests</span>
-                                <span class="metric-value" id="metricMrfTotal">0</span>
-                                <span class="metric-subtext">Records returned by the search</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Unique Requesters</span>
-                                <span class="metric-value" id="metricMrfRequesters">0</span>
-                                <span class="metric-subtext">Distinct users submitting requests</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">PDF Ready</span>
-                                <span class="metric-value" id="metricMrfPdfReady">0</span>
-                                <span class="metric-subtext">Requests with generated PDFs</span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-xl-3 mb-4">
-                            <div class="metric-card">
-                                <span class="metric-label">Awaiting PDF</span>
-                                <span class="metric-value" id="metricMrfPdfPending">0</span>
-                                <span class="metric-subtext">Requests pending PDF generation</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mt-2">
-                    <div class="filter-card mrf-filter">
-                        <form id="formMrf" autocomplete="off">
-                            <div class="filter-grid">
-                                <div>
-                                    <label class="filter-label" for="optMrfClient">Client</label>
-                                    <div class="select-outline">
-                                        <select id="optMrfClient" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                                        <p class="font-small text-danger" id="optMrfClientErr"></p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="filter-label" for="optMrfSite">Site</label>
-                                    <div class="select-outline">
-                                        <select id="optMrfSite" class="mdb-select md-form md-outline colorful-select mt-0">
-                                            <option value="" disabled>(Select Client first)</option>
-                                        </select>
-                                        <p class="font-small text-danger" id="optMrfSiteErr"></p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="filter-label" for="optMrfYear">Year</label>
-                                    <div class="select-outline">
-                                        <select id="optMrfYear" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                                        <p class="font-small text-danger" id="optMrfYearErr"></p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="filter-label" for="optMrfMonth">Month</label>
-                                    <div class="select-outline">
-                                        <select id="optMrfMonth" class="mdb-select md-form md-outline colorful-select mt-0"></select>
-                                        <p class="font-small text-danger" id="optMrfMonthErr"></p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="filter-label" for="txtMrfSearch">Keyword Search</label>
-                                    <div class="md-form md-outline mt-0 mb-0">
-                                        <input type="text" id="txtMrfSearch" class="form-control">
-                                        <label for="txtMrfSearch" class="active">Keyword Search</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="filter-actions mt-4 d-flex justify-content-end">
-                                <button type="button" id="btnMrfSearch" class="btn btn-primary"><i class="fas fa-search mr-2"></i>Run Search</button>
-                            </div>
-                        </form>
-                        <div class="summary-pill d-flex justify-content-between align-items-center mt-4">
-                            <span id="lblMrfFilterCount">Showing 0 of 0</span>
-                            <span id="lblMrfFilterUpdated">—</span>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="mb-4 mt-4">
-                    <div class="filter-card gems-status-legend d-flex flex-column justify-content-center align-items-center">
-                        <label class="filter-label mb-2">Quick Status</label>
-                        <div class="gems-status-scroll" id="quickMrfStatus">
-                            <a href="javascript:void(0);" class="gems-status-chip active" id="linkMrfAll">All</a>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="mrfTableCard">
-                    <div class="modern-table-card">
-                        <div class="table-header">
-                            <div class="d-flex justify-content-between align-items-center" style="width: 100%; display: flex; flex-direction: space-between;">
-                                <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                                    <h4 class="mb-1 font-weight-600">MRF List</h4>
-                                    <p class="mb-0">MRF submissions with PDF actions and linked work orders</p>
-                                </div>
-                                <div class="dt-btn-slot">
-                                    <div id="btnDtMrfExport"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-body">
-                            <div class="results-info mb-3">
-                                <span class="results-count" id="lblMrfListCount">Showing 0 of 0 results</span>
-                                <span class="separator mx-2">•</span>
-                                <span class="last-updated" id="lblMrfListUpdated">Last updated: —</span>
-                            </div>
-                            <div class="table-responsive">
-                                <table id="dtMrfList" class="table table-hover table-sm mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th>#</th>
-                                        <th>Time Request</th>
-                                        <th>Request No</th>
-                                        <th>Work Order No</th>
-                                        <th>Requester</th>
-                                        <th>Remark</th>
-                                        <th>Status</th>
-                                        <th>MRF</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+        <section class="sectionMrfMain">
+          <div class="page-header">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm">
+                <div class="text-secondary" style="font-size:.75rem">Inventory</div>
+                <h1 class="page-title">Material Request Forms</h1>
+                <div class="page-subtitle">Review submitted MRFs, track PDF generation, and access source work orders.</div>
+              </div>
+              <div class="col-12 col-sm-auto">
+                <button type="button" id="btnMrfRefresh" class="btn btn-outline-secondary" data-toggle="tooltip" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync"></i></button>
+              </div>
             </div>
+          </div>
+
+          <div class="row row-deck mb-3">
+            <div class="col-sm-6 col-xl-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">Total Requests</div>
+                <div class="h1 mb-0" id="metricMrfTotal">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Records returned by the search</div>
+              </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">Unique Requesters</div>
+                <div class="h1 mb-0" id="metricMrfRequesters">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Distinct users submitting requests</div>
+              </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">PDF Ready</div>
+                <div class="h1 mb-0" id="metricMrfPdfReady">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Requests with generated PDFs</div>
+              </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">Awaiting PDF</div>
+                <div class="h1 mb-0" id="metricMrfPdfPending">0</div>
+                <div class="text-secondary" style="font-size:.75rem">Requests pending PDF generation</div>
+              </div></div>
+            </div>
+          </div>
+
+          <div class="card gems-filter-card mb-3">
+            <div class="card-body">
+              <form id="formMrf" autocomplete="off" novalidate>
+                <div class="gems-form-grid">
+                  <div class="gems-field gems-field-3" id="optMrfClient_">
+                    <label class="form-label" for="optMrfClient">Client <span class="required" aria-hidden="true">*</span></label>
+                    <select id="optMrfClient" class="form-select" aria-describedby="optMrfClientErr"></select>
+                    <div class="gems-field-error" id="optMrfClientErr" role="alert"></div>
+                  </div>
+                  <div class="gems-field gems-field-3" id="optMrfSite_">
+                    <label class="form-label" for="optMrfSite">Site <span class="required" aria-hidden="true">*</span></label>
+                    <select id="optMrfSite" class="form-select" aria-describedby="optMrfSiteErr">
+                      <option value="" disabled>(Select Client first)</option>
+                    </select>
+                    <div class="gems-field-error" id="optMrfSiteErr" role="alert"></div>
+                  </div>
+                  <div class="gems-field gems-field-3" id="optMrfYear_">
+                    <label class="form-label" for="optMrfYear">Year <span class="required" aria-hidden="true">*</span></label>
+                    <select id="optMrfYear" class="form-select" aria-describedby="optMrfYearErr"></select>
+                    <div class="gems-field-error" id="optMrfYearErr" role="alert"></div>
+                  </div>
+                  <div class="gems-field gems-field-3" id="optMrfMonth_">
+                    <label class="form-label" for="optMrfMonth">Month <span class="required" aria-hidden="true">*</span></label>
+                    <select id="optMrfMonth" class="form-select" aria-describedby="optMrfMonthErr"></select>
+                    <div class="gems-field-error" id="optMrfMonthErr" role="alert"></div>
+                  </div>
+                  <div class="gems-field gems-field-12">
+                    <label class="form-label" for="txtMrfSearch">Keyword Search</label>
+                    <input type="text" id="txtMrfSearch" class="form-control" autocomplete="off">
+                  </div>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                  <button type="button" id="btnMrfSearch" class="btn btn-primary"><i class="fas fa-search me-1"></i>Run Search</button>
+                </div>
+              </form>
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2 text-secondary" style="font-size:.75rem">
+                <span id="lblMrfFilterCount">Showing 0 of 0</span>
+                <span id="lblMrfFilterUpdated">—</span>
+              </div>
+              <div class="mt-3">
+                <div class="form-label mb-2">Quick Status</div>
+                <div class="gems-status-scroll" id="quickMrfStatus">
+                  <a href="javascript:void(0);" class="gems-status-chip active" id="linkMrfAll">All</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="mrfTableCard">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title mb-0">MRF List</h3>
+                <div class="text-secondary" style="font-size:.75rem">MRF submissions with PDF actions and linked work orders</div>
+              </div>
+              <div class="gems-card-toolbar text-secondary" style="font-size:.75rem">
+                <span id="lblMrfListCount">Showing 0 of 0 results</span>
+                <span id="lblMrfListUpdated">Last updated: —</span>
+                <div id="btnDtMrfExport" class="d-inline-flex align-items-center"></div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table id="dtMrfList" class="table table-hover table-sm mb-0 display responsive mobile-stack" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Time Request</th>
+                    <th>Request No</th>
+                    <th>Work Order No</th>
+                    <th>Requester</th>
+                    <th>Remark</th>
+                    <th>Status</th>
+                    <th>MRF</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
         </section>
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
-</main>
+  </div>
+</div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/toastr-safe.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_mrf.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  let versionLocal_;
+  let mrfClass_;
 
-    let versionLocal_;
-    let mrfClass_;
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
 
-    document.addEventListener('DOMContentLoaded', function () {
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
+        mrfClass_ = new MainMrf();
 
-                mrfClass_ = new MainMrf();
+        const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+        const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
+        const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+        const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
 
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refClient_ = mzGetLocalArray('gems_client', versionLocal_, 'clientId', [], 'client');
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
-
-                mrfClass_.setRefStatus(refStatus_);
-                mrfClass_.setRefClient(refClient_);
-                mrfClass_.setRefSite(refSite_);
-                mrfClass_.setRefUser(refUser_);
-                mrfClass_.init();
-            } catch (e) {
-                toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
-            }
-            HideLoader();
-        }, 200);
-    });
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_mrf.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        mrfClass_.setRefStatus(refStatus_);
+        mrfClass_.setRefClient(refClient_);
+        mrfClass_.setRefSite(refSite_);
+        mrfClass_.setRefUser(refUser_);
+        mrfClass_.init();
+      } catch (e) {
+        toastr['error'](_ALERT_MSG_ERROR_DEFAULT, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 200);
+  });
 </script>
 </body>
 </html>
