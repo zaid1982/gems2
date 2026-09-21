@@ -143,10 +143,13 @@
             touch-action: none; /* allow drawing on touch devices */
         }
         .signature-pad canvas {
+            position: absolute;
+            inset: 0;
             width: 100%;
-            height: 160px;
+            height: 100%;
             display: block;
             cursor: crosshair;
+            touch-action: none;
         }
         .signature-hint {
             font-size: 0.85rem;
@@ -734,17 +737,48 @@
             color: #dc3545;
         }
         
-        /* Hazardous activity cards */
-        #coldWorkSection .card-header {
-            background: linear-gradient(135deg, #007bff, #0056b3) !important;
+        /* GEMS card headers: white bar, readable title, 3px accent per color */
+        #divPtwPageWidth .card-header.bg-primary,
+        #divPtwPageWidth .card-header.bg-success,
+        #divPtwPageWidth .card-header.bg-warning,
+        #divPtwPageWidth .card-header.bg-danger,
+        #divPtwPageWidth #coldWorkSection .card-header,
+        #divPtwPageWidth #hotWorkSection .card-header,
+        #divPtwPageWidth #confinedSpaceSection .card-header {
+            background: #fff !important;
+            color: var(--gems-text);
+            border-bottom: 1px solid var(--gems-border);
         }
-        
-        #hotWorkSection .card-header {
-            background: linear-gradient(135deg, #dc3545, #bd2130) !important;
+        #divPtwPageWidth .card-header.bg-primary,
+        #divPtwPageWidth #coldWorkSection .card-header {
+            box-shadow: inset 0 3px 0 var(--gems-primary);
         }
-        
-        #confinedSpaceSection .card-header {
-            background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+        #divPtwPageWidth .card-header.bg-success {
+            box-shadow: inset 0 3px 0 var(--gems-success);
+        }
+        #divPtwPageWidth .card-header.bg-warning,
+        #divPtwPageWidth #confinedSpaceSection .card-header {
+            box-shadow: inset 0 3px 0 var(--gems-warning);
+        }
+        #divPtwPageWidth .card-header.bg-danger,
+        #divPtwPageWidth #hotWorkSection .card-header {
+            box-shadow: inset 0 3px 0 var(--gems-danger);
+        }
+        #divPtwPageWidth .card-header.bg-primary,
+        #divPtwPageWidth .card-header.bg-success,
+        #divPtwPageWidth .card-header.bg-warning,
+        #divPtwPageWidth .card-header.bg-danger,
+        #divPtwPageWidth .card-header.bg-primary h6,
+        #divPtwPageWidth .card-header.bg-success h6,
+        #divPtwPageWidth .card-header.bg-warning h6,
+        #divPtwPageWidth .card-header.bg-danger h6,
+        #divPtwPageWidth #coldWorkSection .card-header,
+        #divPtwPageWidth #coldWorkSection .card-header h6,
+        #divPtwPageWidth #hotWorkSection .card-header,
+        #divPtwPageWidth #hotWorkSection .card-header h6,
+        #divPtwPageWidth #confinedSpaceSection .card-header,
+        #divPtwPageWidth #confinedSpaceSection .card-header h6 {
+            color: var(--gems-text) !important;
         }
         
         /* Section visibility based on work type selection */
@@ -1295,7 +1329,7 @@
 
             /* Signature pad responsive sizing */
             #divPtwPageWidth .signature-pad { width: 100%; }
-            #divPtwPageWidth .signature-pad canvas { width: 100% !important; height: auto !important; }
+            #divPtwPageWidth .signature-pad canvas { width: 100% !important; height: 100% !important; }
 
             /* Documents upload area */
             #divPtwPageWidth .file-upload-area { padding: 12px; }
@@ -1671,7 +1705,7 @@
 
                                     <!-- Cold Work Section -->
                                     <div class="card mb-3" id="coldWorkSection">
-                                        <div class="card-header bg-primary text-white">
+                                        <div class="card-header bg-primary">
                                             <h6 class="mb-0"><strong>COLD WORK</strong></h6>
                                         </div>
                                         <div class="card-body">
@@ -1754,7 +1788,7 @@
 
                                     <!-- Hot Work Section -->
                                     <div class="card mb-3" id="hotWorkSection">
-                                        <div class="card-header bg-danger text-white">
+                                        <div class="card-header bg-danger">
                                             <h6 class="mb-0"><strong>HOT WORK</strong></h6>
                                         </div>
                                         <div class="card-body">
@@ -1891,7 +1925,7 @@
 
                                     <!-- Confined Space Section -->
                                     <div class="card mb-3" id="confinedSpaceSection">
-                                        <div class="card-header bg-warning text-dark">
+                                        <div class="card-header bg-warning">
                                             <h6 class="mb-0"><strong>CONFINED SPACE</strong></h6>
                                         </div>
                                         <div class="card-body">
@@ -2249,7 +2283,7 @@
 
                                 <!-- Hazardous Activities Checklist -->
                                 <div class="card mb-3">
-                                    <div class="card-header bg-danger text-white">
+                                    <div class="card-header bg-danger">
                                         <h6 class="mb-0"><strong>HAZARDOUS ACTIVITIES CHECKLIST</strong></h6>
                                     </div>
                                     <div class="card-body">
@@ -2389,7 +2423,7 @@
                                 
                                 <!-- Contractor Compliance Declarations -->
                                 <div class="card mb-4">
-                                    <div class="card-header bg-primary text-white">
+                                    <div class="card-header bg-primary">
                                         <h6 class="mb-0"><strong>Contractor Compliance Declarations</strong></h6>
                                     </div>
                                     <div class="card-body p-0">
@@ -2472,7 +2506,7 @@
 
                                 <!-- PPE Requirements -->
                                 <div class="card mb-4">
-                                    <div class="card-header bg-success text-white">
+                                    <div class="card-header bg-success">
                                         <h6 class="mb-0"><strong>Personal Protective Equipment (PPE)</strong></h6>
                                     </div>
                                     <div class="card-body">
@@ -2602,7 +2636,7 @@
 
                                 <!-- Contractor Signature -->
                                 <div class="card">
-                                    <div class="card-header bg-warning text-dark">
+                                    <div class="card-header bg-warning">
                                         <h6 class="mb-0"><strong>Contractor Acknowledgment</strong></h6>
                                     </div>
                                     <div class="card-body">
@@ -2880,16 +2914,11 @@
         if (!(canvas && pad && clearBtn && hidden)) return;
         const ctx = canvas.getContext('2d');
         let drawing = false;
+        let signed = false;
         let lastX = 0, lastY = 0;
+        const PAD_HEIGHT = 160;
 
-        const setCanvasSize = () => {
-            const rect = pad.getBoundingClientRect();
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = Math.floor(rect.width * ratio);
-            canvas.height = Math.floor(160 * ratio);
-            canvas.style.width = rect.width + 'px';
-            canvas.style.height = '160px';
-            // Reset transform before scaling to avoid compounding
+        const applyStrokeStyle = (ratio) => {
             ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.scale(ratio, ratio);
             ctx.lineJoin = 'round';
@@ -2897,23 +2926,56 @@
             ctx.lineWidth = 2;
             ctx.strokeStyle = '#111';
         };
-        setCanvasSize();
-        // Expose a safe resizer for when the pad becomes visible (e.g., when switching tabs)
+
+        const setCanvasSize = () => {
+            const rect = pad.getBoundingClientRect();
+            if (!rect.width || rect.width < 2) return;
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const nextW = Math.floor(rect.width * ratio);
+            const nextH = Math.floor(PAD_HEIGHT * ratio);
+            if (canvas.width === nextW && canvas.height === nextH) return;
+            const keep = signed && hidden.value && hidden.value.indexOf('data:image') === 0 ? hidden.value : '';
+            canvas.width = nextW;
+            canvas.height = nextH;
+            applyStrokeStyle(ratio);
+            if (keep) {
+                const img = new Image();
+                img.onload = function () {
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    applyStrokeStyle(ratio);
+                };
+                img.src = keep;
+            }
+        };
         window.resizeSignaturePad = function() {
             try { setCanvasSize(); } catch (e) {}
         };
+        window.clearContractorSignature = function() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            applyStrokeStyle(ratio);
+            hidden.value = '';
+            signed = false;
+            pad.classList.remove('invalid');
+        };
         window.addEventListener('resize', setCanvasSize);
+        if (typeof ResizeObserver !== 'undefined') {
+            const ro = new ResizeObserver(function () { setCanvasSize(); });
+            ro.observe(pad);
+        }
+        setCanvasSize();
 
         const getPos = (e) => {
-            const rect = canvas.getBoundingClientRect();
-            if (e.touches && e.touches.length) {
-                const t = e.touches[0];
-                return { x: t.clientX - rect.left, y: t.clientY - rect.top };
-            }
-            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            const rect = pad.getBoundingClientRect();
+            const point = (e.touches && e.touches.length) ? e.touches[0] : e;
+            return { x: point.clientX - rect.left, y: point.clientY - rect.top };
         };
 
         const start = (e) => {
+            if (!canvas.width) setCanvasSize();
+            if (!canvas.width) return;
             drawing = true;
             const { x, y } = getPos(e);
             lastX = x; lastY = y;
@@ -2930,7 +2992,9 @@
             e.preventDefault();
         };
         const end = () => {
+            if (!drawing) return;
             drawing = false;
+            signed = true;
             try {
                 hidden.value = canvas.toDataURL('image/png');
                 pad.classList.remove('invalid');
@@ -2944,32 +3008,37 @@
             } catch (e) {}
         };
 
-        // Mouse events
-        canvas.addEventListener('mousedown', start);
-        canvas.addEventListener('mousemove', move);
+        pad.addEventListener('mousedown', start);
+        pad.addEventListener('mousemove', move);
         window.addEventListener('mouseup', end);
-        // Touch events
-        canvas.addEventListener('touchstart', start, { passive: false });
-        canvas.addEventListener('touchmove', move, { passive: false });
-        canvas.addEventListener('touchend', end);
+        pad.addEventListener('touchstart', start, { passive: false });
+        pad.addEventListener('touchmove', move, { passive: false });
+        pad.addEventListener('touchend', end);
 
         clearBtn.addEventListener('click', function() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            hidden.value = '';
-            pad.classList.remove('invalid');
+            if (typeof window.clearContractorSignature === 'function') {
+                window.clearContractorSignature();
+            }
         });
     }
     document.addEventListener('DOMContentLoaded', function () {
         // Initialize signature pad UI if present
         initSignaturePad();
         // Recompute canvas size when the Section 4 tab becomes visible
-        $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+        const resizePadWhenSection4Shown = function () {
+            if (typeof window.resizeSignaturePad !== 'function') return;
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () { window.resizeSignaturePad(); });
+            });
+        };
+        $(document).on('shown.bs.tab', 'a[data-toggle="tab"], a[data-bs-toggle="tab"]', function (e) {
             const href = $(e.target).attr('href');
-            if (href === '#section4' && typeof window.resizeSignaturePad === 'function') {
-                // Slight delay to allow layout to settle
-                setTimeout(() => window.resizeSignaturePad(), 50);
-            }
+            if (href === '#section4') resizePadWhenSection4Shown();
         });
+        const section4Tab = document.getElementById('section4-tab');
+        if (section4Tab) {
+            section4Tab.addEventListener('shown.bs.tab', resizePadWhenSection4Shown);
+        }
         // Check if this is view mode first
         const urlParams = new URLSearchParams(window.location.search);
         
