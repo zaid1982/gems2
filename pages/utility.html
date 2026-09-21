@@ -1,413 +1,318 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/utility.html — Tabler-migrated (P5-21 Utility).
+
+  Category A authenticated. JS unchanged.
+  APIs: GET utility/data_monthly_analyzed/{Electricity|Water};
+        GET utility/data_daily_analyzed/{type}/{site}/{year}/{month}.
+  Exclusive sections: section_monthly_electricity, section_monthly_water.
+  Highcharts series, units, year/month, CLC/KWTBB stay in JS.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css, css/mdb.css,
+    css/style.css, css/gems2-ui.css, js/mdb*.js, js/jquery-migrate-3.4.0.min.js,
+    dataTables.bootstrap4.*.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.css?1">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-
-    </style>
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Utility Management</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .page-body, .page-body .container-xl, .sectionUtmMain { min-width: 0; max-width: 100%; }
+    .utility-section .utility-chart { height: 340px; }
+    .utility-section .utility-chart.md-chart { height: 300px; }
+    .utility-section .utility-table-card .table-responsive { max-height: 540px; }
+    .gems-tabler .btn-outline-blue-grey, .gems-tabler .btn-outline-blue, .gems-tabler .btn-outline-green, .gems-tabler .btn-outline-red {
+      color: var(--tblr-primary, #206bc4); border-color: var(--tblr-border-color, #e5e7eb); background: #fff;
+    }
+  </style>
 </head>
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid">
-        <section class="section utility-section sectionUtmMain mb-5">
-            <style>
-                .utility-section .utility-page-header {
-                    border-radius: 28px;
-                    padding: 32px 36px;
-                }
-                .utility-section .utility-page-header .header-text h2 {
-                    margin-bottom: 0.35rem;
-                    font-weight: 700;
-                }
-                .utility-section .utility-page-header .header-text p {
-                    margin-bottom: 0;
-                    opacity: 0.9;
-                }
-                .utility-section .header-actions .btn {
-                    border-radius: 999px;
-                    font-weight: 600;
-                }
-                .utility-section .utility-metrics .metric-card {
-                    background: var(--gems-bg-page);
-                    border-radius: 22px;
-                    padding: 22px 24px;
-                    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-                    height: 100%;
-                }
-                .utility-section .utility-metrics .metric-card.primary {
-                    background: rgba(var(--gems-primary-rgb), 0.08);
-                }
-                .utility-section .utility-metrics .metric-card.warning {
-                    background: rgba(249, 115, 22, 0.08);
-                }
-                .utility-section .utility-metrics .metric-card.cool {
-                    background: rgba(14, 116, 144, 0.08);
-                }
-                .utility-section .utility-metrics .metric-label {
-                    display: block;
-                    font-size: 0.8rem;
-                    text-transform: uppercase;
-                    letter-spacing: 0.08em;
-                    font-weight: 600;
-                    color: var(--gems-muted);
-                }
-                .utility-section .utility-metrics .metric-value {
-                    display: block;
-                    font-weight: 700;
-                    font-size: 1.75rem;
-                    color: var(--gems-text);
-                    margin-top: 0.5rem;
-                }
-                .utility-section .utility-metrics .metric-card.primary .metric-value,
-                .utility-section .utility-metrics .metric-card.warning .metric-value,
-                .utility-section .utility-metrics .metric-card.cool .metric-value {
-                    color: var(--gems-text);
-                }
-                .utility-section .utility-metrics .metric-subtext {
-                    display: block;
-                    font-weight: 600;
-                    color: var(--gems-primary);
-                    margin-top: 0.35rem;
-                }
-                .utility-section .utility-tabs-card {
-                    border-radius: 24px;
-                    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-                }
-                .utility-section .utility-tabs-card .nav-tabs {
-                    border-bottom: none;
-                }
-                .utility-section .utility-tabs-card .nav-link {
-                    border: none;
-                    border-radius: 999px;
-                    margin-right: 12px;
-                    padding: 0.65rem 1.5rem;
-                    font-weight: 600;
-                    color: #475569;
-                    transition: all 0.2s ease-in-out;
-                }
-                .utility-section .utility-tabs-card .nav-link.active,
-                .utility-section .utility-tabs-card .nav-link:hover {
-                    background: rgba(var(--gems-primary-rgb), 0.12);
-                    color: var(--gems-primary);
-                }
-                .utility-section .utility-tabs-card .tab-content {
-                    padding: 24px 0 0;
-                }
-                .utility-section .utility-chart-card .utility-chart,
-                .utility-section .utility-table-card .utility-chart {
-                    height: 340px;
-                }
-                .utility-section .utility-chart-card .utility-chart.md-chart {
-                    height: 300px;
-                }
-                .utility-section .utility-table-card .table-responsive {
-                    max-height: 540px;
-                }
-                @media (max-width: 991.98px) {
-                    .utility-section .utility-page-header {
-                        flex-direction: column;
-                        align-items: flex-start;
-                        gap: 16px;
-                    }
-                    .utility-section .utility-metrics .metric-card {
-                        padding: 20px;
-                    }
-                    .utility-section .utility-tabs-card .nav-link {
-                        margin-bottom: 12px;
-                    }
-                }
-            </style>
-
-            <div class="utility-page-header gems-page-header">
-                <div class="header-text">
-                    <h2>Utility Management</h2>
-                    <p>Track electricity and water performance, compare monthly trends, and drill into detailed reports.</p>
-                </div>
-                <div class="header-actions">
-                    <button type="button" class="btn btn-outline-light btn-icon" id="btnUtmRefresh" data-toggle="tooltip" data-placement="top" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync"></i></button>
-                </div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+        <section class="section utility-section sectionUtmMain mb-4">
+          <div class="page-header">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm">
+                <div class="text-secondary" style="font-size:.75rem">Performance Monitoring</div>
+                <h1 class="page-title">Utility Management</h1>
+                <div class="page-subtitle">Track electricity and water performance, compare monthly trends, and drill into detailed reports.</div>
+              </div>
+              <div class="col-12 col-sm-auto">
+                <button type="button" class="btn btn-outline-secondary" id="btnUtmRefresh" data-toggle="tooltip" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                  <i class="fas fa-sync"></i>
+                </button>
+              </div>
             </div>
+          </div>
 
-            <div class="row utility-metrics mt-4">
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="metric-card primary">
-                        <span class="metric-label">Electricity Usage (kWh)</span>
-                        <span class="metric-value" id="metricUtmElectricUsage">0</span>
-                        <span class="metric-subtext" id="metricUtmElectricPeriod">Latest: —</span>
-                    </div>
+          <div class="row row-deck mb-3">
+            <div class="col-sm-6 col-xl-3">
+              <div class="card">
+                <div class="card-body">
+                  <div class="subheader">Electricity Usage (kWh)</div>
+                  <div class="h1 mb-0" id="metricUtmElectricUsage">0</div>
+                  <div class="text-secondary" style="font-size:.75rem" id="metricUtmElectricPeriod">Latest: —</div>
                 </div>
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="metric-card warning">
-                        <span class="metric-label">Electricity Charges (RM)</span>
-                        <span class="metric-value" id="metricUtmElectricCharges">RM 0</span>
-                        <span class="metric-subtext" id="metricUtmElectricDemand">Peak MD: —</span>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="metric-card cool">
-                        <span class="metric-label">Water Usage (m<sup>3</sup>)</span>
-                        <span class="metric-value" id="metricUtmWaterUsage">0</span>
-                        <span class="metric-subtext" id="metricUtmWaterPeriod">Latest: —</span>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="metric-card">
-                        <span class="metric-label">Water Charges (RM)</span>
-                        <span class="metric-value" id="metricUtmWaterCharges">RM 0</span>
-                        <span class="metric-subtext" id="metricUtmWaterPeak">Peak Bill: —</span>
-                    </div>
-                </div>
+              </div>
             </div>
-
-            <div class="card module-data-card utility-tabs-card">
-                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-0">
-                    <ul class="nav nav-tabs md-tabs utility-tabs" id="myTabPpg" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="tabPpgElectricityJust" data-toggle="tab" href="#tabPpgElectricity" role="tab" aria-controls="tabPpgElectricity" aria-selected="true"><i class="fas fa-fire mr-2"></i>Electricity</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="tabPpgWaterJust" data-toggle="tab" href="#tabPpgWater" role="tab" aria-controls="tabPpgWater" aria-selected="false"><i class="fas fa-water mr-2"></i>Water</a>
-                        </li>
-                    </ul>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card">
+                <div class="card-body">
+                  <div class="subheader">Electricity Charges (RM)</div>
+                  <div class="h1 mb-0" id="metricUtmElectricCharges">RM 0</div>
+                  <div class="text-secondary" style="font-size:.75rem" id="metricUtmElectricDemand">Peak MD: —</div>
                 </div>
-                <div class="card-body px-4 pb-4">
-                    <div class="tab-content" id="utilityTabContent">
-                        <div class="tab-pane fade show active" id="tabPpgElectricity" role="tabpanel" aria-labelledby="tabPpgElectricityJust">
-                            <div class="row">
-                                <div class="col-xl-6 mb-4">
-                                    <div class="card module-data-card utility-chart-card mb-4">
-                                        <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                                            <h5 class="font-weight-bold text-white mb-0">Electricity Consumption (kWh)</h5>
-                                        </div>
-                                        <div class="card-body px-4 pb-1">
-                                            <div id="chartUtmKwh" class="utility-chart"></div>
-                                        </div>
-                                    </div>
-                                    <div class="card module-data-card utility-chart-card mb-4">
-                                        <div class="card-header gradient-card-header purple-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                                            <h5 class="font-weight-bold text-white mb-0">Maximum Demand (kW)</h5>
-                                        </div>
-                                        <div class="card-body px-4 pb-1">
-                                            <div id="chartUtmMd" class="utility-chart md-chart"></div>
-                                        </div>
-                                    </div>
-                                    <div class="card module-data-card utility-chart-card">
-                                        <div class="card-header gradient-card-header aqua-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                                            <h5 class="font-weight-bold text-white mb-0">Electricity Charges (RM)</h5>
-                                        </div>
-                                        <div class="card-body px-4 pb-1">
-                                            <div id="chartUtmRm" class="utility-chart"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-6 mb-4">
-                                    <div class="card module-data-card utility-table-card">
-                                        <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                                            <h5 class="font-weight-bold text-white mb-0">Monthly Electricity Summary</h5>
-                                            <div class="text-white-50 small">Click a row to open the detailed report</div>
-                                        </div>
-                                        <div class="card-body px-4 pb-1">
-                                            <div class="table-responsive">
-                                                <table id="dtUtmMonthlyData" class="table table-hover table-sm mb-0 display responsive mobile-stack" style="width: 100%">
-                                                    <thead>
-                                                    <tr class="th-strong">
-                                                        <th>Month</th>
-                                                        <th>Consumption (kWh)</th>
-                                                        <th>Actual MD</th>
-                                                        <th>Maximum Demand</th>
-                                                        <th>CLC</th>
-                                                        <th>Charges (RM)</th>
-                                                        <th>Trend</th>
-                                                        <th>Trend</th>
-                                                        <th>Year</th>
-                                                        <th>Month</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card">
+                <div class="card-body">
+                  <div class="subheader">Water Usage (m<sup>3</sup>)</div>
+                  <div class="h1 mb-0" id="metricUtmWaterUsage">0</div>
+                  <div class="text-secondary" style="font-size:.75rem" id="metricUtmWaterPeriod">Latest: —</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="card">
+                <div class="card-body">
+                  <div class="subheader">Water Charges (RM)</div>
+                  <div class="h1 mb-0" id="metricUtmWaterCharges">RM 0</div>
+                  <div class="text-secondary" style="font-size:.75rem" id="metricUtmWaterPeak">Peak Bill: —</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <ul class="nav nav-tabs card-header-tabs" id="myTabPpg" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link active" id="tabPpgElectricityJust" data-toggle="tab" data-bs-toggle="tab" href="#tabPpgElectricity" role="tab" aria-controls="tabPpgElectricity" aria-selected="true">
+                    <i class="fas fa-bolt me-1"></i>Electricity
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" id="tabPpgWaterJust" data-toggle="tab" data-bs-toggle="tab" href="#tabPpgWater" role="tab" aria-controls="tabPpgWater" aria-selected="false">
+                    <i class="fas fa-water me-1"></i>Water
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div class="card-body">
+              <div class="tab-content" id="utilityTabContent">
+                <div class="tab-pane fade show active" id="tabPpgElectricity" role="tabpanel" aria-labelledby="tabPpgElectricityJust">
+                  <div class="row">
+                    <div class="col-xl-6 mb-3">
+                      <div class="card mb-3">
+                        <div class="card-header">
+                          <h3 class="card-title mb-0">Electricity Consumption (kWh)</h3>
                         </div>
-                        <div class="tab-pane fade" id="tabPpgWater" role="tabpanel" aria-labelledby="tabPpgWaterJust">
-                            <div class="row">
-                                <div class="col-xl-7 mb-4">
-                                    <div class="card module-data-card utility-chart-card mb-4">
-                                        <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                                            <h5 class="font-weight-bold text-white mb-0">Water Consumption (m<sup>3</sup>)</h5>
-                                        </div>
-                                        <div class="card-body px-4 pb-1">
-                                            <div id="chartUtmWaterM3" class="utility-chart"></div>
-                                        </div>
-                                    </div>
-                                    <div class="card module-data-card utility-chart-card">
-                                        <div class="card-header gradient-card-header aqua-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                                            <h5 class="font-weight-bold text-white mb-0">Water Charges (RM)</h5>
-                                        </div>
-                                        <div class="card-body px-4 pb-1">
-                                            <div id="chartUtmWaterRm" class="utility-chart"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-5 mb-4">
-                                    <div class="card module-data-card utility-table-card">
-                                        <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                                            <h5 class="font-weight-bold text-white mb-0">Monthly Water Summary</h5>
-                                            <div class="text-white-50 small">Click a row to open the detailed report</div>
-                                        </div>
-                                        <div class="card-body px-4 pb-1">
-                                            <div class="table-responsive">
-                                                <table id="dtUtmMonthlyWaterData" class="table table-hover table-sm mb-0 display responsive mobile-stack" style="width: 100%">
-                                                    <thead>
-                                                    <tr class="th-strong">
-                                                        <th>Month</th>
-                                                        <th>Domestic (m<sup>3</sup>)</th>
-                                                        <th>Charges (RM)</th>
-                                                        <th>Trend</th>
-                                                        <th>Trend</th>
-                                                        <th>Year</th>
-                                                        <th>Month</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="card-body">
+                          <div id="chartUtmKwh" class="utility-chart"></div>
                         </div>
+                      </div>
+                      <div class="card mb-3">
+                        <div class="card-header">
+                          <h3 class="card-title mb-0">Maximum Demand (kW)</h3>
+                        </div>
+                        <div class="card-body">
+                          <div id="chartUtmMd" class="utility-chart md-chart"></div>
+                        </div>
+                      </div>
+                      <div class="card">
+                        <div class="card-header">
+                          <h3 class="card-title mb-0">Electricity Charges (RM)</h3>
+                        </div>
+                        <div class="card-body">
+                          <div id="chartUtmRm" class="utility-chart"></div>
+                        </div>
+                      </div>
                     </div>
+                    <div class="col-xl-6 mb-3">
+                      <div class="card utility-table-card">
+                        <div class="card-header">
+                          <div>
+                            <h3 class="card-title mb-0">Monthly Electricity Summary</h3>
+                            <div class="text-secondary" style="font-size:.75rem">Click a row to open the detailed report</div>
+                          </div>
+                        </div>
+                        <div class="card-body">
+                          <div class="table-responsive">
+                            <table id="dtUtmMonthlyData" class="table table-hover table-sm mb-0 display responsive mobile-stack" style="width: 100%">
+                              <thead>
+                                <tr>
+                                  <th>Month</th>
+                                  <th>Consumption (kWh)</th>
+                                  <th>Actual MD</th>
+                                  <th>Maximum Demand</th>
+                                  <th>CLC</th>
+                                  <th>Charges (RM)</th>
+                                  <th>Trend</th>
+                                  <th>Trend</th>
+                                  <th>Year</th>
+                                  <th>Month</th>
+                                </tr>
+                              </thead>
+                              <tbody></tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+                <div class="tab-pane fade" id="tabPpgWater" role="tabpanel" aria-labelledby="tabPpgWaterJust">
+                  <div class="row">
+                    <div class="col-xl-7 mb-3">
+                      <div class="card mb-3">
+                        <div class="card-header">
+                          <h3 class="card-title mb-0">Water Consumption (m<sup>3</sup>)</h3>
+                        </div>
+                        <div class="card-body">
+                          <div id="chartUtmWaterM3" class="utility-chart"></div>
+                        </div>
+                      </div>
+                      <div class="card">
+                        <div class="card-header">
+                          <h3 class="card-title mb-0">Water Charges (RM)</h3>
+                        </div>
+                        <div class="card-body">
+                          <div id="chartUtmWaterRm" class="utility-chart"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-xl-5 mb-3">
+                      <div class="card utility-table-card">
+                        <div class="card-header">
+                          <div>
+                            <h3 class="card-title mb-0">Monthly Water Summary</h3>
+                            <div class="text-secondary" style="font-size:.75rem">Click a row to open the detailed report</div>
+                          </div>
+                        </div>
+                        <div class="card-body">
+                          <div class="table-responsive">
+                            <table id="dtUtmMonthlyWaterData" class="table table-hover table-sm mb-0 display responsive mobile-stack" style="width: 100%">
+                              <thead>
+                                <tr>
+                                  <th>Month</th>
+                                  <th>Domestic (m<sup>3</sup>)</th>
+                                  <th>Charges (RM)</th>
+                                  <th>Trend</th>
+                                  <th>Trend</th>
+                                  <th>Year</th>
+                                  <th>Month</th>
+                                </tr>
+                              </thead>
+                              <tbody></tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
         </section>
         <div class="includeHtml" id="h-section_monthly_electricity"></div>
         <div class="includeHtml" id="h-section_monthly_water"></div>
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true"></div>
 
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/vendor/highcharts/highcharts.js"></script>
+<script src="js/vendor/highcharts/modules/data.js"></script>
+<script src="js/vendor/highcharts/modules/drilldown.js"></script>
+<script src="js/vendor/highcharts/modules/exporting.js"></script>
+<script src="js/vendor/highcharts/modules/export-data.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/toastr-safe.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_monthly_electricity.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_monthly_water.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_utility.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Highchart -->
-<script type="text/javascript" src="js/vendor/highcharts/highcharts.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/data.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/drilldown.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/exporting.js"></script>
-<script type="text/javascript" src="js/vendor/highcharts/modules/export-data.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let sectionMonthlyElectricityClass_;
+  let sectionMonthlyWaterClass_;
+  let utilityClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        sectionMonthlyElectricityClass_ = new SectionMonthlyElectricity();
+        sectionMonthlyWaterClass_ = new SectionMonthlyWater();
+        utilityClass_ = new MainUtility();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let sectionMonthlyElectricityClass_;
-    let sectionMonthlyWaterClass_;
-    let utilityClass_;
+        const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
+        const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
 
-    document.addEventListener('DOMContentLoaded', function () {
+        sectionMonthlyElectricityClass_.setRefSite(refSite_);
+        sectionMonthlyElectricityClass_.setRefUser(refUser_);
+        sectionMonthlyElectricityClass_.setClassFrom(utilityClass_);
+        sectionMonthlyElectricityClass_.init();
 
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                sectionMonthlyElectricityClass_ = new SectionMonthlyElectricity();
-                sectionMonthlyWaterClass_ = new SectionMonthlyWater();
-                utilityClass_ = new MainUtility();
+        sectionMonthlyWaterClass_.setRefSite(refSite_);
+        sectionMonthlyWaterClass_.setRefUser(refUser_);
+        sectionMonthlyWaterClass_.setClassFrom(utilityClass_);
+        sectionMonthlyWaterClass_.init();
 
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
-
-                sectionMonthlyElectricityClass_.setRefSite(refSite_);
-                sectionMonthlyElectricityClass_.setRefUser(refUser_);
-                sectionMonthlyElectricityClass_.setClassFrom(utilityClass_);
-                sectionMonthlyElectricityClass_.init();
-
-                sectionMonthlyWaterClass_.setRefSite(refSite_);
-                sectionMonthlyWaterClass_.setRefUser(refUser_);
-                sectionMonthlyWaterClass_.setClassFrom(utilityClass_);
-                sectionMonthlyWaterClass_.init();
-
-                utilityClass_.setRefSite(refSite_);
-                utilityClass_.setSectionMonthlyElectricityClass(sectionMonthlyElectricityClass_);
-                utilityClass_.setSectionMonthlyWaterClass(sectionMonthlyWaterClass_);
-                utilityClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_monthly_electricity.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_monthly_water.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_utility.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+        utilityClass_.setRefSite(refSite_);
+        utilityClass_.setSectionMonthlyElectricityClass(sectionMonthlyElectricityClass_);
+        utilityClass_.setSectionMonthlyWaterClass(sectionMonthlyWaterClass_);
+        utilityClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 200);
+  });
 </script>
-
 </body>
 </html>

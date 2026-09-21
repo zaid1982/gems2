@@ -1,112 +1,89 @@
-<section class="section sectionMonthlyWater monthly-water-shell mb-5">
-    <style>
-        .monthly-water-shell .monthly-water-header h2 { margin-bottom: 0.35rem; }
-        .monthly-water-shell .monthly-water-header p { margin-bottom: 0; }
-        .monthly-water-shell .stat-tile {
-            background: var(--gems-bg-page);
-            border-radius: 18px;
-            padding: 18px 20px;
-            margin-bottom: 12px;
-        }
-        .monthly-water-shell .stat-tile.primary { background: linear-gradient(135deg, rgba(var(--gems-primary-rgb), 0.12), rgba(var(--gems-secondary-rgb), 0.15)); }
-        .monthly-water-shell .stat-label {
-            display: block;
-            font-size: 0.78rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-weight: 600;
-            color: var(--gems-muted);
-        }
-        .monthly-water-shell .stat-value {
-            display: block;
-            font-weight: 700;
-            font-size: 1.75rem;
-            color: var(--gems-text);
-            margin-top: 0.35rem;
-        }
-        .monthly-water-shell .stat-subtext {
-            display: block;
-            color: var(--gems-primary);
-            font-weight: 600;
-            margin-top: 0.25rem;
-        }
-        .monthly-water-shell .monthly-water-chart { height: 360px; }
-        .monthly-water-shell .monthly-water-table table { width: 100%; }
-    </style>
-    <div class="gems-page-header monthly-water-header">
-        <div class="header-text">
-            <h2><span id="lblSmwMonthName">-</span> Water Report</h2>
-            <p>Monitoring usage and charges for <span id="lblSmwSiteName">—</span>.</p>
-        </div>
-        <div class="header-actions">
-            <button type="button" class="btn btn-outline-light btn-icon" id="btnSmwBack" data-toggle="tooltip" title="Back to main page" aria-label="Back to main page">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-        </div>
+<!--
+  section_monthly_water — Tabler in-place (P5-21). utility.html only.
+  All label, chart, table, and button IDs stay. Formulas stay in JS.
+-->
+<section class="section sectionMonthlyWater monthly-water-shell mb-4" style="display:none">
+  <style>
+    .monthly-water-shell .monthly-water-chart { height: 360px; }
+  </style>
+  <div class="page-header">
+    <div class="row align-items-center g-2">
+      <div class="col-12 col-sm">
+        <div class="text-secondary" style="font-size:.75rem">Utility Management</div>
+        <h1 class="page-title"><span id="lblSmwMonthName">-</span> Water Report</h1>
+        <div class="page-subtitle">Monitoring usage and charges for <span id="lblSmwSiteName">—</span>.</div>
+      </div>
+      <div class="col-12 col-sm-auto">
+        <button type="button" class="btn btn-outline-secondary" id="btnSmwBack" data-toggle="tooltip" data-bs-toggle="tooltip" title="Back to main page" aria-label="Back to main page">
+          <i class="fas fa-arrow-left me-1"></i>Back
+        </button>
+      </div>
     </div>
-    <div class="row mt-4">
-        <div class="col-xl-4 mb-4">
-            <div class="card module-data-card monthly-water-summary mb-4">
-                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2">
-                    <h5 class="font-weight-bold mb-0">Monthly Snapshot</h5>
-                </div>
-                <div class="card-body pt-0 px-4 pb-4">
-                    <div class="stat-tile primary">
-                        <span class="stat-label">Total Monthly Charges</span>
-                        <span class="stat-value">RM <span id="lblSmwTotalMonthlyCharges">0</span></span>
-                        <span class="stat-subtext" id="lblSmwChangePerc">—</span>
-                    </div>
-                    <div class="stat-tile">
-                        <span class="stat-label">Total Consumption</span>
-                        <span class="stat-value"><span id="lblSmwTotalMonthlyConsumption">0</span> m<sup>3</sup></span>
-                    </div>
-                </div>
-            </div>
-            <div class="card module-data-card monthly-water-context">
-                <div class="card-header bg-transparent border-0 px-4 pt-4 pb-2">
-                    <h5 class="font-weight-bold mb-0">Notes</h5>
-                </div>
-                <div class="card-body pt-0 px-4 pb-4">
-                    <p class="text-muted mb-2">Charges are computed from the consolidated shift readings and translated using the configured tariff table.</p>
-                    <p class="text-muted mb-0">Monitor spike indicators in the daily table to determine abnormal usage patterns.</p>
-                </div>
-            </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xl-4 mb-3">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Monthly Snapshot</h3>
         </div>
-        <div class="col-xl-8 mb-4">
-            <div class="card module-data-card mb-4">
-                <div class="card-header gradient-card-header aqua-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                    <h5 class="font-weight-bold text-white mb-0">Daily Reading Chart</h5>
-                </div>
-                <div class="card-body px-4 pb-1">
-                    <div id="chartSmwM3" class="monthly-water-chart"></div>
-                </div>
-            </div>
-            <div class="card module-data-card monthly-water-table">
-                <div class="card-header gradient-card-header blue-gradient narrower py-3 px-4 d-flex align-items-center justify-content-between">
-                    <h5 class="font-weight-bold text-white mb-0">Daily Reading Record</h5>
-                </div>
-                <div class="card-body px-4 pb-3">
-                    <div class="table-responsive">
-                        <table id="dtSmwData" class="table table-hover table-sm mb-0 display responsive mobile-stack">
-                            <thead>
-                            <tr class="th-strong">
-                                <th>Date</th>
-                                <th>Morning Shift Reading</th>
-                                <th>Morning Shift Usage</th>
-                                <th>Evening Shift Reading</th>
-                                <th>Evening Shift Usage</th>
-                                <th>Night Shift Reading</th>
-                                <th>Night Shift Usage</th>
-                                <th>Total Daily Usage</th>
-                                <th>Trend</th>
-                                <th>Trend</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <div class="subheader">Total Monthly Charges</div>
+            <div class="h1 mb-0">RM <span id="lblSmwTotalMonthlyCharges">0</span></div>
+            <div class="text-secondary" style="font-size:.75rem" id="lblSmwChangePerc">—</div>
+          </div>
+          <div>
+            <div class="subheader">Total Consumption</div>
+            <div class="h1 mb-0"><span id="lblSmwTotalMonthlyConsumption">0</span> m<sup>3</sup></div>
+          </div>
         </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Notes</h3>
+        </div>
+        <div class="card-body">
+          <p class="text-secondary mb-2">Charges are computed from the consolidated shift readings and translated using the configured tariff table.</p>
+          <p class="text-secondary mb-0">Monitor spike indicators in the daily table to determine abnormal usage patterns.</p>
+        </div>
+      </div>
     </div>
+    <div class="col-xl-8 mb-3">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Daily Reading Chart</h3>
+        </div>
+        <div class="card-body">
+          <div id="chartSmwM3" class="monthly-water-chart"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Daily Reading Record</h3>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="dtSmwData" class="table table-hover table-sm mb-0 display responsive mobile-stack">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Morning Shift Reading</th>
+                  <th>Morning Shift Usage</th>
+                  <th>Evening Shift Reading</th>
+                  <th>Evening Shift Usage</th>
+                  <th>Night Shift Reading</th>
+                  <th>Night Shift Usage</th>
+                  <th>Total Daily Usage</th>
+                  <th>Trend</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
