@@ -180,12 +180,16 @@ function MainInventory () {
             const $statusSelect = $('#optInvStatus');
             if ($statusSelect.length) {
                 try {
-                    $statusSelect.materialSelect('destroy');
+                    if (typeof $statusSelect.materialSelect === 'function') {
+                        $statusSelect.materialSelect('destroy');
+                    }
                 } catch (e) {
                     // ignore
                 }
                 $statusSelect.val(statusFilterValue);
-                $statusSelect.materialSelect();
+                if (typeof $statusSelect.materialSelect === 'function') {
+                    $statusSelect.materialSelect();
+                }
                 $statusSelect.off('change').on('change', handleStatusSelectChange);
             }
         }
@@ -442,7 +446,9 @@ function MainInventory () {
                 applyTableDataLabels('#dtInvData', tableHeaders);
                 refreshListSummary();
                 bindRowInteractions();
-                initPhotoSwipeFromDOM('.mdb-lightbox');
+                if (typeof initPhotoSwipeFromDOM === 'function') {
+                    initPhotoSwipeFromDOM('.mdb-lightbox');
+                }
                 $('.divInvImageHide').hide();
                 adjustColumnsForViewport();
             },

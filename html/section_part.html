@@ -1,495 +1,299 @@
-<section class="section module-part-page mb-5 mt-lg-3 sectionPart">
-    <style>
-        .module-part-page {
-            background: transparent;
-            padding: 0;
-        }
-        .module-part-shell {
-            background: #eef2ff;
-            border-radius: 32px;
-            padding: 28px;
-            box-shadow: 0 40px 80px -50px rgba(15, 23, 42, 0.4);
-        }
-        .module-part-page .module-page-header {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            padding: 32px;
-            border-radius: 28px;
-            color: #fff;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #1f57ff 0%, #04d6b8 100%);
-            box-shadow: 0 30px 60px -35px rgba(15, 23, 42, 0.65);
-            margin-bottom: 28px;
-        }
-        .module-part-page .module-page-header::after {
-            content: '';
-            position: absolute;
-            right: -60px;
-            top: -60px;
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.14);
-        }
-        .module-part-page .module-page-header .header-text { position: relative; z-index: 1; max-width: 640px; }
-        .module-part-page .module-page-header .eyebrow-label {
-            text-transform: uppercase;
-            font-size: 0.78rem;
-            letter-spacing: 0.18em;
-            margin-bottom: 6px;
-            opacity: 0.7;
-        }
-        .module-part-page .module-page-header h2 {
-            font-size: 2.35rem;
-            margin-bottom: 6px;
-            font-weight: 700;
-        }
-        .module-part-page .module-page-header .header-subtitle { margin: 0; font-size: 1.05rem; opacity: 0.92; }
-        .module-part-page .header-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-        .module-part-page .tag-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: rgba(255, 255, 255, 0.18);
-            border-radius: 999px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        .module-part-page .tag-pill[data-state="disabled"] { background: rgba(255, 86, 86, 0.28); }
-        .module-part-page .header-actions { position: relative; z-index: 1; display: flex; gap: 10px; flex-wrap: wrap; }
-        .module-part-page .header-actions .btn-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            background: rgba(15, 23, 42, 0.15);
-            color: #fff;
-            display: inline-flex;
-            aligns: center;
-            justify-content: center;
-            transition: transform 0.2s ease;
-        }
-        .module-part-page .header-actions .btn-icon:hover { transform: translateY(-2px); }
-        .metrics-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 18px;
-            margin-bottom: 28px;
-        }
-        .metric-card {
-            background: #fff;
-            border-radius: 24px;
-            padding: 20px 22px;
-            box-shadow: 0 25px 55px -35px rgba(15, 23, 42, 0.35);
-        }
-        .metric-label { text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.12em; color: var(--gems-muted); margin-bottom: 4px; }
-        .metric-value { font-size: 2rem; font-weight: 700; color: #14213d; }
-        .metric-subtext { font-size: 0.85rem; color: var(--gems-muted); }
-        .part-body-grid {
-            display: grid;
-            grid-template-columns: minmax(320px, 360px) 1fr;
-            gap: 24px;
-        }
-        .card-surface {
-            background: #fff;
-            border-radius: 24px;
-            padding: 22px 24px;
-            box-shadow: 0 30px 70px -45px rgba(15, 23, 42, 0.3);
-        }
-        .part-gallery-card figure { margin-bottom: 16px; }
-        .part-gallery-card .tagline { font-size: 0.9rem; color: var(--gems-muted); margin-bottom: 12px; }
-        .part-gallery-card #btnSptUpdateImage { 
-            font-size: 0.85rem; 
-            padding: 6px 14px; 
-            border-radius: 12px;
-            box-shadow: 0 4px 12px -4px rgba(31, 87, 255, 0.4);
-        }
-        .part-form-card h5 { font-weight: 700; margin-bottom: 18px; color: var(--gems-text); }
-        .part-form-card .form-action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-        .part-form-card .form-action-row .btn { border-radius: 12px; }
-        .part-main-panel .filter-card {
-            margin-bottom: 24px;
-            background: #fff;
-            border-radius: 24px;
-            padding: 24px 26px;
-            box-shadow: 0 28px 60px -45px rgba(15, 23, 42, 0.35);
-        }
-        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; align-items: flex-end; }
-        .filter-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gems-muted); margin-bottom: 6px; font-weight: 600; }
-        .filter-card .search-input { position: relative; }
-        .filter-card .search-input i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-        .filter-card .search-input input { padding-left: 38px; border-radius: 14px; border: 1px solid #d7dce5; }
-        .filter-card .custom-select,
-        .filter-card .form-control { border-radius: 14px; border: 1px solid #d7dce5; }
-        .summary-pill { background: #eef2ff; border-radius: 16px; padding: 12px 16px; color: var(--gems-text); font-weight: 600; }
-        .module-data-card {
-            background: #fff;
-            border-radius: 24px;
-            padding: 0;
-            margin-bottom: 24px;
-            box-shadow: 0 28px 60px -45px rgba(15, 23, 42, 0.35);
-        }
-        .part-table-card .table-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            padding: 22px 24px 0;
-        }
-        .part-table-card .table-header h5 { margin: 0; font-weight: 700; color: var(--gems-text); }
-        .part-table-card .table-header p { margin: 2px 0 0; color: var(--gems-muted); }
-        .table-header-actions { display: flex; align-items: center; gap: 10px; }
-        .btn-header {
-            border: none;
-            background: #e2e8f0;
-            border-radius: 12px;
-            width: 38px;
-            height: 38px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gems-text);
-        }
-        .table-export-group .btn { border-radius: 10px; margin-left: 6px; }
-        .module-table-wrapper { padding: 12px 24px 24px; }
-        .module-table-wrapper table { width: 100%; }
-        .module-table-wrapper thead th {
-            background: var(--gems-bg-page);
-            text-transform: uppercase;
-            font-size: 0.73rem;
-            letter-spacing: 0.12em;
-            color: #475569;
-            border: none;
-        }
-        .module-table-wrapper tbody td { border-bottom: 1px solid var(--gems-bg-page); color: var(--gems-text); }
-        .part-side-panel .mdb-lightbox img { border-radius: 18px; box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.45); }
-        .module-part-page .dataTables_filter { display: none !important; }
-        @media (max-width: 1199.98px) {
-            .part-body-grid { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 767.98px) {
-            .module-part-shell { padding: 20px; }
-            .module-part-page .module-page-header { padding: 24px; }
-            .module-table-wrapper thead { display: none; }
-            .module-table-wrapper table,
-            .module-table-wrapper tbody,
-            .module-table-wrapper tr,
-            .module-table-wrapper td { display: block; width: 100%; }
-            .module-table-wrapper tr { margin-bottom: 14px; border: 1px solid #e2e8f0; border-radius: 16px; padding: 10px 14px; box-shadow: 0 20px 40px -32px rgba(15, 23, 42, 0.3); }
-            .module-table-wrapper td { border: none; border-bottom: 1px dotted #e2e8f0; padding: 8px 0; }
-            .module-table-wrapper td:last-child { border-bottom: none; }
-            .module-table-wrapper td::before {
-                content: attr(data-label);
-                display: block;
-                text-transform: uppercase;
-                font-size: 0.72rem;
-                letter-spacing: 0.14em;
-                color: #94a3b8;
-                margin-bottom: 2px;
-            }
-        }
-    </style>
-
-    <div class="module-part-shell">
-        <div class="module-page-header part-page-header">
-            <div class="header-text">
-                <div class="eyebrow-label">Store Inventory</div>
-                <h2 id="txtSptDescription">—</h2>
-                <p class="header-subtitle" id="txtSptItemType">Select a part to continue.</p>
-                <div class="header-tags">
-                    <span class="tag-pill"><i class="fas fa-map-marker-alt"></i><span id="lblSptSiteName">—</span></span>
-                    <span class="tag-pill"><i class="fas fa-warehouse"></i><span id="lblSptStoreName">—</span></span>
-                    <span class="tag-pill"><i class="fas fa-sitemap"></i><span id="lblSptAssetGroupName">—</span></span>
-                    <span class="tag-pill" id="sptStatusPill"><i class="fas fa-exclamation-circle"></i><span id="lblSptStatusName">—</span></span>
-                </div>
-            </div>
-            <div class="header-actions">
-                <button type="button" class="btn-icon" id="btnSptBack" data-toggle="tooltip" title="Back to list" aria-label="Back to list"><i class="fas fa-arrow-left"></i></button>
-                <button type="button" class="btn-icon" id="btnSptEnable" data-toggle="tooltip" title="Enable part" aria-label="Enable part"><i class="fas fa-check"></i></button>
-                <button type="button" class="btn-icon" id="btnSptDisable" data-toggle="tooltip" title="Disable part" aria-label="Disable part"><i class="fas fa-ban"></i></button>
-                <button type="button" class="btn-icon" id="btnSptSave" data-toggle="tooltip" title="Save settings" aria-label="Save settings"><i class="fas fa-save"></i></button>
-                <button type="button" class="btn-icon" id="btnSptTransfer" data-toggle="tooltip" title="Transfer part" aria-label="Transfer part"><i class="fas fa-exchange-alt"></i></button>
-                <button type="button" class="btn-icon" id="btnSptDelete" data-toggle="tooltip" title="Delete part" aria-label="Delete part"><i class="fas fa-trash-alt"></i></button>
-            </div>
+<!--
+  section_part — Tabler in-place (P5-27). inventory.html only.
+  All field, table, button, metric, and prefix IDs stay. No stock math here.
+-->
+<section class="section mb-5 sectionPart" style="display:none">
+  <div class="page-header">
+    <div class="row align-items-center g-2">
+      <div class="col-12 col-sm">
+        <div class="text-secondary" style="font-size:.75rem">Store Inventory</div>
+        <h1 class="page-title" id="txtSptDescription">—</h1>
+        <div class="page-subtitle" id="txtSptItemType">Select a part to continue.</div>
+        <div class="d-flex flex-wrap gap-2 mt-2">
+          <span class="badge bg-blue-lt"><i class="fas fa-map-marker-alt me-1"></i><span id="lblSptSiteName">—</span></span>
+          <span class="badge bg-blue-lt"><i class="fas fa-warehouse me-1"></i><span id="lblSptStoreName">—</span></span>
+          <span class="badge bg-blue-lt"><i class="fas fa-sitemap me-1"></i><span id="lblSptAssetGroupName">—</span></span>
+          <span class="badge" id="sptStatusPill" data-state="active"><i class="fas fa-exclamation-circle me-1"></i><span id="lblSptStatusName">—</span></span>
         </div>
-
-        <div class="metrics-row part-metrics">
-            <div class="metric-card">
-                <div class="metric-label">Total in store</div>
-                <div class="metric-value" id="lblTopTotalInStore">0</div>
-                <div class="metric-subtext">All registered units</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Locked</div>
-                <div class="metric-value" id="lblTopTotalILocked">0</div>
-                <div class="metric-subtext">Reserved or issued</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Available</div>
-                <div class="metric-value" id="lblTopTotalAvailable">0</div>
-                <div class="metric-subtext">Ready for checkout</div>
-            </div>
-        </div>
-
-        <div class="part-body-grid">
-            <div class="part-side-panel">
-                <div class="card-surface part-gallery-card">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0 font-weight-bold">Visual reference</h5>
-                        <div class="d-flex align-items-center">
-                            <button type="button" class="btn btn-sm btn-primary btn-rounded waves-effect mr-2" id="btnSptUpdateImage" data-toggle="tooltip" title="Update Image"><i class="fas fa-camera mr-1"></i>Update Image</button>
-                            <span class="tagline"><i class="fas fa-images mr-2"></i>Latest uploads</span>
-                        </div>
-                    </div>
-                    <div class="mdb-lightbox no-margin" id="divSptImages"></div>
-                    <!-- Hidden file input for image upload -->
-                    <input type="file" id="fileSptImage" accept="image/*" style="display: none;">
-                </div>
-                <div class="card-surface part-form-card mt-4">
-                    <div class="form-action-row">
-                        <span class="badge badge-primary px-3 py-2">Part settings</span>
-                    </div>
-                    <form id="formSpt" autocomplete="off">
-                        <div class="md-form">
-                            <i class="fas fa-tag prefix active" id="txtSptAssetGroupPre"></i>
-                            <input type="text" id="txtSptAssetGroup" class="form-control" readonly>
-                            <label for="txtSptAssetGroup" id="lblSptAssetGroup" class="active">Asset Group</label>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-building prefix active" id="txtSptSitePre"></i>
-                            <input type="text" id="txtSptSite" class="form-control" readonly>
-                            <label for="txtSptSite" id="lblSptSite" class="active">Site</label>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-warehouse prefix active" id="txtSptStorePre"></i>
-                            <input type="text" id="txtSptStore" class="form-control" readonly>
-                            <label for="txtSptStore" id="lblSptStore" class="active">Store</label>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-tachometer-alt prefix active" id="txtSptThresholdPre"></i>
-                            <input type="text" id="txtSptThreshold" class="form-control" value="10">
-                            <label for="txtSptThreshold" id="lblSptThreshold" class="active">Threshold *</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="txtSptThresholdErr"></p>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-shopping-cart prefix active" id="txtSptMinOrderPre"></i>
-                            <input type="text" id="txtSptMinOrder" class="form-control" value="10">
-                            <label for="txtSptMinOrder" id="lblSptMinOrder" class="active">Minimum Order *</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="txtSptMinOrderErr"></p>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-luggage-cart prefix active" id="txtSptMaxOrderPre"></i>
-                            <input type="text" id="txtSptMaxOrder" class="form-control" value="100">
-                            <label for="txtSptMaxOrder" id="lblSptMaxOrder" class="active">Maximum Order *</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="txtSptMaxOrderErr"></p>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-pencil-alt prefix active" id="txaSptRemarkPre"></i>
-                            <textarea id="txaSptRemark" class="md-textarea form-control" rows="2">This is  for this item. This remark is optional, can be modified from time to time.</textarea>
-                            <label for="txaSptRemark" id="lblSptRemark" class="text-muted active">Remark</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="txaSptRemarkErr"></p>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-exclamation-triangle prefix active"></i>
-                            <input type="text" id="txtSptStatus" class="form-control" readonly>
-                            <label for="txtSptStatus" id="lblSptStatus" class="text-muted active">Status</label>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="part-main-panel">
-                <div class="filter-card part-filter-card">
-                    <div class="filter-grid">
-                        <div>
-                            <label for="txtSptSearch" class="filter-label">Search part numbers</label>
-                            <div class="search-input">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="txtSptSearch" class="form-control" placeholder="Search by part no., location or technician">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="optSptStatus" class="filter-label">Status</label>
-                            <select id="optSptStatus" class="custom-select">
-                                <option value="">All statuses</option>
-                                <option value="available">Available</option>
-                                <option value="locked">Locked</option>
-                                <option value="collected">Collected</option>
-                                <option value="pending">Pending</option>
-                                <option value="repair">Repair</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="filter-label">Summary</label>
-                            <div class="summary-pill">
-                                <div id="lblSptCount">Showing 0 of 0</div>
-                                <small id="lblSptUpdated" class="d-block text-muted">—</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="module-data-card part-table-card">
-                    <div class="table-header">
-                        <div>
-                            <h5>Store Part List</h5>
-                            <p>Current serialised items and their lifecycle states.</p>
-                        </div>
-                        <div class="table-header-actions">
-                            <button type="button" class="btn-header" id="btnSptRefreshPartList" data-toggle="tooltip" title="Refresh list" aria-label="Refresh part list"><i class="fas fa-sync"></i></button>
-                            <div id="sptPartListActions" class="table-export-group"></div>
-                        </div>
-                    </div>
-                    <div class="module-table-wrapper">
-                        <table id="dtSptPartList" class="table table-hover table-sm mb-0 display responsive mobile-stack">
-                            <thead>
-                            <tr class="th-strong">
-                                <th>#</th>
-                                <th>Part No.</th>
-                                <th>Location</th>
-                                <th>Warranty</th>
-                                <th>Expiration Date</th>
-                                <th>Price per unit</th>
-                                <th>DO No.</th>
-                                <th>Registered By</th>
-                                <th>Check In Time</th>
-                                <th>Work Order No.</th>
-                                <th>Technician</th>
-                                <th>Status</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="module-data-card part-table-card">
-                    <div class="table-header">
-                        <div>
-                            <h5>Pending Request</h5>
-                            <p>MRF tickets awaiting checkout.</p>
-                        </div>
-                        <div class="table-header-actions">
-                            <button type="button" class="btn-header" id="btnSptRefreshPending" data-toggle="tooltip" title="Refresh pending" aria-label="Refresh pending"><i class="fas fa-sync"></i></button>
-                            <div id="sptPendingActions" class="table-export-group"></div>
-                        </div>
-                    </div>
-                    <div class="module-table-wrapper">
-                        <table id="dtSptPending" class="table table-hover table-sm mb-0 display responsive mobile-stack">
-                            <thead>
-                            <tr class="th-strong">
-                                <th>#</th>
-                                <th>Request Time</th>
-                                <th>Request No.</th>
-                                <th>Work Order No.</th>
-                                <th>Technician</th>
-                                <th>Total</th>
-                                <th>Remark</th>
-                                <th>Status</th>
-                                <th>MRF</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="module-data-card part-table-card">
-                    <div class="table-header">
-                        <div>
-                            <h5>Check In History</h5>
-                            <p>Recent deliveries recorded for this part.</p>
-                        </div>
-                        <div class="table-header-actions">
-                            <button type="button" class="btn-header" id="btnSptRefreshCheckIn" data-toggle="tooltip" title="Refresh check-in" aria-label="Refresh check-in"><i class="fas fa-sync"></i></button>
-                            <div id="sptCheckInActions" class="table-export-group"></div>
-                        </div>
-                    </div>
-                    <div class="module-table-wrapper">
-                        <table id="dtSptCheckIn" class="table table-hover table-sm mb-0 display responsive mobile-stack">
-                            <thead>
-                            <tr class="th-strong">
-                                <th>#</th>
-                                <th>Check In Time</th>
-                                <th>DO No.</th>
-                                <th>DO Date</th>
-                                <th>Warranty</th>
-                                <th>Expiration Date</th>
-                                <th>Price per unit</th>
-                                <th>Total</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="module-data-card part-table-card" id="divSptCheckOutTable">
-                    <div class="table-header">
-                        <div>
-                            <h5>Check Out History</h5>
-                            <p>Issued quantities linked to MRF tickets.</p>
-                        </div>
-                        <div class="table-header-actions">
-                            <button type="button" class="btn-header" id="btnSptRefreshCheckOut" data-toggle="tooltip" title="Refresh check-out" aria-label="Refresh check-out"><i class="fas fa-sync"></i></button>
-                            <div id="sptCheckOutActions" class="table-export-group"></div>
-                        </div>
-                    </div>
-                    <div class="module-table-wrapper">
-                        <table id="dtSptCheckOut" class="table table-hover table-sm mb-0 display responsive mobile-stack">
-                            <thead>
-                            <tr class="th-strong">
-                                <th>#</th>
-                                <th>Check Out Time</th>
-                                <th>Request No.</th>
-                                <th>Work Order No.</th>
-                                <th>Technician</th>
-                                <th>Remark</th>
-                                <th>Total</th>
-                                <th>MRF</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="module-data-card part-table-card">
-                    <div class="table-header">
-                        <div>
-                            <h5>Return History</h5>
-                            <p>Technician returns routed through material returns.</p>
-                        </div>
-                        <div class="table-header-actions">
-                            <button type="button" class="btn-header" id="btnSptRefreshReturn" data-toggle="tooltip" title="Refresh returns" aria-label="Refresh returns"><i class="fas fa-sync"></i></button>
-                            <div id="sptReturnActions" class="table-export-group"></div>
-                        </div>
-                    </div>
-                    <div class="module-table-wrapper">
-                        <table id="dtSptReturnHistory" class="table table-hover table-sm mb-0 display responsive mobile-stack">
-                            <thead>
-                            <tr class="th-strong">
-                                <th>#</th>
-                                <th>Request Time</th>
-                                <th>Technician</th>
-                                <th>Quantity</th>
-                                <th>Reason</th>
-                                <th>Status</th>
-                                <th>Confirmed Time</th>
-                                <th>Storekeeper</th>
-                                <th>Remarks</th>
-                            </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
+      <div class="col-12 col-sm-auto">
+        <button type="button" class="btn btn-outline-secondary" id="btnSptBack" data-toggle="tooltip" data-bs-toggle="tooltip" title="Back to list" aria-label="Back to list"><i class="fas fa-arrow-left"></i></button>
+        <button type="button" class="btn btn-outline-secondary" id="btnSptEnable" data-toggle="tooltip" data-bs-toggle="tooltip" title="Enable part" aria-label="Enable part"><i class="fas fa-check"></i></button>
+        <button type="button" class="btn btn-outline-secondary" id="btnSptDisable" data-toggle="tooltip" data-bs-toggle="tooltip" title="Disable part" aria-label="Disable part"><i class="fas fa-ban"></i></button>
+        <button type="button" class="btn btn-primary" id="btnSptSave" data-toggle="tooltip" data-bs-toggle="tooltip" title="Save settings" aria-label="Save settings"><i class="fas fa-save"></i></button>
+        <button type="button" class="btn btn-outline-secondary" id="btnSptTransfer" data-toggle="tooltip" data-bs-toggle="tooltip" title="Transfer part" aria-label="Transfer part"><i class="fas fa-exchange-alt"></i></button>
+        <button type="button" class="btn btn-outline-danger" id="btnSptDelete" data-toggle="tooltip" data-bs-toggle="tooltip" title="Delete part" aria-label="Delete part"><i class="fas fa-trash-alt"></i></button>
+      </div>
     </div>
+  </div>
+
+  <div class="row row-deck mb-3">
+    <div class="col-sm-4">
+      <div class="card"><div class="card-body">
+        <div class="subheader">Total in store</div>
+        <div class="h1 mb-0" id="lblTopTotalInStore">0</div>
+        <div class="text-secondary" style="font-size:.75rem">All registered units</div>
+      </div></div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card"><div class="card-body">
+        <div class="subheader">Locked</div>
+        <div class="h1 mb-0" id="lblTopTotalILocked">0</div>
+        <div class="text-secondary" style="font-size:.75rem">Reserved or issued</div>
+      </div></div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card"><div class="card-body">
+        <div class="subheader">Available</div>
+        <div class="h1 mb-0" id="lblTopTotalAvailable">0</div>
+        <div class="text-secondary" style="font-size:.75rem">Ready for checkout</div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Visual reference</h3>
+          <button type="button" class="btn btn-sm btn-primary" id="btnSptUpdateImage" data-toggle="tooltip" data-bs-toggle="tooltip" title="Update Image"><i class="fas fa-camera me-1"></i>Update Image</button>
+        </div>
+        <div class="card-body">
+          <div class="text-secondary mb-2" style="font-size:.75rem"><i class="fas fa-images me-1"></i>Latest uploads</div>
+          <div class="mdb-lightbox no-margin" id="divSptImages"></div>
+          <input type="file" id="fileSptImage" accept="image/*" style="display: none;">
+        </div>
+      </div>
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Part settings</h3>
+        </div>
+        <div class="card-body">
+          <form id="formSpt" autocomplete="off" novalidate>
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSptAssetGroup" id="lblSptAssetGroup"><i class="fas fa-tag me-1" id="txtSptAssetGroupPre"></i>Asset Group</label>
+                <input type="text" id="txtSptAssetGroup" class="form-control" readonly>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSptSite" id="lblSptSite"><i class="fas fa-building me-1" id="txtSptSitePre"></i>Site</label>
+                <input type="text" id="txtSptSite" class="form-control" readonly>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSptStore" id="lblSptStore"><i class="fas fa-warehouse me-1" id="txtSptStorePre"></i>Store</label>
+                <input type="text" id="txtSptStore" class="form-control" readonly>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSptThreshold" id="lblSptThreshold"><i class="fas fa-tachometer-alt me-1" id="txtSptThresholdPre"></i>Threshold <span class="required" aria-hidden="true">*</span></label>
+                <input type="text" id="txtSptThreshold" class="form-control" value="10" aria-describedby="txtSptThresholdErr">
+                <div class="gems-field-error" id="txtSptThresholdErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSptMinOrder" id="lblSptMinOrder"><i class="fas fa-shopping-cart me-1" id="txtSptMinOrderPre"></i>Minimum Order <span class="required" aria-hidden="true">*</span></label>
+                <input type="text" id="txtSptMinOrder" class="form-control" value="10" aria-describedby="txtSptMinOrderErr">
+                <div class="gems-field-error" id="txtSptMinOrderErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSptMaxOrder" id="lblSptMaxOrder"><i class="fas fa-luggage-cart me-1" id="txtSptMaxOrderPre"></i>Maximum Order <span class="required" aria-hidden="true">*</span></label>
+                <input type="text" id="txtSptMaxOrder" class="form-control" value="100" aria-describedby="txtSptMaxOrderErr">
+                <div class="gems-field-error" id="txtSptMaxOrderErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txaSptRemark" id="lblSptRemark"><i class="fas fa-pencil-alt me-1" id="txaSptRemarkPre"></i>Remark</label>
+                <textarea id="txaSptRemark" class="form-control" rows="2">This is  for this item. This remark is optional, can be modified from time to time.</textarea>
+                <div class="gems-field-error" id="txaSptRemarkErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSptStatus" id="lblSptStatus">Status</label>
+                <input type="text" id="txtSptStatus" class="form-control" readonly>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="txtSptSearch">Search part numbers</label>
+              <input type="text" id="txtSptSearch" class="form-control" placeholder="Search by part no., location or technician">
+            </div>
+            <div class="gems-field gems-field-6">
+              <label class="form-label" for="optSptStatus">Status</label>
+              <select id="optSptStatus" class="form-select">
+                <option value="">All statuses</option>
+                <option value="available">Available</option>
+                <option value="locked">Locked</option>
+                <option value="collected">Collected</option>
+                <option value="pending">Pending</option>
+                <option value="repair">Repair</option>
+              </select>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap justify-content-between gap-2 mt-2 text-secondary" style="font-size:.75rem">
+            <div id="lblSptCount">Showing 0 of 0</div>
+            <small id="lblSptUpdated">—</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0">Store Part List</h3>
+            <div class="card-subtitle">Current serialised items and their lifecycle states.</div>
+          </div>
+          <div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSptRefreshPartList" data-toggle="tooltip" data-bs-toggle="tooltip" title="Refresh list" aria-label="Refresh part list"><i class="fas fa-sync"></i></button>
+            <div id="sptPartListActions" class="d-inline-flex"></div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table id="dtSptPartList" class="table table-hover table-sm mb-0 display responsive mobile-stack">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Part No.</th>
+                <th>Location</th>
+                <th>Warranty</th>
+                <th>Expiration Date</th>
+                <th>Price per unit</th>
+                <th>DO No.</th>
+                <th>Registered By</th>
+                <th>Check In Time</th>
+                <th>Work Order No.</th>
+                <th>Technician</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0">Pending Request</h3>
+            <div class="card-subtitle">MRF tickets awaiting checkout.</div>
+          </div>
+          <div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSptRefreshPending" data-toggle="tooltip" data-bs-toggle="tooltip" title="Refresh pending" aria-label="Refresh pending"><i class="fas fa-sync"></i></button>
+            <div id="sptPendingActions" class="d-inline-flex"></div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table id="dtSptPending" class="table table-hover table-sm mb-0 display responsive mobile-stack">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Request Time</th>
+                <th>Request No.</th>
+                <th>Work Order No.</th>
+                <th>Technician</th>
+                <th>Total</th>
+                <th>Remark</th>
+                <th>Status</th>
+                <th>MRF</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0">Check In History</h3>
+            <div class="card-subtitle">Recent deliveries recorded for this part.</div>
+          </div>
+          <div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSptRefreshCheckIn" data-toggle="tooltip" data-bs-toggle="tooltip" title="Refresh check-in" aria-label="Refresh check-in"><i class="fas fa-sync"></i></button>
+            <div id="sptCheckInActions" class="d-inline-flex"></div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table id="dtSptCheckIn" class="table table-hover table-sm mb-0 display responsive mobile-stack">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Check In Time</th>
+                <th>DO No.</th>
+                <th>DO Date</th>
+                <th>Warranty</th>
+                <th>Expiration Date</th>
+                <th>Price per unit</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb-3" id="divSptCheckOutTable">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0">Check Out History</h3>
+            <div class="card-subtitle">Issued quantities linked to MRF tickets.</div>
+          </div>
+          <div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSptRefreshCheckOut" data-toggle="tooltip" data-bs-toggle="tooltip" title="Refresh check-out" aria-label="Refresh check-out"><i class="fas fa-sync"></i></button>
+            <div id="sptCheckOutActions" class="d-inline-flex"></div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table id="dtSptCheckOut" class="table table-hover table-sm mb-0 display responsive mobile-stack">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Check Out Time</th>
+                <th>Request No.</th>
+                <th>Work Order No.</th>
+                <th>Technician</th>
+                <th>Remark</th>
+                <th>Total</th>
+                <th>MRF</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title mb-0">Return History</h3>
+            <div class="card-subtitle">Technician returns routed through material returns.</div>
+          </div>
+          <div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnSptRefreshReturn" data-toggle="tooltip" data-bs-toggle="tooltip" title="Refresh returns" aria-label="Refresh returns"><i class="fas fa-sync"></i></button>
+            <div id="sptReturnActions" class="d-inline-flex"></div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table id="dtSptReturnHistory" class="table table-hover table-sm mb-0 display responsive mobile-stack">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Request Time</th>
+                <th>Technician</th>
+                <th>Quantity</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Confirmed Time</th>
+                <th>Storekeeper</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>

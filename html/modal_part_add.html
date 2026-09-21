@@ -1,54 +1,52 @@
-<div class="modal fade gems-modal" id="modal_part_add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered mt-3 pt-5 mb-5" role="document">
-        <!--Content-->
-        <div class="modal-content gems-modal-card">
-            <!--Header-->
-            <div class="modal-header gems-modal-header">
-                <h4 class="text-white mt-2 ml-2"><i class="fas fa-plus text-white"></i> Add Inventory Item</h4>
-                <button type="button" class="close waves-effect waves-light mr-0 text-white pt-4 gems-modal-close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<!--
+  modal_part_add — Tabler in-place (P5-27). inventory.html only.
+  Cascade IDs and POST part {storeId,itemId} stay.
+-->
+<div class="modal fade" id="modal_part_add" tabindex="-1" aria-labelledby="lblMpaTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblMpaTitle"><i class="fas fa-plus me-1"></i> Add Inventory Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMpa" autocomplete="off" novalidate>
+          <div class="gems-form-grid">
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMpaSite" id="lblMpaSite">Site</label>
+              <input type="text" id="txtMpaSite" class="form-control" disabled>
             </div>
-            <!--Body-->
-            <div class="modal-body mb-0 gems-modal-body">
-                <form id="formMpa" class="mt-2" autocomplete="off">
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMpaSite" class="form-control grey lighten-4" disabled>
-                        <label for="txtMpaSite" id="lblMpaSite">Site</label>
-                    </div>
-                    <div class="md-form md-outline mt-0">
-                        <input type="text" id="txtMpaStore" class="form-control grey lighten-4" disabled>
-                        <label for="txtMpaStore" id="lblMpaStore">Store</label>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-0 mb-2" id="optMpaAssetGroup_">
-                            <select id="optMpaAssetGroup" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
-                            <label for="optMpaAssetGroup" id="lblMpaAssetGroup">Asset Group *</label>
-                            <p class="font-small text-danger" id="optMpaAssetGroupErr"></p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-0 mb-2" id="optMpaItemType_">
-                            <select id="optMpaItemType" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
-                            <label for="optMpaItemType" id="lblMpaItemType">Item Type *</label>
-                            <p class="font-small text-danger" id="optMpaItemTypeErr"></p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 select-outline mt-0 mb-2" id="optMpaItem_">
-                            <select id="optMpaItem" class="mdb-select md-form md-outline colorful-select my-0" data-stop-refresh="true"></select>
-                            <label for="optMpaItem" id="lblMpaItem">Item Description *</label>
-                            <p class="font-small text-danger" id="optMpaItemErr"></p>
-                        </div>
-                    </div>
-                </form>
+            <div class="gems-field gems-field-12">
+              <label class="form-label" for="txtMpaStore" id="lblMpaStore">Store</label>
+              <input type="text" id="txtMpaStore" class="form-control" disabled>
             </div>
-            <div class="modal-footer p-2 gems-modal-footer">
-                <button class="btn btn-outline-info waves-effect btnMpaClose" data-dismiss="modal" data-toggle="tooltip" title="Close"><i class="fas fa-undo-alt ml-1"></i> Close</button>
-                <button id="btnMpaSubmit" class="btn btn-info waves-effect" data-toggle="tooltip" title="Submit Inventory Part"><i class="far fa-paper-plane ml-1"></i> Submit</button>
+            <div class="gems-field gems-field-12" id="optMpaAssetGroup_">
+              <label class="form-label" for="optMpaAssetGroup" id="lblMpaAssetGroup">Asset Group <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpaAssetGroup" class="form-select" data-stop-refresh="true" aria-describedby="optMpaAssetGroupErr"></select>
+              <div class="gems-field-error" id="optMpaAssetGroupErr" role="alert"></div>
             </div>
-        </div>
+            <div class="gems-field gems-field-12" id="optMpaItemType_">
+              <label class="form-label" for="optMpaItemType" id="lblMpaItemType">Item Type <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpaItemType" class="form-select" data-stop-refresh="true" aria-describedby="optMpaItemTypeErr"></select>
+              <div class="gems-field-error" id="optMpaItemTypeErr" role="alert"></div>
+            </div>
+            <div class="gems-field gems-field-12" id="optMpaItem_">
+              <label class="form-label" for="optMpaItem" id="lblMpaItem">Item Description <span class="required" aria-hidden="true">*</span></label>
+              <select id="optMpaItem" class="form-select" data-stop-refresh="true" aria-describedby="optMpaItemErr"></select>
+              <div class="gems-field-error" id="optMpaItemErr" role="alert"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem"><span class="required" aria-hidden="true">*</span> Required</span>
+        <button type="button" class="btn btn-outline-secondary btnMpaClose" data-bs-dismiss="modal" data-dismiss="modal">
+          <i class="fas fa-undo-alt me-1"></i>Close
+        </button>
+        <button type="button" id="btnMpaSubmit" class="btn btn-primary">
+          <i class="far fa-paper-plane me-1"></i>Submit
+        </button>
+      </div>
     </div>
+  </div>
 </div>
-                    
-                    
