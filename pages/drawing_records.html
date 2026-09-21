@@ -1,207 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/drawing_records.html — Tabler-migrated (P5-15 Drawing Records).
+
+  Category A authenticated. Page JS: main_drawing_records.js (unchanged).
+  modal_drawing is drawing-only — converted in place.
+  modal_pdf is a shared dual-stack leftover — included unchanged.
+
+  APIs: GET drawing|drawing/low; GET/POST/PUT drawing/{id};
+    POST drawing/upload_dwg_drawing|upload_pdf_drawing;
+    PUT drawing/update_dwg_drawing|update_pdf_drawing/{id}.
+  Download/view: mzOpenUpload / mzOpenPdfUpload → pdf.php?uploadId=.
+  Roles: 12 edit, 13 high. Delete UI remains commented out (HEAD).
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+    css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+    js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+    js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0</title>
-	<!-- Browser icon -->
-	<link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Material Design Bootstrap -->
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <!-- DataTables.net -->
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/button.dataTables.min.css"/>
-    <!-- Your custom styles (optional) -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <!-- Your custom styles (optional) -->
-    <style>
-        /* Modern table enhancements for Drawing Records */
-        #dtDwrData tbody td:first-child { 
-            font-weight: 600; 
-            color: var(--gems-muted); 
-        }
-        /* #dtDwrData tbody td:nth-child(2) { 
-            font-weight: 600; 
-            color: var(--gems-primary); 
-        }
-        #dtDwrData tbody td:nth-child(3) { 
-            font-weight: 600; 
-        } */
-        
-        /* Action column with download icon */
-        #dtDwrData tbody td:last-child a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            margin-right: 4px;
-            color: var(--gems-primary);
-            transition: all 0.15s ease;
-        }
-        #dtDwrData tbody td:last-child a:hover {
-            color: var(--gems-primary);
-            transform: scale(1.1);
-        }
-    </style>
-	<!-- JQuery -->
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<!--JQuery Migrate-->
-	<script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Drawing Management</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .page-body, .page-body .container-xl, .sectionDwrMain { min-width: 0; max-width: 100%; }
+    #dtDwrData tbody td:first-child { font-weight: 600; color: var(--tblr-secondary, #6c7a91); }
+    #dtDwrData tbody td:last-child a {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; margin-right: 4px; color: var(--tblr-primary, #206bc4);
+    }
+    .action-btn-group { display: inline-flex; gap: 4px; align-items: center; }
+    .btn-action { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 6px; background: #fff; color: var(--tblr-body-color, #1e293b); }
+    .btn-action.btn-pdf { color: #c2410c; }
+    @media (max-width: 768px) {
+      #dtDwrData thead { display: none; }
+      #dtDwrData, #dtDwrData tbody, #dtDwrData tr, #dtDwrData td { display: block; width: 100%; }
+      #dtDwrData tr { background: var(--tblr-bg-surface, #fff); border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; }
+      #dtDwrData td { border: 0; border-bottom: 1px dashed var(--tblr-border-color, #e5e7eb); padding: 8px 0; }
+      #dtDwrData td:last-child { border-bottom: 0; }
+      #dtDwrData td::before { content: attr(data-label); display: block; color: var(--tblr-secondary, #6c7a91); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    }
+  </style>
 </head>
-
-<body class="fixed-sn light-blue-skin">
-<!--Main Navigation-->
-<header>
-    <!-- Sidebar navigation -->
-    <div class="includeHtml" id="h-nav_left"></div>
-    <!-- Navbar -->
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-<!--Main layout-->
-<main>
-    <div class="container-fluid module-page">
-        <!--Section: Main panel-->
-        <section class="mb-5 mt-lg-2 sectionDwrMain">
-            <section class="gems-page-header module-page-header">
-                <div class="header-text">
-                    <h2><i class="fas fa-drafting-compass mr-2"></i> Drawing Management</h2>
-                    <p>Oversee drawing profiles, versioning, and associated metadata.</p>
-                </div>
-                <div class="header-actions">
-                    <button type="button" id="btnDtDwrDataRefresh" class="btn btn-light btn-icon" aria-label="Refresh data" data-toggle="tooltip" data-placement="top" title="Refresh data"><i class="fas fa-sync-alt"></i></button>
-                    <button type="button" id="btnDwrDataAdd" class="btn btn-primary btn-icon" aria-label="Add drawing" data-toggle="tooltip" data-placement="top" title="Add Drawing"><i class="fas fa-plus"></i></button>
-                </div>
-            </section>
-            
-            <div class="modern-table-card">
-                <div class="table-header">
-                    <div>
-                        <a tabindex="0" role="button" class="btn btn-outline-white btn-rounded btn-sm px-2"
-                           data-toggle="popover" data-trigger="focus" title="Drawing Records List"
-                           data-content="All records of available drawing."><i class="fas fa-info mt-0 mx-1"></i></a>
-                    </div>
-                    <h3 class="table-title">Drawing Records</h3>
-                    <div>
-                        <!-- Export buttons will be added here by DataTable -->
-                    </div>
-                </div>
-                <div class="table-body">
-                    <div class="table-responsive">
-                        <table id="dtDwrData" class="table display responsive mobile-stack">
-                            <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Drawing ID No.</th>
-                                <th>Drawing Title</th>
-                                <th>Drawing Version</th>
-                                <th>Published By</th>
-                                <th>Published Date</th>
-                                <th>Permission Level</th>
-                                <th>Block</th>
-                                <th>Level</th>
-                                <th>Group</th>
-                                <th>Remarks</th>
-                                <th>Uploaded By</th>
-                                <th>Uploaded Time</th>
-                                <th style="width: 34px; min-width: 34px">Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-							</tbody>
-                        </table>
-                    </div>
-                </div>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+        <section class="sectionDwrMain">
+          <div class="page-header">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm">
+                <div class="text-secondary" style="font-size:.75rem">Document Control</div>
+                <h1 class="page-title">Drawing Management</h1>
+                <div class="page-subtitle">Oversee drawing profiles, versioning, and associated metadata.</div>
+              </div>
+              <div class="col-12 col-sm-auto">
+                <button type="button" id="btnDtDwrDataRefresh" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data"><i class="fas fa-sync-alt"></i></button>
+                <button type="button" id="btnDwrDataAdd" class="btn btn-primary" data-bs-toggle="tooltip" title="Add Drawing" aria-label="Add drawing"><i class="fas fa-plus me-1"></i>Add Drawing</button>
+              </div>
             </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Drawing Records</h3>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table id="dtDwrData" class="table table-hover display responsive mobile-stack">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Drawing ID No.</th>
+                      <th>Drawing Title</th>
+                      <th>Drawing Version</th>
+                      <th>Published By</th>
+                      <th>Published Date</th>
+                      <th>Permission Level</th>
+                      <th>Block</th>
+                      <th>Level</th>
+                      <th>Group</th>
+                      <th>Remarks</th>
+                      <th>Uploaded By</th>
+                      <th>Uploaded Time</th>
+                      <th style="width: 34px; min-width: 34px">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </section>
+      </div>
     </div>
+  </div>
+</div>
 
-    <div class="includeHtml" id="h-modal_change_password"></div>
-    <div class="includeHtml" id="h-modal_confirm_delete"></div>
-    <div class="includeHtml" id="h-modal_drawing"></div>
-    <div class="includeHtml" id="h-modal_pdf"></div>
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_confirm_delete"></div>
+<div class="includeHtml" id="h-modal_drawing"></div>
+<div class="includeHtml" id="h-modal_pdf"></div>
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true"></div>
 
-</main>
-
-<!-- SCRIPTS -->
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#'+divId).load('html/'+divId.substr(2)+'.html?' + new Date().valueOf());
-    });
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/toastr-safe.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_drawing.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_drawing_records.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="js/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="js/mdb.min.js"></script>
-<!-- Crypto JS -->
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<!-- DataTables.net -->
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.colvis.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<!-- Moment JavaScript -->
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let modalConfirmDelete_;
+  let modalDrawingClass_;
+  let drawingRecordsClass_;
 
-<!--Custom scripts-->
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        modalConfirmDelete_ = new ModalConfirmDelete();
+        modalDrawingClass_ = new ModalDrawing();
+        drawingRecordsClass_ = new MainDrawingRecords();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let modalConfirmDelete_;
-	let modalDrawingClass_;
-	let drawingRecordsClass_;
+        const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
 
-    document.addEventListener('DOMContentLoaded', function () {
+        modalDrawingClass_.setClassFrom(drawingRecordsClass_);
+        modalDrawingClass_.init();
 
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                modalConfirmDelete_ = new ModalConfirmDelete();
-				modalDrawingClass_ = new ModalDrawing();
-                drawingRecordsClass_ = new MainDrawingRecords();
-
-                const refAssetGroup_ = mzGetLocalArray('gems_assetGroup', versionLocal_, 'assetGroupId', [], 'asset_group');
-                
-				modalDrawingClass_.setClassFrom(drawingRecordsClass_);
-				modalDrawingClass_.init();
-
-                drawingRecordsClass_.setRefAssetGroup(refAssetGroup_);
-				drawingRecordsClass_.setModalDrawingClass(modalDrawingClass_);
-                drawingRecordsClass_.init();				
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 200);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_confirm_delete.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/modal_drawing.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_drawing_records.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-
+        drawingRecordsClass_.setRefAssetGroup(refAssetGroup_);
+        drawingRecordsClass_.setModalDrawingClass(modalDrawingClass_);
+        drawingRecordsClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 200);
+  });
 </script>
-
 </body>
 </html>

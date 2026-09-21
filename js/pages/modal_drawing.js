@@ -120,6 +120,12 @@ function ModalDrawing () {
 
         document.getElementById('txfMdwFile').addEventListener('change', mzHandleFileSelect, false);
         document.getElementById('txfMdwPdfFile').addEventListener('change', mzHandleFileSelect, false);
+        $('#txfMdwFile').on('change', function () {
+            $('#txtMdwFile').val(this.files.length ? this.files[0].name : '');
+        });
+        $('#txfMdwPdfFile').on('change', function () {
+            $('#txtMdwPdfFile').val(this.files.length ? this.files[0].name : '');
+        });
         
         $('#btnMdwSubmit').on('click', function () {
             if (!formValidate.validateNow()) {
@@ -241,9 +247,10 @@ function ModalDrawing () {
         setTimeout(function () {
             try {
                 drawingId = '';
-                formValidate.clearValidation();                
+                formValidate.clearValidation();
+                $('#txfMdwFile, #txfMdwPdfFile, #txfMdwFileBlob, #txfMdwPdfFileBlob, #txtMdwFile, #txtMdwPdfFile').val('');
 
-                $('#lblMdwModalTitle').html('<i class="fas fa-upload text-white"></i> Upload Drawing File');
+                $('#lblMdwModalTitle').html('<i class="fas fa-upload me-1"></i> Upload Drawing File');
                 $('#lblMdwFile').text('Drawing DWG File');
                 $('#lblMdwPdfFile').text('Drawing PDF File');
                 formValidate.registerFields(vData);
@@ -264,7 +271,8 @@ function ModalDrawing () {
             try {
                 mzCheckFuncParam([_drawingId]);
                 drawingId = _drawingId;
-                formValidate.clearValidation();                
+                formValidate.clearValidation();
+                $('#txfMdwFile, #txfMdwPdfFile, #txfMdwFileBlob, #txfMdwPdfFileBlob, #txtMdwFile, #txtMdwPdfFile').val('');
 
                 const drawing = mzAjaxRequest2('drawing/'+drawingId, 'GET');
                 console.log(drawing);
@@ -279,7 +287,7 @@ function ModalDrawing () {
                 mzSetFieldValue('MdwPermission', drawing['drawingPermissionLevel'], 'select');
                 mzSetFieldValue('MdwRemark', drawing['drawingRemark'], 'textarea');
                 
-                $('#lblMdwModalTitle').html('<i class="fas fa-edit text-white"></i> Edit Drawing File');
+                $('#lblMdwModalTitle').html('<i class="fas fa-edit me-1"></i> Edit Drawing File');
                 $('#lblMdwFile').text('Replace Drawing DWG File');
                 $('#lblMdwPdfFile').text('Replace Drawing PDF File');
                 formValidate.registerFields(vData);
