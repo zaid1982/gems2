@@ -126,7 +126,7 @@
   --gems-label-gap: 4px;
   --gems-field-gap: 12px;
   --gems-section-gap: 20px;
-  --gems-sidebar-w: 15rem;          /* 240px, not 20rem */
+  --gems-sidebar-w: 16rem;          /* 256px; 1280−256=1024, 1366−256=1110 */
   --gems-focus-ring: 0 0 0 2px rgba(0, 85, 184, 0.35);
 
   /* Tabler token overrides. Plain hex on purpose: it also removes Tabler's
@@ -280,6 +280,58 @@ body.gems-tabler {
   .gems-field-12,
   .gems-field-pair { grid-column: span 12; }
   .gems-field-pair { grid-template-columns: 1fr; }
+}
+
+/* 4b. Compact dashboard FILTER grid — read-only filters only (Home, KPA history).
+   Add next to .gems-form-grid. Never use on a data-entry form: the 2-up-below-1600
+   rule of §4 stays the contract there. gems-field-2 is only defined in this scope. */
+.gems-filter-grid > .gems-field-2       { grid-column: span 2; }
+.gems-filter-grid > .gems-field-4       { grid-column: span 4; }
+.gems-filter-grid > .gems-field-pair    { grid-column: span 4; }
+.gems-filter-grid > .gems-field-actions { grid-column: span 2; }
+.gems-filter-grid > .gems-field-actions > .btn {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  padding-inline: 0.65rem;
+}
+
+/* Long client/site names in a 2-col filter cell. display:block so a bare
+   text node can ellipsis; caret is absolutely placed so it is not clipped. */
+.gems-filter-grid .gems-field > .dropdown-toggle {
+  display: block;
+  position: relative;
+  text-align: start;
+  line-height: calc(var(--gems-control-h) - 2px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-inline-end: 1.75rem;
+}
+.gems-filter-grid .gems-field > .dropdown-toggle::after {
+  position: absolute;
+  inset-inline-end: 0.75rem;
+  top: 50%;
+  transform: translateY(-60%) rotate(-45deg);
+}
+
+@media (max-width: 1199.98px) {
+  .gems-filter-grid > .gems-field-2       { grid-column: span 4; }
+  .gems-filter-grid > .gems-field-4       { grid-column: span 6; }
+  .gems-filter-grid > .gems-field-pair    { grid-column: span 6; }
+  .gems-filter-grid > .gems-field-actions { grid-column: span 6; }
+  .gems-filter-grid > .gems-field-actions > .btn { flex: 0 1 auto; }
+}
+@media (max-width: 991.98px) {
+  .gems-filter-grid > .gems-field-2,
+  .gems-filter-grid > .gems-field-4       { grid-column: span 6; }
+  .gems-filter-grid > .gems-field-pair,
+  .gems-filter-grid > .gems-field-actions { grid-column: span 12; }
+}
+@media (max-width: 575.98px) {
+  .gems-filter-grid > .gems-field-2,
+  .gems-filter-grid > .gems-field-4,
+  .gems-filter-grid > .gems-field-pair,
+  .gems-filter-grid > .gems-field-actions { grid-column: span 12; }
 }
 
 /* Section rhythm — replaces ad-hoc mt-4 / mb-4_5 */
@@ -480,7 +532,38 @@ body.gems-tabler {
   box-shadow: 0 1px 2px rgba(36, 55, 70, 0.06);
 }
 
-.gems-filter-card .card-body { padding: 0.875rem 1rem; }
+.gems-filter-card .card-body { padding: 0.75rem 1rem; }
+
+.gems-tabler .gems-filter-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--gems-text-soft);
+}
+.gems-tabler .gems-filter-meta-end {
+  margin-left: auto;
+  white-space: nowrap;
+}
+.gems-tabler .card-body.py-2 > .gems-filter-meta {
+  margin-top: 0;
+}
+
+.gems-tabler .card-header.gems-card-header-compact {
+  padding: 0.5rem 1rem;
+}
+.gems-tabler .gems-card-header-compact .card-title {
+  font-size: 0.9375rem;
+  line-height: 1.35;
+}
+.gems-tabler .gems-card-subtitle {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--gems-text-soft);
+  margin-top: 1px;
+}
 
 /* No gradient table header. Plain text title + quiet header cells. */
 .gems-tabler .card-header {
@@ -656,9 +739,9 @@ body.gems-tabler .card:has(> table.table) {
    Layout is Tabler's. Do not re-declare .page-wrapper { margin } or
    position:fixed here — that is how P0 overlapped the first 240px of content.
 
-   Breakpoint is navbar-expand-lg (992px), not -xxl. The plan's 1000–1120px
-   content budget at 1280/1366 only holds with a visible 15rem sidebar
-   (1280−240=1040, 1366−240=1126). expand-xxl would fold the sidebar at those
+   Breakpoint is navbar-expand-lg (992px), not -xxl. The plan's ≥1000px
+   content budget at 1280/1366 holds with a visible 16rem sidebar
+   (1280−256=1024, 1366−256=1110). expand-xxl would fold the sidebar at those
    laptop sizes into Tabler's phone header + in-flow collapse. Below 992px the
    aside itself becomes the header and #sidebar-menu is Tabler's native fold.
 
@@ -686,6 +769,18 @@ body.gems-tabler .navbar-vertical .dropdown-item.active {
    only turns the L upside down, which reads as a corner mark. */
 body.gems-tabler .navbar-vertical .dropdown-toggle[aria-expanded="true"]::after {
   transform: rotate(135deg);
+}
+
+@media (min-width: 992px) {
+  body.gems-tabler .navbar-vertical .navbar-nav {
+    --tblr-sidebar-nav-padding-x: 0.625rem;
+  }
+  body.gems-tabler .navbar-vertical .navbar-nav .dropdown-menu .dropdown-item {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 body.gems-tabler .navbar .avatar {
@@ -922,15 +1017,16 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
 .gems-tabler .gems-chart-lg:has(> .gems-empty-state),
 .gems-tabler .gems-chart:has(> .waste-empty),
 .gems-tabler .gems-chart-sm:has(> .waste-empty),
-.gems-tabler .gems-chart-lg:has(> .waste-empty),
-.gems-tabler .chart-container:has(> .gems-empty-state) {
+.gems-tabler .gems-chart-lg:has(> .waste-empty) {
   height: auto;
-  min-height: 0;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .gems-tabler .gems-chart .gems-empty-state,
 .gems-tabler .gems-chart-sm .gems-empty-state,
-.gems-tabler .gems-chart-lg .gems-empty-state,
-.gems-tabler .chart-container .gems-empty-state {
+.gems-tabler .gems-chart-lg .gems-empty-state {
   padding: 1.25rem 1rem;
 }
 

@@ -121,6 +121,7 @@
             <a href="#sec-buttons">Buttons</a> &middot;
             <a href="#sec-badges">Badges</a> &middot;
             <a href="#sec-filter">Demo 1: filter bar</a> &middot;
+            <a href="#sec-dashboard">Dashboard density</a> &middot;
             <a href="#sec-table">Table + empty state</a> &middot;
             <a href="#sec-gemsui">Shared helpers (GemsUI)</a> &middot;
             <a href="#sec-workbook">Dense workbook (32px)</a> &middot;
@@ -141,8 +142,8 @@
             <code>html/nav_top_tabler.html</code>. Menu HTML comes from
             <code>mzBuildNavMenu()</code> with a fixture, not a hand-copied sample.
             This page still never calls <code>initiatePages()</code> (auth gate).
-            At 1366&times;768 and 1280&times;800 the sidebar is fixed at 240px and
-            content starts at 240px. Below 992px the sidebar becomes the header
+            At 1366&times;768 and 1280&times;800 the sidebar is fixed at 256px and
+            content starts at 256px. Below 992px the sidebar becomes the header
             and the hamburger opens <code>#sidebar-menu</code>. Inspect icons,
             teal active state, notification rows, and the profile menu &mdash; not
             only the layout box.
@@ -227,7 +228,7 @@
                       <tr><td><code>--gems-control-h</code></td><td>38px</td></tr>
                       <tr><td><code>--gems-field-gap</code></td><td>12px</td></tr>
                       <tr><td><code>--gems-section-gap</code></td><td>20px</td></tr>
-                      <tr><td><code>--gems-sidebar-w</code></td><td>15rem / 240px</td></tr>
+                      <tr><td><code>--gems-sidebar-w</code></td><td>16rem / 256px</td></tr>
                       <tr><td><code>--tblr-border-radius</code></td><td>8px</td></tr>
                     </tbody>
                   </table>
@@ -849,6 +850,76 @@
           </div>
         </section>
 
+        <section class="cat-section" id="sec-dashboard">
+          <h2>5b. Dashboard density — compact filters, chart headers, empty charts</h2>
+          <p class="cat-note">
+            Read-only dashboard filters may add <code>gems-filter-grid</code> next to
+            <code>gems-form-grid</code> so six controls fit one row at &ge;1200px
+            (<code>gems-field-2</code> + date <code>gems-field-pair</code> +
+            <code>gems-field-actions</code>). Do <strong>not</strong> use that class on
+            data-entry forms: the 2-up-below-1600 rule stays the contract there.
+            Chart cards use <code>gems-card-header-compact</code> +
+            <code>gems-card-subtitle</code>, then <code>gems-chart</code> (280&rarr;320).
+            Empty charts collapse to a 200px centred <code>gems-empty-state</code>.
+            Filter footnotes use <code>gems-filter-meta</code>;
+            &ldquo;Last refreshed&rdquo; takes <code>gems-filter-meta-end</code>.
+            Do not invent a second dashboard grid or KPI grid class &mdash;
+            keep Bootstrap <code>row row-cards</code>.
+          </p>
+          <div class="card gems-filter-card mb-2">
+            <div class="card-body">
+              <div class="gems-form-grid gems-filter-grid">
+                <div class="gems-field gems-field-2">
+                  <label class="form-label" for="dashFltType">Report Type</label>
+                  <select class="form-select" id="dashFltType"><option>Work Order</option></select>
+                </div>
+                <div class="gems-field gems-field-2">
+                  <label class="form-label" for="dashFltClient">Client</label>
+                  <select class="form-select" id="dashFltClient"><option>Demo Client</option></select>
+                </div>
+                <div class="gems-field gems-field-2">
+                  <label class="form-label" for="dashFltSite">Site</label>
+                  <select class="form-select" id="dashFltSite"><option>Overall</option></select>
+                </div>
+                <div class="gems-field-pair">
+                  <div class="gems-field">
+                    <label class="form-label" for="dashFltFrom">Date From</label>
+                    <input type="date" class="form-control" id="dashFltFrom">
+                  </div>
+                  <div class="gems-field">
+                    <label class="form-label" for="dashFltTo">Date To</label>
+                    <input type="date" class="form-control" id="dashFltTo">
+                  </div>
+                </div>
+                <div class="gems-field gems-field-actions">
+                  <button type="button" class="btn btn-primary">Apply</button>
+                </div>
+              </div>
+              <div class="gems-filter-meta">
+                <div>Demo Client &middot; Overall &middot; Sep 2026</div>
+                <div class="gems-filter-meta-end"><i class="far fa-clock me-1"></i>Last refreshed: —</div>
+              </div>
+            </div>
+          </div>
+          <div class="card mb-3">
+            <div class="card-header gems-card-header-compact">
+              <div>
+                <h3 class="card-title mb-0">WO by Site</h3>
+                <div class="gems-card-subtitle">Total work orders by status and site</div>
+              </div>
+            </div>
+            <div class="card-body p-2">
+              <div class="gems-chart" style="min-height:200px;height:auto;display:flex;align-items:center;justify-content:center">
+                <div class="gems-empty-state">
+                  <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                  <p>No data available</p>
+                  <p class="gems-empty-detail">No work orders were found for the selected filters.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- =========================================================
              TABLE CARD + EMPTY STATE
              ========================================================= -->
@@ -1000,7 +1071,9 @@
             Dispose tooltips before a DataTable redraw or before replacing
             action HTML. Do not load this file on MDB pages.
             Canonical CSS: <code>gems-form-footer*</code>, <code>gems-note</code>,
-            <code>gems-chart</code> / <code>-sm</code> / <code>-lg</code>.
+            <code>gems-chart</code> / <code>-sm</code> / <code>-lg</code>,
+            <code>gems-filter-grid</code>, <code>gems-card-header-compact</code>,
+            <code>gems-card-subtitle</code>, <code>gems-filter-meta</code>.
             Leave <code>.bei-chart</code>, <code>.enr-grid*</code>,
             <code>.bei-table</code>, <code>.autosave-state</code>, and
             JS-coupled <code>waste-*</code> names alone.

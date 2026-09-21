@@ -928,7 +928,7 @@ function mzBuildNavMenu(menuSet, navId, navSecondId) {
             if (navSeconds.length > 0) {
                 const expanded = navId === nav['navId'];
                 menuHtml += '<li class="nav-item dropdown' + (expanded ? ' active' : '') + '">';
-                menuHtml += '<a class="nav-link dropdown-toggle" href="#nav-' + nav['navId'] + '" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="' + (expanded ? 'true' : 'false') + '">';
+                menuHtml += '<a class="nav-link dropdown-toggle" href="#nav-' + nav['navId'] + '" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="' + (expanded ? 'true' : 'false') + '" title="' + nav['navDesc'] + '">';
                 menuHtml += '<span class="nav-link-icon"><i class="fas fa-' + nav['navIcon'] + '"></i></span>';
                 menuHtml += '<span class="nav-link-title">' + nav['navDesc'] + '</span>';
                 menuHtml += '</a>';
@@ -938,7 +938,7 @@ function mzBuildNavMenu(menuSet, navId, navSecondId) {
                 }
                 $.each(navSeconds, function (n2, nav2nd) {
                     const childActive = navSecondId === nav2nd['navSecondId'];
-                    menuHtml += '<a class="dropdown-item' + (childActive ? ' active' : '') + '" href="' + nav2nd['navSecondPage'] + '" onclick="mzGoToMenu(\'' + nav['navPage'] + '\', \'' + nav['navId'] + '\', \'' + nav2nd['navSecondId'] + '\');">' + nav2nd['navSecondDesc'] + '</a>';
+                    menuHtml += '<a class="dropdown-item' + (childActive ? ' active' : '') + '" href="' + nav2nd['navSecondPage'] + '" title="' + nav2nd['navSecondDesc'] + '" onclick="mzGoToMenu(\'' + nav['navPage'] + '\', \'' + nav['navId'] + '\', \'' + nav2nd['navSecondId'] + '\');">' + nav2nd['navSecondDesc'] + '</a>';
                     if (childActive) {
                         titleHtml += '<span class="small"> / ' + nav2nd['navSecondDesc'] + '</span>';
                     }
@@ -946,7 +946,7 @@ function mzBuildNavMenu(menuSet, navId, navSecondId) {
                 menuHtml += '</div></li>';
             } else {
                 menuHtml += '<li class="nav-item' + (strActive ? ' active' : '') + '">';
-                menuHtml += '<a class="nav-link" href="#" onclick="mzGoToMenu(\'' + nav['navPage'] + '\', \'' + nav['navId'] + '\', \'0\');">';
+                menuHtml += '<a class="nav-link" href="#" title="' + nav['navDesc'] + '" onclick="mzGoToMenu(\'' + nav['navPage'] + '\', \'' + nav['navId'] + '\', \'0\');">';
                 menuHtml += '<span class="nav-link-icon"><i class="fas fa-' + nav['navIcon'] + '"></i></span>';
                 menuHtml += '<span class="nav-link-title">' + nav['navDesc'] + '</span>';
                 menuHtml += '</a></li>';
