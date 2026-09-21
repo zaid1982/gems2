@@ -116,6 +116,7 @@
             <span class="text-muted me-2" style="font-size:.75rem;">Jump to:</span>
             <a href="#sec-chrome">Chrome</a> &middot;
             <a href="#sec-tokens">Tokens</a> &middot;
+            <a href="#sec-semantics">Semantics</a> &middot;
             <a href="#sec-controls">Controls</a> &middot;
             <a href="#sec-buttons">Buttons</a> &middot;
             <a href="#sec-badges">Badges</a> &middot;
@@ -176,9 +177,10 @@
         <section class="cat-section" id="sec-tokens">
           <h2>1. Tokens — the palette does not change</h2>
           <p class="cat-note">
-            Same five GFM colors the app already ships, mapped onto Tabler CSS variables in
-            <code>css/gems-theme.css</code>. Teal is an accent (active nav, metric highlight),
-            never a second primary.
+            Same five GFM brand colors the app already ships, plus the badge hexes now
+            promoted to tokens in <code>css/gems-theme.css</code>. Teal is an accent
+            (active nav, metric highlight), never a second primary. Do not introduce
+            Tabler blue, Bootstrap blue, Tailwind, or a module-accent palette.
           </p>
           <div class="row g-2">
             <div class="col-6 col-md">
@@ -230,6 +232,162 @@
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             1b. SEMANTICS + KPI + CHARTS
+             ========================================================= -->
+        <section class="cat-section" id="sec-semantics">
+          <h2>1b. Semantics, KPI tints, and chart palettes</h2>
+          <p class="cat-note">
+            Color communicates <strong>information and state</strong>, not decoration.
+            Target balance is conceptually ~75% neutral / ~15% brand / ~10% semantic.
+            <code>--gems-secondary</code> is GFM teal. Tabler/Bootstrap
+            <code>secondary</code> stays slate. Same meaning = same semantic treatment.
+          </p>
+
+          <h3 class="h4 mb-2" style="font-size:.875rem">Semantic tokens (existing badge hexes)</h3>
+          <div class="row g-2 mb-3">
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#1a7f4b"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Success</strong><br>#1a7f4b<br><span class="text-muted">soft #e7f7ee</span></div>
+            </div>
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#9a6206"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Warning</strong><br>#9a6206<br><span class="text-muted">soft #fdf3e2</span></div>
+            </div>
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#dc2626"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Danger</strong><br>#dc2626<br><span class="text-muted">soft #fdeaea</span></div>
+            </div>
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#0b6b68"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Info</strong><br>#0b6b68<br><span class="text-muted">soft #ceeff0</span></div>
+            </div>
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#eef1f4"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Neutral soft</strong><br>#eef1f4</div>
+            </div>
+            <div class="col-6 col-md">
+              <div class="cat-swatch" style="background:#e6eef8"></div>
+              <div class="mt-1" style="font-size:.75rem"><strong>Primary soft</strong><br>#e6eef8</div>
+            </div>
+          </div>
+
+          <h3 class="h4 mb-2" style="font-size:.875rem">Status vocabulary</h3>
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <div class="cat-do">
+                <span class="cat-tag">Default mapping</span>
+                <div class="d-flex flex-wrap gap-1 mb-2">
+                  <span class="badge gems-badge gems-badge-success">Active</span>
+                  <span class="badge gems-badge gems-badge-success">Completed</span>
+                  <span class="badge gems-badge gems-badge-info">Responding</span>
+                  <span class="badge gems-badge gems-badge-primary">In Progress</span>
+                  <span class="badge gems-badge gems-badge-warning">Pending</span>
+                  <span class="badge gems-badge gems-badge-warning">Verify</span>
+                  <span class="badge gems-badge gems-badge-secondary">Draft</span>
+                  <span class="badge gems-badge gems-badge-secondary">Inactive</span>
+                  <span class="badge gems-badge gems-badge-secondary">Archived</span>
+                  <span class="badge gems-badge gems-badge-danger">Cancelled</span>
+                  <span class="badge gems-badge gems-badge-danger">Overdue</span>
+                </div>
+                <p class="mb-0" style="font-size:.75rem">
+                  Success: Active, Completed, Approved, Available.
+                  Info: Responding, Processing, Assigned.
+                  Primary: In Progress (kept distinct from Responding).
+                  Warning: Pending, Verify, Attention, Awaiting.
+                  Neutral: Draft, Inactive, Archived, Closed when idle.
+                  Danger: Cancelled, Rejected, Failed, Error, Overdue.
+                </p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="cat-dont">
+                <span class="cat-tag">Documented exceptions — do not “fix”</span>
+                <ul class="mb-2" style="font-size:.75rem;padding-left:1.1rem">
+                  <li>PTW <strong>Completed / Closed</strong> stays secondary — a closed permit, not a success event.</li>
+                  <li>Waste <strong>Draft</strong> stays warning — awaiting finalization.</li>
+                  <li>Waste <strong>Cancelled</strong> stays secondary — withdrawn, not failed.</li>
+                  <li>Waste <strong>Disposed</strong> is success — completed outflow, not a failure (old red was contrast only).</li>
+                  <li>WO Summary <strong>Closed</strong> is success — the card subtitle is “Completed within the reporting window.”</li>
+                  <li>Home PPM progress <strong>Open</strong> / <strong>Check</strong> are warning (awaiting / verification), painted in the page, not in <code>GemsUI.statusKind</code>.</li>
+                </ul>
+                <p class="mb-0" style="font-size:.75rem;color:#b21f1f">
+                  Do not invent Work Order blue / Waste green / Energy amber.
+                  Do not use Tabler <code>#206bc4</code> or Tailwind greens on migrated pages.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="h4 mb-2" style="font-size:.875rem">KPI treatment — soft, not saturated</h3>
+          <div class="row row-cards mb-3">
+            <div class="col-6 col-lg-2">
+              <div class="card gems-kpi-primary"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Total</div>
+                <div class="h2 mb-0">128</div>
+              </div></div>
+            </div>
+            <div class="col-6 col-lg-2">
+              <div class="card gems-kpi-success"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Completed</div>
+                <div class="h2 mb-0">96</div>
+              </div></div>
+            </div>
+            <div class="col-6 col-lg-2">
+              <div class="card gems-kpi-warning"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Pending</div>
+                <div class="h2 mb-0">22</div>
+              </div></div>
+            </div>
+            <div class="col-6 col-lg-2">
+              <div class="card gems-kpi-danger"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Overdue</div>
+                <div class="h2 mb-0">4</div>
+              </div></div>
+            </div>
+            <div class="col-6 col-lg-2">
+              <div class="card gems-kpi-primary"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">In progress</div>
+                <div class="h2 mb-0">6</div>
+              </div></div>
+            </div>
+            <div class="col-6 col-lg-2">
+              <div class="card gems-kpi-neutral"><div class="card-body py-2">
+                <div class="text-secondary" style="font-size:.75rem">Window</div>
+                <div class="h2 mb-0">Sep</div>
+              </div></div>
+            </div>
+          </div>
+
+          <h3 class="h4 mb-2" style="font-size:.875rem">Analytics palette ≠ status palette</h3>
+          <div class="row g-2 mb-2">
+            <div class="col-2"><div class="cat-swatch" style="background:#0055b8"></div><div class="mt-1" style="font-size:.6875rem">chart-1</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:#00ada8"></div><div class="mt-1" style="font-size:.6875rem">chart-2</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:#1a7f4b"></div><div class="mt-1" style="font-size:.6875rem">chart-3</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:#9a6206"></div><div class="mt-1" style="font-size:.6875rem">chart-4</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:#dc2626"></div><div class="mt-1" style="font-size:.6875rem">chart-5</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:#0891b2"></div><div class="mt-1" style="font-size:.6875rem">chart-6</div></div>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <div class="cat-do">
+                <span class="cat-tag">Do</span>
+                Status charts use <code>paintStatus*</code> / kind colors, never series index.
+                Categorical charts use <code>--gems-chart-1…6</code> (GFM blue, teal, then the existing success / warning / danger / Energy cyan hexes — reuse, not a new brand).
+                Empty charts use <code>gems-empty-state</code>, not a tall blank canvas.
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="cat-dont">
+                <span class="cat-tag">Don’t</span>
+                Do not paint the fifth categorical series red just because it is series 5.
+                Do not fake chart data. A real all-zero dataset is still a dataset.
+                Do not copy page-local rainbows or the retired MDB <code>mzChartOption()</code>.
               </div>
             </div>
           </div>
@@ -512,6 +670,7 @@
             <div class="col-lg-7">
               <div class="cat-do">
                 <span class="cat-tag"><i class="fas fa-check-circle me-1"></i>Do</span>
+                <span class="badge gems-badge gems-badge-primary">In Progress</span>
                 <span class="badge gems-badge gems-badge-success">Valid</span>
                 <span class="badge gems-badge gems-badge-warning">Expiring soon</span>
                 <span class="badge gems-badge gems-badge-danger">Expired</span>
@@ -832,7 +991,8 @@
             <code>common.js</code> (see <code>html/scripts_tabler.html</code>).
             The file assigns <code>window.GemsUI</code> and does nothing else on
             load. Use it for DataTables chrome, <code>actionBtn</code>, empty
-            states, badges, selects, and tooltip dispose/init. Do not copy
+            states, badges, <code>chartColors()</code>, <code>statusKind()</code>,
+            selects, and tooltip dispose/init. Do not copy
             <code>waste_common</code> / <code>kpa_common</code> /
             <code>energy_common</code>. <code>href</code> only when the action
             changes <code>window.location</code>; otherwise

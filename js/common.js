@@ -2023,33 +2023,6 @@ function mzOptionArr(name, data, defaultText, keyIndex, valIndex, type) {
     fieldSelector.val(null);
 }
 
-function mzChartOption() {
-    Highcharts.setOptions({
-        plotOptions: {
-            series: {
-                turboThreshold: 0,
-                boostThreshold: 0,
-                boost: {
-                    enabled: false
-                }
-            }
-        },
-        colors: Highcharts.map(['#ff4444', '#00C851', '#ffbb33', '#33b5e5', '#dce775', '#00897b', '#a1887f', '#ffff8d', '#ff8a65', '#7e57c2', '#9c27b0', '#ec407a', '#7283a7', '#bdbdbd'], function (color) {
-            return {
-                radialGradient: {
-                    cx: 0.5,
-                    cy: 0.3,
-                    r: 0.7
-                },
-                stops: [
-                    [0, color],
-                    [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
-                ]
-            };
-        })
-    });
-}
-
 function mzSetFieldValue(name, value, type, label, isInit) {
     if (typeof type === 'undefined') {
         const prefix = name.substring(0, 3);

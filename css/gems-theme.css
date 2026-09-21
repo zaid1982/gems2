@@ -82,6 +82,41 @@
   --gems-muted-icon: #7e8f9a;
   --gems-border: #e7eaec;
   --gems-danger: #dc2626;
+  --gems-danger-rgb: 220, 38, 38;
+  --gems-danger-fg: #b21f1f;       /* existing badge text; #dc2626 on soft fill fails AA */
+
+  /* Semantic — existing badge hexes, now tokens. Do not invent new hues. */
+  --gems-success: #1a7f4b;
+  --gems-success-rgb: 26, 127, 75;
+  --gems-success-soft: #e7f7ee;
+  --gems-warning: #9a6206;
+  --gems-warning-rgb: 154, 98, 6;
+  --gems-warning-soft: #fdf3e2;
+  --gems-danger-soft: #fdeaea;
+  --gems-info: #0b6b68;
+  --gems-info-rgb: 11, 107, 104;
+  --gems-info-soft: #ceeff0;          /* same hue as --gems-accent */
+  --gems-neutral-soft: #eef1f4;
+  --gems-primary-soft: #e6eef8;       /* rgba(0,85,184,.08) on white */
+
+  /* Status vocabulary (default). Module exceptions stay in the module:
+       SUCCESS  Active, Completed, Approved, Success, Available
+       INFO     Responding, Processing, Assigned
+       PRIMARY  In Progress (distinct from Responding)
+       WARNING  Pending, Verify, Verification, Attention, Awaiting
+       NEUTRAL  Draft*, Inactive, Archived, Closed (when closed is idle)
+       DANGER   Cancelled*, Rejected, Failed, Error, Overdue, Critical
+     *Exceptions: Waste DRAFT=warning, Waste CANCELLED=secondary,
+      Waste DISPOSED=success (completed outflow, not a failure),
+      PTW COMPLETED=secondary (closed permit, not a success event),
+      WO Summary Closed=success (subtitle is completed in the window).
+     Categorical analytics — not a status map. Status charts use semantic tokens. */
+  --gems-chart-1: #0055b8;
+  --gems-chart-2: #00ada8;
+  --gems-chart-3: #1a7f4b;
+  --gems-chart-4: #9a6206;
+  --gems-chart-5: #dc2626;
+  --gems-chart-6: #0891b2;
 
   --gems-font-body: 'Poppins', 'Lato', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --gems-font-heading: 'Lato', 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -111,7 +146,19 @@
   --tblr-border-radius: 8px;
   --tblr-border-radius-sm: 6px;
   --tblr-border-radius-lg: 10px;
+  /* Tabler "secondary" stays slate. GEMS secondary is teal (--tblr-teal). */
+  --tblr-success: #1a7f4b;
+  --tblr-success-rgb: 26, 127, 75;
+  --tblr-success-lt: #e7f7ee;
+  --tblr-warning: #9a6206;
+  --tblr-warning-rgb: 154, 98, 6;
+  --tblr-warning-lt: #fdf3e2;
+  --tblr-info: #0b6b68;
+  --tblr-info-rgb: 11, 107, 104;
+  --tblr-info-lt: #ceeff0;
   --tblr-danger: #dc2626;
+  --tblr-danger-rgb: 220, 38, 38;
+  --tblr-danger-lt: #fdeaea;
 }
 
 @media (min-width: 1600px) {
@@ -502,6 +549,11 @@ body.gems-tabler {
 }
 .gems-empty-state i { font-size: 1.75rem; margin-bottom: 0.5rem; display: block; }
 .gems-empty-state p { margin-bottom: 0.75rem; }
+.gems-empty-state p:last-child { margin-bottom: 0; }
+.gems-empty-detail {
+  font-size: 0.75rem;
+  color: var(--gems-muted);
+}
 
 /* Workbook / table exception: data cells stay nowrap and may scroll inside
    their own scroller. An empty-state message inside a cell must wrap to the
@@ -554,11 +606,12 @@ body.gems-tabler .card:has(> table.table) {
   border-radius: 6px;
 }
 .gems-tabler .gems-badge i { margin-right: 0.3rem; }
-.gems-tabler .gems-badge-success   { background: #e7f7ee; color: #1a7f4b; }
-.gems-tabler .gems-badge-warning   { background: #fdf3e2; color: #9a6206; }
-.gems-tabler .gems-badge-danger    { background: #fdeaea; color: #b21f1f; }
-.gems-tabler .gems-badge-info      { background: var(--gems-accent); color: #0b6b68; }
-.gems-tabler .gems-badge-secondary { background: #eef1f4; color: var(--gems-text-soft); }
+.gems-tabler .gems-badge-primary   { background: var(--gems-primary-soft); color: var(--gems-primary); }
+.gems-tabler .gems-badge-success   { background: var(--gems-success-soft); color: var(--gems-success); }
+.gems-tabler .gems-badge-warning   { background: var(--gems-warning-soft); color: var(--gems-warning); }
+.gems-tabler .gems-badge-danger    { background: var(--gems-danger-soft); color: var(--gems-danger-fg); }
+.gems-tabler .gems-badge-info      { background: var(--gems-info-soft); color: var(--gems-info); }
+.gems-tabler .gems-badge-secondary { background: var(--gems-neutral-soft); color: var(--gems-text-soft); }
 
 /* --------------------------------------------------------------------------
    9. Modals — fit a 768px-tall laptop, flat header, sticky footer
@@ -716,9 +769,9 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
 .md-toast-title, .toast-title { font-weight: 600; margin-bottom: 2px; }
 .md-toast-message, .toast-message { word-wrap: break-word; }
 
-.md-toast-success, .toast-success { border-left-color: #1a7f4b; }
+.md-toast-success, .toast-success { border-left-color: var(--gems-success); }
 .md-toast-error,   .toast-error   { border-left-color: var(--gems-danger); }
-.md-toast-warning, .toast-warning { border-left-color: #9a6206; }
+.md-toast-warning, .toast-warning { border-left-color: var(--gems-warning); }
 .md-toast-info,    .toast-info    { border-left-color: var(--gems-primary); }
 
 .md-toast-close-button, .toast-close-button {
@@ -857,15 +910,38 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 180px;
-  padding: 1.5rem 1rem;
+  min-height: 0;
+  padding: 1.25rem 1rem;
   color: var(--gems-muted);
   text-align: center;
   font-size: 0.8125rem;
 }
 
+.gems-tabler .gems-chart:has(> .gems-empty-state),
+.gems-tabler .gems-chart-sm:has(> .gems-empty-state),
+.gems-tabler .gems-chart-lg:has(> .gems-empty-state),
+.gems-tabler .gems-chart:has(> .waste-empty),
+.gems-tabler .gems-chart-sm:has(> .waste-empty),
+.gems-tabler .gems-chart-lg:has(> .waste-empty),
+.gems-tabler .chart-container:has(> .gems-empty-state) {
+  height: auto;
+  min-height: 0;
+}
+.gems-tabler .gems-chart .gems-empty-state,
+.gems-tabler .gems-chart-sm .gems-empty-state,
+.gems-tabler .gems-chart-lg .gems-empty-state,
+.gems-tabler .chart-container .gems-empty-state {
+  padding: 1.25rem 1rem;
+}
+
 .gems-tabler .metric-card[data-kpi] { cursor: pointer; }
 .gems-tabler .metric-card[data-kpi]:hover { background: #f5f7f9; }
+.gems-tabler .metric-card.gems-kpi-primary[data-kpi]:hover { background: var(--gems-primary-soft); }
+.gems-tabler .metric-card.gems-kpi-success[data-kpi]:hover { background: var(--gems-success-soft); }
+.gems-tabler .metric-card.gems-kpi-warning[data-kpi]:hover { background: var(--gems-warning-soft); }
+.gems-tabler .metric-card.gems-kpi-danger[data-kpi]:hover { background: var(--gems-danger-soft); }
+.gems-tabler .metric-card.gems-kpi-info[data-kpi]:hover { background: var(--gems-info-soft); }
+.gems-tabler .metric-card.gems-kpi-neutral[data-kpi]:hover { background: var(--gems-neutral-soft); }
 
 /* deprecated alias — remove at P6. Header chips now use badge gems-badge gems-badge-*. */
 .gems-tabler .waste-header-chip,
@@ -882,9 +958,9 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   background: #eef1f4;
   color: var(--gems-text-soft);
 }
-.gems-tabler .waste-status-badge.is-draft { background: #fdf3e2; color: #9a6206; }
-.gems-tabler .waste-status-badge.is-final { background: #e7f7ee; color: #1a7f4b; }
-.gems-tabler .waste-status-badge.is-cancelled { background: #eef1f4; color: var(--gems-text-soft); }
+.gems-tabler .waste-status-badge.is-draft { background: var(--gems-warning-soft); color: var(--gems-warning); }
+.gems-tabler .waste-status-badge.is-final { background: var(--gems-success-soft); color: var(--gems-success); }
+.gems-tabler .waste-status-badge.is-cancelled { background: var(--gems-neutral-soft); color: var(--gems-text-soft); }
 
 .gems-tabler .waste-note,
 .gems-tabler .gems-note {
@@ -894,9 +970,9 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   margin-top: var(--gems-field-gap);
   padding: 0.55rem 0.75rem;
   border-radius: var(--tblr-border-radius);
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  color: #92400e;
+  background: var(--gems-warning-soft);
+  border: 1px solid rgba(var(--gems-warning-rgb), 0.35);
+  color: var(--gems-warning);
   font-size: 0.75rem;
   line-height: 1.4;
 }
@@ -1073,9 +1149,9 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   font-weight: 600;
   color: var(--gems-muted);
 }
-.gems-tabler .autosave-state.is-saving { color: #0369a1; }
-.gems-tabler .autosave-state.is-saved { color: #166534; }
-.gems-tabler .autosave-state.is-error { color: #991b1b; }
+.gems-tabler .autosave-state.is-saving { color: var(--gems-info); }
+.gems-tabler .autosave-state.is-saved { color: var(--gems-success); }
+.gems-tabler .autosave-state.is-error { color: var(--gems-danger); }
 .gems-tabler .autosave-state[hidden] { display: none !important; }
 
 /* --------------------------------------------------------------------------
@@ -1184,7 +1260,7 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
 
 .gems-tabler .bei-override {
   font-size: 0.6875rem;
-  color: #9a6206;
+  color: var(--gems-warning);
   font-weight: 600;
 }
 
@@ -1206,5 +1282,65 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   border-color: var(--gems-primary);
   box-shadow: var(--gems-focus-ring);
   outline: none;
+}
+
+/* --------------------------------------------------------------------------
+   16. Soft KPI cards — white/neutral with controlled semantic emphasis
+   --------------------------------------------------------------------------
+   Add .gems-kpi-* next to the existing .card. Soft fill + 3px inset edge.
+   Do not saturate the whole dashboard.
+   -------------------------------------------------------------------------- */
+.gems-tabler .card.gems-kpi-primary,
+.gems-tabler .card.gems-kpi-success,
+.gems-tabler .card.gems-kpi-warning,
+.gems-tabler .card.gems-kpi-danger,
+.gems-tabler .card.gems-kpi-info,
+.gems-tabler .card.gems-kpi-neutral {
+  box-shadow: inset 3px 0 0 transparent;
+}
+.gems-tabler .card.gems-kpi-primary {
+  background: var(--gems-primary-soft);
+  box-shadow: inset 3px 0 0 var(--gems-primary);
+}
+.gems-tabler .card.gems-kpi-primary .h2 { color: var(--gems-primary); }
+.gems-tabler .card.gems-kpi-success {
+  background: var(--gems-success-soft);
+  box-shadow: inset 3px 0 0 var(--gems-success);
+}
+.gems-tabler .card.gems-kpi-success .h2 { color: var(--gems-success); }
+.gems-tabler .card.gems-kpi-warning {
+  background: var(--gems-warning-soft);
+  box-shadow: inset 3px 0 0 var(--gems-warning);
+}
+.gems-tabler .card.gems-kpi-warning .h2 { color: var(--gems-warning); }
+.gems-tabler .card.gems-kpi-danger {
+  background: var(--gems-danger-soft);
+  box-shadow: inset 3px 0 0 var(--gems-danger);
+}
+.gems-tabler .card.gems-kpi-danger .h2 { color: var(--gems-danger-fg); }
+.gems-tabler .card.gems-kpi-info {
+  background: var(--gems-info-soft);
+  box-shadow: inset 3px 0 0 var(--gems-info);
+}
+.gems-tabler .card.gems-kpi-info .h2 { color: var(--gems-info); }
+.gems-tabler .card.gems-kpi-neutral {
+  background: var(--gems-neutral-soft);
+  box-shadow: inset 3px 0 0 var(--gems-text-soft);
+}
+.gems-tabler .card.gems-kpi-neutral .h2 { color: var(--gems-text); }
+
+/* --------------------------------------------------------------------------
+   17. Selected filter / status chips — GFM primary, never Tabler #206bc4
+   -------------------------------------------------------------------------- */
+.gems-tabler .gems-status-chip.active {
+  background: var(--gems-primary-soft);
+  border-color: var(--gems-primary);
+  color: var(--gems-primary);
+}
+.gems-tabler .filter-pill-group a.active,
+.gems-tabler .filter-pill-group a.text-white {
+  background: var(--gems-primary);
+  color: #fff !important;
+  border-color: transparent;
 }
 

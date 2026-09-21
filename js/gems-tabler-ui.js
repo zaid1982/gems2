@@ -3,7 +3,8 @@
  *
  * Load after js/common.js on Tabler pages only (see html/scripts_tabler.html).
  * This file assigns window.GemsUI and does nothing else on load: no DOM
- * queries, no event binding, no tooltip init.
+ * queries, no event binding, no tooltip init. Chart/status helpers are
+ * side-effect-free except emptyChart(), which only writes the named node.
  *
  * Do not load on MDB pages (kpi_in.html). Do not grow this surface without
  * another architect pass. Module commons keep their public APIs and only
@@ -80,6 +81,161 @@
 
         badge: function (kind, label) {
             return '<span class="badge gems-badge gems-badge-' + kind + '">' + label + '</span>';
+        },
+
+        /* Chart + status helpers. Side-effect-free except emptyChart, which
+           only writes the named container. No module-specific overrides. */
+
+        chartColors: function () {
+            const style = window.getComputedStyle(document.documentElement);
+            const colors = [];
+            for (let i = 1; i <= 6; i++) {
+                const value = (style.getPropertyValue('--gems-chart-' + i) || '').trim();
+                if (value) { colors.push(value); }
+            }
+            return colors.length ? colors : ['#0055b8', '#00ada8', '#1a7f4b', '#9a6206', '#dc2626', '#0891b2'];
+        },
+
+        chartColor: function (index) {
+            const colors = GemsUI.chartColors();
+            const i = Number(index);
+            const n = (isNaN(i) ? 0 : i);
+            return colors[((n % colors.length) + colors.length) % colors.length];
+        },
+
+        kindColor: function (kind) {
+            const keys = {
+                primary: '--gems-primary',
+                success: '--gems-success',
+                warning: '--gems-warning',
+                danger: '--gems-danger',
+                info: '--gems-info',
+                secondary: '--gems-text-soft'
+            };
+            const token = keys[kind] || keys.primary;
+            const value = (window.getComputedStyle(document.documentElement).getPropertyValue(token) || '').trim();
+            return value || '#0055b8';
+        },
+
+        statusKind: function (label) {
+            const key = String(label || '').trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
+            /* Documented default vocabulary only. Module exceptions stay
+               in the module (PTW Completed, Waste Draft/Cancelled). */
+            const map = {
+                active: 'success',
+                completed: 'success',
+                approved: 'success',
+                success: 'success',
+                available: 'success',
+                responding: 'info',
+                processing: 'info',
+                assigned: 'info',
+                'in progress': 'primary',
+                pending: 'warning',
+                verify: 'warning',
+                verification: 'warning',
+                attention: 'warning',
+                awaiting: 'warning',
+                draft: 'secondary',
+                inactive: 'secondary',
+                archived: 'secondary',
+                closed: 'secondary',
+                'not applicable': 'secondary',
+                cancelled: 'danger',
+                canceled: 'danger',
+                rejected: 'danger',
+                failed: 'danger',
+                error: 'danger',
+                overdue: 'danger',
+                critical: 'danger'
+            };
+            return map[key] || null;
+        },
+
+        statusColor: function (label) {
+            const kind = GemsUI.statusKind(label);
+            return kind ? GemsUI.kindColor(kind) : GemsUI.chartColor(0);
+        },
+
+        badgeKindFromColor: function (statusColor) {
+            const raw = String(statusColor || '').trim().toLowerCase();
+            const token = raw.replace(/^badge-/, '').replace(/^bg-/, '').split(/[\s_]+/)[0];
+            switch (token) {
+                case 'success':
+                case 'green':
+                case 'light-green':
+                case 'lime':
+                case 'teal':
+                    return 'success';
+                case 'warning':
+                case 'orange':
+                case 'deep-orange':
+                case 'amber':
+                case 'yellow':
+                    return 'warning';
+                case 'danger':
+                case 'error':
+                case 'red':
+                case 'pink':
+                    return 'danger';
+                case 'info':
+                case 'cyan':
+                    return 'info';
+                case 'primary':
+                case 'blue':
+                    return 'primary';
+                case 'secondary':
+                case 'grey':
+                case 'gray':
+                    return 'secondary';
+                case 'light-blue':
+                case 'indigo':
+                case 'purple':
+                case 'deep-purple':
+                    return 'info';
+                case 'blue-grey':
+                case 'blue-gray':
+                    return 'secondary';
+                default:
+                    return 'secondary';
+            }
+        },
+
+        paintStatusSeries: function (series) {
+            return (series || []).map(function (item) {
+                const next = Object.assign({}, item);
+                next.color = GemsUI.kindColor(GemsUI.statusKind(next.name) || 'secondary');
+                return next;
+            });
+        },
+
+        paintStatusPoints: function (points, categories) {
+            return (points || []).map(function (point, index) {
+                const next = (point && typeof point === 'object') ? Object.assign({}, point) : { y: point };
+                const label = next.name || (categories && categories[index]) || '';
+                next.color = GemsUI.kindColor(GemsUI.statusKind(label) || 'secondary');
+                return next;
+            });
+        },
+
+        emptyChartHtml: function (title, detail) {
+            return '<div class="gems-empty-state"><i class="fas fa-chart-bar" aria-hidden="true"></i><p>' +
+                escapeHtml(title || 'No data available') + '</p>' +
+                (detail ? '<p class="gems-empty-detail">' + escapeHtml(detail) + '</p>' : '') +
+                '</div>';
+        },
+
+        emptyChart: function (containerId, title, detail) {
+            const el = document.getElementById(containerId);
+            if (!el) { return; }
+            if (typeof window.Highcharts !== 'undefined' && Highcharts.charts) {
+                Highcharts.charts.forEach(function (chart) {
+                    if (chart && chart.renderTo && chart.renderTo.id === containerId) {
+                        chart.destroy();
+                    }
+                });
+            }
+            el.innerHTML = GemsUI.emptyChartHtml(title, detail);
         },
 
         /* P4 contract. Do not call from Waste/KPA/Energy during the P3 retrofit:
