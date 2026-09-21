@@ -142,7 +142,9 @@ function SectionItem () {
             },
             drawCallback: function () {
                 $('[data-toggle="tooltip"]').tooltip();
-                initPhotoSwipeFromDOM('.mdb-lightbox');
+                if (typeof initPhotoSwipeFromDOM === 'function') {
+                    initPhotoSwipeFromDOM('.mdb-lightbox');
+                }
                 $('.lnkSiyPictureDelete').off('click').on('click', function () {
                     const linkId = $(this).attr('id');
                     const linkIndex = linkId.indexOf('_');

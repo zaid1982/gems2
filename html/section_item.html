@@ -1,116 +1,126 @@
-<section class="section mb-5 mt-lg-3 sectionItem">
-    <div class="row mb-4 pb-0">
-        <div class="col-md-12">
-            <button type="button" class="btn btn-blue-grey btn-rounded float-right text-white z-depth-3 px-4" id="btnSiySave" data-toggle="tooltip" title="Save Item Description">
-                <i class="fas fa-save"></i> Save
-            </button>
-            <button type="button" class="btn btn-danger btn-rounded float-right text-white z-depth-3 px-4" id="btnSiyDelete" data-toggle="tooltip" title="Delete Item Description">
-                <i class="fas fa-trash-alt"></i> Delete
-            </button>
-            <button type="button" class="btn btn-deep-orange btn-rounded float-right text-white z-depth-3 px-4" id="btnSiyDisable" data-toggle="tooltip" title="Disable Item Description">
-                <i class="fas fa-ban"></i> Disable
-            </button>
-            <button type="button" class="btn btn-dark-green btn-rounded float-right text-white z-depth-3 px-4" id="btnSiyEnable" data-toggle="tooltip" title="Enable Item Description">
-                <i class="fas fa-check"></i> Enable
-            </button>
-            <button type="button" class="btn btn-warning btn-rounded float-right text-white z-depth-3 px-4" id="btnSiyBack" data-toggle="tooltip" title="Back to Main Page">
-                <i class="fas fa-arrow-left"></i> Back
-            </button>
-        </div>
+<!--
+  section_item — Tabler in-place (P5-23). item_management.html only.
+  Field IDs, prefix hooks, picture table, and action buttons stay.
+-->
+<section class="section mb-4 sectionItem" style="display:none">
+  <div class="page-header">
+    <div class="row align-items-center g-2">
+      <div class="col-12 col-sm">
+        <div class="text-secondary" style="font-size:.75rem">Item Management</div>
+        <h1 class="page-title">Item Description</h1>
+      </div>
+      <div class="col-12 col-sm-auto">
+        <button type="button" class="btn btn-outline-secondary" id="btnSiyBack" data-toggle="tooltip" data-bs-toggle="tooltip" title="Back to Main Page">
+          <i class="fas fa-arrow-left me-1"></i>Back
+        </button>
+        <button type="button" class="btn btn-outline-success" id="btnSiyEnable" data-toggle="tooltip" data-bs-toggle="tooltip" title="Enable Item Description">
+          <i class="fas fa-check me-1"></i>Enable
+        </button>
+        <button type="button" class="btn btn-outline-warning" id="btnSiyDisable" data-toggle="tooltip" data-bs-toggle="tooltip" title="Disable Item Description">
+          <i class="fas fa-ban me-1"></i>Disable
+        </button>
+        <button type="button" class="btn btn-outline-danger" id="btnSiyDelete" data-toggle="tooltip" data-bs-toggle="tooltip" title="Delete Item Description">
+          <i class="fas fa-trash-alt me-1"></i>Delete
+        </button>
+        <button type="button" class="btn btn-primary" id="btnSiySave" data-toggle="tooltip" data-bs-toggle="tooltip" title="Save Item Description">
+          <i class="fas fa-save me-1"></i>Save
+        </button>
+      </div>
     </div>
-    <div class="row">
-        <div class="col-lg-7">
-            <div class="card card-cascade cascading-admin-card user-card z-depth-3 mt-0 mb-4_5">
-                <div class="admin-up d-flex justify-content-start">
-                    <i class="fa fas fa-toolbox rgba-blue-strong py-4 z-depth-3"></i>
-                    <div class="data">
-                        <h3 class="font-weight-bold dark-grey-text ml-3">Item Description</h3>
-                    </div>
-                </div>
-                <div class="card-body card-body-cascade">
-                    <form id="formSiy" autocomplete="off">
-                        <div class="md-form">
-                            <i class="fas fa-tag prefix" id="optSiyAssetGroupPre"></i>
-                            <select id="optSiyAssetGroup" class="mdb-select md-form colorful-select ml-4 pl-3 mb-0" data-stop-refresh="true"></select>
-                            <label for="optSiyAssetGroup" id="lblSiyAssetGroup" class="mt-1">Asset Group *</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="optSiyAssetGroupErr"></p>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-tools prefix" id="optSiyItemTypePre"></i>
-                            <select id="optSiyItemType" class="mdb-select md-form colorful-select ml-4 pl-3 mb-0" data-stop-refresh="true"></select>
-                            <label for="optSiyItemType" id="lblSiyItemType" class="mt-1">Item Type *</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="optSiyItemTypeErr"></p>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-hammer prefix" id="txtSiyDescriptionPre"></i>
-                            <input type="text" id="txtSiyDescription" class="form-control">
-                            <label for="txtSiyDescription" id="lblSiyDescription">Item Description *</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="txtSiyDescriptionErr"></p>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-tachometer-alt prefix" id="txtSiyThresholdPre"></i>
-                            <input type="text" id="txtSiyThreshold" class="form-control">
-                            <label for="txtSiyThreshold" id="lblSiyThreshold">Default Threshold *</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="txtSiyThresholdErr"></p>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-shopping-cart prefix" id="txtSiyMinOrderPre"></i>
-                            <input type="text" id="txtSiyMinOrder" class="form-control">
-                            <label for="txtSiyMinOrder" id="lblSiyMinOrder">Minimum Order *</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="txtSiyMinOrderErr"></p>
-                        </div>
-                        <div class="md-form my-0">
-                            <i class="fas fa-luggage-cart prefix" id="txtSiyMaxOrderPre"></i>
-                            <input type="text" id="txtSiyMaxOrder" class="form-control">
-                            <label for="txtSiyMaxOrder" id="lblSiyMaxOrder">Maximum Order *</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="txtSiyMaxOrderErr"></p>
-                        </div>
-                        <div class="md-form mb-0">
-                            <i class="fas fa-pencil-alt prefix" id="txaSiyRemarkPre"></i>
-                            <textarea id="txaSiyRemark" class="md-textarea form-control" rows="1"></textarea>
-                            <label for="txaSiyRemark" id="lblSiyRemark" class="text-muted">Remark</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="txaSiyRemarkErr"></p>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-sort-numeric-up prefix" id="txtSiyTurnPre"></i>
-                            <input type="text" id="txtSiyTurn" class="form-control">
-                            <label for="txtSiyTurn" id="lblSiyTurn">Option Turn *</label>
-                            <p class="font-small text-danger ml-4 pl-3" id="txtSiyTurnErr"></p>
-                        </div>
-                        <div class="md-form">
-                            <i class="fas fa-exclamation-triangle prefix active"></i>
-                            <input type="text" id="txtSiyStatus" class="form-control" readonly>
-                            <label for="txtSiyStatus" id="lblSiyStatus" class="text-muted active">Status</label>
-                        </div>
-                    </form>
-                </div>
-            </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-7 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Item Description</h3>
         </div>
-        <div class="col-lg-5">
-            <div class="card z-depth-3 mb-4_5">
-                <div class="card-header blue lighten-3">
-                    <h5 class="font-weight-bold text-center mt-1 mb-0"> Item Images <a class="ml-2" id="btnSiyUpload"><i class="fas fa-upload" data-toggle="tooltip" data-placement="top" title="Upload Item Images"></i></a></h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12 px-0">
-                            <div class="table-responsive">
-                                <table id="dtSiyPicture" class="table table-hover table-sm mb-0 display responsive mobile-stack">
-                                    <thead>
-                                    <tr class="th-strong">
-                                        <th >#</th>
-                                        <th>Title</th>
-                                        <th>Picture</th>
-                                        <th>&nbsp;</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="card-body">
+          <form id="formSiy" autocomplete="off" novalidate>
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-12">
+                <span id="optSiyAssetGroupPre" class="d-none"></span>
+                <label class="form-label" for="optSiyAssetGroup" id="lblSiyAssetGroup">Asset Group <span class="required" aria-hidden="true">*</span></label>
+                <select id="optSiyAssetGroup" class="form-select" data-stop-refresh="true" aria-describedby="optSiyAssetGroupErr"></select>
+                <div class="gems-field-error" id="optSiyAssetGroupErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-12">
+                <span id="optSiyItemTypePre" class="d-none"></span>
+                <label class="form-label" for="optSiyItemType" id="lblSiyItemType">Item Type <span class="required" aria-hidden="true">*</span></label>
+                <select id="optSiyItemType" class="form-select" data-stop-refresh="true" aria-describedby="optSiyItemTypeErr"></select>
+                <div class="gems-field-error" id="optSiyItemTypeErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-12">
+                <span id="txtSiyDescriptionPre" class="d-none"></span>
+                <label class="form-label" for="txtSiyDescription" id="lblSiyDescription">Item Description <span class="required" aria-hidden="true">*</span></label>
+                <input type="text" id="txtSiyDescription" class="form-control" aria-describedby="txtSiyDescriptionErr">
+                <div class="gems-field-error" id="txtSiyDescriptionErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-6">
+                <span id="txtSiyThresholdPre" class="d-none"></span>
+                <label class="form-label" for="txtSiyThreshold" id="lblSiyThreshold">Default Threshold <span class="required" aria-hidden="true">*</span></label>
+                <input type="text" id="txtSiyThreshold" class="form-control" aria-describedby="txtSiyThresholdErr">
+                <div class="gems-field-error" id="txtSiyThresholdErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-6">
+                <span id="txtSiyMinOrderPre" class="d-none"></span>
+                <label class="form-label" for="txtSiyMinOrder" id="lblSiyMinOrder">Minimum Order <span class="required" aria-hidden="true">*</span></label>
+                <input type="text" id="txtSiyMinOrder" class="form-control" aria-describedby="txtSiyMinOrderErr">
+                <div class="gems-field-error" id="txtSiyMinOrderErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-6">
+                <span id="txtSiyMaxOrderPre" class="d-none"></span>
+                <label class="form-label" for="txtSiyMaxOrder" id="lblSiyMaxOrder">Maximum Order <span class="required" aria-hidden="true">*</span></label>
+                <input type="text" id="txtSiyMaxOrder" class="form-control" aria-describedby="txtSiyMaxOrderErr">
+                <div class="gems-field-error" id="txtSiyMaxOrderErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-6">
+                <span id="txtSiyTurnPre" class="d-none"></span>
+                <label class="form-label" for="txtSiyTurn" id="lblSiyTurn">Option Turn <span class="required" aria-hidden="true">*</span></label>
+                <input type="text" id="txtSiyTurn" class="form-control" aria-describedby="txtSiyTurnErr">
+                <div class="gems-field-error" id="txtSiyTurnErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-12">
+                <span id="txaSiyRemarkPre" class="d-none"></span>
+                <label class="form-label" for="txaSiyRemark" id="lblSiyRemark">Remark</label>
+                <textarea id="txaSiyRemark" class="form-control" rows="2" aria-describedby="txaSiyRemarkErr"></textarea>
+                <div class="gems-field-error" id="txaSiyRemarkErr" role="alert"></div>
+              </div>
+              <div class="gems-field gems-field-12">
+                <label class="form-label" for="txtSiyStatus" id="lblSiyStatus">Status</label>
+                <input type="text" id="txtSiyStatus" class="form-control" readonly>
+              </div>
             </div>
+          </form>
         </div>
+      </div>
     </div>
+    <div class="col-lg-5 mb-3">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title mb-0">Item Images</h3>
+          <div class="gems-card-toolbar">
+            <a href="javascript:void(0);" id="btnSiyUpload" data-toggle="tooltip" data-bs-toggle="tooltip" title="Upload Item Images" aria-label="Upload item images">
+              <i class="fas fa-upload"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="dtSiyPicture" class="table table-hover table-sm mb-0 display responsive mobile-stack">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Title</th>
+                  <th>Picture</th>
+                  <th>&nbsp;</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>

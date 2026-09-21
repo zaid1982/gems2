@@ -381,12 +381,16 @@ function MainItemManagement () {
             const $status = $('#optItyStatus');
             if ($status.length) {
                 try {
-                    $status.materialSelect('destroy');
+                    if (typeof $status.materialSelect === 'function') {
+                        $status.materialSelect('destroy');
+                    }
                 } catch (e) {
                     // ignore
                 }
                 $status.val(statusFilterValue);
-                $status.materialSelect();
+                if (typeof $status.materialSelect === 'function') {
+                    $status.materialSelect();
+                }
                 $status.off('change').on('change', handleStatusSelectChange);
             }
         }
@@ -425,7 +429,9 @@ function MainItemManagement () {
                 applyTableDataLabels('#dtItyData', tableHeaders);
                 refreshListSummary();
                 bindRowInteractions();
-                initPhotoSwipeFromDOM('.mdb-lightbox');
+                if (typeof initPhotoSwipeFromDOM === 'function') {
+                    initPhotoSwipeFromDOM('.mdb-lightbox');
+                }
                 $('.divItyImageHide').hide();
             },
             aoColumns: [
