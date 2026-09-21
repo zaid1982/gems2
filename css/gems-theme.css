@@ -110,13 +110,14 @@
       Waste DISPOSED=success (completed outflow, not a failure),
       PTW COMPLETED=secondary (closed permit, not a success event),
       WO Summary Closed=success (subtitle is completed in the window).
-     Categorical analytics — not a status map. Status charts use semantic tokens. */
-  --gems-chart-1: #0055b8;
-  --gems-chart-2: #00ada8;
-  --gems-chart-3: #1a7f4b;
-  --gems-chart-4: #9a6206;
-  --gems-chart-5: #dc2626;
-  --gems-chart-6: #0891b2;
+     Categorical analytics — pastel tints of the same hues, not a status map.
+     Status charts keep the semantic tokens (completed / overdue / pending). */
+  --gems-chart-1: #6b9cd6;          /* GFM blue, lightened */
+  --gems-chart-2: #6bcfcd;          /* GFM teal, lightened */
+  --gems-chart-3: #7ab597;          /* success green, lightened */
+  --gems-chart-4: #c4a46f;          /* warning amber, lightened */
+  --gems-chart-5: #eb8181;          /* danger red, lightened */
+  --gems-chart-6: #70bfd2;          /* Energy cyan, lightened */
 
   --gems-font-body: 'Poppins', 'Lato', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --gems-font-heading: 'Lato', 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -565,10 +566,13 @@ body.gems-tabler {
   margin-top: 1px;
 }
 
-/* No gradient table header. Plain text title + quiet header cells. */
+/* No gradient / filled header. White bar, quiet divider, 3px teal top
+   edge — same accent language as the sidebar active inset and login
+   brand panel. Not a second primary. */
 .gems-tabler .card-header {
   background: #fff;
   border-bottom: 1px solid var(--gems-border);
+  box-shadow: inset 0 3px 0 var(--gems-secondary);
   min-height: auto;
   padding: 0.75rem 1rem;
 }
@@ -763,6 +767,22 @@ body.gems-tabler .navbar-vertical .dropdown-item.active {
   box-shadow: inset 3px 0 0 var(--gems-secondary);
 }
 
+/* Tabler locks .navbar-brand-image at 2rem. The GEMS lockup is 500×185 and
+   reads as a favicon at that size. 5rem on the expanded 16rem rail (~216×80,
+   still inside 1rem brand padding). Stay at 2rem below 992px so the
+   hamburger header does not grow. */
+body.gems-tabler .navbar-vertical .navbar-brand-image {
+  height: 2rem;
+  width: auto;
+  max-width: 100%;
+}
+@media (min-width: 992px) {
+  body.gems-tabler .navbar-vertical .navbar-brand-image {
+    height: 5rem;
+    max-width: calc(var(--gems-sidebar-w) - 2rem);
+  }
+}
+
 /* Tabler's caret is a border-bottom + border-inline-start box rotated -45deg,
    not a text glyph, so it can never fall back to "¬". 135deg is the value
    Tabler itself uses for .dropup: it points the same corner up. rotate(180deg)
@@ -850,8 +870,8 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   width: 20rem;
   max-width: calc(100vw - 24px);
   border-radius: var(--tblr-border-radius, 8px);
-  border-left: 4px solid transparent;
-  background: #fff;
+  border-left: 4px solid var(--gems-toast, transparent);
+  background: var(--gems-toast-soft, #fff);
   color: var(--gems-text);
   font-family: var(--gems-font-body);
   font-size: 0.8125rem;
@@ -861,13 +881,34 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
 }
 #toast-container > div:hover { box-shadow: 0 12px 28px -12px rgba(36, 55, 70, 0.55); }
 
-.md-toast-title, .toast-title { font-weight: 600; margin-bottom: 2px; }
+.md-toast-title, .toast-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: var(--gems-toast-fg, var(--gems-toast, var(--gems-text)));
+}
 .md-toast-message, .toast-message { word-wrap: break-word; }
 
-.md-toast-success, .toast-success { border-left-color: var(--gems-success); }
-.md-toast-error,   .toast-error   { border-left-color: var(--gems-danger); }
-.md-toast-warning, .toast-warning { border-left-color: var(--gems-warning); }
-.md-toast-info,    .toast-info    { border-left-color: var(--gems-primary); }
+.md-toast-success, .toast-success {
+  --gems-toast: var(--gems-success);
+  --gems-toast-rgb: var(--gems-success-rgb);
+  --gems-toast-soft: var(--gems-success-soft);
+}
+.md-toast-error, .toast-error {
+  --gems-toast: var(--gems-danger);
+  --gems-toast-fg: var(--gems-danger-fg);
+  --gems-toast-rgb: var(--gems-danger-rgb);
+  --gems-toast-soft: var(--gems-danger-soft);
+}
+.md-toast-warning, .toast-warning {
+  --gems-toast: var(--gems-warning);
+  --gems-toast-rgb: var(--gems-warning-rgb);
+  --gems-toast-soft: var(--gems-warning-soft);
+}
+.md-toast-info, .toast-info {
+  --gems-toast: var(--gems-info);
+  --gems-toast-rgb: var(--gems-info-rgb);
+  --gems-toast-soft: var(--gems-info-soft);
+}
 
 .md-toast-close-button, .toast-close-button {
   position: absolute;
@@ -895,7 +936,7 @@ body.gems-tabler .gems-notification-menu .dropdown-item {
   left: 0;
   bottom: 0;
   height: 3px;
-  background-color: rgba(var(--gems-primary-rgb), 0.45);
+  background-color: rgba(var(--gems-toast-rgb, var(--gems-primary-rgb)), 0.55);
   opacity: 1;
 }
 

@@ -93,7 +93,7 @@
                 const value = (style.getPropertyValue('--gems-chart-' + i) || '').trim();
                 if (value) { colors.push(value); }
             }
-            return colors.length ? colors : ['#0055b8', '#00ada8', '#1a7f4b', '#9a6206', '#dc2626', '#0891b2'];
+            return colors.length ? colors : ['#6b9cd6', '#6bcfcd', '#7ab597', '#c4a46f', '#eb8181', '#70bfd2'];
         },
 
         chartColor: function (index) {

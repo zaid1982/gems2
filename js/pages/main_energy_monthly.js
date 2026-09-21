@@ -1,7 +1,7 @@
 function MainEnergyMonthly() {
     const ec = new EnergyCommon();
     let data = null;
-    const palette = (window.GemsUI && GemsUI.chartColors()) || ['#0055b8', '#00ada8', '#1a7f4b', '#9a6206', '#dc2626', '#0891b2'];
+    const palette = (window.GemsUI && GemsUI.chartColors()) || ['#6b9cd6', '#6bcfcd', '#7ab597', '#c4a46f', '#eb8181', '#70bfd2'];
 
     const render = function () {
         data = ec.apiGet('monthly?siteId=' + ($('#optEmoSite').val() || '') + '&year=' + ($('#optEmoYear').val() || new Date().getFullYear()));

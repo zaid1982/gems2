@@ -234,7 +234,7 @@ function MainHome() {
     }
 
     function gemsChartColors() {
-        return (window.GemsUI && GemsUI.chartColors()) || ['#0055b8', '#00ada8', '#1a7f4b', '#9a6206', '#dc2626', '#0891b2'];
+        return (window.GemsUI && GemsUI.chartColors()) || ['#6b9cd6', '#6bcfcd', '#7ab597', '#c4a46f', '#eb8181', '#70bfd2'];
     }
     function gemsKindColor(kind) {
         return (window.GemsUI && GemsUI.kindColor(kind)) || '';

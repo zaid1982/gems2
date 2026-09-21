@@ -367,19 +367,19 @@
 
           <h3 class="h4 mb-2" style="font-size:.875rem">Analytics palette ≠ status palette</h3>
           <div class="row g-2 mb-2">
-            <div class="col-2"><div class="cat-swatch" style="background:#0055b8"></div><div class="mt-1" style="font-size:.6875rem">chart-1</div></div>
-            <div class="col-2"><div class="cat-swatch" style="background:#00ada8"></div><div class="mt-1" style="font-size:.6875rem">chart-2</div></div>
-            <div class="col-2"><div class="cat-swatch" style="background:#1a7f4b"></div><div class="mt-1" style="font-size:.6875rem">chart-3</div></div>
-            <div class="col-2"><div class="cat-swatch" style="background:#9a6206"></div><div class="mt-1" style="font-size:.6875rem">chart-4</div></div>
-            <div class="col-2"><div class="cat-swatch" style="background:#dc2626"></div><div class="mt-1" style="font-size:.6875rem">chart-5</div></div>
-            <div class="col-2"><div class="cat-swatch" style="background:#0891b2"></div><div class="mt-1" style="font-size:.6875rem">chart-6</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:var(--gems-chart-1)"></div><div class="mt-1" style="font-size:.6875rem">chart-1</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:var(--gems-chart-2)"></div><div class="mt-1" style="font-size:.6875rem">chart-2</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:var(--gems-chart-3)"></div><div class="mt-1" style="font-size:.6875rem">chart-3</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:var(--gems-chart-4)"></div><div class="mt-1" style="font-size:.6875rem">chart-4</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:var(--gems-chart-5)"></div><div class="mt-1" style="font-size:.6875rem">chart-5</div></div>
+            <div class="col-2"><div class="cat-swatch" style="background:var(--gems-chart-6)"></div><div class="mt-1" style="font-size:.6875rem">chart-6</div></div>
           </div>
           <div class="row g-2">
             <div class="col-md-6">
               <div class="cat-do">
                 <span class="cat-tag">Do</span>
                 Status charts use <code>paintStatus*</code> / kind colors, never series index.
-                Categorical charts use <code>--gems-chart-1…6</code> (GFM blue, teal, then the existing success / warning / danger / Energy cyan hexes — reuse, not a new brand).
+                Categorical charts use <code>--gems-chart-1…6</code> (pastel tints of GFM blue, teal, then success / warning / danger / Energy cyan — same hues, not a new brand).
                 Empty charts use <code>gems-empty-state</code>, not a tall blank canvas.
               </div>
             </div>
@@ -1648,6 +1648,8 @@
 
     $('#btnCatToast').on('click', function () {
       toastr['success']('License saved successfully.', 'SUCCESS');
+      toastr['info']('Filters applied. 12 rows match.', 'INFO');
+      toastr['warning']('This site has no energy meters configured.', 'WARNING');
       toastr['error']('Expiry date must be after the issued date.', 'VALIDATION ERROR');
     });
   });
