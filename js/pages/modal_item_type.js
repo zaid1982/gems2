@@ -110,7 +110,7 @@ function ModalItemType () {
                 formValidate.clearValidation();
 
                 mzSetFieldValue('MitStatus', '1', 'checkSingle', '1');
-                $('#lblMitModalTitle').html('<i class="fas fa-plus text-white"></i> Add Item Type');
+                $('#lblMitModalTitle').html('<i class="fas fa-plus me-1"></i> Add Item Type');
                 $('#btnMitSave').hide();
                 $('#btnMitSubmit').show();
 
@@ -137,7 +137,7 @@ function ModalItemType () {
                 mzSetFieldValue('MitTurn', itemType['itemTypeTurn'], 'text');
                 mzSetFieldValue('MitStatus', itemType['itemTypeStatus'], 'checkSingle', '1');
 
-                $('#lblMitModalTitle').html('<i class="fas fa-edit text-white"></i> Edit Item Type');
+                $('#lblMitModalTitle').html('<i class="fas fa-edit me-1"></i> Edit Item Type');
                 $('#btnMitSubmit').hide();
                 $('#btnMitSave').show();
 

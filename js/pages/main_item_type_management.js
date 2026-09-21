@@ -257,12 +257,16 @@ function MainItemTypeManagement () {
             const $statusSelect = $('#optItmStatus');
             if ($statusSelect.length) {
                 try {
-                    $statusSelect.materialSelect('destroy');
+                    if (typeof $statusSelect.materialSelect === 'function') {
+                        $statusSelect.materialSelect('destroy');
+                    }
                 } catch (e) {
                     // ignore destroy warnings
                 }
                 $statusSelect.val(statusFilterValue);
-                $statusSelect.materialSelect();
+                if (typeof $statusSelect.materialSelect === 'function') {
+                    $statusSelect.materialSelect();
+                }
                 $statusSelect.off('change').on('change', handleStatusChange);
             }
         }
