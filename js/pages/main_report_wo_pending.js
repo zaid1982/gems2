@@ -61,9 +61,9 @@ function MainReportWoPending() {
         if (!status) {
             return '';
         }
-        const color = status.statusColor || 'badge-secondary';
+        const kind = GemsUI.badgeKindFromColor(status.statusColor || 'badge-secondary');
         const label = status.statusDesc || status.statusAction || status.statusName || statusId;
-        return '<span class="badge gems-badge ' + color + '">' + GemsUI.escape(String(label)) + '</span>';
+        return GemsUI.badge(kind, GemsUI.escape(String(label)));
     }
 
     function setDataLabels(row, apiInstance) {

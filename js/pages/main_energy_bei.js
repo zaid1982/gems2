@@ -73,7 +73,11 @@ function MainEnergyBei() {
         const target = Number(data.config.targetBei) || 0;
         if (typeof Highcharts === 'undefined') { return; }
         if (!target) {
-            $('#chartEbe').html(ec.emptyState('fa-bullseye', 'Set a target BEI in the site configuration to chart the results'));
+            if (window.GemsUI && GemsUI.emptyChart) {
+                GemsUI.emptyChart('chartEbe', 'No data available', 'Set a target BEI in the site configuration to chart the results.');
+            } else {
+                $('#chartEbe').html(ec.emptyState('fa-bullseye', 'Set a target BEI in the site configuration to chart the results'));
+            }
             return;
         }
         Highcharts.chart('chartEbe', {
@@ -90,12 +94,14 @@ function MainEnergyBei() {
                     data: months.map(function (m) {
                         return {
                             y: m.actualBei === null ? null : Number(m.actualBei),
-                            color: m.isPass === false ? '#dc2626' : '#00ada8'
+                            color: m.isPass === false
+                                ? ((window.GemsUI && GemsUI.kindColor('danger')) || '#dc2626')
+                                : ((window.GemsUI && GemsUI.kindColor('success')) || '#1a7f4b')
                         };
                     })
                 },
                 {
-                    type: 'line', name: 'Target BEI', color: '#64748b', dashStyle: 'ShortDash',
+                    type: 'line', name: 'Target BEI', color: (window.GemsUI && GemsUI.kindColor('secondary')) || '#5b676f', dashStyle: 'ShortDash',
                     marker: { enabled: false },
                     data: months.map(function () { return target; })
                 }

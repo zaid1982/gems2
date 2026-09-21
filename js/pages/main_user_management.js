@@ -536,7 +536,7 @@ function MainUserManagement() {
             credits: {
                 enabled: false
             },
-            colors: ['#0055b8', '#00ada8', '#003f8a', '#243746', '#ceeff0', '#7e8f9a', '#5b676f', '#e7eaec'],
+            colors: (window.GemsUI && GemsUI.chartColors()) || ['#0055b8', '#00ada8', '#1a7f4b', '#9a6206', '#dc2626', '#0891b2'],
             plotOptions: {
                 column: {
                     colorByPoint: true,

@@ -2,9 +2,19 @@ function MainKpaHistory() {
     const kc = new KpaCommon();
     let dt;
     let data = null;
-    const colors = { max: '#0055b8', deducted: '#dc2626', demerit: '#f59e0b', actual: '#00ada8', target: '#64748b' };
+    const colors = {
+        max: (window.GemsUI && GemsUI.kindColor('primary')) || '#0055b8',
+        deducted: (window.GemsUI && GemsUI.kindColor('danger')) || '#dc2626',
+        demerit: (window.GemsUI && GemsUI.kindColor('warning')) || '#9a6206',
+        actual: (window.GemsUI && GemsUI.kindColor('info')) || '#00ada8',
+        target: (window.GemsUI && GemsUI.kindColor('secondary')) || '#5b676f'
+    };
 
     const emptyChart = function (id, message) {
+        if (window.GemsUI && GemsUI.emptyChart) {
+            GemsUI.emptyChart(id, 'No data available', message);
+            return;
+        }
         $('#' + id).html('<div class="gems-empty-state"><i class="fas fa-chart-column"></i><p>' + message + '</p></div>');
     };
 

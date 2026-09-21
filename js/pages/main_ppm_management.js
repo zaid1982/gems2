@@ -728,7 +728,7 @@ function MainPpmManagement() {
             },
             series: [{
                 name: 'Status',
-                data: chartData
+                data: GemsUI.paintStatusPoints(chartData)
             }]
         });
 

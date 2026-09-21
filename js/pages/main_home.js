@@ -233,6 +233,26 @@ function MainHome() {
         try { const sel = overlayIds[chartId]; if (sel) $(sel).removeClass('show'); } catch (e) { /* ignore */ }
     }
 
+    function gemsChartColors() {
+        return (window.GemsUI && GemsUI.chartColors()) || ['#0055b8', '#00ada8', '#1a7f4b', '#9a6206', '#dc2626', '#0891b2'];
+    }
+    function gemsKindColor(kind) {
+        return (window.GemsUI && GemsUI.kindColor(kind)) || '';
+    }
+    function gemsPaintStatusSeries(series) {
+        return (window.GemsUI && GemsUI.paintStatusSeries(series)) || series;
+    }
+    function gemsPaintStatusPoints(points, categories) {
+        return (window.GemsUI && GemsUI.paintStatusPoints(points, categories)) || points;
+    }
+    function gemsEmptyChart(id, detail) {
+        if (window.GemsUI && GemsUI.emptyChart) {
+            GemsUI.emptyChart(id, 'No data available', detail || 'No records were found for the selected filters.');
+            return true;
+        }
+        return false;
+    }
+
     /* ref_status.status_color stores MDB Material colour words ('green',
        'light-blue', 'blue-grey', 'indigo darken-1', ...). Those are mdb.css
        background classes and mean nothing on a Tabler page, and several of them
@@ -242,20 +262,10 @@ function MainHome() {
        The <h6><span class="…">TEXT</span></h6> shape must not change: the export
        body formatters below parse it. */
     function statusBadgeClass(statusColor) {
-        const word = String(statusColor || '').trim().split(' ')[0];
-        switch (word) {
-            case 'green': case 'light-green': case 'lime': case 'teal':
-                return 'gems-badge-success';
-            case 'orange': case 'deep-orange': case 'amber': case 'yellow':
-                return 'gems-badge-warning';
-            case 'red': case 'pink':
-                return 'gems-badge-danger';
-            case 'blue': case 'light-blue': case 'indigo': case 'cyan':
-            case 'purple': case 'deep-purple':
-                return 'gems-badge-info';
-            default:
-                return 'gems-badge-secondary';
-        }
+        const kind = (window.GemsUI && GemsUI.badgeKindFromColor)
+            ? GemsUI.badgeKindFromColor(statusColor)
+            : 'secondary';
+        return 'gems-badge-' + kind;
     }
 
     function statusBadge(status) {
@@ -1682,7 +1692,7 @@ function MainHome() {
                         credits: {
                             enabled: false
                         },
-                        series: resp.result.series
+                        series: gemsPaintStatusSeries(resp.result.series)
                     });
                 } else {
                     throw new Error(_ALERT_MSG_ERROR_DEFAULT);
@@ -1710,6 +1720,7 @@ function MainHome() {
                     });
                     setChartColumnWidth('chartHme2', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     Highcharts.chart('chartHme2', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'column'
                         },
@@ -1785,6 +1796,7 @@ function MainHome() {
                 if (resp.success) {
                     setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0, 1);
                     Highcharts.chart('chartHme4', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'pie'
                         },
@@ -1913,8 +1925,13 @@ function MainHome() {
                         },
                         series: [{
                             name: 'Total',
-                            data: resp.result.data,
-                            color: '#f45b5b'
+                            data: gemsPaintStatusPoints(resp.result.data, resp.result.categories).map(function (point, index) {
+                                const label = String(point.name || (resp.result.categories && resp.result.categories[index]) || '').toLowerCase();
+                                if (label === 'open' || label === 'check') {
+                                    point.color = gemsKindColor('warning');
+                                }
+                                return point;
+                            })
                         }]
                     });
                 } else {
@@ -1937,8 +1954,12 @@ function MainHome() {
             success: function (resp) {
                 if (resp.success) {
                     const tradeCount = Array.isArray(resp.result) ? resp.result.length : 0;
+                    if (!tradeCount && gemsEmptyChart('chartHme3', 'No work orders were found for the selected filters.')) {
+                        return;
+                    }
                     setChartColumnWidth('chartHme3', tradeCount, 1);
                     Highcharts.chart('chartHme3', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'pie'
                         },
@@ -2011,6 +2032,7 @@ function MainHome() {
                 if (resp.success) {
                     setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0, 1);
                     Highcharts.chart('chartHme4', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'column'
                         },
@@ -2067,7 +2089,7 @@ function MainHome() {
                         series: [{
                             name: 'Average Time',
                             data: resp.result.data,
-                            color: '#00b8d4'
+                            color: gemsChartColors()[5]
                         }]
                     });
                 } else {
@@ -2091,6 +2113,7 @@ function MainHome() {
                 if (resp.success) {
                     setChartColumnWidth('chartHme5', resp.result.categories ? resp.result.categories.length : 0, 1);
                     Highcharts.chart('chartHme5', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'bar'
                         },
@@ -2169,6 +2192,7 @@ function MainHome() {
                 if (resp.success) {
                     setChartColumnWidth('chartHme6', resp.result.categories ? resp.result.categories.length : 0, 1);
                     Highcharts.chart('chartHme6', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'bar'
                         },
@@ -2302,7 +2326,7 @@ function MainHome() {
                         credits: {
                             enabled: false
                         },
-                        series: resp.result.series
+                        series: gemsPaintStatusSeries(resp.result.series)
                     });
                 } else {
                     throw new Error(_ALERT_MSG_ERROR_DEFAULT);
@@ -2330,6 +2354,7 @@ function MainHome() {
                     });
                     setChartColumnWidth('chartHme2', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     Highcharts.chart('chartHme2', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'column'
                         },
@@ -2397,6 +2422,7 @@ function MainHome() {
                 if (resp.success) {
                     setChartColumnWidth('chartHme3', resp.result && resp.result.length ? resp.result.length : 0);
                     Highcharts.chart('chartHme3', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'pie'
                         },
@@ -2524,8 +2550,13 @@ function MainHome() {
                         },
                         series: [{
                             name: 'Total',
-                            data: resp.result.data,
-                            color: '#f45b5b'
+                            data: gemsPaintStatusPoints(resp.result.data, resp.result.categories).map(function (point, index) {
+                                const label = String(point.name || (resp.result.categories && resp.result.categories[index]) || '').toLowerCase();
+                                if (label === 'open' || label === 'check') {
+                                    point.color = gemsKindColor('warning');
+                                }
+                                return point;
+                            })
                         }]
                     });
                 } else {
@@ -2597,10 +2628,11 @@ function MainHome() {
                             y: totalLate,
                             sliced: true,
                             selected: true,
-                            color: '#f45b5b'
+                            color: gemsKindColor('danger')
                         }, {
                             name: 'On-time',
-                            y: totalPpm - totalLate
+                            y: totalPpm - totalLate,
+                            color: gemsKindColor('success')
                         }]
                 }]
             });
@@ -2617,6 +2649,7 @@ function MainHome() {
                 if (resp.success) {
                     setChartColumnWidth('chartHme5', resp.result.categories ? resp.result.categories.length : 0);
                     Highcharts.chart('chartHme5', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'bar'
                         },
@@ -2693,6 +2726,7 @@ function MainHome() {
                 if (resp.success) {
                     setChartColumnWidth('chartHme6', resp.result.categories ? resp.result.categories.length : 0);
                     Highcharts.chart('chartHme6', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'bar'
                         },
@@ -2770,6 +2804,7 @@ function MainHome() {
                 if (resp.success) {
                     setChartColumnWidth('chartHme4', resp.result.categories ? resp.result.categories.length : 0);
                     Highcharts.chart('chartHme4', {
+                        colors: gemsChartColors(),
                         chart: {
                             type: 'column'
                         },
@@ -2826,7 +2861,7 @@ function MainHome() {
                         series: [{
                             name: 'Average Time',
                             data: resp.result.data,
-                            color: '#00b8d4'
+                            color: gemsChartColors()[5]
                         }]
                     });
                 } else {

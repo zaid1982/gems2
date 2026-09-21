@@ -184,7 +184,7 @@
                      .divHmeTopStats_ppm class, so that class stays on the wrapper. -->
                 <div class="row row-cards mb-3 divHmeTopStats_ppm">
                     <div class="col-6 col-lg-3">
-                        <div class="card">
+                        <div class="card gems-kpi-primary">
                             <div class="card-body py-2">
                                 <div class="text-secondary" style="font-size:.75rem">Total Assets</div>
                                 <div class="h2 mb-0" id="lblHmeTotalAsset">0</div>
@@ -193,7 +193,7 @@
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
-                        <div class="card">
+                        <div class="card gems-kpi-info">
                             <div class="card-body py-2">
                                 <div class="text-secondary" style="font-size:.75rem">Total PPM</div>
                                 <div class="h2 mb-0" id="lblHmeTotalPpm">-</div>
@@ -202,7 +202,7 @@
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
-                        <div class="card">
+                        <div class="card gems-kpi-danger">
                             <div class="card-body py-2">
                                 <div class="text-secondary" style="font-size:.75rem">Total Late PPM</div>
                                 <div class="h2 mb-0" id="lblHmeTotalPpmLate">-</div>
@@ -211,7 +211,7 @@
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
-                        <div class="card">
+                        <div class="card gems-kpi-success">
                             <div class="card-body py-2">
                                 <div class="text-secondary" style="font-size:.75rem">% PPM Done</div>
                                 <div class="h2 mb-0" id="lblHmePercPpmDone">-</div>
@@ -518,19 +518,19 @@
     try {
         Highcharts.setOptions({
             chart: { backgroundColor: '#ffffff', style: { fontFamily: 'Poppins, Lato, system-ui, -apple-system, Segoe UI, sans-serif' } },
-            colors: ['#0055b8', '#00ada8', '#22C55E', '#F59E0B', '#EF4444', '#94A3B8'],
-            title: { style: { color: '#0F172A', fontWeight: '700' } },
-            subtitle: { style: { color: '#64748B' } },
-            xAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } }, title: { style: { color: '#64748B' } } },
-            yAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } }, title: { style: { color: '#64748B' } } },
-            legend: { itemStyle: { color: '#334155', fontWeight: '500' } },
-            tooltip: { borderColor: '#e2e8f0', backgroundColor: 'rgba(255,255,255,0.95)', style: { color: '#0F172A' } },
+            colors: ['#0055b8', '#00ada8', '#1a7f4b', '#9a6206', '#dc2626', '#0891b2'],
+            title: { style: { color: '#243746', fontWeight: '700' } },
+            subtitle: { style: { color: '#5b676f' } },
+            xAxis: { gridLineColor: '#e7eaec', lineColor: '#e7eaec', labels: { style: { color: '#243746' } }, title: { style: { color: '#5b676f' } } },
+            yAxis: { gridLineColor: '#e7eaec', lineColor: '#e7eaec', labels: { style: { color: '#243746' } }, title: { style: { color: '#5b676f' } } },
+            legend: { itemStyle: { color: '#243746', fontWeight: '500' } },
+            tooltip: { borderColor: '#e7eaec', backgroundColor: 'rgba(255,255,255,0.95)', style: { color: '#243746' } },
             exporting: {
                 chartOptions: {
                     chart: { backgroundColor: '#ffffff' },
-                    xAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } } },
-                    yAxis: { gridLineColor: '#e2e8f0', lineColor: '#e2e8f0', labels: { style: { color: '#334155' } } },
-                    legend: { itemStyle: { color: '#334155' } }
+                    xAxis: { gridLineColor: '#e7eaec', lineColor: '#e7eaec', labels: { style: { color: '#243746' } } },
+                    yAxis: { gridLineColor: '#e7eaec', lineColor: '#e7eaec', labels: { style: { color: '#243746' } } },
+                    legend: { itemStyle: { color: '#243746' } }
                 }
             },
             plotOptions: {
@@ -547,6 +547,7 @@
 <!--Custom scripts-->
 <script type="text/javascript">
     document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
     let versionLocal_;
     let changePasswordClass_;

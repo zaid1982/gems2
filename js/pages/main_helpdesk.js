@@ -366,7 +366,7 @@ function MainHelpdesk() {
             },
             series: [{
                 name: 'Status',
-                data: chartData
+                data: GemsUI.paintStatusPoints(chartData)
             }]
         });
     };

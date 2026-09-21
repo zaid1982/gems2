@@ -3,7 +3,12 @@ function MainWasteDashboard() {
     let data = null;
     let dt;
     let dtHist;
-    const colors = { produced: '#00ada8', disposed: '#dc2626', current: '#0055b8', pending: '#f59e0b' };
+    const colors = {
+        produced: (window.GemsUI && GemsUI.kindColor('info')) || '#00ada8',
+        disposed: (window.GemsUI && GemsUI.kindColor('success')) || '#1a7f4b',
+        current: (window.GemsUI && GemsUI.kindColor('primary')) || '#0055b8',
+        pending: (window.GemsUI && GemsUI.kindColor('warning')) || '#9a6206'
+    };
 
     const filters = function () {
         const p = [];
@@ -44,6 +49,10 @@ function MainWasteDashboard() {
     };
 
     const emptyChart = function (id, message) {
+        if (window.GemsUI && GemsUI.emptyChart) {
+            GemsUI.emptyChart(id, 'No data available', message);
+            return;
+        }
         $('#' + id).html('<div class="waste-empty">' + message + '</div>');
     };
 
@@ -59,7 +68,6 @@ function MainWasteDashboard() {
             yAxis: { title: { text: title || 'kg' }, min: 0, gridLineColor: '#E2E8F0' },
             legend: { itemStyle: { fontWeight: 600 } },
             credits: { enabled: false },
-            colors: [colors.produced, colors.disposed, colors.current],
             plotOptions: { column: { borderRadius: 4, borderWidth: 0, groupPadding: 0.18 } },
             series: series
         });
@@ -77,8 +85,8 @@ function MainWasteDashboard() {
         });
         const cats = Object.keys(groups);
         chart('chartAnalysis', 'column', cats, [
-            { name: 'Produced', data: cats.map(function (c) { return groups[c].p; }) },
-            { name: 'Disposed', data: cats.map(function (c) { return groups[c].d; }) }
+            { name: 'Produced', color: colors.produced, data: cats.map(function (c) { return groups[c].p; }) },
+            { name: 'Disposed', color: colors.disposed, data: cats.map(function (c) { return groups[c].d; }) }
         ]);
     };
 
@@ -167,6 +175,7 @@ function MainWasteDashboard() {
             emptyChart('chartSw', 'No produced quantity in this period');
         } else {
             Highcharts.chart('chartSw', {
+                colors: (window.GemsUI && GemsUI.chartColors()) || [colors.produced, colors.disposed, colors.current],
                 chart: { type: 'pie', backgroundColor: 'transparent' },
                 title: { text: null },
                 credits: { enabled: false },

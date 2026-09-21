@@ -1,7 +1,7 @@
 function MainEnergyMonthly() {
     const ec = new EnergyCommon();
     let data = null;
-    const palette = ['#0055b8', '#00ada8', '#f59e0b', '#7c3aed', '#dc2626', '#0891b2'];
+    const palette = (window.GemsUI && GemsUI.chartColors()) || ['#0055b8', '#00ada8', '#1a7f4b', '#9a6206', '#dc2626', '#0891b2'];
 
     const render = function () {
         data = ec.apiGet('monthly?siteId=' + ($('#optEmoSite').val() || '') + '&year=' + ($('#optEmoYear').val() || new Date().getFullYear()));
@@ -36,7 +36,11 @@ function MainEnergyMonthly() {
         $('#lblEmoSummary').text('Year ' + data.year + ' · ' + (data.siteName || '') + ' · ' + ec.fmtNumber(data.totalKwh, 2) + ' kWh total');
 
         if (typeof Highcharts === 'undefined' || !meters.length) {
-            $('#chartEmo').html(ec.emptyState('fa-gauge', 'No incoming meters are configured for this site'));
+            if (window.GemsUI && GemsUI.emptyChart) {
+                GemsUI.emptyChart('chartEmo', 'No data available', 'No incoming meters are configured for this site.');
+            } else {
+                $('#chartEmo').html(ec.emptyState('fa-gauge', 'No incoming meters are configured for this site'));
+            }
             return;
         }
         Highcharts.chart('chartEmo', {
