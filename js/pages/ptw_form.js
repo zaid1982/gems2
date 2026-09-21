@@ -1740,7 +1740,7 @@ class PtwForm {
         $('#dtPtwValidFrom, #dtPtwValidTo').val('');
         
         // Clear workers table
-        $('#workersTable tbody').empty();
+        $('#workersTable tbody').html('<tr id="noWorkersRow"><td colspan="5">Please add at least one worker</td></tr>');
         
         // Reset all checkboxes
         $('input[type="checkbox"]').prop('checked', false);

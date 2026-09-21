@@ -590,12 +590,13 @@
         }
         
         /* Enhanced form labels with help icons */
-        .form-group label {
+        .form-group label,
+        .gems-field > label {
             font-weight: 600;
             color: #495057;
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 0;
         }
         
         .label-text {
@@ -625,33 +626,51 @@
     /* Main content - no artificial offset needed now that header is not fixed */
     main { margin-top: 0 !important; }
         
-        /* Tabbed interface styling */
-        .nav-tabs {
+        /* Tabbed interface styling — fill the card header on wide screens */
+        .sectionPtwMain > .card > .card-header {
+            display: block;
+            width: 100%;
+        }
+        #ptwTabs.nav-tabs {
+            display: flex;
+            flex-wrap: nowrap;
+            width: 100%;
+            margin: 0;
             border-bottom: 3px solid var(--gems-primary);
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
-        
-        .nav-tabs .nav-link {
+        #ptwTabs > .nav-item {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+        }
+        #ptwTabs .nav-link {
+            flex: 1 1 auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
             border: none;
             background: transparent;
             color: #495057;
             font-weight: 600;
-            padding: 10px 14px; /* tighter tabs */
+            padding: 12px 10px;
             transition: all 0.3s ease;
         }
         
-        .nav-tabs .nav-link:hover {
+        #ptwTabs .nav-link:hover {
             border: none;
             background: rgba(var(--gems-primary-rgb), 0.1);
             color: var(--gems-primary);
         }
         
-        .nav-tabs .nav-link.active {
+        #ptwTabs .nav-link.active {
             border: none;
             background: var(--gems-primary);
             color: white;
             border-radius: 0;
-            height: 100%;
         }
         
         .tab-content {
@@ -702,6 +721,17 @@
         #workersTable .form-control {
             border: 1px solid #ced4da;
             font-size: 0.9rem;
+        }
+        #workersTable #noWorkersRow td {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 0.85rem;
+        }
+        #workersTable.is-invalid,
+        #workersTable.is-invalid #noWorkersRow td {
+            border-color: #dc3545;
+            color: #dc3545;
         }
         
         /* Hazardous activity cards */
@@ -901,102 +931,43 @@
             }
         }
         
-        /* Work Type Checkboxes - Responsive List Layout */
+        /* Work Type — keep Tabler checkboxes in flow so the box never sits on the label */
         .work-type-checkboxes {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding: 10px 0;
-        }
-        
-        .work-type-item {
-            display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            padding: 12px 16px;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            gap: 0.5rem 1.5rem;
+            min-height: var(--gems-control-h, 2.25rem);
+            padding: 0.15rem 0;
         }
-        
-        .work-type-item:hover {
-            background: #e9ecef;
-            border-color: var(--gems-primary);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .work-type-checkboxes .form-check {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+            padding-left: 0;
+            min-height: 1.25rem;
+            background: none;
+            border: none;
+            box-shadow: none;
         }
-        
-        .work-type-item .form-check-input {
-            margin-right: 12px;
-            margin-top: 0;
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
+        .work-type-checkboxes .form-check-input {
+            position: static;
+            float: none;
+            margin: 0;
+            flex: 0 0 auto;
         }
-        
-        .work-type-item .form-check-label {
-            margin-bottom: 0;
+        .work-type-checkboxes .form-check-label {
+            margin: 0;
+            padding: 0;
             font-weight: 500;
-            cursor: pointer;
-            flex: 1;
-            color: #495057;
+            line-height: 1.25;
         }
-        
-        .work-type-item:hover .form-check-label {
-            color: var(--gems-primary);
-        }
-        
-        .work-type-item .form-check-input:checked {
-            background-color: var(--gems-primary);
-            border-color: var(--gems-primary);
-        }
-        
-        .work-type-item .form-check-input:checked + .form-check-label {
-            color: var(--gems-primary);
-            font-weight: 600;
-        }
-        
-        /* Success/Error states for work type checkboxes */
-        .work-type-item .form-check-input.is-valid {
-            border-color: #28a745;
-        }
-        
-        .work-type-item .form-check-input.is-valid:checked {
-            background-color: #28a745;
-        }
-        
-        .work-type-item .form-check-input.is-invalid {
-            border-color: #dc3545;
-        }
-        
-        /* Responsive breakpoints for work type checkboxes */
-        @media (min-width: 768px) {
+        @media (max-width: 575.98px) {
             .work-type-checkboxes {
-                gap: 15px;
-            }
-            
-            .work-type-item {
-                flex: 1;
-                justify-content: center;
-                text-align: center;
-                min-height: 60px;
-                align-items: center;
-            }
-            
-            .work-type-item .form-check-input {
-                margin-right: 8px;
-            }
-        }
-        
-        @media (min-width: 992px) {
-            .work-type-checkboxes {
-                gap: 20px;
-            }
-            
-            .work-type-item {
-                padding: 16px 20px;
-                border-radius: 8px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.65rem;
             }
         }
         
@@ -1011,6 +982,7 @@
         .checkbox-item {
             display: flex;
             align-items: center;
+            gap: 0.75rem;
             padding: 10px 14px;
             background: #f8f9fa;
             border: 1px solid #dee2e6;
@@ -1028,12 +1000,15 @@
         }
         
         .checkbox-item .form-check-input {
-            margin-right: 12px;
-            margin-top: 0;
+            position: static;
+            float: none;
+            margin: 0;
             width: 18px;
             height: 18px;
             cursor: pointer;
-            flex-shrink: 0;
+            flex: 0 0 auto;
+            border-radius: 3px;
+            border-color: #c6ced6;
         }
         
         .checkbox-item .form-check-label {
@@ -1126,11 +1101,11 @@
         
         .documents-section .checkbox-item {
             display: flex;
-            align-items: center; /* top-align so checkbox sits with the first line of the label */
-            gap: 12px;
+            align-items: center;
+            gap: 0.75rem;
             padding: 12px 14px;
-            font-size: 1rem;
-            min-height: 52px; /* allows small items to look consistent; container still grows with content */
+            font-size: 0.9375rem;
+            min-height: 52px;
             border-radius: 8px;
             line-height: 1.35;
             border: 1px solid #e9ecef;
@@ -1138,8 +1113,14 @@
         }
         
         .documents-section .checkbox-item .form-check-input {
-            width: 18px; height: 18px; margin-top: 2px; /* slight nudge to align with first text baseline */
-            flex: 0 0 auto; vertical-align: top;
+            position: static;
+            float: none;
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            flex: 0 0 auto;
+            border-radius: 3px;
+            border-color: #c6ced6;
         }
         
         .documents-section .checkbox-item .form-check-label {
@@ -1253,6 +1234,14 @@
                 justify-content: flex-end; 
             }
             #divPtwPageWidth #workersTable .btn { white-space: nowrap; }
+            #divPtwPageWidth #workersTable tbody tr#noWorkersRow {
+                border: none; box-shadow: none; background: transparent;
+            }
+            #divPtwPageWidth #workersTable tbody tr#noWorkersRow td {
+                display: block; border: none; text-align: center;
+                justify-content: center; padding: 0.75rem; color: #6c757d;
+            }
+            #divPtwPageWidth #workersTable tbody tr#noWorkersRow td::before { content: none; }
 
             /* Documents table → card layout on mobile */
             #divPtwPageWidth #documentsTable { display: block; overflow: visible; }
@@ -1365,9 +1354,9 @@
         <!-- Page Title -->
         <div class="row mt-3">
             <div class="col-12">
-                <h2 class="h2-responsive fw-bold" id="h5PtwFormTitle" style="display: flex; align-items: center;">
-                    <i class="fas fa-shield-alt mr-3"></i><span id="formTitleText">Public PTW Permit Application</span>
-                    <span id="formTitleText"> - </span>
+                <h2 class="h2-responsive fw-bold" id="h5PtwFormTitle" style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem 0.35rem;">
+                    <i class="fas fa-shield-alt me-2"></i><span id="formTitleText">Public PTW Permit Application</span>
+                    <span aria-hidden="true">&ndash;</span>
                     <span id="formTitleSiteText">-</span>
                     <span id="viewModeIndicator" class="view-mode-indicator" style="display: none; font-size: 0.8rem"></span>
                 </h2>
@@ -1450,236 +1439,203 @@
                         <div class="tab-pane fade show active" id="section1" role="tabpanel" aria-labelledby="section1-tab">
                             <div class="card-body">
                                 <h5 class="mb-3"><strong>SECTION 1: REQUISITION</strong></h5>
-                                
-                                <div class="row">
-                                    <!-- Left Column -->
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="txtPtwApplicantName">
-                                                <span class="label-text">Applicant Name *</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-applicantname')">?</span>
-                                            </label>
-                                            <input type="text" id="txtPtwApplicantName" class="form-control" required placeholder="Full name of applicant">
-                                            <div class="help-example" id="help-applicantname">
-                                                <strong>Enter the responsible person:</strong>
-                                                • Full legal name<br>
-                                                • Person who will oversee the work<br>
-                                                • Must be present during work execution
-                                                <div class="example-text">Example: "Ahmad bin Abdullah" or "Sarah Johnson"</div>
-                                            </div>
+
+                                <div class="gems-form-grid">
+                                    <div class="gems-field gems-field-6">
+                                        <label class="form-label" for="txtPtwApplicantName">
+                                            <span class="label-text">Applicant Name *</span>
+                                            <span class="help-icon" onclick="toggleHelp('help-applicantname')">?</span>
+                                        </label>
+                                        <input type="text" id="txtPtwApplicantName" class="form-control" required placeholder="Full name of applicant">
+                                        <div class="help-example" id="help-applicantname">
+                                            <strong>Enter the responsible person:</strong>
+                                            • Full legal name<br>
+                                            • Person who will oversee the work<br>
+                                            • Must be present during work execution
+                                            <div class="example-text">Example: "Ahmad bin Abdullah" or "Sarah Johnson"</div>
                                         </div>
-
-                                        <div class="form-group">
-                                            <label for="txtContractorSupervisor">
-                                                <span class="label-text">Contractor Supervisor In Charge</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-supervisor')">?</span>
-                                            </label>
-                                            <input type="text" id="txtContractorSupervisor" class="form-control" placeholder="Supervisor name">
-                                            <div class="help-example" id="help-supervisor">
-                                                <strong>On-site supervisor information:</strong>
-                                                • Person responsible for day-to-day work supervision<br>
-                                                • Must be qualified and experienced<br>
-                                                • Available throughout work duration
-                                                <div class="example-text">Example: "Muhammad Ali - Senior Supervisor"</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="txtPtwContractorCompany">
-                                                <span class="label-text">Company / Department</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-company')">?</span>
-                                            </label>
-                                            <input type="text" id="txtPtwContractorCompany" class="form-control" placeholder="Company or department name">
-                                            <div class="help-example" id="help-company">
-                                                <strong>Organization details:</strong>
-                                                • Full company name if contractor<br>
-                                                • Department name if internal<br>
-                                                • Include registration details if required
-                                                <div class="example-text">Example: "ABC Engineering Sdn Bhd" or "Maintenance Department"</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="txtPtwWorkArea">
-                                                <span class="label-text">Work Area</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-workarea')">?</span>
-                                            </label>
-                                            <input type="text" id="txtPtwWorkArea" class="form-control" placeholder="Specific work location">
-                                            <div class="help-example" id="help-workarea">
-                                                <strong>Be specific about location:</strong>
-                                                • Building/Unit name and number<br>
-                                                • Floor level or area designation<br>
-                                                • Equipment tag numbers if applicable
-                                                <div class="example-text">Example: "Building 3, Level 2, Pump Room - Equipment P-301A"</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="optWorkType">
-                                                <span class="label-text">Work Type</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-worktype')">?</span>
-                                            </label>
-                                            
-                                            <!-- Hidden dropdown for JavaScript compatibility -->
-                                            <select id="optPtwWorkType" class="form-control" style="display: none;">
-                                                <option value="">Select Work Type</option>
-                                                <option value="COLD_WORK">Cold Work</option>
-                                                <option value="HOT_WORK">Hot Work</option>
-                                                <option value="CONFINED_SPACE">Confined Space</option>
-                                            </select>
-                                            
-                                            <!-- Visible checkbox interface -->
-                                            <div class="work-type-checkboxes">
-                                                <div class="form-check checkbox-item">
-                                                    <input type="checkbox" class="form-check-input" id="chkColdWork">
-                                                    <label class="form-check-label" for="chkColdWork">Cold Work</label>
-                                                </div>
-                                                <div class="form-check checkbox-item">
-                                                    <input type="checkbox" class="form-check-input" id="chkHotWork">
-                                                    <label class="form-check-label" for="chkHotWork">Hot Work</label>
-                                                </div>
-                                                <div class="form-check checkbox-item">
-                                                    <input type="checkbox" class="form-check-input" id="chkConfinedSpace">
-                                                    <label class="form-check-label" for="chkConfinedSpace">Confined Space</label>
-                                                </div>
-                                            </div>
-                                            <div class="help-example" id="help-worktype">
-                                                <strong>Choose applicable work types:</strong>
-                                                • <strong>Cold Work:</strong> Mechanical assembly, maintenance without heat<br>
-                                                • <strong>Hot Work:</strong> Welding, cutting, grinding, brazing<br>
-                                                • <strong>Confined Space:</strong> Work inside tanks, vessels, enclosed areas
-                                            </div>
-                                        </div>
-
-                                        
-
-                                        <div class="form-group">
-                                            <label for="txtPtwDescription">
-                                                <span class="label-text">Description of Work</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-description')">?</span>
-                                            </label>
-                                            <textarea id="txtPtwDescription" class="form-control" rows="4" placeholder="Detailed description of work to be performed"></textarea>
-                                            <div class="help-example" id="help-description">
-                                                <strong>What to include:</strong>
-                                                • Specific work activities<br>
-                                                • Equipment or systems involved<br>
-                                                • Duration and scope of work<br>
-                                                • Any special procedures required
-                                                <div class="example-text">Example: "Welding repair on damaged pipeline flange connection in Processing Unit A, estimated 4 hours duration with pre-heating requirements"</div>
-                                            </div>
+                                    </div>
+                                    <div class="gems-field gems-field-6">
+                                        <label class="form-label" for="txtPtwApplicantContact">
+                                            <span class="label-text">Contact No</span>
+                                            <span class="help-icon" onclick="toggleHelp('help-contact')">?</span>
+                                        </label>
+                                        <input type="text" id="txtPtwApplicantContact" class="form-control" placeholder="Phone number">
+                                        <div class="help-example" id="help-contact">
+                                            <strong>Emergency contact information:</strong>
+                                            • Mobile number preferred<br>
+                                            • Must be reachable during work hours<br>
+                                            • Include country/area code if needed
+                                            <div class="example-text">Example: "012-345-6789" or "+60123456789"</div>
                                         </div>
                                     </div>
 
-                                    <!-- Right Column -->
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="txtPtwApplicantContact">
-                                                <span class="label-text">Contact No</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-contact')">?</span>
+                                    <div class="gems-field gems-field-6">
+                                        <label class="form-label" for="txtContractorSupervisor">
+                                            <span class="label-text">Contractor Supervisor In Charge</span>
+                                            <span class="help-icon" onclick="toggleHelp('help-supervisor')">?</span>
+                                        </label>
+                                        <input type="text" id="txtContractorSupervisor" class="form-control" placeholder="Supervisor name">
+                                        <div class="help-example" id="help-supervisor">
+                                            <strong>On-site supervisor information:</strong>
+                                            • Person responsible for day-to-day work supervision<br>
+                                            • Must be qualified and experienced<br>
+                                            • Available throughout work duration
+                                            <div class="example-text">Example: "Muhammad Ali - Senior Supervisor"</div>
+                                        </div>
+                                    </div>
+                                    <div class="gems-field gems-field-6">
+                                        <label class="form-label" for="txtContactNoSupervisor">
+                                            <span class="label-text">Contact No</span>
+                                            <span class="help-icon" onclick="toggleHelp('help-contact-supervisor')">?</span>
+                                        </label>
+                                        <input type="text" id="txtContactNoSupervisor" class="form-control" placeholder="Supervisor contact">
+                                        <div class="help-example" id="help-contact-supervisor">
+                                            <strong>Supervisor contact details:</strong>
+                                            • Direct contact number for supervisor<br>
+                                            • Must be available during work hours<br>
+                                            • For emergency coordination
+                                            <div class="example-text">Example: "012-987-6543"</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="gems-field gems-field-6">
+                                        <label class="form-label" for="txtPtwContractorCompany">
+                                            <span class="label-text">Company / Department</span>
+                                            <span class="help-icon" onclick="toggleHelp('help-company')">?</span>
+                                        </label>
+                                        <input type="text" id="txtPtwContractorCompany" class="form-control" placeholder="Company or department name">
+                                        <div class="help-example" id="help-company">
+                                            <strong>Organization details:</strong>
+                                            • Full company name if contractor<br>
+                                            • Department name if internal<br>
+                                            • Include registration details if required
+                                            <div class="example-text">Example: "ABC Engineering Sdn Bhd" or "Maintenance Department"</div>
+                                        </div>
+                                    </div>
+                                    <div class="gems-field gems-field-6">
+                                        <label class="form-label" for="txtStaffNoNRIC">
+                                            <span class="label-text">Staff No / NRIC No</span>
+                                            <span class="help-icon" onclick="toggleHelp('help-nric')">?</span>
+                                        </label>
+                                        <input type="text" id="txtStaffNoNRIC" class="form-control" placeholder="Staff number or NRIC">
+                                        <div class="help-example" id="help-nric">
+                                            <strong>Identification information:</strong>
+                                            • Staff ID number for internal employees<br>
+                                            • NRIC number for contractors<br>
+                                            • Passport number for foreign workers
+                                            <div class="example-text">Example: "STF001234" or "123456-12-1234"</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="gems-field gems-field-6">
+                                        <label class="form-label" for="txtPtwWorkArea">
+                                            <span class="label-text">Work Area</span>
+                                            <span class="help-icon" onclick="toggleHelp('help-workarea')">?</span>
+                                        </label>
+                                        <input type="text" id="txtPtwWorkArea" class="form-control" placeholder="Specific work location">
+                                        <div class="help-example" id="help-workarea">
+                                            <strong>Be specific about location:</strong>
+                                            • Building/Unit name and number<br>
+                                            • Floor level or area designation<br>
+                                            • Equipment tag numbers if applicable
+                                            <div class="example-text">Example: "Building 3, Level 2, Pump Room - Equipment P-301A"</div>
+                                        </div>
+                                    </div>
+                                    <div class="gems-field gems-field-6">
+                                        <label class="form-label" for="txtIdentificationNo">
+                                            <span class="label-text">Identification No</span>
+                                            <span class="help-icon" onclick="toggleHelp('help-identification')">?</span>
+                                        </label>
+                                        <input type="text" id="txtIdentificationNo" class="form-control" placeholder="ID number">
+                                        <div class="help-example" id="help-identification">
+                                            <strong>Additional identification:</strong>
+                                            • Contractor registration number<br>
+                                            • Professional certification number<br>
+                                            • Company registration number
+                                            <div class="example-text">Example: "PKK-12345-A" or "CE-098765"</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="gems-field-pair">
+                                        <div class="gems-field">
+                                            <label class="form-label" for="dtPtwValidFrom">
+                                                <span class="label-text">Duration of Work - From</span>
+                                                <span class="help-icon" onclick="toggleHelp('help-duration')">?</span>
                                             </label>
-                                            <input type="text" id="txtPtwApplicantContact" class="form-control" placeholder="Phone number">
-                                            <div class="help-example" id="help-contact">
-                                                <strong>Emergency contact information:</strong>
-                                                • Mobile number preferred<br>
-                                                • Must be reachable during work hours<br>
-                                                • Include country/area code if needed
-                                                <div class="example-text">Example: "012-345-6789" or "+60123456789"</div>
+                                            <input type="date" id="dtPtwValidFrom" class="form-control">
+                                            <div class="help-example" id="help-duration">
+                                                <strong>Work schedule:</strong>
+                                                • Start date cannot be in the past<br>
+                                                • Allow time for approvals<br>
+                                                • Consider preparation time needed
+                                                <div class="example-text">Tip: Permits need 24-48 hours for processing</div>
                                             </div>
                                         </div>
-
-                                        <div class="form-group">
-                                            <label for="txtStaffNoNRIC">
-                                                <span class="label-text">Staff No / NRIC No</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-nric')">?</span>
+                                        <div class="gems-field">
+                                            <label class="form-label" for="dtPtwValidTo">
+                                                <span class="label-text">To</span>
                                             </label>
-                                            <input type="text" id="txtStaffNoNRIC" class="form-control" placeholder="Staff number or NRIC">
-                                            <div class="help-example" id="help-nric">
-                                                <strong>Identification information:</strong>
-                                                • Staff ID number for internal employees<br>
-                                                • NRIC number for contractors<br>
-                                                • Passport number for foreign workers
-                                                <div class="example-text">Example: "STF001234" or "123456-12-1234"</div>
+                                            <input type="date" id="dtPtwValidTo" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="gems-field gems-field-12">
+                                        <label class="form-label" for="optPtwWorkType">
+                                            <span class="label-text">Work Type <span class="required" aria-hidden="true">*</span></span>
+                                            <span class="help-icon" onclick="toggleHelp('help-worktype')">?</span>
+                                        </label>
+                                        <select id="optPtwWorkType" class="form-control" style="display: none;" aria-hidden="true">
+                                            <option value="">Select Work Type</option>
+                                            <option value="COLD_WORK">Cold Work</option>
+                                            <option value="HOT_WORK">Hot Work</option>
+                                            <option value="CONFINED_SPACE">Confined Space</option>
+                                        </select>
+                                        <div class="work-type-checkboxes">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="chkColdWork">
+                                                <label class="form-check-label" for="chkColdWork">Cold Work</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="chkHotWork">
+                                                <label class="form-check-label" for="chkHotWork">Hot Work</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="chkConfinedSpace">
+                                                <label class="form-check-label" for="chkConfinedSpace">Confined Space</label>
                                             </div>
                                         </div>
-
-                                        <div class="form-group">
-                                            <label for="txtContactNoSupervisor">
-                                                <span class="label-text">Contact No</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-contact-supervisor')">?</span>
-                                            </label>
-                                            <input type="text" id="txtContactNoSupervisor" class="form-control" placeholder="Supervisor contact">
-                                            <div class="help-example" id="help-contact-supervisor">
-                                                <strong>Supervisor contact details:</strong>
-                                                • Direct contact number for supervisor<br>
-                                                • Must be available during work hours<br>
-                                                • For emergency coordination
-                                                <div class="example-text">Example: "012-987-6543"</div>
-                                            </div>
+                                        <div class="help-example" id="help-worktype">
+                                            <strong>Choose applicable work types:</strong>
+                                            • <strong>Cold Work:</strong> Mechanical assembly, maintenance without heat<br>
+                                            • <strong>Hot Work:</strong> Welding, cutting, grinding, brazing<br>
+                                            • <strong>Confined Space:</strong> Work inside tanks, vessels, enclosed areas
                                         </div>
+                                    </div>
 
-                                        <div class="form-group">
-                                            <label for="txtIdentificationNo">
-                                                <span class="label-text">Identification No</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-identification')">?</span>
-                                            </label>
-                                            <input type="text" id="txtIdentificationNo" class="form-control" placeholder="ID number">
-                                            <div class="help-example" id="help-identification">
-                                                <strong>Additional identification:</strong>
-                                                • Contractor registration number<br>
-                                                • Professional certification number<br>
-                                                • Company registration number
-                                                <div class="example-text">Example: "PKK-12345-A" or "CE-098765"</div>
-                                            </div>
+                                    <div class="gems-field gems-field-12">
+                                        <label class="form-label" for="txtPtwDescription">
+                                            <span class="label-text">Description of Work</span>
+                                            <span class="help-icon" onclick="toggleHelp('help-description')">?</span>
+                                        </label>
+                                        <textarea id="txtPtwDescription" class="form-control" rows="4" placeholder="Detailed description of work to be performed"></textarea>
+                                        <div class="help-example" id="help-description">
+                                            <strong>What to include:</strong>
+                                            • Specific work activities<br>
+                                            • Equipment or systems involved<br>
+                                            • Duration and scope of work<br>
+                                            • Any special procedures required
+                                            <div class="example-text">Example: "Welding repair on damaged pipeline flange connection in Processing Unit A, estimated 4 hours duration with pre-heating requirements"</div>
                                         </div>
-
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <div class="form-group">
-                                                    <label for="dtPtwValidFrom">
-                                                        <span class="label-text">Duration of Work - From</span>
-                                                        <span class="help-icon" onclick="toggleHelp('help-duration')">?</span>
-                                                    </label>
-                                                    <input type="date" id="dtPtwValidFrom" class="form-control">
-                                                    <div class="help-example" id="help-duration">
-                                                        <strong>Work schedule:</strong>
-                                                        • Start date cannot be in the past<br>
-                                                        • Allow time for approvals<br>
-                                                        • Consider preparation time needed
-                                                        <div class="example-text">Tip: Permits need 24-48 hours for processing</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="form-group">
-                                                    <label for="dtPtwValidTo">
-                                                        <span class="label-text">To</span>
-                                                    </label>
-                                                    <input type="date" id="dtPtwValidTo" class="form-control">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- <div class="form-group">
-                                            <label for="txtLevel">
-                                                <span class="label-text">Level</span>
-                                                <span class="help-icon" onclick="toggleHelp('help-level')">?</span>
-                                            </label>
-                                            <input type="text" id="txtLevel" class="form-control" placeholder="Floor/Level">
-                                            <div class="help-example" id="help-level">
-                                                <strong>Location level information:</strong>
-                                                • Floor number or level designation<br>
-                                                • Height above ground if applicable<br>
-                                                • Reference landmarks
-                                                <div class="example-text">Example: "Level 3", "Ground Floor", "Basement B1"</div>
-                                            </div>
-                                        </div> -->
                                     </div>
                                 </div>
 
                                 <!-- List of Workers Section -->
-                                <div class="mt-3">
+                                <div class="mt-3 mandatory-field" id="workersTableField">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h6><strong>List of Workers</strong></h6>
+                                        <h6 class="mb-0">
+                                            <strong>List of Workers</strong>
+                                            <span class="required" aria-hidden="true">*</span>
+                                        </h6>
                                         <button type="button" class="btn btn-sm btn-primary" id="btnAddWorker">
                                             <i class="fas fa-plus"></i> Add Worker
                                         </button>
@@ -1697,7 +1653,9 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <!-- Workers will be added dynamically -->
+                                                <tr id="noWorkersRow">
+                                                    <td colspan="5">Please add at least one worker</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -1717,8 +1675,8 @@
                                             <h6 class="mb-0"><strong>COLD WORK</strong></h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6">
+                                            <div class="gems-form-grid">
+                                                <div class="gems-field gems-field-6">
                                                     <h6><strong>CONDITIONS TO BE IMPLEMENTED BY SUPERVISOR / CONTRACTOR SUPERVISOR</strong></h6>
                                                     <!-- Electrical Work group -->
                                                     <div class="mb-2">
@@ -1761,7 +1719,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
+                                                <div class="gems-field gems-field-6">
                                                     <!-- Excavation Work group -->
                                                     <div class="mb-2">
                                                         <div class="form-check">
@@ -1787,10 +1745,8 @@
                                                     <div class="form-check"><input type="checkbox" class="form-check-input" id="cw_chemicalHandling"><label class="form-check-label" for="cw_chemicalHandling">Chemical Handling</label></div>
 
                                                     <hr>
-                                                    <div class="form-group">
-                                                        <label for="cw_specialPrecautions">Special precautions (if any)</label>
-                                                        <textarea id="cw_specialPrecautions" class="form-control" rows="5" placeholder="Describe any special precautions..."></textarea>
-                                                    </div>
+                                                    <label class="form-label" for="cw_specialPrecautions">Special precautions (if any)</label>
+                                                    <textarea id="cw_specialPrecautions" class="form-control" rows="5" placeholder="Describe any special precautions..."></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -1802,9 +1758,9 @@
                                             <h6 class="mb-0"><strong>HOT WORK</strong></h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="row">
+                                            <div class="gems-form-grid">
                                                 <!-- Left: Type of Hot Work -->
-                                                <div class="col-md-6">
+                                                <div class="gems-field gems-field-6">
                                                     <h6><strong>TYPE OF HOT WORK</strong></h6>
                                                     <div>
                                                         <div class="form-check ">
@@ -1851,14 +1807,14 @@
                                                             <input type="text" id="hotOthersText" class="form-control form-control-sm" placeholder="Specify others" style="max-width: 60%;">
                                                         </div>
                                                     </div>
-                                                    <div class="mt-3 form-group">
-                                                        <label for="hotSpecialPrecautions">Special precautions (if any)</label>
+                                                    <div class="mt-3">
+                                                        <label class="form-label" for="hotSpecialPrecautions">Special precautions (if any)</label>
                                                         <textarea id="hotSpecialPrecautions" class="form-control" rows="5" placeholder="Describe any special precautions..."></textarea>
                                                     </div>
                                                 </div>
 
                                                 <!-- Right: Controls Required -->
-                                                <div class="col-md-6">
+                                                <div class="gems-field gems-field-6">
                                                     <h6><strong>CONTROLS REQUIRED</strong></h6>
                                                     <div>
                                                         <!-- Gas Monitoring with sub-options -->
@@ -1939,9 +1895,9 @@
                                             <h6 class="mb-0"><strong>CONFINED SPACE</strong></h6>
                                         </div>
                                         <div class="card-body">
-                                            <div class="row">
+                                            <div class="gems-form-grid">
                                                 <!-- Column 1: Entry condition + basic controls -->
-                                                <div class="col-md-4">
+                                                <div class="gems-field gems-field-6">
                                                     <h6><strong>Entry Condition</strong></h6>
                                                     <div class="checkbox-container">
                                                         <div class="form-check">
@@ -1973,7 +1929,7 @@
                                                 </div>
 
                                                 <!-- Column 2: Gas, ventilation, standby, electrical, mobile equipment -->
-                                                <div class="col-md-4">
+                                                <div class="gems-field gems-field-6">
                                                     <h6><strong>Controls Required</strong></h6>
                                                     <div class="checkbox-container">
                                                         <div class="form-check">
@@ -2032,7 +1988,7 @@
                                                 </div>
 
                                                 <!-- Column 3: Checklist + Communication + Special precautions -->
-                                                <div class="col-md-4">
+                                                <div class="gems-field gems-field-6">
                                                     <h6><strong>Controls Required</strong></h6>
                                                     <div class="checkbox-container">
                                                         <div class="form-check">
@@ -2172,79 +2128,64 @@
                                 <div class="documents-section">
                                     <h6 class="mb-3"><strong>Certificate / Permit Numbers</strong></h6>
                                     
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <!-- Excavation Certificate with sub-item -->
-                                            <div class="form-group mb-3">
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="chkExcavationCert" onchange="toggleCertField('chkExcavationCert', 'certExcavation')">
-                                                    <label class="form-check-label" for="chkExcavationCert"><strong>Excavation Cert No.:</strong></label>
-                                                </div>
-                                                <input type="text" class="form-control" id="certExcavation" placeholder="Enter certificate number" disabled>
-                                                
-                                                <!-- Sub-item: Excavation Plan (checkbox only) -->
-                                                <div class="ms-4 mt-2">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input" id="chkExcavationPlan">
-                                                        <label class="form-check-label" for="chkExcavationPlan">Excavation Plan</label>
-                                                    </div>
-                                                </div>
+                                    <div class="gems-form-grid">
+                                        <div class="gems-field gems-field-6">
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkExcavationCert" onchange="toggleCertField('chkExcavationCert', 'certExcavation')">
+                                                <label class="form-check-label" for="chkExcavationCert"><strong>Excavation Cert No.:</strong></label>
                                             </div>
-                                            
-                                            <!-- Lifting Certificate with sub-items -->
-                                            <div class="form-group mb-3">
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="chkLiftingCert" onchange="toggleCertField('chkLiftingCert', 'certLifting')">
-                                                    <label class="form-check-label" for="chkLiftingCert"><strong>Lifting Cert No:</strong></label>
-                                                </div>
-                                                <input type="text" class="form-control" id="certLifting" placeholder="Enter certificate number" disabled>
-                                                
-                                                <!-- Sub-items: Lifting Plan and Checklist (checkbox only) -->
-                                                <div class="ms-4 mt-2">
-                                                    <div class="form-check mb-1">
-                                                        <input type="checkbox" class="form-check-input" id="chkLiftingPlan">
-                                                        <label class="form-check-label" for="chkLiftingPlan">Lifting Plan</label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input" id="chkLiftingChecklist">
-                                                        <label class="form-check-label" for="chkLiftingChecklist">Lifting Checklist</label>
-                                                    </div>
+                                            <input type="text" class="form-control" id="certExcavation" placeholder="Enter certificate number" disabled>
+                                            <div class="ms-4 mt-2">
+                                                <div class="form-check">
+                                                    <input type="checkbox" class="form-check-input" id="chkExcavationPlan">
+                                                    <label class="form-check-label" for="chkExcavationPlan">Excavation Plan</label>
                                                 </div>
                                             </div>
                                         </div>
-                                        
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="chkPhysicalIsolation" onchange="toggleCertField('chkPhysicalIsolation', 'certPhysicalIsolation')">
-                                                    <label class="form-check-label" for="chkPhysicalIsolation">Physical Isolation Cert No.:</label>
-                                                </div>
-                                                <input type="text" class="form-control" id="certPhysicalIsolation" placeholder="Enter certificate number" disabled>
+                                        <div class="gems-field gems-field-6">
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkPhysicalIsolation" onchange="toggleCertField('chkPhysicalIsolation', 'certPhysicalIsolation')">
+                                                <label class="form-check-label" for="chkPhysicalIsolation">Physical Isolation Cert No.:</label>
                                             </div>
-                                            
-                                            <div class="form-group mb-3">
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="chkElectricalIsolation" onchange="toggleCertField('chkElectricalIsolation', 'certElectricalIsolation')">
-                                                    <label class="form-check-label" for="chkElectricalIsolation">Electrical Isolation Cert No.:</label>
-                                                </div>
-                                                <input type="text" class="form-control" id="certElectricalIsolation" placeholder="Enter certificate number" disabled>
+                                            <input type="text" class="form-control" id="certPhysicalIsolation" placeholder="Enter certificate number" disabled>
+                                        </div>
+                                        <div class="gems-field gems-field-6">
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkLiftingCert" onchange="toggleCertField('chkLiftingCert', 'certLifting')">
+                                                <label class="form-check-label" for="chkLiftingCert"><strong>Lifting Cert No:</strong></label>
                                             </div>
-                                            
-                                            <div class="form-group mb-3">
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="chkConfinedSpaceCert" onchange="toggleCertField('chkConfinedSpaceCert', 'certConfinedSpace')">
-                                                    <label class="form-check-label" for="chkConfinedSpaceCert">Confined Space Cert No.:</label>
+                                            <input type="text" class="form-control" id="certLifting" placeholder="Enter certificate number" disabled>
+                                            <div class="ms-4 mt-2">
+                                                <div class="form-check mb-1">
+                                                    <input type="checkbox" class="form-check-input" id="chkLiftingPlan">
+                                                    <label class="form-check-label" for="chkLiftingPlan">Lifting Plan</label>
                                                 </div>
-                                                <input type="text" class="form-control" id="certConfinedSpace" placeholder="Enter certificate number" disabled>
-                                            </div>
-                                            
-                                            <div class="form-group mb-3">
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" class="form-check-input" id="chkOthers" onchange="toggleCertField('chkOthers', 'certOthers')">
-                                                    <label class="form-check-label" for="chkOthers">Others:</label>
+                                                <div class="form-check">
+                                                    <input type="checkbox" class="form-check-input" id="chkLiftingChecklist">
+                                                    <label class="form-check-label" for="chkLiftingChecklist">Lifting Checklist</label>
                                                 </div>
-                                                <input type="text" class="form-control" id="certOthers" placeholder="Specify others" disabled>
                                             </div>
+                                        </div>
+                                        <div class="gems-field gems-field-6">
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkElectricalIsolation" onchange="toggleCertField('chkElectricalIsolation', 'certElectricalIsolation')">
+                                                <label class="form-check-label" for="chkElectricalIsolation">Electrical Isolation Cert No.:</label>
+                                            </div>
+                                            <input type="text" class="form-control" id="certElectricalIsolation" placeholder="Enter certificate number" disabled>
+                                        </div>
+                                        <div class="gems-field gems-field-6">
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkConfinedSpaceCert" onchange="toggleCertField('chkConfinedSpaceCert', 'certConfinedSpace')">
+                                                <label class="form-check-label" for="chkConfinedSpaceCert">Confined Space Cert No.:</label>
+                                            </div>
+                                            <input type="text" class="form-control" id="certConfinedSpace" placeholder="Enter certificate number" disabled>
+                                        </div>
+                                        <div class="gems-field gems-field-6">
+                                            <div class="form-check mb-2">
+                                                <input type="checkbox" class="form-check-input" id="chkOthers" onchange="toggleCertField('chkOthers', 'certOthers')">
+                                                <label class="form-check-label" for="chkOthers">Others:</label>
+                                            </div>
+                                            <input type="text" class="form-control" id="certOthers" placeholder="Specify others" disabled>
                                         </div>
                                     </div>
                                 </div>
@@ -2281,10 +2222,12 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group mt-3">
-                                    <label for="txtPtwRemarks"><strong>Additional Document Notes</strong></label>
-                                    <textarea id="txtPtwRemarks" class="form-control" rows="3" 
-                                              placeholder="Specify any additional documents or special requirements..."></textarea>
+                                <div class="gems-form-grid mt-3">
+                                    <div class="gems-field gems-field-12">
+                                        <label class="form-label" for="txtPtwRemarks">Additional Document Notes</label>
+                                        <textarea id="txtPtwRemarks" class="form-control" rows="3"
+                                                  placeholder="Specify any additional documents or special requirements..."></textarea>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2310,8 +2253,8 @@
                                         <h6 class="mb-0"><strong>HAZARDOUS ACTIVITIES CHECKLIST</strong></h6>
                                     </div>
                                     <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
+                                        <div class="gems-form-grid">
+                                            <div class="gems-field gems-field-6">
                                                 <div class="form-check mb-2">
                                                     <input type="checkbox" class="form-check-input" id="hazSlipperyFloor">
                                                     <label class="form-check-label" for="hazSlipperyFloor">Slippery floor</label>
@@ -2374,7 +2317,7 @@
                                                     <input type="text" class="form-control mt-2" id="hazOthersText" placeholder="Specify other hazards" disabled>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="gems-field gems-field-6">
                                                 <div class="form-check mb-2">
                                                     <input type="checkbox" class="form-check-input" id="hazUnevenGround">
                                                     <label class="form-check-label" for="hazUnevenGround">Uneven ground/soil</label>
@@ -2535,9 +2478,9 @@
                                     <div class="card-body">
                                         <p><strong>Appropriate PPE are provided/wear, please tick below:</strong></p>
                                         
-                                        <div class="row mb-3">
+                                        <div class="gems-form-grid">
                                             <!-- Mandatory + Fall Protection -->
-                                            <div class="col-md-3">
+                                            <div class="gems-field gems-field-6">
                                                 <h6><strong>Mandatory</strong></h6>
                                                 <div class="form-check">
                                                     <input type="checkbox" class="form-check-input" id="ppe_safety_helmet">
@@ -2556,7 +2499,7 @@
                                             </div>
 
                                             <!-- Respiratory Protection -->
-                                            <div class="col-md-3">
+                                            <div class="gems-field gems-field-6">
                                                 <h6><strong>Respiratory Protection</strong></h6>
                                                 <div class="form-check">
                                                     <input type="checkbox" class="form-check-input" id="ppe_half_mask_respirator">
@@ -2577,7 +2520,7 @@
                                             </div>
 
                                             <!-- Eye, Face & Body Protection -->
-                                            <div class="col-md-3">
+                                            <div class="gems-field gems-field-6">
                                                 <h6><strong>Eye, Face & Body Protection</strong></h6>
                                                 <div class="form-check">
                                                     <input type="checkbox" class="form-check-input" id="ppe_goggles">
@@ -2606,7 +2549,7 @@
                                             </div>
 
                                             <!-- Hand Protection -->
-                                            <div class="col-md-3">
+                                            <div class="gems-field gems-field-6">
                                                 <h6><strong>Hand Protection</strong></h6>
                                                 <div class="form-check">
                                                     <input type="checkbox" class="form-check-input" id="ppe_cotton_gloves">
@@ -2625,11 +2568,9 @@
                                                     <label class="form-check-label" for="ppe_chemical_gloves">Chemical gloves</label>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <!-- Hearing Protection & Others -->
-                                        <div class="row">
-                                            <div class="col-md-6">
+                                            <!-- Hearing Protection -->
+                                            <div class="gems-field gems-field-6">
                                                 <h6><strong>Hearing Protection</strong></h6>
                                                 <div class="form-check">
                                                     <input type="checkbox" class="form-check-input" id="ppe_ear_plugs">
@@ -2641,7 +2582,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-6">
+                                            <div class="gems-field gems-field-6">
                                                 <h6><strong>Others</strong></h6>
                                                 <div class="form-check mb-2">
                                                     <input type="checkbox" class="form-check-input" id="ppe_life_jacket">
@@ -2665,50 +2606,46 @@
                                         <h6 class="mb-0"><strong>Contractor Acknowledgment</strong></h6>
                                     </div>
                                     <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="contractor_name"><strong>Contractor Name:</strong></label>
-                                                    <input type="text" id="contractor_name" class="form-control" placeholder="Full name of contractor representative">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="contractor_designation"><strong>Designation:</strong></label>
-                                                    <input type="text" id="contractor_designation" class="form-control" placeholder="Job title/position">
-                                                </div>
+                                        <div class="gems-form-grid">
+                                            <div class="gems-field gems-field-6">
+                                                <label class="form-label" for="contractor_name">Contractor Name</label>
+                                                <input type="text" id="contractor_name" class="form-control" placeholder="Full name of contractor representative">
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="contractor_date"><strong>Date:</strong></label>
-                                                    <input type="date" id="contractor_date" class="form-control">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="contractor_signature"><strong>Signature:</strong></label>
-                                                    <div class="signature-section">
-                                                        <div class="signature-pad" id="contractorSignaturePad">
-                                                            <canvas id="contractorSignatureCanvas"></canvas>
-                                                        </div>
-                                                        <div class="signature-image" id="contractorSignatureImage" aria-live="polite">
-                                                            <div class="text-muted small mb-1"><i class="fas fa-check text-success me-1"></i>Saved signature</div>
-                                                            <img id="contractorSignatureImgTag" alt="Contractor signature" />
-                                                            <div id="contractorSignatureActions" class="mt-2">
-                                                                <a id="contractorSignatureViewLink" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">View full</a>
-                                                            </div>
-                                                        </div>
-                                                        <div class="signature-actions">
-                                                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClearContractorSignature">
-                                                                <i class="fas fa-eraser me-1"></i>Clear
-                                                            </button>
-                                                        </div>
-                                                        <div class="signature-hint">
-                                                            Sign inside the box using your mouse or finger. Your signature will be saved with this form.
-                                                        </div>
-                                                        <!-- Hidden field to store signature as data URL -->
-                                                        <input type="hidden" id="contractor_signature" name="contractor_signature" value="">
+                                            <div class="gems-field gems-field-6">
+                                                <label class="form-label" for="contractor_date">Date</label>
+                                                <input type="date" id="contractor_date" class="form-control">
+                                            </div>
+                                            <div class="gems-field gems-field-6">
+                                                <label class="form-label" for="contractor_designation">Designation</label>
+                                                <input type="text" id="contractor_designation" class="form-control" placeholder="Job title/position">
+                                            </div>
+                                            <div class="gems-field gems-field-12">
+                                                <label class="form-label" for="contractor_signature">Signature</label>
+                                                <div class="signature-section">
+                                                    <div class="signature-pad" id="contractorSignaturePad">
+                                                        <canvas id="contractorSignatureCanvas"></canvas>
                                                     </div>
+                                                    <div class="signature-image" id="contractorSignatureImage" aria-live="polite">
+                                                        <div class="text-muted small mb-1"><i class="fas fa-check text-success me-1"></i>Saved signature</div>
+                                                        <img id="contractorSignatureImgTag" alt="Contractor signature" />
+                                                        <div id="contractorSignatureActions" class="mt-2">
+                                                            <a id="contractorSignatureViewLink" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">View full</a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="signature-actions">
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClearContractorSignature">
+                                                            <i class="fas fa-eraser me-1"></i>Clear
+                                                        </button>
+                                                    </div>
+                                                    <div class="signature-hint">
+                                                        Sign inside the box using your mouse or finger. Your signature will be saved with this form.
+                                                    </div>
+                                                    <!-- Hidden field to store signature as data URL -->
+                                                    <input type="hidden" id="contractor_signature" name="contractor_signature" value="">
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="alert alert-info mt-3">
                                             <i class="fas fa-info-circle me-2"></i>
                                             <strong>Declaration:</strong> I hereby declare that all information provided is accurate and complete. I understand that any false declaration may result in permit cancellation and legal consequences.
@@ -2719,9 +2656,7 @@
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="contractorConfirmation" required>
                                                 <label class="form-check-label fw-bold" for="contractorConfirmation">
-                                                    <strong>
-I/ We confirm that we have read and fully understood the terms and conditions above and hereby agree to strictly comply with rules and regulations as well as safety requirements set by
-the building owners and GFM. I / We shall brief all my workers involved in this work and ensure that they are carry out work safely at all times.</strong>
+                                                    I/We confirm that we have read and fully understood the terms and conditions above and hereby agree to strictly comply with rules and regulations as well as safety requirements set by the building owners and GFM. I/We shall brief all my workers involved in this work and ensure that they carry out work safely at all times.
                                                 </label>
                                             </div>
                                         </div>
@@ -2759,16 +2694,14 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                     <!-- Supervisor Approval -->
                     <div class="approval-section supervisor" id="supervisorApprovalSection" style="display: none;">
                         <h5><i class="fas fa-user-tie me-2"></i>PTW Supervisor Approval</h5>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="form-group">
-                                    <label><strong>Review Comments</strong></label>
-                                    <textarea id="supervisorComments" class="form-control" rows="3" 
-                                              placeholder="Enter review comments (required for rejection)"></textarea>
-                                </div>
+                        <div class="gems-form-grid">
+                            <div class="gems-field gems-field-6">
+                                <label class="form-label" for="supervisorComments">Review Comments</label>
+                                <textarea id="supervisorComments" class="form-control" rows="3"
+                                          placeholder="Enter review comments (required for rejection)"></textarea>
                             </div>
-                            <div class="col-md-4">
-                                <label><strong>Decision</strong></label>
+                            <div class="gems-field gems-field-6">
+                                <label class="form-label">Decision</label>
                                 <div class="approval-actions">
                                     <button type="button" class="btn btn-success approval-btn" id="btnSupervisorApprove">
                                         <i class="fas fa-check me-2"></i>Approve
@@ -2780,11 +2713,11 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                             </div>
                         </div>
                         <div class="signature-section">
-                            <div class="row">
-                                <div class="col-md-6">
+                            <div class="gems-form-grid">
+                                <div class="gems-field gems-field-6">
                                     <strong>Digital Signature:</strong> <span id="supervisorSignature">Pending</span>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="gems-field gems-field-6">
                                     <strong>Date:</strong> <span id="supervisorDate">-</span>
                                 </div>
                             </div>
@@ -2794,16 +2727,14 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                     <!-- SHE Approval -->
                     <div class="approval-section she" id="sheApprovalSection" style="display: none;">
                         <h5><i class="fas fa-hard-hat me-2"></i>Safety, Health & Environment (SHE) Approval</h5>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="form-group">
-                                    <label><strong>Safety Review Comments</strong></label>
-                                    <textarea id="sheComments" class="form-control" rows="3" 
-                                              placeholder="Enter safety review comments (required for rejection)"></textarea>
-                                </div>
+                        <div class="gems-form-grid">
+                            <div class="gems-field gems-field-6">
+                                <label class="form-label" for="sheComments">Safety Review Comments</label>
+                                <textarea id="sheComments" class="form-control" rows="3"
+                                          placeholder="Enter safety review comments (required for rejection)"></textarea>
                             </div>
-                            <div class="col-md-4">
-                                <label><strong>Decision</strong></label>
+                            <div class="gems-field gems-field-6">
+                                <label class="form-label">Decision</label>
                                 <div class="approval-actions">
                                     <button type="button" class="btn btn-success approval-btn" id="btnSheApprove">
                                         <i class="fas fa-check me-2"></i>Approve
@@ -2815,11 +2746,11 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                             </div>
                         </div>
                         <div class="signature-section">
-                            <div class="row">
-                                <div class="col-md-6">
+                            <div class="gems-form-grid">
+                                <div class="gems-field gems-field-6">
                                     <strong>Digital Signature:</strong> <span id="sheSignature">Pending</span>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="gems-field gems-field-6">
                                     <strong>Date:</strong> <span id="sheDate">-</span>
                                 </div>
                             </div>
@@ -2829,16 +2760,14 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                     <!-- Facility Manager Approval -->
                     <div class="approval-section facility-manager" id="facilityManagerApprovalSection" style="display: none;">
                         <h5><i class="fas fa-building me-2"></i>Facility Manager Final Approval</h5>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="form-group">
-                                    <label><strong>Final Review Comments</strong></label>
-                                    <textarea id="facilityManagerComments" class="form-control" rows="3" 
-                                              placeholder="Enter final review comments (required for rejection)"></textarea>
-                                </div>
+                        <div class="gems-form-grid">
+                            <div class="gems-field gems-field-6">
+                                <label class="form-label" for="facilityManagerComments">Final Review Comments</label>
+                                <textarea id="facilityManagerComments" class="form-control" rows="3"
+                                          placeholder="Enter final review comments (required for rejection)"></textarea>
                             </div>
-                            <div class="col-md-4">
-                                <label><strong>Decision</strong></label>
+                            <div class="gems-field gems-field-6">
+                                <label class="form-label">Decision</label>
                                 <div class="approval-actions">
                                     <button type="button" class="btn btn-success approval-btn" id="btnFacilityManagerApprove">
                                         <i class="fas fa-check me-2"></i>Approve
@@ -2850,11 +2779,11 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                             </div>
                         </div>
                         <div class="signature-section">
-                            <div class="row">
-                                <div class="col-md-6">
+                            <div class="gems-form-grid">
+                                <div class="gems-field gems-field-6">
                                     <strong>Digital Signature:</strong> <span id="facilityManagerSignature">Pending</span>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="gems-field gems-field-6">
                                     <strong>Date:</strong> <span id="facilityManagerDate">-</span>
                                 </div>
                             </div>
@@ -3640,6 +3569,9 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                     `;
                     tbody.appendChild(row);
                 });
+                if (data.workers.length === 0) {
+                    tbody.innerHTML = '<tr id="noWorkersRow"><td colspan="5">Please add at least one worker</td></tr>';
+                }
             }
         }
         
@@ -4462,6 +4394,7 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
                     const wTbody = document.querySelector('#workersTable tbody');
                     if (wTbody) {
                         Array.from(wTbody.rows).forEach(row => {
+                            if (row.id === 'noWorkersRow') return;
                             // Make inputs editable
                             row.querySelectorAll('input').forEach(inp => {
                                 inp.readOnly = false; inp.disabled = false;
@@ -5982,6 +5915,14 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         // Validate conditional sections based on work type selection
         isValid = validateConditionalSections() && isValid;
         
+        // 12b. List of Workers — at least one named worker
+        const workerNameInputs = document.querySelectorAll('#workersTable tbody .worker-name');
+        const namedWorkers = Array.from(workerNameInputs).filter(el => (el.value || '').trim());
+        if (workerNameInputs.length === 0 || namedWorkers.length === 0) {
+            showValidationError('workersTable', 'Please add at least one worker');
+            isValid = false;
+        }
+
         // Validate hazardous activity "Others" field
         isValid = validateHazardousActivityOthers() && isValid;
         
@@ -6709,12 +6650,39 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         window.updateWorkTypeDropdown = updateWorkTypeDropdown;
     }
 
+    function getNoWorkersRowHtml() {
+        return '<tr id="noWorkersRow"><td colspan="5">Please add at least one worker</td></tr>';
+    }
+
+    function getWorkerRows(tbody) {
+        return Array.from((tbody || document.querySelector('#workersTable tbody'))?.rows || [])
+            .filter(row => row.id !== 'noWorkersRow' && row.querySelector('.worker-name'));
+    }
+
+    function ensureNoWorkersRow() {
+        const tbody = document.querySelector('#workersTable tbody');
+        const table = document.getElementById('workersTable');
+        if (!tbody) return;
+        if (getWorkerRows(tbody).length === 0) {
+            if (!document.getElementById('noWorkersRow')) {
+                tbody.innerHTML = getNoWorkersRowHtml();
+            }
+        } else {
+            const empty = document.getElementById('noWorkersRow');
+            if (empty) empty.remove();
+            if (table) table.classList.remove('is-invalid');
+        }
+    }
+
     // Worker management for the new table format
     function addWorkerToTable() {
         const tbody = document.querySelector('#workersTable tbody');
         if (!tbody) return;
-        
-        const rowCount = tbody.children.length + 1;
+
+        const empty = document.getElementById('noWorkersRow');
+        if (empty) empty.remove();
+
+        const rowCount = getWorkerRows(tbody).length + 1;
         const row = document.createElement('tr');
         
         row.innerHTML = `
@@ -6730,20 +6698,27 @@ the building owners and GFM. I / We shall brief all my workers involved in this 
         `;
         
         tbody.appendChild(row);
-        console.log('Worker added to table, total workers:', tbody.children.length);
+        const table = document.getElementById('workersTable');
+        if (table) table.classList.remove('is-invalid');
+        console.log('Worker added to table, total workers:', getWorkerRows(tbody).length);
     }
     
     function removeWorkerRow(button) {
         const row = button.closest('tr');
         const tbody = row.parentNode;
         row.remove();
-        
-        // Renumber the workers
-        Array.from(tbody.children).forEach((row, index) => {
-            row.children[0].textContent = index + 1;
+
+        const workerRows = getWorkerRows(tbody);
+        if (workerRows.length === 0) {
+            ensureNoWorkersRow();
+            return;
+        }
+
+        workerRows.forEach((workerRow, index) => {
+            workerRow.children[0].textContent = index + 1;
         });
         
-        console.log('Worker removed, total workers:', tbody.children.length);
+        console.log('Worker removed, total workers:', workerRows.length);
     }
     
     // Make functions globally accessible
