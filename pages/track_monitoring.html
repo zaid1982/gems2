@@ -1,224 +1,243 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--
+  pages/track_monitoring.html — Tabler-migrated (P5-16 Track Monitoring).
+
+  Category A authenticated. JS: main_track_monitoring.js unchanged.
+  Shared section_task_history is converted in place (home.html already Tabler).
+  Do not load next to Tabler: MDB, bootstrap 4 DT, steppers, jquery-migrate.
+
+  APIs:
+    GET track_monitoring.php?type=track_monitoring_list&siteCode=&flowId=&year=
+    GET track_monitoring.php?type=transaction_history&transactionId=
+    GET track_monitoring.php?type=transaction_history_train_station&transactionId=&flag=
+    GET wo.php?type=wo_by_transaction&transactionId= (flowId===2 only)
+
+  Roles 1,10 unlock site filter. History states / train flags unchanged.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>GEMS 2.0 - Track & Monitoring</title>
-    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
-    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/mdb.min.css">
-    <link rel="stylesheet" type="text/css" href="js/vendor/datatables/css/dataTables.bootstrap4.min.css"/>
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/gems2-ui.css" rel="stylesheet">
-    <link href="css/addons-pro/steppers.css" rel="stylesheet">
-    <script type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-    <script type="text/javascript" src="js/jquery-migrate-3.4.0.min.js"></script>
-    <style>
-        #dtTnmList tbody tr { cursor: pointer; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Track &amp; Monitoring</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+  <style>
+    .page-body, .page-body .container-xl, .sectionTnmMain { min-width: 0; max-width: 100%; }
+    #dtTnmList tbody tr { cursor: pointer; }
+    .action-btn-group { display: inline-flex; gap: 4px; }
+    .btn-action { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 6px; background: #fff; }
+    @media (max-width: 768px) {
+      #dtTnmList thead { display: none; }
+      #dtTnmList, #dtTnmList tbody, #dtTnmList tr, #dtTnmList td { display: block; width: 100%; }
+      #dtTnmList tr { background: var(--tblr-bg-surface, #fff); border: 1px solid var(--tblr-border-color, #e5e7eb); border-radius: 12px; margin-bottom: 12px; padding: 8px 12px; }
+      #dtTnmList td { border: 0; border-bottom: 1px dashed var(--tblr-border-color, #e5e7eb); padding: 8px 0; }
+      #dtTnmList td:last-child { border-bottom: 0; }
+      #dtTnmList td::before { content: attr(data-label); display: block; color: var(--tblr-secondary, #6c7a91); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    }
+  </style>
 </head>
-
-<body class="fixed-sn light-blue-skin">
-<header>
-    <div class="includeHtml" id="h-nav_left"></div>
-    <div class="includeHtml" id="h-nav_top"></div>
-</header>
-
-<main>
-    <div class="container-fluid module-page module-master">
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
         <section class="tnm-section sectionTnmMain">
-            <div class="gems-page-header module-page-header">
-                <div class="header-text">
-                    <div class="eyebrow"><i class="fas fa-compass"></i><span>Workflow insight</span></div>
-                    <h2>Track &amp; Monitoring</h2>
-                    <p>Review the latest task transitions, checkpoints, and ownership across your permitted flows.</p>
-                </div>
-                <div class="header-actions">
-                    <button type="button" class="btn btn-light btn-icon" onclick="$('#btnDtTnmListRefresh').trigger('click');" data-toggle="tooltip" data-placement="top" title="Refresh data" aria-label="Refresh data">
-                        <i class="fas fa-rotate"></i>
-                    </button>
-                    <a class="btn btn-primary btn-icon" style="display: flex !important; align-items: center; justify-content: center;" href="#tnmTable" data-toggle="tooltip" data-placement="top" title="Jump to list" aria-label="Jump to list">
-                        <i class="fas fa-table-list"></i>
-                    </a>
-                </div>
+          <div class="page-header">
+            <div class="row align-items-center g-2">
+              <div class="col-12 col-sm">
+                <div class="text-secondary" style="font-size:.75rem">Workflow insight</div>
+                <h1 class="page-title">Track &amp; Monitoring</h1>
+                <div class="page-subtitle">Review the latest task transitions, checkpoints, and ownership across your permitted flows.</div>
+              </div>
+              <div class="col-12 col-sm-auto">
+                <button type="button" class="btn btn-outline-secondary" onclick="$('#btnDtTnmListRefresh').trigger('click');" data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data"><i class="fas fa-rotate"></i></button>
+                <a class="btn btn-primary" href="#tnmTable" aria-label="Jump to list"><i class="fas fa-table-list me-1"></i>List</a>
+              </div>
             </div>
+          </div>
 
-            <div class="metrics-row">
-                <div class="metric-card">
-                    <div class="metric-label">Total transactions</div>
-                    <div class="metric-value" id="metricTnmTotal">-</div>
-                    <div class="metric-subtext">Across selected site, flow, and year</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">On track</div>
-                    <div class="metric-value text-success" id="metricTnmOnTrack">-</div>
-                    <div class="metric-subtext">Statuses marked green / success</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Needs attention</div>
-                    <div class="metric-value text-warning" id="metricTnmAttention">-</div>
-                    <div class="metric-subtext">Statuses tagged warning or orange</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Blocked</div>
-                    <div class="metric-value text-danger" id="metricTnmBlocked">-</div>
-                    <div class="metric-subtext">Critical states requiring action</div>
-                </div>
+          <div class="row row-deck mb-3">
+            <div class="col-sm-6 col-lg-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">Total transactions</div>
+                <div class="h1 mb-0" id="metricTnmTotal">-</div>
+                <div class="text-secondary" style="font-size:.75rem">Across selected site, flow, and year</div>
+              </div></div>
             </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">On track</div>
+                <div class="h1 mb-0 text-success" id="metricTnmOnTrack">-</div>
+                <div class="text-secondary" style="font-size:.75rem">Statuses marked green / success</div>
+              </div></div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">Needs attention</div>
+                <div class="h1 mb-0 text-warning" id="metricTnmAttention">-</div>
+                <div class="text-secondary" style="font-size:.75rem">Statuses tagged warning or orange</div>
+              </div></div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="card"><div class="card-body">
+                <div class="subheader">Blocked</div>
+                <div class="h1 mb-0 text-danger" id="metricTnmBlocked">-</div>
+                <div class="text-secondary" style="font-size:.75rem">Critical states requiring action</div>
+              </div></div>
+            </div>
+          </div>
 
-            <div class="filter-card">
-                <div class="filter-grid">
-                    <div>
-                        <div class="filter-label">Site</div>
-                        <div class="select-outline">
-                            <select id="optTnmSiteCode" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="filter-label">Year</div>
-                        <div class="select-outline">
-                            <select id="optTnmYear" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="filter-label">Flow</div>
-                        <div class="select-outline">
-                            <select id="optTnmFlowId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0"></select>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="filter-label">Checkpoint</div>
-                        <div class="select-outline">
-                            <select id="optTnmCheckpointId" class="mdb-select md-form md-outline colorful-select dropdown-info mt-0" data-stop-refresh="true">
-                                <option value="" disabled>All Checkpoint</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="filter-label">Keyword search</div>
-                        <input type="text" id="txtTnmListSearch" class="form-control" placeholder="Search transaction number, user, or status">
-                    </div>
-                    <div>
-                        <div class="filter-label">Reminder</div>
-                        <div class="summary-pill"><i class="far fa-lightbulb"></i><span>Filters apply instantly and update the metrics above.</span></div>
-                    </div>
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="gems-form-grid">
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optTnmSiteCode">Site</label>
+                  <select id="optTnmSiteCode" class="form-select"></select>
                 </div>
-                <div class="results-summary">
-                    <div id="lblTnmCount">Loading transactions…</div>
-                    <div class="summary-pill" id="lblTnmUpdated"><i class="far fa-clock"></i>Last refreshed: <span class="font-weight-bold">-</span></div>
+                <div class="gems-field gems-field-2">
+                  <label class="form-label" for="optTnmYear">Year</label>
+                  <select id="optTnmYear" class="form-select"></select>
                 </div>
+                <div class="gems-field gems-field-3">
+                  <label class="form-label" for="optTnmFlowId">Flow</label>
+                  <select id="optTnmFlowId" class="form-select"></select>
+                </div>
+                <div class="gems-field gems-field-2">
+                  <label class="form-label" for="optTnmCheckpointId">Checkpoint</label>
+                  <select id="optTnmCheckpointId" class="form-select" data-stop-refresh="true">
+                    <option value="" disabled>All Checkpoint</option>
+                  </select>
+                </div>
+                <div class="gems-field gems-field-2">
+                  <label class="form-label" for="txtTnmListSearch">Keyword search</label>
+                  <input type="text" id="txtTnmListSearch" class="form-control" placeholder="Search transaction number, user, or status">
+                </div>
+              </div>
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+                <div id="lblTnmCount">Loading transactions…</div>
+                <div class="text-secondary" id="lblTnmUpdated"><i class="far fa-clock me-1"></i>Last refreshed: <span class="font-weight-bold">-</span></div>
+              </div>
             </div>
+          </div>
 
-            <div class="module-data-card" id="tnmTable">
-                <div class="module-card-header">
-                    <h6><i class="fas fa-table"></i>Transaction list</h6>
-                    <div class="module-card-actions">
-                        <button type="button" id="btnDtTnmListRefresh" class="btn btn-outline-primary"><i class="fas fa-arrows-rotate mr-2"></i>Refresh</button>
-                        <div id="btnDtTnmListExport" class="d-flex align-items-center"></div>
-                    </div>
-                </div>
-                <div class="module-table-wrapper">
-                    <table id="dtTnmList" class="table table-hover mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
-                        <thead>
-                        <tr class="th-strong">
-                            <th scope="row" style="width: 4%">#</th>
-                            <th width="18%">Task No</th>
-                            <th>Flow</th>
-                            <th width="10%">Checkpoint</th>
-                            <th width="15%">User</th>
-                            <th width="10%">Role</th>
-                            <th width="12%">Time Created</th>
-                            <th width="10%">Status</th>
-                            <th width="24px"></th>
-                        </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+          <div class="card" id="tnmTable">
+            <div class="card-header">
+              <h3 class="card-title">Transaction list</h3>
+              <div class="card-actions">
+                <button type="button" id="btnDtTnmListRefresh" class="btn btn-outline-primary"><i class="fas fa-arrows-rotate me-1"></i>Refresh</button>
+                <div id="btnDtTnmListExport" class="d-flex align-items-center"></div>
+              </div>
             </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table id="dtTnmList" class="table table-hover mb-0 display responsive mobile-stack" cellspacing="0" width="100%">
+                  <thead>
+                    <tr>
+                      <th scope="row" style="width: 4%">#</th>
+                      <th width="18%">Task No</th>
+                      <th>Flow</th>
+                      <th width="10%">Checkpoint</th>
+                      <th width="15%">User</th>
+                      <th width="10%">Role</th>
+                      <th width="12%">Time Created</th>
+                      <th width="10%">Status</th>
+                      <th width="24px"></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </section>
         <div class="includeHtml" id="h-section_task_history"></div>
+      </div>
     </div>
-    <div class="includeHtml" id="h-modal_change_password"></div>
-</main>
+  </div>
+</div>
 
-<script type="text/javascript">
-    $('.includeHtml').each(function () {
-        const divId = $(this).attr('id');
-        $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
-    });
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.html5.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.print.min.js"></script>
+<script src="js/vendor/datatables/js/jszip.min.js"></script>
+<script src="js/vendor/datatables/js/pdfmake.min.js"></script>
+<script src="js/vendor/datatables/js/vfs_fonts.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/toastr-safe.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
 </script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/section_task_history.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_track_monitoring.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
-<script type="text/javascript" src="js/popper.min.js"></script>
-<script type="text/javascript" src="js/bootstrap.js"></script>
-<script type="text/javascript" src="js/mdb.js"></script>
-<script type="text/javascript" src="js/addons/crypto.js"></script>
-<script type="text/javascript" src="js/addons-pro/stepper.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.bootstrap4.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.html5.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/buttons.print.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/jszip.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/pdfmake.min.js"></script>
-<script type="text/javascript" src="js/vendor/datatables/js/vfs_fonts.js"></script>
-<script type="text/javascript" src="js/addons/moment.min.js"></script>
+  let versionLocal_;
+  let changePasswordClass_;
+  let trackMonitoringClass_;
+  let sectionTaskHistoryClass_;
 
-<script type="text/javascript">
-    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try {
+        initiatePages();
+        versionLocal_ = mzGetDataVersion();
+        changePasswordClass_ = new ModalChangePassword();
+        trackMonitoringClass_ = new MainTrackMonitoring();
+        sectionTaskHistoryClass_ = new SectionTaskHistory();
 
-    let versionLocal_;
-    let changePasswordClass_;
-    let trackMonitoringClass_;
-    let sectionTaskHistoryClass_;
+        const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
+        const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
+        const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
+        const refFlow_ = mzGetLocalArray('gems_flow', versionLocal_, 'flowId');
+        const refCheckpoint_ = mzGetLocalArray('gems_checkpoint', versionLocal_, 'checkpointId');
+        const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
 
-    document.addEventListener('DOMContentLoaded', function () {
-        ShowLoader();
-        setTimeout(function () {
-            try {
-                initiatePages();
-                versionLocal_ = mzGetDataVersion();
-                changePasswordClass_ = new ModalChangePassword();
-                trackMonitoringClass_ = new MainTrackMonitoring();
-                sectionTaskHistoryClass_ = new SectionTaskHistory();
+        sectionTaskHistoryClass_.setRefStatus(refStatus_);
+        sectionTaskHistoryClass_.setRefRole(refRole_);
+        sectionTaskHistoryClass_.setRefUser(refUser_);
+        sectionTaskHistoryClass_.setRefFlow(refFlow_);
+        sectionTaskHistoryClass_.setRefCheckpoint(refCheckpoint_);
+        sectionTaskHistoryClass_.setClassFrom(trackMonitoringClass_);
+        sectionTaskHistoryClass_.init();
 
-                const refStatus_ = mzGetLocalArray('gems_status', versionLocal_, 'statusId');
-                const refRole_ = mzGetLocalArray('gems_role', versionLocal_, 'roleId');
-                const refUser_ = mzGetLocalArray('gems_user', versionLocal_, 'userId');
-                const refFlow_ = mzGetLocalArray('gems_flow', versionLocal_, 'flowId');
-                const refCheckpoint_ = mzGetLocalArray('gems_checkpoint', versionLocal_, 'checkpointId');
-                const refSite_ = mzGetLocalArray('gems_site', versionLocal_, 'siteId', [], 'site');
-
-                sectionTaskHistoryClass_.setRefStatus(refStatus_);
-                sectionTaskHistoryClass_.setRefRole(refRole_);
-                sectionTaskHistoryClass_.setRefUser(refUser_);
-                sectionTaskHistoryClass_.setRefFlow(refFlow_);
-                sectionTaskHistoryClass_.setRefCheckpoint(refCheckpoint_);
-                sectionTaskHistoryClass_.setClassFrom(trackMonitoringClass_);
-                sectionTaskHistoryClass_.init();
-
-                trackMonitoringClass_.setRefStatus(refStatus_);
-                trackMonitoringClass_.setRefRole(refRole_);
-                trackMonitoringClass_.setRefUser(refUser_);
-                trackMonitoringClass_.setRefFlow(refFlow_);
-                trackMonitoringClass_.setRefCheckpoint(refCheckpoint_);
-                trackMonitoringClass_.setRefSite(refSite_);
-                trackMonitoringClass_.setSectionTaskHistoryClass(sectionTaskHistoryClass_);
-                trackMonitoringClass_.init();
-            } catch (e) {
-                toastr['error'](e.message, _ALERT_TITLE_ERROR);
-            }
-
-            HideLoader();
-        }, 300);
-    });
-
-    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/section_task_history.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="js/pages/main_track_monitoring.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+        trackMonitoringClass_.setRefStatus(refStatus_);
+        trackMonitoringClass_.setRefRole(refRole_);
+        trackMonitoringClass_.setRefUser(refUser_);
+        trackMonitoringClass_.setRefFlow(refFlow_);
+        trackMonitoringClass_.setRefCheckpoint(refCheckpoint_);
+        trackMonitoringClass_.setRefSite(refSite_);
+        trackMonitoringClass_.setSectionTaskHistoryClass(sectionTaskHistoryClass_);
+        trackMonitoringClass_.init();
+      } catch (e) {
+        toastr['error'](e.message, _ALERT_TITLE_ERROR);
+      }
+      HideLoader();
+    }, 300);
+  });
 </script>
-
 </body>
 </html>
