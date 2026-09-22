@@ -136,9 +136,17 @@ try {
                     }
                     $result = $fn_general->getPdf($returnVal['pdfId']);
                     $fn_general->save_audit('118', $jwt_data->userId, 'Work Order no. = '.$returnVal['woTaskNo']);
-                } catch (Exception $pdfEx) {
-                    if (empty($existingPdfId)) {
-                        throw $pdfEx;
+                } catch (Throwable $pdfEx) {
+                    $fn_general->log_error($api_name, 'preview_pdf', __LINE__, 'woTaskId '.$woTaskId.' : '.$pdfEx->getMessage());
+                    $fallbackPath = '';
+                    if (!empty($existingPdfId)) {
+                        $pdfRow = Class_db::getInstance()->db_select_single('sys_pdf', array('pdf_id'=>$existingPdfId), null, 0);
+                        if (!empty($pdfRow['pdf_folder']) && !empty($pdfRow['pdf_filename'])) {
+                            $fallbackPath = __DIR__.'/'.$pdfRow['pdf_folder'].'/'.$pdfRow['pdf_filename'];
+                        }
+                    }
+                    if ($fallbackPath === '' || !is_file($fallbackPath) || filesize($fallbackPath) <= 100) {
+                        throw new Exception('[' . __LINE__ . '] - '.$pdfEx->getMessage(), 31);
                     }
                     $result = $fn_general->getPdf($existingPdfId);
                     $fn_general->save_audit('118', $jwt_data->userId, 'Work Order no. = '.$woTaskRow['wo_task_no']);
