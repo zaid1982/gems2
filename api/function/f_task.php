@@ -860,7 +860,8 @@ class Class_task {
                 }
 
                 if (!empty($searchTxt)) {
-                    $arrWhere['w1'] = "(transaction_no LIKE '%".$searchTxt."%' OR status_desc LIKE '%".$searchTxt."%' OR user_first_name LIKE '%".$searchTxt."%' OR flow_desc LIKE '%".$searchTxt."%' OR checkpoint_desc LIKE '%".$searchTxt."%' OR assigned_name LIKE '%".$searchTxt."%' OR wo_task_type LIKE '%".$searchTxt."%' OR wo_task_severity LIKE '%".$searchTxt."%')";
+                    $safeSearch = addslashes($searchTxt);
+                    $arrWhere['w1'] = "(transaction_no LIKE '%".$safeSearch."%' OR wo_task_no LIKE '%".$safeSearch."%' OR status_desc LIKE '%".$safeSearch."%' OR user_first_name LIKE '%".$safeSearch."%' OR flow_desc LIKE '%".$safeSearch."%' OR checkpoint_desc LIKE '%".$safeSearch."%' OR assigned_name LIKE '%".$safeSearch."%' OR wo_task_type LIKE '%".$safeSearch."%' OR wo_task_severity LIKE '%".$safeSearch."%')";
                 }
 
                 $arrWhere['task_current'] = '1';
@@ -870,6 +871,7 @@ class Class_task {
                 foreach ($arr_dataLocal as $dataLocal) {
                     $row_result['transactionId'] = $dataLocal['transaction_id'];
                     $row_result['transactionNo'] = $dataLocal['transaction_no'];
+                    $row_result['woTaskNo'] = $this->fn_general->clear_null($dataLocal['wo_task_no'] ?? '');
                     $row_result['transactionTimeCreated'] = $this->fn_general->convertDateToDisplay($dataLocal['task_time_created']);
                     $row_result['flowId'] = $dataLocal['flow_id'];
                     $row_result['flowName'] = isset($arrFlowName) ? $arrFlowName[intval($dataLocal['flow_id'])] : $dataLocal['flow_desc'];
@@ -947,6 +949,7 @@ class Class_task {
                 $woTask = Class_db::getInstance()->db_select_single('wo_task', array('transaction_id'=>$transactionId), null, 1);
                 $siteName = Class_db::getInstance()->db_select_col('cli_site', array('site_id'=>$woTask['site_id']), 'site_name', null, 1);
                 $result['woTaskId'] = $woTask['wo_task_id'];
+                $result['woTaskNo'] = $this->fn_general->clear_null($woTask['wo_task_no']);
                 $result['siteName'] = $siteName;
             }
 

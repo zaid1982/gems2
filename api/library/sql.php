@@ -448,6 +448,7 @@ class Class_sql
                     wo_task_assigned_to,
                     wo_task.site_id,
                     wo_task_created_by,
+                    wo_task.wo_task_no,
                     wfl_task.*
                 FROM wfl_task
                 LEFT JOIN wfl_transaction ON wfl_transaction.transaction_id = wfl_task.transaction_id
@@ -469,6 +470,7 @@ class Class_sql
                      ELSE '' END AS wo_task_type,          
                     ref_severity.severity_name AS wo_task_severity,
                     wo_task_assigned_to,
+                    wo_task.wo_task_no,
                     wo_task.site_id,
                     wfl_flow.flow_desc,
                     wfl_checkpoint.checkpoint_desc,
