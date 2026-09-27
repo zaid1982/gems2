@@ -192,17 +192,18 @@
             overflow: visible;
         }
 
-        .main-content-card .card-header {
-            background: var(--gems-bg-page);
-            border-bottom: 1px solid #e2e8f0;
-            padding: 20px 24px;
+        .main-content-card > .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px 16px;
+            flex-wrap: wrap;
         }
-
-        .main-content-card .card-header h4 {
+        .main-content-card .card-header .card-title {
             color: #1e293b;
             font-weight: 600;
             margin-bottom: 0;
         }
+        .gems-btn-action.dropdown-toggle::after { display: none; }
 
         .main-content-card .card-body {
             padding: 24px;
@@ -326,24 +327,79 @@
             color: var(--gems-text-soft);
         }
 
-        /* Action Buttons */
-        .action-btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
-        .action-btn { border-radius: 6px; font-size: 0.75rem; font-weight: 500; padding: 6px 10px; border: none; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px; }
-        .action-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-
-        /* Split action group to match supervisor styling */
-        .action-split {
+        .ptw-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .ptw-card-title { min-width: 0; flex: 1 1 220px; }
+        .ptw-card-title .card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            flex-wrap: wrap;
+        }
+        .ptw-card-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-left: auto;
+            flex-wrap: wrap;
+        }
+        .ptw-filter { display: inline-flex; align-items: center; gap: 8px; }
+        .ptw-filter label {
+            margin: 0;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            white-space: nowrap;
+        }
+        .ptw-filter select { width: auto; min-width: 180px; }
+        .ptw-card-note {
+            margin-left: auto;
+            color: #64748b;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        .ptw-card-controls .custom-switch { margin: 0; min-height: 1.25rem; }
+        .ptw-card-controls .custom-control-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            white-space: nowrap;
+        }
+        .main-content-card .action-btn-group {
             display: inline-flex;
-            width: 100%;
-            max-width: 220px; /* keep compact */
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: nowrap;
         }
-        .action-split > .btn:first-child {
-            flex: 1 1 auto;
-            text-align: left;
+        .main-content-card .btn-action.btn-more {
+            background: rgba(100, 116, 139, 0.12) !important;
+            color: #475569 !important;
         }
-        .action-split > .dropdown-toggle-split {
-            width: 38px;
+        .main-content-card .btn-action.btn-more:hover {
+            background: rgba(100, 116, 139, 0.22) !important;
+            color: #334155 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(71, 85, 105, 0.25);
         }
+        .main-content-card .btn-action.btn-pdf {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: #ef4444 !important;
+        }
+        .main-content-card .btn-action.btn-pdf:hover {
+            background: rgba(239, 68, 68, 0.2) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        .action-btn-group .dropdown-item i { width: 1.15em; margin-right: 8px; text-align: center; }
+        .action-btn-group .dropdown-menu { min-width: 220px; z-index: 3000; }
 
         /* Days Pending */
         .days-pending {
@@ -417,18 +473,10 @@
                 gap: 16px;
             }
 
-            .filter-btn-group {
-                flex-direction: column;
-            }
-
-            .action-btn-group {
-                flex-direction: column;
-            }
-
-            .action-btn {
-                width: 100%;
-                justify-content: center;
-            }
+            .ptw-card-controls { width: 100%; justify-content: flex-start; margin-left: 0; }
+            .ptw-filter { flex: 1; min-width: 0; }
+            .ptw-filter select { width: 100%; min-width: 0; }
+            .ptw-card-note { margin-left: 0; white-space: normal; }
         }
 
         /* Loading States */
@@ -558,14 +606,12 @@
         <!-- Main Content - Pending SHE Approval -->
         <div class="main-content-card">
             <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h4 class="d-flex align-items-center">
-                            <i class="fas fa-exclamation-triangle mr-2"></i>
-                            PTW Permits Awaiting SHE Approval
-                            <span class="badge badge-warning ml-2" id="countPendingSHEList">0</span>
-                        </h4>
-                    </div>
+                <div class="ptw-card-title">
+                    <h3 class="card-title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        PTW Permits Awaiting SHE Approval
+                        <span class="badge gems-badge-warning" id="countPendingSHEList">0</span>
+                    </h3>
                 </div>
             </div>
             <div class="card-body">
@@ -591,30 +637,28 @@
         <!-- In-Progress PTW (All Statuses) -->
         <div class="main-content-card mt-4">
             <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h4 class="d-flex align-items-center">
-                            <i class="fas fa-clipboard-list mr-2"></i>
-                            In-Progress PTW
-                            <span class="badge badge-info ml-2" id="countInProgressList">0</span>
-                        </h4>
+                <div class="ptw-card-title">
+                    <h3 class="card-title">
+                        <i class="fas fa-clipboard-list"></i>
+                        In-Progress PTW
+                        <span class="badge gems-badge-info" id="countInProgressList">0</span>
+                    </h3>
+                </div>
+                <div class="gems-card-toolbar ptw-card-controls">
+                    <div class="ptw-filter">
+                        <label for="statusFilterSelectSHE">Status</label>
+                        <select id="statusFilterSelectSHE" class="form-select form-select-sm" onchange="setStatusFilter(this.value)" aria-label="Status filter">
+                            <option value="ALL">All</option>
+                            <option value="PENDING_SUPERVISOR">Pending Supervisor</option>
+                            <option value="PENDING_SHE">Pending SHE</option>
+                            <option value="PENDING_FM">Pending FM</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="SUSPENDED">Suspended</option>
+                        </select>
                     </div>
-                    <div class="col-md-4 text-right header-controls">
-                        <div class="d-inline-block mr-2 align-middle">
-                            <label for="statusFilterSelectSHE" class="mr-2 mb-0 small text-muted d-sm-inline">Status:</label>
-                            <select id="statusFilterSelectSHE" class="form-control form-control-sm" onchange="setStatusFilter(this.value)" aria-label="Status filter" title="Status filter">
-                                <option value="ALL">All</option>
-                                <option value="PENDING_SUPERVISOR">Pending Supervisor</option>
-                                <option value="PENDING_SHE">Pending SHE</option>
-                                <option value="PENDING_FM">Pending FM</option>
-                                <option value="ACTIVE">Active</option>
-                                <option value="SUSPENDED">Suspended</option>
-                            </select>
-                        </div>
-                        <div class="custom-control custom-switch d-inline-block mr-2">
-                            <input type="checkbox" class="custom-control-input" id="toggleShowCancelled" onchange="toggleShowCancelled()">
-                            <label class="custom-control-label" for="toggleShowCancelled"><small>Show Cancelled</small></label>
-                        </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="toggleShowCancelled" onchange="toggleShowCancelled()">
+                        <label class="form-check-label" for="toggleShowCancelled">Show cancelled</label>
                     </div>
                 </div>
             </div>
@@ -641,18 +685,14 @@
         <!-- Permit History -->
         <div class="main-content-card mt-4">
             <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h4 class="d-flex align-items-center">
-                            <i class="fas fa-history mr-2"></i>
-                            Permit History
-                            <span class="badge badge-info ml-2" id="countHistoryList">0</span>
-                        </h4>
-                    </div>
-                    <div class="col-md-4 text-right">
-                        <small class="text-muted">Closed, Cancelled, Rejected</small>
-                    </div>
+                <div class="ptw-card-title">
+                    <h3 class="card-title">
+                        <i class="fas fa-history"></i>
+                        Permit History
+                        <span class="badge gems-badge-info" id="countHistoryList">0</span>
+                    </h3>
                 </div>
+                <span class="ptw-card-note">Closed, Cancelled, Rejected</span>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -1049,17 +1089,22 @@ function renderUnifiedDateSHE(_data, type, row){
     return d ? moment(d).valueOf() : 0;
 }
 
+function ptwViewBtn(role, permitId, title) {
+    return '<button type="button" class="btn gems-btn-action gems-btn-action-view" title="' + title + '" aria-label="' + title + '" onclick="openPtwModal(\'' + permitId + '\', \'' + role + '\')"><i class="fas fa-file-alt"></i></button>';
+}
+function ptwPdfBtn(onclickAttr) {
+    return '<button type="button" class="btn gems-btn-action gems-btn-action-delete" title="Download PDF" aria-label="Download PDF" onclick="' + onclickAttr + '"><i class="fas fa-file-pdf"></i></button>';
+}
+function ptwActionMenu(primaryHtml, menuHtml) {
+    return '<div class="action-btn-group">' + primaryHtml +
+        '<div class="dropdown d-inline-block">' +
+        '<button type="button" class="btn gems-btn-action dropdown-toggle" data-bs-toggle="dropdown" data-bs-popper-config=\'{"strategy":"fixed"}\' aria-expanded="false" title="More actions" aria-label="More actions"><i class="fas fa-ellipsis-v"></i></button>' +
+        '<div class="dropdown-menu dropdown-menu-end">' + menuHtml + '</div></div></div>';
+}
+
 function generateActionButtons(permitId, permitNumber, status) {
-    // Compact split-button: Review + dropdown (Quick Approve, Quick Reject, PDF)
-    return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'she')" title="Review PTW">
-                <i class="fas fa-file-alt"></i> Review
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
+    const safeStatus = (status || '').toString().replace(/'/g, '&#39;');
+    const menu = `
                 <a class="dropdown-item" href="javascript:void(0)" onclick="quickSheApprove('${permitId}')">
                     <i class="fas fa-check text-success"></i> Quick Approve
                 </a>
@@ -1067,12 +1112,10 @@ function generateActionButtons(permitId, permitNumber, status) {
                     <i class="fas fa-times text-danger"></i> Quick Reject
                 </a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDFWithStatus('${permitId}', '${(status||'').toString().replace(/'/g, "&#39;")}')">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDFWithStatus('${permitId}', '${safeStatus}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>
-    `;
+                </a>`;
+    return ptwActionMenu(ptwViewBtn('she', permitId, 'Review PTW'), menu);
 }
 
 // Quick action handlers (SHE)
@@ -1965,22 +2008,16 @@ function getUnifiedActionButtonsSHE(row) {
         dropdownContent = marker + '<div class="dropdown-divider"></div>';
     }
     dropdownContent += '<a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF(\'' + permitId + '\')"><i class="fas fa-file-pdf text-danger"></i> Download PDF</a>';
-
-    return '<div class="btn-group action-split">' +
-        '<button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal(\'' + permitId + '\', \'she\')" title="View PTW"><i class="fas fa-file-alt"></i> View</button>' +
-        '<button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false"><span class="sr-only">Toggle Dropdown</span></button>' +
-        '<div class="dropdown-menu dropdown-menu-right">' + dropdownContent + '</div></div>';
+    return ptwActionMenu(ptwViewBtn('she', permitId, 'View PTW'), dropdownContent);
 }
 
 // View-only buttons (for history items)
 function getViewOnlyButtonsSHE(row) {
     const permitId = getPermitIdSHE(row) || 'unknown';
-    return '<div class="btn-group action-split">' +
-        '<button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal(\'' + permitId + '\', \'she\')" title="View PTW"><i class="fas fa-file-alt"></i> View</button>' +
-        '<button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false"><span class="sr-only">Toggle Dropdown</span></button>' +
-        '<div class="dropdown-menu dropdown-menu-right">' +
-        '<a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF(\'' + permitId + '\')"><i class="fas fa-file-pdf text-danger"></i> Download PDF</a>' +
-        '</div></div>';
+    return '<div class="action-btn-group">' +
+        ptwViewBtn('she', permitId, 'View PTW') +
+        ptwPdfBtn('generatePTWPDF(\'' + permitId + '\')') +
+        '</div>';
 }
 
 // ====================================

@@ -41,15 +41,20 @@
 
         /* Cards */
         .main-content-card { background:#fff; border-radius:var(--border-radius); box-shadow:var(--card-shadow); border:1px solid #e2e8f0; overflow:visible; }
-        .main-content-card .card-header { background:var(--gems-bg-page); border-bottom:1px solid #e2e8f0; padding:20px 24px; }
-        .main-content-card .card-header h5, .main-content-card .card-header h4 { margin:0; font-weight:600; color:#1e293b; }
+        .main-content-card > .card-header { display:flex; align-items:center; gap:12px 16px; flex-wrap:wrap; }
+        .main-content-card .card-header .card-title { margin:0; font-weight:600; color:#1e293b; }
+        .gems-btn-action.dropdown-toggle::after { display:none; }
         .main-content-card .card-body { padding:24px; }
 
-        /* Filter buttons */
-        .filter-btn { border-radius:8px; font-weight:500; padding:6px 12px; border:1px solid #d1d5db; background:#fff; color:#6b7280; transition:.2s; }
-        .filter-btn:hover, .filter-btn.active { background:var(--primary-color); border-color:var(--primary-color); color:#fff; }
-        .header-controls { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
-        .status-filter { min-width:140px; }
+        .ptw-card-header { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+        .ptw-card-title { min-width:0; flex:1 1 220px; }
+        .ptw-card-title .card-title { display:flex; align-items:center; gap:8px; margin:0; flex-wrap:wrap; }
+        .ptw-card-controls { display:flex; align-items:center; justify-content:flex-end; gap:16px; margin-left:auto; flex-wrap:wrap; }
+        .ptw-filter { display:inline-flex; align-items:center; gap:8px; }
+        .ptw-filter label { margin:0; font-size:.8rem; font-weight:600; color:#64748b; white-space:nowrap; }
+        .ptw-filter select { width:auto; min-width:160px; }
+        .ptw-card-controls .custom-switch { margin:0; min-height:1.25rem; }
+        .ptw-card-controls .custom-control-label { font-size:.8rem; font-weight:600; color:#64748b; white-space:nowrap; }
 
         /* Table */
         .table-modern { border:1px solid #e2e8f0; }
@@ -66,11 +71,13 @@
         .badge-dark { background:var(--gems-neutral-soft); color:var(--gems-text); }
         .badge-closed { background:var(--gems-neutral-soft); color:var(--gems-text-soft); }
 
-        /* Action split */
-        .action-split { display:inline-flex; width:100%; max-width:220px; vertical-align:middle; }
-        .action-split > .btn:first-child { flex:1 1 auto; text-align:left; }
-        .action-split > .dropdown-toggle-split { flex:0 0 36px; }
-        .action-split .dropdown-menu { min-width:240px; }
+        .main-content-card .action-btn-group { display:inline-flex; align-items:center; justify-content:center; gap:6px; flex-wrap:nowrap; }
+        .main-content-card .btn-action.btn-more { background:rgba(100,116,139,.12) !important; color:#475569 !important; }
+        .main-content-card .btn-action.btn-more:hover { background:rgba(100,116,139,.22) !important; color:#334155 !important; transform:translateY(-2px); box-shadow:0 4px 12px rgba(71,85,105,.25); }
+        .main-content-card .btn-action.btn-pdf { background:rgba(239,68,68,.1) !important; color:#ef4444 !important; }
+        .main-content-card .btn-action.btn-pdf:hover { background:rgba(239,68,68,.2) !important; transform:translateY(-2px); box-shadow:0 4px 12px rgba(239,68,68,.3); }
+        .action-btn-group .dropdown-item i { width:1.15em; margin-right:8px; text-align:center; }
+        .action-btn-group .dropdown-menu { min-width:220px; z-index:3000; }
 
     /* PTW modal sizing */
     #ptwModal .modal-dialog { max-width:95%; }
@@ -87,7 +94,9 @@
 
         /* Responsive */
         @media (max-width:768px) {
-            .header-controls { gap:6px; }
+            .ptw-card-controls { width:100%; justify-content:flex-start; margin-left:0; }
+            .ptw-filter { flex:1; min-width:0; }
+            .ptw-filter select { width:100%; min-width:0; }
         }
     </style>
 
@@ -195,59 +204,27 @@
             <div class="col-12">
                 <div class="main-content-card">
                     <div class="card-header">
-                        <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-list-alt mr-2"></i>
-                                    PTW Permits
-                                </h5>
+                        <div class="ptw-card-title">
+                            <h3 class="card-title">
+                                <i class="fas fa-list-alt"></i>
+                                PTW Permits
+                            </h3>
+                        </div>
+                        <div class="gems-card-toolbar ptw-card-controls">
+                            <div class="ptw-filter">
+                                <label for="statusFilterSelect">Status</label>
+                                <select id="statusFilterSelect" class="form-select form-select-sm" onchange="setStatusFilter(this.value)" aria-label="Status filter">
+                                    <option value="ALL">All</option>
+                                    <option value="PENDING_FM">Pending</option>
+                                    <option value="ACTIVE">Active</option>
+                                    <option value="SUSPENDED">Suspended</option>
+                                    <option value="CLOSED">Closed</option>
+                                    <option value="CANCELLED">Cancelled</option>
+                                </select>
                             </div>
-                            <div class="col-md-6">
-                                <div class="header-controls">
-                                    <div id="statusChips" class="d-none d-sm-inline-flex" aria-label="Status filters">
-                                        <button type="button" class="filter-btn active" data-status="ALL" onclick="setStatusFilter('ALL')">All</button>
-                                        <button type="button" class="filter-btn" data-status="PENDING_FM" onclick="setStatusFilter('PENDING_FM')">Pending</button>
-                                        <button type="button" class="filter-btn" data-status="ACTIVE" onclick="setStatusFilter('ACTIVE')">Active</button>
-                                        <button type="button" class="filter-btn" data-status="SUSPENDED" onclick="setStatusFilter('SUSPENDED')">Suspended</button>
-                                        <button type="button" class="filter-btn" data-status="CLOSED" onclick="setStatusFilter('CLOSED')">Closed</button>
-                                        <button type="button" class="filter-btn" data-status="CANCELLED" onclick="setStatusFilter('CANCELLED')">Cancelled</button>
-                                    </div>
-
-                                    <div class="dropdown d-inline-block d-sm-none">
-                                        <button class="btn btn-light border btn-sm dropdown-toggle" type="button" id="statusFilterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-filter"></i> Status
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="statusFilterDropdown">
-                                            <button class="dropdown-item" type="button" onclick="setStatusFilter('ALL')">All</button>
-                                            <button class="dropdown-item" type="button" onclick="setStatusFilter('PENDING_FM')">Pending</button>
-                                            <button class="dropdown-item" type="button" onclick="setStatusFilter('ACTIVE')">Active</button>
-                                            <button class="dropdown-item" type="button" onclick="setStatusFilter('SUSPENDED')">Suspended</button>
-                                            <button class="dropdown-item" type="button" onclick="setStatusFilter('CLOSED')">Closed</button>
-                                            <button class="dropdown-item" type="button" onclick="setStatusFilter('CANCELLED')">Cancelled</button>
-
-                                            <div class="dropdown-divider"></div>
-                                            <div class="custom-control custom-switch px-3">
-                                                <input type="checkbox" class="custom-control-input" id="toggleShowCancelledSm" onchange="toggleShowCancelledFromSm()">
-                                                <label class="custom-control-label" for="toggleShowCancelledSm"><small>Show Cancelled</small></label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <label for="statusFilterSelect" class="mr-2 mb-0 small text-muted d-sm-inline">Status:</label>
-                                    <select id="statusFilterSelect" class="form-control form-control-sm status-filter" onchange="setStatusFilter(this.value)" aria-label="Status filter" title="Status filter">
-                                        <option value="ALL">All</option>
-                                        <option value="PENDING_FM">Pending</option>
-                                        <option value="ACTIVE">Active</option>
-                                        <option value="SUSPENDED">Suspended</option>
-                                        <option value="CLOSED">Closed</option>
-                                        <option value="CANCELLED">Cancelled</option>
-                                    </select>
-
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="toggleShowCancelled" onchange="toggleShowCancelled()">
-                                        <label class="custom-control-label" for="toggleShowCancelled"><small>Show Cancelled</small></label>
-                                    </div>
-                                </div>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" id="toggleShowCancelled" onchange="toggleShowCancelled()">
+                                <label class="form-check-label" for="toggleShowCancelled">Show cancelled</label>
                             </div>
                         </div>
                     </div>
@@ -280,7 +257,9 @@
             <div class="col-12">
                 <div class="main-content-card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-flag-checkered mr-2"></i>Permits Pending Closure (Supervisor Requested)</h5>
+                        <div class="ptw-card-title">
+                            <h3 class="card-title"><i class="fas fa-flag-checkered"></i>Permits Pending Closure (Supervisor Requested)</h3>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -308,7 +287,9 @@
             <div class="col-12">
                 <div class="main-content-card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-clock mr-2"></i>Permits with Extension Requests</h5>
+                        <div class="ptw-card-title">
+                            <h3 class="card-title"><i class="fas fa-clock"></i>Permits with Extension Requests</h3>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -336,7 +317,9 @@
             <div class="col-12">
                 <div class="main-content-card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-ban mr-2"></i>Permits Pending Cancellation</h5>
+                        <div class="ptw-card-title">
+                            <h3 class="card-title"><i class="fas fa-ban"></i>Permits Pending Cancellation</h3>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -363,7 +346,9 @@
             <div class="col-12">
                 <div class="main-content-card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-pause-circle mr-2"></i>Permits Pending Suspension</h5>
+                        <div class="ptw-card-title">
+                            <h3 class="card-title"><i class="fas fa-pause-circle"></i>Permits Pending Suspension</h3>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -760,26 +745,29 @@ function populatePendingClosure(permits){
     }
 }
 
+function ptwViewBtn(role, permitId, title) {
+    return '<button type="button" class="btn gems-btn-action gems-btn-action-view" title="' + title + '" aria-label="' + title + '" onclick="openPtwModal(\'' + permitId + '\', \'' + role + '\')"><i class="fas fa-file-alt"></i></button>';
+}
+function ptwPdfBtn(onclickAttr) {
+    return '<button type="button" class="btn gems-btn-action gems-btn-action-delete" title="Download PDF" aria-label="Download PDF" onclick="' + onclickAttr + '"><i class="fas fa-file-pdf"></i></button>';
+}
+function ptwActionMenu(primaryHtml, menuHtml) {
+    return '<div class="action-btn-group">' + primaryHtml +
+        '<div class="dropdown d-inline-block">' +
+        '<button type="button" class="btn gems-btn-action dropdown-toggle" data-bs-toggle="dropdown" data-bs-popper-config=\'{"strategy":"fixed"}\' aria-expanded="false" title="More actions" aria-label="More actions"><i class="fas fa-ellipsis-v"></i></button>' +
+        '<div class="dropdown-menu dropdown-menu-end">' + menuHtml + '</div></div></div>';
+}
+
 function generatePendingClosureActions(permitId, permitNumber){
-    return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
-                <i class="fas fa-file-alt"></i> Review
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
+    const menu = `
                 <a class="dropdown-item" href="javascript:void(0)" onclick="acknowledgeAndClose(${permitId}, '${permitNumber}')">
                     <i class="fas fa-flag-checkered text-success"></i> Acknowledge & Close
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDFWithStatus('${permitId}', 'PENDING_CLOSURE')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>
-    `;
+                </a>`;
+    return ptwActionMenu(ptwViewBtn('facility_manager', permitId, 'Review PTW'), menu);
 }
 
 function acknowledgeAndClose(permitId, permitNumber){
@@ -867,25 +855,15 @@ function populatePendingCancel(list){
 }
 
 function generatePendingCancelActions(permitId, permitNumber){
-    return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
-                <i class="fas fa-file-alt"></i> Review
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
+    const menu = `
                 <a class="dropdown-item" href="javascript:void(0)" onclick="approveCancel('${permitId}', '${permitNumber}')">
                     <i class="fas fa-check text-success"></i> Accept Request
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>
-    `;
+                </a>`;
+    return ptwActionMenu(ptwViewBtn('facility_manager', permitId, 'Review PTW'), menu);
 }
 
 function approveCancel(permitId, permitNumber){
@@ -956,25 +934,15 @@ function populatePendingSuspend(list){
 }
 
 function generatePendingSuspendActions(permitId, permitNumber){
-    return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
-                <i class="fas fa-file-alt"></i> Review
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
+    const menu = `
                 <a class="dropdown-item" href="javascript:void(0)" onclick="approveSuspend('${permitId}', '${permitNumber}')">
                     <i class="fas fa-check text-success"></i> Accept Request
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>
-    `;
+                </a>`;
+    return ptwActionMenu(ptwViewBtn('facility_manager', permitId, 'Review PTW'), menu);
 }
 
 function approveSuspend(permitId, permitNumber){
@@ -1027,25 +995,15 @@ function populateExtensionRequests(permits){
 
 function generateExtensionActions(permitId, permitNumber, status, requestedTo){
     const label = (status === 'SUSPENDED') ? 'Approve Resume (Set Valid To)' : 'Approve Extension';
-    return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
-                <i class="fas fa-file-alt"></i> Review
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
+    const menu = `
                 <a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}', '${permitNumber}', '${requestedTo || ''}')">
                     <i class="fas fa-clock text-info"></i> ${label}
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>
-    `;
+                </a>`;
+    return ptwActionMenu(ptwViewBtn('facility_manager', permitId, 'Review PTW'), menu);
 }
 
 function populateUnifiedTable(rows){
@@ -1067,15 +1025,7 @@ function populateUnifiedTable(rows){
 }
 
 function generateActionButtons(permitId, permitNumber) {
-    return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')" title="Review PTW">
-                <i class="fas fa-file-alt"></i> Review
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
+    const menu = `
                 <a class="dropdown-item" href="javascript:void(0)" onclick="quickFmApprove('${permitId}','${permitNumber}')">
                     <i class="fas fa-check text-success"></i> Quick Final Approve
                 </a>
@@ -1089,10 +1039,8 @@ function generateActionButtons(permitId, permitNumber) {
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>
-    `;
+                </a>`;
+    return ptwActionMenu(ptwViewBtn('facility_manager', permitId, 'Review PTW'), menu);
 }
 
 // Unified row action selector for FM
@@ -1104,15 +1052,7 @@ function getUnifiedActionButtons(row){
     const markersPresent = markers.filter(v => !!v).length >= 2;
     const hasExtReq = (s === 'PENDING_EXTENSION') || (s === 'SUSPENDED' && markersPresent);
     if (s === 'PENDING_FM') {
-        return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')" title="Review PTW">
-                <i class="fas fa-file-alt"></i> Review
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
+        const menu = `
                 <a class="dropdown-item" href="javascript:void(0)" onclick="quickFmApprove('${permitId}','${permitNumber}')">
                     <i class="fas fa-check text-success"></i> Quick Final Approve
                 </a>
@@ -1122,87 +1062,40 @@ function getUnifiedActionButtons(row){
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
                     <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>`;
+                </a>`;
+        return ptwActionMenu(ptwViewBtn('facility_manager', permitId, 'Review PTW'), menu);
+    }
+    if (s === 'ACTIVE' && !hasExtReq) {
+        return '<div class="action-btn-group">' +
+            ptwViewBtn('facility_manager', permitId, 'View PTW') +
+            ptwPdfBtn(`generatePTWPDF('${permitId}')`) +
+            '</div>';
     }
     if (s === 'ACTIVE') {
-        return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
-                <i class="fas fa-file-alt"></i> View
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-                ${hasExtReq ? `<a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}','${permitNumber}','${row.ptw_extension_requested_to || ''}')">
-                    <i class="fas fa-clock text-info"></i> Approve Extension
-                </a>` : ''}
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
-                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>`;
+        const menu = `<a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}','${permitNumber}','${row.ptw_extension_requested_to || ''}')"><i class="fas fa-clock text-info"></i> Approve Extension</a>` +
+            '<div class="dropdown-divider"></div>' +
+            `<a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')"><i class="fas fa-file-pdf text-danger"></i> Download PDF</a>`;
+        return ptwActionMenu(ptwViewBtn('facility_manager', permitId, 'View PTW'), menu);
     }
     if (s === 'PENDING_EXTENSION') {
-        return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
-                <i class="fas fa-file-alt"></i> Review
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}','${permitNumber}','${row.ptw_extension_requested_to || ''}')">
-                    <i class="fas fa-clock text-info"></i> Approve Extension
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
-                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>`;
+        const menu = `<a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}','${permitNumber}','${row.ptw_extension_requested_to || ''}')"><i class="fas fa-clock text-info"></i> Approve Extension</a>` +
+            '<div class="dropdown-divider"></div>' +
+            `<a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')"><i class="fas fa-file-pdf text-danger"></i> Download PDF</a>`;
+        return ptwActionMenu(ptwViewBtn('facility_manager', permitId, 'Review PTW'), menu);
     }
     if (s === 'PENDING_RESUME' || (s === 'SUSPENDED' && hasExtReq)) {
-        return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
-                <i class="fas fa-file-alt"></i> Review
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}','${permitNumber}','${row.ptw_extension_requested_to || ''}')">
-                    <i class="fas fa-play text-success"></i> Approve Resume (Set Valid To)
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
-                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>`;
+        const menu = `<a class="dropdown-item" href="javascript:void(0)" onclick="fmApproveExtension('${permitId}','${permitNumber}','${row.ptw_extension_requested_to || ''}')"><i class="fas fa-play text-success"></i> Approve Resume (Set Valid To)</a>` +
+            '<div class="dropdown-divider"></div>' +
+            `<a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')"><i class="fas fa-file-pdf text-danger"></i> Download PDF</a>`;
+        return ptwActionMenu(ptwViewBtn('facility_manager', permitId, 'Review PTW'), menu);
     }
     if (s === 'PENDING_CLOSURE') return generatePendingClosureActions(permitId, permitNumber);
     if (s === 'PENDING_CANCELLATION') return generatePendingCancelActions(permitId, permitNumber);
     if (s === 'PENDING_SUSPENSION') return generatePendingSuspendActions(permitId, permitNumber);
-    return `
-        <div class="btn-group action-split">
-            <button type="button" class="btn btn-light btn-sm border" onclick="openPtwModal('${permitId}', 'facility_manager')">
-                <i class="fas fa-file-alt"></i> View
-            </button>
-            <button type="button" class="btn btn-light btn-sm border dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="javascript:void(0)" onclick="generatePTWPDF('${permitId}')">
-                    <i class="fas fa-file-pdf text-danger"></i> Download PDF
-                </a>
-            </div>
-        </div>`;
+    return '<div class="action-btn-group">' +
+        ptwViewBtn('facility_manager', permitId, 'View PTW') +
+        ptwPdfBtn(`generatePTWPDF('${permitId}')`) +
+        '</div>';
 }
 
 // Standard badge generator (reused from supervisor style)
