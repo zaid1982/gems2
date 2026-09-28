@@ -213,6 +213,9 @@ function MainPpmManagement() {
             },
             language: GemsUI.dtEmpty('fa-cubes', 'No assets recorded for this contract.', 'No assets match the current search or filter.'),
             dom: GemsUI.dtDom,
+            columnDefs: [
+                {targets: [0, 13, 14, 15, 16, 17, 18, 19], className: 'noVis'}
+            ],
             aoColumns:
                 [
                     {mData: null, bSortable: false},
@@ -417,6 +420,15 @@ function MainPpmManagement() {
 
         new $.fn.dataTable.Buttons(oTableAsset, {
             buttons: [
+                {
+                    extend: 'colvis',
+                    columns: ':not(.noVis)',
+                    align: 'button-right',
+                    fade: 400,
+                    text: '<i class="fas fa-columns"></i>',
+                    className: 'btn btn-outline-secondary btn-sm',
+                    titleAttr: 'Column visibility'
+                },
                 $.extend(true, {}, btnAssetOpt, {
                     extend: 'print',
                     text: '<i class="fas fa-print"></i>',
@@ -446,16 +458,6 @@ function MainPpmManagement() {
         oTableAsset.column(4).visible(false);
         oTableAsset.column(8).visible(false);
         oTableAsset.column(9).visible(false);
-
-        $('#optPmgColumns').on('change', function () {
-            for (let i = 1; i <= 10; i++) {
-                oTableAsset.column(i).visible(false);
-            }
-            const selectedColumns = $(this).val();
-            $.each(selectedColumns, function (n, u) {
-                oTableAsset.column(parseInt(u)).visible(true);
-            });
-        });
 
         updateAssetSummary();
         applyAssetDataLabels();

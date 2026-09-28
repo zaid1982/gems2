@@ -382,7 +382,7 @@ function MainAsset() {
             pagingType: 'simple_numbers',
             dom: GemsUI.dtDom,
             columnDefs: [
-                {targets: [0], orderable: false, className: 'text-center'},
+                {targets: [0], orderable: false, className: 'text-center noVis'},
                 {targets: [11], className: 'text-center'},
                 {targets: [12], orderable: false, className: 'text-center'},
                 {targets: [2, 3, 4, 5, 6, 7, 8, 9, 10], className: 'text-nowrap'}
@@ -578,6 +578,15 @@ function MainAsset() {
         new $.fn.dataTable.Buttons(oTableAsset, {
             buttons: [
                 {
+                    extend: 'colvis',
+                    columns: ':not(.noVis)',
+                    align: 'button-right',
+                    fade: 400,
+                    text: '<i class="fas fa-columns"></i>',
+                    className: 'btn btn-outline-secondary btn-sm',
+                    titleAttr: 'Column visibility'
+                },
+                {
                     text: '<i class="fas fa-print"></i>',
                     titleAttr: 'Print / PDF',
                     className: 'btn btn-outline-secondary btn-sm',
@@ -602,16 +611,6 @@ function MainAsset() {
         oTableAsset.column(3).visible(false);
         oTableAsset.column(7).visible(false);
         oTableAsset.column(8).visible(false);
-
-        $('#optAszColumns').on('change', function () {
-            for (let i = 1; i <= 10; i++) {
-                oTableAsset.column(i).visible(false);
-            }
-            const selectedColumns = $(this).val() || [];
-            $.each(selectedColumns, function (n, u) {
-                oTableAsset.column(parseInt(u, 10)).visible(true);
-            });
-        });
 
         $('#optAszContractId').on('change', function () {
             contractId = $(this).val();

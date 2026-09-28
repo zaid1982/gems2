@@ -672,6 +672,25 @@ body.gems-tabler td.gems-empty-cell .gems-empty-state {
   color: var(--gems-muted);
 }
 
+/* DataTables draws the column menu as an absolutely positioned collection,
+   then nests a Tabler .dropdown-menu that is also absolute. That second
+   position pulls the list off the button. Keep the list inside the
+   collection box, which is placed against the columns button. */
+.gems-tabler div.dt-button-collection {
+  position: absolute;
+  width: auto;
+  margin-top: 0.25rem;
+}
+.gems-tabler div.dt-button-collection > .dropdown-menu {
+  position: static;
+  display: block;
+  float: none;
+  width: auto;
+  min-width: 12rem;
+  margin: 0;
+  transform: none;
+}
+
 /* Pre-init only. A DataTable starts as a direct .card child (P2/catalog).
    Until DataTables' dom wraps it, a wide <table> would expand the page.
    :has(> table) matches only that pre-init shape. After init the table
