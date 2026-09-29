@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="maintenance-auth.js"></script>
+    <script src="maintenance-auth.js?v=20260929"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📁 Log Explorer - GEMS2 Maintenance</title>
@@ -29,7 +29,7 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #0055b8 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -60,7 +60,7 @@
         }
 
         .breadcrumb a {
-            color: #3498db;
+            color: #0055b8;
             text-decoration: none;
             cursor: pointer;
         }
@@ -78,7 +78,7 @@
         }
 
         .btn {
-            background: #3498db;
+            background: #0055b8;
             color: white;
             border: none;
             padding: 12px 20px;
@@ -93,7 +93,7 @@
         }
 
         .btn:hover {
-            background: #2980b9;
+            background: #003f8a;
             transform: translateY(-2px);
         }
 
@@ -165,7 +165,7 @@
         }
 
         .card:hover {
-            border-color: #3498db;
+            border-color: #0055b8;
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(52, 152, 219, 0.1);
         }
@@ -250,7 +250,7 @@
 
         .log-line:hover {
             background: rgba(255,255,255,0.05);
-            border-left-color: #3498db;
+            border-left-color: #0055b8;
         }
 
         .log-line-number {
@@ -281,7 +281,7 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 15px;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid #0055b8;
         }
 
         .live-indicator {
@@ -360,6 +360,9 @@
             }
         }
     </style>
+    <link rel="icon" type="image/png" href="../img/icon/gfmicon.png">
+    <link rel="stylesheet" href="gfm-identity.css">
+
 </head>
 <body>
     <div class="container">
@@ -736,7 +739,7 @@
             }
             
             if (currentFile) {
-                breadcrumb += ` / <span style="color: #3498db;">${currentFile}</span>`;
+                breadcrumb += ` / <span style="color: #0055b8;">${currentFile}</span>`;
             }
             
             document.getElementById('breadcrumb').innerHTML = breadcrumb;

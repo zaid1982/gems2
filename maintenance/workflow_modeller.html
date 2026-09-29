@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="maintenance-auth.js"></script>
+    <script src="maintenance-auth.js?v=20260929"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workflow Viewer - GEMS2 Maintenance</title>
@@ -97,7 +97,7 @@
             color: #334155;
             margin-right: 4px;
         }
-        .badge.open { background: #dbeafe; color: #1d4ed8; }
+        .badge.open { background: #dbeafe; color: #003f8a; }
         .badge.warn { background: #fef3c7; color: #92400e; }
         .legend {
             display: flex;
@@ -121,13 +121,16 @@
             font-size: 13px;
         }
         .alert.error { background: #fef2f2; color: #b91c1c; }
-        .alert.info { background: #eff6ff; color: #1d4ed8; }
+        .alert.info { background: #eff6ff; color: #003f8a; }
         .empty { color: #94a3b8; padding: 20px 0; }
         @media (max-width: 960px) {
             .workspace { grid-template-columns: 1fr; }
             #canvas { border-right: none; border-bottom: 1px solid #e2e8f0; height: 520px; }
         }
     </style>
+    <link rel="icon" type="image/png" href="../img/icon/gfmicon.png">
+    <link rel="stylesheet" href="gfm-identity.css">
+
 </head>
 <body>
 <div class="container">
@@ -151,7 +154,7 @@
 
     <div class="legend">
         <div class="legend-item"><span class="swatch" style="background:#27ae60;"></span>Start</div>
-        <div class="legend-item"><span class="swatch" style="background:#3498db;"></span>Normal</div>
+        <div class="legend-item"><span class="swatch" style="background:#0055b8;"></span>Normal</div>
         <div class="legend-item"><span class="swatch" style="background:#475569;"></span>End</div>
         <div class="legend-item"><span class="line"></span>Default next</div>
         <div class="legend-item"><span class="line case1"></span>Case 1</div>
@@ -182,7 +185,7 @@
     };
     const NODE_COLOR = {
         1: { background: '#27ae60', border: '#1e8449', highlight: '#2ecc71' },
-        2: { background: '#3498db', border: '#1d6fa5', highlight: '#5dade2' },
+        2: { background: '#0055b8', border: '#1d6fa5', highlight: '#6b9cd6' },
         3: { background: '#475569', border: '#1e293b', highlight: '#64748b' },
     };
 

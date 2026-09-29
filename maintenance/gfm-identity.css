@@ -1,0 +1,534 @@
+/* ==========================================================================
+   GFM identity layer for maintenance tools
+   --------------------------------------------------------------------------
+   Load this file AFTER each page's own <style> block. It remaps the local
+   tool palette onto the GEMS theme tokens in css/gems-theme.css:
+
+     primary   #0055b8    primary dark  #003f8a
+     teal      #00ada8    accent        #ceeff0
+     ink       #243746    canvas        #f1f5f9
+     success   #1a7f4b    warning       #9a6206    danger  #dc2626
+
+   These pages treat --primary-color as ink and --secondary-color as the
+   action blue. Headers, buttons, and the page canvas are set explicitly
+   so hardcoded gradients do not survive.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../font/lato/lato-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../font/lato/lato-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../font/poppins/poppins-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../font/poppins/poppins-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../font/poppins/poppins-600.woff2') format('woff2');
+}
+
+:root {
+  --gems-primary: #0055b8;
+  --gems-primary-dark: #003f8a;
+  --gems-secondary: #00ada8;
+  --gems-accent: #ceeff0;
+  --gems-bg-page: #f1f5f9;
+  --gems-text: #243746;
+  --gems-text-soft: #5b676f;
+  --gems-muted: #66757f;
+  --gems-border: #e7eaec;
+  --gems-success: #1a7f4b;
+  --gems-warning: #9a6206;
+  --gems-danger: #dc2626;
+  --gems-info: #0b6b68;
+  --gems-primary-soft: #e6eef8;
+
+  /* Local tool tokens. Primary is ink; secondary is the action blue. */
+  --primary-color: #243746;
+  --secondary-color: #0055b8;
+  --success-color: #1a7f4b;
+  --warning-color: #9a6206;
+  --danger-color: #dc2626;
+  --info-color: #0b6b68;
+  --dark-bg: #003f8a;
+  --light-bg: #ffffff;
+  --text-light: #ffffff;
+  --text-dark: #243746;
+  --border-color: #e7eaec;
+  --hover-color: #eef1f4;
+  --card-shadow: 0 1px 2px rgba(36, 55, 70, 0.05), 0 8px 24px rgba(36, 55, 70, 0.06);
+  --hover-shadow: 0 8px 24px rgba(0, 85, 184, 0.12);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  font-family: 'Poppins', 'Lato', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--gems-text);
+  background-color: var(--gems-bg-page);
+  background-image: url('../img/icon/logo.png');
+  background-repeat: no-repeat;
+  background-position: 28px 14px;
+  background-size: 196px auto;
+  border-top: 4px solid var(--gems-primary);
+  padding-top: 108px;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4,
+.tool-title, .card-title, .page-title, .section h3 {
+  font-family: 'Lato', 'Poppins', system-ui, sans-serif;
+  color: var(--gems-text);
+  font-weight: 700;
+}
+
+a {
+  color: var(--gems-primary);
+}
+a:hover {
+  color: var(--gems-primary-dark);
+}
+
+::selection {
+  background: var(--gems-accent);
+  color: var(--gems-text);
+}
+
+/* Canvas */
+.container,
+.wrapper,
+.card,
+.tool-card,
+.quick-actions,
+.stat-card,
+.icon-browser {
+  border-radius: 10px;
+}
+
+.tool-card,
+.quick-actions,
+.stat-card,
+.card {
+  border: 1px solid var(--gems-border);
+  box-shadow: var(--card-shadow);
+}
+
+.tool-card:hover,
+.card:hover {
+  transform: none;
+  border-color: var(--gems-secondary);
+  box-shadow: var(--hover-shadow);
+}
+
+.tool-card::before,
+.tool-card.featured::before,
+.tool-card.advanced::before {
+  height: 3px;
+  background: var(--gems-secondary);
+}
+
+.tool-card.advanced::before {
+  background: var(--gems-primary);
+}
+
+.tool-icon,
+.tool-card.featured .tool-icon,
+.tool-card.advanced .tool-icon {
+  background: var(--gems-primary);
+  color: #fff;
+  box-shadow: none;
+  border-radius: 8px;
+}
+
+.tool-card.featured .tool-icon {
+  background: var(--gems-secondary);
+}
+
+.tool-title,
+.quick-actions h3,
+.card h2 {
+  color: var(--gems-text);
+}
+
+.tool-subtitle,
+.tool-description,
+.tool-features li,
+.stat-label {
+  color: var(--gems-text-soft);
+}
+
+.stat-card {
+  border-left: 4px solid var(--gems-secondary);
+}
+
+.stat-value {
+  color: var(--gems-primary);
+}
+
+.footer {
+  color: var(--gems-text-soft);
+}
+
+.breadcrumb,
+.breadcrumb a {
+  color: var(--gems-primary);
+}
+
+/* Headers — solid GFM blue, teal rule, no gradient */
+.header,
+.page-header {
+  background: var(--gems-primary);
+  color: #fff;
+  border-bottom: 3px solid var(--gems-secondary);
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.wrapper > .page-header {
+  border-radius: 10px 10px 0 0;
+}
+
+.wrapper > .page-header + .card {
+  border-radius: 0 0 10px 10px;
+  border-top: 0;
+}
+
+.header h1,
+.header h2,
+.header h3,
+.header p,
+.page-header h1,
+.page-header h2,
+.page-header p,
+.page-header-info h1,
+.page-header-info p,
+.page-header-kicker,
+.table-details-header,
+.table-details-header h1,
+.table-details-header h2 {
+  color: #fff;
+  font-family: 'Lato', 'Poppins', system-ui, sans-serif;
+}
+
+.table-details-header,
+.code-block {
+  background: var(--gems-primary-dark);
+}
+
+/* Buttons. Header actions sit on blue, so they invert. */
+button:not([class]),
+.btn,
+.btn-primary,
+.quick-actions .action-btn {
+  background: var(--gems-primary);
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: none;
+  font-family: 'Poppins', 'Lato', system-ui, sans-serif;
+}
+
+button:not([class]):hover,
+.btn:hover,
+.btn-primary:hover,
+.btn-primary:hover:not(:disabled),
+.quick-actions .action-btn:hover,
+.search-btn:hover {
+  background: var(--gems-primary-dark);
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Icon-only controls that opt out of a fill */
+button[style*="background: none"],
+button[style*="background:none"] {
+  background: transparent;
+  color: var(--gems-text);
+}
+
+.editor-btn {
+  background: #fff;
+  color: var(--gems-text);
+  border: 1px solid var(--gems-border);
+}
+
+.editor-btn:hover {
+  background: var(--gems-primary);
+  color: #fff;
+  transform: none;
+}
+
+.quick-query {
+  background: var(--gems-primary-soft);
+  border: 1px solid var(--gems-primary);
+  color: var(--gems-primary);
+}
+
+.quick-query:hover {
+  background: var(--gems-primary);
+  color: #fff;
+  transform: none;
+}
+
+.btn-secondary,
+.btn.secondary,
+.btn-outline,
+.btn.outline,
+.page-header .btn-secondary {
+  background: #fff;
+  color: var(--gems-text);
+  border: 1px solid var(--gems-border);
+}
+
+.btn-secondary:hover,
+.btn-secondary:hover:not(:disabled),
+.btn.secondary:hover,
+.btn-outline:hover,
+.btn-outline:hover:not(:disabled),
+.btn.outline:hover {
+  background: #eef1f4;
+  color: var(--gems-text);
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-success,
+.btn.success,
+button.btn-success {
+  background: var(--gems-success);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-success:hover,
+.btn.success:hover {
+  background: #14633b;
+  color: #fff;
+  transform: none;
+}
+
+.btn-danger,
+.btn.danger,
+.action-btn.danger,
+.quick-actions .action-btn.danger {
+  background: var(--gems-danger);
+  color: #fff;
+}
+
+.btn-danger:hover,
+.btn.danger:hover,
+.action-btn.danger:hover,
+.quick-actions .action-btn.danger:hover {
+  background: #b21f1f;
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-warning {
+  background: var(--gems-warning);
+  color: #fff;
+}
+
+.btn-warning:hover {
+  background: #7a4e05;
+  color: #fff;
+  transform: none;
+}
+
+.btn-info {
+  background: var(--gems-info);
+  color: #fff;
+}
+
+.btn-info:hover {
+  background: #095552;
+  color: #fff;
+  transform: none;
+}
+
+.header .btn,
+.header .btn-primary,
+.header .btn-secondary,
+.header .btn-success,
+.header .btn.secondary,
+.header a.btn,
+.page-header .btn,
+.page-header-actions .btn {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow: none;
+}
+
+.header .btn:hover,
+.header .btn-primary:hover,
+.header .btn-secondary:hover,
+.header .btn-success:hover,
+.header .btn.secondary:hover,
+.header a.btn:hover,
+.page-header .btn:hover,
+.page-header-actions .btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+}
+
+.header .btn-primary,
+.page-header .btn-primary {
+  background: #fff;
+  color: var(--gems-primary);
+  border-color: #fff;
+}
+
+.header .btn-primary:hover,
+.page-header .btn-primary:hover {
+  background: var(--gems-accent);
+  color: var(--gems-primary-dark);
+}
+
+/* Query-tool icon buttons stay quiet */
+.saved-query-actions .action-btn,
+.query-history .action-btn {
+  background: transparent;
+  color: inherit;
+}
+
+.saved-query-actions .action-btn:hover {
+  background: var(--gems-primary);
+  color: #fff;
+}
+
+/* Forms and focus */
+label {
+  color: var(--gems-text);
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.CodeMirror:focus,
+select:focus-visible,
+input:focus-visible {
+  border-color: var(--gems-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 85, 184, 0.28);
+}
+
+#editor,
+#editor:focus {
+  box-shadow: none;
+  font-family: ui-monospace, Consolas, Monaco, monospace;
+}
+
+.file-item.active,
+.badge.open {
+  background: var(--gems-primary-soft);
+  color: var(--gems-primary);
+}
+
+.section h3,
+.info-panel {
+  border-color: var(--gems-secondary);
+  border-bottom-color: var(--gems-secondary);
+}
+
+.info-panel {
+  border-left-color: var(--gems-secondary);
+}
+
+.history-item:hover,
+.saved-query-item:hover {
+  background: var(--gems-primary-soft);
+  border-color: var(--gems-primary);
+}
+
+.CodeMirror-hint-active {
+  background: var(--gems-primary);
+  color: #fff;
+}
+
+.alert.info,
+.status-panel.info {
+  background: var(--gems-accent);
+  color: var(--gems-info);
+  border-left-color: var(--gems-secondary);
+}
+
+.alert.success,
+.status-panel.success {
+  background: #e7f7ee;
+  color: var(--gems-success);
+}
+
+.alert.error,
+.status-panel.error {
+  background: #fdeaea;
+  color: #b21f1f;
+}
+
+.status-panel.warn {
+  background: #fdf3e2;
+  color: var(--gems-warning);
+}
+
+/* Navigation manager chips */
+.card h2 span.tag,
+.icon-browser-option .tag,
+.chip,
+.icon-cell i {
+  color: var(--gems-primary);
+}
+
+.card h2 span.tag,
+.icon-browser-option .tag,
+.chip {
+  background: var(--gems-primary-soft);
+}
+
+th {
+  color: var(--gems-text-soft);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+pre, code, .code-block, .history-item, .CodeMirror {
+  font-family: ui-monospace, Consolas, Monaco, 'Courier New', monospace;
+}
+
+code {
+  font-family: ui-monospace, Consolas, Monaco, 'Courier New', monospace;
+}
+
+@media (max-width: 720px) {
+  body {
+    background-size: 150px auto;
+    padding-top: 88px;
+  }
+}

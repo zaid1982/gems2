@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="maintenance-auth.js"></script>
+    <script src="maintenance-auth.js?v=20260929"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GEMS2 Performance Analytics Dashboard</title>
@@ -16,7 +16,7 @@
         
         :root {
             --primary-color: #2c3e50;
-            --secondary-color: #3498db;
+            --secondary-color: #0055b8;
             --success-color: #27ae60;
             --warning-color: #f39c12;
             --danger-color: #e74c3c;
@@ -97,7 +97,7 @@
         }
         
         .btn-primary:hover {
-            background: #2980b9;
+            background: #003f8a;
             transform: translateY(-2px);
         }
         
@@ -407,6 +407,9 @@
             }
         }
     </style>
+    <link rel="icon" type="image/png" href="../img/icon/gfmicon.png">
+    <link rel="stylesheet" href="gfm-identity.css">
+
 </head>
 <body>
     <div class="container">
@@ -683,7 +686,7 @@
                     datasets: [{
                         label: 'Response Time (ms)',
                         data: [],
-                        borderColor: '#3498db',
+                        borderColor: '#0055b8',
                         backgroundColor: 'rgba(52, 152, 219, 0.1)',
                         tension: 0.4
                     }, {
@@ -737,7 +740,7 @@
                     datasets: [{
                         data: [65, 15, 12, 5, 3],
                         backgroundColor: [
-                            '#3498db',
+                            '#0055b8',
                             '#27ae60',
                             '#f39c12',
                             '#e74c3c',

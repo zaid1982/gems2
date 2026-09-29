@@ -161,25 +161,26 @@
         overlay.style.cssText = [
             'position:fixed', 'inset:0', 'z-index:99999', 'display:flex',
             'align-items:center', 'justify-content:center',
-            'background:rgba(15,23,42,0.85)', 'padding:20px',
+            'background:rgba(36,55,70,0.55)', 'padding:20px',
         ].join(';');
 
         overlay.innerHTML = [
-            '<div style="background:#fff;border-radius:12px;max-width:420px;width:100%;',
-            'padding:28px;box-shadow:0 20px 50px rgba(0,0,0,0.35);font-family:Segoe UI,sans-serif;">',
-            '<h2 style="margin:0 0 8px;color:#1e293b;">Maintenance access</h2>',
-            '<p style="margin:0 0 20px;color:#64748b;line-height:1.5;">',
+            '<div style="background:#fff;border-radius:10px;max-width:420px;width:100%;',
+            'padding:28px;box-shadow:0 8px 24px rgba(36,55,70,0.16);',
+            'font-family:Poppins,Lato,system-ui,sans-serif;color:#243746;">',
+            '<h2 style="margin:0 0 8px;color:#243746;font-family:Lato,Poppins,sans-serif;">Maintenance access</h2>',
+            '<p style="margin:0 0 20px;color:#5b676f;line-height:1.5;">',
             'Enter the maintenance API key from <code>api/library/config.ini</code>',
             ' (<code>[maintenance] api_key</code>).',
             '</p>',
-            '<label style="display:block;font-weight:600;margin-bottom:8px;color:#334155;">X-Api-Key</label>',
+            '<label style="display:block;font-weight:600;margin-bottom:8px;color:#243746;">X-Api-Key</label>',
             '<input id="gfm-maintenance-key-input" type="password" autocomplete="off" ',
-            'style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px;font-size:16px;box-sizing:border-box;" ',
+            'style="width:100%;padding:12px;border:1px solid #e7eaec;border-radius:8px;font-size:16px;box-sizing:border-box;color:#243746;" ',
             'placeholder="Paste maintenance API key">',
             '<p id="gfm-maintenance-key-error" style="color:#dc2626;margin:12px 0 0;min-height:20px;"></p>',
             '<button id="gfm-maintenance-key-submit" type="button" ',
             'style="margin-top:16px;width:100%;padding:12px;border:none;border-radius:8px;',
-            'background:#2563eb;color:#fff;font-size:16px;font-weight:600;cursor:pointer;">',
+            'background:#0055b8;color:#fff;font-size:16px;font-weight:600;cursor:pointer;">',
             'Unlock maintenance tools</button>',
             '</div>',
         ].join('');
@@ -240,13 +241,13 @@
         badge.id = 'gfm-maintenance-session-badge';
         badge.style.cssText = [
             'position:fixed', 'bottom:16px', 'right:16px', 'z-index:9998',
-            'background:#0f172a', 'color:#e2e8f0', 'padding:10px 14px',
-            'border-radius:999px', 'font:13px/1.4 Segoe UI,sans-serif',
-            'box-shadow:0 8px 24px rgba(0,0,0,0.2)',
+            'background:#0055b8', 'color:#fff', 'padding:10px 14px',
+            'border-radius:999px', 'font:13px/1.4 Poppins,Lato,sans-serif',
+            'box-shadow:0 8px 24px rgba(0,85,184,0.28)',
         ].join(';');
         badge.innerHTML = 'Maintenance unlocked <button type="button" id="gfm-maintenance-lock-btn" '
-            + 'style="margin-left:10px;border:none;background:#334155;color:#fff;padding:4px 10px;'
-            + 'border-radius:999px;cursor:pointer;">Lock</button>';
+            + 'style="margin-left:10px;border:none;background:#fff;color:#0055b8;padding:4px 10px;'
+            + 'border-radius:999px;cursor:pointer;font-weight:600;">Lock</button>';
         document.body.appendChild(badge);
         document.getElementById('gfm-maintenance-lock-btn').addEventListener('click', function () {
             clearKey();

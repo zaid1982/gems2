@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="maintenance-auth.js"></script>
+    <script src="maintenance-auth.js?v=20260929"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GEMS2 Database Management Dashboard</title>
@@ -14,7 +14,7 @@
         
         :root {
             --primary-color: #2c3e50;
-            --secondary-color: #3498db;
+            --secondary-color: #0055b8;
             --success-color: #27ae60;
             --warning-color: #f39c12;
             --danger-color: #e74c3c;
@@ -173,7 +173,7 @@
             align-items: center;
             justify-content: center;
             border-radius: 12px;
-            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            background: linear-gradient(135deg, var(--secondary-color), #6b9cd6);
             color: white;
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
@@ -251,12 +251,12 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            background: linear-gradient(135deg, var(--secondary-color), #6b9cd6);
             color: white;
         }
         
         .btn-primary:hover {
-            background: linear-gradient(135deg, #2980b9, var(--secondary-color));
+            background: linear-gradient(135deg, #003f8a, var(--secondary-color));
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
         }
@@ -349,7 +349,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            background: linear-gradient(135deg, var(--secondary-color), #6b9cd6);
             color: white;
         }
         
@@ -450,6 +450,9 @@
             }
         }
     </style>
+    <link rel="icon" type="image/png" href="../img/icon/gfmicon.png">
+    <link rel="stylesheet" href="gfm-identity.css">
+
 </head>
 <body>
     <div class="container">
@@ -1070,7 +1073,7 @@
 ${JSON.stringify(data, null, 2)}
                     </pre>
                     <button onclick="window.close()" style="margin-top: 15px; padding: 10px 20px; 
-                            background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            background: #0055b8; color: white; border: none; border-radius: 5px; cursor: pointer;">
                         Close
                     </button>
                 `;
@@ -1240,7 +1243,7 @@ ${JSON.stringify(data, null, 2)}
                     </div>
                     
                     <button onclick="window.close()" 
-                            style="margin-top: 20px; padding: 10px 20px; background: #3498db; 
+                            style="margin-top: 20px; padding: 10px 20px; background: #0055b8; 
                                    color: white; border: none; border-radius: 5px; cursor: pointer;">
                         Close Help
                     </button>
@@ -1335,7 +1338,7 @@ ${JSON.stringify(data, null, 2)}
                 success: '#27ae60',
                 error: '#e74c3c',
                 warning: '#f39c12',
-                info: '#3498db'
+                info: '#0055b8'
             };
             
             notification.style.background = colors[type] || colors.info;
