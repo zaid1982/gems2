@@ -765,8 +765,10 @@ body.gems-tabler .card:has(> table.table) {
    Breakpoint is navbar-expand-lg (992px), not -xxl. The plan's ≥1000px
    content budget at 1280/1366 holds with a visible 16rem sidebar
    (1280−256=1024, 1366−256=1110). expand-xxl would fold the sidebar at those
-   laptop sizes into Tabler's phone header + in-flow collapse. Below 992px the
-   aside itself becomes the header and #sidebar-menu is Tabler's native fold.
+   laptop sizes into Tabler's phone header. Below 992px the aside is a compact
+   bar; opening #sidebar-menu covers the viewport (see the max-width block
+   below). Do not put that cover on .page-wrapper or the ≥992px rail —
+   position:fixed on those is how P0 overlapped the first 240px of content.
 
    The aside MUST be a sibling of .page-wrapper. The top bar lives inside
    .page-wrapper. html needs data-bs-navbar-position="vertical" so Tabler 1.5
@@ -819,6 +821,106 @@ body.gems-tabler .navbar-vertical .dropdown-toggle[aria-expanded="true"]::after 
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+}
+
+/* Below 992px Tabler expands #sidebar-menu in normal flow, so the open menu
+   grows the header and shoves the page down. Cover the viewport instead.
+   The brand bar stays in flow (and sticks while open) so the toggler remains
+   the close control. Groups stay inline lists — Popper's inline position
+   would float them off the covered screen. */
+@media (max-width: 991.98px) {
+  body.gems-tabler:has(#sidebar-menu.show) {
+    overflow: hidden;
+    background: var(--tblr-bg-surface, #fff);
+  }
+
+  body.gems-tabler:has(#sidebar-menu.show) .page-wrapper {
+    visibility: hidden;
+  }
+
+  body.gems-tabler .navbar-vertical:has(#sidebar-menu.show),
+  body.gems-tabler .navbar-vertical:has(#sidebar-menu.collapsing) {
+    position: sticky;
+    top: 0;
+    z-index: 1040;
+    background: var(--tblr-bg-surface, #fff);
+  }
+
+  body.gems-tabler .navbar-vertical:has(#sidebar-menu.show)::before,
+  body.gems-tabler .navbar-vertical:has(#sidebar-menu.collapsing)::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 3.5rem;
+    background: var(--tblr-bg-surface, #fff);
+    box-shadow: inset 0 -1px 0 var(--tblr-border-color, #e7eaec);
+    pointer-events: none;
+  }
+
+  body.gems-tabler .navbar-vertical .navbar-toggler,
+  body.gems-tabler .navbar-vertical .navbar-brand {
+    position: relative;
+    z-index: 3;
+  }
+
+  body.gems-tabler .navbar-vertical .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='color-mix(in srgb, var(--tblr-body-color) 75%25, transparent)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M7 7l16 16M23 7L7 23'/%3e%3c/svg%3e");
+  }
+
+  body.gems-tabler .navbar-vertical #sidebar-menu.show,
+  body.gems-tabler .navbar-vertical #sidebar-menu.collapsing {
+    position: fixed;
+    z-index: 1;
+    inset: 0;
+    display: flex !important;
+    flex-direction: column;
+    width: auto;
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 0;
+    margin: 0;
+    padding: 3.5rem 0 env(safe-area-inset-bottom, 0px);
+    overflow: hidden !important;
+    background: var(--tblr-bg-surface, #fff);
+    border: 0;
+    box-shadow: none;
+    transition: none;
+  }
+
+  body.gems-tabler .navbar-vertical #sidebar-menu .navbar-nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body.gems-tabler .navbar-vertical #sidebar-menu .nav-link-title,
+  body.gems-tabler .navbar-vertical #sidebar-menu .dropdown-item {
+    overflow: visible;
+    text-overflow: unset;
+    white-space: normal;
+  }
+
+  body.gems-tabler .navbar-vertical #sidebar-menu .dropdown-menu {
+    position: static !important;
+    inset: auto !important;
+    float: none;
+    transform: none !important;
+  }
+
+  body.gems-tabler .navbar-vertical #sidebar-menu .navbar-footer {
+    flex: 0 0 auto;
+    margin-top: 0;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--tblr-border-color, #e7eaec);
+    background: var(--tblr-bg-surface, #fff);
   }
 }
 

@@ -23,8 +23,9 @@
   non-vertical expand navbar that is a *direct child* of .page.
 
   navbar-expand-lg (992px), not -xxl: at 1366 and 1280 the 16rem sidebar stays
-  visible so the form pane keeps ~1000–1110px. Below 992px Tabler’s own
-  toggler + #sidebar-menu collapse is the fold. Do not add navbar-dark,
+  visible so the form pane keeps ~1000–1110px. Below 992px the toggler opens
+  #sidebar-menu as a viewport cover (gems-theme.css), not an in-flow collapse.
+  Do not add navbar-dark,
   navbar-folded, or MDB classes. #ulNavLeft is filled by mzBuildNavMenu().
 -->
 <div class="container-fluid">
