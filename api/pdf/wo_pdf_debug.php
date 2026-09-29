@@ -74,7 +74,9 @@ if (empty($woTaskId)) {
     ), 400);
 }
 
-$variant = isset($_GET['variant']) ? strtolower(trim($_GET['variant'])) : 'jkr';
+require_once __DIR__.'/wo_pdf_factory.php';
+$configuredForm = gems_wo_form();
+$variant = isset($_GET['variant']) ? strtolower(trim((string) $_GET['variant'])) : ($configuredForm === 'gfm' ? 'lama' : 'jkr');
 if (!in_array($variant, array('jkr', 'lama'), true)) {
     wo_pdf_debug_json(array(
         'success' => false,

@@ -8,7 +8,7 @@ require_once 'function/f_task.php';
 require_once 'function/f_email.php';
 require_once 'function/f_wo.php';
 require_once 'pdf/tcpdf_include.php';
-require_once 'pdf/wo_jkr.php';
+require_once 'pdf/wo_pdf_factory.php';
 require_once 'pdf/wr.php';
 require_once 'class/Constant.php';
 require_once 'class/General.php';
@@ -27,7 +27,7 @@ $fn_login = new Class_login();
 $fn_task = new Class_task();
 $fn_email = new Class_email();
 $fn_wo = new Class_wo();
-$fn_pdf_wo = new Class_pdf_wo_jkr();
+$fn_pdf_wo = gems_new_wo_pdf();
 $fn_pdf_wr = new Class_pdf_wr();
 $fn_noti_web = new NotiWeb();
 
