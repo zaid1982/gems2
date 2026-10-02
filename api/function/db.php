@@ -934,5 +934,31 @@ class Class_db{
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()), (int) $e->getCode());
         }
     }
+
+    /**
+     * One row from a parameterized query.
+     * Returns null when this connection is not open, so the caller can try another connection.
+     *
+     * @param string $sql
+     * @param array $params
+     * @return array|null
+     * @throws Exception
+     */
+    public function db_fetch_one_prepared($sql, $params) {
+        try {
+            if (empty($this->DBH)) {
+                return null;
+            }
+            if (empty($sql)) {
+                return array();
+            }
+            $stmt = $this->DBH->prepare($sql);
+            $stmt->execute($params);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return is_array($row) ? $row : array();
+        } catch (PDOException $e) {
+            throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $e->getMessage()), (int) $e->getCode());
+        }
+    }
 }
 ?>
