@@ -74,7 +74,7 @@ try {
         $params = $_POST;
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
-        $fn_ppmTaskAssist->addPpmTaskAssist($params);
+        $result = $fn_ppmTaskAssist->addPpmTaskAssist($params);
         $ppmTask = $fn_ppmTask->getPpmTask($params['ppmTaskId']);
         $userFullNameArr = $fn_general->getUserFullName();
         $assistant = $params['assistant'];
@@ -90,8 +90,8 @@ try {
         }
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
-        $fn_ppmTaskAssist->deletePpmTaskAssist($urlArr[1]);
-        $ppmTask = $fn_ppmTask->getPpmTask($urlArr[1]);
+        $ppmTaskId = $fn_ppmTaskAssist->deletePpmTaskAssist($urlArr[1]);
+        $ppmTask = $fn_ppmTask->getPpmTask($ppmTaskId, 1);
         $fn_general->save_audit('188', $userId, 'PPM Task No = '.$ppmTask['ppmTaskNo']);
         Class_db::getInstance()->db_commit();
         $form_data['errmsg'] = $constant::SUC_PPM_DELETE_ASSISTANT;

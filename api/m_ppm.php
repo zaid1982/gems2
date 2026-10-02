@@ -62,22 +62,26 @@ try {
 
     if ('GET' === $request_method) {
         $type = filter_input(INPUT_GET, 'type');
+        $isRoutine = filter_input(INPUT_GET, 'isRoutine');
+        if ($isRoutine === null) {
+            $isRoutine = '';
+        }
         if ($type === 'pending_task') {
-            $result = $fn_ppm->get_pending_task_m($jwt_data->userId);
+            $result = $fn_ppm->get_pending_task_m($jwt_data->userId, '', '', $isRoutine);
         } else if ($type === 'all_task') {
-            $result = $fn_ppm->get_ppm_all_task_m($jwt_data->userId);
+            $result = $fn_ppm->get_ppm_all_task_m($jwt_data->userId, '', '', '', $isRoutine);
         } else if ($type === 'all_task_search') {
             $searchTxt = filter_input(INPUT_GET, 'searchTxt');
-            $result = $fn_ppm->get_ppm_all_task_m($jwt_data->userId,'', '', $searchTxt);
+            $result = $fn_ppm->get_ppm_all_task_m($jwt_data->userId,'', '', $searchTxt, $isRoutine);
         } else if ($type === 'all_task_scan_asset') {
             $assetNo = filter_input(INPUT_GET, 'assetNo');
-            $result = $fn_ppm->get_ppm_all_task_m($jwt_data->userId,'', $assetNo);
+            $result = $fn_ppm->get_ppm_all_task_m($jwt_data->userId,'', $assetNo, '', $isRoutine);
         } else if ($type === 'pending_task_search') {
             $searchTxt = filter_input(INPUT_GET, 'assetNo');
-            $result = $fn_ppm->get_pending_task_m($jwt_data->userId, '', $searchTxt);
+            $result = $fn_ppm->get_pending_task_m($jwt_data->userId, '', $searchTxt, $isRoutine);
         } else if ($type === 'pending_task_scan_asset') {
             $assetNo = filter_input(INPUT_GET, 'assetNo');
-            // $result = $fn_ppm->get_pending_task_scan_m($jwt_data->userId, $assetNo);
+            $result = $fn_ppm->get_pending_task_m($jwt_data->userId, $assetNo, '', $isRoutine);
         } else if ($type === 'calendar_list') {
             $date = filter_input(INPUT_GET, 'date');
             $result = $fn_ppm->get_ppm_all_task_m($jwt_data->userId, $date);

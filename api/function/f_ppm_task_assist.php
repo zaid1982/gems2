@@ -87,7 +87,11 @@ class Class_ppm_task_assist {
             $assistantDropdownArr = Class_db::getInstance()->db_select2('mw_ppm_group_user',
                 array('ppm_group_user.ppm_group_id'=>$ppmGroupId, 'ppm_group_user.user_id'=>'<>'.$ppmTask['ppmTaskAssignedTo'], 'user_status'=>'1'), 'user_first_name');
             foreach ($assistantDropdownArr as $assistantDropdown) {
-                $assistantList[] = array('userId'=>$assistantDropdown['userId'], 'userFullName'=>$assistantDropdown['userFirstName']);
+                $assistantList[] = array(
+                    'userId'=>$assistantDropdown['userId'],
+                    'userFullName'=>$assistantDropdown['userFirstName'],
+                    'ppmGroupId'=>$ppmGroupId
+                );
             }
             return $assistantList;
         }
@@ -109,9 +113,16 @@ class Class_ppm_task_assist {
             $this->fn_general->checkEmptyParams(array($ppmTaskId));
             $userFullNameArr = $this->fn_general->getUserFullName();
             $assistantList = array();
+            $ppmTask = Class_db::getInstance()->db_select_single2('ppm_task', array('ppm_task_id'=>$ppmTaskId), '', 1);
+            $ppmGroupId = Class_db::getInstance()->db_select_col('ppm', array('ppm_id'=>$ppmTask['ppmId']), 'ppm_group_id');
             $ppmTaskAssistArr = Class_db::getInstance()->db_select2('ppm_task_assist', array('ppm_task_id'=>$ppmTaskId));
             foreach ($ppmTaskAssistArr as $ppmTaskAssist) {
-                $assistantList[] = array('ppmTaskAssistId'=>$ppmTaskAssist['ppmTaskAssistId'], 'userId'=>$ppmTaskAssist['userId'], 'userFullName'=>$userFullNameArr[intval($ppmTaskAssist['userId'])]);
+                $assistantList[] = array(
+                    'ppmTaskAssistId'=>$ppmTaskAssist['ppmTaskAssistId'],
+                    'userId'=>$ppmTaskAssist['userId'],
+                    'userFullName'=>$userFullNameArr[intval($ppmTaskAssist['userId'])],
+                    'ppmGroupId'=>$ppmGroupId
+                );
             }
             return $assistantList;
         }
@@ -123,16 +134,18 @@ class Class_ppm_task_assist {
 
     /**
      * @param array $params
-     * @return void
+     * @return string
      * @throws Exception
      */
     public function addPpmTaskAssist ($params) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParamsArray($params, array('ppmTaskId', 'assistant'));
-            if (Class_db::getInstance()->db_count('ppm_task_assist', array('ppm_task_id'=>$params['ppmTaskId'], 'user_id'=>$params['assistant'])) == 0) {
-                Class_db::getInstance()->db_insert('ppm_task_assist', array('ppm_task_id'=>$params['ppmTaskId'], 'user_id'=>$params['assistant']));
+            $existing = Class_db::getInstance()->db_select_single('ppm_task_assist', array('ppm_task_id'=>$params['ppmTaskId'], 'user_id'=>$params['assistant']));
+            if (!empty($existing['ppm_task_assist_id'])) {
+                return $existing['ppm_task_assist_id'];
             }
+            return Class_db::getInstance()->db_insert('ppm_task_assist', array('ppm_task_id'=>$params['ppmTaskId'], 'user_id'=>$params['assistant']));
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
@@ -141,14 +154,16 @@ class Class_ppm_task_assist {
 
     /**
      * @param string $ppmTaskAssistId
-     * @return void
+     * @return string
      * @throws Exception
      */
     public function deletePpmTaskAssist ($ppmTaskAssistId) {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __FUNCTION__);
             $this->fn_general->checkEmptyParams(array($ppmTaskAssistId));
+            $row = Class_db::getInstance()->db_select_single('ppm_task_assist', array('ppm_task_assist_id'=>$ppmTaskAssistId), null, 1);
             Class_db::getInstance()->db_delete('ppm_task_assist', array('ppm_task_assist_id'=>$ppmTaskAssistId));
+            return $row['ppm_task_id'];
         } catch (Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());

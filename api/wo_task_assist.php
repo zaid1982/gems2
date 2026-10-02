@@ -90,8 +90,8 @@ try {
         }
         Class_db::getInstance()->db_beginTransaction();
         $is_transaction = true;
-        $fn_woTaskAssist->deleteWoTaskAssist($urlArr[1]);
-        $woTask = $fn_woTask->getWoTask($urlArr[1]);
+        $woTaskId = $fn_woTaskAssist->deleteWoTaskAssist($urlArr[1]);
+        $woTask = $fn_woTask->getWoTask($woTaskId);
         $fn_general->save_audit('185', $userId, 'Work Order no. = '.$woTask['woTaskNo']);
         Class_db::getInstance()->db_commit();
         $form_data['errmsg'] = $constant::SUC_WO_DELETE_ASSISTANT;

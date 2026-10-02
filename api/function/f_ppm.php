@@ -767,13 +767,29 @@ class Class_ppm {
     }
 
     /**
+     * @param string $isRoutine
+     * @return string
+     */
+    private function routine_filter_clause ($isRoutine) {
+        $flag = strtolower(trim((string)$isRoutine));
+        if ($flag === '1' || $flag === 'true') {
+            return 'ppm.ppm_is_routine = 1';
+        }
+        if ($flag === '0' || $flag === 'false') {
+            return 'ppm.ppm_is_routine = 0';
+        }
+        return '';
+    }
+
+    /**
      * @param $userId
      * @param string $assetNo
      * @param string $searchTxt
+     * @param string $isRoutine
      * @return array
      * @throws Exception
      */
-    public function get_pending_task_m ($userId, $assetNo='', $searchTxt='') {
+    public function get_pending_task_m ($userId, $assetNo='', $searchTxt='', $isRoutine='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
 
@@ -788,6 +804,10 @@ class Class_ppm {
             if (!empty($searchTxt)) {
                 $restFilter .= 'AND (ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR wfl_transaction.transaction_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
                     'OR sys_user.user_first_name LIKE \'%'.$searchTxt.'%\')';
+            }
+            $routineClause = $this->routine_filter_clause($isRoutine);
+            if ($routineClause !== '') {
+                $restFilter .= ' AND '.$routineClause;
             }
 
             $result = array();
@@ -823,7 +843,7 @@ class Class_ppm {
      * @return array
      * @throws Exception
      */
-    public function get_ppm_all_task_m ($userId, $date='', $assetNo='', $searchTxt='') {
+    public function get_ppm_all_task_m ($userId, $date='', $assetNo='', $searchTxt='', $isRoutine='') {
         try {
             $this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, 'Entering ' . __CLASS__);
             if (empty($userId)) {
@@ -863,6 +883,11 @@ class Class_ppm {
                 if (!empty($restFilter)) { $restFilter .= ' AND '; }
                 $restFilter .= '(ast_asset.asset_no LIKE \'%'.$searchTxt.'%\' OR ppm_task.ppm_task_no LIKE \'%'.$searchTxt.'%\' OR ast_asset_type.asset_type_name LIKE \'%'.$searchTxt.'%\' OR cli_site.site_name LIKE \'%'.$searchTxt.'%\' '.
                     'OR sys_user.user_first_name LIKE \'%'.$searchTxt.'%\') ';
+            }
+            $routineClause = $this->routine_filter_clause($isRoutine);
+            if ($routineClause !== '') {
+                if (!empty($restFilter)) { $restFilter .= ' AND '; }
+                $restFilter .= $routineClause.' ';
             }
             if (!empty($restFilter)) { $restFilter .= ' AND '; }
             $restFilter .= 'ppm_task_status NOT IN (3, 53)';
