@@ -20,6 +20,19 @@ class Class_sql
     }
 
     /**
+     * Image links in mobile utility lists follow the host that served the request.
+     */
+    private function utilityImageBase()
+    {
+        $https = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== '' && $_SERVER['HTTPS'] !== 'off';
+        $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+        if (!preg_match('/^[A-Za-z0-9.\-:\[\]]+$/', $host)) {
+            $host = 'localhost';
+        }
+        return ($https ? 'https' : 'http') . '://' . $host . '/api/';
+    }
+
+    /**
      * @param $title
      * @return string
      * @throws Exception
@@ -1425,6 +1438,7 @@ class Class_sql
                 FROM ast_part_sub s
                 LEFT JOIN ast_part p ON p.part_id = s.part_id ";
             } else if ($title === 'vw_utility_mobile_list') {
+                $utilityImageBase = $this->utilityImageBase();
                 $sql = "SELECT
                     u.utility_id,
                     u.utility_type,
@@ -1434,11 +1448,12 @@ class Class_sql
                     u.utility_total_rm,
                     u.utility_max_demand,
                     u.utility_timestamp,
+                    u.utility_shift,
                     m.meter_id,
                     m.meter_name,
                     m.meter_location,
                     s.user_first_name AS utility_recorded_by,
-                    CONCAT('https://gems.globalfm.com.my/api/', p.upload_folder,'/',p.upload_filename,'.',p.upload_extension) AS utility_image
+                    CONCAT('$utilityImageBase', p.upload_folder,'/',p.upload_filename,'.',p.upload_extension) AS utility_image
                 FROM utl_utility u
                 LEFT JOIN utl_meter m ON m.meter_id = u.meter_id 
                 LEFT JOIN sys_user s ON s.user_id = u.utility_recorded_by

@@ -86,19 +86,29 @@ try {
             throw new Exception('[' . __LINE__ . '] - Wrong Request Method');
         }
 
-        // ********** submit reading ********** \\
-        if (!isset ($params['readingImage'])) {
-            throw new Exception('[' . __LINE__ . '] - Invalid Reading Image');
+        // A retry of the same water reading must not store a second photo.
+        $duplicateId = '';
+        if ($urlArr[1] === 'Water' && $urlArr[2] === 'Daily') {
+            $duplicateId = $fn_utility->findDuplicateWaterDaily($userId, $params);
         }
-        $uploadId = $fn_general->uploadDocument($params['readingImage'], 24, $userId);
-        Class_db::getInstance()->db_beginTransaction();
-        $is_transaction = true;
-        $result = $fn_utility->addUtility($urlArr[1], $urlArr[2], $userId, $params, $uploadId);
+        if ($duplicateId !== '') {
+            $result = $duplicateId;
+            $form_data['errmsg'] = 'Utility reading successfully recorded.';
+        } else {
+            // ********** submit reading ********** \\
+            if (!isset ($params['readingImage'])) {
+                throw new Exception('[' . __LINE__ . '] - Invalid Reading Image');
+            }
+            $uploadId = $fn_general->uploadDocument($params['readingImage'], 24, $userId);
+            Class_db::getInstance()->db_beginTransaction();
+            $is_transaction = true;
+            $result = $fn_utility->addUtility($urlArr[1], $urlArr[2], $userId, $params, $uploadId);
 
-        // ********** audit trail ********** \\
-        $fn_general->save_audit('177', $userId, 'Type = ' . $urlArr[1] . ', Reading Type = ' . $urlArr[2] . ', Reading Date = ' . $params['utilityDate']);
-        $form_data['errmsg'] = 'Utility reading successfully recorded.';
-        Class_db::getInstance()->db_commit();
+            // ********** audit trail ********** \\
+            $fn_general->save_audit('177', $userId, 'Type = ' . $urlArr[1] . ', Reading Type = ' . $urlArr[2] . ', Reading Date = ' . $params['utilityDate']);
+            $form_data['errmsg'] = 'Utility reading successfully recorded.';
+            Class_db::getInstance()->db_commit();
+        }
 
         $form_data['result'] = $result;
         $form_data['success'] = true;

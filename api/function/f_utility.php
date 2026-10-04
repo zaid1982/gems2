@@ -123,20 +123,30 @@ class Class_utility {
             $opening = '';
             $total = '';
             $shift = '';
+            $capturedTimestamp = '';
             $unit = $type === 'Electricity' ? 'kWh' : 'm^3';
             $siteId = Class_db::getInstance()->db_select_col('sys_user', array('user_id'=>$userId), 'site_id', '', 1);
             if ($readingType === 'Daily') {
                 if ($type === 'Water') {
-                    $utilityShiftZone = Class_db::getInstance()->db_select_single2('vw_utility_shift', array(), '', 1);
-                    $shift = $utilityShiftZone['readingShift'];
-                    $params['utilityDate'] = $utilityShiftZone['readingDate'];
+                    $resolved = $this->resolveWaterDailyWindow($params);
+                    $shift = $resolved['shift'];
+                    $params['utilityDate'] = $resolved['date'];
+                    $capturedTimestamp = $resolved['timestamp'];
+                    $duplicateId = $this->matchingWaterReadingId($userId, $params, $resolved);
+                    if ($duplicateId !== '') {
+                        return $duplicateId;
+                    }
                     if (Class_db::getInstance()->db_count('utl_utility', array('meter_id'=>$params['meterId'], 'utility_reading_type'=>'Daily', 'utility_type'=>'Water', 'utility_date'=>$params['utilityDate'], 'utility_shift'=>$shift)) > 0) {
                         throw new Exception('[' . __LINE__ . '] - Today\'s ' . $shift . ' shift reading for Water already recorded.', 31);
                     }
-                    $previousReading = Class_db::getInstance()->db_select_single2('utl_utility', array('meter_id'=>$params['meterId'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily'), 'utility_timestamp DESC');
-                    if (!empty($previousReading)) {
-                        $totalTemp = strval(floatval($params['utilityReading']) - floatval($previousReading['utilityReading']));
-                        Class_db::getInstance()->db_update('utl_utility', array('utility_total'=>$totalTemp), array('utility_id'=>$previousReading['utilityId']));
+                    if ($capturedTimestamp !== '') {
+                        $total = $this->applyCapturedWaterTotals($params['meterId'], $params['utilityReading'], $capturedTimestamp);
+                    } else {
+                        $previousReading = Class_db::getInstance()->db_select_single2('utl_utility', array('meter_id'=>$params['meterId'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily'), 'utility_timestamp DESC');
+                        if (!empty($previousReading)) {
+                            $totalTemp = strval(floatval($params['utilityReading']) - floatval($previousReading['utilityReading']));
+                            Class_db::getInstance()->db_update('utl_utility', array('utility_total'=>$totalTemp), array('utility_id'=>$previousReading['utilityId']));
+                        }
                     }
                 } else {
                     $opening = Class_db::getInstance()->db_select_col('utl_utility', array('meter_id'=>$params['meterId'], 'utility_type'=>$type, 'utility_reading_type'=>'Daily'), 'utility_reading', 'utility_timestamp DESC');
@@ -148,12 +158,153 @@ class Class_utility {
                 array('siteId'=>$siteId, 'utilityType'=>$type, 'utilityReadingType'=>$readingType, 'utilityUnit'=>$unit, 'utilityOpening'=>$opening, 'utilityTotal'=>$total, 'utilityShift'=>$shift,
                     'utilityImage'=>$uploadId, 'utilityRecordedBy'=>$userId)
             );
+            if ($capturedTimestamp !== '') {
+                $insertParams['utilityTimestamp'] = $capturedTimestamp;
+            }
             return Class_db::getInstance()->db_insert('utl_utility', $this->fn_general->convertToMysqlArrAll($insertParams));
         }
         catch(Exception $ex) {
             $this->fn_general->log_error(__CLASS__, __FUNCTION__, __LINE__, $ex->getMessage());
             throw new Exception($this->get_exception('0005', __FUNCTION__, __LINE__, $ex->getMessage()), $ex->getCode());
         }
+    }
+
+    /**
+     * Same user, meter, shift, date and reading already stored. Returns the
+     * existing id so a retry after a timeout does not upload a second photo.
+     *
+     * @param $userId
+     * @param array $params
+     * @return string
+     * @throws Exception
+     */
+    public function findDuplicateWaterDaily($userId, $params = array()) {
+        if (Class_db::getInstance()->db_count('sys_user_role', array('user_id'=>$userId, 'role_id'=>'18')) == 0) {
+            throw new Exception('[' . __LINE__ . '] - User not allowed to take utility reading.', 31);
+        }
+        $this->fn_general->checkEmptyParamsArray($params, array('meterId', 'utilityDate', 'utilityReading'));
+        $resolved = $this->resolveWaterDailyWindow($params);
+        return $this->matchingWaterReadingId($userId, $params, $resolved);
+    }
+
+    /**
+     * Shift and reading date from an optional capture time. Without one, the
+     * server clock is used, which is what older app builds send.
+     *
+     * @param array $params
+     * @return array
+     * @throws Exception
+     */
+    private function resolveWaterDailyWindow($params) {
+        $captured = isset($params['utilityCapturedAt']) ? trim(strval($params['utilityCapturedAt'])) : '';
+        if ($captured === '') {
+            $zone = Class_db::getInstance()->db_select_single2('vw_utility_shift', array(), '', 1);
+            return array(
+                'shift' => $zone['readingShift'],
+                'date' => $zone['readingDate'],
+                'timestamp' => ''
+            );
+        }
+        $dt = DateTime::createFromFormat('Y-m-d H:i:s', $captured);
+        $errors = DateTime::getLastErrors();
+        if (!$dt || ($errors && (($errors['warning_count'] ?? 0) > 0 || ($errors['error_count'] ?? 0) > 0))) {
+            throw new Exception('[' . __LINE__ . '] - Enter a valid capture time.', 31);
+        }
+        $now = new DateTime();
+        $latest = clone $now;
+        $latest->modify('+5 minutes');
+        $earliest = clone $now;
+        $earliest->modify('-7 days');
+        if ($dt > $latest) {
+            throw new Exception('[' . __LINE__ . '] - The capture time cannot be in the future.', 31);
+        }
+        if ($dt < $earliest) {
+            throw new Exception('[' . __LINE__ . '] - The capture time is more than 7 days old.', 31);
+        }
+        $time = $dt->format('H:i:s');
+        $date = clone $dt;
+        if ($time < '06:00:00') {
+            $shift = 'Night';
+            $date->modify('-1 day');
+        } else if ($time < '18:00:00') {
+            $shift = 'Morning';
+        } else if ($time < '22:00:00') {
+            $shift = 'Evening';
+        } else {
+            $shift = 'Night';
+        }
+        return array(
+            'shift' => $shift,
+            'date' => $date->format('Y-m-d'),
+            'timestamp' => $dt->format('Y-m-d H:i:s')
+        );
+    }
+
+    /**
+     * @param $userId
+     * @param array $params
+     * @param array $resolved
+     * @return string
+     */
+    private function matchingWaterReadingId($userId, $params, $resolved) {
+        $row = Class_db::getInstance()->db_fetch_one_prepared(
+            "SELECT utility_id FROM utl_utility
+             WHERE meter_id = :meterId
+               AND utility_date = :utilityDate
+               AND utility_shift = :shift
+               AND utility_type = 'Water'
+               AND utility_reading_type = 'Daily'
+               AND utility_recorded_by = :userId
+               AND ABS(utility_reading - :reading) < 0.0005
+             LIMIT 1",
+            array(
+                'meterId' => $params['meterId'],
+                'utilityDate' => $resolved['date'],
+                'shift' => $resolved['shift'],
+                'userId' => $userId,
+                'reading' => $params['utilityReading']
+            )
+        );
+        if (!empty($row) && isset($row['utility_id'])) {
+            return strval($row['utility_id']);
+        }
+        return '';
+    }
+
+    /**
+     * Inserting a reading that was taken earlier than one already stored.
+     * Consumption on the previous row, and on this row when a later reading exists.
+     *
+     * @param $meterId
+     * @param $reading
+     * @param string $timestamp
+     * @return string
+     */
+    private function applyCapturedWaterTotals($meterId, $reading, $timestamp) {
+        $current = floatval($reading);
+        $db = Class_db::getInstance();
+        $before = $db->db_fetch_one_prepared(
+            "SELECT utility_id, utility_reading FROM utl_utility
+             WHERE meter_id = :meterId AND utility_type = 'Water' AND utility_reading_type = 'Daily'
+               AND utility_timestamp < :ts
+             ORDER BY utility_timestamp DESC LIMIT 1",
+            array('meterId' => $meterId, 'ts' => $timestamp)
+        );
+        $after = $db->db_fetch_one_prepared(
+            "SELECT utility_id, utility_reading FROM utl_utility
+             WHERE meter_id = :meterId AND utility_type = 'Water' AND utility_reading_type = 'Daily'
+               AND utility_timestamp > :ts
+             ORDER BY utility_timestamp ASC LIMIT 1",
+            array('meterId' => $meterId, 'ts' => $timestamp)
+        );
+        if (!empty($before) && isset($before['utility_id'])) {
+            $gap = strval($current - floatval($before['utility_reading']));
+            $db->db_update('utl_utility', array('utility_total' => $gap), array('utility_id' => $before['utility_id']));
+        }
+        if (!empty($after) && isset($after['utility_reading'])) {
+            return strval(floatval($after['utility_reading']) - $current);
+        }
+        return '';
     }
 
     /**
