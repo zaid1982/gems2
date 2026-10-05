@@ -3,15 +3,23 @@
 /**
  * Daily electricity consumption from cumulative meter readings.
  *
- * Readings are not taken every day. When a reading is missed the next reading
- * covers the whole gap, so the difference is spread evenly across the days it
- * covers. Example: a reading on day 16 followed by the next on day 18 gives
+ * Readings are taken in the morning, so the figure entered today closes
+ * yesterday. The difference between two readings belongs to the earlier day,
+ * not the day the later reading was written down:
+ *
+ *     3rd  299,801,023
+ *     4th  299,901,023
+ *     consumption on the 3rd = 100,000
+ *
+ * When a morning is missed, that gap is spread evenly across the days the
+ * later reading closes, which stops the day before the later reading. A
+ * reading on the 16th followed by the next on the 18th gives
  *
  *     perDay = (kWh_18 - kWh_16) / 2
  *
- * and both day 17 and day 18 are credited with perDay. Days before the first
- * reading and after the last reading of the month stay blank rather than being
- * reported as zero consumption.
+ * and the 16th and the 17th are each credited with perDay. The 18th stays
+ * blank until the next morning. Days before the first reading stay blank
+ * rather than being reported as zero consumption.
  *
  * A reading lower than the one before it (meter replacement or a typo) cannot
  * be spread, so those days are left blank and flagged for the UI.
@@ -60,7 +68,7 @@ class EnergyCalculator {
                     // add back up to the meter difference exactly. Rounding
                     // happens only where a value is emitted.
                     $perDay = $delta / $gapDays;
-                    for ($i = 1; $i <= $gapDays; $i++) {
+                    for ($i = 0; $i < $gapDays; $i++) {
                         $day = date('Y-m-d', strtotime($prevDate . ' +' . $i . ' day'));
                         $consumption[$day] = $perDay;
                     }

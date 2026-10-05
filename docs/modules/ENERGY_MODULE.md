@@ -45,18 +45,30 @@ Column names deliberately avoid digits (`floor_area_sqm`, not `floor_area_m2`), 
 
 ## Gap distribution
 
-Readings are not taken every day. When a day is missed, the next reading covers the whole gap, so
-the difference is spread evenly across the days it covers:
+Readings are taken each morning, so today's figure closes yesterday. The difference between two
+readings is credited to the earlier date, not the date the later reading was entered:
 
 ```
-last reading day 16 = 1,100 kWh
-next reading day 18 = 1,400 kWh
+3rd = 299,801,023 kWh
+4th = 299,901,023 kWh
+
+consumption on the 3rd = 100,000 kWh
+the 4th stays blank until the next morning
+```
+
+When a morning is missed, the next reading covers that whole gap and the difference is spread
+evenly across the days it closes, stopping the day before the later reading:
+
+```
+morning of day 16 = 1,100 kWh
+morning of day 18 = 1,400 kWh
 
 gapDays = 2
 perDay  = (1400 - 1100) / 2 = 150
 
+day 16 -> 150 kWh
 day 17 -> 150 kWh
-day 18 -> 150 kWh
+day 18 stays blank until the next morning
 ```
 
 - A day is blank only when **no interval covers it**: before the meter's first reading, or after its
