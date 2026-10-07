@@ -170,7 +170,11 @@ try {
     } catch (Exception $ex) {
         $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
     }
-    $formData['error'] = strpos($e->getMessage(), '] -') ? substr($e->getMessage(), strpos($e->getMessage(), '] -') + 4) : substr($e->getMessage(), strripos($e->getMessage(), '] ') + 2);
+    $formData['error'] = $e->getMessage();
+    $marker = strpos($formData['error'], '] -');
+    if ($marker !== false) {
+        $formData['error'] = substr($formData['error'], $marker + 4);
+    }
     $formData['errmsg'] = $e->getCode() === 31 ? $formData['error'] : Constant::$err['default'];
     $fnMain->logError('API', $apiName, __LINE__, $e->getMessage());
 }

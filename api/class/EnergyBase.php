@@ -11,6 +11,7 @@ class EnergyBase extends General {
     public const ROLE_KPI_ADMIN = 30;
     public const ROLE_PI_ENTRY = 31;
     public const ROLE_KPI_VIEWER = 32;
+    public const ROLE_SITE_MANAGER = 2;
 
     public const AUDIT_METER = 256;
     public const AUDIT_READING = 257;
@@ -54,7 +55,11 @@ class EnergyBase extends General {
     }
 
     public function canRecord(): bool {
-        return $this->isAdministrator() || $this->hasAnyRole(array(self::ROLE_UTILITY, self::ROLE_KPI_ADMIN));
+        return $this->isAdministrator() || $this->hasAnyRole(array(
+            self::ROLE_UTILITY,
+            self::ROLE_KPI_ADMIN,
+            self::ROLE_SITE_MANAGER
+        ));
     }
 
     public function canSetup(): bool {
