@@ -420,6 +420,23 @@ function get_ptw_data($user_id, $user_site_id) {
     }
 }
 
+function ptw_assert_work_duration($valid_from, $valid_to) {
+    $from_day = substr(trim((string) $valid_from), 0, 10);
+    $to_day = substr(trim((string) $valid_to), 0, 10);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $from_day) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $to_day)) {
+        return;
+    }
+    $from_ts = strtotime($from_day . ' 00:00:00');
+    $to_ts = strtotime($to_day . ' 00:00:00');
+    if ($from_ts === false || $to_ts === false || $to_ts < $from_ts) {
+        return;
+    }
+    $duration_days = (int) floor(($to_ts - $from_ts) / 86400) + 1;
+    if ($duration_days > 7) {
+        throw new Exception('[' . __LINE__ . '] - Duration of Work cannot exceed 7 days', 31);
+    }
+}
+
 function create_ptw_permit($user_id, $user_site_id) {
     global $fn_general, $fn_ptw, $is_transaction, $api_name;
     
@@ -493,6 +510,7 @@ function create_ptw_permit($user_id, $user_site_id) {
         if (strlen($valid_to) == 10) {
             $valid_to .= ' 17:00:00';
         }
+        ptw_assert_work_duration($valid_from, $valid_to);
 
         // Use original remarks as-is since we now store additional data in proper database fields
         $combined_remarks = isset($_POST['remarks']) ? trim($_POST['remarks']) : '';
@@ -946,6 +964,13 @@ function update_ptw_permit_flexible($user_id, $user_site_id, $authHeader = '') {
             }
             $update[$dbField] = $val;
         }
+    }
+
+    if (isset($update['ptw_valid_from']) || isset($update['ptw_valid_to'])) {
+        ptw_assert_work_duration(
+            $update['ptw_valid_from'] ?? ($permit['ptw_valid_from'] ?? ''),
+            $update['ptw_valid_to'] ?? ($permit['ptw_valid_to'] ?? '')
+        );
     }
 
     $fn_general->log_debug('API', 'update_ptw_permit_flexible', __LINE__, 'Update fields count: ' . count($update) . ' for permit_id=' . $permit_id);

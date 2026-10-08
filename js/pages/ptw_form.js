@@ -272,6 +272,7 @@ class PtwForm {
 
         $('#dtPtwValidFrom').val(today.toISOString().split('T')[0]);
         $('#dtPtwValidTo').val(tomorrow.toISOString().split('T')[0]);
+        this.validateDates();
 
         // Add first worker row
         this.addWorkerRow();
@@ -334,6 +335,7 @@ class PtwForm {
 
         $('#dtPtwValidFrom').val(today.toISOString().split('T')[0]);
         $('#dtPtwValidTo').val(tomorrow.toISOString().split('T')[0]);
+        this.validateDates();
 
         // Add first worker row
         this.addWorkerRow();
@@ -1173,12 +1175,29 @@ class PtwForm {
     validateDates() {
         const validFrom = $('#dtPtwValidFrom').val();
         const validTo = $('#dtPtwValidTo').val();
+        const toField = document.getElementById('dtPtwValidTo');
+
+        if (validFrom && toField) {
+            const fromDate = new Date(validFrom + 'T00:00:00');
+            const minDate = new Date(fromDate);
+            minDate.setDate(minDate.getDate() + 1);
+            const maxDate = new Date(fromDate);
+            maxDate.setDate(maxDate.getDate() + 6);
+            const format = function (date) {
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return date.getFullYear() + '-' + month + '-' + day;
+            };
+            toField.min = format(minDate);
+            toField.max = format(maxDate);
+        }
 
         if (validFrom && validTo) {
-            const fromDate = new Date(validFrom);
-            const toDate = new Date(validTo);
+            const fromDate = new Date(validFrom + 'T00:00:00');
+            const toDate = new Date(validTo + 'T00:00:00');
             const today = new Date();
             today.setHours(0, 0, 0, 0);
+            const durationDays = Math.round((toDate - fromDate) / 86400000) + 1;
 
             if (fromDate < today) {
                 showError('Valid from date cannot be in the past');
@@ -1188,6 +1207,12 @@ class PtwForm {
 
             if (toDate <= fromDate) {
                 showError('Valid to date must be after valid from date');
+                $('#dtPtwValidTo').val('');
+                return false;
+            }
+
+            if (durationDays > 7) {
+                showError('Duration of Work cannot exceed 7 days');
                 $('#dtPtwValidTo').val('');
                 return false;
             }

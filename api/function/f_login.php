@@ -178,16 +178,28 @@ class Class_login {
             //$this->fn_general->log_debug(__CLASS__, __FUNCTION__, __LINE__, $role_str);
             
             $menu_return = [];
-            $nav_index = 0;
+            $nav_positions = [];
+            $pending_children = [];
             $menu_list = Class_db::getInstance()->db_select('vw_menu', null, null, null, 1, array('roles'=>$role_str));
-            foreach ($menu_list as $menu) {                
-                //$this->fn_general->log_debug(__FUNCTION__, __LINE__, '$nav_page = '.$menu['nav_page']);
-                //$this->fn_general->log_debug(__FUNCTION__, __LINE__, '$nav_index = '.$nav_index);
+            foreach ($menu_list as $menu) {
+                $navId = $menu['nav_id'];
                 if (empty($menu['nav_second_id'])) {
-                    array_push($menu_return, array('navId'=>$menu['nav_id'], 'navDesc'=>$menu['nav_desc'], 'navIcon'=>$menu['nav_icon'], 'navPage'=> $this->fn_general->clear_null($menu['nav_page']), 'navSecond'=>array()));
-                    $nav_index++;
+                    if (!isset($nav_positions[$navId])) {
+                        $children = isset($pending_children[$navId]) ? $pending_children[$navId] : array();
+                        $nav_positions[$navId] = count($menu_return);
+                        array_push($menu_return, array('navId'=>$navId, 'navDesc'=>$menu['nav_desc'], 'navIcon'=>$menu['nav_icon'], 'navPage'=> $this->fn_general->clear_null($menu['nav_page']), 'navSecond'=>$children));
+                        unset($pending_children[$navId]);
+                    }
                 } else {
-                    array_push($menu_return[$nav_index-1]['navSecond'], array('navSecondId'=>$menu['nav_second_id'], 'navSecondDesc'=>$menu['nav_second_desc'], 'navSecondPage'=>$menu['nav_second_page']));
+                    $child = array('navSecondId'=>$menu['nav_second_id'], 'navSecondDesc'=>$menu['nav_second_desc'], 'navSecondPage'=>$menu['nav_second_page']);
+                    if (isset($nav_positions[$navId])) {
+                        array_push($menu_return[$nav_positions[$navId]]['navSecond'], $child);
+                    } else {
+                        if (!isset($pending_children[$navId])) {
+                            $pending_children[$navId] = array();
+                        }
+                        array_push($pending_children[$navId], $child);
+                    }
                 }
             }
             return $menu_return;

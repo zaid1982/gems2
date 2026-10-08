@@ -12,9 +12,17 @@ same `wst_transaction` table, so the balance calculator and the JKR report keep 
 3. `sql/2026-09-18_wst_generation_disposal.sql`
 4. `sql/2026-09-18_nav_waste_kpa_enr.sql`
 
+Legacy JKR databases that retain the original waste pages must use
+`sql/2026-10-08_nav_waste_roles_jkr.sql` for role navigation instead of steps 2
+and 4. Those two scripts reshape the menu for the V2 lifecycle and are not a
+safe role-only fix for legacy JKR.
+
 ## Roles
 
-The Waste Management menu is granted to **Administrator (`role_id = 1`) only**. Other roles do not see these pages until a later grant is added.
+V2 navigation is granted to Administrator (`role_id = 1`), Waste User
+(`role_id = 28`) and Waste Officer (`role_id = 29`). The legacy JKR navigation
+script grants only pages supported by each waste role; Setup remains restricted
+to Administrator/Site Admin by the API.
 
 API capabilities remain role-based if a user opens a page URL directly:
 

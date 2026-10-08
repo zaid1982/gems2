@@ -1601,9 +1601,9 @@
                                             <div class="help-example" id="help-duration">
                                                 <strong>Work schedule:</strong>
                                                 • Start date cannot be in the past<br>
-                                                • Allow time for approvals<br>
-                                                • Consider preparation time needed
-                                                <div class="example-text">Tip: Permits need 24-48 hours for processing</div>
+                                                • Duration is limited to 7 days, including the start date<br>
+                                                • Allow time for approvals
+                                                <div class="example-text">Example: 8 Oct to 14 Oct is 7 days. 8 Oct to 15 Oct is not allowed.</div>
                                             </div>
                                         </div>
                                         <div class="gems-field">
@@ -5700,12 +5700,44 @@
         return null;
     }
     
+    function ptwWorkDurationDays(fromDate, toDate) {
+        const from = new Date(fromDate + 'T00:00:00');
+        const to = new Date(toDate + 'T00:00:00');
+        return Math.round((to - from) / 86400000) + 1;
+    }
+
+    function applyWorkDurationLimit(fromDate, toDate) {
+        if (!fromDate || !toDate) {
+            return;
+        }
+        if (!fromDate.value) {
+            toDate.removeAttribute('min');
+            toDate.removeAttribute('max');
+            return;
+        }
+        const from = new Date(fromDate.value + 'T00:00:00');
+        const min = new Date(from);
+        min.setDate(min.getDate() + 1);
+        const max = new Date(from);
+        max.setDate(max.getDate() + 6);
+        const format = function (date) {
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return date.getFullYear() + '-' + month + '-' + day;
+        };
+        toDate.min = format(min);
+        toDate.max = format(max);
+    }
+
     function validateDateRange(fromDate, toDate) {
         if (fromDate && toDate) {
-            const from = new Date(fromDate);
-            const to = new Date(toDate);
+            const from = new Date(fromDate + 'T00:00:00');
+            const to = new Date(toDate + 'T00:00:00');
             if (to < from) {
                 return 'End date cannot be earlier than start date';
+            }
+            if (ptwWorkDurationDays(fromDate, toDate) > 7) {
+                return 'Duration of Work cannot exceed 7 days';
             }
         }
         return null;
@@ -6122,8 +6154,10 @@
         const fromDate = document.getElementById('dtPtwValidFrom');
         const toDate = document.getElementById('dtPtwValidTo');
         if (fromDate && toDate) {
+            applyWorkDurationLimit(fromDate, toDate);
             [fromDate, toDate].forEach(dateField => {
                 dateField.addEventListener('change', function() {
+                    applyWorkDurationLimit(fromDate, toDate);
                     const dateRangeError = validateDateRange(fromDate.value, toDate.value);
                     
                     // Clear existing styling first
