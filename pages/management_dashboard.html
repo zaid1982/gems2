@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<!--
+  pages/management_dashboard.html — management portfolio landing page.
+
+  Asset stack follows pages/home.html. Do not load MDB or Bootstrap 4 beside
+  Tabler: css/bootstrap.min.css, css/mdb.min.css, css/style.css, css/gems2-ui.css,
+  js/popper.min.js, js/bootstrap*.js, js/mdb*.js, js/jquery-migrate-3.4.0.min.js,
+  dataTables.bootstrap4.*, js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GEMS 2.0</title>
+    <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+    <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+    <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+    <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="css/gems-theme.css">
+    <style>
+        .chart-card .card-body { position: relative; }
+        .chart-loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            border-radius: var(--tblr-border-radius);
+        }
+        .chart-loading-overlay.show { display: flex; }
+        body.mgd-dashboard {
+            --mgd-primary: #2F7CF6;
+            --mgd-green: #20B97A;
+            --mgd-teal: #14B8B1;
+            --mgd-orange: #FF9838;
+            --mgd-amber: #F7B719;
+            --mgd-red: #F65353;
+            --mgd-purple: #8258E8;
+            --mgd-grey: #94A3B8;
+            --mgd-text: #172033;
+            --mgd-muted: #64748B;
+            background: #F4F7FB;
+        }
+        body.mgd-dashboard .page,
+        body.mgd-dashboard .page-wrapper { background: #F4F7FB; }
+        body.mgd-dashboard .page-title,
+        body.mgd-dashboard .h3 { color: var(--mgd-text); }
+        body.mgd-dashboard .page-title .text-primary { color: var(--mgd-primary) !important; }
+        body.mgd-dashboard .page-subtitle,
+        body.mgd-dashboard .text-secondary { color: var(--mgd-muted) !important; }
+        body.mgd-dashboard .card {
+            background: #fff;
+            border: 1px solid #E3EAF2;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
+        body.mgd-dashboard .btn-primary {
+            background: var(--mgd-primary);
+            border-color: var(--mgd-primary);
+        }
+        body.mgd-dashboard .btn-primary:hover {
+            background: #1D5FD1;
+            border-color: #1D5FD1;
+        }
+        body.mgd-dashboard .mgd-kpi { box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04); }
+        body.mgd-dashboard .mgd-kpi .h2 { font-weight: 700; }
+        .mgd-tone-blue { background: #F3F8FF; border-color: #DCEAFF !important; }
+        .mgd-tone-green { background: #F0FBF6; border-color: #D9F3E7 !important; }
+        .mgd-tone-teal { background: #EFFBFA; border-color: #D5F2F0 !important; }
+        .mgd-tone-orange { background: #FFF8F1; border-color: #FFE8D2 !important; }
+        .mgd-tone-amber { background: #FFF9E8; border-color: #FFE8A3 !important; }
+        .mgd-tone-red { background: #FFF4F4; border-color: #FFE1E1 !important; }
+        .mgd-tone-purple { background: #F8F5FF; border-color: #EAE1FF !important; }
+        .mgd-tone-slate { background: #F8FAFC; border-color: #E3EAF2 !important; }
+        .mgd-tone-blue .h2, .mgd-tone-blue .mgd-kpi-label i { color: var(--mgd-primary); }
+        .mgd-tone-green .h2, .mgd-tone-green .mgd-kpi-label i { color: var(--mgd-green); }
+        .mgd-tone-teal .h2, .mgd-tone-teal .mgd-kpi-label i { color: var(--mgd-teal); }
+        .mgd-tone-orange .h2, .mgd-tone-orange .mgd-kpi-label i { color: var(--mgd-orange); }
+        .mgd-tone-amber .h2, .mgd-tone-amber .mgd-kpi-label i { color: #C48A09; }
+        .mgd-tone-red .h2, .mgd-tone-red .mgd-kpi-label i { color: var(--mgd-red); }
+        .mgd-tone-purple .h2, .mgd-tone-purple .mgd-kpi-label i { color: var(--mgd-purple); }
+        .mgd-tone-slate .h2, .mgd-tone-slate .mgd-kpi-label i { color: var(--mgd-text); }
+        .mgd-kpi-label {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: .75rem;
+            font-weight: 600;
+            color: var(--mgd-muted);
+        }
+        .mgd-kpi-label i {
+            width: 1.7rem;
+            height: 1.7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #fff;
+            font-size: .8rem;
+        }
+        .mgd-site-menu { max-height: 16rem; overflow: auto; }
+        #menuMgdSites .dropdown-item { white-space: normal; }
+    </style>
+</head>
+
+<body class="gems-tabler mgd-dashboard">
+<div class="page">
+    <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+    <div class="page-wrapper">
+        <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="page-header">
+                    <div class="row align-items-center g-2">
+                        <div class="col-12 col-sm">
+                            <h1 class="page-title"><i class="fas fa-chart-pie me-2 text-primary"></i>Management Dashboard</h1>
+                            <div class="page-subtitle" id="lblMgdScope">Portfolio summary for administrators and GFM management.</div>
+                        </div>
+                        <div class="col-12 col-sm-auto">
+                            <a href="home.html" class="btn btn-outline-secondary">Work orders and PPM</a>
+                            <button type="button" id="btnMgdRefresh" class="btn btn-primary">Refresh</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger d-none" id="alertPage" role="alert"></div>
+
+                <form class="card gems-filter-card mb-3" id="formMgdFilters">
+                    <div class="card-body">
+                        <div class="gems-form-grid gems-filter-grid">
+                            <div class="gems-field gems-field-2">
+                                <label class="form-label" for="selMgdClient">Client</label>
+                                <select id="selMgdClient" class="form-select"><option value="">All clients</option></select>
+                            </div>
+                            <div class="gems-field gems-field-2 dropdown">
+                                <label class="form-label" for="btnMgdSites">Sites</label>
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle w-100" id="btnMgdSites"
+                                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">All sites</button>
+                                <div class="dropdown-menu w-100 p-2" aria-labelledby="btnMgdSites" id="menuMgdSites">
+                                    <input type="search" class="form-control form-control-sm mb-2" id="txtMgdSiteSearch" placeholder="Search sites" aria-label="Search sites">
+                                    <label class="dropdown-item d-flex align-items-center gap-2 rounded px-2">
+                                        <input class="form-check-input m-0" type="checkbox" id="chkMgdSitesAll">
+                                        <span>All sites</span>
+                                    </label>
+                                    <div class="dropdown-divider"></div>
+                                    <div id="listMgdSites" class="mgd-site-menu"></div>
+                                </div>
+                            </div>
+                            <div class="gems-field gems-field-2">
+                                <label class="form-label" for="selMgdGrain">Trend</label>
+                                <select id="selMgdGrain" class="form-select">
+                                    <option value="day">Daily</option>
+                                    <option value="week">Weekly</option>
+                                    <option value="month">Monthly</option>
+                                </select>
+                            </div>
+                            <div class="gems-field-pair">
+                                <div class="gems-field">
+                                    <label class="form-label" for="txtMgdDateFrom">Date from</label>
+                                    <input type="date" id="txtMgdDateFrom" class="form-control" required>
+                                </div>
+                                <div class="gems-field">
+                                    <label class="form-label" for="txtMgdDateTo">Date to</label>
+                                    <input type="date" id="txtMgdDateTo" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="gems-field gems-field-actions">
+                                <button type="submit" id="btnMgdApply" class="btn btn-primary">Apply</button>
+                            </div>
+                        </div>
+                        <div class="gems-filter-meta">
+                            <div>Work orders, PPM and waste use the date range. Assets, permits and licenses are current.</div>
+                            <div id="lblMgdUpdated" class="gems-filter-meta-end"><i class="far fa-clock me-1"></i>Last refreshed: <span>-</span></div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="row row-cards mb-3" id="mgdKpis">
+                    <div class="col-6 col-md-4 col-xl-3">
+                        <div class="card mgd-kpi mgd-tone-slate"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-building" aria-hidden="true"></i>Sites</div>
+                            <div class="h2 mb-0" id="kpiSites">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">In the current selection</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="assets">
+                        <div class="card mgd-kpi mgd-tone-blue"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-cubes" aria-hidden="true"></i>Assets</div>
+                            <div class="h2 mb-0" id="kpiAssets">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">On active contracts</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="workOrder">
+                        <div class="card mgd-kpi mgd-tone-blue"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-clipboard-list" aria-hidden="true"></i>Open work orders</div>
+                            <div class="h2 mb-0" id="kpiWoOpen">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">Not completed or cancelled</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="workOrder">
+                        <div class="card mgd-kpi mgd-tone-green"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-clipboard-check" aria-hidden="true"></i>Completed work orders</div>
+                            <div class="h2 mb-0" id="kpiWoDone">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">Created in the selected period</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="ppm">
+                        <div class="card mgd-kpi mgd-tone-blue"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-calendar-check" aria-hidden="true"></i>PPM scheduled</div>
+                            <div class="h2 mb-0" id="kpiPpmScheduled">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">Tasks starting in the period</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="ppm">
+                        <div class="card mgd-kpi mgd-tone-red"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-clock" aria-hidden="true"></i>Late PPM</div>
+                            <div class="h2 mb-0" id="kpiPpmLate">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">Past the scheduled service date</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="ppm">
+                        <div class="card mgd-kpi mgd-tone-green"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-circle-check" aria-hidden="true"></i>PPM done</div>
+                            <div class="h2 mb-0" id="kpiPpmDone">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">Completed share of scheduled tasks</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="ptw">
+                        <div class="card mgd-kpi mgd-tone-blue"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-hard-hat" aria-hidden="true"></i>Active permits</div>
+                            <div class="h2 mb-0" id="kpiPtwActive">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">Current, not limited to the dates</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="ptw">
+                        <div class="card mgd-kpi mgd-tone-amber"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-hourglass-half" aria-hidden="true"></i>Permits expiring</div>
+                            <div class="h2 mb-0" id="kpiPtwSoon">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">Active and ending within 7 days</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="waste">
+                        <div class="card mgd-kpi mgd-tone-teal"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-trash" aria-hidden="true"></i>Waste generated</div>
+                            <div class="h2 mb-0" id="kpiWasteGen">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">Kilograms in the selected period</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="waste">
+                        <div class="card mgd-kpi mgd-tone-green"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-recycle" aria-hidden="true"></i>Waste disposed</div>
+                            <div class="h2 mb-0" id="kpiWasteDis">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">Kilograms in the selected period</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="waste">
+                        <div class="card mgd-kpi mgd-tone-amber"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-truck" aria-hidden="true"></i>Waste pending</div>
+                            <div class="h2 mb-0" id="kpiWastePend">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">Still awaiting collection</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="license">
+                        <div class="card mgd-kpi mgd-tone-red"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-file-circle-xmark" aria-hidden="true"></i>Expired licenses</div>
+                            <div class="h2 mb-0" id="kpiLicExp">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">End date before today</div>
+                        </div></div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3" data-module="license">
+                        <div class="card mgd-kpi mgd-tone-amber"><div class="card-body py-2">
+                            <div class="mgd-kpi-label"><i class="fas fa-id-card" aria-hidden="true"></i>Licenses within 30 days</div>
+                            <div class="h2 mb-0" id="kpiLic30">-</div>
+                            <div class="text-secondary" style="font-size:.75rem">90-day count also includes these</div>
+                        </div></div>
+                    </div>
+                </div>
+
+                <section id="secWo" data-module="workOrder" class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h2 class="h3 mb-0">Work orders</h2>
+                        <a href="home.html">Open operational view</a>
+                    </div>
+                    <div class="alert alert-danger d-none mgd-alert" id="alertWo" role="alert"></div>
+                    <div class="row row-cards">
+                        <div class="col-12"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Status by site</h3><div class="gems-card-subtitle">Created in the selected period. Top 12 sites by volume.</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartWoStatus"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartWoStatus" class="gems-chart"></div></div></div></div>
+                        <div class="col-lg-6"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Status mix</h3><div class="gems-card-subtitle">Portfolio composition</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartWoDonut"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartWoDonut" class="gems-chart"></div></div></div></div>
+                        <div class="col-lg-6"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Work type</h3><div class="gems-card-subtitle">Complaints, findings, requests and defects</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartWoType"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartWoType" class="gems-chart"></div></div></div></div>
+                        <div class="col-12"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Created and completed</h3><div class="gems-card-subtitle">Both lines count work orders by the date they were created</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartWoTrend"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartWoTrend" class="gems-chart"></div></div></div></div>
+                    </div>
+                </section>
+
+                <section id="secPpm" data-module="ppm" class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h2 class="h3 mb-0">Preventive maintenance</h2>
+                        <a href="home.html">Open operational view</a>
+                    </div>
+                    <div class="alert alert-danger d-none mgd-alert" id="alertPpm" role="alert"></div>
+                    <div class="row row-cards">
+                        <div class="col-12"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Status by site</h3><div class="gems-card-subtitle">Tasks whose start date is in the selected period. Top 12 sites.</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartPpmStatus"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartPpmStatus" class="gems-chart"></div></div></div></div>
+                        <div class="col-lg-6"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Status mix</h3><div class="gems-card-subtitle">Portfolio composition</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartPpmDonut"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartPpmDonut" class="gems-chart"></div></div></div></div>
+                        <div class="col-lg-6"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Scheduled and completed</h3><div class="gems-card-subtitle">Grouped by task start date</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartPpmTrend"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartPpmTrend" class="gems-chart"></div></div></div></div>
+                    </div>
+                </section>
+
+                <section id="secAttention" class="mb-3">
+                    <div class="row row-cards">
+                        <div class="col-lg" id="colAttention"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Sites needing attention</h3><div class="gems-card-subtitle">Highest open work orders plus late PPM</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartAttention"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartAttention" class="gems-chart"></div></div></div></div>
+                        <div class="col-lg" data-module="assets"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Assets by site</h3><div class="gems-card-subtitle"><a href="asset.html">Open asset register</a></div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartAssets"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartAssets" class="gems-chart"></div></div></div></div>
+                    </div>
+                    <div class="alert alert-danger d-none mgd-alert mt-2" id="alertAssets" role="alert"></div>
+                </section>
+
+                <section id="secPtw" data-module="ptw" class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h2 class="h3 mb-0">Permits to work</h2>
+                        <a href="ptw_list.html">Open permit list</a>
+                    </div>
+                    <div class="alert alert-danger d-none mgd-alert" id="alertPtw" role="alert"></div>
+                    <div class="row row-cards">
+                        <div class="col-lg-5"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Permit status</h3><div class="gems-card-subtitle">Current permits across the selection</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartPtwDonut"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartPtwDonut" class="gems-chart"></div></div></div></div>
+                        <div class="col-lg-7"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Active and pending by site</h3><div class="gems-card-subtitle">Top 12 sites by active plus pending permits</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartPtwSites"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartPtwSites" class="gems-chart"></div></div></div></div>
+                    </div>
+                </section>
+
+                <section id="secWaste" data-module="waste" class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h2 class="h3 mb-0">Waste</h2>
+                        <a href="p_waste_dashboard">Open waste dashboard</a>
+                    </div>
+                    <div class="alert alert-danger d-none mgd-alert" id="alertWaste" role="alert"></div>
+                    <div class="row row-cards">
+                        <div class="col-lg-6"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Generated and disposed</h3><div class="gems-card-subtitle">Kilograms over the selected period</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartWasteTrend"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartWasteTrend" class="gems-chart"></div></div></div></div>
+                        <div class="col-lg-6"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Waste by site</h3><div class="gems-card-subtitle">Top 12 sites by generated kilograms</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartWasteSites"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartWasteSites" class="gems-chart"></div></div></div></div>
+                    </div>
+                </section>
+
+                <section id="secLicense" data-module="license" class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h2 class="h3 mb-0">Licenses</h2>
+                        <a href="p_license">Open license register</a>
+                    </div>
+                    <div class="alert alert-danger d-none mgd-alert" id="alertLicense" role="alert"></div>
+                    <div class="row row-cards">
+                        <div class="col-lg-6"><div class="card chart-card"><div class="card-header gems-card-header-compact"><div><h3 class="card-title mb-0">Renewal pressure</h3><div class="gems-card-subtitle">Expired and due within 30 days. The 90-day total is on the card above.</div></div></div><div class="card-body p-2"><div class="chart-loading-overlay" id="overlay-chartLicense"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading</span></div></div><div id="chartLicense" class="gems-chart"></div></div></div></div>
+                        <div class="col-lg-6"><div class="card"><div class="card-header gems-card-header-compact"><h3 class="card-title mb-0">Soonest expiries</h3></div><div class="list-group list-group-flush" id="licItems"></div></div></div>
+                    </div>
+                </section>
+
+                <div class="card mb-3" id="secScore">
+                    <div class="card-header gems-card-header-compact">
+                        <h3 class="card-title mb-0">Site scorecard</h3>
+                        <div class="gems-card-toolbar">
+                            <input type="search" id="txtMgdScoreSearch" class="form-control form-control-sm gems-toolbar-search" placeholder="Search sites" aria-label="Search sites">
+                        </div>
+                    </div>
+                    <table id="dtMgdScore" class="table table-vcenter card-table table-hover mb-0" width="100%">
+                        <thead><tr><th>Site</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <p class="text-secondary small mb-4">Energy, KPI, attendance, inventory and gamification remain on their own pages until portfolio summaries are available. Home still has the detailed work-order and PPM workspace.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/vendor/highcharts/highcharts.js?1"></script>
+<script src="js/vendor/highcharts/modules/exporting.js?1"></script>
+<script src="js/gems-highcharts-theme.js"></script>
+<script type="text/javascript">
+    document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="js/pages/main_management_dashboard.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+</script>
+</body>
+</html>

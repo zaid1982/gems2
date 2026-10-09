@@ -183,3 +183,5 @@ RewriteRule ^kpa/?$ api/kpa.php
 RewriteRule ^kpa/(.+)/?$ api/kpa.php
 RewriteRule ^energy/?$ api/energy.php
 RewriteRule ^energy/(.+)/?$ api/energy.php
+RewriteRule ^dashboard/?$ api/dashboard.php
+RewriteRule ^dashboard/(.+)/?$ api/dashboard.php
