@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="maintenance-auth.js?v=20260929"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Activity Log - GEMS Maintenance</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        .header {
+            background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+            color: #fff;
+            padding: 28px 30px;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 8px; font-weight: 500; }
+        .header p { opacity: 0.92; line-height: 1.5; }
+        .main { padding: 24px 30px 30px; }
+        .alert {
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        .alert.info { background: #ecfdf5; color: #047857; }
+        .alert.error { background: #fef2f2; color: #b91c1c; }
+        .alert.success { background: #eff6ff; color: #003f8a; }
+        .search-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .search-row input {
+            flex: 1;
+            min-width: 220px;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 11px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            background: #0f766e;
+            color: #fff;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { background: #115e59; }
+        .btn.secondary { background: #64748b; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .result-item {
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            background: #f8fafc;
+        }
+        .result-item:hover { background: #eff6ff; border-color: #93c5fd; }
+        .panel {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+        }
+        .panel h2 { font-size: 1.15rem; margin-bottom: 6px; }
+        .meta { color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 12px; }
+        .badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+        }
+        .badge.received { background: #dcfce7; color: #166534; }
+        pre.log {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 14px;
+            max-height: 520px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+    </style>
+    <link rel="icon" type="image/png" href="../img/icon/gfmicon.png">
+    <link rel="stylesheet" href="gfm-identity.css">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Mobile Activity Log</h1>
+        <p>Request the on-device trail for one user. The phone uploads it the next time that user opens the app.</p>
+    </div>
+    <div class="main">
+        <div id="message" class="alert info">
+            Search by username or name. The trail shows screens, taps, and field edits from that phone.
+        </div>
+        <div class="search-row">
+            <input type="text" id="searchInput" placeholder="Username or name">
+            <button class="btn" type="button" onclick="searchUsers()">Search</button>
+            <a class="btn secondary" href="dashboard.html">Dashboard</a>
+        </div>
+        <div id="searchResults"></div>
+        <div id="detail"></div>
+    </div>
+</div>
+<script>
+    const API = 'mobile_diag.php';
+
+    function setMessage(text, type) {
+        const el = document.getElementById('message');
+        el.className = 'alert ' + (type || 'info');
+        el.textContent = text;
+    }
+
+    async function apiJson(action, params, method) {
+        const httpMethod = method || 'GET';
+        const url = new URL(API, window.location.href);
+        url.searchParams.set('action', action);
+        const init = { method: httpMethod };
+        if (httpMethod === 'GET') {
+            Object.entries(params || {}).forEach(function (entry) {
+                url.searchParams.set(entry[0], entry[1]);
+            });
+        } else {
+            const body = new FormData();
+            Object.entries(params || {}).forEach(function (entry) {
+                body.append(entry[0], entry[1]);
+            });
+            init.body = body;
+        }
+        const response = await fetch(url.toString(), init);
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || ('Request failed (' + response.status + ')'));
+        }
+        return data;
+    }
+
+    async function searchUsers() {
+        const q = document.getElementById('searchInput').value.trim();
+        if (q.length < 2) {
+            setMessage('Enter at least 2 characters.', 'error');
+            return;
+        }
+        try {
+            const data = await apiJson('search', { q: q });
+            const box = document.getElementById('searchResults');
+            const users = data.users || [];
+            if (!users.length) {
+                box.innerHTML = '';
+                setMessage('No users matched that search.', 'error');
+                return;
+            }
+            box.innerHTML = users.map(function (user) {
+                const name = user.name ? ' · ' + user.name : '';
+                return '<div class="result-item" data-id="' + user.userId + '">' +
+                    escapeHtml(user.username) + escapeHtml(name) +
+                    '</div>';
+            }).join('');
+            box.querySelectorAll('.result-item').forEach(function (item) {
+                item.addEventListener('click', function () {
+                    loadDetail(item.getAttribute('data-id'));
+                });
+            });
+            setMessage('Select a user to request or read the activity log.', 'info');
+        } catch (err) {
+            setMessage(err.message, 'error');
+        }
+    }
+
+    async function loadDetail(userId) {
+        try {
+            const data = await apiJson('detail', { userId: userId });
+            renderDetail(data);
+        } catch (err) {
+            setMessage(err.message, 'error');
+        }
+    }
+
+    function renderDetail(data) {
+        const user = data.user;
+        const log = data.log;
+        const devices = data.devices || [];
+        let deviceHtml = '<p class="meta">No phone has signed in with this account yet. It appears here after the app is opened.</p>';
+        if (devices.length) {
+            deviceHtml = devices.map(function (device) {
+                const waiting = device.pending
+                    ? 'Waiting since ' + device.requestedAt
+                    : 'Last opened ' + (device.lastSeenAt || '');
+                const button = device.pending
+                    ? '<button class="btn" type="button" disabled>Request waiting</button>'
+                    : '<button class="btn request-device" type="button" data-key="' + escapeHtml(device.deviceKey) + '">Request log</button>';
+                return '<div class="result-item">' +
+                    '<strong>' + escapeHtml(device.label) + '</strong>' +
+                    '<div class="meta">' + escapeHtml(device.platform) + ' · ' + escapeHtml(waiting) + '</div>' +
+                    button +
+                    '</div>';
+            }).join('');
+        }
+        let logHtml = '<p class="meta">No activity log has arrived for this user.</p>';
+        if (log && log.text) {
+            const online = log.online ? 'online' : 'offline';
+            const version = log.appVersion || 'unknown version';
+            logHtml = '<p class="meta"><span class="badge received">Received ' + escapeHtml(log.receivedAt) +
+                '</span> ' + escapeHtml(version) + ' · ' + online + '</p>' +
+                '<pre class="log">' + escapeHtml(log.text) + '</pre>';
+        }
+        const panel = document.getElementById('detail');
+        panel.innerHTML =
+            '<div class="panel">' +
+            '<h2>' + escapeHtml(user.username) + '</h2>' +
+            '<p class="meta">' + escapeHtml(user.name || '') +
+            '<br>Request the log from the phone that reported the problem.</p>' +
+            deviceHtml +
+            '<button class="btn secondary" type="button" id="refreshBtn">Refresh</button>' +
+            '</div>' + logHtml;
+        panel.querySelectorAll('.request-device').forEach(function (button) {
+            button.addEventListener('click', function () {
+                requestLog(user.userId, button.getAttribute('data-key'));
+            });
+        });
+        document.getElementById('refreshBtn').addEventListener('click', function () {
+            loadDetail(user.userId);
+        });
+        if (data.created) {
+            setMessage('Request saved. The log arrives the next time this user opens the app.', 'success');
+        }
+    }
+
+    async function requestLog(userId, deviceKey) {
+        try {
+            const data = await apiJson('request', { userId: String(userId), deviceKey: deviceKey }, 'POST');
+            renderDetail(data);
+            if (!data.created) {
+                setMessage('A request is already waiting for that device.', 'info');
+            }
+        } catch (err) {
+            setMessage(err.message, 'error');
+        }
+    }
+
+    function escapeHtml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    document.getElementById('searchInput').addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') searchUsers();
+    });
+</script>
+</body>
+</html>

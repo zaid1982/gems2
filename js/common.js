@@ -1130,6 +1130,7 @@ function initiatePages() {
     });
 
     mzNotificationGenerate ();
+    mzGuardBrowserDevice();
 }
 
 function mzSetNotificationBadge (count) {
@@ -1191,6 +1192,71 @@ function mzNotificationDeleteAll () {
 
 function mzProfile() {
     window.location.href = 'profile.html';
+}
+
+function mzBrowserDeviceKey() {
+    let key = localStorage.getItem('gems_browser_device_key');
+    if (!key) {
+        key = (window.crypto && crypto.randomUUID)
+            ? crypto.randomUUID()
+            : ('web-' + Date.now().toString(16) + Math.random().toString(16).slice(2));
+        localStorage.setItem('gems_browser_device_key', key);
+    }
+    return key;
+}
+
+function mzBrowserDeviceLabel() {
+    const ua = navigator.userAgent || '';
+    let browser = 'Browser';
+    if (ua.indexOf('Edg/') !== -1) browser = 'Edge';
+    else if (ua.indexOf('Chrome/') !== -1) browser = 'Chrome';
+    else if (ua.indexOf('Firefox/') !== -1) browser = 'Firefox';
+    else if (ua.indexOf('Safari/') !== -1) browser = 'Safari';
+    let os = 'computer';
+    if (/Windows/.test(ua)) os = 'Windows';
+    else if (/Android/.test(ua)) os = 'Android';
+    else if (/iPhone|iPad/.test(ua)) os = 'iPhone';
+    else if (/Mac OS/.test(ua)) os = 'Mac';
+    return browser + ' on ' + os;
+}
+
+function mzRegisterBrowserDevice() {
+    if (!sessionStorage.getItem('token')) return;
+    $.ajax({
+        url: 'api/m_device.php',
+        type: 'POST',
+        headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+        data: {
+            action: 'register',
+            deviceKey: mzBrowserDeviceKey(),
+            platform: 'web',
+            label: mzBrowserDeviceLabel()
+        },
+        dataType: 'json'
+    });
+}
+
+function mzGuardBrowserDevice() {
+    if (!sessionStorage.getItem('token')) return;
+    $.ajax({
+        url: 'api/m_device.php',
+        type: 'POST',
+        headers: {'Authorization': 'Bearer ' + sessionStorage.getItem('token')},
+        data: {action: 'check', deviceKey: mzBrowserDeviceKey()},
+        dataType: 'json'
+    }).done(function (resp) {
+        const status = resp && resp.result ? resp.result.status : '';
+        if (status === 'removed' && localStorage.getItem('gems_device_resign') !== '1') {
+            localStorage.setItem('gems_device_resign', '1');
+            sessionStorage.clear();
+            window.location.href = 'p_login?f=1';
+            return;
+        }
+        if (localStorage.getItem('gems_device_resign') === '1') {
+            localStorage.removeItem('gems_device_resign');
+        }
+        mzRegisterBrowserDevice();
+    });
 }
 
 function mzGetUserId() {

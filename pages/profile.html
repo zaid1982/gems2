@@ -182,6 +182,16 @@
           </div>
         </div>
 
+        <div class="card mb-3" id="signedInDevicesCard">
+          <div class="card-header">
+            <h3 class="card-title mb-0">Signed-in devices</h3>
+          </div>
+          <div class="card-body">
+            <p class="text-secondary">Remove a phone or browser to sign it out. That device clears its saved account data the next time it opens. Unsent meter readings stay on the phone.</p>
+            <div id="signedInDevices"><div class="text-secondary">Loading devices…</div></div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -209,6 +219,7 @@
   document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
   document.write('<scr' + 'ipt src="js/pages/main_profile.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/profile_devices.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
 
   let changePasswordClass_;
   let profilePageClass_;
