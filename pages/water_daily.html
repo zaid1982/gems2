@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<!--
+  pages/water_daily.html — Water daily grid.
+
+  Workbook-style daily grid. Asset stack matches pages/energy_daily.html.
+  Reuses the shared .enr-grid workbook styles.
+
+  NEVER load next to Tabler: css/bootstrap.min.css, css/mdb.min.css,
+  css/style.css, css/gems2-ui.css, js/popper.min.js, js/bootstrap*.js,
+  js/mdb*.js, js/jquery-migrate-3.4.0.min.js, dataTables.bootstrap4.*,
+  js/vendor/tabler/tabler-theme.min.js.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Daily Water</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+</head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-droplet me-2 text-primary"></i>Daily Water</h1>
+              <div class="page-subtitle">Enter the cumulative meter reading each morning. The difference is the previous day's consumption. If a morning is missed, that usage is spread across the days it covers.</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnWdyRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="btnWdyExport"
+                      data-bs-toggle="tooltip" title="Export CSV" aria-label="Export CSV">
+                <i class="fas fa-file-excel me-2"></i>Export
+              </button>
+              <button type="button" class="btn btn-primary" id="btnWdyMeters"
+                      data-bs-toggle="tooltip" title="Meter setup" aria-label="Meter setup">
+                <i class="fas fa-gauge me-2"></i>Meter setup
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optWdySite">Site</label>
+                <select id="optWdySite" class="form-select"></select>
+              </div>
+              <div class="gems-field-pair">
+                <div class="gems-field">
+                  <label class="form-label" for="optWdyMonth">Month</label>
+                  <select id="optWdyMonth" class="form-select"></select>
+                </div>
+                <div class="gems-field">
+                  <label class="form-label" for="optWdyYear">Year</label>
+                  <select id="optWdyYear" class="form-select"></select>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-2 text-secondary" style="font-size:.75rem">
+              <div id="lblWdyPeriod">Loading…</div>
+              <div id="lblWdyUpdated" class="ms-auto text-nowrap">Last refreshed: -</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row row-cards mb-3">
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Total m&sup3;</div>
+              <div class="h2 mb-0" id="mWdyTotal">-</div>
+              <div class="text-secondary" style="font-size:.75rem">All water meters</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Average Daily</div>
+              <div class="h2 mb-0" id="mWdyAvg">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Days with readings only</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Days Covered</div>
+              <div class="h2 mb-0" id="mWdyDays">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Of the days in the month</div>
+            </div></div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="card"><div class="card-body py-2">
+              <div class="text-secondary" style="font-size:.75rem">Estimated Days</div>
+              <div class="h2 mb-0" id="mWdyEstimated">-</div>
+              <div class="text-secondary" style="font-size:.75rem">Spread across a missed morning</div>
+            </div></div>
+          </div>
+        </div>
+
+        <div class="gems-note d-none" id="divWdyIssues">
+          <i class="fas fa-triangle-exclamation"></i>
+          <div id="lblWdyIssues"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title mb-0">Daily consumption</h3>
+              <div class="text-secondary" style="font-size:.75rem">Cumulative, IoT and the remark are editable. Consumption and variance are calculated. IoT is compared with that day's consumption. A blank or zero IoT figure has no variance.</div>
+            </div>
+            <div class="gems-card-toolbar">
+              <span id="lblWdySaveState" class="autosave-state" hidden></span>
+            </div>
+          </div>
+          <div class="enr-grid-wrap">
+            <table class="enr-grid" id="tblWdy">
+              <thead id="theadWdy"></thead>
+              <tbody id="tbodyWdy"></tbody>
+              <tfoot id="tfootWdy"></tfoot>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+<div class="includeHtml" id="h-modal_water_meter"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/water_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_water_daily.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  let changePasswordClass_;
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try { initiatePages(); changePasswordClass_ = new ModalChangePassword(); new MainWaterDaily().init(); }
+      catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 300);
+  });
+</script>
+</body>
+</html>

@@ -7,6 +7,9 @@ This module is separate from the older `utl_utility` / `p_utility` screens, whic
 TNB **bill** (tariff, maximum demand charge, KWTBB). This one tracks **consumption** from cumulative
 incoming meter readings, in the shape of the Daily Consumption Electricity workbook.
 
+Water monitoring uses this same morning-reading rule and the same `EnergyCalculator` distribution.
+See [WATER_MODULE.md](WATER_MODULE.md). The sidebar has two parents, because there is no third menu level: **Utilities - Electrical** and **Utilities - Water**.
+
 ## SQL
 
 1. `sql/2026-09-18_create_enr_module.sql` — tables, audit module 20, two seeded meters per active site

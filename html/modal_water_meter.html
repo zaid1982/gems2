@@ -1,0 +1,63 @@
+<!--
+  Modal: modal_water_meter — Tabler/GEMS modal + form contract.
+  Loaded by pages/water_daily.html.
+
+  gems-modal-lg because the dialog contains a table. modal-dialog-scrollable,
+  never modal-dialog-centered. No .gems-modal — that class is the legacy
+  MDB bridge in gems-theme.css section 12.
+-->
+<div class="modal fade" id="modal_water_meter" tabindex="-1" aria-labelledby="lblWmtTitle" aria-hidden="true">
+  <div class="modal-dialog gems-modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="lblWmtTitle">Water Meter Setup</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="hidWmtId">
+        <p class="text-secondary mb-3" style="font-size:.8125rem">Add, rename or deactivate the water meters recorded for this site. A new site starts with Main Water Meter.</p>
+        <div class="table-responsive mb-3">
+          <table id="tblWmtList" class="table table-vcenter table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Meter</th>
+                <th>Description</th>
+                <th>Order</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="gems-form-grid">
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="txtWmtName">Meter name <span class="required" aria-hidden="true">*</span></label>
+            <input type="text" id="txtWmtName" class="form-control" placeholder="Main Water Meter" aria-required="true">
+          </div>
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="txtWmtDesc">Description</label>
+            <input type="text" id="txtWmtDesc" class="form-control" placeholder="Main water supply">
+          </div>
+          <div class="gems-field gems-field-6">
+            <label class="form-label" for="txtWmtOrder">Order</label>
+            <input type="number" min="1" id="txtWmtOrder" class="form-control" value="1">
+          </div>
+          <div class="gems-field gems-field-6 gems-field-actions">
+            <button type="button" class="btn btn-primary" id="btnWmtSave">
+              <i class="fas fa-save me-2"></i>Save
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span class="text-secondary me-auto" style="font-size:.75rem">
+          <span class="required" aria-hidden="true">*</span> Required
+        </span>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Done
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

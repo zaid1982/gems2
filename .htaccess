@@ -45,6 +45,9 @@ RewriteRule ^p_kpa_history/?$ pages/kpa_history.html [L]
 RewriteRule ^p_energy_daily/?$ pages/energy_daily.html [L]
 RewriteRule ^p_energy_monthly/?$ pages/energy_monthly.html [L]
 RewriteRule ^p_energy_bei/?$ pages/energy_bei.html [L]
+RewriteRule ^p_water_daily/?$ pages/water_daily.html [L]
+RewriteRule ^p_water_monthly/?$ pages/water_monthly.html [L]
+RewriteRule ^p_water_tariff/?$ pages/water_tariff.html [L]
 RewriteRule ^p_complaint/?$ pages/complaint.html [L]
 RewriteRule ^p_complaint/(.+)/?$ pages/complaint.html [L]
 RewriteRule ^p_zone/?$ pages/zone.html [L]
@@ -183,5 +186,7 @@ RewriteRule ^kpa/?$ api/kpa.php
 RewriteRule ^kpa/(.+)/?$ api/kpa.php
 RewriteRule ^energy/?$ api/energy.php
 RewriteRule ^energy/(.+)/?$ api/energy.php
+RewriteRule ^water/?$ api/water.php
+RewriteRule ^water/(.+)/?$ api/water.php
 RewriteRule ^dashboard/?$ api/dashboard.php
 RewriteRule ^dashboard/(.+)/?$ api/dashboard.php

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!--
+  pages/water_monthly.html — Water monthly summary and bill.
+
+  Asset stack matches pages/energy_monthly.html.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Water Summary</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+</head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-chart-column me-2 text-primary"></i>Water Summary</h1>
+              <div class="page-subtitle">Twelve months of consumption and the calculated bill. Bill days are the calendar days in the month. An open month is billed from the consumption captured so far. January is compared with December of the previous year.</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnWmoRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="btnWmoExport"
+                      data-bs-toggle="tooltip" title="Export CSV" aria-label="Export CSV">
+                <i class="fas fa-file-excel me-2"></i>Export
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optWmoSite">Site</label>
+                <select id="optWmoSite" class="form-select"></select>
+              </div>
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optWmoYear">Year</label>
+                <select id="optWmoYear" class="form-select"></select>
+              </div>
+            </div>
+            <div class="gems-filter-meta d-flex flex-wrap align-items-center gap-2">
+              <div id="lblWmoSummary">Loading…</div>
+              <span id="lblWmoSaveState" class="autosave-state ms-auto" hidden></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header gems-card-header-compact">
+            <div>
+              <h3 class="card-title mb-0">Consumption by month</h3>
+              <div class="gems-card-subtitle">Stacked by water meter with the monthly total.</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="chartWmo" class="gems-chart-lg"></div>
+          </div>
+        </div>
+
+        <div class="gems-note d-none mb-3" id="divWmoTariff">
+          <i class="fas fa-info-circle"></i>
+          <div id="lblWmoTariff"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header gems-card-header-compact">
+            <div>
+              <h3 class="card-title mb-0">Monthly totals and bill</h3>
+              <div class="gems-card-subtitle">Calculated RM uses the tariff effective on the first of the month. Actual RM is the utility invoice, when you have it. Difference is actual minus calculated.</div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table table-hover mb-0 enr-table bei-table" id="tblWmo">
+              <thead id="theadWmo"></thead>
+              <tbody id="tbodyWmo"></tbody>
+              <tfoot id="tfootWmo"></tfoot>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script src="js/vendor/highcharts/highcharts.js"></script>
+<script src="js/vendor/highcharts/modules/exporting.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/water_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_water_monthly.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  let changePasswordClass_;
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try { initiatePages(); changePasswordClass_ = new ModalChangePassword(); new MainWaterMonthly().init(); }
+      catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 300);
+  });
+</script>
+</body>
+</html>

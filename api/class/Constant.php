@@ -217,6 +217,16 @@ class Constant {
         'beiFinalised' => 'Monthly BEI finalised.'
     );
 
+    public static $water = array(
+        'meterSaved' => 'Water meter saved.',
+        'meterRemoved' => 'Water meter deactivated.',
+        'readingSaved' => 'Water reading saved.',
+        'readingRemoved' => 'Water reading removed.',
+        'tariffSaved' => 'Water tariff saved.',
+        'tariffRemoved' => 'Water tariff removed.',
+        'billSaved' => 'Water invoice saved.'
+    );
+
     public static $spaceReservation = array(
         'reserve' => 'Reservation successfully created and auto-approved!',
         'cancel' => 'Reservation successfully canceled!',

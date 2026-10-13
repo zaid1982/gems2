@@ -86,9 +86,13 @@ WHERE @NAV_KPA IS NOT NULL AND NOT EXISTS (
 -- ===========================================================================
 INSERT INTO sys_nav (nav_desc, nav_page, nav_icon, nav_status)
 SELECT 'Energy Monitoring', 'p_energy_daily', 'bolt', 1
-WHERE NOT EXISTS (SELECT 1 FROM sys_nav WHERE nav_desc = 'Energy Monitoring');
+WHERE NOT EXISTS (SELECT 1 FROM sys_nav WHERE nav_desc = 'Energy Monitoring')
+  AND NOT EXISTS (SELECT 1 FROM sys_nav WHERE nav_desc = 'Utility Monitoring')
+  AND NOT EXISTS (SELECT 1 FROM sys_nav WHERE nav_desc = 'Utilities - Electrical');
 
-SET @NAV_ENR := (SELECT nav_id FROM sys_nav WHERE nav_desc = 'Energy Monitoring' LIMIT 1);
+SET @NAV_ENR := (SELECT nav_id FROM sys_nav WHERE nav_desc = 'Utilities - Electrical' LIMIT 1);
+SET @NAV_ENR := IFNULL(@NAV_ENR, (SELECT nav_id FROM sys_nav WHERE nav_desc = 'Utility Monitoring' LIMIT 1));
+SET @NAV_ENR := IFNULL(@NAV_ENR, (SELECT nav_id FROM sys_nav WHERE nav_desc = 'Energy Monitoring' LIMIT 1));
 UPDATE sys_nav SET nav_page = 'p_energy_daily', nav_icon = 'bolt', nav_status = 1 WHERE nav_id = @NAV_ENR;
 
 INSERT INTO sys_nav_second (nav_id, nav_second_desc, nav_second_page, nav_second_status)

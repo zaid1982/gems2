@@ -27,8 +27,11 @@
 class EnergyCalculator {
 
     /**
-     * @param array $readings rows of {readingDate, cumulativeKwh}, any order
-     * @return array {consumption: [date => kwh], issues: [...]}
+     * @param array $readings rows of {readingDate, cumulativeKwh} or
+     *                        {readingDate, cumulativeVolume}, any order.
+     *                        A row with neither cumulative value is ignored,
+     *                        so an IoT-only water note is not treated as zero.
+     * @return array {consumption: [date => value], estimated: [date => true], issues: [...]}
      */
     public function distribute(array $readings): array {
         $points = array();
@@ -37,11 +40,16 @@ class EnergyCalculator {
             if ($date === '') {
                 continue;
             }
-            $points[$date] = floatval($row['cumulativeKwh'] ?? 0);
+            $value = $this->readingValue($row);
+            if ($value === null) {
+                continue;
+            }
+            $points[$date] = $value;
         }
         ksort($points);
 
         $consumption = array();
+        $estimated = array();
         $issues = array();
         $prevDate = null;
         $prevValue = null;
@@ -71,6 +79,9 @@ class EnergyCalculator {
                     for ($i = 0; $i < $gapDays; $i++) {
                         $day = date('Y-m-d', strtotime($prevDate . ' +' . $i . ' day'));
                         $consumption[$day] = $perDay;
+                        if ($gapDays > 1) {
+                            $estimated[$day] = true;
+                        }
                     }
                 }
             }
@@ -78,7 +89,22 @@ class EnergyCalculator {
             $prevValue = $value;
         }
 
-        return array('consumption' => $consumption, 'issues' => $issues);
+        return array('consumption' => $consumption, 'estimated' => $estimated, 'issues' => $issues);
+    }
+
+    /**
+     * Cumulative register for one reading. Electricity rows carry cumulativeKwh.
+     * Water rows carry cumulativeVolume. Missing means "no register reading",
+     * which is not the same as a reading of zero.
+     */
+    private function readingValue(array $row): ?float {
+        if (array_key_exists('cumulativeKwh', $row) && $row['cumulativeKwh'] !== null && $row['cumulativeKwh'] !== '') {
+            return floatval($row['cumulativeKwh']);
+        }
+        if (array_key_exists('cumulativeVolume', $row) && $row['cumulativeVolume'] !== null && $row['cumulativeVolume'] !== '') {
+            return floatval($row['cumulativeVolume']);
+        }
+        return null;
     }
 
     /**
@@ -89,15 +115,17 @@ class EnergyCalculator {
      * @param array $meters   active meters in display order
      * @param array $readings all readings keyed by meterId, including the last
      *                        reading before the range so its first day can be derived
-     * @return array {perMeter, readingIndex, issues} for buildMonth()
+     * @return array {perMeter, perMeterEstimated, readingIndex, issues} for buildMonth()
      */
     public function prepare(array $meters, array $readings): array {
         $perMeter = array();
+        $perMeterEstimated = array();
         $issues = array();
         foreach ($meters as $meter) {
             $meterId = intval($meter['meterId']);
             $result = $this->distribute($readings[$meterId] ?? array());
             $perMeter[$meterId] = $result['consumption'];
+            $perMeterEstimated[$meterId] = $result['estimated'];
             foreach ($result['issues'] as $issue) {
                 $issue['meterId'] = $meterId;
                 $issue['meterName'] = $meter['meterName'];
@@ -112,7 +140,12 @@ class EnergyCalculator {
             }
         }
 
-        return array('perMeter' => $perMeter, 'readingIndex' => $readingIndex, 'issues' => $issues);
+        return array(
+            'perMeter' => $perMeter,
+            'perMeterEstimated' => $perMeterEstimated,
+            'readingIndex' => $readingIndex,
+            'issues' => $issues
+        );
     }
 
     /**

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--
+  pages/water_tariff.html — Effective-dated water tariff.
+
+  Asset stack matches pages/energy_daily.html.
+-->
+<html lang="en" data-bs-theme="light" data-bs-navbar-position="vertical">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEMS 2.0 - Water Tariff</title>
+  <link rel="icon" type="image/png" href="img/icon/gfmicon.png" sizes="16x16">
+  <link rel="stylesheet" href="css/fontawesome-pro-6.5.1-web/css/all.min.css">
+  <link rel="stylesheet" href="css/vendor/tabler/tabler.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="js/vendor/datatables/css/buttons.bootstrap5.min.css">
+  <link rel="stylesheet" href="css/gems-theme.css">
+</head>
+<body class="gems-tabler">
+<div class="page">
+  <aside class="includeHtml navbar navbar-vertical navbar-expand-lg" id="h-nav_left_tabler"></aside>
+  <div class="page-wrapper">
+    <header class="includeHtml navbar navbar-expand-md" id="h-nav_top_tabler"></header>
+    <div class="page-body">
+      <div class="container-xl">
+
+        <div class="page-header">
+          <div class="row align-items-center g-2">
+            <div class="col-12 col-sm">
+              <h1 class="page-title"><i class="fas fa-file-invoice me-2 text-primary"></i>Water Tariff</h1>
+              <div class="page-subtitle">Rates used to price a month's water consumption. A set applies when its effective date is on or before the first day of that month. The latest such set is used.</div>
+            </div>
+            <div class="col-12 col-sm-auto">
+              <button type="button" class="btn btn-outline-secondary" id="btnWtfRefresh"
+                      data-bs-toggle="tooltip" title="Refresh data" aria-label="Refresh data">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card gems-filter-card mb-3">
+          <div class="card-body">
+            <div class="gems-form-grid">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="optWtfSite">Site</label>
+                <select id="optWtfSite" class="form-select"></select>
+              </div>
+            </div>
+            <div class="gems-filter-meta">
+              <div id="lblWtfSite">Loading…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header gems-card-header-compact">
+            <div>
+              <h3 class="card-title mb-0">Tariff sets</h3>
+              <div class="gems-card-subtitle">The first tier is a monthly block on the whole month's consumption, not a daily allowance. Leave the last tier's upper bound empty.</div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table table-hover mb-0" id="tblWtf">
+              <thead>
+                <tr>
+                  <th>Effective</th>
+                  <th>Tier</th>
+                  <th class="text-end">From m&sup3;</th>
+                  <th class="text-end">To m&sup3;</th>
+                  <th class="text-end">Rate RM</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbodyWtf"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" id="cardWtfEditor">
+          <div class="card-header gems-card-header-compact">
+            <div>
+              <h3 class="card-title mb-0" id="lblWtfEditor">New tariff</h3>
+              <div class="gems-card-subtitle">Saving replaces every tier for that effective date.</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <input type="hidden" id="hidWtfPrevious">
+            <div class="gems-form-grid mb-3">
+              <div class="gems-field gems-field-6">
+                <label class="form-label" for="txtWtfDate">Effective date <span class="required" aria-hidden="true">*</span></label>
+                <input type="date" id="txtWtfDate" class="form-control" aria-required="true">
+              </div>
+            </div>
+            <div id="wtfTiers"></div>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              <button type="button" class="btn btn-outline-secondary" id="btnWtfAdd">
+                <i class="fas fa-plus me-2"></i>Add tier
+              </button>
+              <button type="button" class="btn btn-primary" id="btnWtfSave">
+                <i class="fas fa-save me-2"></i>Save tariff
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="btnWtfClear">
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="includeHtml" id="h-modal_change_password"></div>
+
+<script src="js/jquery-3.7.0.min.js"></script>
+<script src="js/vendor/tabler/tabler.min.js"></script>
+<script src="js/gems-bs5-jquery.js"></script>
+<script src="js/vendor/datatables/js/jquery.dataTables.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/vendor/datatables/js/dataTables.buttons.min.js"></script>
+<script src="js/vendor/datatables/js/buttons.bootstrap5.min.js"></script>
+<script src="js/modules/toastr.js"></script>
+<script src="js/addons/crypto.js"></script>
+<script src="js/addons/moment.min.js"></script>
+<script>
+  $('.includeHtml').each(function () {
+    const divId = $(this).attr('id');
+    $('#' + divId).load('html/' + divId.substr(2) + '.html?' + new Date().valueOf());
+  });
+</script>
+<script>
+  document.write('<scr' + 'ipt src="js/common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/gems-tabler-ui.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/water_common.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/modal_change_password.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  document.write('<scr' + 'ipt src="js/pages/main_water_tariff.js?' + new Date().valueOf() + '" type="text/javascript"></scr' + 'ipt>');
+  let changePasswordClass_;
+  document.addEventListener('DOMContentLoaded', function () {
+    ShowLoader();
+    setTimeout(function () {
+      try { initiatePages(); changePasswordClass_ = new ModalChangePassword(); new MainWaterTariff().init(); }
+      catch (e) { toastr['error'](e.message, _ALERT_TITLE_ERROR); }
+      HideLoader();
+    }, 300);
+  });
+</script>
+</body>
+</html>
