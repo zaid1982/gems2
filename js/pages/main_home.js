@@ -298,6 +298,42 @@ function MainHome() {
         return Array.isArray(value) && value.length > 0;
     }
 
+    // Chart categories and table rows can name a site that is not in the
+    // cached site list (another site on the same client, a site added after
+    // the cache was stored, or an empty site id). Reading ['siteDesc'] on
+    // that missing record throws and the page toasts the exception.
+    function siteRecord(id) {
+        if (!refSite || id === undefined || id === null || id === '') {
+            return null;
+        }
+        if (refSite[id]) {
+            return refSite[id];
+        }
+        const numericId = parseInt(id, 10);
+        if (!isNaN(numericId) && refSite[numericId]) {
+            return refSite[numericId];
+        }
+        return null;
+    }
+
+    function siteLabel(id) {
+        const site = siteRecord(id);
+        if (site) {
+            const label = site.siteDesc || site.siteName || site.site_desc || site.site_name;
+            if (label) {
+                return label;
+            }
+        }
+        if (id === 0 || id === '0') {
+            return 'Overall';
+        }
+        return '';
+    }
+
+    function siteCategoryLabel(id) {
+        return siteLabel(id) || (id === undefined || id === null || id === '' ? '' : String(id));
+    }
+
     function updateWoKpis(api) {
         const info = api.page.info();
         const total = info.recordsTotal || 0;
@@ -595,7 +631,7 @@ function MainHome() {
                             return data === '-' ? row['woTaskRequestNo'] : data;
                         }},
                     {mData: null, mRender: function (data, type, row){
-                            return refSite[row['siteId']]['siteDesc'];
+                            return siteLabel(row && row['siteId']);
                         }},
                     {mData: 'woTaskLocation'},
                     {mData: 'woTaskTypeDesc'},
@@ -1278,7 +1314,7 @@ function MainHome() {
                     {mData: null, bSortable: false},
                     {mData: 'ppmTaskNo'},
                     {mData: null, mRender: function (data, type, row){
-                            return refSite[row['siteId']]['siteDesc'];
+                            return siteLabel(row && row['siteId']);
                         }},
                     {mData: 'ppmTaskStartDate'},
                     {mData: 'frequency'},
@@ -1473,14 +1509,24 @@ function MainHome() {
     };
 
     this.setOptionSite = function () {
+        if (!refSite) {
+            refSite = [];
+        }
+        // Keep "Overall" tied to the client currently being filtered. A strict
+        // clientId compare used to drop every site when the cached id and the
+        // dropdown id were not the same type, which left the filter on site 0
+        // and then the charts looked up sites that were not in this list.
+        refSite[0] = {clientId: String(clientId), siteDesc: 'Overall'};
         $('#liHmeSite').show();
         siteId = '0';
-        $('#navHmeSite').text(refSite[siteId]['siteDesc']).attr('title', refSite[siteId]['siteDesc']);
+        const overallLabel = siteLabel(siteId);
+        $('#navHmeSite').text(overallLabel).attr('title', overallLabel);
         $('#divHmeSite').html('');
         let siteList = [];
         $.each(refSite, function (_siteId, _site) {
             if (typeof _site !== 'undefined') {
-                if (_site['clientId'] === clientId) {
+                const siteClientId = _site['clientId'] != null ? _site['clientId'] : _site['client_id'];
+                if (String(siteClientId) === String(clientId)) {
                     siteList.push(_siteId);
                 }
             }
@@ -1488,7 +1534,14 @@ function MainHome() {
         
         if (siteList.length > 1) {
             for (const _siteId of siteList) {
-                $('#divHmeSite').append('<a class="dropdown-item lnkHmeSite" href="#" id="lnkHmeSite_'+_siteId+'">'+refSite[_siteId]['siteDesc']+'</a>');
+                const label = siteLabel(_siteId) || String(_siteId);
+                const item = $('<a>', {
+                    'class': 'dropdown-item lnkHmeSite',
+                    href: '#',
+                    id: 'lnkHmeSite_' + _siteId,
+                    text: label
+                });
+                $('#divHmeSite').append(item);
             }
             $('#lnkHmeSite_'+siteId).addClass('active');
             
@@ -1500,7 +1553,8 @@ function MainHome() {
                         $('#lnkHmeSite_'+siteId).removeClass('active');
                         siteId = linkId.substr(linkIndex + 1);
                         $('#lnkHmeSite_'+siteId).addClass('active');
-                        $('#navHmeSite').text(refSite[siteId]['siteDesc']).attr('title', refSite[siteId]['siteDesc']);
+                        const label = siteLabel(siteId) || 'Site';
+                        $('#navHmeSite').text(label).attr('title', label);
                         //self.runChart();
                     }
                 } catch (e) {
@@ -1511,7 +1565,7 @@ function MainHome() {
             $('#liHmeSite').hide();
         }
         
-        $('#btnHmeSearch').on('click', function () {
+        $('#btnHmeSearch').off('click').on('click', function () {
             const linkId = $(this).attr('id');
             const linkIndex = linkId.indexOf('_');
             ShowLoader();
@@ -1569,7 +1623,7 @@ function MainHome() {
         }
         $('#lblHmeReportType').text(reportType);
         const clientName = refClient[clientId] && refClient[clientId]['clientName'] ? refClient[clientId]['clientName'] : '';
-        const siteName = refSite[siteId] && refSite[siteId]['siteDesc'] ? refSite[siteId]['siteDesc'] : '';
+        const siteName = siteLabel(siteId);
         const rangeLabel = formatHomeRange(dateFrom, dateTo);
         const contextParts = [clientName, siteName];
         if (rangeLabel) { contextParts.push(rangeLabel); }
@@ -1698,7 +1752,7 @@ function MainHome() {
                         return;
                     }
                     siteIds.forEach(function(key){
-                        siteDescs.push(refSite[key]['siteDesc']);
+                        siteDescs.push(siteCategoryLabel(key));
                     });
                     setChartColumnWidth('chartHme1', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     renderHomeChart('chartHme1', title, subtitle, {
@@ -1798,7 +1852,7 @@ function MainHome() {
                         return;
                     }
                     siteIds.forEach(function(key){
-                        siteDescs.push(refSite[key]['siteDesc']);
+                        siteDescs.push(siteCategoryLabel(key));
                     });
                     setChartColumnWidth('chartHme2', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     renderHomeChart('chartHme2', title, subtitle, {
@@ -2355,7 +2409,7 @@ function MainHome() {
                         return;
                     }
                     siteIds.forEach(function(key){
-                        siteDescs.push(refSite[key]['siteDesc']);
+                        siteDescs.push(siteCategoryLabel(key));
                     });
                     setChartColumnWidth('chartHme1', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     renderHomeChart('chartHme1', title, subtitle, {
@@ -2432,7 +2486,7 @@ function MainHome() {
                         return;
                     }
                     siteIds.forEach(function(key){
-                        siteDescs.push(refSite[key]['siteDesc']);
+                        siteDescs.push(siteCategoryLabel(key));
                     });
                     setChartColumnWidth('chartHme2', siteDescs.length, resp.result && resp.result.series ? resp.result.series.length : 0);
                     renderHomeChart('chartHme2', title, subtitle, {
